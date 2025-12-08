@@ -18,8 +18,10 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
+import { toast } from "sonner";
 
-const shows = [
+const initialShows = [
   {
     id: 1,
     name: "Casamento Silva & Santos",
@@ -80,9 +82,37 @@ const calendarDays = Array.from({ length: 31 }, (_, i) => i + 1);
 
 export default function Agenda() {
   const [selectedDate, setSelectedDate] = useState<number | null>(15);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [shows, setShows] = useState(initialShows);
+
+  const handleShowCreated = (newShow: ShowData) => {
+    const show = {
+      id: shows.length + 1,
+      name: newShow.name,
+      date: newShow.date,
+      time: newShow.time,
+      venue: newShow.venue,
+      address: newShow.address,
+      value: newShow.cachet,
+      status: newShow.status,
+      client: newShow.client,
+      type: newShow.type,
+      expenses: newShow.expenses,
+      totalExpenses: newShow.totalExpenses,
+      netProfit: newShow.netProfit,
+    };
+    setShows([...shows, show]);
+    toast.success(`Show "${newShow.name}" adicionado com sucesso!`);
+  };
 
   return (
     <Layout title="Agenda de Shows" subtitle="Gerencie seus eventos e compromissos">
+      <NovoShowModal 
+        open={isModalOpen} 
+        onOpenChange={setIsModalOpen} 
+        onShowCreated={handleShowCreated}
+      />
+      
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon">
@@ -93,7 +123,7 @@ export default function Agenda() {
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-        <Button variant="gradient">
+        <Button variant="gradient" onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Show
         </Button>
