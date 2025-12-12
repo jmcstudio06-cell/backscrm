@@ -12,103 +12,44 @@ import {
   Grid3X3,
   Edit,
   Trash2,
+  XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
 import { toast } from "sonner";
-
-const initialShows = [
-  {
-    id: 1,
-    name: "Casamento Silva & Santos",
-    date: "2024-12-15",
-    time: "19:00",
-    venue: "Espaço Verde Garden",
-    address: "Rua das Flores, 123 - SP",
-    value: 8500,
-    status: "confirmed",
-    client: "Maria Silva",
-    type: "Casamento",
-  },
-  {
-    id: 2,
-    name: "Festa Corporativa TechCorp",
-    date: "2024-12-18",
-    time: "20:00",
-    venue: "Hotel Marriott",
-    address: "Av. Paulista, 1000 - SP",
-    value: 12000,
-    status: "confirmed",
-    client: "João Mendes",
-    type: "Corporativo",
-  },
-  {
-    id: 3,
-    name: "Aniversário 50 anos",
-    date: "2024-12-22",
-    time: "21:00",
-    venue: "Clube Municipal",
-    address: "Rua do Clube, 500 - SP",
-    value: 6800,
-    status: "pending",
-    client: "Carlos Oliveira",
-    type: "Aniversário",
-  },
-  {
-    id: 4,
-    name: "Formatura Medicina USP",
-    date: "2024-12-28",
-    time: "22:00",
-    venue: "Buffet Elegance",
-    address: "Av. Brasil, 2000 - SP",
-    value: 15000,
-    status: "negotiation",
-    client: "Ana Paula Costa",
-    type: "Formatura",
-  },
-];
+import { useShows, Show } from "@/contexts/ShowsContext";
 
 const statusColors = {
   confirmed: "bg-primary",
   pending: "bg-warning",
   negotiation: "bg-accent",
+  scheduled: "bg-blue-500",
+  completed: "bg-green-500",
+  cancelled: "bg-destructive",
+};
+
+const statusLabels = {
+  confirmed: "Confirmado",
+  pending: "Pendente",
+  negotiation: "Negociação",
+  scheduled: "Agendado",
+  completed: "Realizado",
+  cancelled: "Cancelado",
 };
 
 type ViewMode = "calendar" | "list" | "grid";
 
 export default function Agenda() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 11, 23));
+  const { shows, addShow, updateShow, deleteShow, cancelShow } = useShows();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 11, 15));
   const [currentMonth, setCurrentMonth] = useState(new Date(2024, 11, 1));
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [shows, setShows] = useState(initialShows);
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
-  const [editingShow, setEditingShow] = useState<typeof initialShows[0] | null>(null);
+  const [editingShow, setEditingShow] = useState<Show | null>(null);
 
   const handleShowCreated = (newShow: ShowData) => {
     if (editingShow) {
-      // Update existing show
-      setShows(shows.map(show => 
-        show.id === editingShow.id 
-          ? {
-              ...show,
-              name: newShow.name,
-              date: newShow.date,
-              time: newShow.time,
-              venue: newShow.venue,
-              address: newShow.address,
-              value: newShow.cachet,
-              status: newShow.status,
-              client: newShow.client,
-              type: newShow.type,
-            }
-          : show
-      ));
-      toast.success(`Show "${newShow.name}" atualizado com sucesso!`);
-      setEditingShow(null);
-    } else {
-      // Create new show
-      const show = {
-        id: shows.length + 1,
+      updateShow(editingShow.id, {
         name: newShow.name,
         date: newShow.date,
         time: newShow.time,
@@ -118,19 +59,38 @@ export default function Agenda() {
         status: newShow.status,
         client: newShow.client,
         type: newShow.type,
-      };
-      setShows([...shows, show]);
+      });
+      toast.success(`Show "${newShow.name}" atualizado com sucesso!`);
+      setEditingShow(null);
+    } else {
+      addShow({
+        name: newShow.name,
+        date: newShow.date,
+        time: newShow.time,
+        venue: newShow.venue,
+        address: newShow.address,
+        value: newShow.cachet,
+        status: newShow.status,
+        client: newShow.client,
+        type: newShow.type,
+      });
       toast.success(`Show "${newShow.name}" adicionado com sucesso!`);
     }
   };
 
   const handleDeleteShow = (showId: number) => {
     const showToDelete = shows.find(s => s.id === showId);
-    setShows(shows.filter(show => show.id !== showId));
+    deleteShow(showId);
     toast.success(`Show "${showToDelete?.name}" excluído com sucesso!`);
   };
 
-  const handleEditShow = (show: typeof initialShows[0]) => {
+  const handleCancelShow = (showId: number) => {
+    const showToCancel = shows.find(s => s.id === showId);
+    cancelShow(showId);
+    toast.success(`Show "${showToCancel?.name}" cancelado!`);
+  };
+
+  const handleEditShow = (show: Show) => {
     setEditingShow(show);
     setIsModalOpen(true);
   };
@@ -154,7 +114,7 @@ export default function Agenda() {
 
   const getShowsForDate = (day: number) => {
     const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return shows.filter(show => show.date === dateStr);
+    return shows.filter(show => show.date === dateStr && show.status !== "cancelled");
   };
 
   const selectedDayShows = getShowsForDate(selectedDate.getDate());
@@ -342,10 +302,17 @@ export default function Agenda() {
                 <div key={show.id} className="p-4 rounded-xl bg-muted/50 border border-border">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium text-foreground">{show.name}</h4>
-                    <span className={cn(
-                      "w-2 h-2 rounded-full mt-1.5",
-                      statusColors[show.status as keyof typeof statusColors]
-                    )} />
+                    <Badge 
+                      variant="outline"
+                      className={cn(
+                        "text-xs",
+                        show.status === "confirmed" && "bg-primary/10 text-primary border-primary/20",
+                        show.status === "pending" && "bg-warning/10 text-warning border-warning/20",
+                        show.status === "negotiation" && "bg-accent/10 text-accent border-accent/20"
+                      )}
+                    >
+                      {statusLabels[show.status as keyof typeof statusLabels] || show.status}
+                    </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mb-1">Cliente: {show.client}</p>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -365,8 +332,18 @@ export default function Agenda() {
                     <Button 
                       variant="outline" 
                       size="icon" 
+                      className="h-8 w-8 text-warning hover:text-warning hover:bg-warning/10"
+                      onClick={() => handleCancelShow(show.id)}
+                      title="Cancelar show"
+                    >
+                      <XCircle className="w-3 h-3" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
                       className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => handleDeleteShow(show.id)}
+                      title="Excluir show"
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>
