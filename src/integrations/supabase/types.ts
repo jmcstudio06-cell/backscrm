@@ -92,6 +92,41 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_history: {
+        Row: {
+          changed_at: string
+          created_at: string
+          from_status: string | null
+          id: string
+          lead_id: string
+          to_status: string
+        }
+        Insert: {
+          changed_at?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          lead_id: string
+          to_status: string
+        }
+        Update: {
+          changed_at?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          lead_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           company: string | null
