@@ -71,16 +71,12 @@ const menuItems: MenuItem[] = [
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const [openGroups, setOpenGroups] = useState<string[]>(["Área Comercial", "Financeiro", "Logística"]);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
   const toggleGroup = (label: string) => {
-    setOpenGroups((prev) =>
-      prev.includes(label)
-        ? prev.filter((g) => g !== label)
-        : [...prev, label]
-    );
+    setOpenGroup((prev) => (prev === label ? null : label));
   };
 
   const isChildActive = (children: MenuItem["children"]) => {
@@ -121,7 +117,7 @@ export function Sidebar() {
         <ul className="space-y-1">
           {menuItems.map((item) => {
             if (item.children) {
-              const isOpen = openGroups.includes(item.label);
+              const isOpen = openGroup === item.label;
               const hasActiveChild = isChildActive(item.children);
 
               return (
