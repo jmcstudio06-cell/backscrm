@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -27,23 +28,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/landing" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/agenda" element={<Agenda />} />
-          <Route path="/aulas" element={<Aulas />} />
-          <Route path="/crm" element={<CRM />} />
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/financeiro" element={<Financeiro />} />
-          <Route path="/historico" element={<Historico />} />
-          <Route path="/checklist" element={<Checklist />} />
-          <Route path="/equipe" element={<Equipe />} />
-          <Route path="/metas" element={<Metas />} />
-          <Route path="/planos" element={<Planos />} />
-          <Route path="/configuracoes" element={<Configuracoes />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Auth />} />
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/agenda" element={<Agenda />} />
+            <Route path="/aulas" element={<Aulas />} />
+            <Route path="/crm" element={<CRM />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/financeiro" element={<Financeiro />} />
+            <Route path="/historico" element={<Historico />} />
+            <Route path="/checklist" element={<Checklist />} />
+            <Route path="/equipe" element={<Equipe />} />
+            <Route path="/metas" element={<Metas />} />
+            <Route path="/planos" element={<Planos />} />
+            <Route path="/configuracoes" element={<Configuracoes />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
