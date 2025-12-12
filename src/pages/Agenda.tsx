@@ -153,8 +153,12 @@ export default function Agenda() {
     <Layout title="Agenda de Shows" subtitle="Organize seus eventos e apresentações">
       <NovoShowModal 
         open={isModalOpen} 
-        onOpenChange={setIsModalOpen} 
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setEditingShow(null);
+        }} 
         onShowCreated={handleShowCreated}
+        editingShow={editingShow}
       />
       
       {/* Header Actions */}

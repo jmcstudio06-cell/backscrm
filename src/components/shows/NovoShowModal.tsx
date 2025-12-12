@@ -38,10 +38,25 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
 
+interface EditingShow {
+  id: string;
+  title: string;
+  date: string;
+  start_time: string | null;
+  end_time: string | null;
+  venue: string | null;
+  address: string | null;
+  cachet: number;
+  status: string;
+  event_type: string | null;
+  notes: string | null;
+}
+
 interface NovoShowModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onShowCreated?: (show: ShowData) => void;
+  editingShow?: EditingShow | null;
 }
 
 interface Expense {
@@ -107,7 +122,7 @@ const formatCurrency = (value: number): string => {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-export function NovoShowModal({ open, onOpenChange, onShowCreated }: NovoShowModalProps) {
+export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading } = useMusicians();
   const [activeTab, setActiveTab] = useState("info");
   const [formData, setFormData] = useState({
@@ -131,6 +146,44 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated }: NovoShowMod
     category: "transporte",
     value: 0,
   });
+
+  // Load editing show data when modal opens
+  useEffect(() => {
+    if (open && editingShow) {
+      setFormData({
+        name: editingShow.title || "",
+        date: editingShow.date || "",
+        time: editingShow.start_time || "",
+        venue: editingShow.venue || "",
+        address: editingShow.address || "",
+        client: "",
+        clientPhone: "",
+        type: editingShow.event_type || "",
+        status: editingShow.status || "scheduled",
+        notes: editingShow.notes || "",
+        cachet: editingShow.cachet || 0,
+      });
+      setActiveTab("info");
+    } else if (open && !editingShow) {
+      // Reset form for new show
+      setFormData({
+        name: "",
+        date: "",
+        time: "",
+        venue: "",
+        address: "",
+        client: "",
+        clientPhone: "",
+        type: "",
+        status: "scheduled",
+        notes: "",
+        cachet: 0,
+      });
+      setExpenses([]);
+      setSelectedMusicians([]);
+      setActiveTab("info");
+    }
+  }, [open, editingShow]);
 
   // Calculate total from musicians + other expenses
   const musiciansCost = selectedMusicians.reduce((sum, m) => sum + m.fee, 0);
@@ -188,7 +241,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated }: NovoShowMod
     }
 
     const showData: ShowData = {
-      id: crypto.randomUUID(),
+      id: editingShow?.id || crypto.randomUUID(),
       ...formData,
       expenses,
       totalExpenses,
@@ -197,7 +250,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated }: NovoShowMod
     };
 
     onShowCreated?.(showData);
-    toast.success("Show lançado com sucesso!");
+    toast.success(editingShow ? "Show atualizado com sucesso!" : "Show lançado com sucesso!");
     
     // Reset form
     setFormData({
@@ -242,7 +295,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated }: NovoShowMod
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <Mic2 className="w-5 h-5 text-primary-foreground" />
             </div>
-            Novo Show
+            {editingShow ? "Editar Show" : "Novo Show"}
           </DialogTitle>
         </DialogHeader>
 
@@ -753,7 +806,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated }: NovoShowMod
               </Button>
               <Button onClick={handleSubmit} variant="gradient" className="gap-2">
                 <Mic2 className="w-4 h-4" />
-                Lançar Show
+                {editingShow ? "Salvar Alterações" : "Lançar Show"}
               </Button>
             </div>
           </TabsContent>
