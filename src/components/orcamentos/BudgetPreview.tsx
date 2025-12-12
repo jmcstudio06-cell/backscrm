@@ -292,7 +292,10 @@ export function BudgetPreview({
       `Segue o orçamento ${budget.budget_number} no valor de ${formatCurrency(budget.total)}.\n\n` +
       `Por favor, entre em contato para mais detalhes.`
     );
-    const phone = budget.client_phone?.replace(/\D/g, "") || "";
+    let phone = budget.client_phone?.replace(/\D/g, "") || "";
+    if (phone && !phone.startsWith("55")) {
+      phone = "55" + phone;
+    }
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
 

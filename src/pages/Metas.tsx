@@ -23,9 +23,11 @@ import {
   Clock,
   Trophy,
   ChevronDown,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGoals } from "@/hooks/useGoals";
+import { GoalModal } from "@/components/metas/GoalModal";
 import { toast } from "sonner";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -43,7 +45,9 @@ const goalTypes = [
 ];
 
 export default function Metas() {
-  const { goals, loading, addGoal } = useGoals();
+  const { goals, loading, addGoal, updateGoal, deleteGoal } = useGoals();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<typeof goals[0] | null>(null);
 
   const handleCreateGoal = async (type: string, label: string) => {
     const currentMonth = new Date().getMonth() + 1;
@@ -62,6 +66,19 @@ export default function Metas() {
     } catch (error) {
       toast.error("Erro ao criar meta");
     }
+  };
+
+  const handleConfigureGoal = (goal: typeof goals[0]) => {
+    setSelectedGoal(goal);
+    setModalOpen(true);
+  };
+
+  const handleSaveGoal = async (id: string, updates: Partial<typeof goals[0]>) => {
+    await updateGoal(id, updates);
+  };
+
+  const handleDeleteGoal = async (id: string) => {
+    await deleteGoal(id);
   };
 
   const currentMonth = new Date().getMonth() + 1;
@@ -150,7 +167,15 @@ export default function Metas() {
                     const Icon = iconMap[goal.type] || Target;
 
                     return (
-                      <div key={goal.id} className="p-4 rounded-xl bg-secondary/50">
+                      <div key={goal.id} className="p-4 rounded-xl bg-secondary/50 relative group">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                          onClick={() => handleConfigureGoal(goal)}
+                        >
+                          <Settings className="w-4 h-4" />
+                        </Button>
                         <div className="flex items-center gap-3 mb-3">
                           <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10">
                             <Icon className="w-5 h-5 text-primary" />
@@ -189,8 +214,16 @@ export default function Metas() {
                   const Icon = iconMap[goal.type] || Target;
 
                   return (
-                    <div key={goal.id} className="p-4 rounded-xl bg-secondary/50">
-                      <div className="flex items-start justify-between mb-4">
+                    <div key={goal.id} className="p-4 rounded-xl bg-secondary/50 relative group">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleConfigureGoal(goal)}
+                      >
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                      <div className="flex items-start justify-between mb-4 pr-10">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/10">
                             <Icon className="w-6 h-6 text-primary" />
@@ -241,9 +274,10 @@ export default function Metas() {
                     <div
                       key={goal.id}
                       className={cn(
-                        "flex items-center gap-4 p-4 rounded-xl transition-all",
+                        "flex items-center gap-4 p-4 rounded-xl transition-all relative group cursor-pointer",
                         isCompleted ? "bg-success/10" : "bg-secondary/50"
                       )}
+                      onClick={() => handleConfigureGoal(goal)}
                     >
                       <div className={cn(
                         "w-10 h-10 rounded-lg flex items-center justify-center",
@@ -297,6 +331,14 @@ export default function Metas() {
           </ChartCard>
         </TabsContent>
       </Tabs>
+
+      <GoalModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        goal={selectedGoal}
+        onSave={handleSaveGoal}
+        onDelete={handleDeleteGoal}
+      />
     </Layout>
   );
 }
