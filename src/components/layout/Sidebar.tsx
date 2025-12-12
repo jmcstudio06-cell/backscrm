@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -38,7 +39,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Calendar, label: "Agenda de Shows", path: "/agenda" },
   {
     icon: Briefcase,
@@ -87,8 +88,10 @@ export function Sidebar() {
     );
   };
 
-  const handleLogout = () => {
-    // TODO: Implementar logout real com Lovable Cloud
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
     navigate("/auth");
   };
 

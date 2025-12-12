@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Calendar, 
   Users, 
@@ -31,6 +32,25 @@ const Auth = () => {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          navigate("/dashboard");
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,19 +82,70 @@ const Auth = () => {
       return;
     }
 
+    if (formData.password.length < 6) {
+      toast({
+        title: "Erro",
+        description: "A senha deve ter pelo menos 6 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     
-    // Simulated auth - will be replaced with real auth
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("Email ou senha incorretos.");
+          }
+          throw error;
+        }
+
+        toast({
+          title: "Login realizado!",
+          description: "Bem-vindo de volta ao Backstage Pro!",
+        });
+      } else {
+        const redirectUrl = `${window.location.origin}/`;
+        
+        const { error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: redirectUrl,
+            data: {
+              name: formData.name,
+            },
+          },
+        });
+
+        if (error) {
+          if (error.message.includes("already registered")) {
+            throw new Error("Este email já está cadastrado. Tente fazer login.");
+          }
+          throw error;
+        }
+
+        toast({
+          title: "Conta criada!",
+          description: "Sua conta foi criada com sucesso!",
+        });
+      }
+    } catch (error: any) {
       toast({
-        title: isLogin ? "Login realizado!" : "Conta criada!",
-        description: isLogin 
-          ? "Bem-vindo de volta ao Backstage Pro!" 
-          : "Sua conta foi criada com sucesso!",
+        title: "Erro",
+        description: error.message || "Ocorreu um erro. Tente novamente.",
+        variant: "destructive",
       });
-      navigate("/dashboard");
-    }, 1500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const features = [
