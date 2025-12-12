@@ -116,31 +116,22 @@ const Dashboard = () => {
           <div className="glass-card rounded-2xl p-6">
             <h3 className="text-lg font-semibold text-foreground mb-6">Metas do Mês</h3>
             <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center">
-                  <ProgressRing progress={75} size={70} />
-                  <span className="text-xs text-muted-foreground mt-1">Concluído</span>
-                </div>
+              <div className="flex items-center gap-6">
+                <ProgressRing progress={75} size={70} />
                 <div>
                   <p className="font-medium text-foreground">Receita</p>
                   <p className="text-sm text-muted-foreground">R$ 24.451 / R$ 30.000</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center">
-                  <ProgressRing progress={60} size={70} />
-                  <span className="text-xs text-muted-foreground mt-1">Concluído</span>
-                </div>
+              <div className="flex items-center gap-6">
+                <ProgressRing progress={60} size={70} />
                 <div>
                   <p className="font-medium text-foreground">Shows</p>
                   <p className="text-sm text-muted-foreground">12 / 20 shows</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center">
-                  <ProgressRing progress={85} size={70} />
-                  <span className="text-xs text-muted-foreground mt-1">Concluído</span>
-                </div>
+              <div className="flex items-center gap-6">
+                <ProgressRing progress={85} size={70} />
                 <div>
                   <p className="font-medium text-foreground">Leads</p>
                   <p className="text-sm text-muted-foreground">48 / 50 leads</p>
