@@ -48,24 +48,25 @@ export default function Metas() {
   const { goals, loading, addGoal, updateGoal, deleteGoal } = useGoals();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<typeof goals[0] | null>(null);
+  const [newGoalType, setNewGoalType] = useState<{ type: string; label: string } | null>(null);
 
-  const handleCreateGoal = async (type: string, label: string) => {
+  const handleCreateGoal = (type: string, label: string) => {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
     
-    try {
-      await addGoal({
-        title: label,
-        type,
-        target_value: 0,
-        current_value: 0,
-        month: currentMonth,
-        year: currentYear,
-      });
-      toast.success(`${label} criada com sucesso!`);
-    } catch (error) {
-      toast.error("Erro ao criar meta");
-    }
+    // Create a temporary goal object for the modal
+    setSelectedGoal({
+      id: "",
+      title: label,
+      type,
+      target_value: 0,
+      current_value: 0,
+      month: currentMonth,
+      year: currentYear,
+      created_at: new Date().toISOString(),
+    });
+    setNewGoalType({ type, label });
+    setModalOpen(true);
   };
 
   const handleConfigureGoal = (goal: typeof goals[0]) => {
@@ -74,11 +75,21 @@ export default function Metas() {
   };
 
   const handleSaveGoal = async (id: string, updates: Partial<typeof goals[0]>) => {
-    await updateGoal(id, updates);
+    if (newGoalType && !id) {
+      // Creating new goal
+      await addGoal(updates);
+      setNewGoalType(null);
+    } else {
+      // Updating existing goal
+      await updateGoal(id, updates);
+    }
   };
 
   const handleDeleteGoal = async (id: string) => {
-    await deleteGoal(id);
+    if (id) {
+      await deleteGoal(id);
+    }
+    setNewGoalType(null);
   };
 
   const currentMonth = new Date().getMonth() + 1;

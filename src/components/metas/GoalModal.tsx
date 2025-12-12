@@ -81,7 +81,7 @@ export function GoalModal({ open, onOpenChange, goal, onSave, onDelete }: GoalMo
     if (!goal) return;
     setLoading(true);
     try {
-      await onSave(goal.id, {
+      await onSave(goal.id || "", {
         title,
         type,
         target_value: parseFloat(targetValue) || 0,
@@ -96,7 +96,7 @@ export function GoalModal({ open, onOpenChange, goal, onSave, onDelete }: GoalMo
   };
 
   const handleDelete = async () => {
-    if (!goal) return;
+    if (!goal || !goal.id) return;
     setLoading(true);
     try {
       await onDelete(goal.id);
@@ -105,6 +105,8 @@ export function GoalModal({ open, onOpenChange, goal, onSave, onDelete }: GoalMo
       setLoading(false);
     }
   };
+
+  const isNewGoal = !goal?.id;
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
@@ -201,15 +203,17 @@ export function GoalModal({ open, onOpenChange, goal, onSave, onDelete }: GoalMo
         </div>
 
         <div className="flex justify-between">
-          <Button variant="destructive" onClick={handleDelete} disabled={loading}>
-            Excluir Meta
-          </Button>
-          <div className="flex gap-2">
+          {!isNewGoal && (
+            <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+              Excluir Meta
+            </Button>
+          )}
+          <div className={`flex gap-2 ${isNewGoal ? "ml-auto" : ""}`}>
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
               Cancelar
             </Button>
             <Button onClick={handleSave} disabled={loading}>
-              {loading ? "Salvando..." : "Salvar"}
+              {loading ? "Salvando..." : isNewGoal ? "Criar" : "Salvar"}
             </Button>
           </div>
         </div>
