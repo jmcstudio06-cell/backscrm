@@ -45,44 +45,42 @@ export default function Agenda() {
   const handleShowCreated = (newShow: ShowData) => {
     if (editingShow) {
       updateShow(editingShow.id, {
-        name: newShow.name,
+        title: newShow.name,
         date: newShow.date,
-        time: newShow.time,
+        start_time: newShow.time,
         venue: newShow.venue,
         address: newShow.address,
-        value: newShow.cachet,
+        cachet: newShow.cachet,
         status: newShow.status,
-        client: newShow.client,
-        type: newShow.type,
+        event_type: newShow.type,
       });
       toast.success(`Show "${newShow.name}" atualizado com sucesso!`);
       setEditingShow(null);
     } else {
       addShow({
-        name: newShow.name,
+        title: newShow.name,
         date: newShow.date,
-        time: newShow.time,
+        start_time: newShow.time,
         venue: newShow.venue,
         address: newShow.address,
-        value: newShow.cachet,
+        cachet: newShow.cachet,
         status: newShow.status,
-        client: newShow.client,
-        type: newShow.type,
+        event_type: newShow.type,
       });
       toast.success(`Show "${newShow.name}" adicionado com sucesso!`);
     }
   };
 
-  const handleDeleteShow = (showId: number) => {
+  const handleDeleteShow = (showId: string) => {
     const showToDelete = shows.find(s => s.id === showId);
     deleteShow(showId);
-    toast.success(`Show "${showToDelete?.name}" excluído com sucesso!`);
+    toast.success(`Show "${showToDelete?.title}" excluído com sucesso!`);
   };
 
-  const handleCancelShow = (showId: number) => {
+  const handleCancelShow = (showId: string) => {
     const showToCancel = shows.find(s => s.id === showId);
     cancelShow(showId);
-    toast.success(`Show "${showToCancel?.name}" cancelado!`);
+    toast.success(`Show "${showToCancel?.title}" cancelado!`);
   };
 
   const handleEditShow = (show: Show) => {
@@ -268,7 +266,7 @@ export default function Agenda() {
               selectedDayShows.map((show) => (
                 <div key={show.id} className="p-4 rounded-xl bg-muted/50 border border-border">
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-foreground">{show.name}</h4>
+                    <h4 className="font-medium text-foreground">{show.title}</h4>
                     <Badge 
                       variant="outline"
                       className={cn(
@@ -281,10 +279,12 @@ export default function Agenda() {
                       {statusLabels[show.status as keyof typeof statusLabels] || show.status}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">Cliente: {show.client}</p>
+                  {show.event_type && (
+                    <p className="text-sm text-muted-foreground mb-1">Tipo: {show.event_type}</p>
+                  )}
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <MapPin className="w-3 h-3" />
-                    <span>{show.venue}</span>
+                    <span>{show.venue || "Local não definido"}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-3">
                     <Button 
