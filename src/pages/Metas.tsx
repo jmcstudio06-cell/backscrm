@@ -7,6 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Plus,
   Target,
   DollarSign,
@@ -16,6 +22,7 @@ import {
   CheckCircle2,
   Clock,
   Trophy,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGoals } from "@/hooks/useGoals";
@@ -24,15 +31,37 @@ import { toast } from "sonner";
 const iconMap: Record<string, React.ElementType> = {
   financial: DollarSign,
   shows: Mic2,
-  clients: Users,
-  conversion: TrendingUp,
+  leads: Users,
+  sales: TrendingUp,
 };
+
+const goalTypes = [
+  { value: "sales", label: "Meta de Vendas", icon: TrendingUp },
+  { value: "leads", label: "Meta de Lead", icon: Users },
+  { value: "financial", label: "Meta de Receita", icon: DollarSign },
+  { value: "shows", label: "Meta de Shows", icon: Mic2 },
+];
 
 export default function Metas() {
   const { goals, loading, addGoal } = useGoals();
 
-  const handleCreateGoal = async () => {
-    toast.info("Funcionalidade de criar meta em desenvolvimento!");
+  const handleCreateGoal = async (type: string, label: string) => {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    
+    try {
+      await addGoal({
+        title: label,
+        type,
+        target_value: 0,
+        current_value: 0,
+        month: currentMonth,
+        year: currentYear,
+      });
+      toast.success(`${label} criada com sucesso!`);
+    } catch (error) {
+      toast.error("Erro ao criar meta");
+    }
   };
 
   const currentMonth = new Date().getMonth() + 1;
@@ -64,13 +93,29 @@ export default function Metas() {
         <div className="flex justify-between items-center">
           <TabsList className="bg-secondary">
             <TabsTrigger value="monthly">Metas do Mês</TabsTrigger>
-            <TabsTrigger value="create">Criar Meta</TabsTrigger>
             <TabsTrigger value="all">Minhas Metas</TabsTrigger>
           </TabsList>
-          <Button variant="gradient" onClick={handleCreateGoal}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Meta
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="gradient">
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Meta
+                <ChevronDown className="w-4 h-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {goalTypes.map((type) => (
+                <DropdownMenuItem
+                  key={type.value}
+                  onClick={() => handleCreateGoal(type.value, type.label)}
+                  className="cursor-pointer"
+                >
+                  <type.icon className="w-4 h-4 mr-2" />
+                  {type.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Monthly Goals Tab */}
@@ -173,67 +218,6 @@ export default function Metas() {
               </div>
             </ChartCard>
           )}
-        </TabsContent>
-
-        {/* Create Goal Tab */}
-        <TabsContent value="create" className="space-y-6">
-          <ChartCard title="Criar Nova Meta" subtitle="Defina seus próximos objetivos">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground">Nome da Meta</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: Faturar R$ 100.000"
-                    className="w-full mt-1 p-3 rounded-lg bg-secondary border border-border text-foreground"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground">Tipo da Meta</label>
-                  <select className="w-full mt-1 p-3 rounded-lg bg-secondary border border-border text-foreground">
-                    <option value="financial">Financeira</option>
-                    <option value="shows">Shows</option>
-                    <option value="clients">Clientes</option>
-                    <option value="conversion">Conversão</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground">Valor / Quantidade</label>
-                  <input
-                    type="number"
-                    placeholder="Ex: 50000"
-                    className="w-full mt-1 p-3 rounded-lg bg-secondary border border-border text-foreground"
-                  />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground">Mês</label>
-                  <select className="w-full mt-1 p-3 rounded-lg bg-secondary border border-border text-foreground">
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {new Date(2000, i, 1).toLocaleDateString("pt-BR", { month: "long" })}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground">Ano</label>
-                  <input
-                    type="number"
-                    defaultValue={new Date().getFullYear()}
-                    className="w-full mt-1 p-3 rounded-lg bg-secondary border border-border text-foreground"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="mt-6">
-              <Button variant="gradient" className="w-full md:w-auto" onClick={handleCreateGoal}>
-                <Target className="w-4 h-4 mr-2" />
-                Criar Meta
-              </Button>
-            </div>
-          </ChartCard>
         </TabsContent>
 
         {/* All Goals Tab */}
