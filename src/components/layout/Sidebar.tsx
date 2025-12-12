@@ -105,13 +105,13 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         {!collapsed && (
           <div className="flex flex-col">
-            <span className="font-bold text-white">Backstage</span>
-            <span className="text-xs text-white/80">PRO</span>
+            <span className="font-bold text-sidebar-primary">Backstage Pro</span>
+            <span className="text-xs text-sidebar-foreground">CRM para Artistas</span>
           </div>
         )}
       </div>
@@ -132,8 +132,8 @@ export function Sidebar() {
                         className={cn(
                           "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 w-full text-left",
                           hasActiveChild
-                            ? "bg-white/20 text-white"
-                            : "text-white/70 hover:bg-white/10 hover:text-white"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary"
                         )}
                       >
                         <item.icon className="w-5 h-5 shrink-0" />
@@ -165,8 +165,8 @@ export function Sidebar() {
                             className={cn(
                               "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
                               isActive
-                                ? "bg-white/20 text-white"
-                                : "text-white/70 hover:bg-white/10 hover:text-white"
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary"
                             )}
                           >
                             <child.icon className="w-4 h-4 shrink-0" />
@@ -193,16 +193,16 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
                     isActive
-                      ? "bg-white/20 text-white"
-                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary"
                   )}
                 >
-                  <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-white")} />
+                  <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-sidebar-accent-foreground")} />
                   {!collapsed && (
                     <span className="text-sm font-medium truncate">{item.label}</span>
                   )}
                   {isActive && !collapsed && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white" />
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-sidebar-accent-foreground" />
                   )}
                 </NavLink>
               </li>
@@ -218,12 +218,17 @@ export function Sidebar() {
           size="sm"
           onClick={() => navigate("/planos")}
           className={cn(
-            "w-full justify-start text-amber-300 hover:text-amber-200 hover:bg-white/10",
+            "w-full justify-start bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90",
             collapsed && "justify-center"
           )}
         >
           <Crown className="w-5 h-5 shrink-0" />
-          {!collapsed && <span className="ml-3">Ver Planos</span>}
+          {!collapsed && (
+            <div className="ml-3 flex flex-col items-start">
+              <span className="text-sm font-medium">Ver Planos</span>
+              <span className="text-xs opacity-80">A partir de R$ 19,99/mês</span>
+            </div>
+          )}
         </Button>
       </div>
 
@@ -234,7 +239,7 @@ export function Sidebar() {
           size="sm"
           onClick={handleLogout}
           className={cn(
-            "w-full justify-start text-red-300 hover:text-red-200 hover:bg-white/10",
+            "w-full justify-start text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-border",
             collapsed && "justify-center"
           )}
         >
@@ -244,12 +249,12 @@ export function Sidebar() {
       </div>
 
       {/* Collapse Button */}
-      <div className="p-3 border-t border-white/20">
+      <div className="p-3 border-t border-sidebar-border">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full justify-center text-white/70 hover:text-white hover:bg-white/10"
+          className="w-full justify-center text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-border"
         >
           {collapsed ? (
             <ChevronRight className="w-4 h-4" />
