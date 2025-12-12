@@ -2,10 +2,8 @@ import { Layout } from "@/components/layout/Layout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { ProgressRing } from "@/components/dashboard/ProgressRing";
-import { ActivityItem } from "@/components/dashboard/ActivityItem";
 import { 
-  Users, TrendingUp, DollarSign, Target, Calendar, 
-  CheckCircle2, AlertCircle, Clock
+  Users, TrendingUp, DollarSign, Target, Clock
 } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -27,14 +25,6 @@ const Dashboard = () => {
     { name: 'Sex', value: 18 },
     { name: 'Sáb', value: 25 },
     { name: 'Dom', value: 20 },
-  ];
-
-  const activities = [
-    { icon: CheckCircle2, title: "Show confirmado", description: "Casamento Silva - 15/01", time: "Há 2 horas", color: "text-green-500" },
-    { icon: DollarSign, title: "Pagamento recebido", description: "R$ 3.500 - Show Corporativo", time: "Há 5 horas", color: "text-cyan-500" },
-    { icon: Users, title: "Novo lead", description: "Maria Santos - Aniversário", time: "Há 8 horas", color: "text-purple-500" },
-    { icon: AlertCircle, title: "Contrato pendente", description: "Aguardando assinatura - João", time: "Há 1 dia", color: "text-orange-500" },
-    { icon: Calendar, title: "Show agendado", description: "Festa Empresa ABC - 20/01", time: "Há 2 dias", color: "text-blue-500" },
   ];
 
   const upcomingShows = [
@@ -120,28 +110,37 @@ const Dashboard = () => {
           </ChartCard>
         </div>
 
-        {/* Goals & Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Goals & Upcoming Shows */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Goals */}
           <div className="glass-card rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Metas do Mês</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-6">Metas do Mês</h3>
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <ProgressRing progress={75} size={60} />
+                <div className="flex flex-col items-center">
+                  <ProgressRing progress={75} size={70} />
+                  <span className="text-xs text-muted-foreground mt-1">Concluído</span>
+                </div>
                 <div>
                   <p className="font-medium text-foreground">Receita</p>
                   <p className="text-sm text-muted-foreground">R$ 24.451 / R$ 30.000</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <ProgressRing progress={60} size={60} />
+                <div className="flex flex-col items-center">
+                  <ProgressRing progress={60} size={70} />
+                  <span className="text-xs text-muted-foreground mt-1">Concluído</span>
+                </div>
                 <div>
                   <p className="font-medium text-foreground">Shows</p>
                   <p className="text-sm text-muted-foreground">12 / 20 shows</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <ProgressRing progress={85} size={60} />
+                <div className="flex flex-col items-center">
+                  <ProgressRing progress={85} size={70} />
+                  <span className="text-xs text-muted-foreground mt-1">Concluído</span>
+                </div>
                 <div>
                   <p className="font-medium text-foreground">Leads</p>
                   <p className="text-sm text-muted-foreground">48 / 50 leads</p>
@@ -167,35 +166,6 @@ const Dashboard = () => {
                   <p className="text-sm font-semibold text-green-500">{show.value}</p>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="glass-card rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Atividade Recente</h3>
-            <div className="space-y-1">
-              {activities.map((activity, index) => (
-                <ActivityItem key={index} {...activity} />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Financial Summary */}
-        <div className="glass-card rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Resumo Financeiro</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 rounded-xl bg-green-500/10">
-              <p className="text-sm text-muted-foreground mb-1">Receitas</p>
-              <p className="text-2xl font-bold text-green-500">R$ 28.500</p>
-            </div>
-            <div className="text-center p-4 rounded-xl bg-red-500/10">
-              <p className="text-sm text-muted-foreground mb-1">Despesas</p>
-              <p className="text-2xl font-bold text-red-500">R$ 4.049</p>
-            </div>
-            <div className="text-center p-4 rounded-xl bg-cyan-500/10">
-              <p className="text-sm text-muted-foreground mb-1">Lucro Líquido</p>
-              <p className="text-2xl font-bold text-cyan-500">R$ 24.451</p>
             </div>
           </div>
         </div>
