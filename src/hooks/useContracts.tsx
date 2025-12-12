@@ -300,39 +300,57 @@ export function useContracts() {
 
   const getDefaultClauses = (): ContractClause[] => [
     {
-      title: "OBJETO",
-      content: "O presente contrato tem por objeto a prestação de serviços artísticos consistentes em apresentação musical do artista vinculado à CONTRATADA, a realizar-se conforme as condições abaixo.",
+      title: "PARTES",
+      content: "1.1. Pelo presente instrumento, o CONTRATANTE declara contratar os serviços artísticos do CONTRATADO, para realização de apresentação musical ao vivo.\n1.2. Ambas as partes concordam com as condições estabelecidas neste documento.",
       sort_order: 1,
     },
     {
-      title: "VALOR E FORMA DE PAGAMENTO",
-      content: "O valor total acordado para o show é de R$ [VALOR], a ser pago da seguinte forma:\n\n• 50% no ato da assinatura deste contrato;\n• 50% restantes até o dia do evento, antes do início da apresentação.",
+      title: "OBJETO",
+      content: "2.1. O presente contrato tem como objeto a prestação de serviços de show ao vivo executado pelo CONTRATADO.\n2.2. A apresentação será realizada conforme repertório e estrutura previamente acordados entre as partes.",
       sort_order: 2,
     },
     {
-      title: "OBRIGAÇÕES DAS PARTES",
-      content: "A CONTRATADA compromete-se a:\na) Fornecer sonorização completa para a performance e transporte necessários para o show;\nb) Realizar a apresentação musical conforme acordado, no horário e local estipulados.\n\nO CONTRATANTE compromete-se a:\na) Disponibilizar alimentação adequada à equipe e artista no local do evento;\nb) Efetuar os pagamentos conforme os prazos estabelecidos neste contrato.",
+      title: "PAGAMENTO",
+      content: "3.1. O valor do show e a forma de pagamento serão definidos na página inicial do documento, preenchidos pelo CONTRATANTE antes da assinatura.\n3.2. Após confirmado o pagamento acordado, considera-se a data devidamente reservada ao CONTRATANTE.\n3.3. O não pagamento do valor combinado poderá resultar no cancelamento automático da reserva.",
       sort_order: 3,
     },
     {
-      title: "CANCELAMENTO E MULTA",
-      content: "Em caso de cancelamento injustificado por qualquer das partes, a parte responsável arcará com multa equivalente a 50% (cinquenta por cento) do valor total do contrato.\nEm caso de força maior (doença, acidentes, eventos climáticos extremos ou decretos públicos), as partes buscarão remarcar a apresentação sem ônus.",
+      title: "OBRIGAÇÕES DO CONTRATADO",
+      content: "4.1. Executar o show com profissionalismo, pontualidade e qualidade técnica.\n4.2. Disponibilizar os músicos e/ou equipe conforme acordado previamente.\n4.3. Zelar pelos equipamentos próprios utilizados durante a apresentação.",
       sort_order: 4,
     },
     {
-      title: "DIREITO DE IMAGEM",
-      content: "Fica autorizado o uso de imagem, voz, vídeos e áudios do artista para fins de divulgação do evento, nas redes sociais e mídias da contratante, sem custo adicional.",
+      title: "OBRIGAÇÕES DO CONTRATANTE",
+      content: "5.1. Disponibilizar estrutura mínima adequada, incluindo palco, energia, som e iluminação (caso não sejam fornecidos pelo artista).\n5.2. Garantir condições seguras para o CONTRATADO e sua equipe durante todo o período no local.\n5.3. Fornecer um espaço protegido para armazenamento de instrumentos e equipamentos.\n5.4. Responder por danos causados aos equipamentos do CONTRATADO por parte do público ou organização.",
       sort_order: 5,
     },
     {
-      title: "DISPOSIÇÕES GERAIS",
-      content: "a) Este contrato não cria vínculo empregatício entre as partes;\nb) Eventuais impostos e encargos são de responsabilidade de quem os incorrer;\nc) Casos omissos serão resolvidos de comum acordo entre as partes.",
+      title: "CANCELAMENTO",
+      content: "6.1. Cancelamento pelo CONTRATANTE:\n• Com menos de 7 dias de antecedência: pagamento de 50% do valor total.\n• Com menos de 48 horas de antecedência: pagamento de 100% do valor total.\n\n6.2. Cancelamento pelo CONTRATADO:\n• Deve haver comunicação prévia sempre que possível.\n• Qualquer valor recebido deve ser devolvido integralmente ao CONTRATANTE.",
       sort_order: 6,
     },
     {
-      title: "FORO",
-      content: "Para dirimir quaisquer dúvidas oriundas deste contrato, as partes elegem o foro da Comarca de [CIDADE]/[ESTADO].\nE, por estarem justos e contratados, firmam o presente contrato em duas vias de igual teor e forma, assinadas por ambas as partes.",
+      title: "IMAGEM E DIVULGAÇÃO",
+      content: "7.1. O CONTRATANTE pode usar o nome e imagem do CONTRATADO exclusivamente para divulgação do evento específico.\n7.2. O CONTRATADO pode divulgar o evento em suas redes sociais, exceto se houver pedido formal contrário do CONTRATANTE.",
       sort_order: 7,
+    },
+    {
+      title: "DIREITOS AUTORAIS / ECAD",
+      content: "8.1. A responsabilidade pelo pagamento das taxas de execução pública (ECAD) é integralmente do CONTRATANTE.\n8.2. O CONTRATADO não responde por autorizações relacionadas a direitos autorais das músicas executadas.",
+      sort_order: 8,
+    },
+    {
+      title: "SEGURANÇA",
+      content: "9.1. Caso haja risco à integridade física do CONTRATADO ou do público, a apresentação poderá ser interrompida sem prejuízo de pagamento.\n9.2. Situações como tumultos, mau funcionamento de estrutura, condições climáticas ou falta de segurança são de responsabilidade do CONTRATANTE.",
+      sort_order: 9,
+    },
+  ];
+
+  const getSuggestedClauses = (): ContractClause[] => [
+    {
+      title: "FORO",
+      content: "10.1. Para dirimir questões decorrentes deste contrato, fica eleito o foro da comarca do CONTRATANTE, com renúncia a qualquer outro, por mais privilegiado que seja.",
+      sort_order: 10,
     },
   ];
 
@@ -350,6 +368,7 @@ export function useContracts() {
     addContract,
     updateContract,
     deleteContract,
+    getSuggestedClauses,
     addSavedClause,
     updateSavedClause,
     deleteSavedClause,
