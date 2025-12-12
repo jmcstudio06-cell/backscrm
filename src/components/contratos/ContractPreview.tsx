@@ -85,7 +85,10 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
         contract.event_date ? new Date(contract.event_date).toLocaleDateString("pt-BR") : "a definir"
       }.\n\nPor favor, confira e entre em contato.`
     );
-    const phone = contract.client_phone?.replace(/\D/g, "") || "";
+    let phone = contract.client_phone?.replace(/\D/g, "") || "";
+    if (phone && !phone.startsWith("55")) {
+      phone = "55" + phone;
+    }
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
 
