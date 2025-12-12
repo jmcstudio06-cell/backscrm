@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -7,44 +7,94 @@ import {
   GraduationCap,
   Users,
   UserCheck,
-  CheckSquare,
-  FileText,
   DollarSign,
   History,
-  Music2,
-  Calculator,
-  ListMusic,
+  Users2,
   Target,
   Crown,
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Sparkles,
-  Menu,
+  LogOut,
+  TrendingUp,
+  CheckSquare,
+  Briefcase,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
-const menuItems = [
+interface MenuItem {
+  icon: React.ElementType;
+  label: string;
+  path?: string;
+  children?: { icon: React.ElementType; label: string; path: string }[];
+}
+
+const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Calendar, label: "Agenda de Shows", path: "/agenda" },
-  { icon: GraduationCap, label: "Aulas de Alavancagem", path: "/aulas" },
-  { icon: Users, label: "CRM - Funil de Vendas", path: "/crm" },
-  { icon: UserCheck, label: "Clientes", path: "/clientes" },
-  { icon: CheckSquare, label: "Tarefas", path: "/tarefas" },
-  { icon: FileText, label: "Contratos", path: "/contratos" },
-  { icon: DollarSign, label: "Financeiro", path: "/financeiro" },
-  { icon: History, label: "Histórico Mensal", path: "/historico" },
-  { icon: Music2, label: "Músicos da Banda", path: "/musicos" },
-  { icon: Calculator, label: "Orçamentos", path: "/orcamentos" },
-  { icon: ListMusic, label: "Repertório", path: "/repertorio" },
-  { icon: Target, label: "Definir Metas", path: "/metas" },
-  { icon: Crown, label: "Ver Planos", path: "/planos" },
+  {
+    icon: Briefcase,
+    label: "Área Comercial",
+    children: [
+      { icon: TrendingUp, label: "Funil de Vendas", path: "/crm" },
+      { icon: UserCheck, label: "Clientes", path: "/clientes" },
+    ],
+  },
+  {
+    icon: DollarSign,
+    label: "Financeiro",
+    children: [
+      { icon: DollarSign, label: "Resumo Geral", path: "/financeiro" },
+      { icon: History, label: "Histórico Mensal", path: "/historico" },
+    ],
+  },
+  {
+    icon: Truck,
+    label: "Logística",
+    children: [
+      { icon: CheckSquare, label: "Checklist de Show", path: "/checklist" },
+      { icon: Users2, label: "Equipe & Freelancer", path: "/equipe" },
+    ],
+  },
+  { icon: Target, label: "Metas", path: "/metas" },
+  { icon: GraduationCap, label: "Apoio e Conhecimentos", path: "/aulas" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [openGroups, setOpenGroups] = useState<string[]>(["Área Comercial", "Financeiro", "Logística"]);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups((prev) =>
+      prev.includes(label)
+        ? prev.filter((g) => g !== label)
+        : [...prev, label]
+    );
+  };
+
+  const isChildActive = (children: MenuItem["children"]) => {
+    return children?.some(
+      (child) =>
+        location.pathname === child.path ||
+        (child.path !== "/" && location.pathname.startsWith(child.path))
+    );
+  };
+
+  const handleLogout = () => {
+    // TODO: Implementar logout real com Lovable Cloud
+    navigate("/auth");
+  };
 
   return (
     <aside
@@ -70,13 +120,76 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         <ul className="space-y-1">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path || 
-              (item.path !== "/" && location.pathname.startsWith(item.path));
-            
+            if (item.children) {
+              const isOpen = openGroups.includes(item.label);
+              const hasActiveChild = isChildActive(item.children);
+
+              return (
+                <li key={item.label}>
+                  <Collapsible open={isOpen && !collapsed} onOpenChange={() => toggleGroup(item.label)}>
+                    <CollapsibleTrigger asChild>
+                      <button
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 w-full text-left",
+                          hasActiveChild
+                            ? "bg-white/20 text-white"
+                            : "text-white/70 hover:bg-white/10 hover:text-white"
+                        )}
+                      >
+                        <item.icon className="w-5 h-5 shrink-0" />
+                        {!collapsed && (
+                          <>
+                            <span className="text-sm font-medium truncate flex-1">
+                              {item.label}
+                            </span>
+                            <ChevronDown
+                              className={cn(
+                                "w-4 h-4 transition-transform",
+                                isOpen && "rotate-180"
+                              )}
+                            />
+                          </>
+                        )}
+                      </button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pl-4 mt-1 space-y-1">
+                      {item.children.map((child) => {
+                        const isActive =
+                          location.pathname === child.path ||
+                          (child.path !== "/" && location.pathname.startsWith(child.path));
+
+                        return (
+                          <NavLink
+                            key={child.path}
+                            to={child.path}
+                            className={cn(
+                              "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
+                              isActive
+                                ? "bg-white/20 text-white"
+                                : "text-white/70 hover:bg-white/10 hover:text-white"
+                            )}
+                          >
+                            <child.icon className="w-4 h-4 shrink-0" />
+                            {!collapsed && (
+                              <span className="text-sm truncate">{child.label}</span>
+                            )}
+                          </NavLink>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
+                </li>
+              );
+            }
+
+            const isActive =
+              location.pathname === item.path ||
+              (item.path !== "/" && location.pathname.startsWith(item.path!));
+
             return (
               <li key={item.path}>
                 <NavLink
-                  to={item.path}
+                  to={item.path!}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
                     isActive
@@ -97,6 +210,38 @@ export function Sidebar() {
           })}
         </ul>
       </nav>
+
+      {/* Ver Planos Button */}
+      <div className="px-3 pb-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/planos")}
+          className={cn(
+            "w-full justify-start text-amber-300 hover:text-amber-200 hover:bg-white/10",
+            collapsed && "justify-center"
+          )}
+        >
+          <Crown className="w-5 h-5 shrink-0" />
+          {!collapsed && <span className="ml-3">Ver Planos</span>}
+        </Button>
+      </div>
+
+      {/* Logout Button */}
+      <div className="px-3 pb-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className={cn(
+            "w-full justify-start text-red-300 hover:text-red-200 hover:bg-white/10",
+            collapsed && "justify-center"
+          )}
+        >
+          <LogOut className="w-5 h-5 shrink-0" />
+          {!collapsed && <span className="ml-3">Sair</span>}
+        </Button>
+      </div>
 
       {/* Collapse Button */}
       <div className="p-3 border-t border-white/20">
