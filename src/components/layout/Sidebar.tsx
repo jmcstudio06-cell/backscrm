@@ -55,13 +55,13 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center [background:var(--gradient-primary)]">
-          <Sparkles className="w-5 h-5 text-primary-foreground" />
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20">
+          <Sparkles className="w-5 h-5 text-white" />
         </div>
         {!collapsed && (
           <div className="flex flex-col">
-            <span className="font-bold text-foreground">Backstage</span>
-            <span className="text-xs text-primary">PRO</span>
+            <span className="font-bold text-white">Backstage</span>
+            <span className="text-xs text-white/80">PRO</span>
           </div>
         )}
       </div>
@@ -80,16 +80,16 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      ? "bg-white/20 text-white"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
                   )}
                 >
-                  <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-primary")} />
+                  <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-white")} />
                   {!collapsed && (
                     <span className="text-sm font-medium truncate">{item.label}</span>
                   )}
                   {isActive && !collapsed && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white" />
                   )}
                 </NavLink>
               </li>
@@ -99,12 +99,12 @@ export function Sidebar() {
       </nav>
 
       {/* Collapse Button */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="p-3 border-t border-white/20">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full justify-center"
+          className="w-full justify-center text-white/70 hover:text-white hover:bg-white/10"
         >
           {collapsed ? (
             <ChevronRight className="w-4 h-4" />
