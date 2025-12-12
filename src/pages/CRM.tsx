@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +38,7 @@ const stages = [
 ];
 
 export default function CRM() {
-  const { leads, loading, addLead, updateLead, deleteLead } = useLeads();
+  const { leads, loading, addLead, updateLead, deleteLead, fetchLeadHistory } = useLeads();
   const isMobile = useIsMobile();
   const [draggedLead, setDraggedLead] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
@@ -133,9 +133,14 @@ export default function CRM() {
 
   const handleWhatsApp = (phone: string | null, name: string) => {
     if (!phone) return;
-    const formattedPhone = phone.replace(/\D/g, '');
+    // Remove all non-numeric characters
+    let formattedPhone = phone.replace(/\D/g, '');
+    // Add Brazil country code if not present
+    if (!formattedPhone.startsWith('55')) {
+      formattedPhone = '55' + formattedPhone;
+    }
     const message = encodeURIComponent(`Olá ${name}! Tudo bem?`);
-    window.open(`https://wa.me/55${formattedPhone}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${formattedPhone}?text=${message}`, '_blank');
   };
 
   const handleStageClick = (stageId: string) => {
@@ -448,6 +453,7 @@ export default function CRM() {
         lead={selectedLead}
         onEdit={() => selectedLead && handleEditLead(selectedLead)}
         onDelete={() => selectedLead && handleDeleteLead(selectedLead.id)}
+        fetchLeadHistory={fetchLeadHistory}
       />
     </Layout>
   );

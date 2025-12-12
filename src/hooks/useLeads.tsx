@@ -19,6 +19,23 @@ export interface Lead {
   updated_at: string;
 }
 
+export interface LeadHistoryEntry {
+  id: string;
+  lead_id: string;
+  from_status: string | null;
+  to_status: string;
+  changed_at: string;
+}
+
+const stageNames: Record<string, string> = {
+  new: "Leads Novos",
+  proposal: "Com Proposta",
+  closed: "Fechados",
+  lost: "Não Fechados",
+  repeat: "Já Comprou",
+  never: "Nunca Comprou",
+};
+
 export function useLeads() {
   const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -40,6 +57,72 @@ export function useLeads() {
       toast.error("Erro ao carregar leads");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchLeadHistory = async (leadId: string): Promise<LeadHistoryEntry[]> => {
+    try {
+      const { data, error } = await supabase
+        .from("lead_history")
+        .select("*")
+        .eq("lead_id", leadId)
+        .order("changed_at", { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error("Error fetching lead history:", error);
+      return [];
+    }
+  };
+
+  const addLeadHistory = async (leadId: string, fromStatus: string | null, toStatus: string) => {
+    try {
+      await supabase
+        .from("lead_history")
+        .insert([{
+          lead_id: leadId,
+          from_status: fromStatus,
+          to_status: toStatus,
+        }]);
+    } catch (error) {
+      console.error("Error adding lead history:", error);
+    }
+  };
+
+  const convertLeadToClient = async (lead: Lead) => {
+    if (!user) return;
+
+    try {
+      // Check if client already exists with this name/email
+      const { data: existingClient } = await supabase
+        .from("clients")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("name", lead.name)
+        .maybeSingle();
+
+      if (existingClient) {
+        console.log("Client already exists, skipping conversion");
+        return;
+      }
+
+      // Create new client from lead
+      const { error } = await supabase
+        .from("clients")
+        .insert([{
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          company: lead.company,
+          notes: lead.notes,
+          user_id: user.id,
+        }]);
+
+      if (error) throw error;
+      toast.success(`${lead.name} foi adicionado como cliente!`);
+    } catch (error) {
+      console.error("Error converting lead to client:", error);
     }
   };
 
@@ -66,6 +149,10 @@ export function useLeads() {
         .single();
 
       if (error) throw error;
+      
+      // Add initial history entry
+      await addLeadHistory(data.id, null, data.status);
+      
       setLeads([data, ...leads]);
       toast.success("Lead adicionado com sucesso!");
       return data;
@@ -77,6 +164,9 @@ export function useLeads() {
 
   const updateLead = async (id: string, updates: Partial<Lead>) => {
     try {
+      const currentLead = leads.find(l => l.id === id);
+      const oldStatus = currentLead?.status;
+
       const { data, error } = await supabase
         .from("leads")
         .update(updates)
@@ -85,6 +175,17 @@ export function useLeads() {
         .single();
 
       if (error) throw error;
+      
+      // If status changed, add history entry
+      if (updates.status && oldStatus !== updates.status) {
+        await addLeadHistory(id, oldStatus || null, updates.status);
+        
+        // If moved to "closed", convert to client
+        if (updates.status === "closed" && currentLead) {
+          await convertLeadToClient({ ...currentLead, ...updates } as Lead);
+        }
+      }
+      
       setLeads(leads.map(l => l.id === id ? data : l));
       toast.success("Lead atualizado com sucesso!");
       return data;
@@ -114,5 +215,14 @@ export function useLeads() {
     fetchLeads();
   }, [user]);
 
-  return { leads, loading, addLead, updateLead, deleteLead, refetch: fetchLeads };
+  return { 
+    leads, 
+    loading, 
+    addLead, 
+    updateLead, 
+    deleteLead, 
+    fetchLeadHistory,
+    stageNames,
+    refetch: fetchLeads 
+  };
 }
