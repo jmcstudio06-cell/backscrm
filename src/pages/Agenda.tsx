@@ -43,31 +43,52 @@ export default function Agenda() {
   const [editingShow, setEditingShow] = useState<Show | null>(null);
 
   const handleShowCreated = (newShow: ShowData) => {
+    // Map musicians and expenses to the format expected by useShows
+    const musicians = newShow.selectedMusicians?.map(m => ({
+      musicianId: m.musicianId,
+      name: m.name,
+      fee: m.fee,
+    })) || [];
+
+    const expenses = newShow.expenses?.map(e => ({
+      id: e.id,
+      description: e.description,
+      category: e.category,
+      value: e.value,
+    })) || [];
+
     if (editingShow) {
-      updateShow(editingShow.id, {
-        title: newShow.name,
-        date: newShow.date,
-        start_time: newShow.time,
-        venue: newShow.venue,
-        address: newShow.address,
-        cachet: newShow.cachet,
-        status: newShow.status,
-        event_type: newShow.type,
-      });
-      toast.success(`Show "${newShow.name}" atualizado com sucesso!`);
+      updateShow(
+        editingShow.id,
+        {
+          title: newShow.name,
+          date: newShow.date,
+          start_time: newShow.time,
+          venue: newShow.venue,
+          address: newShow.address,
+          cachet: newShow.cachet,
+          status: newShow.status,
+          event_type: newShow.type,
+        },
+        musicians,
+        expenses
+      );
       setEditingShow(null);
     } else {
-      addShow({
-        title: newShow.name,
-        date: newShow.date,
-        start_time: newShow.time,
-        venue: newShow.venue,
-        address: newShow.address,
-        cachet: newShow.cachet,
-        status: newShow.status,
-        event_type: newShow.type,
-      });
-      toast.success(`Show "${newShow.name}" adicionado com sucesso!`);
+      addShow(
+        {
+          title: newShow.name,
+          date: newShow.date,
+          start_time: newShow.time,
+          venue: newShow.venue,
+          address: newShow.address,
+          cachet: newShow.cachet,
+          status: newShow.status,
+          event_type: newShow.type,
+        },
+        musicians,
+        expenses
+      );
     }
   };
 
