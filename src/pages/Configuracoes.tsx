@@ -23,7 +23,7 @@ export default function Configuracoes() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [bio, setBio] = useState("");
+  const [city, setCity] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -31,6 +31,7 @@ export default function Configuracoes() {
       setName(profile.name || "");
       setEmail(profile.email || "");
       setPhone(profile.phone || "");
+      setCity(profile.city || "");
     }
   }, [profile]);
 
@@ -40,6 +41,7 @@ export default function Configuracoes() {
       name,
       email,
       phone,
+      city,
     });
     setSaving(false);
   };
@@ -101,6 +103,16 @@ export default function Configuracoes() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-foreground">Cidade - UF</label>
+                  <Input 
+                    placeholder="Ex: São Paulo - SP" 
+                    className="mt-1 bg-secondary"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Esta cidade aparecerá na assinatura dos contratos</p>
                 </div>
               </div>
             </div>

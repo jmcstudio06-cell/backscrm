@@ -9,6 +9,9 @@ export interface Client {
   email: string | null;
   phone: string | null;
   company: string | null;
+  cpf: string | null;
+  rg: string | null;
+  address: string | null;
   notes: string | null;
   shows_count: number | null;
   total_spent: number | null;

@@ -100,12 +100,19 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
   };
 
   const finalValue = contract.total_value - contract.discount;
-  const artistName = contract.artist_name || profile?.name || "NOME DA EMPRESA";
-  const artistEmail = contract.artist_email || profile?.email || "";
-  const artistPhone = contract.artist_phone || profile?.phone || "";
+  const artistName = profile?.name || contract.artist_name || "NOME DO ARTISTA";
+  const artistEmail = profile?.email || contract.artist_email || "";
+  const artistPhone = profile?.phone || contract.artist_phone || "";
+  const artistCity = profile?.city || "";
   const artistAddress = contract.artist_address || "";
   const artistDocument = contract.artist_document || "";
   const artistInitial = artistName.charAt(0).toUpperCase();
+
+  // Format contract creation date
+  const creationDate = new Date(contract.created_at);
+  const creationDay = creationDate.getDate();
+  const creationMonth = creationDate.toLocaleDateString("pt-BR", { month: "long" });
+  const creationYear = creationDate.getFullYear();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -156,11 +163,6 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               <div style={{ fontSize: 11, color: "#999", textAlign: "right" }}>
                 1/2
               </div>
-            </div>
-
-            {/* Company Name */}
-            <div style={{ textAlign: "center", marginBottom: 15, fontSize: 11, color: "#666" }}>
-              [{artistName.toUpperCase()}]
             </div>
 
             {/* Title */}
@@ -228,7 +230,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
 
             {/* Signature Section */}
             <div style={{ marginTop: 40, textAlign: "center" }}>
-              <p>[{contract.event_location?.split(",")[0]?.toUpperCase() || "CIDADE"} E UF], ___ de __________ de {new Date().getFullYear()}.</p>
+              <p>{artistCity ? `${artistCity.toUpperCase()}` : "[CIDADE E UF]"}, {creationDay} de {creationMonth} de {creationYear}.</p>
             </div>
 
             <p style={{ textAlign: "center", marginTop: 15 }}>

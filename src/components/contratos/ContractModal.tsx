@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Plus, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, Check } from "lucide-react";
 import { Client } from "@/hooks/useClients";
 import { Contract, ContractClause, SavedClause } from "@/hooks/useContracts";
+import { cn } from "@/lib/utils";
 
 interface ContractModalProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ interface ContractModalProps {
 
 export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, getDefaultClauses, contract }: ContractModalProps) {
   const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [clientSearchOpen, setClientSearchOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [artistName, setArtistName] = useState("");
   const [artistDocument, setArtistDocument] = useState("");
@@ -29,6 +32,7 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
   const [artistEmail, setArtistEmail] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientDocument, setClientDocument] = useState("");
+  const [clientRg, setClientRg] = useState("");
   const [clientAddress, setClientAddress] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
@@ -42,6 +46,8 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
   const [paymentTerms, setPaymentTerms] = useState("");
   const [clauses, setClauses] = useState<ContractClause[]>([]);
 
+  const selectedClient = useMemo(() => clients.find(c => c.id === selectedClientId), [clients, selectedClientId]);
+
   useEffect(() => {
     if (contract) {
       setTitle(contract.title);
@@ -52,6 +58,7 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
       setArtistEmail(contract.artist_email || "");
       setClientName(contract.client_name);
       setClientDocument(contract.client_document || "");
+      setClientRg("");
       setClientAddress(contract.client_address || "");
       setClientPhone(contract.client_phone || "");
       setClientEmail(contract.client_email || "");
@@ -80,6 +87,7 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
     setArtistEmail("");
     setClientName("");
     setClientDocument("");
+    setClientRg("");
     setClientAddress("");
     setClientPhone("");
     setClientEmail("");
@@ -101,7 +109,11 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
       setClientName(client.name);
       setClientEmail(client.email || "");
       setClientPhone(client.phone || "");
+      setClientDocument(client.cpf || "");
+      setClientRg(client.rg || "");
+      setClientAddress(client.address || "");
     }
+    setClientSearchOpen(false);
   };
 
   const loadDefaultClauses = () => setClauses(getDefaultClauses());
@@ -176,16 +188,42 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
           {/* Client Info */}
           <div className="space-y-4">
             <Label className="text-base font-semibold">Dados do Cliente (CONTRATANTE)</Label>
-            <Select value={selectedClientId} onValueChange={handleClientSelect}>
-              <SelectTrigger className="bg-secondary"><SelectValue placeholder="Selecionar cliente cadastrado" /></SelectTrigger>
-              <SelectContent className="bg-background border">{clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-            </Select>
+            <Popover open={clientSearchOpen} onOpenChange={setClientSearchOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={clientSearchOpen} className="w-full justify-between bg-secondary">
+                  {selectedClient ? selectedClient.name : "Pesquisar cliente cadastrado..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 bg-background border" align="start">
+                <Command>
+                  <CommandInput placeholder="Digite para buscar..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      {clients.map((client) => (
+                        <CommandItem
+                          key={client.id}
+                          value={client.name}
+                          onSelect={() => handleClientSelect(client.id)}
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", selectedClientId === client.id ? "opacity-100" : "opacity-0")} />
+                          {client.name}
+                          {client.company && <span className="ml-2 text-muted-foreground text-sm">({client.company})</span>}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Nome</Label><Input value={clientName} onChange={e => setClientName(e.target.value)} className="bg-secondary" /></div>
-              <div className="space-y-2"><Label>CPF/CNPJ</Label><Input value={clientDocument} onChange={e => setClientDocument(e.target.value)} className="bg-secondary" /></div>
+              <div className="space-y-2"><Label>CPF/CNPJ</Label><Input value={clientDocument} onChange={e => setClientDocument(e.target.value)} placeholder="000.000.000-00" className="bg-secondary" /></div>
+              <div className="space-y-2"><Label>RG</Label><Input value={clientRg} onChange={e => setClientRg(e.target.value)} placeholder="00.000.000-0" className="bg-secondary" /></div>
               <div className="space-y-2"><Label>Telefone</Label><Input value={clientPhone} onChange={e => setClientPhone(e.target.value)} className="bg-secondary" /></div>
               <div className="space-y-2"><Label>Email</Label><Input value={clientEmail} onChange={e => setClientEmail(e.target.value)} className="bg-secondary" /></div>
-              <div className="col-span-2 space-y-2"><Label>Endereço</Label><Input value={clientAddress} onChange={e => setClientAddress(e.target.value)} className="bg-secondary" /></div>
+              <div className="space-y-2"><Label>Endereço</Label><Input value={clientAddress} onChange={e => setClientAddress(e.target.value)} placeholder="Cidade - UF" className="bg-secondary" /></div>
             </div>
           </div>
 
