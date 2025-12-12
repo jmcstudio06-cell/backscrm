@@ -17,6 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar,
@@ -33,10 +38,13 @@ import {
   Utensils,
   Wrench,
   Receipt,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EditingShow {
   id: string;
@@ -125,6 +133,9 @@ const formatCurrency = (value: number): string => {
 export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading } = useMusicians();
   const [activeTab, setActiveTab] = useState("info");
+  const [showTeamSelector, setShowTeamSelector] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: "",
     date: "",
@@ -147,6 +158,47 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
     value: 0,
   });
 
+  // Load saved musicians and expenses when editing
+  const loadShowFinancialData = async (showId: string) => {
+    setLoadingData(true);
+    try {
+      // Load musicians
+      const { data: savedMusicians } = await supabase
+        .from("show_musicians")
+        .select("musician_id, fee, musicians(name)")
+        .eq("show_id", showId);
+
+      if (savedMusicians && savedMusicians.length > 0) {
+        const loadedMusicians: SelectedMusician[] = savedMusicians.map((m: any) => ({
+          musicianId: m.musician_id,
+          name: m.musicians?.name || "Músico",
+          fee: m.fee || 0,
+        }));
+        setSelectedMusicians(loadedMusicians);
+      }
+
+      // Load expenses
+      const { data: savedExpenses } = await supabase
+        .from("show_expenses")
+        .select("*")
+        .eq("show_id", showId);
+
+      if (savedExpenses && savedExpenses.length > 0) {
+        const loadedExpenses: Expense[] = savedExpenses.map((e: any) => ({
+          id: e.id,
+          description: e.description || "",
+          category: e.category,
+          value: e.amount || 0,
+        }));
+        setExpenses(loadedExpenses);
+      }
+    } catch (error) {
+      console.error("Error loading show financial data:", error);
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
   // Load editing show data when modal opens
   useEffect(() => {
     if (open && editingShow) {
@@ -164,6 +216,10 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
         cachet: editingShow.cachet || 0,
       });
       setActiveTab("info");
+      setShowTeamSelector(false);
+      
+      // Load financial data
+      loadShowFinancialData(editingShow.id);
     } else if (open && !editingShow) {
       // Reset form for new show
       setFormData({
@@ -182,6 +238,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
       setExpenses([]);
       setSelectedMusicians([]);
       setActiveTab("info");
+      setShowTeamSelector(false);
     }
   }, [open, editingShow]);
 
@@ -269,6 +326,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
     setExpenses([]);
     setSelectedMusicians([]);
     setActiveTab("info");
+    setShowTeamSelector(false);
     onOpenChange(false);
   };
 
@@ -280,11 +338,6 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
   const getCategoryLabel = (category: string) => {
     const cat = expenseCategories.find((c) => c.value === category);
     return cat?.label || category;
-  };
-
-  const getStatusLabel = (status: string) => {
-    const s = showStatuses.find((st) => st.value === status);
-    return s?.label || status;
   };
 
   return (
@@ -458,6 +511,12 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
 
           {/* Financial Tab */}
           <TabsContent value="financial" className="space-y-6 mt-4">
+            {loadingData && (
+              <div className="text-center py-4 text-muted-foreground">
+                Carregando dados financeiros...
+              </div>
+            )}
+            
             {/* Cachê */}
             <div className="p-4 rounded-xl bg-success/10 border border-success/20">
               <Label htmlFor="cachet" className="flex items-center gap-2 text-success mb-2">
@@ -477,69 +536,92 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
               </div>
             </div>
 
-            {/* Select Team Members */}
-            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-              <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                Selecionar Minha Equipe
-              </h4>
-              {musiciansLoading ? (
-                <p className="text-sm text-muted-foreground">Carregando equipe...</p>
-              ) : musicians.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Nenhum músico cadastrado. Cadastre sua equipe em Logística → Equipe & Freelancer.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {musicians.map((musician) => {
-                    const selected = selectedMusicians.find((m) => m.musicianId === musician.id);
-                    return (
-                      <div
-                        key={musician.id}
-                        className={cn(
-                          "flex items-center justify-between p-3 rounded-lg transition-colors",
-                          selected ? "bg-primary/10" : "bg-secondary/50"
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Checkbox
-                            checked={!!selected}
-                            onCheckedChange={(checked) =>
-                              handleToggleMusician(musician, checked as boolean)
-                            }
-                          />
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{musician.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {musician.instrument || "Músico"} • Cachê padrão: R${formatCurrency(musician.rate || 0)}
-                            </p>
+            {/* Select Team Members - Collapsible */}
+            <Collapsible open={showTeamSelector} onOpenChange={setShowTeamSelector}>
+              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                <CollapsibleTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-between p-0 h-auto hover:bg-transparent"
+                  >
+                    <h4 className="font-semibold text-foreground flex items-center gap-2">
+                      <Users className="w-5 h-5 text-primary" />
+                      Selecionar Minha Equipe
+                      {selectedMusicians.length > 0 && (
+                        <span className="text-sm font-normal text-muted-foreground">
+                          ({selectedMusicians.length} selecionado{selectedMusicians.length > 1 ? "s" : ""})
+                        </span>
+                      )}
+                    </h4>
+                    {showTeamSelector ? (
+                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="mt-4">
+                  {musiciansLoading ? (
+                    <p className="text-sm text-muted-foreground">Carregando equipe...</p>
+                  ) : musicians.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Nenhum músico cadastrado. Cadastre sua equipe em Logística → Equipe & Freelancer.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {musicians.map((musician) => {
+                        const selected = selectedMusicians.find((m) => m.musicianId === musician.id);
+                        return (
+                          <div
+                            key={musician.id}
+                            className={cn(
+                              "flex items-center justify-between p-3 rounded-lg transition-colors",
+                              selected ? "bg-primary/10" : "bg-secondary/50"
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Checkbox
+                                checked={!!selected}
+                                onCheckedChange={(checked) =>
+                                  handleToggleMusician(musician, checked as boolean)
+                                }
+                              />
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{musician.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {musician.instrument || "Músico"} • Cachê padrão: R${formatCurrency(musician.rate || 0)}
+                                </p>
+                              </div>
+                            </div>
+                            {selected && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">R$</span>
+                                <Input
+                                  type="number"
+                                  className="w-24 h-8 text-right"
+                                  value={selected.fee || ""}
+                                  onChange={(e) =>
+                                    handleUpdateMusicianFee(musician.id, Number(e.target.value))
+                                  }
+                                />
+                              </div>
+                            )}
                           </div>
-                        </div>
-                        {selected && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">R$</span>
-                            <Input
-                              type="number"
-                              className="w-24 h-8 text-right"
-                              value={selected.fee || ""}
-                              onChange={(e) =>
-                                handleUpdateMusicianFee(musician.id, Number(e.target.value))
-                              }
-                            />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              {selectedMusicians.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-border flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total Equipe</span>
-                  <span className="font-bold text-destructive">- R${formatCurrency(musiciansCost)}</span>
-                </div>
-              )}
-            </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CollapsibleContent>
+                
+                {selectedMusicians.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Total Equipe</span>
+                    <span className="font-bold text-destructive">- R${formatCurrency(musiciansCost)}</span>
+                  </div>
+                )}
+              </div>
+            </Collapsible>
 
             {/* Add Other Expense */}
             <div className="p-4 rounded-xl bg-secondary/50">
@@ -609,9 +691,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="font-semibold text-destructive">
-                            - R${formatCurrency(expense.value)}
-                          </span>
+                          <span className="font-semibold text-destructive">- R${formatCurrency(expense.value)}</span>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -628,34 +708,24 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
               </div>
             )}
 
-            {/* Summary Card */}
-            <div className="p-4 rounded-xl bg-card border border-border space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Receita (Cachê)</span>
-                <span className="font-bold text-success">
-                  + R${formatCurrency(formData.cachet)}
-                </span>
-              </div>
-              {selectedMusicians.length > 0 && (
-                <div className="flex justify-between items-center">
+            {/* Total Summary */}
+            <div className="p-4 rounded-xl bg-muted/50 border border-border">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Cachê</span>
+                  <span className="font-medium text-success">+ R${formatCurrency(formData.cachet)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Equipe ({selectedMusicians.length})</span>
-                  <span className="font-bold text-destructive">
-                    - R${formatCurrency(musiciansCost)}
-                  </span>
+                  <span className="font-medium text-destructive">- R${formatCurrency(musiciansCost)}</span>
                 </div>
-              )}
-              {expenses.length > 0 && (
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Outras Despesas</span>
-                  <span className="font-bold text-destructive">
-                    - R${formatCurrency(otherExpenses)}
-                  </span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Outras despesas ({expenses.length})</span>
+                  <span className="font-medium text-destructive">- R${formatCurrency(otherExpenses)}</span>
                 </div>
-              )}
-              <div className="border-t border-border pt-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-foreground">Lucro Líquido</span>
-                  <span className={cn("text-xl font-bold", netProfit >= 0 ? "text-primary" : "text-destructive")}>
+                <div className="pt-2 border-t border-border flex justify-between">
+                  <span className="font-semibold">Lucro Líquido</span>
+                  <span className={cn("font-bold text-lg", netProfit >= 0 ? "text-success" : "text-destructive")}>
                     R${formatCurrency(netProfit)}
                   </span>
                 </div>
@@ -663,7 +733,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
             </div>
 
             <div className="flex justify-between">
-              <Button onClick={() => setActiveTab("info")} variant="outline">
+              <Button variant="outline" onClick={() => setActiveTab("info")}>
                 Voltar
               </Button>
               <Button onClick={() => setActiveTab("summary")} variant="gradient">
@@ -674,43 +744,63 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
 
           {/* Summary Tab */}
           <TabsContent value="summary" className="space-y-6 mt-4">
-            <div className="p-4 rounded-xl bg-secondary/50">
-              <h4 className="font-semibold text-foreground mb-4">Dados do Evento</h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Evento:</span>
-                  <p className="font-medium text-foreground">{formData.name || "-"}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Event Info Card */}
+              <div className="p-4 rounded-xl bg-secondary/50 space-y-3">
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  Informações do Evento
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Nome</span>
+                    <span className="font-medium">{formData.name || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Data</span>
+                    <span className="font-medium">{formData.date || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Horário</span>
+                    <span className="font-medium">{formData.time || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Local</span>
+                    <span className="font-medium">{formData.venue || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tipo</span>
+                    <span className="font-medium">{formData.type || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Status</span>
+                    <span className="font-medium">
+                      {showStatuses.find(s => s.value === formData.status)?.label || formData.status}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">Tipo:</span>
-                  <p className="font-medium text-foreground">{formData.type || "-"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Data:</span>
-                  <p className="font-medium text-foreground">
-                    {formData.date ? new Date(formData.date).toLocaleDateString("pt-BR") : "-"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Horário:</span>
-                  <p className="font-medium text-foreground">{formData.time || "-"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Local:</span>
-                  <p className="font-medium text-foreground">{formData.venue || "-"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Cliente:</span>
-                  <p className="font-medium text-foreground">{formData.client || "-"}</p>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-muted-foreground">Status:</span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={cn(
-                      "w-2 h-2 rounded-full",
-                      showStatuses.find(s => s.value === formData.status)?.color
-                    )} />
-                    <p className="font-medium text-foreground">{getStatusLabel(formData.status)}</p>
+              </div>
+
+              {/* Financial Card */}
+              <div className="p-4 rounded-xl bg-secondary/50 space-y-3">
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-success" />
+                  Resumo Financeiro
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Cachê</span>
+                    <span className="font-medium text-success">R${formatCurrency(formData.cachet)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Despesas</span>
+                    <span className="font-medium text-destructive">R${formatCurrency(totalExpenses)}</span>
+                  </div>
+                  <div className="pt-2 border-t border-border flex justify-between">
+                    <span className="font-semibold">Lucro Líquido</span>
+                    <span className={cn("font-bold", netProfit >= 0 ? "text-success" : "text-destructive")}>
+                      R${formatCurrency(netProfit)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -718,90 +808,42 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
 
             {/* Team Summary */}
             {selectedMusicians.length > 0 && (
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-primary" />
-                  Equipe Escalada ({selectedMusicians.length})
+              <div className="p-4 rounded-xl bg-secondary/50 space-y-3">
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  Equipe Selecionada ({selectedMusicians.length})
                 </h4>
                 <div className="space-y-2">
                   {selectedMusicians.map((m) => (
                     <div key={m.musicianId} className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{m.name}</span>
-                      <span className="font-medium text-foreground">R${formatCurrency(m.fee)}</span>
+                      <span className="font-medium text-destructive">R${formatCurrency(m.fee)}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Financial Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-success/10 border border-success/20 text-center">
-                <p className="text-xs text-success mb-1">RECEITA</p>
-                <p className="text-2xl font-bold text-success">
-                  R${formatCurrency(formData.cachet)}
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-center">
-                <p className="text-xs text-destructive mb-1">DESPESAS</p>
-                <p className="text-2xl font-bold text-destructive">
-                  R${formatCurrency(totalExpenses)}
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-center">
-                <p className="text-xs text-primary mb-1">LUCRO LÍQUIDO</p>
-                <p className={cn("text-2xl font-bold", netProfit >= 0 ? "text-primary" : "text-destructive")}>
-                  R${formatCurrency(netProfit)}
-                </p>
-              </div>
-            </div>
-
-            {/* Expenses Breakdown */}
-            {(expenses.length > 0 || selectedMusicians.length > 0) && (
-              <div className="p-4 rounded-xl bg-secondary/50">
-                <h4 className="font-semibold text-foreground mb-3">Despesas por Categoria</h4>
+            {/* Expenses Summary */}
+            {expenses.length > 0 && (
+              <div className="p-4 rounded-xl bg-secondary/50 space-y-3">
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <Receipt className="w-5 h-5 text-destructive" />
+                  Outras Despesas ({expenses.length})
+                </h4>
                 <div className="space-y-2">
-                  {selectedMusicians.length > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Músicos</span>
-                      </div>
-                      <span className="font-medium text-foreground">
-                        R${formatCurrency(musiciansCost)}
-                      </span>
+                  {expenses.map((e) => (
+                    <div key={e.id} className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{e.description}</span>
+                      <span className="font-medium text-destructive">R${formatCurrency(e.value)}</span>
                     </div>
-                  )}
-                  {expenseCategories.filter(c => c.value !== "musicos").map((cat) => {
-                    const categoryTotal = expenses
-                      .filter((exp) => exp.category === cat.value)
-                      .reduce((sum, exp) => sum + exp.value, 0);
-                    if (categoryTotal === 0) return null;
-                    return (
-                      <div key={cat.value} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <cat.icon className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">{cat.label}</span>
-                        </div>
-                        <span className="font-medium text-foreground">
-                          R${formatCurrency(categoryTotal)}
-                        </span>
-                      </div>
-                    );
-                  })}
+                  ))}
                 </div>
               </div>
             )}
 
-            <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
-              <p className="text-sm text-accent flex items-center gap-2">
-                <Receipt className="w-4 h-4" />
-                Ao confirmar, este show será registrado e os dados serão enviados para os módulos correspondentes baseado no status.
-              </p>
-            </div>
-
             <div className="flex justify-between">
-              <Button onClick={() => setActiveTab("financial")} variant="outline">
+              <Button variant="outline" onClick={() => setActiveTab("financial")}>
                 Voltar
               </Button>
               <Button onClick={handleSubmit} variant="gradient" className="gap-2">
