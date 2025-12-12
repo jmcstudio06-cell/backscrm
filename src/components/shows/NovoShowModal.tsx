@@ -23,6 +23,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Calendar,
   Clock,
@@ -40,10 +41,13 @@ import {
   Receipt,
   ChevronDown,
   ChevronUp,
+  UserPlus,
+  Building2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
+import { useClients, Client } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 
 interface EditingShow {
@@ -84,6 +88,9 @@ export interface ShowData {
   address: string;
   client: string;
   clientPhone: string;
+  clientEmail?: string;
+  clientCompany?: string;
+  clientId?: string;
   type: string;
   status: string;
   notes: string;
@@ -132,9 +139,12 @@ const formatCurrency = (value: number): string => {
 
 export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading } = useMusicians();
+  const { clients, loading: clientsLoading, addClient } = useClients();
   const [activeTab, setActiveTab] = useState("info");
   const [showTeamSelector, setShowTeamSelector] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+  const [clientMode, setClientMode] = useState<"existing" | "new">("existing");
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
   
   const [formData, setFormData] = useState({
     name: "",
@@ -144,6 +154,8 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
     address: "",
     client: "",
     clientPhone: "",
+    clientEmail: "",
+    clientCompany: "",
     type: "",
     status: "scheduled",
     notes: "",
@@ -210,11 +222,15 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
         address: editingShow.address || "",
         client: "",
         clientPhone: "",
+        clientEmail: "",
+        clientCompany: "",
         type: editingShow.event_type || "",
         status: editingShow.status || "scheduled",
         notes: editingShow.notes || "",
         cachet: editingShow.cachet || 0,
       });
+      setClientMode("existing");
+      setSelectedClientId("");
       setActiveTab("info");
       setShowTeamSelector(false);
       
@@ -230,11 +246,15 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
         address: "",
         client: "",
         clientPhone: "",
+        clientEmail: "",
+        clientCompany: "",
         type: "",
         status: "scheduled",
         notes: "",
         cachet: 0,
       });
+      setClientMode("existing");
+      setSelectedClientId("");
       setExpenses([]);
       setSelectedMusicians([]);
       setActiveTab("info");
@@ -291,15 +311,31 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
     setExpenses(expenses.filter((exp) => exp.id !== id));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name || !formData.date || !formData.venue) {
       toast.error("Preencha os campos obrigatórios: Nome, Data e Local");
       return;
     }
 
+    let clientId = selectedClientId || undefined;
+
+    // If creating a new client, save it first
+    if (clientMode === "new" && formData.client) {
+      const newClient = await addClient({
+        name: formData.client,
+        phone: formData.clientPhone || null,
+        email: formData.clientEmail || null,
+        company: formData.clientCompany || null,
+      });
+      if (newClient) {
+        clientId = newClient.id;
+      }
+    }
+
     const showData: ShowData = {
       id: editingShow?.id || crypto.randomUUID(),
       ...formData,
+      clientId,
       expenses,
       totalExpenses,
       netProfit,
@@ -318,11 +354,15 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
       address: "",
       client: "",
       clientPhone: "",
+      clientEmail: "",
+      clientCompany: "",
       type: "",
       status: "scheduled",
       notes: "",
       cachet: 0,
     });
+    setClientMode("existing");
+    setSelectedClientId("");
     setExpenses([]);
     setSelectedMusicians([]);
     setActiveTab("info");
@@ -446,26 +486,134 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="client" className="flex items-center gap-2">
+              {/* Client Section */}
+              <div className="space-y-4 md:col-span-2">
+                <Label className="flex items-center gap-2 text-base font-medium">
                   <User className="w-4 h-4" /> Cliente
                 </Label>
-                <Input
-                  id="client"
-                  placeholder="Nome do cliente"
-                  value={formData.client}
-                  onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                />
-              </div>
+                
+                <RadioGroup
+                  value={clientMode}
+                  onValueChange={(value: "existing" | "new") => {
+                    setClientMode(value);
+                    if (value === "existing") {
+                      setFormData({ ...formData, client: "", clientPhone: "", clientEmail: "", clientCompany: "" });
+                    } else {
+                      setSelectedClientId("");
+                    }
+                  }}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="existing" id="existing" />
+                    <Label htmlFor="existing" className="font-normal cursor-pointer">
+                      Selecionar existente
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="new" id="new" />
+                    <Label htmlFor="new" className="font-normal cursor-pointer">
+                      Criar novo
+                    </Label>
+                  </div>
+                </RadioGroup>
 
-              <div className="space-y-2">
-                <Label htmlFor="clientPhone">Telefone do Cliente</Label>
-                <Input
-                  id="clientPhone"
-                  placeholder="(00) 00000-0000"
-                  value={formData.clientPhone}
-                  onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-                />
+                {clientMode === "existing" ? (
+                  <div className="space-y-2">
+                    <Select
+                      value={selectedClientId}
+                      onValueChange={(value) => {
+                        setSelectedClientId(value);
+                        const client = clients.find(c => c.id === value);
+                        if (client) {
+                          setFormData({
+                            ...formData,
+                            client: client.name,
+                            clientPhone: client.phone || "",
+                            clientEmail: client.email || "",
+                            clientCompany: client.company || "",
+                          });
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={clientsLoading ? "Carregando..." : clients.length === 0 ? "Nenhum cliente cadastrado" : "Selecione um cliente"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clients.map((client) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            <div className="flex items-center gap-2">
+                              <Building2 className="w-4 h-4 text-muted-foreground" />
+                              <span>{client.name}</span>
+                              {client.company && (
+                                <span className="text-xs text-muted-foreground">({client.company})</span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    {selectedClientId && (
+                      <div className="p-3 rounded-lg bg-secondary/50 border border-border">
+                        <div className="flex items-center gap-2 text-sm">
+                          <User className="w-4 h-4 text-primary" />
+                          <span className="font-medium">{formData.client}</span>
+                        </div>
+                        {formData.clientPhone && (
+                          <p className="text-xs text-muted-foreground mt-1">📞 {formData.clientPhone}</p>
+                        )}
+                        {formData.clientEmail && (
+                          <p className="text-xs text-muted-foreground">✉️ {formData.clientEmail}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 rounded-lg bg-secondary/30 border border-border">
+                    <div className="space-y-2">
+                      <Label htmlFor="newClient" className="text-sm">Nome do Cliente *</Label>
+                      <Input
+                        id="newClient"
+                        placeholder="Nome completo"
+                        value={formData.client}
+                        onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newClientPhone" className="text-sm">Telefone</Label>
+                      <Input
+                        id="newClientPhone"
+                        placeholder="(00) 00000-0000"
+                        value={formData.clientPhone}
+                        onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newClientEmail" className="text-sm">E-mail</Label>
+                      <Input
+                        id="newClientEmail"
+                        type="email"
+                        placeholder="email@exemplo.com"
+                        value={formData.clientEmail}
+                        onChange={(e) => setFormData({ ...formData, clientEmail: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newClientCompany" className="text-sm">Empresa</Label>
+                      <Input
+                        id="newClientCompany"
+                        placeholder="Nome da empresa"
+                        value={formData.clientCompany}
+                        onChange={(e) => setFormData({ ...formData, clientCompany: e.target.value })}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground md:col-span-2 flex items-center gap-1">
+                      <UserPlus className="w-3 h-3" />
+                      Este cliente será salvo automaticamente na sua base
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2 md:col-span-2">
