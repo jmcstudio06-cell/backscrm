@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
@@ -30,8 +31,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-            <Route path="/" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/aulas" element={<Aulas />} />
           <Route path="/crm" element={<CRM />} />
