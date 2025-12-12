@@ -15,6 +15,7 @@ import {
   Filter,
   Plus,
   Wallet,
+  Trash2,
 } from "lucide-react";
 import {
   AreaChart,
@@ -37,20 +38,36 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
+import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Financeiro() {
-  const { transactions, loading, getTotalIncome, getTotalExpense } = useTransactions();
+  const { transactions, loading, deleteTransaction } = useTransactions();
 
   const handleAddExpense = () => toast.info("Funcionalidade de nova despesa em desenvolvimento!");
   const handleAddIncome = () => toast.info("Funcionalidade de nova receita em desenvolvimento!");
   const handleExportPdf = () => toast.success("Relatório exportado com sucesso!");
 
-  const totalIncome = getTotalIncome();
-  const totalExpense = getTotalExpense();
+  const handleDeleteTransaction = async (id: string) => {
+    await deleteTransaction(id);
+  };
+
+  // Filter transactions for current month only
+  const now = new Date();
+  const currentMonthStart = startOfMonth(now);
+  const currentMonthEnd = endOfMonth(now);
+
+  const currentMonthTransactions = transactions.filter(t => {
+    const transactionDate = parseISO(t.date);
+    return isWithinInterval(transactionDate, { start: currentMonthStart, end: currentMonthEnd });
+  });
+
+  const totalIncome = currentMonthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+  const totalExpense = currentMonthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
   const profit = totalIncome - totalExpense;
 
-  // Group transactions by category for pie chart
-  const expensesByCategory = transactions
+  // Group current month transactions by category for pie chart
+  const expensesByCategory = currentMonthTransactions
     .filter(t => t.type === "expense")
     .reduce((acc, t) => {
       acc[t.category] = (acc[t.category] || 0) + t.amount;
@@ -63,8 +80,28 @@ export default function Financeiro() {
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
 
-  // Group transactions by month for chart
-  const monthlyData: { month: string; receita: number; despesa: number }[] = [];
+  // Generate last 6 months data for chart
+  const monthlyData = [];
+  for (let i = 5; i >= 0; i--) {
+    const monthDate = subMonths(now, i);
+    const monthStart = startOfMonth(monthDate);
+    const monthEnd = endOfMonth(monthDate);
+    const monthName = format(monthDate, "MMM", { locale: ptBR });
+
+    const monthTransactions = transactions.filter(t => {
+      const transactionDate = parseISO(t.date);
+      return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
+    });
+
+    const receita = monthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+    const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+
+    if (receita > 0 || despesa > 0) {
+      monthlyData.push({ month: monthName, receita, despesa });
+    }
+  }
+
+  const currentMonthName = format(now, "MMMM 'de' yyyy", { locale: ptBR });
 
   if (loading) {
     return (
@@ -77,7 +114,7 @@ export default function Financeiro() {
   }
 
   return (
-    <Layout title="Financeiro" subtitle="Gerencie suas finanças e relatórios">
+    <Layout title="Financeiro" subtitle={`Resumo de ${currentMonthName}`}>
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-secondary">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
@@ -92,25 +129,25 @@ export default function Financeiro() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard
               title="Receita Mensal"
-              value={`R$ ${totalIncome.toLocaleString("pt-BR")}`}
+              value={`R$ ${totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingUp}
               gradient="success"
             />
             <StatCard
               title="Despesas Mensais"
-              value={`R$ ${totalExpense.toLocaleString("pt-BR")}`}
+              value={`R$ ${totalExpense.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingDown}
               gradient="danger"
             />
             <StatCard
               title="Lucro Líquido"
-              value={`R$ ${profit.toLocaleString("pt-BR")}`}
+              value={`R$ ${profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={DollarSign}
               gradient="primary"
             />
             <StatCard
               title="Saldo em Conta"
-              value={`R$ ${profit.toLocaleString("pt-BR")}`}
+              value={`R$ ${profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={Wallet}
               gradient="blue"
             />
@@ -143,7 +180,14 @@ export default function Financeiro() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: "hsl(var(--card))", 
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px"
+                      }}
+                      formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, ""]}
+                    />
                     <Area
                       type="monotone"
                       dataKey="receita"
@@ -151,6 +195,7 @@ export default function Financeiro() {
                       fillOpacity={1}
                       fill="url(#colorReceita)"
                       strokeWidth={2}
+                      name="Receita"
                     />
                     <Area
                       type="monotone"
@@ -159,6 +204,7 @@ export default function Financeiro() {
                       fillOpacity={1}
                       fill="url(#colorDespesa)"
                       strokeWidth={2}
+                      name="Despesa"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -187,7 +233,7 @@ export default function Financeiro() {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, ""]} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="space-y-2 mt-4">
@@ -198,7 +244,7 @@ export default function Financeiro() {
                           <span className="text-muted-foreground">{cat.name}</span>
                         </div>
                         <span className="font-medium text-foreground">
-                          R$ {cat.value.toLocaleString("pt-BR")}
+                          R$ {cat.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </span>
                       </div>
                     ))}
@@ -210,22 +256,22 @@ export default function Financeiro() {
 
           {/* Transactions */}
           <ChartCard
-            title="Transações Recentes"
+            title="Transações do Mês"
             action={
               <Button variant="ghost" size="sm" className="text-primary">
                 Ver todas
               </Button>
             }
           >
-            {transactions.length === 0 ? (
+            {currentMonthTransactions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <DollarSign className="w-12 h-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Nenhuma transação registrada</p>
+                <p className="text-muted-foreground">Nenhuma transação neste mês</p>
                 <p className="text-sm text-muted-foreground">Adicione sua primeira transação para começar</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {transactions.slice(0, 5).map((transaction) => (
+                {currentMonthTransactions.slice(0, 5).map((transaction) => (
                   <div
                     key={transaction.id}
                     className="flex items-center justify-between p-3 rounded-lg bg-secondary/50"
@@ -247,18 +293,28 @@ export default function Financeiro() {
                         <p className="text-xs text-muted-foreground">{transaction.category}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p
-                        className={`font-semibold ${
-                          transaction.type === "income" ? "text-success" : "text-destructive"
-                        }`}
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p
+                          className={`font-semibold ${
+                            transaction.type === "income" ? "text-success" : "text-destructive"
+                          }`}
+                        >
+                          {transaction.type === "income" ? "+" : "-"} R${" "}
+                          {transaction.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(transaction.date).toLocaleDateString("pt-BR")}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleDeleteTransaction(transaction.id)}
                       >
-                        {transaction.type === "income" ? "+" : "-"} R${" "}
-                        {transaction.amount.toLocaleString("pt-BR")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(transaction.date).toLocaleDateString("pt-BR")}
-                      </p>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -284,10 +340,10 @@ export default function Financeiro() {
           </div>
 
           <ChartCard title="Lista de Despesas">
-            {transactions.filter(t => t.type === "expense").length === 0 ? (
+            {currentMonthTransactions.filter(t => t.type === "expense").length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <TrendingDown className="w-12 h-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Nenhuma despesa registrada</p>
+                <p className="text-muted-foreground">Nenhuma despesa neste mês</p>
               </div>
             ) : (
               <Table>
@@ -297,10 +353,11 @@ export default function Financeiro() {
                     <TableHead>Categoria</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Valor</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions
+                  {currentMonthTransactions
                     .filter((t) => t.type === "expense")
                     .map((expense) => (
                       <TableRow key={expense.id}>
@@ -312,7 +369,17 @@ export default function Financeiro() {
                           {new Date(expense.date).toLocaleDateString("pt-BR")}
                         </TableCell>
                         <TableCell className="text-destructive font-semibold">
-                          - R$ {expense.amount.toLocaleString("pt-BR")}
+                          - R$ {expense.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteTransaction(expense.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -339,10 +406,10 @@ export default function Financeiro() {
           </div>
 
           <ChartCard title="Lista de Receitas">
-            {transactions.filter(t => t.type === "income").length === 0 ? (
+            {currentMonthTransactions.filter(t => t.type === "income").length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <TrendingUp className="w-12 h-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Nenhuma receita registrada</p>
+                <p className="text-muted-foreground">Nenhuma receita neste mês</p>
               </div>
             ) : (
               <Table>
@@ -352,10 +419,11 @@ export default function Financeiro() {
                     <TableHead>Origem</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Valor</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions
+                  {currentMonthTransactions
                     .filter((t) => t.type === "income")
                     .map((income) => (
                       <TableRow key={income.id}>
@@ -367,7 +435,17 @@ export default function Financeiro() {
                           {new Date(income.date).toLocaleDateString("pt-BR")}
                         </TableCell>
                         <TableCell className="text-success font-semibold">
-                          + R$ {income.amount.toLocaleString("pt-BR")}
+                          + R$ {income.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteTransaction(income.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -388,19 +466,19 @@ export default function Financeiro() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ChartCard title="Relatório Mensal">
+            <ChartCard title={`Relatório de ${currentMonthName}`}>
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 rounded-lg bg-secondary/50">
                   <span className="text-muted-foreground">Receita Total</span>
-                  <span className="font-bold text-success">R$ {totalIncome.toLocaleString("pt-BR")}</span>
+                  <span className="font-bold text-success">R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 rounded-lg bg-secondary/50">
                   <span className="text-muted-foreground">Despesa Total</span>
-                  <span className="font-bold text-destructive">R$ {totalExpense.toLocaleString("pt-BR")}</span>
+                  <span className="font-bold text-destructive">R$ {totalExpense.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 rounded-lg bg-primary/10">
                   <span className="text-foreground font-medium">Lucro Líquido</span>
-                  <span className="font-bold text-primary">R$ {profit.toLocaleString("pt-BR")}</span>
+                  <span className="font-bold text-primary">R$ {profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
             </ChartCard>

@@ -1,10 +1,16 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DollarSign,
   TrendingUp,
   Mic2,
+  CalendarIcon,
+  Filter,
 } from "lucide-react";
 import {
   BarChart,
@@ -27,18 +33,73 @@ import {
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useShowsData } from "@/hooks/useShows";
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval, subMonths } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
 
 export default function Historico() {
-  const { transactions, loading: loadingTransactions, getTotalIncome, getTotalExpense } = useTransactions();
+  const { transactions, loading: loadingTransactions } = useTransactions();
   const { shows, loading: loadingShows } = useShowsData();
 
-  const totalReceita = getTotalIncome();
-  const totalDespesa = getTotalExpense();
-  const totalLucro = totalReceita - totalDespesa;
-  const totalShows = shows.filter(s => s.status === "completed").length;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subMonths(new Date(), 11),
+    to: new Date(),
+  });
 
-  // Group by month
-  const monthlyHistory: { month: string; receita: number; despesa: number; shows: number; lucro: number }[] = [];
+  // Filter transactions by date range
+  const filteredTransactions = transactions.filter(t => {
+    if (!dateRange?.from || !dateRange?.to) return true;
+    const transactionDate = parseISO(t.date);
+    return isWithinInterval(transactionDate, { start: dateRange.from, end: dateRange.to });
+  });
+
+  const filteredShows = shows.filter(s => {
+    if (!dateRange?.from || !dateRange?.to) return true;
+    const showDate = parseISO(s.date);
+    return isWithinInterval(showDate, { start: dateRange.from, end: dateRange.to });
+  });
+
+  const totalReceita = filteredTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+  const totalDespesa = filteredTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+  const totalLucro = totalReceita - totalDespesa;
+  const totalShows = filteredShows.filter(s => s.status === "completed").length;
+
+  // Generate monthly history from transactions
+  const generateMonthlyHistory = () => {
+    if (!dateRange?.from || !dateRange?.to) return [];
+
+    const months = eachMonthOfInterval({ start: dateRange.from, end: dateRange.to });
+
+    return months.map(monthDate => {
+      const monthStart = startOfMonth(monthDate);
+      const monthEnd = endOfMonth(monthDate);
+      const monthName = format(monthDate, "MMM/yy", { locale: ptBR });
+
+      const monthTransactions = transactions.filter(t => {
+        const transactionDate = parseISO(t.date);
+        return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
+      });
+
+      const monthShows = shows.filter(s => {
+        const showDate = parseISO(s.date);
+        return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && s.status === "completed";
+      });
+
+      const receita = monthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+      const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+
+      return {
+        month: monthName,
+        receita,
+        despesa,
+        shows: monthShows.length,
+        lucro: receita - despesa,
+      };
+    }).filter(m => m.receita > 0 || m.despesa > 0 || m.shows > 0);
+  };
+
+  const monthlyHistory = generateMonthlyHistory();
 
   const loading = loadingTransactions || loadingShows;
 
@@ -54,6 +115,40 @@ export default function Historico() {
 
   return (
     <Layout title="Histórico Mensal" subtitle="Acompanhe sua evolução ao longo do ano">
+      {/* Date Range Filter */}
+      <div className="flex justify-end mb-6">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Filter className="w-4 h-4" />
+              <CalendarIcon className="w-4 h-4" />
+              {dateRange?.from ? (
+                dateRange.to ? (
+                  <>
+                    {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
+                  </>
+                ) : (
+                  format(dateRange.from, "dd/MM/yyyy")
+                )
+              ) : (
+                "Selecionar período"
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={dateRange?.from}
+              selected={dateRange}
+              onSelect={setDateRange}
+              numberOfMonths={2}
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
       {/* Year Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="p-4 rounded-xl glass">
@@ -63,7 +158,7 @@ export default function Historico() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">
-                R$ {(totalReceita / 1000).toFixed(0)}k
+                R$ {totalReceita.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </p>
               <p className="text-xs text-muted-foreground">Receita Total</p>
             </div>
@@ -76,7 +171,7 @@ export default function Historico() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">
-                R$ {(totalDespesa / 1000).toFixed(0)}k
+                R$ {totalDespesa.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </p>
               <p className="text-xs text-muted-foreground">Despesa Total</p>
             </div>
@@ -100,7 +195,7 @@ export default function Historico() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">
-                R$ {(totalLucro / 1000).toFixed(0)}k
+                R$ {totalLucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </p>
               <p className="text-xs text-muted-foreground">Lucro Acumulado</p>
             </div>
@@ -113,7 +208,7 @@ export default function Historico() {
         <ChartCard title="Evolução Mensal" subtitle="Receita vs Despesa">
           {monthlyHistory.length === 0 ? (
             <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-              Nenhum dado para exibir
+              Nenhum dado para exibir no período selecionado
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -121,9 +216,16 @@ export default function Historico() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip />
-                <Bar dataKey="receita" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="despesa" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: "hsl(var(--card))", 
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px"
+                  }}
+                  formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, ""]}
+                />
+                <Bar dataKey="receita" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="Receita" />
+                <Bar dataKey="despesa" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="Despesa" />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -132,7 +234,7 @@ export default function Historico() {
         <ChartCard title="Lucro Mensal" subtitle="Evolução do lucro líquido">
           {monthlyHistory.length === 0 ? (
             <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-              Nenhum dado para exibir
+              Nenhum dado para exibir no período selecionado
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -140,7 +242,14 @@ export default function Historico() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: "hsl(var(--card))", 
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px"
+                  }}
+                  formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, "Lucro"]}
+                />
                 <Line
                   type="monotone"
                   dataKey="lucro"
@@ -178,16 +287,16 @@ export default function Historico() {
                 <TableRow key={month.month}>
                   <TableCell className="font-medium text-foreground">{month.month}</TableCell>
                   <TableCell className="text-success">
-                    R$ {month.receita.toLocaleString("pt-BR")}
+                    R$ {month.receita.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </TableCell>
                   <TableCell className="text-destructive">
-                    R$ {month.despesa.toLocaleString("pt-BR")}
+                    R$ {month.despesa.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary">{month.shows} shows</Badge>
                   </TableCell>
-                  <TableCell className="font-semibold text-primary">
-                    R$ {month.lucro.toLocaleString("pt-BR")}
+                  <TableCell className={`font-semibold ${month.lucro >= 0 ? "text-primary" : "text-destructive"}`}>
+                    R$ {month.lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </TableCell>
                 </TableRow>
               ))}
