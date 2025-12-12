@@ -9,29 +9,25 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 const Dashboard = () => {
   const revenueData = [
-    { name: 'Jan', value: 12000 },
-    { name: 'Fev', value: 15000 },
-    { name: 'Mar', value: 18000 },
-    { name: 'Abr', value: 22000 },
-    { name: 'Mai', value: 19000 },
-    { name: 'Jun', value: 24451 },
+    { name: 'Jan', value: 0 },
+    { name: 'Fev', value: 0 },
+    { name: 'Mar', value: 0 },
+    { name: 'Abr', value: 0 },
+    { name: 'Mai', value: 0 },
+    { name: 'Jun', value: 0 },
   ];
 
   const leadsData = [
-    { name: 'Seg', value: 12 },
-    { name: 'Ter', value: 19 },
-    { name: 'Qua', value: 15 },
-    { name: 'Qui', value: 22 },
-    { name: 'Sex', value: 18 },
-    { name: 'Sáb', value: 25 },
-    { name: 'Dom', value: 20 },
+    { name: 'Seg', value: 0 },
+    { name: 'Ter', value: 0 },
+    { name: 'Qua', value: 0 },
+    { name: 'Qui', value: 0 },
+    { name: 'Sex', value: 0 },
+    { name: 'Sáb', value: 0 },
+    { name: 'Dom', value: 0 },
   ];
 
-  const upcomingShows = [
-    { date: "15 Jan", title: "Casamento Silva", location: "Buffet Aurora", value: "R$ 5.000" },
-    { date: "20 Jan", title: "Festa Corporativa", location: "Hotel Grand", value: "R$ 8.000" },
-    { date: "28 Jan", title: "Aniversário 50 anos", location: "Espaço Verde", value: "R$ 4.500" },
-  ];
+  const upcomingShows: { date: string; title: string; location: string; value: string }[] = [];
 
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
@@ -56,29 +52,25 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Leads no CRM"
-            value="48"
-            trend={{ value: 12, isPositive: true }}
+            value="0"
             icon={Users}
             gradient="purple"
           />
           <StatCard
             title="Vendas Fechadas"
-            value="12"
-            trend={{ value: 8, isPositive: true }}
+            value="0"
             icon={TrendingUp}
             gradient="success"
           />
           <StatCard
             title="Receita Mensal"
-            value="R$ 24.451"
-            trend={{ value: 15, isPositive: true }}
+            value="R$ 0"
             icon={DollarSign}
             gradient="primary"
           />
           <StatCard
             title="Taxa de Conversão"
-            value="32%"
-            trend={{ value: 5, isPositive: true }}
+            value="0%"
             icon={Target}
             gradient="warning"
           />
@@ -117,24 +109,24 @@ const Dashboard = () => {
             <h3 className="text-lg font-semibold text-foreground mb-6">Metas do Mês</h3>
             <div className="space-y-6">
               <div className="flex items-center gap-6">
-                <ProgressRing progress={75} size={70} />
+                <ProgressRing progress={0} size={70} />
                 <div>
                   <p className="font-medium text-foreground">Receita</p>
-                  <p className="text-sm text-muted-foreground">R$ 24.451 / R$ 30.000</p>
+                  <p className="text-sm text-muted-foreground">R$ 0 / R$ 0</p>
                 </div>
               </div>
               <div className="flex items-center gap-6">
-                <ProgressRing progress={60} size={70} />
+                <ProgressRing progress={0} size={70} />
                 <div>
                   <p className="font-medium text-foreground">Shows</p>
-                  <p className="text-sm text-muted-foreground">12 / 20 shows</p>
+                  <p className="text-sm text-muted-foreground">0 / 0 shows</p>
                 </div>
               </div>
               <div className="flex items-center gap-6">
-                <ProgressRing progress={85} size={70} />
+                <ProgressRing progress={0} size={70} />
                 <div>
                   <p className="font-medium text-foreground">Leads</p>
-                  <p className="text-sm text-muted-foreground">48 / 50 leads</p>
+                  <p className="text-sm text-muted-foreground">0 / 0 leads</p>
                 </div>
               </div>
             </div>
@@ -144,19 +136,25 @@ const Dashboard = () => {
           <div className="glass-card rounded-2xl p-6">
             <h3 className="text-lg font-semibold text-foreground mb-4">Próximos Shows</h3>
             <div className="space-y-4">
-              {upcomingShows.map((show, index) => (
-                <div key={index} className="flex items-start gap-4 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors">
-                  <div className="text-center min-w-[50px]">
-                    <p className="text-xs text-muted-foreground">{show.date.split(' ')[1]}</p>
-                    <p className="text-xl font-bold text-primary">{show.date.split(' ')[0]}</p>
+              {upcomingShows.length > 0 ? (
+                upcomingShows.map((show, index) => (
+                  <div key={index} className="flex items-start gap-4 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors">
+                    <div className="text-center min-w-[50px]">
+                      <p className="text-xs text-muted-foreground">{show.date.split(' ')[1]}</p>
+                      <p className="text-xl font-bold text-primary">{show.date.split(' ')[0]}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground truncate">{show.title}</p>
+                      <p className="text-sm text-muted-foreground truncate">{show.location}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-green-500">{show.value}</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">{show.title}</p>
-                    <p className="text-sm text-muted-foreground truncate">{show.location}</p>
-                  </div>
-                  <p className="text-sm font-semibold text-green-500">{show.value}</p>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nenhum show agendado
+                </p>
+              )}
             </div>
           </div>
         </div>

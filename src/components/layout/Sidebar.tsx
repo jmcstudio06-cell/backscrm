@@ -47,6 +47,8 @@ const menuItems: MenuItem[] = [
     children: [
       { icon: TrendingUp, label: "Funil de Vendas", path: "/crm" },
       { icon: UserCheck, label: "Clientes", path: "/clientes" },
+      { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos" },
+      { icon: CheckSquare, label: "Contrato Automático", path: "/contratos" },
     ],
   },
   {
