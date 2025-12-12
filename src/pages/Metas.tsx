@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { ProgressRing } from "@/components/dashboard/ProgressRing";
@@ -26,9 +26,11 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useGoals } from "@/hooks/useGoals";
+import { useGoals, Goal } from "@/hooks/useGoals";
+import { useShowsData } from "@/hooks/useShows";
+import { useLeads } from "@/hooks/useLeads";
+import { useTransactions } from "@/hooks/useTransactions";
 import { GoalModal } from "@/components/metas/GoalModal";
-import { toast } from "sonner";
 
 const iconMap: Record<string, React.ElementType> = {
   financial: DollarSign,
@@ -39,22 +41,88 @@ const iconMap: Record<string, React.ElementType> = {
 
 const goalTypes = [
   { value: "sales", label: "Meta de Vendas", icon: TrendingUp },
-  { value: "leads", label: "Meta de Lead", icon: Users },
+  { value: "leads", label: "Meta de Leads", icon: Users },
   { value: "financial", label: "Meta de Receita", icon: DollarSign },
   { value: "shows", label: "Meta de Shows", icon: Mic2 },
 ];
 
 export default function Metas() {
   const { goals, loading, addGoal, updateGoal, deleteGoal } = useGoals();
+  const { shows } = useShowsData();
+  const { leads } = useLeads();
+  const { transactions } = useTransactions();
+  
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<typeof goals[0] | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [newGoalType, setNewGoalType] = useState<{ type: string; label: string } | null>(null);
+
+  // Calculate current values based on real data
+  const calculateCurrentValue = (goal: Goal): number => {
+    const goalMonth = goal.month;
+    const goalYear = goal.year;
+
+    switch (goal.type) {
+      case "shows": {
+        // Count shows in the month (scheduled, confirmed, completed - NOT cancelled)
+        return shows.filter(show => {
+          const showDate = new Date(show.date);
+          const showMonth = showDate.getMonth() + 1;
+          const showYear = showDate.getFullYear();
+          return showMonth === goalMonth && 
+                 showYear === goalYear && 
+                 show.status !== "cancelled";
+        }).length;
+      }
+      case "leads": {
+        // Count leads created in the month
+        return leads.filter(lead => {
+          const leadDate = new Date(lead.created_at);
+          const leadMonth = leadDate.getMonth() + 1;
+          const leadYear = leadDate.getFullYear();
+          return leadMonth === goalMonth && leadYear === goalYear;
+        }).length;
+      }
+      case "financial": {
+        // Sum income transactions in the month (gross revenue)
+        return transactions
+          .filter(t => {
+            const transDate = new Date(t.date);
+            const transMonth = transDate.getMonth() + 1;
+            const transYear = transDate.getFullYear();
+            return t.type === "income" && 
+                   transMonth === goalMonth && 
+                   transYear === goalYear;
+          })
+          .reduce((sum, t) => sum + t.amount, 0);
+      }
+      case "sales": {
+        // Count closed leads (leads with status "closed") created in the month
+        return leads.filter(lead => {
+          const leadDate = new Date(lead.created_at);
+          const leadMonth = leadDate.getMonth() + 1;
+          const leadYear = leadDate.getFullYear();
+          return lead.status === "closed" && 
+                 leadMonth === goalMonth && 
+                 leadYear === goalYear;
+        }).length;
+      }
+      default:
+        return 0;
+    }
+  };
+
+  // Compute goals with calculated current values
+  const goalsWithCurrentValues = useMemo(() => {
+    return goals.map(goal => ({
+      ...goal,
+      current_value: calculateCurrentValue(goal),
+    }));
+  }, [goals, shows, leads, transactions]);
 
   const handleCreateGoal = (type: string, label: string) => {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
     
-    // Create a temporary goal object for the modal
     setSelectedGoal({
       id: "",
       title: label,
@@ -69,18 +137,16 @@ export default function Metas() {
     setModalOpen(true);
   };
 
-  const handleConfigureGoal = (goal: typeof goals[0]) => {
+  const handleConfigureGoal = (goal: Goal) => {
     setSelectedGoal(goal);
     setModalOpen(true);
   };
 
-  const handleSaveGoal = async (id: string, updates: Partial<typeof goals[0]>) => {
+  const handleSaveGoal = async (id: string, updates: Partial<Goal>) => {
     if (newGoalType && !id) {
-      // Creating new goal
       await addGoal(updates);
       setNewGoalType(null);
     } else {
-      // Updating existing goal
       await updateGoal(id, updates);
     }
   };
@@ -94,7 +160,7 @@ export default function Metas() {
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
-  const monthlyGoals = goals.filter(g => g.month === currentMonth && g.year === currentYear);
+  const monthlyGoals = goalsWithCurrentValues.filter(g => g.month === currentMonth && g.year === currentYear);
 
   const overallProgress = monthlyGoals.length > 0
     ? Math.round(
@@ -114,6 +180,13 @@ export default function Metas() {
       </Layout>
     );
   }
+
+  const formatValue = (goal: Goal, value: number) => {
+    if (goal.type === "financial") {
+      return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+    }
+    return value.toLocaleString("pt-BR");
+  };
 
   return (
     <Layout title="Definir Metas" subtitle="Acompanhe e defina seus objetivos">
@@ -194,7 +267,7 @@ export default function Metas() {
                           <div>
                             <p className="text-sm font-medium text-foreground">{goal.title}</p>
                             <p className="text-xs text-muted-foreground">
-                              {(goal.current_value || 0).toLocaleString("pt-BR")} de {goal.target_value.toLocaleString("pt-BR")}
+                              {formatValue(goal, goal.current_value || 0)} de {formatValue(goal, goal.target_value)}
                             </p>
                           </div>
                         </div>
@@ -221,7 +294,7 @@ export default function Metas() {
                   const progress = goal.target_value > 0 
                     ? Math.round(((goal.current_value || 0) / goal.target_value) * 100) 
                     : 0;
-                  const remaining = goal.target_value - (goal.current_value || 0);
+                  const remaining = Math.max(0, goal.target_value - (goal.current_value || 0));
                   const Icon = iconMap[goal.type] || Target;
 
                   return (
@@ -242,20 +315,23 @@ export default function Metas() {
                           <div>
                             <h4 className="font-semibold text-foreground">{goal.title}</h4>
                             <p className="text-sm text-muted-foreground">
-                              Faltam {remaining.toLocaleString("pt-BR")} para atingir a meta
+                              {progress >= 100 
+                                ? "Meta atingida!" 
+                                : `Faltam ${formatValue(goal, remaining)} para atingir a meta`
+                              }
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-primary">
-                            {(goal.current_value || 0).toLocaleString("pt-BR")}
+                            {formatValue(goal, goal.current_value || 0)}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            de {goal.target_value.toLocaleString("pt-BR")}
+                            de {formatValue(goal, goal.target_value)}
                           </p>
                         </div>
                       </div>
-                      <Progress value={progress} className="h-3" />
+                      <Progress value={Math.min(progress, 100)} className="h-3" />
                     </div>
                   );
                 })}
@@ -267,7 +343,7 @@ export default function Metas() {
         {/* All Goals Tab */}
         <TabsContent value="all" className="space-y-6">
           <ChartCard title="Todas as Metas" subtitle="Histórico completo">
-            {goals.length === 0 ? (
+            {goalsWithCurrentValues.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Target className="w-12 h-12 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">Nenhuma meta cadastrada</p>
@@ -275,7 +351,7 @@ export default function Metas() {
               </div>
             ) : (
               <div className="space-y-3">
-                {goals.map((goal) => {
+                {goalsWithCurrentValues.map((goal) => {
                   const progress = goal.target_value > 0 
                     ? Math.round(((goal.current_value || 0) / goal.target_value) * 100) 
                     : 0;
@@ -306,7 +382,7 @@ export default function Metas() {
                           <Badge variant="outline">{goal.type}</Badge>
                         </div>
                         <div className="flex items-center gap-4">
-                          <Progress value={progress} className="flex-1 h-2" />
+                          <Progress value={Math.min(progress, 100)} className="flex-1 h-2" />
                           <span className="text-sm font-medium text-primary shrink-0">{progress}%</span>
                         </div>
                       </div>
