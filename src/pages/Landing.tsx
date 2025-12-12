@@ -158,7 +158,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -168,10 +168,10 @@ const Landing = () => {
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#recursos" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Recursos</a>
-            <a href="#planos" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Planos</a>
-            <a href="#depoimentos" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Depoimentos</a>
-            <a href="#contato" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Contato</a>
+            <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
+            <a href="#planos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Planos</a>
+            <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
+            <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
           </nav>
 
           <Button 
@@ -184,24 +184,24 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-[#E8F4FD] via-[#D6EDFC] to-[#C4E6FB] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent" />
+      <section className="pt-32 pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
         
         <div className="container mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-[#0066CC]/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
-            <Sparkles className="w-4 h-4 text-[#0066CC]" />
-            <span className="text-[#0066CC] text-sm font-medium">+100+ artistas já usam o Backstage Pro</span>
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
+            <Sparkles className="w-4 h-4 text-cyan-300" />
+            <span className="text-white/90 text-sm font-medium">+100+ artistas já usam o Backstage Pro</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
             O app mais completo
           </h1>
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="text-foreground">de </span>
-            <span className="text-[#0066CC]">gestão para artistas</span>
+            <span className="text-white">de </span>
+            <span className="text-cyan-300">gestão para artistas</span>
           </h2>
 
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10">
+          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10">
             Agenda, financeiro, funil de vendas, contratos, repertório e muito mais — tudo em um só lugar.
           </p>
 
@@ -209,7 +209,7 @@ const Landing = () => {
             <Button 
               onClick={() => navigate('/auth')}
               size="lg"
-              className="bg-[#0066CC] text-white hover:bg-[#0055AA] font-semibold px-8 py-6 text-lg"
+              className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
             >
               Começar Agora
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -217,18 +217,18 @@ const Landing = () => {
             <Button 
               variant="outline"
               size="lg"
-              className="border-[#0066CC]/30 text-[#0066CC] hover:bg-[#0066CC]/10 px-8 py-6 text-lg bg-white"
+              className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg bg-transparent"
             >
               <Play className="mr-2 w-5 h-5" />
               Ver Planos
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-foreground/70 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-white/80 text-sm">
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0066CC] to-[#00B4D8] border-2 border-white" />
+                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 border-2 border-white/30" />
                 ))}
               </div>
               <span>+100+ usuários ativos</span>
@@ -239,38 +239,38 @@ const Landing = () => {
               ))}
               <span className="ml-1">4.9/5 de avaliação</span>
             </div>
-            <span><span className="text-[#0066CC] font-semibold">3 dias</span> grátis para testar</span>
+            <span><span className="text-cyan-300 font-semibold">3 dias</span> grátis para testar</span>
           </div>
         </div>
 
         {/* Wave divider */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--background))"/>
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
           </svg>
         </div>
       </section>
 
       {/* Video Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Play className="w-5 h-5 text-[#0066CC]" />
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Vídeos</span>
           </div>
 
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-2">
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-2">
             Conheça mais sobre o
           </h2>
           <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
             Backstage Pro
           </h3>
-          <p className="text-muted-foreground mb-12">
+          <p className="text-slate-500 mb-12">
             Veja como o app funciona e depoimentos de quem já usa
           </p>
 
           <div className="max-w-3xl mx-auto">
-            <Card className="overflow-hidden shadow-2xl">
+            <Card className="overflow-hidden shadow-2xl bg-white border-slate-200">
               <CardContent className="p-0">
                 <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative">
                   <div className="absolute inset-0 bg-black/5" />
@@ -278,9 +278,9 @@ const Landing = () => {
                     <Play className="w-8 h-8 text-white fill-white ml-1" />
                   </div>
                 </div>
-                <div className="p-4 bg-card flex items-center gap-2">
+                <div className="p-4 bg-white flex items-center gap-2">
                   <Play className="w-4 h-4 text-[#0066CC]" />
-                  <span className="text-foreground font-medium">Conheça o Backstage Pro</span>
+                  <span className="text-slate-800 font-medium">Conheça o Backstage Pro</span>
                 </div>
               </CardContent>
             </Card>
@@ -289,30 +289,30 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section id="recursos" className="py-20 bg-background">
+      <section id="recursos" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Recursos Poderosos</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-2">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
               Tudo que você precisa para
             </h2>
             <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
               brilhar no palco e nos negócios
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-slate-500">
               Funcionalidades pensadas por quem entende a rotina de um artista
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="border border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Card key={index} className="border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="p-6">
                   <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-4`}>
                     <feature.icon className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">{feature.title}</h3>
+                  <p className="text-slate-500">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -321,19 +321,19 @@ const Landing = () => {
       </section>
 
       {/* Demo Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Demonstração</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-4 mb-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mt-4 mb-2">
                 Crie uma rotina inteligente e
               </h2>
               <h3 className="text-3xl md:text-4xl font-bold text-[#00B4D8] mb-6">
                 aumente seus resultados
               </h3>
               
-              <p className="text-muted-foreground mb-8">
+              <p className="text-slate-500 mb-8">
                 Com o Backstage Pro, você tem controle total da sua carreira na palma da mão. Interface intuitiva, dados organizados e insights poderosos para você focar no que realmente importa: sua música.
               </p>
 
@@ -343,12 +343,12 @@ const Landing = () => {
                     <div className="w-6 h-6 rounded-full bg-[#00B4D8]/20 flex items-center justify-center">
                       <Check className="w-4 h-4 text-[#00B4D8]" />
                     </div>
-                    <span className="text-foreground">{benefit}</span>
+                    <span className="text-slate-700">{benefit}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="flex items-center gap-6 text-muted-foreground">
+              <div className="flex items-center gap-6 text-slate-500">
                 <div className="flex items-center gap-2">
                   <Smartphone className="w-5 h-5" />
                   <span>iOS & Android</span>
@@ -362,8 +362,8 @@ const Landing = () => {
 
             <div className="relative">
               <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl p-8 shadow-2xl">
-                <div className="bg-card rounded-2xl p-4 shadow-lg">
-                  <div className="text-lg font-bold text-foreground mb-4">Dashboard</div>
+                <div className="bg-white rounded-2xl p-4 shadow-lg">
+                  <div className="text-lg font-bold text-slate-800 mb-4">Dashboard</div>
                   <div className="grid grid-cols-4 gap-3">
                     <div className="bg-blue-500 rounded-lg p-3 text-white text-center">
                       <div className="text-xs opacity-80">Leads</div>
@@ -390,31 +390,31 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section id="depoimentos" className="py-20 bg-gradient-to-b from-[#E8F4FD] to-[#D6EDFC]">
+      <section id="depoimentos" className="py-20 bg-gradient-to-b from-[#0066CC] to-[#0088DD]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Depoimentos</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-2">
+            <span className="text-cyan-300 font-semibold uppercase tracking-wider text-sm">Depoimentos</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mt-4 mb-2">
               O que os cantores estão
             </h2>
-            <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
+            <h3 className="text-3xl md:text-5xl font-bold text-yellow-400 mb-4">
               dizendo sobre nós
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-white/80">
               Junte-se a centenas de artistas que já transformaram suas carreiras
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-white border-border/50 hover:shadow-lg transition-all duration-300">
+              <Card key={index} className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-1 mb-4">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-foreground/80 italic mb-6">"{testimonial.quote}"</p>
+                  <p className="text-white/90 italic mb-6">"{testimonial.quote}"</p>
                   <div className="flex items-center gap-3">
                     <img 
                       src={testimonial.avatar} 
@@ -422,8 +422,8 @@ const Landing = () => {
                       className="w-12 h-12 rounded-full object-cover"
                     />
                     <div>
-                      <div className="text-foreground font-semibold">{testimonial.name}</div>
-                      <div className="text-[#0066CC] text-sm">{testimonial.role}</div>
+                      <div className="text-white font-semibold">{testimonial.name}</div>
+                      <div className="text-cyan-300 text-sm">{testimonial.role}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -434,17 +434,17 @@ const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <section id="planos" className="py-20 bg-background">
+      <section id="planos" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Planos e Preços</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-2">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
               Escolha o plano ideal
             </h2>
             <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
               para sua carreira
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-slate-500">
               Comece grátis por 3 dias. Cancele quando quiser.
             </p>
           </div>
@@ -456,7 +456,7 @@ const Landing = () => {
                 className={`relative overflow-hidden transition-all duration-300 hover:-translate-y-2 ${
                   plan.popular 
                     ? 'bg-gradient-to-b from-[#0066CC] to-[#004499] text-white border-0 scale-105 shadow-2xl' 
-                    : 'border border-border/50'
+                    : 'border border-slate-200 bg-white'
                 }`}
               >
                 {plan.popular && (
@@ -473,10 +473,10 @@ const Landing = () => {
                     <plan.icon className={`w-6 h-6 ${plan.popular ? 'text-white' : 'text-[#0066CC]'}`} />
                   </div>
 
-                  <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-foreground'}`}>
+                  <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-slate-800'}`}>
                     {plan.name}
                   </h3>
-                  <p className={`text-sm mb-4 ${plan.popular ? 'text-white/70' : 'text-muted-foreground'}`}>
+                  <p className={`text-sm mb-4 ${plan.popular ? 'text-white/70' : 'text-slate-500'}`}>
                     {plan.description}
                   </p>
 
@@ -487,17 +487,17 @@ const Landing = () => {
                   )}
 
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className={`text-sm ${plan.popular ? 'text-white/70' : 'text-muted-foreground'}`}>R$</span>
-                    <span className={`text-4xl font-bold ${plan.popular ? 'text-white' : 'text-foreground'}`}>
+                    <span className={`text-sm ${plan.popular ? 'text-white/70' : 'text-slate-500'}`}>R$</span>
+                    <span className={`text-4xl font-bold ${plan.popular ? 'text-white' : 'text-slate-800'}`}>
                       {plan.price}
                     </span>
                   </div>
-                  <p className={`text-sm mb-4 ${plan.popular ? 'text-white/70' : 'text-muted-foreground'}`}>
+                  <p className={`text-sm mb-4 ${plan.popular ? 'text-white/70' : 'text-slate-500'}`}>
                     {plan.period}
                   </p>
                   
                   {plan.originalPrice && (
-                    <p className={`text-sm line-through mb-4 ${plan.popular ? 'text-white/50' : 'text-muted-foreground'}`}>
+                    <p className={`text-sm line-through mb-4 ${plan.popular ? 'text-white/50' : 'text-slate-400'}`}>
                       De R$ {plan.originalPrice}
                     </p>
                   )}
@@ -520,7 +520,7 @@ const Landing = () => {
                     {plan.features.map((feature, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <Check className={`w-4 h-4 ${plan.popular ? 'text-cyan-300' : 'text-[#0066CC]'}`} />
-                        <span className={`text-sm ${plan.popular ? 'text-white/90' : 'text-foreground'}`}>
+                        <span className={`text-sm ${plan.popular ? 'text-white/90' : 'text-slate-700'}`}>
                           {feature}
                         </span>
                       </div>
@@ -534,41 +534,41 @@ const Landing = () => {
       </section>
 
       {/* Contact Section */}
-      <section id="contato" className="py-20 bg-muted/30">
+      <section id="contato" className="py-20 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Fale Conosco</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-4">
               Tem alguma dúvida?
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-slate-500">
               Envie sua mensagem que entraremos em contato o mais rápido possível
             </p>
           </div>
 
-          <Card className="max-w-2xl mx-auto shadow-xl">
+          <Card className="max-w-2xl mx-auto shadow-xl bg-white border-slate-200">
             <CardContent className="p-8">
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">Nome *</label>
-                  <Input placeholder="Seu nome completo" className="border-border" />
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Nome *</label>
+                  <Input placeholder="Seu nome completo" className="border-slate-300 bg-white" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">Email *</label>
-                  <Input type="email" placeholder="seu@email.com" className="border-border" />
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Email *</label>
+                  <Input type="email" placeholder="seu@email.com" className="border-slate-300 bg-white" />
                 </div>
               </div>
 
               <div className="mb-4">
-                <label className="text-sm font-medium text-foreground mb-2 block">Telefone / WhatsApp</label>
-                <Input placeholder="(00) 00000-0000" className="border-border" />
+                <label className="text-sm font-medium text-slate-700 mb-2 block">Telefone / WhatsApp</label>
+                <Input placeholder="(00) 00000-0000" className="border-slate-300 bg-white" />
               </div>
 
               <div className="mb-6">
-                <label className="text-sm font-medium text-foreground mb-2 block">Mensagem *</label>
+                <label className="text-sm font-medium text-slate-700 mb-2 block">Mensagem *</label>
                 <Textarea 
                   placeholder="Como podemos ajudar você?" 
-                  className="border-border min-h-[120px]" 
+                  className="border-slate-300 bg-white min-h-[120px]" 
                 />
               </div>
 
@@ -588,24 +588,24 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
-          <div className="bg-gradient-to-br from-[#E8F4FD] via-[#D6EDFC] to-[#C4E6FB] rounded-3xl p-12 text-center relative overflow-hidden border border-[#0066CC]/20">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent" />
+          <div className="bg-gradient-to-br from-[#0066CC] via-[#0077DD] to-[#00B4D8] rounded-3xl p-12 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
             
             <div className="relative z-10">
-              <div className="w-16 h-16 bg-[#0066CC]/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-8 h-8 text-[#0066CC]" />
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-8 h-8 text-white" />
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
                 Pronto para profissionalizar
               </h2>
-              <h3 className="text-3xl md:text-4xl font-bold text-[#0066CC] mb-6">
+              <h3 className="text-3xl md:text-4xl font-bold text-cyan-300 mb-6">
                 sua carreira?
               </h3>
               
-              <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+              <p className="text-white/80 max-w-xl mx-auto mb-8">
                 Junte-se a milhares de artistas que já estão crescendo com o Backstage Pro. 
                 Comece hoje mesmo, é grátis por 3 dias!
               </p>
@@ -613,13 +613,13 @@ const Landing = () => {
               <Button 
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="bg-[#0066CC] text-white hover:bg-[#0055AA] font-semibold px-8 py-6 text-lg"
+                className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
                 Quero Começar Agora
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
-              <p className="text-muted-foreground text-sm mt-4">
+              <p className="text-white/60 text-sm mt-4">
                 Sem cartão de crédito • Cancele quando quiser
               </p>
             </div>
@@ -628,7 +628,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-slate-100 border-t border-border">
+      <footer className="py-12 bg-slate-100 border-t border-slate-200">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
@@ -636,13 +636,13 @@ const Landing = () => {
               <span className="text-2xl font-bold text-[#00B4D8]">Pro</span>
             </div>
             
-            <nav className="flex items-center gap-6 text-sm text-foreground/70">
+            <nav className="flex items-center gap-6 text-sm text-slate-600">
               <a href="#" className="hover:text-[#0066CC] transition-colors">Termos de Uso</a>
               <a href="#" className="hover:text-[#0066CC] transition-colors">Privacidade</a>
               <a href="#" className="hover:text-[#0066CC] transition-colors">Suporte</a>
             </nav>
 
-            <p className="text-muted-foreground text-sm">
+            <p className="text-slate-500 text-sm">
               © 2024 Backstage Pro. Todos os direitos reservados.
             </p>
           </div>
