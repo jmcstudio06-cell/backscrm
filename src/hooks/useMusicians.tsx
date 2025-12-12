@@ -11,6 +11,9 @@ export interface Musician {
   phone: string | null;
   rate: number | null;
   notes: string | null;
+  member_type: string;
+  rating: number | null;
+  payment_request_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -39,7 +42,7 @@ export function useMusicians() {
     }
   };
 
-  const addMusician = async (musicianData: Partial<Musician>) => {
+  const addMusician = async (musicianData: Partial<Musician> & { member_type?: string; rating?: number; payment_request_date?: string }) => {
     if (!user) return;
 
     try {
@@ -52,6 +55,9 @@ export function useMusicians() {
           phone: musicianData.phone,
           rate: musicianData.rate,
           notes: musicianData.notes,
+          member_type: musicianData.member_type || "freelancer",
+          rating: musicianData.rating,
+          payment_request_date: musicianData.payment_request_date,
           user_id: user.id,
         }])
         .select()
@@ -59,15 +65,15 @@ export function useMusicians() {
 
       if (error) throw error;
       setMusicians([data, ...musicians]);
-      toast.success("Músico adicionado com sucesso!");
+      toast.success("Membro adicionado com sucesso!");
       return data;
     } catch (error) {
       console.error("Error adding musician:", error);
-      toast.error("Erro ao adicionar músico");
+      toast.error("Erro ao adicionar membro");
     }
   };
 
-  const updateMusician = async (id: string, updates: Partial<Musician>) => {
+  const updateMusician = async (id: string, updates: Partial<Musician> & { member_type?: string; rating?: number; payment_request_date?: string }) => {
     try {
       const { data, error } = await supabase
         .from("musicians")
@@ -78,11 +84,11 @@ export function useMusicians() {
 
       if (error) throw error;
       setMusicians(musicians.map(m => m.id === id ? data : m));
-      toast.success("Músico atualizado com sucesso!");
+      toast.success("Membro atualizado com sucesso!");
       return data;
     } catch (error) {
       console.error("Error updating musician:", error);
-      toast.error("Erro ao atualizar músico");
+      toast.error("Erro ao atualizar membro");
     }
   };
 

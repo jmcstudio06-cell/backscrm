@@ -20,7 +20,8 @@ import {
   MoreHorizontal, 
   Music,
   Trash2,
-  Edit
+  Edit,
+  Star
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -28,27 +29,51 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useMusicians } from "@/hooks/useMusicians";
+import { useMusicians, Musician } from "@/hooks/useMusicians";
+import { MusicianModal } from "@/components/equipe/MusicianModal";
 
 export default function Equipe() {
-  const { musicians, loading, deleteMusician } = useMusicians();
+  const { musicians, loading, addMusician, updateMusician, deleteMusician } = useMusicians();
   const [filter, setFilter] = useState<"all" | "fixo" | "freelancer">("all");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingMusician, setEditingMusician] = useState<Musician | null>(null);
+
+  const filteredMusicians = musicians.filter((m) => {
+    if (filter === "all") return true;
+    return m.member_type === filter;
+  });
+
+  const fixedCount = musicians.filter((m) => m.member_type === "fixo").length;
+  const freelancerCount = musicians.filter((m) => m.member_type === "freelancer").length;
+  const avgRating = musicians.filter((m) => m.rating).length > 0
+    ? (musicians.reduce((sum, m) => sum + (m.rating || 0), 0) / musicians.filter((m) => m.rating).length).toFixed(1)
+    : "-";
 
   const handleAddMember = () => {
-    toast.info("Funcionalidade de adicionar membro em desenvolvimento!");
+    setEditingMusician(null);
+    setModalOpen(true);
   };
 
-  const handleDeleteMember = async (musician: { id: string; name: string }) => {
+  const handleEditMember = (musician: Musician) => {
+    setEditingMusician(musician);
+    setModalOpen(true);
+  };
+
+  const handleSaveMusician = async (data: Partial<Musician> & { member_type?: string; rating?: number; payment_request_date?: string }) => {
+    if (editingMusician) {
+      await updateMusician(editingMusician.id, data);
+    } else {
+      await addMusician(data);
+    }
+  };
+
+  const handleDeleteMember = async (musician: Musician) => {
     await deleteMusician(musician.id);
-  };
-
-  const handleEditMember = (musicianId: string) => {
-    toast.info("Editando músico...");
   };
 
   const handleCallMember = (phone: string | null, name: string) => {
     if (!phone) {
-      toast.error("Músico não possui telefone cadastrado");
+      toast.error("Membro não possui telefone cadastrado");
       return;
     }
     const formattedPhone = phone.replace(/\D/g, '');
@@ -58,7 +83,7 @@ export default function Equipe() {
 
   const handleEmailMember = (email: string | null, name: string) => {
     if (!email) {
-      toast.error("Músico não possui email cadastrado");
+      toast.error("Membro não possui email cadastrado");
       return;
     }
     window.open(`mailto:${email}`, '_blank');
@@ -85,15 +110,15 @@ export default function Equipe() {
             <p className="text-sm text-muted-foreground">membros cadastrados</p>
           </ChartCard>
           <ChartCard title="Membros Fixos">
-            <div className="text-3xl font-bold text-green-600">0</div>
+            <div className="text-3xl font-bold text-green-600">{fixedCount}</div>
             <p className="text-sm text-muted-foreground">contratados</p>
           </ChartCard>
           <ChartCard title="Freelancers">
-            <div className="text-3xl font-bold text-amber-600">0</div>
+            <div className="text-3xl font-bold text-amber-600">{freelancerCount}</div>
             <p className="text-sm text-muted-foreground">disponíveis</p>
           </ChartCard>
           <ChartCard title="Média de Avaliação">
-            <div className="text-3xl font-bold text-primary">-</div>
+            <div className="text-3xl font-bold text-primary">{avgRating}</div>
             <p className="text-sm text-muted-foreground">⭐ estrelas</p>
           </ChartCard>
         </div>
@@ -134,10 +159,10 @@ export default function Equipe() {
 
         {/* Team Table */}
         <ChartCard title="Membros da Equipe">
-          {musicians.length === 0 ? (
+          {filteredMusicians.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Music className="w-12 h-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Nenhum músico cadastrado</p>
+              <p className="text-muted-foreground">Nenhum membro encontrado</p>
               <p className="text-sm text-muted-foreground">Adicione membros da sua equipe para começar</p>
             </div>
           ) : (
@@ -146,13 +171,15 @@ export default function Equipe() {
                 <TableRow>
                   <TableHead>Membro</TableHead>
                   <TableHead>Função</TableHead>
+                  <TableHead>Tipo</TableHead>
                   <TableHead>Cachê</TableHead>
+                  <TableHead>Avaliação</TableHead>
                   <TableHead>Contato</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {musicians.map((musician) => (
+                {filteredMusicians.map((musician) => (
                   <TableRow key={musician.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -179,9 +206,24 @@ export default function Equipe() {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <Badge variant={musician.member_type === "fixo" ? "default" : "secondary"}>
+                        {musician.member_type === "fixo" ? "Fixo" : "Freelancer"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
                       <span className="font-medium text-foreground">
                         R$ {(musician.rate || 0).toLocaleString("pt-BR")}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      {musician.rating ? (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          <span>{musician.rating}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -211,7 +253,7 @@ export default function Equipe() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditMember(musician.id)}>
+                          <DropdownMenuItem onClick={() => handleEditMember(musician)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Editar
                           </DropdownMenuItem>
@@ -232,6 +274,13 @@ export default function Equipe() {
           )}
         </ChartCard>
       </div>
+
+      <MusicianModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onSave={handleSaveMusician}
+        editingMusician={editingMusician}
+      />
     </Layout>
   );
 }

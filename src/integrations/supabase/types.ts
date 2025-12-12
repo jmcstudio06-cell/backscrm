@@ -149,10 +149,13 @@ export type Database = {
           email: string | null
           id: string
           instrument: string | null
+          member_type: string | null
           name: string
           notes: string | null
+          payment_request_date: string | null
           phone: string | null
           rate: number | null
+          rating: number | null
           updated_at: string
           user_id: string
         }
@@ -161,10 +164,13 @@ export type Database = {
           email?: string | null
           id?: string
           instrument?: string | null
+          member_type?: string | null
           name: string
           notes?: string | null
+          payment_request_date?: string | null
           phone?: string | null
           rate?: number | null
+          rating?: number | null
           updated_at?: string
           user_id: string
         }
@@ -173,10 +179,13 @@ export type Database = {
           email?: string | null
           id?: string
           instrument?: string | null
+          member_type?: string | null
           name?: string
           notes?: string | null
+          payment_request_date?: string | null
           phone?: string | null
           rate?: number | null
+          rating?: number | null
           updated_at?: string
           user_id?: string
         }
