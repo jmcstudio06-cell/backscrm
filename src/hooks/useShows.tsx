@@ -21,6 +21,19 @@ export interface Show {
   updated_at: string;
 }
 
+interface ShowMusician {
+  musicianId: string;
+  name: string;
+  fee: number;
+}
+
+interface ShowExpense {
+  id: string;
+  description: string;
+  category: string;
+  value: number;
+}
+
 export function useShowsData() {
   const { user } = useAuth();
   const [shows, setShows] = useState<Show[]>([]);
@@ -45,7 +58,121 @@ export function useShowsData() {
     }
   };
 
-  const addShow = async (showData: Partial<Show>) => {
+  // Create financial transactions when show is marked as completed
+  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[]) => {
+    if (!user) return;
+
+    try {
+      const transactionsToInsert = [];
+
+      // Add income from cachet
+      if (show.cachet > 0) {
+        transactionsToInsert.push({
+          user_id: user.id,
+          type: "income",
+          category: "Show",
+          amount: show.cachet,
+          description: `Cachê: ${show.title}`,
+          date: show.date,
+          show_id: show.id,
+        });
+      }
+
+      // Add expenses from musicians
+      for (const musician of musicians) {
+        if (musician.fee > 0) {
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "expense",
+            category: "Músicos",
+            amount: musician.fee,
+            description: `${musician.name} - ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+          });
+        }
+      }
+
+      // Add other expenses
+      for (const expense of expenses) {
+        if (expense.value > 0) {
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "expense",
+            category: expense.category,
+            amount: expense.value,
+            description: `${expense.description} - ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+          });
+        }
+      }
+
+      if (transactionsToInsert.length > 0) {
+        const { error } = await supabase
+          .from("transactions")
+          .insert(transactionsToInsert);
+
+        if (error) throw error;
+        console.log("Transactions created for show:", show.title);
+      }
+    } catch (error) {
+      console.error("Error creating transactions:", error);
+      toast.error("Erro ao criar transações financeiras");
+    }
+  };
+
+  // Save musicians to show
+  const saveShowMusicians = async (showId: string, musicians: ShowMusician[]) => {
+    if (musicians.length === 0) return;
+
+    try {
+      // Delete existing musicians for this show
+      await supabase.from("show_musicians").delete().eq("show_id", showId);
+
+      // Insert new musicians
+      const musiciansToInsert = musicians.map((m) => ({
+        show_id: showId,
+        musician_id: m.musicianId,
+        fee: m.fee,
+        confirmed: true,
+      }));
+
+      const { error } = await supabase.from("show_musicians").insert(musiciansToInsert);
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error saving show musicians:", error);
+    }
+  };
+
+  // Save expenses to show
+  const saveShowExpenses = async (showId: string, expenses: ShowExpense[]) => {
+    if (expenses.length === 0) return;
+
+    try {
+      // Delete existing expenses for this show
+      await supabase.from("show_expenses").delete().eq("show_id", showId);
+
+      // Insert new expenses
+      const expensesToInsert = expenses.map((e) => ({
+        show_id: showId,
+        category: e.category,
+        amount: e.value,
+        description: e.description,
+      }));
+
+      const { error } = await supabase.from("show_expenses").insert(expensesToInsert);
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error saving show expenses:", error);
+    }
+  };
+
+  const addShow = async (
+    showData: Partial<Show>,
+    musicians: ShowMusician[] = [],
+    expenses: ShowExpense[] = []
+  ) => {
     if (!user) return;
 
     try {
@@ -70,6 +197,16 @@ export function useShowsData() {
         .single();
 
       if (error) throw error;
+
+      // Save musicians and expenses
+      await saveShowMusicians(data.id, musicians);
+      await saveShowExpenses(data.id, expenses);
+
+      // If status is completed, create transactions
+      if (data.status === "completed") {
+        await createShowTransactions(data, musicians, expenses);
+      }
+
       setShows([...shows, data]);
       toast.success("Show adicionado com sucesso!");
       return data;
@@ -79,8 +216,20 @@ export function useShowsData() {
     }
   };
 
-  const updateShow = async (id: string, updates: Partial<Show>) => {
+  const updateShow = async (
+    id: string,
+    updates: Partial<Show>,
+    musicians: ShowMusician[] = [],
+    expenses: ShowExpense[] = []
+  ) => {
+    if (!user) return;
+
     try {
+      // Get current show to check status change
+      const currentShow = shows.find((s) => s.id === id);
+      const wasNotCompleted = currentShow?.status !== "completed";
+      const willBeCompleted = updates.status === "completed";
+
       const { data, error } = await supabase
         .from("shows")
         .update(updates)
@@ -89,7 +238,57 @@ export function useShowsData() {
         .single();
 
       if (error) throw error;
-      setShows(shows.map(s => s.id === id ? data : s));
+
+      // Save musicians and expenses
+      if (musicians.length > 0) {
+        await saveShowMusicians(id, musicians);
+      }
+      if (expenses.length > 0) {
+        await saveShowExpenses(id, expenses);
+      }
+
+      // If status changed to completed, create transactions
+      if (wasNotCompleted && willBeCompleted) {
+        // First, fetch saved musicians and expenses if not provided
+        let musiciansToUse = musicians;
+        let expensesToUse = expenses;
+
+        if (musicians.length === 0) {
+          const { data: savedMusicians } = await supabase
+            .from("show_musicians")
+            .select("musician_id, fee, musicians(name)")
+            .eq("show_id", id);
+
+          if (savedMusicians) {
+            musiciansToUse = savedMusicians.map((m: any) => ({
+              musicianId: m.musician_id,
+              name: m.musicians?.name || "Músico",
+              fee: m.fee,
+            }));
+          }
+        }
+
+        if (expenses.length === 0) {
+          const { data: savedExpenses } = await supabase
+            .from("show_expenses")
+            .select("*")
+            .eq("show_id", id);
+
+          if (savedExpenses) {
+            expensesToUse = savedExpenses.map((e: any) => ({
+              id: e.id,
+              description: e.description || "",
+              category: e.category,
+              value: e.amount,
+            }));
+          }
+        }
+
+        await createShowTransactions(data, musiciansToUse, expensesToUse);
+        toast.success("Transações financeiras criadas!");
+      }
+
+      setShows(shows.map((s) => (s.id === id ? data : s)));
       toast.success("Show atualizado com sucesso!");
       return data;
     } catch (error) {
@@ -119,10 +318,21 @@ export function useShowsData() {
   };
 
   const getConfirmedShows = () => shows.filter(s => s.status === "confirmed");
+  const getCompletedShows = () => shows.filter(s => s.status === "completed");
 
   useEffect(() => {
     fetchShows();
   }, [user]);
 
-  return { shows, loading, addShow, updateShow, deleteShow, cancelShow, getConfirmedShows, refetch: fetchShows };
+  return {
+    shows,
+    loading,
+    addShow,
+    updateShow,
+    deleteShow,
+    cancelShow,
+    getConfirmedShows,
+    getCompletedShows,
+    refetch: fetchShows,
+  };
 }
