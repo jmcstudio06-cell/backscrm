@@ -69,6 +69,7 @@ export default function Agenda() {
           cachet: newShow.cachet,
           status: newShow.status,
           event_type: newShow.type,
+          client_id: newShow.clientId || null,
         },
         musicians,
         expenses
@@ -85,6 +86,7 @@ export default function Agenda() {
           cachet: newShow.cachet,
           status: newShow.status,
           event_type: newShow.type,
+          client_id: newShow.clientId || null,
         },
         musicians,
         expenses
