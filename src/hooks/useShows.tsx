@@ -227,8 +227,6 @@ export function useShowsData() {
     try {
       // Get current show to check status change
       const currentShow = shows.find((s) => s.id === id);
-      const wasNotCompleted = currentShow?.status !== "completed";
-      const willBeCompleted = updates.status === "completed";
 
       const { data, error } = await supabase
         .from("shows")
@@ -247,46 +245,43 @@ export function useShowsData() {
         await saveShowExpenses(id, expenses);
       }
 
-      // If status changed to completed, create transactions
-      if (wasNotCompleted && willBeCompleted) {
-        // First, fetch saved musicians and expenses if not provided
-        let musiciansToUse = musicians;
-        let expensesToUse = expenses;
+      // Fetch saved musicians and expenses if not provided
+      let musiciansToUse = musicians;
+      let expensesToUse = expenses;
 
-        if (musicians.length === 0) {
-          const { data: savedMusicians } = await supabase
-            .from("show_musicians")
-            .select("musician_id, fee, musicians(name)")
-            .eq("show_id", id);
+      if (musicians.length === 0) {
+        const { data: savedMusicians } = await supabase
+          .from("show_musicians")
+          .select("musician_id, fee, musicians(name)")
+          .eq("show_id", id);
 
-          if (savedMusicians) {
-            musiciansToUse = savedMusicians.map((m: any) => ({
-              musicianId: m.musician_id,
-              name: m.musicians?.name || "Músico",
-              fee: m.fee,
-            }));
-          }
+        if (savedMusicians) {
+          musiciansToUse = savedMusicians.map((m: any) => ({
+            musicianId: m.musician_id,
+            name: m.musicians?.name || "Músico",
+            fee: m.fee,
+          }));
         }
-
-        if (expenses.length === 0) {
-          const { data: savedExpenses } = await supabase
-            .from("show_expenses")
-            .select("*")
-            .eq("show_id", id);
-
-          if (savedExpenses) {
-            expensesToUse = savedExpenses.map((e: any) => ({
-              id: e.id,
-              description: e.description || "",
-              category: e.category,
-              value: e.amount,
-            }));
-          }
-        }
-
-        await createShowTransactions(data, musiciansToUse, expensesToUse);
-        toast.success("Transações financeiras criadas!");
       }
+
+      if (expenses.length === 0) {
+        const { data: savedExpenses } = await supabase
+          .from("show_expenses")
+          .select("*")
+          .eq("show_id", id);
+
+        if (savedExpenses) {
+          expensesToUse = savedExpenses.map((e: any) => ({
+            id: e.id,
+            description: e.description || "",
+            category: e.category,
+            value: e.amount,
+          }));
+        }
+      }
+
+      // Always sync transactions when show is updated (delete old, recreate if completed)
+      await updateShowTransactions(data, musiciansToUse, expensesToUse);
 
       setShows(shows.map((s) => (s.id === id ? data : s)));
       toast.success("Show atualizado com sucesso!");
@@ -297,8 +292,44 @@ export function useShowsData() {
     }
   };
 
+  // Delete all transactions linked to a show
+  const deleteShowTransactions = async (showId: string) => {
+    try {
+      const { error } = await supabase
+        .from("transactions")
+        .delete()
+        .eq("show_id", showId);
+
+      if (error) throw error;
+      console.log("Transactions deleted for show:", showId);
+    } catch (error) {
+      console.error("Error deleting show transactions:", error);
+    }
+  };
+
+  // Update transactions when show is edited
+  const updateShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[]) => {
+    if (!user) return;
+
+    // Delete existing transactions for this show
+    await deleteShowTransactions(show.id);
+
+    // If show is completed, recreate transactions
+    if (show.status === "completed") {
+      await createShowTransactions(show, musicians, expenses);
+    }
+  };
+
   const deleteShow = async (id: string) => {
     try {
+      // First delete related transactions
+      await deleteShowTransactions(id);
+
+      // Delete related musicians and expenses
+      await supabase.from("show_musicians").delete().eq("show_id", id);
+      await supabase.from("show_expenses").delete().eq("show_id", id);
+
+      // Delete the show
       const { error } = await supabase
         .from("shows")
         .delete()
@@ -306,7 +337,7 @@ export function useShowsData() {
 
       if (error) throw error;
       setShows(shows.filter(s => s.id !== id));
-      toast.success("Show excluído com sucesso!");
+      toast.success("Show e transações excluídos com sucesso!");
     } catch (error) {
       console.error("Error deleting show:", error);
       toast.error("Erro ao excluir show");
