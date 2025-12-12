@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Download, Send, MessageCircle, X } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
+import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 
 interface BudgetPreviewProps {
@@ -24,8 +25,15 @@ export function BudgetPreview({
   items,
 }: BudgetPreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
+  const { profile } = useProfile();
 
   if (!budget) return null;
+
+  const formatCurrency = (value: number) => {
+    return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+  };
+
+  const taxAmount = budget.subtotal * (budget.tax / 100);
 
   const handlePrint = () => {
     const printContent = printRef.current;
@@ -43,41 +51,225 @@ export function BudgetPreview({
         <head>
           <title>Orçamento ${budget.budget_number}</title>
           <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #fff; color: #333; }
-            .invoice { max-width: 800px; margin: 0 auto; }
-            .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
-            .logo { font-size: 28px; font-weight: bold; color: #2563eb; }
-            .title { font-size: 32px; font-weight: bold; color: #1e40af; text-align: right; }
-            .invoice-info { text-align: right; font-size: 14px; color: #666; margin-top: 8px; }
-            .parties { display: flex; justify-content: space-between; margin-bottom: 40px; }
-            .party { width: 45%; }
-            .party-title { font-size: 12px; color: #2563eb; font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; }
-            .party-name { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
-            .party-info { font-size: 13px; color: #666; line-height: 1.6; }
-            .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            .items-table th { background: #2563eb; color: white; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; }
-            .items-table th:first-child { border-radius: 4px 0 0 4px; }
-            .items-table th:last-child { border-radius: 0 4px 4px 0; text-align: right; }
-            .items-table td { padding: 16px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+            body { 
+              font-family: 'Inter', sans-serif; 
+              padding: 40px; 
+              background: #f8f9fc; 
+              color: #333;
+              min-height: 100vh;
+            }
+            .invoice-container {
+              max-width: 800px;
+              margin: 0 auto;
+              background: #fff;
+              padding: 50px;
+              border-radius: 8px;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              margin-bottom: 40px;
+            }
+            .company-section {
+              display: flex;
+              align-items: flex-start;
+              gap: 16px;
+            }
+            .company-logo {
+              width: 60px;
+              height: 60px;
+              background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+              border-radius: 12px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+            }
+            .company-logo img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            .company-logo-placeholder {
+              color: white;
+              font-size: 24px;
+              font-weight: 700;
+            }
+            .company-info h1 {
+              font-size: 24px;
+              font-weight: 700;
+              color: #1a1a2e;
+              margin-bottom: 4px;
+            }
+            .company-info h1 span {
+              color: #6366f1;
+            }
+            .company-address {
+              font-size: 13px;
+              color: #666;
+              line-height: 1.6;
+              margin-top: 8px;
+            }
+            .invoice-title-section {
+              text-align: right;
+            }
+            .invoice-label {
+              font-size: 32px;
+              font-weight: 700;
+              color: #6366f1;
+              letter-spacing: 2px;
+            }
+            .invoice-date {
+              font-size: 14px;
+              color: #666;
+              margin-top: 8px;
+            }
+            .parties-section {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 40px;
+            }
+            .party-box {
+              width: 48%;
+            }
+            .party-label {
+              font-size: 12px;
+              font-weight: 600;
+              color: #6366f1;
+              margin-bottom: 8px;
+            }
+            .party-name {
+              font-size: 16px;
+              font-weight: 600;
+              color: #1a1a2e;
+              margin-bottom: 4px;
+            }
+            .party-details {
+              font-size: 13px;
+              color: #666;
+              line-height: 1.6;
+            }
+            .items-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 30px;
+            }
+            .items-table thead tr {
+              background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+            }
+            .items-table th {
+              color: white;
+              padding: 14px 16px;
+              text-align: left;
+              font-size: 12px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .items-table th:first-child { border-radius: 6px 0 0 6px; }
+            .items-table th:last-child { border-radius: 0 6px 6px 0; text-align: right; }
+            .items-table th.center { text-align: center; }
+            .items-table tbody tr {
+              border-bottom: 1px solid #eef0f4;
+            }
+            .items-table tbody tr:last-child {
+              border-bottom: none;
+            }
+            .items-table td {
+              padding: 16px;
+              font-size: 14px;
+              color: #333;
+            }
             .items-table td:last-child { text-align: right; }
-            .item-num { width: 40px; color: #666; }
-            .item-desc { font-weight: 500; }
-            .item-details { font-size: 12px; color: #666; margin-top: 4px; }
-            .totals { display: flex; justify-content: flex-end; margin-bottom: 40px; }
-            .totals-box { width: 280px; }
-            .totals-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-            .totals-row.total { border-top: 2px solid #2563eb; font-size: 18px; font-weight: bold; padding-top: 12px; margin-top: 8px; }
-            .totals-row.total span:last-child { color: #2563eb; }
-            .footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e5e7eb; }
-            .footer-section { width: 30%; }
-            .footer-title { font-size: 12px; font-weight: bold; color: #2563eb; margin-bottom: 8px; }
-            .footer-content { font-size: 12px; color: #666; line-height: 1.6; }
-            .terms { margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 8px; }
-            .terms-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
-            .terms-content { font-size: 12px; color: #666; line-height: 1.6; }
-            .thanks { text-align: center; margin-top: 40px; font-size: 18px; font-weight: bold; color: #2563eb; }
-            @media print { body { padding: 20px; } }
+            .items-table td.center { text-align: center; }
+            .item-description {
+              font-weight: 500;
+            }
+            .item-details {
+              font-size: 12px;
+              color: #888;
+              margin-top: 4px;
+            }
+            .bottom-section {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              margin-top: 30px;
+            }
+            .notes-section {
+              width: 55%;
+            }
+            .notes-title {
+              font-size: 12px;
+              font-weight: 600;
+              color: #6366f1;
+              margin-bottom: 8px;
+            }
+            .notes-content {
+              font-size: 12px;
+              color: #666;
+              line-height: 1.6;
+            }
+            .totals-section {
+              width: 40%;
+            }
+            .totals-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 0;
+              font-size: 14px;
+              color: #666;
+            }
+            .totals-row.highlight {
+              background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+              color: white;
+              padding: 14px 16px;
+              border-radius: 6px;
+              font-size: 16px;
+              font-weight: 700;
+              margin-top: 12px;
+            }
+            .footer-section {
+              display: flex;
+              justify-content: space-between;
+              margin-top: 50px;
+              padding-top: 30px;
+              border-top: 1px solid #eef0f4;
+            }
+            .footer-column {
+              width: 30%;
+            }
+            .footer-title {
+              font-size: 12px;
+              font-weight: 600;
+              color: #1a1a2e;
+              margin-bottom: 8px;
+            }
+            .footer-content {
+              font-size: 11px;
+              color: #888;
+              line-height: 1.6;
+            }
+            .thanks-section {
+              margin-top: 40px;
+              padding: 20px;
+              background: linear-gradient(135deg, #f8f9fc 0%, #eef0f4 100%);
+              border-radius: 8px;
+              text-align: center;
+            }
+            .thanks-text {
+              font-size: 16px;
+              font-weight: 600;
+              color: #6366f1;
+            }
+            @media print { 
+              body { padding: 0; background: white; } 
+              .invoice-container { box-shadow: none; padding: 30px; }
+            }
           </style>
         </head>
         <body>
@@ -97,7 +289,7 @@ export function BudgetPreview({
   const handleWhatsApp = () => {
     const message = encodeURIComponent(
       `Olá ${budget.client_name}!\n\n` +
-      `Segue o orçamento ${budget.budget_number} no valor de R$ ${budget.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}.\n\n` +
+      `Segue o orçamento ${budget.budget_number} no valor de ${formatCurrency(budget.total)}.\n\n` +
       `Por favor, entre em contato para mais detalhes.`
     );
     const phone = budget.client_phone?.replace(/\D/g, "") || "";
@@ -108,13 +300,17 @@ export function BudgetPreview({
     const subject = encodeURIComponent(`Orçamento ${budget.budget_number}`);
     const body = encodeURIComponent(
       `Olá ${budget.client_name},\n\n` +
-      `Segue o orçamento ${budget.budget_number} no valor de R$ ${budget.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}.\n\n` +
+      `Segue o orçamento ${budget.budget_number} no valor de ${formatCurrency(budget.total)}.\n\n` +
       `Itens:\n` +
-      items.map((item, i) => `${i + 1}. ${item.description} - R$ ${item.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`).join("\n") +
-      `\n\nAtenciosamente.`
+      items.map((item, i) => `${i + 1}. ${item.description} - ${formatCurrency(item.total)}`).join("\n") +
+      `\n\nAtenciosamente,\n${profile?.name || "Sua Empresa"}`
     );
     window.open(`mailto:${budget.client_email}?subject=${subject}&body=${body}`, "_blank");
   };
+
+  const artistName = profile?.name || "Sua Empresa";
+  const artistEmail = profile?.email || "";
+  const artistPhone = profile?.phone || "";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -142,151 +338,222 @@ export function BudgetPreview({
           </div>
         </DialogHeader>
 
-        <div className="p-8 bg-white" ref={printRef}>
-          <div className="invoice">
+        <div className="p-8 bg-[#f8f9fc]" ref={printRef}>
+          <div className="invoice-container" style={{ 
+            maxWidth: 800, 
+            margin: "0 auto", 
+            background: "#fff", 
+            padding: 50, 
+            borderRadius: 8,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)"
+          }}>
             {/* Header */}
-            <div className="header" style={{ display: "flex", justifyContent: "space-between", marginBottom: 40 }}>
-              <div>
-                <div className="logo" style={{ fontSize: 28, fontWeight: "bold", color: "#2563eb" }}>
-                  {budget.logo_url ? (
-                    <img src={budget.logo_url} alt="Logo" style={{ height: 60 }} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 40 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <div style={{ 
+                  width: 60, 
+                  height: 60, 
+                  background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                  borderRadius: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden"
+                }}>
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
-                    "Sua Empresa"
+                    <span style={{ color: "white", fontSize: 24, fontWeight: 700 }}>
+                      {artistName.charAt(0).toUpperCase()}
+                    </span>
                   )}
+                </div>
+                <div>
+                  <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>
+                    {artistName.split(" ")[0]}
+                    <span style={{ color: "#6366f1" }}>{artistName.split(" ").slice(1).join(" ") ? ` ${artistName.split(" ").slice(1).join(" ")}` : ""}</span>
+                  </h1>
+                  <div style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginTop: 8 }}>
+                    {artistPhone && <div>{artistPhone}</div>}
+                    {artistEmail && <div>{artistEmail}</div>}
+                  </div>
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div className="title" style={{ fontSize: 32, fontWeight: "bold", color: "#1e40af" }}>
+                <div style={{ fontSize: 32, fontWeight: 700, color: "#6366f1", letterSpacing: 2 }}>
                   ORÇAMENTO
                 </div>
-                <div className="invoice-info" style={{ fontSize: 14, color: "#666", marginTop: 8 }}>
-                  <div>Nº: {budget.budget_number}</div>
-                  <div>Data: {new Date(budget.created_at).toLocaleDateString("pt-BR")}</div>
-                  {budget.valid_until && (
-                    <div>Válido até: {new Date(budget.valid_until).toLocaleDateString("pt-BR")}</div>
-                  )}
+                <div style={{ fontSize: 14, color: "#666", marginTop: 8 }}>
+                  {new Date(budget.created_at).toLocaleDateString("pt-BR", { 
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                  })}
                 </div>
               </div>
             </div>
 
             {/* Parties */}
-            <div className="parties" style={{ display: "flex", justifyContent: "space-between", marginBottom: 40 }}>
-              <div className="party" style={{ width: "45%" }}>
-                <div className="party-title" style={{ fontSize: 12, color: "#2563eb", fontWeight: "bold", marginBottom: 8, borderBottom: "2px solid #2563eb", paddingBottom: 4 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 40 }}>
+              <div style={{ width: "48%" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", marginBottom: 8 }}>
                   Para:
                 </div>
-                <div className="party-name" style={{ fontSize: 18, fontWeight: "bold", marginBottom: 4 }}>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e", marginBottom: 4 }}>
                   {budget.client_name}
                 </div>
-                <div className="party-info" style={{ fontSize: 13, color: "#666", lineHeight: 1.6 }}>
-                  {budget.client_company && <div>{budget.client_company}</div>}
-                  {budget.client_phone && <div>Tel: {budget.client_phone}</div>}
-                  {budget.client_email && <div>Email: {budget.client_email}</div>}
+                <div style={{ fontSize: 13, color: "#666", lineHeight: 1.6 }}>
                   {budget.client_address && <div>{budget.client_address}</div>}
+                  {budget.client_company && <div>{budget.client_company}</div>}
                 </div>
+              </div>
+              <div style={{ width: "48%", textAlign: "right" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", marginBottom: 8 }}>
+                  Nº do Orçamento:
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e", marginBottom: 4 }}>
+                  {budget.budget_number}
+                </div>
+                {budget.valid_until && (
+                  <div style={{ fontSize: 13, color: "#666" }}>
+                    Válido até: {new Date(budget.valid_until).toLocaleDateString("pt-BR")}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Items Table */}
-            <table className="items-table" style={{ width: "100%", borderCollapse: "collapse", marginBottom: 30 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 30 }}>
               <thead>
-                <tr>
-                  <th style={{ background: "#2563eb", color: "white", padding: "12px 16px", textAlign: "left", fontSize: 12, textTransform: "uppercase", borderRadius: "4px 0 0 4px" }}>
-                    Nº
-                  </th>
-                  <th style={{ background: "#2563eb", color: "white", padding: "12px 16px", textAlign: "left", fontSize: 12, textTransform: "uppercase" }}>
+                <tr style={{ background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)" }}>
+                  <th style={{ color: "white", padding: "14px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, borderRadius: "6px 0 0 6px" }}>
                     Descrição
                   </th>
-                  <th style={{ background: "#2563eb", color: "white", padding: "12px 16px", textAlign: "center", fontSize: 12, textTransform: "uppercase" }}>
-                    Preço
+                  <th style={{ color: "white", padding: "14px 16px", textAlign: "center", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    Preço Unit.
                   </th>
-                  <th style={{ background: "#2563eb", color: "white", padding: "12px 16px", textAlign: "center", fontSize: 12, textTransform: "uppercase" }}>
+                  <th style={{ color: "white", padding: "14px 16px", textAlign: "center", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
                     Qtd
                   </th>
-                  <th style={{ background: "#2563eb", color: "white", padding: "12px 16px", textAlign: "right", fontSize: 12, textTransform: "uppercase", borderRadius: "0 4px 4px 0" }}>
+                  <th style={{ color: "white", padding: "14px 16px", textAlign: "right", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, borderRadius: "0 6px 6px 0" }}>
                     Total
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => (
-                  <tr key={item.id}>
-                    <td style={{ padding: 16, borderBottom: "1px solid #e5e7eb", fontSize: 14, color: "#666" }}>
-                      {String(index + 1).padStart(2, "0")}
-                    </td>
-                    <td style={{ padding: 16, borderBottom: "1px solid #e5e7eb", fontSize: 14 }}>
-                      <div style={{ fontWeight: 500 }}>{item.description}</div>
+                  <tr key={item.id} style={{ borderBottom: index < items.length - 1 ? "1px solid #eef0f4" : "none" }}>
+                    <td style={{ padding: 16, fontSize: 14 }}>
+                      <div style={{ fontWeight: 500, color: "#333" }}>{item.description}</div>
                       {item.details && (
-                        <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>{item.details}</div>
+                        <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>{item.details}</div>
                       )}
                     </td>
-                    <td style={{ padding: 16, borderBottom: "1px solid #e5e7eb", fontSize: 14, textAlign: "center" }}>
-                      R$ {item.unit_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    <td style={{ padding: 16, fontSize: 14, textAlign: "center", color: "#333" }}>
+                      {formatCurrency(item.unit_price)}
                     </td>
-                    <td style={{ padding: 16, borderBottom: "1px solid #e5e7eb", fontSize: 14, textAlign: "center" }}>
+                    <td style={{ padding: 16, fontSize: 14, textAlign: "center", color: "#333" }}>
                       {item.quantity}
                     </td>
-                    <td style={{ padding: 16, borderBottom: "1px solid #e5e7eb", fontSize: 14, textAlign: "right", fontWeight: 500 }}>
-                      R$ {item.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    <td style={{ padding: 16, fontSize: 14, textAlign: "right", fontWeight: 500, color: "#333" }}>
+                      {formatCurrency(item.total)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
-            {/* Totals */}
-            <div className="totals" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 40 }}>
-              <div className="totals-box" style={{ width: 280 }}>
-                <div className="totals-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14 }}>
+            {/* Bottom Section */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 30 }}>
+              {/* Notes */}
+              <div style={{ width: "55%" }}>
+                {budget.notes && (
+                  <>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", marginBottom: 8 }}>
+                      Observações:
+                    </div>
+                    <div style={{ fontSize: 12, color: "#666", lineHeight: 1.6 }}>
+                      {budget.notes}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Totals */}
+              <div style={{ width: "40%" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14, color: "#666" }}>
                   <span>Subtotal:</span>
-                  <span>R$ {budget.subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                  <span>{formatCurrency(budget.subtotal)}</span>
                 </div>
-                {budget.discount > 0 && (
-                  <div className="totals-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14 }}>
-                    <span>Desconto:</span>
-                    <span>- R$ {budget.discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                )}
                 {budget.tax > 0 && (
-                  <div className="totals-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14, color: "#666" }}>
                     <span>Taxa ({budget.tax}%):</span>
-                    <span>R$ {(budget.subtotal * budget.tax / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    <span>{formatCurrency(taxAmount)}</span>
                   </div>
                 )}
-                <div className="totals-row total" style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", fontSize: 18, fontWeight: "bold", borderTop: "2px solid #2563eb", marginTop: 8 }}>
-                  <span>Total:</span>
-                  <span style={{ color: "#2563eb" }}>R$ {budget.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                {budget.discount > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14, color: "#666" }}>
+                    <span>Desconto:</span>
+                    <span>- {formatCurrency(budget.discount)}</span>
+                  </div>
+                )}
+                <div style={{ 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)",
+                  color: "white",
+                  padding: "14px 16px",
+                  borderRadius: 6,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  marginTop: 12
+                }}>
+                  <span>TOTAL:</span>
+                  <span>{formatCurrency(budget.total)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Payment Conditions */}
-            {budget.payment_conditions && (
-              <div className="footer-section" style={{ marginBottom: 20 }}>
-                <div className="footer-title" style={{ fontSize: 12, fontWeight: "bold", color: "#2563eb", marginBottom: 8 }}>
-                  Condições de Pagamento:
+            {/* Footer */}
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 50, paddingTop: 30, borderTop: "1px solid #eef0f4" }}>
+              <div style={{ width: "30%" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", marginBottom: 8 }}>
+                  Contato
                 </div>
-                <div className="footer-content" style={{ fontSize: 12, color: "#666", lineHeight: 1.6 }}>
-                  {budget.payment_conditions}
-                </div>
-              </div>
-            )}
-
-            {/* Terms */}
-            {budget.terms_conditions && (
-              <div className="terms" style={{ marginTop: 30, padding: 20, background: "#f8fafc", borderRadius: 8 }}>
-                <div className="terms-title" style={{ fontSize: 14, fontWeight: "bold", marginBottom: 8 }}>
-                  Termos & Condições:
-                </div>
-                <div className="terms-content" style={{ fontSize: 12, color: "#666", lineHeight: 1.6 }}>
-                  {budget.terms_conditions}
+                <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
+                  {artistEmail && <div>Email: {artistEmail}</div>}
+                  {artistPhone && <div>Tel: {artistPhone}</div>}
                 </div>
               </div>
-            )}
+              <div style={{ width: "30%" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", marginBottom: 8 }}>
+                  Pagamento
+                </div>
+                <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
+                  {budget.payment_conditions || "A combinar"}
+                </div>
+              </div>
+              <div style={{ width: "30%" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", marginBottom: 8 }}>
+                  Termos e Condições
+                </div>
+                <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
+                  {budget.terms_conditions || "Sujeito a disponibilidade."}
+                </div>
+              </div>
+            </div>
 
             {/* Thanks */}
-            <div className="thanks" style={{ textAlign: "center", marginTop: 40, fontSize: 18, fontWeight: "bold", color: "#2563eb" }}>
-              Obrigado pela preferência!
+            <div style={{ 
+              marginTop: 40, 
+              padding: 20, 
+              background: "linear-gradient(135deg, #f8f9fc 0%, #eef0f4 100%)",
+              borderRadius: 8,
+              textAlign: "center"
+            }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: "#6366f1" }}>
+                Obrigado pela preferência!
+              </div>
             </div>
           </div>
         </div>
