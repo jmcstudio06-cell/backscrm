@@ -33,16 +33,14 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { GoalModal } from "@/components/metas/GoalModal";
 
 const iconMap: Record<string, React.ElementType> = {
-  financial: DollarSign,
+  revenue: DollarSign,
   shows: Mic2,
   leads: Users,
-  sales: TrendingUp,
 };
 
 const goalTypes = [
-  { value: "sales", label: "Meta de Vendas", icon: TrendingUp },
   { value: "leads", label: "Meta de Leads", icon: Users },
-  { value: "financial", label: "Meta de Receita", icon: DollarSign },
+  { value: "revenue", label: "Meta de Receita", icon: DollarSign },
   { value: "shows", label: "Meta de Shows", icon: Mic2 },
 ];
 
@@ -82,7 +80,7 @@ export default function Metas() {
           return leadMonth === goalMonth && leadYear === goalYear;
         }).length;
       }
-      case "financial": {
+      case "revenue": {
         // Sum income transactions in the month (gross revenue)
         return transactions
           .filter(t => {
@@ -94,17 +92,6 @@ export default function Metas() {
                    transYear === goalYear;
           })
           .reduce((sum, t) => sum + t.amount, 0);
-      }
-      case "sales": {
-        // Count closed leads (leads with status "closed") created in the month
-        return leads.filter(lead => {
-          const leadDate = new Date(lead.created_at);
-          const leadMonth = leadDate.getMonth() + 1;
-          const leadYear = leadDate.getFullYear();
-          return lead.status === "closed" && 
-                 leadMonth === goalMonth && 
-                 leadYear === goalYear;
-        }).length;
       }
       default:
         return 0;
@@ -182,7 +169,7 @@ export default function Metas() {
   }
 
   const formatValue = (goal: Goal, value: number) => {
-    if (goal.type === "financial") {
+    if (goal.type === "revenue") {
       return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
     }
     return value.toLocaleString("pt-BR");
