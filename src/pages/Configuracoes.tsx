@@ -6,12 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   User,
-  Mail,
-  Phone,
   Camera,
-  Bell,
   Shield,
-  Palette,
   Globe,
   CreditCard,
   LogOut,
@@ -25,7 +21,6 @@ export default function Configuracoes() {
         <TabsList className="bg-secondary">
           <TabsTrigger value="profile">Meu Perfil</TabsTrigger>
           <TabsTrigger value="preferences">Preferências</TabsTrigger>
-          <TabsTrigger value="notifications">Notificações</TabsTrigger>
           <TabsTrigger value="security">Segurança</TabsTrigger>
         </TabsList>
 
@@ -48,24 +43,24 @@ export default function Configuracoes() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-foreground">Nome Completo</label>
-                  <Input defaultValue="João Silva" className="mt-1 bg-secondary" />
+                  <Input placeholder="Seu nome completo" className="mt-1 bg-secondary" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground">Nome Artístico</label>
-                  <Input defaultValue="Banda Premium" className="mt-1 bg-secondary" />
+                  <Input placeholder="Seu nome artístico" className="mt-1 bg-secondary" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground">Email</label>
-                  <Input defaultValue="joao@bandapremium.com" className="mt-1 bg-secondary" />
+                  <Input placeholder="seu@email.com" className="mt-1 bg-secondary" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground">Telefone</label>
-                  <Input defaultValue="(11) 99999-0000" className="mt-1 bg-secondary" />
+                  <Input placeholder="(00) 00000-0000" className="mt-1 bg-secondary" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-sm font-medium text-foreground">Bio</label>
                   <textarea
-                    defaultValue="Banda de música ao vivo para eventos corporativos e casamentos."
+                    placeholder="Escreva uma breve descrição sobre você ou sua banda..."
                     className="w-full mt-1 p-3 rounded-lg bg-secondary border border-border text-foreground h-24"
                   />
                 </div>
@@ -84,19 +79,6 @@ export default function Configuracoes() {
         <TabsContent value="preferences" className="space-y-6">
           <ChartCard title="Preferências do Sistema">
             <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Palette className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Tema Escuro</p>
-                    <p className="text-sm text-muted-foreground">Usar tema escuro na interface</p>
-                  </div>
-                </div>
-                <Switch defaultChecked />
-              </div>
-
               <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
@@ -122,38 +104,6 @@ export default function Configuracoes() {
                 </div>
                 <Button variant="outline" size="sm">Alterar</Button>
               </div>
-            </div>
-          </ChartCard>
-        </TabsContent>
-
-        {/* Notifications Tab */}
-        <TabsContent value="notifications" className="space-y-6">
-          <ChartCard title="Preferências de Notificação">
-            <div className="space-y-4">
-              {[
-                { title: "Novos leads", description: "Receber notificação quando um novo lead for adicionado", enabled: true },
-                { title: "Shows confirmados", description: "Notificar quando um show for confirmado", enabled: true },
-                { title: "Pagamentos recebidos", description: "Alertar sobre pagamentos recebidos", enabled: true },
-                { title: "Tarefas vencendo", description: "Lembrete de tarefas próximas do prazo", enabled: true },
-                { title: "Resumo semanal", description: "Receber resumo semanal por email", enabled: false },
-                { title: "Marketing", description: "Novidades e promoções", enabled: false },
-              ].map((notification, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 rounded-lg bg-secondary/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-warning" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">{notification.title}</p>
-                      <p className="text-sm text-muted-foreground">{notification.description}</p>
-                    </div>
-                  </div>
-                  <Switch defaultChecked={notification.enabled} />
-                </div>
-              ))}
             </div>
           </ChartCard>
         </TabsContent>

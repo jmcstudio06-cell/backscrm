@@ -8,8 +8,6 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  List,
-  Grid3X3,
   Edit,
   Trash2,
   XCircle,
@@ -37,14 +35,11 @@ const statusLabels = {
   cancelled: "Cancelado",
 };
 
-type ViewMode = "calendar" | "list" | "grid";
-
 export default function Agenda() {
   const { shows, addShow, updateShow, deleteShow, cancelShow } = useShows();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 11, 15));
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 11, 1));
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentMonth, setCurrentMonth] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [editingShow, setEditingShow] = useState<Show | null>(null);
 
   const handleShowCreated = (newShow: ShowData) => {
@@ -160,39 +155,11 @@ export default function Agenda() {
       />
       
       {/* Header Actions */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div></div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant={viewMode === "calendar" ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setViewMode("calendar")}
-            className={viewMode === "calendar" ? "bg-primary text-primary-foreground" : ""}
-          >
-            <Calendar className="w-4 h-4 mr-2" />
-            Calendário
-          </Button>
-          <Button 
-            variant={viewMode === "list" ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setViewMode("list")}
-          >
-            <List className="w-4 h-4 mr-2" />
-            Lista
-          </Button>
-          <Button 
-            variant={viewMode === "grid" ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setViewMode("grid")}
-          >
-            <Grid3X3 className="w-4 h-4 mr-2" />
-            Grade
-          </Button>
-          <Button className="bg-primary hover:bg-primary/90" onClick={handleOpenNewShow}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Show
-          </Button>
-        </div>
+      <div className="flex justify-end mb-6">
+        <Button className="bg-primary hover:bg-primary/90" onClick={handleOpenNewShow}>
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Show
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
