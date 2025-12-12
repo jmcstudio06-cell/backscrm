@@ -1,286 +1,220 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
+  Plus,
+  Lightbulb,
   Play,
-  Clock,
-  CheckCircle2,
-  Lock,
-  BookOpen,
-  Trophy,
+  ExternalLink,
+  Trash2,
   Star,
-  TrendingUp,
-  Mic2,
-  DollarSign,
-  Users,
-  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const categories = [
-  { name: "Marketing Musical", icon: TrendingUp, count: 12, color: "bg-primary" },
-  { name: "Vendas para Artistas", icon: DollarSign, count: 8, color: "bg-success" },
-  { name: "Gestão de Carreira", icon: Users, count: 10, color: "bg-accent" },
-  { name: "Performance no Palco", icon: Mic2, count: 6, color: "bg-warning" },
+  { id: "all", name: "Todas" },
+  { id: "marketing", name: "MARKETING" },
+  { id: "producao", name: "PRODUÇÃO" },
+  { id: "financeiro", name: "FINANCEIRO" },
+  { id: "networking", name: "NETWORKING" },
+  { id: "carreira", name: "CARREIRA" },
+  { id: "tecnica", name: "TÉCNICA MUSICAL" },
+  { id: "vendas", name: "VENDAS" },
+  { id: "ferramentas", name: "FERRAMENTAS" },
+  { id: "outra", name: "OUTRA" },
 ];
 
-const courses = [
+const featuredContent = [
   {
     id: 1,
-    title: "Como Fechar 10 Shows por Mês",
-    category: "Vendas para Artistas",
-    duration: "2h 30min",
-    lessons: 12,
-    progress: 75,
-    thumbnail: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400",
-    status: "in-progress",
+    title: "PODCAST VENÇACAST",
+    category: "MARKETING",
+    type: "video",
+    featured: true,
   },
+];
+
+const contentItems = [
   {
     id: 2,
-    title: "Instagram para Músicos: Guia Completo",
-    category: "Marketing Musical",
-    duration: "3h 15min",
-    lessons: 18,
-    progress: 100,
-    thumbnail: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400",
-    status: "completed",
+    title: "Arte réveillon (Editável no canva grátis)",
+    category: "MARKETING",
+    description: "Só abrir no canva e trocar o conteúdo, fácil e prático!",
+    type: "link",
   },
   {
     id: 3,
-    title: "Precificação de Shows",
-    category: "Gestão de Carreira",
-    duration: "1h 45min",
-    lessons: 8,
-    progress: 30,
-    thumbnail: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400",
-    status: "in-progress",
+    title: "Arte Agenda (Editável no canva)",
+    category: "MARKETING",
+    description: "Só abrir no canva e trocar o conteúdo, fácil e prático!",
+    type: "link",
   },
   {
     id: 4,
-    title: "Networking no Mercado Musical",
-    category: "Gestão de Carreira",
-    duration: "2h 00min",
-    lessons: 10,
-    progress: 0,
-    thumbnail: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=400",
-    status: "locked",
+    title: "Arte (Reveillon Editável no Canva)",
+    category: "MARKETING",
+    type: "link",
   },
 ];
 
-const achievements = [
-  { icon: Trophy, title: "Primeiro Curso", description: "Completou seu primeiro curso", unlocked: true },
-  { icon: Star, title: "Aluno Dedicado", description: "5 aulas em uma semana", unlocked: true },
-  { icon: Target, title: "Meta Batida", description: "100% de progresso em Marketing", unlocked: false },
+const videoContent = [
+  {
+    id: 5,
+    title: "COMO TRABALHAR O CRM NO SE...",
+    thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400",
+    category: "VENDAS",
+  },
+  {
+    id: 6,
+    title: "O MAIOR ERRO que impede CANT...",
+    thumbnail: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400",
+    category: "CARREIRA",
+  },
+  {
+    id: 7,
+    title: "O Segredo para Aumentar o Valor...",
+    thumbnail: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+    category: "FINANCEIRO",
+  },
 ];
 
 export default function Aulas() {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
   return (
-    <Layout title="Aulas de Alavancagem" subtitle="Aprenda a crescer sua carreira musical">
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-primary" />
+    <Layout title="" subtitle="">
+      {/* Hero Banner */}
+      <div className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-r from-primary via-blue-500 to-cyan-400 p-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <Lightbulb className="w-8 h-8 text-white" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">36</p>
-              <p className="text-xs text-muted-foreground">Aulas Disponíveis</p>
+              <h1 className="text-2xl font-bold text-white">Aulas de alavancagem</h1>
+              <p className="text-white/80">Ideias produtivas, dicas e conteúdos úteis</p>
             </div>
           </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-success" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">18</p>
-              <p className="text-xs text-muted-foreground">Concluídas</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-warning" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">12h</p>
-              <p className="text-xs text-muted-foreground">Tempo Assistido</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-              <Trophy className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">3</p>
-              <p className="text-xs text-muted-foreground">Conquistas</p>
-            </div>
-          </div>
+          <Button variant="outline" className="bg-white text-primary hover:bg-white/90 border-none">
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar Conteúdo
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Categories */}
-          <ChartCard title="Categorias" subtitle="Escolha uma área para estudar">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {categories.map((cat) => (
-                <button
-                  key={cat.name}
-                  className="p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-all text-left group"
-                >
-                  <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mb-3", cat.color + "/10")}>
-                    <cat.icon className={cn("w-5 h-5", cat.color.replace("bg-", "text-"))} />
-                  </div>
-                  <p className="font-medium text-foreground text-sm">{cat.name}</p>
-                  <p className="text-xs text-muted-foreground">{cat.count} aulas</p>
-                </button>
-              ))}
-            </div>
-          </ChartCard>
+      {/* Category Filters */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {categories.map((cat) => (
+          <Button
+            key={cat.id}
+            variant={selectedCategory === cat.id ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedCategory(cat.id)}
+            className={cn(
+              selectedCategory === cat.id 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-card hover:bg-muted"
+            )}
+          >
+            {cat.name}
+          </Button>
+        ))}
+      </div>
 
-          {/* Courses */}
-          <ChartCard title="Meus Cursos" subtitle="Continue de onde parou">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {courses.map((course) => (
-                <div
-                  key={course.id}
-                  className={cn(
-                    "rounded-xl overflow-hidden bg-secondary/50 hover:bg-secondary transition-all group",
-                    course.status === "locked" && "opacity-60"
-                  )}
-                >
-                  <div className="relative h-36">
-                    <img
-                      src={course.thumbnail}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                    {course.status === "locked" ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/50">
-                        <Lock className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    ) : (
-                      <button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Play className="w-5 h-5 text-primary-foreground ml-0.5" />
-                      </button>
-                    )}
-                    {course.status === "completed" && (
-                      <Badge className="absolute top-2 right-2 bg-success text-success-foreground">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Concluído
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <Badge variant="outline" className="mb-2 text-xs">
-                      {course.category}
-                    </Badge>
-                    <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
-                      {course.title}
-                    </h3>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {course.duration}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <BookOpen className="w-3 h-3" />
-                        {course.lessons} aulas
-                      </span>
-                    </div>
-                    {course.status !== "locked" && (
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Progresso</span>
-                          <span className="text-primary font-medium">{course.progress}%</span>
-                        </div>
-                        <Progress value={course.progress} className="h-1.5" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ChartCard>
+      {/* Featured Section */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Star className="w-5 h-5 text-yellow-500" />
+          <h2 className="text-lg font-semibold text-foreground">Em Destaque</h2>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Progress */}
-          <ChartCard title="Seu Progresso">
-            <div className="text-center py-4">
-              <div className="relative w-24 h-24 mx-auto mb-4">
-                <svg className="w-full h-full -rotate-90">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="hsl(var(--muted))"
-                    strokeWidth="8"
-                    fill="none"
-                  />
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="url(#progressGrad)"
-                    strokeWidth="8"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeDasharray={251.2}
-                    strokeDashoffset={251.2 * (1 - 0.5)}
-                  />
-                  <defs>
-                    <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" />
-                      <stop offset="100%" stopColor="hsl(var(--accent))" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold text-foreground">50%</span>
+        {featuredContent.map((item) => (
+          <div 
+            key={item.id}
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <div className="bg-orange-500 text-white px-4 py-2 text-sm font-medium flex items-center gap-2">
+              <Star className="w-4 h-4" />
+              EM DESTAQUE
+            </div>
+            <div className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                  <Play className="w-5 h-5 text-red-500" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.category}</p>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">18 de 36 aulas concluídas</p>
+              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
-          </ChartCard>
+          </div>
+        ))}
+      </div>
 
-          {/* Achievements */}
-          <ChartCard title="Conquistas">
-            <div className="space-y-3">
-              {achievements.map((ach, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg",
-                    ach.unlocked ? "bg-warning/10" : "bg-secondary/50 opacity-50"
-                  )}
-                >
-                  <div className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center",
-                    ach.unlocked ? "bg-warning/20" : "bg-muted"
-                  )}>
-                    <ach.icon className={cn("w-5 h-5", ach.unlocked ? "text-warning" : "text-muted-foreground")} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{ach.title}</p>
-                    <p className="text-xs text-muted-foreground">{ach.description}</p>
-                  </div>
+      {/* Content Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {contentItems.map((item) => (
+          <div 
+            key={item.id}
+            className="bg-card rounded-xl border border-border p-4"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ExternalLink className="w-5 h-5 text-primary" />
                 </div>
-              ))}
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>
+                  <Badge variant="outline" className="mt-1 text-xs">{item.category}</Badge>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8">
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
-          </ChartCard>
-        </div>
+            {item.description && (
+              <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+            )}
+            <Button variant="outline" className="w-full">
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Acessar Link
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      {/* Video Content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {videoContent.map((video) => (
+          <div 
+            key={video.id}
+            className="bg-card rounded-xl border border-border overflow-hidden group cursor-pointer hover:shadow-lg transition-all"
+          >
+            <div className="relative aspect-video">
+              <img 
+                src={video.thumbnail} 
+                alt={video.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center">
+                  <Play className="w-8 h-8 text-white ml-1" />
+                </div>
+              </div>
+              <Badge className="absolute top-2 right-2 bg-black/70 text-white">
+                {video.category}
+              </Badge>
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-foreground line-clamp-2">{video.title}</h3>
+            </div>
+          </div>
+        ))}
       </div>
     </Layout>
   );

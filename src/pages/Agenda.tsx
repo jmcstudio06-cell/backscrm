@@ -1,21 +1,17 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   MapPin,
-  Clock,
-  DollarSign,
   Plus,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
-  AlertCircle,
-  Mic2,
-  Users,
-  FileText,
+  List,
+  Grid3X3,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
@@ -72,18 +68,20 @@ const initialShows = [
   },
 ];
 
-const statusConfig = {
-  confirmed: { label: "Confirmado", color: "bg-success/10 text-success border-success/20" },
-  pending: { label: "Pendente", color: "bg-warning/10 text-warning border-warning/20" },
-  negotiation: { label: "Negociação", color: "bg-accent/10 text-accent border-accent/20" },
+const statusColors = {
+  confirmed: "bg-primary",
+  pending: "bg-warning",
+  negotiation: "bg-accent",
 };
 
-const calendarDays = Array.from({ length: 31 }, (_, i) => i + 1);
+type ViewMode = "calendar" | "list" | "grid";
 
 export default function Agenda() {
-  const [selectedDate, setSelectedDate] = useState<number | null>(15);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 11, 23));
+  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 11, 1));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [shows, setShows] = useState(initialShows);
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 
   const handleShowCreated = (newShow: ShowData) => {
     const show = {
@@ -97,167 +95,241 @@ export default function Agenda() {
       status: newShow.status,
       client: newShow.client,
       type: newShow.type,
-      expenses: newShow.expenses,
-      totalExpenses: newShow.totalExpenses,
-      netProfit: newShow.netProfit,
     };
     setShows([...shows, show]);
     toast.success(`Show "${newShow.name}" adicionado com sucesso!`);
   };
 
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+    return { daysInMonth, startingDay };
+  };
+
+  const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
+
+  const getShowsForDate = (day: number) => {
+    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return shows.filter(show => show.date === dateStr);
+  };
+
+  const selectedDayShows = getShowsForDate(selectedDate.getDate());
+
+  const monthNames = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+
+  const prevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDate(today);
+  };
+
+  const isToday = (day: number) => {
+    const today = new Date();
+    return today.getDate() === day && 
+           today.getMonth() === currentMonth.getMonth() && 
+           today.getFullYear() === currentMonth.getFullYear();
+  };
+
+  const isSelected = (day: number) => {
+    return selectedDate.getDate() === day && 
+           selectedDate.getMonth() === currentMonth.getMonth() && 
+           selectedDate.getFullYear() === currentMonth.getFullYear();
+  };
+
   return (
-    <Layout title="Agenda de Shows" subtitle="Gerencie seus eventos e compromissos">
+    <Layout title="Agenda de Shows" subtitle="Organize seus eventos e apresentações">
       <NovoShowModal 
         open={isModalOpen} 
         onOpenChange={setIsModalOpen} 
         onShowCreated={handleShowCreated}
       />
       
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon">
-            <ChevronLeft className="w-4 h-4" />
+      {/* Header Actions */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div></div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant={viewMode === "calendar" ? "default" : "outline"} 
+            size="sm"
+            onClick={() => setViewMode("calendar")}
+            className={viewMode === "calendar" ? "bg-primary text-primary-foreground" : ""}
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Calendário
           </Button>
-          <h2 className="text-lg font-semibold">Dezembro 2024</h2>
-          <Button variant="outline" size="icon">
-            <ChevronRight className="w-4 h-4" />
+          <Button 
+            variant={viewMode === "list" ? "default" : "outline"} 
+            size="sm"
+            onClick={() => setViewMode("list")}
+          >
+            <List className="w-4 h-4 mr-2" />
+            Lista
+          </Button>
+          <Button 
+            variant={viewMode === "grid" ? "default" : "outline"} 
+            size="sm"
+            onClick={() => setViewMode("grid")}
+          >
+            <Grid3X3 className="w-4 h-4 mr-2" />
+            Grade
+          </Button>
+          <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Show
           </Button>
         </div>
-        <Button variant="gradient" onClick={() => setIsModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Show
-        </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Calendar */}
-        <ChartCard title="Calendário" className="lg:col-span-2">
-          <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="lg:col-span-3 bg-card rounded-xl border border-border p-6">
+          {/* Month Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-foreground capitalize">
+              {monthNames[currentMonth.getMonth()]} De {currentMonth.getFullYear()}
+            </h2>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" onClick={prevMonth}>
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={goToToday}>
+                Hoje
+              </Button>
+              <Button variant="outline" size="icon" onClick={nextMonth}>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Weekday Headers */}
+          <div className="grid grid-cols-7 gap-2 mb-2">
             {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-              <div key={day} className="text-center text-xs text-muted-foreground py-2">
+              <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
                 {day}
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-1">
+
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-7 gap-2">
             {/* Empty cells for days before the 1st */}
-            {[...Array(0)].map((_, i) => (
-              <div key={`empty-${i}`} className="h-12" />
+            {Array.from({ length: startingDay }).map((_, i) => (
+              <div 
+                key={`empty-start-${i}`} 
+                className="aspect-square rounded-xl border border-border/50 bg-muted/20 flex items-center justify-center"
+              >
+                <span className="text-muted-foreground/50 text-sm">
+                  {new Date(currentMonth.getFullYear(), currentMonth.getMonth(), -startingDay + i + 1).getDate()}
+                </span>
+              </div>
             ))}
-            {calendarDays.map((day) => {
-              const hasShow = shows.some((show) => new Date(show.date).getDate() === day);
-              const isSelected = selectedDate === day;
+            
+            {/* Actual days */}
+            {Array.from({ length: daysInMonth }).map((_, i) => {
+              const day = i + 1;
+              const dayShows = getShowsForDate(day);
+              const hasShow = dayShows.length > 0;
+              const selected = isSelected(day);
+              const today = isToday(day);
 
               return (
                 <button
                   key={day}
-                  onClick={() => setSelectedDate(day)}
+                  onClick={() => setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
                   className={cn(
-                    "h-12 rounded-lg text-sm font-medium transition-all relative",
-                    isSelected
-                      ? "bg-primary text-primary-foreground"
+                    "aspect-square rounded-xl border flex flex-col items-center justify-center text-sm font-medium transition-all relative",
+                    selected
+                      ? "bg-primary text-primary-foreground border-primary"
                       : hasShow
-                      ? "bg-primary/10 text-primary hover:bg-primary/20"
-                      : "hover:bg-secondary text-foreground"
+                      ? "bg-primary/10 border-primary/30 text-foreground hover:bg-primary/20"
+                      : "border-border bg-card hover:bg-muted/50 text-foreground"
                   )}
                 >
-                  {day}
-                  {hasShow && !isSelected && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary" />
+                  <span className={cn(today && !selected && "text-primary font-bold")}>{day}</span>
+                  {hasShow && (
+                    <div className="absolute bottom-1.5 flex gap-0.5">
+                      {dayShows.slice(0, 3).map((show, idx) => (
+                        <span 
+                          key={idx}
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full",
+                            selected ? "bg-primary-foreground" : statusColors[show.status as keyof typeof statusColors]
+                          )} 
+                        />
+                      ))}
+                    </div>
                   )}
                 </button>
               );
             })}
-          </div>
-        </ChartCard>
 
-        {/* Stats Summary */}
-        <div className="space-y-4">
-          <ChartCard title="Resumo do Mês">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-success/10">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-success" />
-                  <span className="text-sm text-muted-foreground">Confirmados</span>
-                </div>
-                <span className="text-lg font-bold text-success">12</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-warning/10">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-warning" />
-                  <span className="text-sm text-muted-foreground">Pendentes</span>
-                </div>
-                <span className="text-lg font-bold text-warning">5</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-accent/10">
-                <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-accent" />
-                  <span className="text-sm text-muted-foreground">Em Negociação</span>
-                </div>
-                <span className="text-lg font-bold text-accent">3</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10">
-                <div className="flex items-center gap-3">
-                  <DollarSign className="w-5 h-5 text-primary" />
-                  <span className="text-sm text-muted-foreground">Faturamento</span>
-                </div>
-                <span className="text-lg font-bold text-primary">R$ 42.300</span>
-              </div>
-            </div>
-          </ChartCard>
-        </div>
-      </div>
-
-      {/* Shows List */}
-      <div className="mt-6">
-        <ChartCard title="Shows do Mês" subtitle="Lista completa de eventos">
-          <div className="space-y-4">
-            {shows.map((show) => (
-              <div
-                key={show.id}
-                className="flex flex-col md:flex-row md:items-center gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+            {/* Empty cells for days after the last day */}
+            {Array.from({ length: (7 - ((startingDay + daysInMonth) % 7)) % 7 }).map((_, i) => (
+              <div 
+                key={`empty-end-${i}`} 
+                className="aspect-square rounded-xl border border-border/50 bg-muted/20 flex items-center justify-center"
               >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
-                  <Mic2 className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-foreground truncate">{show.name}</h3>
-                    <Badge variant="outline" className={statusConfig[show.status as keyof typeof statusConfig].color}>
-                      {statusConfig[show.status as keyof typeof statusConfig].label}
-                    </Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(show.date).toLocaleDateString("pt-BR")}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {show.time}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {show.venue}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-success">
-                      R$ {show.value.toLocaleString("pt-BR")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{show.type}</p>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    <FileText className="w-4 h-4 mr-1" />
-                    Detalhes
-                  </Button>
-                </div>
+                <span className="text-muted-foreground/50 text-sm">{i + 1}</span>
               </div>
             ))}
           </div>
-        </ChartCard>
+        </div>
+
+        {/* Selected Day Shows */}
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            {selectedDate.getDate()} de {monthNames[selectedDate.getMonth()].toLowerCase()}
+          </h3>
+
+          <div className="space-y-4">
+            {selectedDayShows.length > 0 ? (
+              selectedDayShows.map((show) => (
+                <div key={show.id} className="p-4 rounded-xl bg-muted/50 border border-border">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-medium text-foreground">{show.name}</h4>
+                    <span className={cn(
+                      "w-2 h-2 rounded-full mt-1.5",
+                      statusColors[show.status as keyof typeof statusColors]
+                    )} />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1">Cliente: {show.client}</p>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <MapPin className="w-3 h-3" />
+                    <span>{show.venue}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3">
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Edit className="w-3 h-3 mr-1" />
+                      Editar
+                    </Button>
+                    <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Nenhum show agendado para este dia
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );
