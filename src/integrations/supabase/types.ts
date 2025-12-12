@@ -14,6 +14,130 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_items: {
+        Row: {
+          budget_id: string
+          created_at: string
+          description: string
+          details: string | null
+          id: string
+          quantity: number
+          sort_order: number
+          total: number
+          unit_price: number
+        }
+        Insert: {
+          budget_id: string
+          created_at?: string
+          description: string
+          details?: string | null
+          id?: string
+          quantity?: number
+          sort_order?: number
+          total?: number
+          unit_price?: number
+        }
+        Update: {
+          budget_id?: string
+          created_at?: string
+          description?: string
+          details?: string | null
+          id?: string
+          quantity?: number
+          sort_order?: number
+          total?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_items_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budgets: {
+        Row: {
+          budget_number: string
+          client_address: string | null
+          client_company: string | null
+          client_email: string | null
+          client_id: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          discount: number
+          id: string
+          logo_url: string | null
+          notes: string | null
+          payment_conditions: string | null
+          status: string
+          subtotal: number
+          tax: number
+          terms_conditions: string | null
+          total: number
+          updated_at: string
+          user_id: string
+          valid_until: string | null
+        }
+        Insert: {
+          budget_number: string
+          client_address?: string | null
+          client_company?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          discount?: number
+          id?: string
+          logo_url?: string | null
+          notes?: string | null
+          payment_conditions?: string | null
+          status?: string
+          subtotal?: number
+          tax?: number
+          terms_conditions?: string | null
+          total?: number
+          updated_at?: string
+          user_id: string
+          valid_until?: string | null
+        }
+        Update: {
+          budget_number?: string
+          client_address?: string | null
+          client_company?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          discount?: number
+          id?: string
+          logo_url?: string | null
+          notes?: string | null
+          payment_conditions?: string | null
+          status?: string
+          subtotal?: number
+          tax?: number
+          terms_conditions?: string | null
+          total?: number
+          updated_at?: string
+          user_id?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           company: string | null
@@ -55,6 +179,150 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      contract_clauses: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_default: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          artist_address: string | null
+          artist_document: string | null
+          artist_email: string | null
+          artist_name: string | null
+          artist_phone: string | null
+          clauses: Json
+          client_address: string | null
+          client_document: string | null
+          client_email: string | null
+          client_id: string | null
+          client_name: string
+          client_phone: string | null
+          contract_number: string
+          created_at: string
+          discount: number
+          event_date: string | null
+          event_duration: string | null
+          event_location: string | null
+          event_time: string | null
+          event_type: string | null
+          id: string
+          payment_terms: string | null
+          show_id: string | null
+          signed_at: string | null
+          status: string
+          title: string
+          total_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          artist_address?: string | null
+          artist_document?: string | null
+          artist_email?: string | null
+          artist_name?: string | null
+          artist_phone?: string | null
+          clauses?: Json
+          client_address?: string | null
+          client_document?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name: string
+          client_phone?: string | null
+          contract_number: string
+          created_at?: string
+          discount?: number
+          event_date?: string | null
+          event_duration?: string | null
+          event_location?: string | null
+          event_time?: string | null
+          event_type?: string | null
+          id?: string
+          payment_terms?: string | null
+          show_id?: string | null
+          signed_at?: string | null
+          status?: string
+          title: string
+          total_value?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          artist_address?: string | null
+          artist_document?: string | null
+          artist_email?: string | null
+          artist_name?: string | null
+          artist_phone?: string | null
+          clauses?: Json
+          client_address?: string | null
+          client_document?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name?: string
+          client_phone?: string | null
+          contract_number?: string
+          created_at?: string
+          discount?: number
+          event_date?: string | null
+          event_duration?: string | null
+          event_location?: string | null
+          event_time?: string | null
+          event_type?: string | null
+          id?: string
+          payment_terms?: string | null
+          show_id?: string | null
+          signed_at?: string | null
+          status?: string
+          title?: string
+          total_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       goals: {
         Row: {
@@ -221,6 +489,36 @@ export type Database = {
           phone?: string | null
           rate?: number | null
           rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      performance_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          price?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price?: number
           updated_at?: string
           user_id?: string
         }

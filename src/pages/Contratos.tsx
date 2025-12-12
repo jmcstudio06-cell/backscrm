@@ -1,75 +1,17 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Plus,
-  Search,
-  FileText,
-  CheckCircle2,
-  Clock,
-  Send,
-  PenTool,
-  Download,
-  Eye,
-  MoreVertical,
-  FileSignature,
-} from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-const contracts = [
-  {
-    id: 1,
-    title: "Casamento Silva & Santos",
-    client: "Maria Silva",
-    value: 8500,
-    date: "2024-12-15",
-    status: "signed",
-    createdAt: "2024-11-20",
-  },
-  {
-    id: 2,
-    title: "Evento Corporativo TechCorp",
-    client: "João Mendes",
-    value: 12000,
-    date: "2024-12-18",
-    status: "sent",
-    createdAt: "2024-11-25",
-  },
-  {
-    id: 3,
-    title: "Formatura Medicina USP",
-    client: "Ana Costa",
-    value: 15000,
-    date: "2024-12-28",
-    status: "pending",
-    createdAt: "2024-12-01",
-  },
-  {
-    id: 4,
-    title: "Aniversário 50 anos",
-    client: "Carlos Oliveira",
-    value: 6800,
-    date: "2024-12-22",
-    status: "draft",
-    createdAt: "2024-12-05",
-  },
-];
-
-const templates = [
-  { name: "Contrato Padrão - Casamento", uses: 45 },
-  { name: "Contrato Padrão - Corporativo", uses: 32 },
-  { name: "Contrato Padrão - Formatura", uses: 28 },
-  { name: "Contrato Padrão - Aniversário", uses: 21 },
-];
+import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useContracts, Contract } from "@/hooks/useContracts";
+import { useClients } from "@/hooks/useClients";
+import { ContractModal } from "@/components/contratos/ContractModal";
+import { ContractPreview } from "@/components/contratos/ContractPreview";
+import { ClausesModal } from "@/components/contratos/ClausesModal";
 
 const statusConfig = {
   draft: { label: "Rascunho", color: "bg-muted text-muted-foreground", icon: FileText },
@@ -79,178 +21,169 @@ const statusConfig = {
 };
 
 export default function Contratos() {
+  const { contracts, savedClauses, loading, addContract, updateContract, deleteContract, addSavedClause, updateSavedClause, deleteSavedClause, getDefaultClauses } = useContracts();
+  const { clients } = useClients();
+  const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isClausesModalOpen, setIsClausesModalOpen] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+
+  const filteredContracts = contracts.filter(c => 
+    c.client_name.toLowerCase().includes(search.toLowerCase()) ||
+    c.contract_number.toLowerCase().includes(search.toLowerCase()) ||
+    c.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleSave = async (contractData: Partial<Contract>) => {
+    if (selectedContract) {
+      await updateContract(selectedContract.id, contractData);
+    } else {
+      await addContract(contractData);
+    }
+    setSelectedContract(null);
+  };
+
+  const handleView = (contract: Contract) => {
+    setSelectedContract(contract);
+    setIsPreviewOpen(true);
+  };
+
+  const handleEdit = (contract: Contract) => {
+    setSelectedContract(contract);
+    setIsModalOpen(true);
+  };
+
+  if (loading) {
+    return <Layout title="Contratos" subtitle="Carregando..."><div className="flex items-center justify-center h-64">Carregando...</div></Layout>;
+  }
+
   return (
     <Layout title="Contratos" subtitle="Gerencie seus contratos e documentos">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="p-4 rounded-xl glass">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">156</p>
-              <p className="text-xs text-muted-foreground">Total de Contratos</p>
-            </div>
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileText className="w-5 h-5 text-primary" /></div>
+            <div><p className="text-2xl font-bold text-foreground">{contracts.length}</p><p className="text-xs text-muted-foreground">Total de Contratos</p></div>
           </div>
         </div>
         <div className="p-4 rounded-xl glass">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-success" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">124</p>
-              <p className="text-xs text-muted-foreground">Assinados</p>
-            </div>
+            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center"><CheckCircle2 className="w-5 h-5 text-success" /></div>
+            <div><p className="text-2xl font-bold text-foreground">{contracts.filter(c => c.status === "signed").length}</p><p className="text-xs text-muted-foreground">Assinados</p></div>
           </div>
         </div>
         <div className="p-4 rounded-xl glass">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-              <Send className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">18</p>
-              <p className="text-xs text-muted-foreground">Enviados</p>
-            </div>
+            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center"><Send className="w-5 h-5 text-accent" /></div>
+            <div><p className="text-2xl font-bold text-foreground">{contracts.filter(c => c.status === "sent").length}</p><p className="text-xs text-muted-foreground">Enviados</p></div>
           </div>
         </div>
         <div className="p-4 rounded-xl glass">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-warning" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">14</p>
-              <p className="text-xs text-muted-foreground">Aguardando</p>
-            </div>
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center"><Clock className="w-5 h-5 text-warning" /></div>
+            <div><p className="text-2xl font-bold text-foreground">{contracts.filter(c => c.status === "pending" || c.status === "draft").length}</p><p className="text-xs text-muted-foreground">Aguardando</p></div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Actions Bar */}
           <div className="flex flex-col md:flex-row justify-between gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Buscar contratos..." className="pl-9 w-64 bg-secondary" />
+              <Input placeholder="Buscar contratos..." className="pl-9 w-64 bg-secondary" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <Button variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Contrato
+            <Button variant="gradient" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }}>
+              <Plus className="w-4 h-4 mr-2" />Novo Contrato
             </Button>
           </div>
 
-          {/* Contracts Table */}
           <ChartCard title="Contratos Recentes" subtitle="Últimos contratos criados">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Contrato</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Data Evento</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {contracts.map((contract) => {
-                  const status = statusConfig[contract.status as keyof typeof statusConfig];
-                  const StatusIcon = status.icon;
-
-                  return (
-                    <TableRow key={contract.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <FileSignature className="w-5 h-5 text-primary" />
+            {filteredContracts.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">Nenhum contrato encontrado.</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Contrato</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Data Evento</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredContracts.map((contract) => {
+                    const status = statusConfig[contract.status as keyof typeof statusConfig] || statusConfig.draft;
+                    const StatusIcon = status.icon;
+                    return (
+                      <TableRow key={contract.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileSignature className="w-5 h-5 text-primary" /></div>
+                            <div><span className="font-medium text-foreground block">{contract.title}</span><span className="text-xs text-muted-foreground">{contract.contract_number}</span></div>
                           </div>
-                          <span className="font-medium text-foreground">{contract.title}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{contract.client}</TableCell>
-                      <TableCell>
-                        <span className="font-semibold text-success">
-                          R$ {contract.value.toLocaleString("pt-BR")}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {new Date(contract.date).toLocaleDateString("pt-BR")}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={status.color}>
-                          <StatusIcon className="w-3 h-3 mr-1" />
-                          {status.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{contract.client_name}</TableCell>
+                        <TableCell><span className="font-semibold text-success">R$ {contract.total_value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span></TableCell>
+                        <TableCell className="text-muted-foreground">{contract.event_date ? new Date(contract.event_date).toLocaleDateString("pt-BR") : "-"}</TableCell>
+                        <TableCell><Badge variant="outline" className={status.color}><StatusIcon className="w-3 h-3 mr-1" />{status.label}</Badge></TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" onClick={() => handleView(contract)}><Eye className="w-4 h-4" /></Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                              <DropdownMenuContent className="bg-background border">
+                                <DropdownMenuItem onClick={() => handleEdit(contract)}>Editar</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "sent" })}>Marcar Enviado</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "signed", signed_at: new Date().toISOString() })}>Marcar Assinado</DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => deleteContract(contract.id)}>Excluir</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
           </ChartCard>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Templates */}
-          <ChartCard title="Modelos Prontos" subtitle="Use templates para agilizar">
-            <div className="space-y-3">
-              {templates.map((template, index) => (
-                <button
-                  key={index}
-                  className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-all text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-primary" />
-                    <span className="text-sm font-medium text-foreground">{template.name}</span>
+          <ChartCard title="Cláusulas Salvas" subtitle="Modelos reutilizáveis">
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {savedClauses.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Nenhuma cláusula salva</p>
+              ) : (
+                savedClauses.map((clause) => (
+                  <div key={clause.id} className="p-2 rounded bg-secondary/50 text-sm">
+                    <span className="font-medium">{clause.title}</span>
                   </div>
-                  <Badge variant="secondary">{template.uses}</Badge>
-                </button>
-              ))}
+                ))
+              )}
             </div>
-            <Button variant="outline" className="w-full mt-4">
-              <Plus className="w-4 h-4 mr-2" />
-              Criar Modelo
+            <Button variant="outline" className="w-full mt-4" onClick={() => setIsClausesModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />Gerenciar Cláusulas
             </Button>
           </ChartCard>
 
-          {/* Quick Actions */}
           <ChartCard title="Ações Rápidas">
             <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <PenTool className="w-4 h-4 mr-2" />
-                Assinar Contrato
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Send className="w-4 h-4 mr-2" />
-                Enviar para Cliente
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Download className="w-4 h-4 mr-2" />
-                Exportar PDF
-              </Button>
+              <Button variant="outline" className="w-full justify-start" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }}><PenTool className="w-4 h-4 mr-2" />Novo Contrato</Button>
+              <Button variant="outline" className="w-full justify-start" onClick={() => setIsClausesModalOpen(true)}><FileText className="w-4 h-4 mr-2" />Cláusulas Padrão</Button>
             </div>
           </ChartCard>
         </div>
       </div>
+
+      <ContractModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedContract(null); }} onSave={handleSave} clients={clients} savedClauses={savedClauses} getDefaultClauses={getDefaultClauses} contract={selectedContract} />
+      <ContractPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} contract={selectedContract} />
+      <ClausesModal isOpen={isClausesModalOpen} onClose={() => setIsClausesModalOpen(false)} clauses={savedClauses} onAdd={addSavedClause} onUpdate={updateSavedClause} onDelete={deleteSavedClause} />
     </Layout>
   );
 }
