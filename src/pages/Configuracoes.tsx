@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
@@ -12,9 +13,37 @@ import {
   CreditCard,
   LogOut,
   Save,
+  Loader2,
 } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
+import { toast } from "sonner";
 
 export default function Configuracoes() {
+  const { profile, loading, updateProfile } = useProfile();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [bio, setBio] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name || "");
+      setEmail(profile.email || "");
+      setPhone(profile.phone || "");
+    }
+  }, [profile]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    await updateProfile({
+      name,
+      email,
+      phone,
+    });
+    setSaving(false);
+  };
+
   return (
     <Layout title="Configurações" subtitle="Gerencie suas preferências">
       <Tabs defaultValue="profile" className="space-y-6">
@@ -26,12 +55,16 @@ export default function Configuracoes() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <ChartCard title="Informações Pessoais" subtitle="Atualize seus dados">
+          <ChartCard title="Informações Pessoais" subtitle="Atualize seus dados para aparecer nos orçamentos e contratos">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Avatar */}
               <div className="flex flex-col items-center">
-                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4">
-                  <User className="w-16 h-16 text-primary-foreground" />
+                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 overflow-hidden">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-16 h-16 text-primary-foreground" />
+                  )}
                 </div>
                 <Button variant="outline" size="sm">
                   <Camera className="w-4 h-4 mr-2" />
@@ -41,34 +74,43 @@ export default function Configuracoes() {
 
               {/* Form */}
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground">Nome Completo</label>
-                  <Input placeholder="Seu nome completo" className="mt-1 bg-secondary" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground">Nome Artístico</label>
-                  <Input placeholder="Seu nome artístico" className="mt-1 bg-secondary" />
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-foreground">Nome Artístico / Empresa</label>
+                  <Input 
+                    placeholder="Ex: João Silva Music" 
+                    className="mt-1 bg-secondary"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Este nome aparecerá nos orçamentos e contratos</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground">Email</label>
-                  <Input placeholder="seu@email.com" className="mt-1 bg-secondary" />
+                  <Input 
+                    placeholder="seu@email.com" 
+                    className="mt-1 bg-secondary"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground">Telefone</label>
-                  <Input placeholder="(00) 00000-0000" className="mt-1 bg-secondary" />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="text-sm font-medium text-foreground">Bio</label>
-                  <textarea
-                    placeholder="Escreva uma breve descrição sobre você ou sua banda..."
-                    className="w-full mt-1 p-3 rounded-lg bg-secondary border border-border text-foreground h-24"
+                  <Input 
+                    placeholder="(00) 00000-0000" 
+                    className="mt-1 bg-secondary"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
               </div>
             </div>
             <div className="mt-6 flex justify-end">
-              <Button variant="gradient">
-                <Save className="w-4 h-4 mr-2" />
+              <Button variant="gradient" onClick={handleSave} disabled={saving}>
+                {saving ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
                 Salvar Alterações
               </Button>
             </div>
