@@ -160,23 +160,23 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-[#0066CC] to-[#00B4D8] backdrop-blur-sm">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-white">Backstage</span>
-            <span className="text-2xl font-bold text-cyan-300">Pro</span>
+            <span className="text-2xl font-bold text-[#0066CC]">Backstage</span>
+            <span className="text-2xl font-bold text-[#00B4D8]">Pro</span>
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#recursos" className="text-white/90 hover:text-white transition-colors">Recursos</a>
-            <a href="#planos" className="text-white/90 hover:text-white transition-colors">Planos</a>
-            <a href="#depoimentos" className="text-white/90 hover:text-white transition-colors">Depoimentos</a>
-            <a href="#contato" className="text-white/90 hover:text-white transition-colors">Contato</a>
+            <a href="#recursos" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Recursos</a>
+            <a href="#planos" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Planos</a>
+            <a href="#depoimentos" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Depoimentos</a>
+            <a href="#contato" className="text-foreground/70 hover:text-[#0066CC] transition-colors">Contato</a>
           </nav>
 
           <Button 
             onClick={() => navigate('/auth')}
-            className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold"
+            className="bg-[#0066CC] text-white hover:bg-[#0055AA] font-semibold"
           >
             Testar Grátis
           </Button>
@@ -184,24 +184,24 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+      <section className="pt-32 pb-20 bg-gradient-to-b from-[#E8F4FD] via-[#D6EDFC] to-[#C4E6FB] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent" />
         
         <div className="container mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
-            <Sparkles className="w-4 h-4 text-cyan-300" />
-            <span className="text-white/90 text-sm">+100+ artistas já usam o Backstage Pro</span>
+          <div className="inline-flex items-center gap-2 bg-[#0066CC]/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
+            <Sparkles className="w-4 h-4 text-[#0066CC]" />
+            <span className="text-[#0066CC] text-sm font-medium">+100+ artistas já usam o Backstage Pro</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
             O app mais completo
           </h1>
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="text-white">de </span>
-            <span className="text-cyan-300">gestão para artistas</span>
+            <span className="text-foreground">de </span>
+            <span className="text-[#0066CC]">gestão para artistas</span>
           </h2>
 
-          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10">
             Agenda, financeiro, funil de vendas, contratos, repertório e muito mais — tudo em um só lugar.
           </p>
 
@@ -209,7 +209,7 @@ const Landing = () => {
             <Button 
               onClick={() => navigate('/auth')}
               size="lg"
-              className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
+              className="bg-[#0066CC] text-white hover:bg-[#0055AA] font-semibold px-8 py-6 text-lg"
             >
               Começar Agora
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -217,18 +217,18 @@ const Landing = () => {
             <Button 
               variant="outline"
               size="lg"
-              className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg bg-transparent"
+              className="border-[#0066CC]/30 text-[#0066CC] hover:bg-[#0066CC]/10 px-8 py-6 text-lg bg-white"
             >
               <Play className="mr-2 w-5 h-5" />
               Ver Planos
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-white/80 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-foreground/70 text-sm">
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 border-2 border-white/20" />
+                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0066CC] to-[#00B4D8] border-2 border-white" />
                 ))}
               </div>
               <span>+100+ usuários ativos</span>
@@ -239,7 +239,7 @@ const Landing = () => {
               ))}
               <span className="ml-1">4.9/5 de avaliação</span>
             </div>
-            <span><span className="text-cyan-300">3 dias</span> grátis para testar</span>
+            <span><span className="text-[#0066CC] font-semibold">3 dias</span> grátis para testar</span>
           </div>
         </div>
 
@@ -390,31 +390,31 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section id="depoimentos" className="py-20 bg-gradient-to-b from-[#0066CC] to-[#0088DD]">
+      <section id="depoimentos" className="py-20 bg-gradient-to-b from-[#E8F4FD] to-[#D6EDFC]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-cyan-300 font-semibold uppercase tracking-wider text-sm">Depoimentos</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mt-4 mb-2">
+            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Depoimentos</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-4 mb-2">
               O que os cantores estão
             </h2>
-            <h3 className="text-3xl md:text-5xl font-bold text-yellow-400 mb-4">
+            <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
               dizendo sobre nós
             </h3>
-            <p className="text-white/80">
+            <p className="text-muted-foreground">
               Junte-se a centenas de artistas que já transformaram suas carreiras
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-colors">
+              <Card key={index} className="bg-white border-border/50 hover:shadow-lg transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-1 mb-4">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-white/90 italic mb-6">"{testimonial.quote}"</p>
+                  <p className="text-foreground/80 italic mb-6">"{testimonial.quote}"</p>
                   <div className="flex items-center gap-3">
                     <img 
                       src={testimonial.avatar} 
@@ -422,8 +422,8 @@ const Landing = () => {
                       className="w-12 h-12 rounded-full object-cover"
                     />
                     <div>
-                      <div className="text-white font-semibold">{testimonial.name}</div>
-                      <div className="text-cyan-300 text-sm">{testimonial.role}</div>
+                      <div className="text-foreground font-semibold">{testimonial.name}</div>
+                      <div className="text-[#0066CC] text-sm">{testimonial.role}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -590,22 +590,22 @@ const Landing = () => {
       {/* CTA Section */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-6">
-          <div className="bg-gradient-to-br from-[#0066CC] via-[#0077DD] to-[#00B4D8] rounded-3xl p-12 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+          <div className="bg-gradient-to-br from-[#E8F4FD] via-[#D6EDFC] to-[#C4E6FB] rounded-3xl p-12 text-center relative overflow-hidden border border-[#0066CC]/20">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent" />
             
             <div className="relative z-10">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-[#0066CC]/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-8 h-8 text-[#0066CC]" />
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
                 Pronto para profissionalizar
               </h2>
-              <h3 className="text-3xl md:text-4xl font-bold text-cyan-300 mb-6">
+              <h3 className="text-3xl md:text-4xl font-bold text-[#0066CC] mb-6">
                 sua carreira?
               </h3>
               
-              <p className="text-white/80 max-w-xl mx-auto mb-8">
+              <p className="text-muted-foreground max-w-xl mx-auto mb-8">
                 Junte-se a milhares de artistas que já estão crescendo com o Backstage Pro. 
                 Comece hoje mesmo, é grátis por 3 dias!
               </p>
@@ -613,13 +613,13 @@ const Landing = () => {
               <Button 
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
+                className="bg-[#0066CC] text-white hover:bg-[#0055AA] font-semibold px-8 py-6 text-lg"
               >
                 Quero Começar Agora
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
-              <p className="text-white/60 text-sm mt-4">
+              <p className="text-muted-foreground text-sm mt-4">
                 Sem cartão de crédito • Cancele quando quiser
               </p>
             </div>
@@ -628,21 +628,21 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-slate-900 text-white">
+      <footer className="py-12 bg-slate-100 border-t border-border">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">Backstage</span>
-              <span className="text-2xl font-bold text-cyan-400">Pro</span>
+              <span className="text-2xl font-bold text-[#0066CC]">Backstage</span>
+              <span className="text-2xl font-bold text-[#00B4D8]">Pro</span>
             </div>
             
-            <nav className="flex items-center gap-6 text-sm text-white/70">
-              <a href="#" className="hover:text-white transition-colors">Termos de Uso</a>
-              <a href="#" className="hover:text-white transition-colors">Privacidade</a>
-              <a href="#" className="hover:text-white transition-colors">Suporte</a>
+            <nav className="flex items-center gap-6 text-sm text-foreground/70">
+              <a href="#" className="hover:text-[#0066CC] transition-colors">Termos de Uso</a>
+              <a href="#" className="hover:text-[#0066CC] transition-colors">Privacidade</a>
+              <a href="#" className="hover:text-[#0066CC] transition-colors">Suporte</a>
             </nav>
 
-            <p className="text-white/50 text-sm">
+            <p className="text-muted-foreground text-sm">
               © 2024 Backstage Pro. Todos os direitos reservados.
             </p>
           </div>
