@@ -18,9 +18,7 @@ import {
   Phone, 
   Mail, 
   MoreHorizontal, 
-  Music, 
-  Mic2, 
-  Guitar,
+  Music,
   Trash2,
   Edit
 } from "lucide-react";
@@ -30,106 +28,52 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface TeamMember {
-  id: number;
-  name: string;
-  role: string;
-  type: string;
-  phone: string;
-  email: string;
-  shows: number;
-  rating: number;
-}
-
-const initialTeamMembers: TeamMember[] = [
-  {
-    id: 1,
-    name: "Carlos Silva",
-    role: "Baterista",
-    type: "Fixo",
-    phone: "(11) 99999-1111",
-    email: "carlos@email.com",
-    shows: 45,
-    rating: 4.9,
-  },
-  {
-    id: 2,
-    name: "Ana Paula",
-    role: "Vocalista",
-    type: "Fixo",
-    phone: "(11) 99999-2222",
-    email: "ana@email.com",
-    shows: 42,
-    rating: 5.0,
-  },
-  {
-    id: 3,
-    name: "Roberto Santos",
-    role: "Baixista",
-    type: "Freelancer",
-    phone: "(11) 99999-3333",
-    email: "roberto@email.com",
-    shows: 15,
-    rating: 4.7,
-  },
-  {
-    id: 4,
-    name: "Mariana Costa",
-    role: "Tecladista",
-    type: "Freelancer",
-    phone: "(11) 99999-4444",
-    email: "mariana@email.com",
-    shows: 8,
-    rating: 4.8,
-  },
-];
-
-const roleIcons: Record<string, React.ElementType> = {
-  Baterista: Music,
-  Vocalista: Mic2,
-  Baixista: Guitar,
-  Tecladista: Music,
-};
+import { useMusicians } from "@/hooks/useMusicians";
 
 export default function Equipe() {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
+  const { musicians, loading, deleteMusician } = useMusicians();
   const [filter, setFilter] = useState<"all" | "fixo" | "freelancer">("all");
-
-  const filteredMembers = teamMembers.filter(member => {
-    if (filter === "all") return true;
-    if (filter === "fixo") return member.type === "Fixo";
-    if (filter === "freelancer") return member.type === "Freelancer";
-    return true;
-  });
 
   const handleAddMember = () => {
     toast.info("Funcionalidade de adicionar membro em desenvolvimento!");
   };
 
-  const handleDeleteMember = (member: TeamMember) => {
-    setTeamMembers(teamMembers.filter(m => m.id !== member.id));
-    toast.success(`Membro "${member.name}" removido com sucesso!`);
+  const handleDeleteMember = async (musician: { id: string; name: string }) => {
+    await deleteMusician(musician.id);
   };
 
-  const handleEditMember = (member: TeamMember) => {
-    toast.info(`Editando ${member.name}...`);
+  const handleEditMember = (musicianId: string) => {
+    toast.info("Editando músico...");
   };
 
-  const handleCallMember = (phone: string, name: string) => {
+  const handleCallMember = (phone: string | null, name: string) => {
+    if (!phone) {
+      toast.error("Músico não possui telefone cadastrado");
+      return;
+    }
     const formattedPhone = phone.replace(/\D/g, '');
     window.open(`tel:${formattedPhone}`, '_self');
     toast.info(`Ligando para ${name}...`);
   };
 
-  const handleEmailMember = (email: string, name: string) => {
+  const handleEmailMember = (email: string | null, name: string) => {
+    if (!email) {
+      toast.error("Músico não possui email cadastrado");
+      return;
+    }
     window.open(`mailto:${email}`, '_blank');
     toast.info(`Enviando email para ${name}...`);
   };
 
-  const fixedCount = teamMembers.filter(m => m.type === "Fixo").length;
-  const freelancerCount = teamMembers.filter(m => m.type === "Freelancer").length;
-  const avgRating = (teamMembers.reduce((sum, m) => sum + m.rating, 0) / teamMembers.length).toFixed(2);
+  if (loading) {
+    return (
+      <Layout title="Equipe & Freelancer" subtitle="Gerencie sua banda e colaboradores">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Equipe & Freelancer" subtitle="Gerencie sua banda e colaboradores">
@@ -137,19 +81,19 @@ export default function Equipe() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <ChartCard title="Total da Equipe">
-            <div className="text-3xl font-bold text-primary">{teamMembers.length}</div>
-            <p className="text-sm text-muted-foreground">membros ativos</p>
+            <div className="text-3xl font-bold text-primary">{musicians.length}</div>
+            <p className="text-sm text-muted-foreground">membros cadastrados</p>
           </ChartCard>
           <ChartCard title="Membros Fixos">
-            <div className="text-3xl font-bold text-green-600">{fixedCount}</div>
+            <div className="text-3xl font-bold text-green-600">0</div>
             <p className="text-sm text-muted-foreground">contratados</p>
           </ChartCard>
           <ChartCard title="Freelancers">
-            <div className="text-3xl font-bold text-amber-600">{freelancerCount}</div>
+            <div className="text-3xl font-bold text-amber-600">0</div>
             <p className="text-sm text-muted-foreground">disponíveis</p>
           </ChartCard>
           <ChartCard title="Média de Avaliação">
-            <div className="text-3xl font-bold text-primary">{avgRating}</div>
+            <div className="text-3xl font-bold text-primary">-</div>
             <p className="text-sm text-muted-foreground">⭐ estrelas</p>
           </ChartCard>
         </div>
@@ -190,52 +134,54 @@ export default function Equipe() {
 
         {/* Team Table */}
         <ChartCard title="Membros da Equipe">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Membro</TableHead>
-                <TableHead>Função</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Contato</TableHead>
-                <TableHead>Shows</TableHead>
-                <TableHead>Avaliação</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredMembers.map((member) => {
-                const RoleIcon = roleIcons[member.role] || Music;
-                return (
-                  <TableRow key={member.id}>
+          {musicians.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Music className="w-12 h-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Nenhum músico cadastrado</p>
+              <p className="text-sm text-muted-foreground">Adicione membros da sua equipe para começar</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Membro</TableHead>
+                  <TableHead>Função</TableHead>
+                  <TableHead>Cachê</TableHead>
+                  <TableHead>Contato</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {musicians.map((musician) => (
+                  <TableRow key={musician.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarFallback className="bg-primary/10 text-primary">
-                            {member.name
+                            {musician.name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">{member.name}</p>
-                          <p className="text-sm text-muted-foreground">{member.email}</p>
+                          <p className="font-medium">{musician.name}</p>
+                          {musician.email && (
+                            <p className="text-sm text-muted-foreground">{musician.email}</p>
+                          )}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <RoleIcon className="w-4 h-4 text-primary" />
-                        <span>{member.role}</span>
+                        <Music className="w-4 h-4 text-primary" />
+                        <span>{musician.instrument || "Não informado"}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={member.type === "Fixo" ? "default" : "secondary"}
-                        className={member.type === "Fixo" ? "bg-green-500" : ""}
-                      >
-                        {member.type}
-                      </Badge>
+                      <span className="font-medium text-foreground">
+                        R$ {(musician.rate || 0).toLocaleString("pt-BR")}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -243,7 +189,7 @@ export default function Equipe() {
                           variant="ghost" 
                           size="icon" 
                           className="h-8 w-8"
-                          onClick={() => handleCallMember(member.phone, member.name)}
+                          onClick={() => handleCallMember(musician.phone, musician.name)}
                         >
                           <Phone className="w-4 h-4" />
                         </Button>
@@ -251,15 +197,11 @@ export default function Equipe() {
                           variant="ghost" 
                           size="icon" 
                           className="h-8 w-8"
-                          onClick={() => handleEmailMember(member.email, member.name)}
+                          onClick={() => handleEmailMember(musician.email, musician.name)}
                         >
                           <Mail className="w-4 h-4" />
                         </Button>
                       </div>
-                    </TableCell>
-                    <TableCell>{member.shows} shows</TableCell>
-                    <TableCell>
-                      <span className="text-amber-500">⭐</span> {member.rating}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -269,13 +211,13 @@ export default function Equipe() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditMember(member)}>
+                          <DropdownMenuItem onClick={() => handleEditMember(musician.id)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Editar
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-destructive focus:text-destructive"
-                            onClick={() => handleDeleteMember(member)}
+                            onClick={() => handleDeleteMember(musician)}
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Excluir
@@ -284,10 +226,10 @@ export default function Equipe() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </ChartCard>
       </div>
     </Layout>

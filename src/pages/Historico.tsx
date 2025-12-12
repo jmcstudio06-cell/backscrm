@@ -2,12 +2,9 @@ import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Badge } from "@/components/ui/badge";
 import {
-  Calendar,
   DollarSign,
   TrendingUp,
   Mic2,
-  ArrowUp,
-  ArrowDown,
 } from "lucide-react";
 import {
   BarChart,
@@ -28,27 +25,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const monthlyHistory = [
-  { month: "Jan", receita: 28000, despesa: 12000, shows: 8, lucro: 16000 },
-  { month: "Fev", receita: 32000, despesa: 14000, shows: 10, lucro: 18000 },
-  { month: "Mar", receita: 35000, despesa: 13000, shows: 12, lucro: 22000 },
-  { month: "Abr", receita: 30000, despesa: 11000, shows: 9, lucro: 19000 },
-  { month: "Mai", receita: 38000, despesa: 15000, shows: 14, lucro: 23000 },
-  { month: "Jun", receita: 42000, despesa: 16000, shows: 15, lucro: 26000 },
-  { month: "Jul", receita: 40000, despesa: 17000, shows: 13, lucro: 23000 },
-  { month: "Ago", receita: 45000, despesa: 18000, shows: 16, lucro: 27000 },
-  { month: "Set", receita: 48000, despesa: 19000, shows: 18, lucro: 29000 },
-  { month: "Out", receita: 52000, despesa: 20000, shows: 19, lucro: 32000 },
-  { month: "Nov", receita: 55000, despesa: 21000, shows: 20, lucro: 34000 },
-  { month: "Dez", receita: 60000, despesa: 22000, shows: 22, lucro: 38000 },
-];
+import { useTransactions } from "@/hooks/useTransactions";
+import { useShowsData } from "@/hooks/useShows";
 
 export default function Historico() {
-  const totalReceita = monthlyHistory.reduce((acc, m) => acc + m.receita, 0);
-  const totalDespesa = monthlyHistory.reduce((acc, m) => acc + m.despesa, 0);
-  const totalShows = monthlyHistory.reduce((acc, m) => acc + m.shows, 0);
-  const totalLucro = monthlyHistory.reduce((acc, m) => acc + m.lucro, 0);
+  const { transactions, loading: loadingTransactions, getTotalIncome, getTotalExpense } = useTransactions();
+  const { shows, loading: loadingShows } = useShowsData();
+
+  const totalReceita = getTotalIncome();
+  const totalDespesa = getTotalExpense();
+  const totalLucro = totalReceita - totalDespesa;
+  const totalShows = shows.filter(s => s.status === "completed").length;
+
+  // Group by month
+  const monthlyHistory: { month: string; receita: number; despesa: number; shows: number; lucro: number }[] = [];
+
+  const loading = loadingTransactions || loadingShows;
+
+  if (loading) {
+    return (
+      <Layout title="Histórico Mensal" subtitle="Acompanhe sua evolução ao longo do ano">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Histórico Mensal" subtitle="Acompanhe sua evolução ao longo do ano">
@@ -63,7 +65,7 @@ export default function Historico() {
               <p className="text-2xl font-bold text-foreground">
                 R$ {(totalReceita / 1000).toFixed(0)}k
               </p>
-              <p className="text-xs text-muted-foreground">Receita Total 2024</p>
+              <p className="text-xs text-muted-foreground">Receita Total</p>
             </div>
           </div>
         </div>
@@ -76,7 +78,7 @@ export default function Historico() {
               <p className="text-2xl font-bold text-foreground">
                 R$ {(totalDespesa / 1000).toFixed(0)}k
               </p>
-              <p className="text-xs text-muted-foreground">Despesa Total 2024</p>
+              <p className="text-xs text-muted-foreground">Despesa Total</p>
             </div>
           </div>
         </div>
@@ -109,68 +111,70 @@ export default function Historico() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <ChartCard title="Evolução Mensal" subtitle="Receita vs Despesa">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyHistory}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                }}
-              />
-              <Bar dataKey="receita" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="despesa" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {monthlyHistory.length === 0 ? (
+            <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+              Nenhum dado para exibir
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyHistory}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <Tooltip />
+                <Bar dataKey="receita" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="despesa" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </ChartCard>
 
         <ChartCard title="Lucro Mensal" subtitle="Evolução do lucro líquido">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={monthlyHistory}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="lucro"
-                stroke="hsl(var(--primary))"
-                strokeWidth={3}
-                dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {monthlyHistory.length === 0 ? (
+            <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+              Nenhum dado para exibir
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={monthlyHistory}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="lucro"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={3}
+                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </ChartCard>
       </div>
 
       {/* Monthly Table */}
       <ChartCard title="Detalhamento Mensal" subtitle="Resumo mês a mês">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Mês</TableHead>
-              <TableHead>Receita</TableHead>
-              <TableHead>Despesa</TableHead>
-              <TableHead>Shows</TableHead>
-              <TableHead>Lucro</TableHead>
-              <TableHead>Variação</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {monthlyHistory.map((month, index) => {
-              const prevLucro = index > 0 ? monthlyHistory[index - 1].lucro : month.lucro;
-              const variation = ((month.lucro - prevLucro) / prevLucro) * 100;
-
-              return (
+        {monthlyHistory.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <TrendingUp className="w-12 h-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">Nenhum histórico disponível</p>
+            <p className="text-sm text-muted-foreground">Os dados aparecerão aqui conforme você registrar transações</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Mês</TableHead>
+                <TableHead>Receita</TableHead>
+                <TableHead>Despesa</TableHead>
+                <TableHead>Shows</TableHead>
+                <TableHead>Lucro</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {monthlyHistory.map((month) => (
                 <TableRow key={month.month}>
                   <TableCell className="font-medium text-foreground">{month.month}</TableCell>
                   <TableCell className="text-success">
@@ -185,29 +189,11 @@ export default function Historico() {
                   <TableCell className="font-semibold text-primary">
                     R$ {month.lucro.toLocaleString("pt-BR")}
                   </TableCell>
-                  <TableCell>
-                    {index === 0 ? (
-                      <span className="text-muted-foreground">-</span>
-                    ) : (
-                      <div
-                        className={`flex items-center gap-1 ${
-                          variation >= 0 ? "text-success" : "text-destructive"
-                        }`}
-                      >
-                        {variation >= 0 ? (
-                          <ArrowUp className="w-4 h-4" />
-                        ) : (
-                          <ArrowDown className="w-4 h-4" />
-                        )}
-                        <span>{Math.abs(variation).toFixed(1)}%</span>
-                      </div>
-                    )}
-                  </TableCell>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </ChartCard>
     </Layout>
   );

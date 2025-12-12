@@ -21,17 +21,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Lead {
-  id: number;
-  name: string;
-  phone: string;
-  location: string;
-  value: number;
-  stage: string;
-  daysInStage: number;
-  daysAgo: number;
-}
+import { useLeads } from "@/hooks/useLeads";
 
 const stages = [
   { id: "new", name: "Leads Novos", color: "bg-blue-500", textColor: "text-blue-600", bgLight: "bg-blue-50", icon: Users },
@@ -42,79 +32,26 @@ const stages = [
   { id: "never", name: "Nunca Comprou", color: "bg-gray-500", textColor: "text-gray-600", bgLight: "bg-gray-50", icon: Clock },
 ];
 
-const initialLeads: Lead[] = [
-  {
-    id: 1,
-    name: "Wesley",
-    phone: "121212",
-    location: "Bar XXXX",
-    value: 1000,
-    stage: "new",
-    daysInStage: 12,
-    daysAgo: 24,
-  },
-  {
-    id: 2,
-    name: "Teste",
-    phone: "12121212",
-    location: "teste",
-    value: 0,
-    stage: "new",
-    daysInStage: 12,
-    daysAgo: 12,
-  },
-  {
-    id: 3,
-    name: "oi",
-    phone: "45454524",
-    location: "",
-    value: 0,
-    stage: "closed",
-    daysInStage: 7,
-    daysAgo: 8,
-  },
-  {
-    id: 4,
-    name: "teste 2",
-    phone: "12",
-    location: "",
-    value: 500,
-    stage: "never",
-    daysInStage: 23,
-    daysAgo: 31,
-  },
-  {
-    id: 5,
-    name: "Wesley",
-    phone: "121212",
-    location: "Bar XXXX",
-    value: 0,
-    stage: "new",
-    daysInStage: 12,
-    daysAgo: 0,
-  },
-];
-
-const statCards = [
-  { value: 0, label: "Leads Quentes", sublabel: "Últimos 3 dias", icon: TrendingUp, color: "text-red-500", bgColor: "bg-red-50", borderColor: "border-red-200" },
-  { value: 4, label: "Leads Frios", sublabel: "+7 dias sem contato", icon: Clock, color: "text-blue-500", bgColor: "bg-blue-50", borderColor: "border-blue-200" },
-  { value: 0, label: "Alto Valor", sublabel: "R$ 5mil+", icon: Target, color: "text-green-500", bgColor: "bg-green-50", borderColor: "border-green-200" },
-  { value: 0, label: "Urgentes", sublabel: "Com proposta aberta", icon: AlertCircle, color: "text-purple-500", bgColor: "bg-purple-50", borderColor: "border-purple-200" },
-];
-
 export default function CRM() {
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
+  const { leads, loading, updateLead, deleteLead } = useLeads();
+  const [draggedLead, setDraggedLead] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
 
-  const getLeadsByStage = (stageId: string) => leads.filter(lead => lead.stage === stageId);
+  const getLeadsByStage = (stageId: string) => leads.filter(lead => lead.status === stageId);
   
   const getStageValue = (stageId: string) => {
-    return getLeadsByStage(stageId).reduce((sum, lead) => sum + lead.value, 0);
+    return getLeadsByStage(stageId).reduce((sum, lead) => sum + (lead.estimated_value || 0), 0);
   };
 
-  const handleDragStart = (e: React.DragEvent, lead: Lead) => {
-    setDraggedLead(lead);
+  const getDaysAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - date.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const handleDragStart = (e: React.DragEvent, leadId: string) => {
+    setDraggedLead(leadId);
     e.dataTransfer.effectAllowed = "move";
   };
 
@@ -127,15 +64,13 @@ export default function CRM() {
     setDragOverStage(null);
   };
 
-  const handleDrop = (e: React.DragEvent, targetStageId: string) => {
+  const handleDrop = async (e: React.DragEvent, targetStageId: string) => {
     e.preventDefault();
-    if (draggedLead && draggedLead.stage !== targetStageId) {
-      setLeads(leads.map(lead => 
-        lead.id === draggedLead.id 
-          ? { ...lead, stage: targetStageId, daysInStage: 0 }
-          : lead
-      ));
-      toast.success(`Lead "${draggedLead.name}" movido para ${stages.find(s => s.id === targetStageId)?.name}`);
+    if (draggedLead) {
+      const lead = leads.find(l => l.id === draggedLead);
+      if (lead && lead.status !== targetStageId) {
+        await updateLead(draggedLead, { status: targetStageId });
+      }
     }
     setDraggedLead(null);
     setDragOverStage(null);
@@ -146,18 +81,19 @@ export default function CRM() {
     setDragOverStage(null);
   };
 
-  const handleDeleteLead = (leadId: number) => {
-    const leadToDelete = leads.find(l => l.id === leadId);
-    setLeads(leads.filter(lead => lead.id !== leadId));
-    toast.success(`Lead "${leadToDelete?.name}" excluído com sucesso!`);
+  const handleDeleteLead = async (leadId: string) => {
+    await deleteLead(leadId);
   };
 
-  const handleViewProfile = (lead: Lead) => {
-    toast.info(`Abrindo perfil de ${lead.name}...`);
-    // TODO: Implementar modal de perfil do lead
+  const handleViewProfile = (leadId: string) => {
+    toast.info("Abrindo perfil do lead...");
   };
 
-  const handleWhatsApp = (phone: string, name: string) => {
+  const handleWhatsApp = (phone: string | null, name: string) => {
+    if (!phone) {
+      toast.error("Lead não possui telefone cadastrado");
+      return;
+    }
     const formattedPhone = phone.replace(/\D/g, '');
     const message = encodeURIComponent(`Olá ${name}! Tudo bem?`);
     window.open(`https://wa.me/55${formattedPhone}?text=${message}`, '_blank');
@@ -166,6 +102,29 @@ export default function CRM() {
   const handleAddLead = () => {
     toast.info("Funcionalidade de novo lead em desenvolvimento!");
   };
+
+  // Calculate stats
+  const hotLeads = leads.filter(l => getDaysAgo(l.created_at) <= 3).length;
+  const coldLeads = leads.filter(l => getDaysAgo(l.created_at) > 7).length;
+  const highValueLeads = leads.filter(l => (l.estimated_value || 0) >= 5000).length;
+  const proposalLeads = leads.filter(l => l.status === "proposal").length;
+
+  const statCards = [
+    { value: hotLeads, label: "Leads Quentes", sublabel: "Últimos 3 dias", icon: TrendingUp, color: "text-red-500", bgColor: "bg-red-50", borderColor: "border-red-200" },
+    { value: coldLeads, label: "Leads Frios", sublabel: "+7 dias sem contato", icon: Clock, color: "text-blue-500", bgColor: "bg-blue-50", borderColor: "border-blue-200" },
+    { value: highValueLeads, label: "Alto Valor", sublabel: "R$ 5mil+", icon: Target, color: "text-green-500", bgColor: "bg-green-50", borderColor: "border-green-200" },
+    { value: proposalLeads, label: "Urgentes", sublabel: "Com proposta aberta", icon: AlertCircle, color: "text-purple-500", bgColor: "bg-purple-50", borderColor: "border-purple-200" },
+  ];
+
+  if (loading) {
+    return (
+      <Layout title="CRM - Funil de Vendas" subtitle="Gerencie seus contatos e oportunidades">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="CRM - Funil de Vendas" subtitle="Gerencie seus contatos e oportunidades">
@@ -268,92 +227,98 @@ export default function CRM() {
                     isDropTarget && "bg-primary/10 border-2 border-dashed border-primary"
                   )}
                 >
-                  {stageLeads.map((lead) => (
-                    <div 
-                      key={lead.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, lead)}
-                      onDragEnd={handleDragEnd}
-                      className={cn(
-                        "bg-card rounded-xl border border-border p-4 cursor-grab active:cursor-grabbing hover:shadow-md transition-all",
-                        draggedLead?.id === lead.id && "opacity-50 scale-95"
-                      )}
-                    >
-                      {/* Drag Handle */}
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <GripVertical className="w-4 h-4 text-muted-foreground" />
-                          <div>
-                            <h4 className="font-semibold text-foreground">{lead.name}</h4>
-                            <p className="text-xs text-muted-foreground">
-                              {lead.daysAgo > 0 ? `Há ${lead.daysAgo} dias` : "Hoje"}
-                            </p>
+                  {stageLeads.map((lead) => {
+                    const daysAgo = getDaysAgo(lead.created_at);
+                    
+                    return (
+                      <div 
+                        key={lead.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, lead.id)}
+                        onDragEnd={handleDragEnd}
+                        className={cn(
+                          "bg-card rounded-xl border border-border p-4 cursor-grab active:cursor-grabbing hover:shadow-md transition-all",
+                          draggedLead === lead.id && "opacity-50 scale-95"
+                        )}
+                      >
+                        {/* Drag Handle */}
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <GripVertical className="w-4 h-4 text-muted-foreground" />
+                            <div>
+                              <h4 className="font-semibold text-foreground">{lead.name}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                {daysAgo > 0 ? `Há ${daysAgo} dias` : "Hoje"}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className={cn(
-                        "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs mb-3",
-                        stage.bgLight,
-                        stage.textColor
-                      )}>
-                        <Clock className="w-3 h-3" />
-                        {lead.daysInStage} dias nesta etapa
-                      </div>
+                        <div className={cn(
+                          "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs mb-3",
+                          stage.bgLight,
+                          stage.textColor
+                        )}>
+                          <Clock className="w-3 h-3" />
+                          {daysAgo} dias nesta etapa
+                        </div>
 
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center justify-between">
+                        <div className="space-y-2 mb-4">
+                          {lead.phone && (
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Phone className="w-4 h-4 text-muted-foreground" />
+                                <span className="text-foreground">{lead.phone}</span>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 text-green-600 hover:text-green-700 hover:bg-green-50 px-2"
+                                onClick={() => handleWhatsApp(lead.phone, lead.name)}
+                              >
+                                <MessageCircle className="w-4 h-4 mr-1" />
+                                WhatsApp
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {lead.company && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-foreground">{lead.company}</span>
+                            </div>
+                          )}
+                          
                           <div className="flex items-center gap-2 text-sm">
-                            <Phone className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-foreground">{lead.phone}</span>
+                            <DollarSign className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium text-foreground">
+                              R$ {(lead.estimated_value || 0).toLocaleString("pt-BR")}
+                            </span>
                           </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
                           <Button 
-                            variant="ghost" 
+                            variant="outline" 
                             size="sm" 
-                            className="h-7 text-green-600 hover:text-green-700 hover:bg-green-50 px-2"
-                            onClick={() => handleWhatsApp(lead.phone, lead.name)}
+                            className="flex-1"
+                            onClick={() => handleViewProfile(lead.id)}
                           >
-                            <MessageCircle className="w-4 h-4 mr-1" />
-                            WhatsApp
+                            <Eye className="w-4 h-4 mr-1" />
+                            Ver Perfil
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteLead(lead.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                        
-                        {lead.location && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-foreground">{lead.location}</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 text-sm">
-                          <DollarSign className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-medium text-foreground">
-                            R$ {lead.value.toLocaleString("pt-BR")}
-                          </span>
-                        </div>
                       </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => handleViewProfile(lead)}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          Ver Perfil
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDeleteLead(lead.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {stageLeads.length === 0 && (
                     <div className="flex items-center justify-center h-32 text-sm text-muted-foreground border-2 border-dashed border-border rounded-xl">
