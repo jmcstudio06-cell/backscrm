@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,6 +135,7 @@ export default function CRM() {
           ? { ...lead, stage: targetStageId, daysInStage: 0 }
           : lead
       ));
+      toast.success(`Lead "${draggedLead.name}" movido para ${stages.find(s => s.id === targetStageId)?.name}`);
     }
     setDraggedLead(null);
     setDragOverStage(null);
@@ -142,6 +144,27 @@ export default function CRM() {
   const handleDragEnd = () => {
     setDraggedLead(null);
     setDragOverStage(null);
+  };
+
+  const handleDeleteLead = (leadId: number) => {
+    const leadToDelete = leads.find(l => l.id === leadId);
+    setLeads(leads.filter(lead => lead.id !== leadId));
+    toast.success(`Lead "${leadToDelete?.name}" excluído com sucesso!`);
+  };
+
+  const handleViewProfile = (lead: Lead) => {
+    toast.info(`Abrindo perfil de ${lead.name}...`);
+    // TODO: Implementar modal de perfil do lead
+  };
+
+  const handleWhatsApp = (phone: string, name: string) => {
+    const formattedPhone = phone.replace(/\D/g, '');
+    const message = encodeURIComponent(`Olá ${name}! Tudo bem?`);
+    window.open(`https://wa.me/55${formattedPhone}?text=${message}`, '_blank');
+  };
+
+  const handleAddLead = () => {
+    toast.info("Funcionalidade de novo lead em desenvolvimento!");
   };
 
   return (
@@ -158,7 +181,7 @@ export default function CRM() {
             <CalendarDays className="w-4 h-4 mr-2" />
             Virada de Mês
           </Button>
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button className="bg-primary hover:bg-primary/90" onClick={handleAddLead}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Lead
           </Button>
@@ -284,7 +307,12 @@ export default function CRM() {
                             <Phone className="w-4 h-4 text-muted-foreground" />
                             <span className="text-foreground">{lead.phone}</span>
                           </div>
-                          <Button variant="ghost" size="sm" className="h-7 text-green-600 hover:text-green-700 hover:bg-green-50 px-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-green-600 hover:text-green-700 hover:bg-green-50 px-2"
+                            onClick={() => handleWhatsApp(lead.phone, lead.name)}
+                          >
                             <MessageCircle className="w-4 h-4 mr-1" />
                             WhatsApp
                           </Button>
@@ -306,11 +334,21 @@ export default function CRM() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleViewProfile(lead)}
+                        >
                           <Eye className="w-4 h-4 mr-1" />
                           Ver Perfil
                         </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteLead(lead.id)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

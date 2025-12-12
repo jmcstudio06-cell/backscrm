@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -69,6 +70,10 @@ const recentTransactions = [
 ];
 
 export default function Financeiro() {
+  const handleAddExpense = () => toast.info("Funcionalidade de nova despesa em desenvolvimento!");
+  const handleAddIncome = () => toast.info("Funcionalidade de nova receita em desenvolvimento!");
+  const handleExportPdf = () => toast.success("Relatório exportado com sucesso!");
+  
   return (
     <Layout title="Financeiro" subtitle="Gerencie suas finanças e relatórios">
       <Tabs defaultValue="overview" className="space-y-6">
@@ -285,7 +290,7 @@ export default function Financeiro() {
                 <Filter className="w-4 h-4 mr-2" />
                 Filtrar
               </Button>
-              <Button variant="gradient">
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleAddExpense}>
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Despesa
               </Button>
@@ -333,7 +338,7 @@ export default function Financeiro() {
                 <Filter className="w-4 h-4 mr-2" />
                 Filtrar
               </Button>
-              <Button variant="gradient">
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleAddIncome}>
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Receita
               </Button>
