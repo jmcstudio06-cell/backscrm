@@ -53,14 +53,14 @@
     --shadow-glow: 0 0 40px hsl(210 100% 50% / 0.15);
     --shadow-card: 0 4px 24px hsl(220 30% 20% / 0.08);
 
-    --sidebar-background: 210 100% 35%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 220 35% 16%;
+    --sidebar-foreground: 210 20% 75%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 210 100% 35%;
-    --sidebar-accent: 210 100% 45%;
+    --sidebar-primary-foreground: 220 35% 16%;
+    --sidebar-accent: 210 100% 50%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 100% 40%;
-    --sidebar-ring: 0 0% 100%;
+    --sidebar-border: 220 30% 22%;
+    --sidebar-ring: 210 100% 50%;
   }
 }
 
