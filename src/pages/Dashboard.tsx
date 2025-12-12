@@ -6,28 +6,172 @@ import {
   Users, TrendingUp, DollarSign, Target, Clock
 } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useLeads } from "@/hooks/useLeads";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useGoals } from "@/hooks/useGoals";
+import { useShows } from "@/contexts/ShowsContext";
+import { useMemo } from "react";
+import { format, subMonths, startOfMonth, endOfMonth, getDay, getDaysInMonth } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const Dashboard = () => {
-  const revenueData = [
-    { name: 'Jan', value: 0 },
-    { name: 'Fev', value: 0 },
-    { name: 'Mar', value: 0 },
-    { name: 'Abr', value: 0 },
-    { name: 'Mai', value: 0 },
-    { name: 'Jun', value: 0 },
-  ];
+  const { leads } = useLeads();
+  const { transactions } = useTransactions();
+  const { goals } = useGoals();
+  const { shows } = useShows();
 
-  const leadsData = [
-    { name: 'Seg', value: 0 },
-    { name: 'Ter', value: 0 },
-    { name: 'Qua', value: 0 },
-    { name: 'Qui', value: 0 },
-    { name: 'Sex', value: 0 },
-    { name: 'Sáb', value: 0 },
-    { name: 'Dom', value: 0 },
-  ];
+  // Calculate leads in CRM (only new, proposal, closed, not_closed - NOT repeat or never)
+  const leadsInCRM = useMemo(() => {
+    const crmStatuses = ["new", "proposal", "closed", "not_closed"];
+    return leads.filter(lead => crmStatuses.includes(lead.status)).length;
+  }, [leads]);
 
-  const upcomingShows: { date: string; title: string; location: string; value: string }[] = [];
+  // Calculate closed sales (only closed status)
+  const closedSales = useMemo(() => {
+    return leads.filter(lead => lead.status === "closed").length;
+  }, [leads]);
+
+  // Calculate monthly revenue from transactions
+  const monthlyRevenue = useMemo(() => {
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
+    
+    return transactions
+      .filter(t => {
+        const transactionDate = new Date(t.date);
+        return t.type === "income" && 
+               transactionDate >= monthStart && 
+               transactionDate <= monthEnd;
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions]);
+
+  // Calculate conversion rate: closed / (proposal + closed + not_closed) * 100
+  const conversionRate = useMemo(() => {
+    const proposalLeads = leads.filter(lead => lead.status === "proposal").length;
+    const closedLeads = leads.filter(lead => lead.status === "closed").length;
+    const notClosedLeads = leads.filter(lead => lead.status === "not_closed").length;
+    
+    const totalEligible = proposalLeads + closedLeads + notClosedLeads;
+    if (totalEligible === 0) return 0;
+    
+    return Math.round((closedLeads / totalEligible) * 100);
+  }, [leads]);
+
+  // Revenue chart data - current month and last 6 months
+  const revenueData = useMemo(() => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const monthDate = subMonths(now, i);
+      const monthStart = startOfMonth(monthDate);
+      const monthEnd = endOfMonth(monthDate);
+      
+      const monthRevenue = transactions
+        .filter(t => {
+          const transactionDate = new Date(t.date);
+          return t.type === "income" && 
+                 transactionDate >= monthStart && 
+                 transactionDate <= monthEnd;
+        })
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+      
+      months.push({
+        name: format(monthDate, "MMM", { locale: ptBR }).charAt(0).toUpperCase() + 
+              format(monthDate, "MMM", { locale: ptBR }).slice(1),
+        value: monthRevenue,
+      });
+    }
+    
+    return months;
+  }, [transactions]);
+
+  // Leads by weekday for current month
+  const leadsData = useMemo(() => {
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
+    const crmStatuses = ["new", "proposal", "closed", "not_closed"];
+    
+    // Initialize weekday counts (0 = Sunday, 1 = Monday, etc.)
+    const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
+    
+    leads
+      .filter(lead => {
+        const createdDate = new Date(lead.created_at);
+        return crmStatuses.includes(lead.status) &&
+               createdDate >= monthStart && 
+               createdDate <= monthEnd;
+      })
+      .forEach(lead => {
+        const dayOfWeek = getDay(new Date(lead.created_at));
+        weekdayCounts[dayOfWeek]++;
+      });
+    
+    // Reorder to start with Monday (Seg)
+    return [
+      { name: 'Seg', value: weekdayCounts[1] },
+      { name: 'Ter', value: weekdayCounts[2] },
+      { name: 'Qua', value: weekdayCounts[3] },
+      { name: 'Qui', value: weekdayCounts[4] },
+      { name: 'Sex', value: weekdayCounts[5] },
+      { name: 'Sáb', value: weekdayCounts[6] },
+      { name: 'Dom', value: weekdayCounts[0] },
+    ];
+  }, [leads]);
+
+  // Goals for current month
+  const currentMonthGoals = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+    
+    return goals.filter(g => g.month === currentMonth && g.year === currentYear);
+  }, [goals]);
+
+  const revenueGoal = currentMonthGoals.find(g => g.type === "revenue");
+  const showsGoal = currentMonthGoals.find(g => g.type === "shows");
+  const leadsGoal = currentMonthGoals.find(g => g.type === "leads");
+
+  // Calculate shows this month
+  const showsThisMonth = useMemo(() => {
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
+    
+    return shows.filter(show => {
+      const showDate = new Date(show.date);
+      return show.status === "completed" && 
+             showDate >= monthStart && 
+             showDate <= monthEnd;
+    }).length;
+  }, [shows]);
+
+  // Upcoming shows
+  const upcomingShows = useMemo(() => {
+    const now = new Date();
+    return shows
+      .filter(show => new Date(show.date) >= now && show.status !== "cancelled")
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(0, 3)
+      .map(show => ({
+        date: format(new Date(show.date), "dd MMM", { locale: ptBR }),
+        title: show.title,
+        location: show.venue || "Local a definir",
+        value: `R$ ${Number(show.cachet).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      }));
+  }, [shows]);
+
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const getGoalProgress = (current: number, target: number) => {
+    if (target === 0) return 0;
+    return Math.min(Math.round((current / target) * 100), 100);
+  };
 
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
@@ -52,25 +196,25 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Leads no CRM"
-            value="0"
+            value={String(leadsInCRM)}
             icon={Users}
             gradient="purple"
           />
           <StatCard
             title="Vendas Fechadas"
-            value="0"
+            value={String(closedSales)}
             icon={TrendingUp}
             gradient="success"
           />
           <StatCard
             title="Receita Mensal"
-            value="R$ 0"
+            value={`R$ ${formatCurrency(monthlyRevenue)}`}
             icon={DollarSign}
             gradient="primary"
           />
           <StatCard
             title="Taxa de Conversão"
-            value="0%"
+            value={`${conversionRate}%`}
             icon={Target}
             gradient="warning"
           />
@@ -78,24 +222,38 @@ const Dashboard = () => {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartCard title="Receita Mensal" subtitle="Últimos 6 meses">
+          <ChartCard title="Receita Mensal" subtitle="Últimos 7 meses">
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={revenueData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value: number) => [`R$ ${formatCurrency(value)}`, 'Receita']}
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
                 <Area type="monotone" dataKey="value" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.3} />
               </AreaChart>
             </ResponsiveContainer>
           </ChartCard>
-          <ChartCard title="Leads por Dia" subtitle="Última semana">
+          <ChartCard title="Leads por Mês" subtitle="Por dia da semana (mês atual)">
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={leadsData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
+                <Tooltip 
+                  formatter={(value: number) => [value, 'Leads']}
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
                 <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -108,25 +266,43 @@ const Dashboard = () => {
           <div className="glass-card rounded-2xl p-6">
             <h3 className="text-lg font-semibold text-foreground mb-6">Metas do Mês</h3>
             <div className="space-y-6">
-              <div className="flex items-center gap-6">
-                <ProgressRing progress={0} size={70} />
-                <div>
+              <div className="flex items-center gap-4">
+                <ProgressRing 
+                  progress={getGoalProgress(monthlyRevenue, revenueGoal?.target_value || 0)} 
+                  size={60}
+                  strokeWidth={6}
+                />
+                <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground">Receita</p>
-                  <p className="text-sm text-muted-foreground">R$ 0 / R$ 0</p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    R$ {formatCurrency(monthlyRevenue)} / R$ {formatCurrency(revenueGoal?.target_value || 0)}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
-                <ProgressRing progress={0} size={70} />
-                <div>
+              <div className="flex items-center gap-4">
+                <ProgressRing 
+                  progress={getGoalProgress(showsThisMonth, showsGoal?.target_value || 0)} 
+                  size={60}
+                  strokeWidth={6}
+                />
+                <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground">Shows</p>
-                  <p className="text-sm text-muted-foreground">0 / 0 shows</p>
+                  <p className="text-sm text-muted-foreground">
+                    {showsThisMonth} / {showsGoal?.target_value || 0} shows
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
-                <ProgressRing progress={0} size={70} />
-                <div>
+              <div className="flex items-center gap-4">
+                <ProgressRing 
+                  progress={getGoalProgress(leadsInCRM, leadsGoal?.target_value || 0)} 
+                  size={60}
+                  strokeWidth={6}
+                />
+                <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground">Leads</p>
-                  <p className="text-sm text-muted-foreground">0 / 0 leads</p>
+                  <p className="text-sm text-muted-foreground">
+                    {leadsInCRM} / {leadsGoal?.target_value || 0} leads
+                  </p>
                 </div>
               </div>
             </div>
