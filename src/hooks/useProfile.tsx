@@ -10,6 +10,7 @@ export interface Profile {
   email: string | null;
   phone: string | null;
   avatar_url: string | null;
+  city: string | null;
   created_at: string;
   updated_at: string;
 }

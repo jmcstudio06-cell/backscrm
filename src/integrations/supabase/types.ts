@@ -140,39 +140,48 @@ export type Database = {
       }
       clients: {
         Row: {
+          address: string | null
           company: string | null
+          cpf: string | null
           created_at: string
           email: string | null
           id: string
           name: string
           notes: string | null
           phone: string | null
+          rg: string | null
           shows_count: number | null
           total_spent: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
           company?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string | null
           id?: string
           name: string
           notes?: string | null
           phone?: string | null
+          rg?: string | null
           shows_count?: number | null
           total_spent?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
           company?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string | null
           id?: string
           name?: string
           notes?: string | null
           phone?: string | null
+          rg?: string | null
           shows_count?: number | null
           total_spent?: number | null
           updated_at?: string
@@ -527,6 +536,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          city: string | null
           created_at: string
           email: string | null
           id: string
@@ -537,6 +547,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -547,6 +558,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           id?: string
