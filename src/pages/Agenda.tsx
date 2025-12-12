@@ -264,26 +264,27 @@ export default function Agenda() {
         </div>
 
         {/* Selected Day Shows */}
-        <div className="bg-card rounded-xl border border-border p-4">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
+        <div className="bg-card rounded-xl border border-border p-3">
+          <h3 className="text-base font-semibold text-foreground mb-3">
             {selectedDate.getDate()} de {monthNames[selectedDate.getMonth()].toLowerCase()}
           </h3>
 
-          <div className="space-y-3 max-h-[500px] overflow-y-auto">
+          <div className="space-y-2 max-h-[400px] overflow-y-auto">
             {selectedDayShows.length > 0 ? (
               selectedDayShows.map((show) => (
                 <div 
                   key={show.id} 
                   className={cn(
-                    "p-3 rounded-xl border",
+                    "p-2.5 rounded-lg border",
                     show.status === "cancelled" 
                       ? "bg-destructive/10 border-destructive/30" 
                       : "bg-muted/50 border-border"
                   )}
                 >
-                  <div className="flex items-start justify-between mb-2">
+                  {/* Header with title and status badge */}
+                  <div className="flex items-center justify-between mb-1.5">
                     <h4 className={cn(
-                      "font-medium text-sm",
+                      "font-medium text-xs",
                       show.status === "cancelled" ? "text-destructive line-through" : "text-foreground"
                     )}>
                       {show.title}
@@ -291,69 +292,72 @@ export default function Agenda() {
                     <Badge 
                       variant="outline"
                       className={cn(
-                        "text-xs",
-                        show.status === "scheduled" && "bg-blue-500/10 text-blue-500 border-blue-500/20",
-                        show.status === "confirmed" && "bg-primary/10 text-primary border-primary/20",
-                        show.status === "completed" && "bg-green-500/10 text-green-500 border-green-500/20",
-                        show.status === "cancelled" && "bg-destructive/10 text-destructive border-destructive/20"
+                        "text-[10px] px-1.5 py-0.5 h-5",
+                        show.status === "scheduled" && "bg-blue-500/10 text-blue-500 border-blue-500/30",
+                        show.status === "confirmed" && "bg-primary/10 text-primary border-primary/30",
+                        show.status === "completed" && "bg-green-500/10 text-green-500 border-green-500/30",
+                        show.status === "cancelled" && "bg-destructive/10 text-destructive border-destructive/30"
                       )}
                     >
                       {statusLabels[show.status as keyof typeof statusLabels] || show.status}
                     </Badge>
                   </div>
                   
-                  {/* Show Details */}
-                  {show.event_type && (
-                    <p className="text-xs text-muted-foreground mb-1">Tipo: {show.event_type}</p>
-                  )}
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
-                    <MapPin className="w-3 h-3" />
-                    <span>{show.venue || "Local não definido"}</span>
+                  {/* Show Details - compact */}
+                  <div className="space-y-0.5 text-[11px] text-muted-foreground">
+                    {show.event_type && (
+                      <p>Tipo: {show.event_type}</p>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-2.5 h-2.5" />
+                      <span>{show.venue || "Local não definido"}</span>
+                    </div>
+                    {show.start_time && (
+                      <p>Horário: {show.start_time}</p>
+                    )}
+                    {show.cachet > 0 && (
+                      <p className="font-medium text-primary">
+                        Cachê: R${show.cachet.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
+                    )}
                   </div>
-                  {show.start_time && (
-                    <p className="text-xs text-muted-foreground mb-1">Horário: {show.start_time}</p>
-                  )}
-                  {show.cachet > 0 && (
-                    <p className="text-xs font-medium text-primary">
-                      Cachê: R${show.cachet.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </p>
-                  )}
                   
-                  {show.status !== "cancelled" && (
-                    <div className="flex items-center gap-2 mt-3">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1 h-7 text-xs"
-                        onClick={() => handleEditShow(show)}
-                      >
-                        <Edit className="w-3 h-3 mr-1" />
-                        Editar
-                      </Button>
+                  {/* Actions */}
+                  <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-border/50">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 h-6 text-[10px]"
+                      onClick={() => handleEditShow(show)}
+                    >
+                      <Edit className="w-2.5 h-2.5 mr-1" />
+                      Editar
+                    </Button>
+                    {show.status !== "cancelled" && (
                       <Button 
                         variant="outline" 
                         size="icon" 
-                        className="h-7 w-7 text-warning hover:text-warning hover:bg-warning/10"
+                        className="h-6 w-6 text-warning hover:text-warning hover:bg-warning/10"
                         onClick={() => handleCancelShow(show.id)}
                         title="Cancelar show"
                       >
-                        <XCircle className="w-3 h-3" />
+                        <XCircle className="w-2.5 h-2.5" />
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteShow(show.id)}
-                        title="Excluir show"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDeleteShow(show.id)}
+                      title="Excluir show"
+                    >
+                      <Trash2 className="w-2.5 h-2.5" />
+                    </Button>
+                  </div>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-xs text-muted-foreground text-center py-6">
                 Nenhum show agendado para este dia
               </p>
             )}
