@@ -43,8 +43,10 @@ export function ProgressRing({ progress, size = 120, strokeWidth = 8, className 
         </defs>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-foreground">{progress}%</span>
-        <span className="text-xs text-muted-foreground">Concluído</span>
+        <span className={cn(
+          "font-bold text-foreground",
+          size <= 70 ? "text-sm" : "text-2xl"
+        )}>{progress}%</span>
       </div>
     </div>
   );
