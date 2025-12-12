@@ -82,22 +82,62 @@ export default function Agenda() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [shows, setShows] = useState(initialShows);
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
+  const [editingShow, setEditingShow] = useState<typeof initialShows[0] | null>(null);
 
   const handleShowCreated = (newShow: ShowData) => {
-    const show = {
-      id: shows.length + 1,
-      name: newShow.name,
-      date: newShow.date,
-      time: newShow.time,
-      venue: newShow.venue,
-      address: newShow.address,
-      value: newShow.cachet,
-      status: newShow.status,
-      client: newShow.client,
-      type: newShow.type,
-    };
-    setShows([...shows, show]);
-    toast.success(`Show "${newShow.name}" adicionado com sucesso!`);
+    if (editingShow) {
+      // Update existing show
+      setShows(shows.map(show => 
+        show.id === editingShow.id 
+          ? {
+              ...show,
+              name: newShow.name,
+              date: newShow.date,
+              time: newShow.time,
+              venue: newShow.venue,
+              address: newShow.address,
+              value: newShow.cachet,
+              status: newShow.status,
+              client: newShow.client,
+              type: newShow.type,
+            }
+          : show
+      ));
+      toast.success(`Show "${newShow.name}" atualizado com sucesso!`);
+      setEditingShow(null);
+    } else {
+      // Create new show
+      const show = {
+        id: shows.length + 1,
+        name: newShow.name,
+        date: newShow.date,
+        time: newShow.time,
+        venue: newShow.venue,
+        address: newShow.address,
+        value: newShow.cachet,
+        status: newShow.status,
+        client: newShow.client,
+        type: newShow.type,
+      };
+      setShows([...shows, show]);
+      toast.success(`Show "${newShow.name}" adicionado com sucesso!`);
+    }
+  };
+
+  const handleDeleteShow = (showId: number) => {
+    const showToDelete = shows.find(s => s.id === showId);
+    setShows(shows.filter(show => show.id !== showId));
+    toast.success(`Show "${showToDelete?.name}" excluído com sucesso!`);
+  };
+
+  const handleEditShow = (show: typeof initialShows[0]) => {
+    setEditingShow(show);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenNewShow = () => {
+    setEditingShow(null);
+    setIsModalOpen(true);
   };
 
   const getDaysInMonth = (date: Date) => {
@@ -188,7 +228,7 @@ export default function Agenda() {
             <Grid3X3 className="w-4 h-4 mr-2" />
             Grade
           </Button>
-          <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsModalOpen(true)}>
+          <Button className="bg-primary hover:bg-primary/90" onClick={handleOpenNewShow}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Show
           </Button>
@@ -313,11 +353,21 @@ export default function Agenda() {
                     <span>{show.venue}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-3">
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handleEditShow(show)}
+                    >
                       <Edit className="w-3 h-3 mr-1" />
                       Editar
                     </Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDeleteShow(show.id)}
+                    >
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>

@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   Plus,
   Search,
@@ -12,9 +14,11 @@ import {
   Phone,
   Calendar,
   DollarSign,
-  FileText,
   Star,
   MoreVertical,
+  Edit,
+  Trash2,
+  Eye,
 } from "lucide-react";
 import {
   Table,
@@ -24,8 +28,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const clients = [
+interface Client {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  events: number;
+  totalSpent: number;
+  lastEvent: string;
+  rating: number;
+  status: string;
+}
+
+const initialClients: Client[] = [
   {
     id: 1,
     name: "Maria Silva",
@@ -84,6 +106,36 @@ const clients = [
 ];
 
 export default function Clientes() {
+  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredClients = clients.filter(client => 
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalClients = clients.length;
+  const totalRevenue = clients.reduce((sum, c) => sum + c.totalSpent, 0);
+  const totalEvents = clients.reduce((sum, c) => sum + c.events, 0);
+  const avgRating = (clients.reduce((sum, c) => sum + c.rating, 0) / clients.length).toFixed(1);
+
+  const handleAddClient = () => {
+    toast.info("Funcionalidade de novo cliente em desenvolvimento!");
+  };
+
+  const handleViewClient = (client: Client) => {
+    toast.info(`Abrindo perfil de ${client.name}...`);
+  };
+
+  const handleEditClient = (client: Client) => {
+    toast.info(`Editando ${client.name}...`);
+  };
+
+  const handleDeleteClient = (client: Client) => {
+    setClients(clients.filter(c => c.id !== client.id));
+    toast.success(`Cliente "${client.name}" removido com sucesso!`);
+  };
+
   return (
     <Layout title="Clientes" subtitle="Gerencie sua base de clientes">
       {/* Stats */}
@@ -94,7 +146,7 @@ export default function Clientes() {
               <User className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">156</p>
+              <p className="text-2xl font-bold text-foreground">{totalClients}</p>
               <p className="text-xs text-muted-foreground">Total de Clientes</p>
             </div>
           </div>
@@ -105,7 +157,7 @@ export default function Clientes() {
               <DollarSign className="w-5 h-5 text-success" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">R$ 485k</p>
+              <p className="text-2xl font-bold text-foreground">R$ {(totalRevenue / 1000).toFixed(0)}k</p>
               <p className="text-xs text-muted-foreground">Faturamento Total</p>
             </div>
           </div>
@@ -116,7 +168,7 @@ export default function Clientes() {
               <Calendar className="w-5 h-5 text-warning" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">312</p>
+              <p className="text-2xl font-bold text-foreground">{totalEvents}</p>
               <p className="text-xs text-muted-foreground">Eventos Realizados</p>
             </div>
           </div>
@@ -127,7 +179,7 @@ export default function Clientes() {
               <Star className="w-5 h-5 text-accent" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">4.8</p>
+              <p className="text-2xl font-bold text-foreground">{avgRating}</p>
               <p className="text-xs text-muted-foreground">Avaliação Média</p>
             </div>
           </div>
@@ -139,14 +191,19 @@ export default function Clientes() {
         <div className="flex items-center gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Buscar clientes..." className="pl-9 w-64 bg-secondary" />
+            <Input 
+              placeholder="Buscar clientes..." 
+              className="pl-9 w-64 bg-secondary"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
           <Button variant="outline">
             <Filter className="w-4 h-4 mr-2" />
             Filtros
           </Button>
         </div>
-        <Button variant="gradient">
+        <Button className="bg-primary hover:bg-primary/90" onClick={handleAddClient}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Cliente
         </Button>
@@ -168,7 +225,7 @@ export default function Clientes() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.map((client) => (
+            {filteredClients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -228,9 +285,30 @@ export default function Clientes() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleViewClient(client)}>
+                        <Eye className="w-4 h-4 mr-2" />
+                        Ver Perfil
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditClient(client)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => handleDeleteClient(client)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}

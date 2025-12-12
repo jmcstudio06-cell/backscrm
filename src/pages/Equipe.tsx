@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -11,9 +13,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Phone, Mail, MoreHorizontal, Music, Mic2, Guitar } from "lucide-react";
+import { 
+  Plus, 
+  Phone, 
+  Mail, 
+  MoreHorizontal, 
+  Music, 
+  Mic2, 
+  Guitar,
+  Trash2,
+  Edit
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const teamMembers = [
+interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  type: string;
+  phone: string;
+  email: string;
+  shows: number;
+  rating: number;
+}
+
+const initialTeamMembers: TeamMember[] = [
   {
     id: 1,
     name: "Carlos Silva",
@@ -64,25 +93,63 @@ const roleIcons: Record<string, React.ElementType> = {
 };
 
 export default function Equipe() {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
+  const [filter, setFilter] = useState<"all" | "fixo" | "freelancer">("all");
+
+  const filteredMembers = teamMembers.filter(member => {
+    if (filter === "all") return true;
+    if (filter === "fixo") return member.type === "Fixo";
+    if (filter === "freelancer") return member.type === "Freelancer";
+    return true;
+  });
+
+  const handleAddMember = () => {
+    toast.info("Funcionalidade de adicionar membro em desenvolvimento!");
+  };
+
+  const handleDeleteMember = (member: TeamMember) => {
+    setTeamMembers(teamMembers.filter(m => m.id !== member.id));
+    toast.success(`Membro "${member.name}" removido com sucesso!`);
+  };
+
+  const handleEditMember = (member: TeamMember) => {
+    toast.info(`Editando ${member.name}...`);
+  };
+
+  const handleCallMember = (phone: string, name: string) => {
+    const formattedPhone = phone.replace(/\D/g, '');
+    window.open(`tel:${formattedPhone}`, '_self');
+    toast.info(`Ligando para ${name}...`);
+  };
+
+  const handleEmailMember = (email: string, name: string) => {
+    window.open(`mailto:${email}`, '_blank');
+    toast.info(`Enviando email para ${name}...`);
+  };
+
+  const fixedCount = teamMembers.filter(m => m.type === "Fixo").length;
+  const freelancerCount = teamMembers.filter(m => m.type === "Freelancer").length;
+  const avgRating = (teamMembers.reduce((sum, m) => sum + m.rating, 0) / teamMembers.length).toFixed(2);
+
   return (
     <Layout title="Equipe & Freelancer" subtitle="Gerencie sua banda e colaboradores">
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <ChartCard title="Total da Equipe">
-            <div className="text-3xl font-bold text-primary">4</div>
+            <div className="text-3xl font-bold text-primary">{teamMembers.length}</div>
             <p className="text-sm text-muted-foreground">membros ativos</p>
           </ChartCard>
           <ChartCard title="Membros Fixos">
-            <div className="text-3xl font-bold text-green-600">2</div>
+            <div className="text-3xl font-bold text-green-600">{fixedCount}</div>
             <p className="text-sm text-muted-foreground">contratados</p>
           </ChartCard>
           <ChartCard title="Freelancers">
-            <div className="text-3xl font-bold text-amber-600">2</div>
+            <div className="text-3xl font-bold text-amber-600">{freelancerCount}</div>
             <p className="text-sm text-muted-foreground">disponíveis</p>
           </ChartCard>
           <ChartCard title="Média de Avaliação">
-            <div className="text-3xl font-bold text-primary">4.85</div>
+            <div className="text-3xl font-bold text-primary">{avgRating}</div>
             <p className="text-sm text-muted-foreground">⭐ estrelas</p>
           </ChartCard>
         </div>
@@ -90,17 +157,32 @@ export default function Equipe() {
         {/* Actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
+            <Button 
+              variant={filter === "all" ? "outline" : "ghost"} 
+              size="sm"
+              onClick={() => setFilter("all")}
+              className={filter === "all" ? "bg-primary/10" : ""}
+            >
               Todos
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant={filter === "fixo" ? "outline" : "ghost"} 
+              size="sm"
+              onClick={() => setFilter("fixo")}
+              className={filter === "fixo" ? "bg-primary/10" : ""}
+            >
               Fixos
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant={filter === "freelancer" ? "outline" : "ghost"} 
+              size="sm"
+              onClick={() => setFilter("freelancer")}
+              className={filter === "freelancer" ? "bg-primary/10" : ""}
+            >
               Freelancers
             </Button>
           </div>
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button className="bg-primary hover:bg-primary/90" onClick={handleAddMember}>
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Membro
           </Button>
@@ -121,7 +203,7 @@ export default function Equipe() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teamMembers.map((member) => {
+              {filteredMembers.map((member) => {
                 const RoleIcon = roleIcons[member.role] || Music;
                 return (
                   <TableRow key={member.id}>
@@ -157,10 +239,20 @@ export default function Equipe() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={() => handleCallMember(member.phone, member.name)}
+                        >
                           <Phone className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={() => handleEmailMember(member.email, member.name)}
+                        >
                           <Mail className="w-4 h-4" />
                         </Button>
                       </div>
@@ -170,9 +262,26 @@ export default function Equipe() {
                       <span className="text-amber-500">⭐</span> {member.rating}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditMember(member)}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => handleDeleteMember(member)}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
