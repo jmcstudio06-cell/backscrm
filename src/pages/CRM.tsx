@@ -1,278 +1,267 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Plus,
   Search,
-  Filter,
-  MoreVertical,
-  Phone,
-  Mail,
-  Calendar,
-  DollarSign,
-  User,
-  MessageSquare,
+  TrendingUp,
   Clock,
-  ChevronRight,
+  Target,
+  AlertCircle,
+  Phone,
+  MapPin,
+  DollarSign,
+  Eye,
+  Trash2,
+  MessageCircle,
+  CalendarDays,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const stages = [
-  { id: "new", name: "Novo Lead", color: "bg-primary", count: 12 },
-  { id: "contact", name: "Contato", color: "bg-accent", count: 8 },
-  { id: "proposal", name: "Proposta", color: "bg-warning", count: 5 },
-  { id: "negotiation", name: "Negociação", color: "bg-orange-500", count: 3 },
-  { id: "closed", name: "Fechado", color: "bg-success", count: 7 },
+  { id: "new", name: "Leads Novos", color: "bg-blue-500", textColor: "text-blue-600", bgLight: "bg-blue-50", icon: Users },
+  { id: "proposal", name: "Com Proposta", color: "bg-yellow-500", textColor: "text-yellow-600", bgLight: "bg-yellow-50", icon: Target },
+  { id: "closed", name: "Fechados", color: "bg-green-500", textColor: "text-green-600", bgLight: "bg-green-50", icon: TrendingUp },
+  { id: "lost", name: "Não Fechados", color: "bg-red-500", textColor: "text-red-600", bgLight: "bg-red-50", icon: AlertCircle },
+  { id: "repeat", name: "Já Comprou", color: "bg-purple-500", textColor: "text-purple-600", bgLight: "bg-purple-50", icon: Users },
+  { id: "never", name: "Nunca Comprou", color: "bg-gray-500", textColor: "text-gray-600", bgLight: "bg-gray-50", icon: Clock },
 ];
 
 const leads = [
   {
     id: 1,
-    name: "Maria Silva",
-    email: "maria@email.com",
-    phone: "(11) 99999-1111",
-    event: "Casamento",
-    date: "2024-03-15",
-    value: 8500,
+    name: "Wesley",
+    phone: "121212",
+    location: "Bar XXXX",
+    value: 1000,
     stage: "new",
-    lastContact: "Há 2 horas",
-    notes: "Interessada em banda completa",
+    daysInStage: 12,
+    daysAgo: 24,
   },
   {
     id: 2,
-    name: "João Mendes",
-    email: "joao@empresa.com",
-    phone: "(11) 99999-2222",
-    event: "Corporativo",
-    date: "2024-02-20",
-    value: 12000,
-    stage: "contact",
-    lastContact: "Há 1 dia",
-    notes: "Aguardando retorno sobre data",
+    name: "Teste",
+    phone: "12121212",
+    location: "teste",
+    value: 0,
+    stage: "new",
+    daysInStage: 12,
+    daysAgo: 12,
   },
   {
     id: 3,
-    name: "Ana Costa",
-    email: "ana@email.com",
-    phone: "(11) 99999-3333",
-    event: "Formatura",
-    date: "2024-04-10",
-    value: 15000,
-    stage: "proposal",
-    lastContact: "Há 3 dias",
-    notes: "Proposta enviada, aguardando aprovação",
+    name: "oi",
+    phone: "45454524",
+    location: "",
+    value: 0,
+    stage: "closed",
+    daysInStage: 7,
+    daysAgo: 8,
   },
   {
     id: 4,
-    name: "Carlos Oliveira",
-    email: "carlos@email.com",
-    phone: "(11) 99999-4444",
-    event: "Aniversário 50",
-    date: "2024-02-28",
-    value: 6800,
-    stage: "negotiation",
-    lastContact: "Há 5 horas",
-    notes: "Negociando valor do cachê",
+    name: "teste 2",
+    phone: "12",
+    location: "",
+    value: 500,
+    stage: "never",
+    daysInStage: 23,
+    daysAgo: 31,
   },
   {
     id: 5,
-    name: "Patricia Lima",
-    email: "patricia@email.com",
-    phone: "(11) 99999-5555",
-    event: "Casamento",
-    date: "2024-05-20",
-    value: 9500,
-    stage: "closed",
-    lastContact: "Hoje",
-    notes: "Contrato assinado!",
+    name: "Wesley",
+    phone: "121212",
+    location: "Bar XXXX",
+    value: 0,
+    stage: "new",
+    daysInStage: 12,
+    daysAgo: 0,
   },
 ];
 
+const statCards = [
+  { value: 0, label: "Leads Quentes", sublabel: "Últimos 3 dias", icon: TrendingUp, color: "text-red-500", bgColor: "bg-red-50", borderColor: "border-red-200" },
+  { value: 4, label: "Leads Frios", sublabel: "+7 dias sem contato", icon: Clock, color: "text-blue-500", bgColor: "bg-blue-50", borderColor: "border-blue-200" },
+  { value: 0, label: "Alto Valor", sublabel: "R$ 5mil+", icon: Target, color: "text-green-500", bgColor: "bg-green-50", borderColor: "border-green-200" },
+  { value: 0, label: "Urgentes", sublabel: "Com proposta aberta", icon: AlertCircle, color: "text-purple-500", bgColor: "bg-purple-50", borderColor: "border-purple-200" },
+];
+
 export default function CRM() {
-  const [selectedLead, setSelectedLead] = useState(leads[0]);
+  const [selectedStage, setSelectedStage] = useState<string | null>(null);
+
+  const getLeadsByStage = (stageId: string) => leads.filter(lead => lead.stage === stageId);
+  
+  const getStageValue = (stageId: string) => {
+    return getLeadsByStage(stageId).reduce((sum, lead) => sum + lead.value, 0);
+  };
 
   return (
-    <Layout title="CRM - Funil de Vendas" subtitle="Gerencie seus leads e oportunidades">
-      {/* Actions Bar */}
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Buscar leads..." className="pl-9 w-64 bg-secondary" />
-          </div>
+    <Layout title="CRM - Funil de Vendas" subtitle="Gerencie seus contatos e oportunidades">
+      {/* Header Actions */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div></div>
+        <div className="flex items-center gap-2">
           <Button variant="outline">
-            <Filter className="w-4 h-4 mr-2" />
-            Filtros
+            <Users className="w-4 h-4 mr-2" />
+            Ver Todos os Contatos
+          </Button>
+          <Button variant="outline">
+            <CalendarDays className="w-4 h-4 mr-2" />
+            Virada de Mês
+          </Button>
+          <Button className="bg-primary hover:bg-primary/90">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Lead
           </Button>
         </div>
-        <Button variant="gradient">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Lead
-        </Button>
       </div>
 
-      {/* Pipeline */}
-      <div className="mb-6 overflow-x-auto pb-4">
-        <div className="flex gap-4 min-w-max">
-          {stages.map((stage) => (
-            <div
-              key={stage.id}
-              className="w-64 shrink-0"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className={cn("w-3 h-3 rounded-full", stage.color)} />
-                  <span className="font-medium text-foreground">{stage.name}</span>
-                </div>
-                <Badge variant="secondary">{stage.count}</Badge>
-              </div>
-              <div className="space-y-3">
-                {leads
-                  .filter((lead) => lead.stage === stage.id)
-                  .map((lead) => (
-                    <button
-                      key={lead.id}
-                      onClick={() => setSelectedLead(lead)}
-                      className={cn(
-                        "w-full text-left p-4 rounded-xl transition-all",
-                        selectedLead.id === lead.id
-                          ? "bg-primary/10 border border-primary/30"
-                          : "bg-secondary/50 hover:bg-secondary border border-transparent"
-                      )}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                            <User className="w-4 h-4 text-primary-foreground" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground text-sm">{lead.name}</p>
-                            <p className="text-xs text-muted-foreground">{lead.event}</p>
-                          </div>
-                        </div>
-                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-success">
-                          R$ {lead.value.toLocaleString("pt-BR")}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{lead.lastContact}</span>
-                      </div>
-                    </button>
-                  ))}
-              </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {statCards.map((stat, idx) => (
+          <div 
+            key={idx} 
+            className={cn(
+              "p-4 rounded-xl border flex items-center gap-4",
+              stat.bgColor,
+              stat.borderColor
+            )}
+          >
+            <div className={cn("p-2 rounded-full", stat.bgColor)}>
+              <stat.icon className={cn("w-6 h-6", stat.color)} />
             </div>
-          ))}
+            <div>
+              <p className={cn("text-2xl font-bold", stat.color)}>{stat.value}</p>
+              <p className={cn("text-sm font-medium", stat.color)}>{stat.label}</p>
+              <p className="text-xs text-muted-foreground">{stat.sublabel}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters Row */}
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        <Button variant="outline" size="sm" className="text-destructive border-destructive/30">
+          <Trash2 className="w-4 h-4 mr-2" />
+          Descartados (0)
+        </Button>
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Buscar leads..." className="pl-9 bg-card" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Data Início (contato)</span>
+          <Input type="date" className="w-40 bg-card" placeholder="dd/mm/aaaa" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Data Fim (contato)</span>
+          <Input type="date" className="w-40 bg-card" placeholder="dd/mm/aaaa" />
         </div>
       </div>
 
-      {/* Lead Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard title="Detalhes do Lead" className="lg:col-span-2">
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-start gap-4 pb-4 border-b border-border">
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <User className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground">{selectedLead.name}</h3>
-                <p className="text-muted-foreground">{selectedLead.event}</p>
-                <div className="flex items-center gap-4 mt-2">
-                  <Badge
-                    className={cn(
-                      "capitalize",
-                      stages.find((s) => s.id === selectedLead.stage)?.color.replace("bg-", "bg-") + "/10",
-                      stages.find((s) => s.id === selectedLead.stage)?.color.replace("bg-", "text-")
-                    )}
-                  >
-                    {stages.find((s) => s.id === selectedLead.stage)?.name}
-                  </Badge>
+      {/* Pipeline Stages Header */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        {stages.map((stage) => {
+          const count = getLeadsByStage(stage.id).length;
+          const value = getStageValue(stage.id);
+          
+          return (
+            <button
+              key={stage.id}
+              onClick={() => setSelectedStage(selectedStage === stage.id ? null : stage.id)}
+              className={cn(
+                "p-3 rounded-xl text-left transition-all",
+                stage.color,
+                "text-white"
+              )}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <stage.icon className="w-4 h-4" />
+                  <span className="text-sm font-medium">{stage.name}</span>
                 </div>
+                <span className="text-lg font-bold">{count}</span>
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-success">
-                  R$ {selectedLead.value.toLocaleString("pt-BR")}
-                </p>
-                <p className="text-sm text-muted-foreground">Valor estimado</p>
-              </div>
-            </div>
+              <p className="text-xs opacity-80">
+                $ R$ {(value / 1000).toFixed(1)}k em propostas
+              </p>
+            </button>
+          );
+        })}
+      </div>
 
-            {/* Contact Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
-                <Mail className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-sm text-foreground">{selectedLead.email}</p>
+      {/* Leads Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {leads
+          .filter(lead => !selectedStage || lead.stage === selectedStage)
+          .map((lead) => {
+            const stage = stages.find(s => s.id === lead.stage);
+            
+            return (
+              <div 
+                key={lead.id} 
+                className="bg-card rounded-xl border border-border p-4 hover:shadow-md transition-all"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 className="font-semibold text-foreground">{lead.name}</h4>
+                    <p className="text-xs text-muted-foreground">
+                      {lead.daysAgo > 0 ? `Há ${lead.daysAgo} dias` : "Hoje"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
-                <Phone className="w-5 h-5 text-success" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Telefone</p>
-                  <p className="text-sm text-foreground">{selectedLead.phone}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
-                <Calendar className="w-5 h-5 text-warning" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Data do Evento</p>
-                  <p className="text-sm text-foreground">
-                    {new Date(selectedLead.date).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            {/* Notes */}
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <h4 className="text-sm font-medium text-foreground mb-2">Anotações</h4>
-              <p className="text-sm text-muted-foreground">{selectedLead.notes}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <Button variant="gradient" className="flex-1">
-                <Phone className="w-4 h-4 mr-2" />
-                Ligar
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <Mail className="w-4 h-4 mr-2" />
-                Email
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                WhatsApp
-              </Button>
-            </div>
-          </div>
-        </ChartCard>
-
-        {/* Activity */}
-        <ChartCard title="Histórico">
-          <div className="space-y-4">
-            {[
-              { action: "Lead criado", time: "15 Dez, 10:30", icon: Plus },
-              { action: "Primeiro contato", time: "15 Dez, 14:00", icon: Phone },
-              { action: "Email enviado", time: "16 Dez, 09:15", icon: Mail },
-              { action: "Proposta enviada", time: "17 Dez, 11:00", icon: DollarSign },
-            ].map((item, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <item.icon className="w-4 h-4 text-primary" />
+                <div className={cn(
+                  "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs mb-3",
+                  stage?.bgLight,
+                  stage?.textColor
+                )}>
+                  <Clock className="w-3 h-3" />
+                  {lead.daysInStage} dias nesta etapa
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{item.action}</p>
-                  <p className="text-xs text-muted-foreground">{item.time}</p>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground">{lead.phone}</span>
+                    </div>
+                    <Button variant="ghost" size="sm" className="h-7 text-green-600 hover:text-green-700 hover:bg-green-50">
+                      <MessageCircle className="w-4 h-4 mr-1" />
+                      WhatsApp
+                    </Button>
+                  </div>
+                  
+                  {lead.location && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground">{lead.location}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-2 text-sm">
+                    <DollarSign className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium text-foreground">
+                      R$ {lead.value.toLocaleString("pt-BR")}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Eye className="w-4 h-4 mr-1" />
+                    Ver Perfil
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        </ChartCard>
+            );
+          })}
       </div>
     </Layout>
   );
