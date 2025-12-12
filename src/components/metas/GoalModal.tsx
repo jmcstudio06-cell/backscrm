@@ -26,9 +26,8 @@ interface GoalModalProps {
 }
 
 const goalTypes = [
-  { value: "sales", label: "Meta de Vendas" },
   { value: "leads", label: "Meta de Leads" },
-  { value: "financial", label: "Meta de Receita" },
+  { value: "revenue", label: "Meta de Receita" },
   { value: "shows", label: "Meta de Shows" },
 ];
 
@@ -49,7 +48,7 @@ const months = [
 
 export function GoalModal({ open, onOpenChange, goal, onSave, onDelete }: GoalModalProps) {
   const [title, setTitle] = useState("");
-  const [type, setType] = useState("financial");
+  const [type, setType] = useState("revenue");
   const [targetValue, setTargetValue] = useState("");
   const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
   const [year, setYear] = useState<number>(new Date().getFullYear());
@@ -64,7 +63,7 @@ export function GoalModal({ open, onOpenChange, goal, onSave, onDelete }: GoalMo
       setYear(goal.year);
     } else {
       setTitle("");
-      setType("financial");
+      setType("revenue");
       setTargetValue("");
       setMonth(new Date().getMonth() + 1);
       setYear(new Date().getFullYear());
@@ -140,20 +139,19 @@ export function GoalModal({ open, onOpenChange, goal, onSave, onDelete }: GoalMo
 
           <div className="space-y-2">
             <Label htmlFor="target">
-              Valor da Meta {type === "financial" ? "(R$)" : ""}
+              Valor da Meta {type === "revenue" ? "(R$)" : ""}
             </Label>
             <Input
               id="target"
               type="number"
               value={targetValue}
               onChange={(e) => setTargetValue(e.target.value)}
-              placeholder={type === "financial" ? "5000" : "10"}
+              placeholder={type === "revenue" ? "5000" : "10"}
             />
             <p className="text-xs text-muted-foreground">
               {type === "shows" && "O valor atual será calculado automaticamente pelos shows do mês (exceto cancelados)"}
               {type === "leads" && "O valor atual será calculado automaticamente pelos leads cadastrados no mês"}
-              {type === "financial" && "O valor atual será calculado automaticamente pela receita bruta do mês"}
-              {type === "sales" && "O valor atual será calculado automaticamente pelas vendas fechadas do mês"}
+              {type === "revenue" && "O valor atual será calculado automaticamente pela receita bruta do mês"}
             </p>
           </div>
 
