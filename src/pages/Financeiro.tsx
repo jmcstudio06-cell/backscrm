@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
@@ -38,14 +39,35 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
+import { TransactionModal } from "@/components/financeiro/TransactionModal";
 import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function Financeiro() {
-  const { transactions, loading, deleteTransaction } = useTransactions();
+  const { transactions, loading, deleteTransaction, addTransaction } = useTransactions();
+  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
 
-  const handleAddExpense = () => toast.info("Funcionalidade de nova despesa em desenvolvimento!");
-  const handleAddIncome = () => toast.info("Funcionalidade de nova receita em desenvolvimento!");
+  const handleAddExpense = () => {
+    setTransactionType("expense");
+    setTransactionModalOpen(true);
+  };
+
+  const handleAddIncome = () => {
+    setTransactionType("income");
+    setTransactionModalOpen(true);
+  };
+
+  const handleSaveTransaction = async (data: {
+    type: string;
+    amount: number;
+    category: string;
+    description: string;
+    date: string;
+  }) => {
+    await addTransaction(data);
+  };
+
   const handleExportPdf = () => toast.success("Relatório exportado com sucesso!");
 
   const handleDeleteTransaction = async (id: string) => {
@@ -485,6 +507,13 @@ export default function Financeiro() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <TransactionModal
+        open={transactionModalOpen}
+        onOpenChange={setTransactionModalOpen}
+        type={transactionType}
+        onSave={handleSaveTransaction}
+      />
     </Layout>
   );
 }
