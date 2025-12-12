@@ -19,6 +19,9 @@ import Equipe from "./pages/Equipe";
 import Metas from "./pages/Metas";
 import Planos from "./pages/Planos";
 import Configuracoes from "./pages/Configuracoes";
+import Orcamentos from "./pages/Orcamentos";
+import Contratos from "./pages/Contratos";
+import Repertorio from "./pages/Repertorio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +50,9 @@ const App = () => (
               <Route path="/metas" element={<Metas />} />
               <Route path="/planos" element={<Planos />} />
               <Route path="/configuracoes" element={<Configuracoes />} />
+              <Route path="/orcamentos" element={<Orcamentos />} />
+              <Route path="/contratos" element={<Contratos />} />
+              <Route path="/repertorio" element={<Repertorio />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ShowsProvider>
