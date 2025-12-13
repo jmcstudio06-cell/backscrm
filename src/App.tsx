@@ -22,6 +22,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Orcamentos from "./pages/Orcamentos";
 import Contratos from "./pages/Contratos";
 import Repertorio from "./pages/Repertorio";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/orcamentos" element={<Orcamentos />} />
               <Route path="/contratos" element={<Contratos />} />
               <Route path="/repertorio" element={<Repertorio />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ShowsProvider>
