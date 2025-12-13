@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -23,6 +24,7 @@ import {
   CheckSquare,
   Briefcase,
   Truck,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +37,7 @@ interface MenuItem {
   icon: React.ElementType;
   label: string;
   path?: string;
+  adminOnly?: boolean;
   children?: { icon: React.ElementType; label: string; path: string }[];
 }
 
@@ -70,6 +73,7 @@ const menuItems: MenuItem[] = [
   { icon: Target, label: "Metas", path: "/metas" },
   { icon: GraduationCap, label: "Apoio e Conhecimentos", path: "/aulas" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
+  { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
 
 export function Sidebar() {
@@ -77,6 +81,10 @@ export function Sidebar() {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAdmin } = useAdmin();
+
+  // Filter menu items based on admin status
+  const filteredMenuItems = menuItems.filter(item => !item.adminOnly || isAdmin);
 
   const toggleGroup = (label: string) => {
     setOpenGroup((prev) => (prev === label ? null : label));
@@ -120,7 +128,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         <ul className="space-y-1">
-          {menuItems.map((item) => {
+          {filteredMenuItems.map((item) => {
             if (item.children) {
               const isOpen = openGroup === item.label;
               const hasActiveChild = isChildActive(item.children);
