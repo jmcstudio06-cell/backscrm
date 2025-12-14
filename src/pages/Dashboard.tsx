@@ -2,6 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { ProgressRing } from "@/components/dashboard/ProgressRing";
+import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { 
   Users, TrendingUp, DollarSign, Target, Clock
 } from "lucide-react";
@@ -11,7 +12,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
 import { useShows } from "@/contexts/ShowsContext";
 import { useMemo } from "react";
-import { format, subMonths, startOfMonth, endOfMonth, getDay, getDaysInMonth } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth, getDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const Dashboard = () => {
@@ -176,6 +177,9 @@ const Dashboard = () => {
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
       <div className="space-y-6">
+        {/* Trial Countdown Card */}
+        <TrialCountdownCard />
+
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>

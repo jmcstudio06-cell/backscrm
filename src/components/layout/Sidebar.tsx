@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { cn } from "@/lib/utils";
+import { AppLogo } from "@/components/layout/AppLogo";
 import {
   LayoutDashboard,
   Calendar,
   GraduationCap,
-  Users,
   UserCheck,
   DollarSign,
   History,
@@ -18,7 +19,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Sparkles,
   LogOut,
   TrendingUp,
   CheckSquare,
@@ -37,42 +37,43 @@ interface MenuItem {
   icon: React.ElementType;
   label: string;
   path?: string;
+  featureKey?: string;
   adminOnly?: boolean;
-  children?: { icon: React.ElementType; label: string; path: string }[];
+  children?: { icon: React.ElementType; label: string; path: string; featureKey?: string }[];
 }
 
 const menuItems: MenuItem[] = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Calendar, label: "Agenda de Shows", path: "/agenda" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", featureKey: "dashboard" },
+  { icon: Calendar, label: "Agenda de Shows", path: "/agenda", featureKey: "agenda" },
   {
     icon: Briefcase,
     label: "Área Comercial",
     children: [
-      { icon: TrendingUp, label: "Funil de Vendas", path: "/crm" },
-      { icon: UserCheck, label: "Clientes", path: "/clientes" },
-      { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos" },
-      { icon: CheckSquare, label: "Contrato Automático", path: "/contratos" },
+      { icon: TrendingUp, label: "Funil de Vendas", path: "/crm", featureKey: "crm" },
+      { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
+      { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
+      { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
     ],
   },
   {
     icon: DollarSign,
     label: "Financeiro",
     children: [
-      { icon: DollarSign, label: "Resumo Geral", path: "/financeiro" },
-      { icon: History, label: "Histórico Mensal", path: "/historico" },
+      { icon: DollarSign, label: "Resumo Geral", path: "/financeiro", featureKey: "financeiro" },
+      { icon: History, label: "Histórico Mensal", path: "/historico", featureKey: "historico" },
     ],
   },
   {
     icon: Truck,
     label: "Logística",
     children: [
-      { icon: CheckSquare, label: "Checklist de Show", path: "/checklist" },
-      { icon: Users2, label: "Equipe & Freelancer", path: "/equipe" },
+      { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },
+      { icon: Users2, label: "Equipe & Freelancer", path: "/equipe", featureKey: "equipe" },
     ],
   },
-  { icon: Target, label: "Metas", path: "/metas" },
-  { icon: GraduationCap, label: "Apoio e Conhecimentos", path: "/aulas" },
-  { icon: Settings, label: "Configurações", path: "/configuracoes" },
+  { icon: Target, label: "Metas", path: "/metas", featureKey: "metas" },
+  { icon: GraduationCap, label: "Apoio e Conhecimentos", path: "/aulas", featureKey: "aulas" },
+  { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
 
@@ -82,9 +83,33 @@ export function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin } = useAdmin();
+  const { isBlocked } = useFeatureBlocks();
 
-  // Filter menu items based on admin status
-  const filteredMenuItems = menuItems.filter(item => !item.adminOnly || isAdmin);
+  // Filter menu items based on admin status and feature blocks
+  const filteredMenuItems = menuItems.filter(item => {
+    // Admin-only items
+    if (item.adminOnly && !isAdmin) return false;
+    
+    // Check if feature is blocked
+    if (item.featureKey && isBlocked(item.featureKey)) return false;
+    
+    return true;
+  }).map(item => {
+    // Filter children based on feature blocks
+    if (item.children) {
+      return {
+        ...item,
+        children: item.children.filter(child => 
+          !child.featureKey || !isBlocked(child.featureKey)
+        )
+      };
+    }
+    return item;
+  }).filter(item => {
+    // Remove parent items if all children are blocked
+    if (item.children && item.children.length === 0) return false;
+    return true;
+  });
 
   const toggleGroup = (label: string) => {
     setOpenGroup((prev) => (prev === label ? null : label));
@@ -114,15 +139,7 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary">
-          <Sparkles className="w-5 h-5 text-white" />
-        </div>
-        {!collapsed && (
-          <div className="flex flex-col">
-            <span className="font-bold text-sidebar-primary">Backstage Pro</span>
-            <span className="text-xs text-sidebar-foreground">CRM para Artistas</span>
-          </div>
-        )}
+        <AppLogo collapsed={collapsed} />
       </div>
 
       {/* Navigation */}
@@ -168,7 +185,7 @@ export function Sidebar() {
                           (child.path !== "/" && location.pathname.startsWith(child.path));
 
                         return (
-                          <NavLink
+                          <RouterNavLink
                             key={child.path}
                             to={child.path}
                             className={cn(
@@ -182,7 +199,7 @@ export function Sidebar() {
                             {!collapsed && (
                               <span className="text-sm truncate">{child.label}</span>
                             )}
-                          </NavLink>
+                          </RouterNavLink>
                         );
                       })}
                     </CollapsibleContent>
@@ -197,7 +214,7 @@ export function Sidebar() {
 
             return (
               <li key={item.path}>
-                <NavLink
+                <RouterNavLink
                   to={item.path!}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
@@ -213,29 +230,27 @@ export function Sidebar() {
                   {isActive && !collapsed && (
                     <div className="ml-auto w-1.5 h-1.5 rounded-full bg-sidebar-accent-foreground" />
                   )}
-                </NavLink>
+                </RouterNavLink>
               </li>
             );
           })}
         </ul>
       </nav>
 
-      {/* Ver Planos Button */}
+      {/* Ver Planos Button - Enhanced */}
       <div className="px-3 pb-2">
         <Button
-          variant="ghost"
-          size="sm"
           onClick={() => navigate("/planos")}
           className={cn(
-            "w-full justify-start bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90",
-            collapsed && "justify-center"
+            "w-full justify-start bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg border-0 py-6",
+            collapsed && "justify-center px-2"
           )}
         >
-          <Crown className="w-5 h-5 shrink-0" />
+          <Crown className="w-6 h-6 shrink-0" />
           {!collapsed && (
             <div className="ml-3 flex flex-col items-start">
-              <span className="text-sm font-medium">Ver Planos</span>
-              <span className="text-xs opacity-80">A partir de R$ 19,99/mês</span>
+              <span className="text-base font-bold">Ver Planos</span>
+              <span className="text-xs opacity-90">A partir de R$ 19,99/mês</span>
             </div>
           )}
         </Button>
