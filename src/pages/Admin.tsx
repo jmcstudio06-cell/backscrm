@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { 
   Shield, 
   Calendar, 
@@ -21,7 +21,9 @@ import {
   Eye,
   Key,
   Trash2,
-  Info
+  Info,
+  Upload,
+  Image
 } from "lucide-react";
 
 interface UserProfile {
@@ -44,19 +46,17 @@ interface FeatureBlock {
 const FEATURES = [
   { key: "dashboard", label: "Dashboard" },
   { key: "agenda", label: "Agenda" },
-  { key: "leads", label: "Leads" },
+  { key: "crm", label: "Funil de Vendas" },
+  { key: "clientes", label: "Clientes" },
   { key: "financeiro", label: "Financeiro" },
-  { key: "ideias", label: "Ideias" },
-  { key: "repertorio", label: "Repertório" },
-  { key: "musicos", label: "Músicos" },
+  { key: "historico", label: "Histórico" },
+  { key: "checklist", label: "Checklist" },
+  { key: "equipe", label: "Equipe" },
+  { key: "metas", label: "Metas" },
+  { key: "aulas", label: "Aulas" },
+  { key: "configuracoes", label: "Configurações" },
   { key: "orcamentos", label: "Orçamentos" },
   { key: "contratos", label: "Contratos" },
-  { key: "historico", label: "Histórico Mensal" },
-  { key: "configuracoes", label: "Configurações" },
-  { key: "metas", label: "Metas" },
-  { key: "clientes", label: "Clientes" },
-  { key: "aulas", label: "Aulas" },
-  { key: "checklist", label: "Checklist" },
 ];
 
 const PLAN_FILTERS = [
@@ -66,11 +66,19 @@ const PLAN_FILTERS = [
   { value: "essencial", label: "ESSENCIAL" },
   { value: "completo", label: "COMPLETO" },
   { value: "expirado", label: "EXPIRADOS" },
-  { value: "admin", label: "ADMIN" },
 ];
+
+// Plan durations in days
+const PLAN_DURATIONS: Record<string, number> = {
+  trial: 3,
+  inicial: 30,
+  essencial: 180,
+  completo: 365,
+};
 
 export default function Admin() {
   const { user, loading: authLoading } = useRequireAuth();
+  const { settings, refreshSettings } = useAppSettings();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -79,6 +87,10 @@ export default function Admin() {
   const [planFilter, setPlanFilter] = useState("all");
   const [trialDays, setTrialDays] = useState("3");
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [appName, setAppName] = useState("Backstage Pro");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   // Check if current user is admin
   useEffect(() => {
@@ -146,6 +158,12 @@ export default function Admin() {
     fetchData();
   }, [isAdmin]);
 
+  // Initialize app settings from context
+  useEffect(() => {
+    setAppName(settings.app_name);
+    setLogoPreview(settings.logo_url);
+  }, [settings]);
+
   const getFeatureBlocked = (userId: string, featureKey: string): boolean => {
     const block = featureBlocks.find(
       b => b.user_id === userId && b.feature_key === featureKey
@@ -183,22 +201,35 @@ export default function Admin() {
           return [...prev, { user_id: userId, feature_key: featureKey, blocked: newBlocked }];
         }
       });
-      toast.success(newBlocked ? "Recurso bloqueado" : "Recurso desbloqueado");
+      toast.success(newBlocked ? "Página bloqueada para o usuário" : "Página desbloqueada para o usuário");
     }
   };
 
   const updateUserPlan = async (userId: string, plan: string) => {
+    // When changing plan, also set trial_start to now for tracking
+    const updates: { plan: string; trial_start?: string; trial_days?: number } = { plan };
+    
+    if (plan !== "expirado") {
+      updates.trial_start = new Date().toISOString();
+      updates.trial_days = PLAN_DURATIONS[plan] || 3;
+    }
+
     const { error } = await supabase
       .from("profiles")
-      .update({ plan })
+      .update(updates)
       .eq("user_id", userId);
 
     if (error) {
       console.error("Error updating plan:", error);
       toast.error("Erro ao atualizar plano");
     } else {
-      setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, plan } : u));
-      toast.success("Plano atualizado");
+      setUsers(prev => prev.map(u => 
+        u.user_id === userId 
+          ? { ...u, plan, trial_start: updates.trial_start || u.trial_start, trial_days: updates.trial_days || u.trial_days } 
+          : u
+      ));
+      const planDuration = PLAN_DURATIONS[plan];
+      toast.success(`Plano atualizado para ${plan.toUpperCase()} (${planDuration} dias)`);
     }
   };
 
@@ -215,6 +246,82 @@ export default function Admin() {
       toast.error("Erro ao salvar configuração");
     } else {
       toast.success("Configuração salva");
+    }
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadLogo = async () => {
+    if (!logoFile) return;
+    
+    setUploadingLogo(true);
+    
+    try {
+      const fileExt = logoFile.name.split('.').pop();
+      const fileName = `app-logo.${fileExt}`;
+      
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from("app-assets")
+        .upload(fileName, logoFile, { upsert: true });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("app-assets")
+        .getPublicUrl(fileName);
+
+      const logoUrl = urlData.publicUrl;
+
+      // Save URL to app_settings
+      const { error: settingsError } = await supabase
+        .from("app_settings")
+        .upsert({
+          setting_key: "logo_url",
+          setting_value: logoUrl
+        }, { onConflict: 'setting_key' });
+
+      if (settingsError) {
+        throw settingsError;
+      }
+
+      toast.success("Logo atualizada com sucesso!");
+      refreshSettings();
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      toast.error("Erro ao fazer upload da logo");
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const saveAppName = async () => {
+    const { error } = await supabase
+      .from("app_settings")
+      .upsert({
+        setting_key: "app_name",
+        setting_value: appName
+      }, { onConflict: 'setting_key' });
+
+    if (error) {
+      console.error("Error saving app name:", error);
+      toast.error("Erro ao salvar nome do app");
+    } else {
+      toast.success("Nome do app atualizado!");
+      refreshSettings();
     }
   };
 
@@ -283,28 +390,28 @@ export default function Admin() {
         <Card className="border-orange-200 bg-orange-50">
           <CardContent className="p-4 text-center">
             <Calendar className="h-6 w-6 text-orange-500 mx-auto mb-2" />
-            <p className="text-sm text-orange-600">Trial ({trialDays} dias)</p>
+            <p className="text-sm text-orange-600">Trial (3 dias)</p>
             <p className="text-2xl font-bold text-orange-700">{stats.trial}</p>
           </CardContent>
         </Card>
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">
             <Zap className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-sm text-blue-600">Inicial</p>
+            <p className="text-sm text-blue-600">Inicial (1 mês)</p>
             <p className="text-2xl font-bold text-blue-700">{stats.inicial}</p>
           </CardContent>
         </Card>
         <Card className="border-green-200 bg-green-50">
           <CardContent className="p-4 text-center">
             <UsersIcon className="h-6 w-6 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-green-600">Essencial</p>
+            <p className="text-sm text-green-600">Essencial (6 meses)</p>
             <p className="text-2xl font-bold text-green-700">{stats.essencial}</p>
           </CardContent>
         </Card>
         <Card className="border-purple-200 bg-purple-50">
           <CardContent className="p-4 text-center">
             <Heart className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-            <p className="text-sm text-purple-600">Completo</p>
+            <p className="text-sm text-purple-600">Completo (1 ano)</p>
             <p className="text-2xl font-bold text-purple-700">{stats.completo}</p>
           </CardContent>
         </Card>
@@ -322,7 +429,7 @@ export default function Admin() {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
-          <TabsTrigger value="trial">Configurações Trial</TabsTrigger>
+          <TabsTrigger value="trial">Config. Trial</TabsTrigger>
         </TabsList>
 
         {/* Users Tab */}
@@ -373,12 +480,6 @@ export default function Admin() {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="icon">
-                        <Key className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -394,16 +495,16 @@ export default function Admin() {
                           onChange={(e) => updateUserPlan(userProfile.user_id, e.target.value)}
                           className="w-full mt-1 px-3 py-2 border rounded-md bg-yellow-50 border-yellow-200"
                         >
-                          <option value="trial">Trial ({trialDays} dias)</option>
-                          <option value="inicial">Inicial</option>
-                          <option value="essencial">Essencial</option>
-                          <option value="completo">Completo</option>
+                          <option value="trial">Trial (3 dias)</option>
+                          <option value="inicial">Inicial (1 mês)</option>
+                          <option value="essencial">Essencial (6 meses)</option>
+                          <option value="completo">Completo (1 ano)</option>
                           <option value="expirado">Expirado</option>
                         </select>
                       </div>
                       <div>
-                        <Label>Início Trial</Label>
-                        <p className="mt-1 px-3 py-2 border rounded-md bg-background">
+                        <Label>Início do Plano</Label>
+                        <p className="mt-1 px-3 py-2 border rounded-md bg-background text-sm">
                           {userProfile.trial_start 
                             ? new Date(userProfile.trial_start).toLocaleString("pt-BR")
                             : "N/A"
@@ -414,17 +515,27 @@ export default function Admin() {
 
                     {/* Feature Blocks */}
                     <div>
-                      <Label className="mb-2 block">Bloqueios Manuais de Páginas / Recursos</Label>
+                      <Label className="mb-2 block">Bloqueios de Páginas</Label>
                       <p className="text-xs text-muted-foreground mb-3">
-                        Bloqueie recursos específicos para este usuário.
+                        Ative para bloquear o acesso à página para este usuário.
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {FEATURES.map(feature => (
                           <div 
                             key={feature.key}
-                            className="flex items-center justify-between p-2 border rounded-md bg-background"
+                            className={`flex items-center justify-between p-3 border rounded-md transition-colors ${
+                              getFeatureBlocked(userProfile.user_id, feature.key) 
+                                ? "bg-red-50 border-red-200" 
+                                : "bg-background"
+                            }`}
                           >
-                            <span className="text-sm">{feature.label}</span>
+                            <span className={`text-sm font-medium ${
+                              getFeatureBlocked(userProfile.user_id, feature.key) 
+                                ? "text-red-700" 
+                                : ""
+                            }`}>
+                              {feature.label}
+                            </span>
                             <Switch
                               checked={getFeatureBlocked(userProfile.user_id, feature.key)}
                               onCheckedChange={() => toggleFeatureBlock(userProfile.user_id, feature.key)}
@@ -453,36 +564,61 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
+                <Image className="h-5 w-5" />
                 Personalização do App
               </CardTitle>
               <CardDescription>
-                Personalize a aparência do aplicativo
+                Personalize a aparência do aplicativo em todas as páginas
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Logo Upload */}
               <div>
-                <Label>Logo do App</Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Esta logo aparecerá ao lado do nome do app
+                <Label className="text-base font-semibold">Logo do App</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Esta logo aparecerá no menu de navegação e em todas as páginas
                 </p>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center text-primary-foreground font-bold text-xl">
-                    ba
+                  <div className="w-20 h-20 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center overflow-hidden bg-muted/50">
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <Upload className="w-8 h-8 text-muted-foreground/50" />
+                    )}
                   </div>
-                  <Input type="file" accept="image/*" />
+                  <div className="flex-1 space-y-2">
+                    <Input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleLogoChange}
+                      className="cursor-pointer"
+                    />
+                    <Button 
+                      onClick={uploadLogo} 
+                      disabled={!logoFile || uploadingLogo}
+                      className="w-full"
+                    >
+                      {uploadingLogo ? "Enviando..." : "Salvar Logo"}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
+              {/* App Name */}
               <div>
-                <Label>Nome do App</Label>
-                <p className="text-sm text-muted-foreground mb-2">
+                <Label className="text-base font-semibold">Nome do App</Label>
+                <p className="text-sm text-muted-foreground mb-3">
                   Nome que aparecerá no menu de navegação
                 </p>
-                <Input defaultValue="Backstage Pro" />
+                <div className="flex gap-2">
+                  <Input 
+                    value={appName}
+                    onChange={(e) => setAppName(e.target.value)}
+                    placeholder="Nome do aplicativo"
+                  />
+                  <Button onClick={saveAppName}>Salvar</Button>
+                </div>
               </div>
-
-              <Button>Atualizar App</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -498,7 +634,7 @@ export default function Admin() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Duração do Trial (em dias)</Label>
+                <Label className="text-base font-semibold">Duração do Trial (em dias)</Label>
                 <p className="text-sm text-muted-foreground mb-2">
                   Defina quantos dias os usuários terão de acesso gratuito ao trial
                 </p>
@@ -511,9 +647,6 @@ export default function Admin() {
                   />
                   <Button onClick={saveTrialDays}>Salvar</Button>
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Após {trialDays} dias, o plano do usuário expirará automaticamente
-                </p>
               </div>
 
               <Card className="bg-blue-50 border-blue-200">
@@ -523,9 +656,11 @@ export default function Admin() {
                     <div>
                       <p className="font-medium text-blue-900">Como funciona:</p>
                       <ul className="text-sm text-blue-800 list-disc list-inside mt-1 space-y-1">
-                        <li>Novos usuários recebem {trialDays} dias de trial gratuito</li>
-                        <li>Após esse período, o plano muda automaticamente para "EXPIRADO"</li>
-                        <li>Usuários expirados precisam assinar um plano para continuar usando</li>
+                        <li><strong>TRIAL:</strong> Dura {trialDays} dias, depois expira automaticamente</li>
+                        <li><strong>INICIAL:</strong> Dura 1 mês (30 dias)</li>
+                        <li><strong>ESSENCIAL:</strong> Dura 6 meses (180 dias)</li>
+                        <li><strong>COMPLETO:</strong> Dura 1 ano (365 dias)</li>
+                        <li>Após expirar, o usuário precisa renovar o plano</li>
                       </ul>
                     </div>
                   </div>
