@@ -9,6 +9,7 @@ const plans = [
     name: "Inicial",
     description: "Para quem está começando",
     price: "R$ 49,90",
+    installments: null,
     period: "por mês",
     icon: Zap,
     highlight: null,
@@ -39,6 +40,7 @@ const plans = [
     name: "Essencial",
     description: "Para profissionais",
     price: "R$ 25,98",
+    installments: "6x de",
     period: "por 6 meses",
     icon: Star,
     highlight: "MAIS POPULAR",
@@ -69,6 +71,7 @@ const plans = [
     name: "Completo",
     description: "Melhor custo-benefício",
     price: "R$ 19,99",
+    installments: "12x de",
     period: "por 12 meses",
     icon: Crown,
     highlight: "MELHOR CUSTO",
@@ -100,7 +103,6 @@ const plans = [
 export default function Planos() {
   return (
     <Layout title="Planos" subtitle="Escolha o plano ideal para sua carreira musical">
-      {/* ⬇️ ESPAÇAMENTO AJUSTADO AQUI */}
       <div className="mt-16 pt-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => {
@@ -138,7 +140,10 @@ export default function Planos() {
                 </div>
 
                 <div className="text-center mb-6">
+                  {plan.installments && <div className="text-xs text-muted-foreground mb-1">{plan.installments}</div>}
+
                   <div className="text-4xl font-bold">{plan.price}</div>
+
                   <div className="text-sm text-muted-foreground">{plan.period}</div>
                 </div>
 
