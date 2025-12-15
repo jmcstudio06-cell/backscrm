@@ -8,7 +8,7 @@ const plans = [
   {
     name: "Inicial",
     description: "Para quem está começando",
-    price: "R$ 49,90",
+    price: "R$ 39,90",
     installments: "apenas",
     period: "por mês",
     icon: Zap,
@@ -39,7 +39,7 @@ const plans = [
   {
     name: "Essencial",
     description: "Para profissionais",
-    price: "R$ 25,98",
+    price: "R$ 21,90",
     installments: "6x de",
     period: "por 6 meses",
     icon: Star,
@@ -70,7 +70,7 @@ const plans = [
   {
     name: "Completo",
     description: "Melhor custo-benefício",
-    price: "R$ 19,99",
+    price: "R$ 15,90",
     installments: "12x de",
     period: "por 12 meses",
     icon: Crown,
