@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
@@ -9,18 +9,16 @@ interface LayoutProps {
 }
 
 export function Layout({ children, title, subtitle }: LayoutProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
 
-      {/* Conteúdo */}
-      <div
-        className="transition-all duration-300
-        pl-0 lg:pl-64
-      "
-      >
-        <Header title={title} subtitle={subtitle} />
+      {/* Content */}
+      <div className="transition-all duration-300 pl-0 lg:pl-64">
+        <Header title={title} subtitle={subtitle} onMenuClick={() => setMobileOpen(true)} />
 
         <main className="p-4 sm:p-6">{children}</main>
       </div>
