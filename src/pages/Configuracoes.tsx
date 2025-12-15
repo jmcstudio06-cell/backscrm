@@ -1,21 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  User,
-  Camera,
-  Shield,
-  Globe,
-  CreditCard,
-  LogOut,
-  Save,
-  Loader2,
-  Crown,
-} from "lucide-react";
+import { User, Camera, Shield, Globe, CreditCard, LogOut, Save, Loader2, Crown } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,11 +35,15 @@ export default function Configuracoes() {
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [saving, setSaving] = useState(false);
-  
+
   // Password change state
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
+
+  // Avatar upload
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -114,6 +108,37 @@ export default function Configuracoes() {
     }
   };
 
+  // Avatar upload handlers
+  const handleSelectFile = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    setUploading(true);
+
+    try {
+      const fileName = `${profile.id}_${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
+      await updateProfile({ avatar_url: publicUrl });
+      toast.success("Foto atualizada com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao enviar foto");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <Layout title="Configurações" subtitle="Gerencie suas preferências">
       <Tabs defaultValue="profile" className="space-y-6">
@@ -145,7 +170,10 @@ export default function Configuracoes() {
             </div>
           </div>
 
-          <ChartCard title="Informações Pessoais" subtitle="Atualize seus dados para aparecer nos orçamentos e contratos">
+          <ChartCard
+            title="Informações Pessoais"
+            subtitle="Atualize seus dados para aparecer nos orçamentos e contratos"
+          >
             <div className="flex flex-col md:flex-row gap-8">
               {/* Avatar */}
               <div className="flex flex-col items-center">
@@ -156,9 +184,12 @@ export default function Configuracoes() {
                     <User className="w-16 h-16 text-primary-foreground" />
                   )}
                 </div>
-                <Button variant="outline" size="sm">
+
+                <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
+
+                <Button variant="outline" size="sm" onClick={handleSelectFile} disabled={uploading}>
                   <Camera className="w-4 h-4 mr-2" />
-                  Alterar Foto
+                  {uploading ? "Enviando..." : "Alterar Foto"}
                 </Button>
               </div>
 
@@ -166,8 +197,8 @@ export default function Configuracoes() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="text-sm font-medium text-foreground">Nome Artístico / Empresa</label>
-                  <Input 
-                    placeholder="Ex: João Silva Music" 
+                  <Input
+                    placeholder="Ex: João Silva Music"
                     className="mt-1 bg-secondary"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -176,8 +207,8 @@ export default function Configuracoes() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground">Email</label>
-                  <Input 
-                    placeholder="seu@email.com" 
+                  <Input
+                    placeholder="seu@email.com"
                     className="mt-1 bg-secondary"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -185,8 +216,8 @@ export default function Configuracoes() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground">Telefone</label>
-                  <Input 
-                    placeholder="(00) 00000-0000" 
+                  <Input
+                    placeholder="(00) 00000-0000"
                     className="mt-1 bg-secondary"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -194,23 +225,21 @@ export default function Configuracoes() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-sm font-medium text-foreground">Cidade - UF</label>
-                  <Input 
-                    placeholder="Ex: São Paulo - SP" 
+                  <Input
+                    placeholder="Ex: São Paulo - SP"
                     className="mt-1 bg-secondary"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">Esta cidade aparecerá na assinatura dos contratos</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Esta cidade aparecerá na assinatura dos contratos
+                  </p>
                 </div>
               </div>
             </div>
             <div className="mt-6 flex justify-end">
               <Button variant="gradient" onClick={handleSave} disabled={saving}>
-                {saving ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4 mr-2" />
-                )}
+                {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Salvar Alterações
               </Button>
             </div>
@@ -231,7 +260,9 @@ export default function Configuracoes() {
                     <p className="text-sm text-muted-foreground">Português (Brasil)</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">Alterar</Button>
+                <Button variant="outline" size="sm">
+                  Alterar
+                </Button>
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
@@ -244,7 +275,9 @@ export default function Configuracoes() {
                     <p className="text-sm text-muted-foreground">Real Brasileiro (BRL)</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">Alterar</Button>
+                <Button variant="outline" size="sm">
+                  Alterar
+                </Button>
               </div>
             </div>
           </ChartCard>
@@ -267,8 +300,8 @@ export default function Configuracoes() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-foreground">Nova Senha</label>
-                    <Input 
-                      type="password" 
+                    <Input
+                      type="password"
                       className="mt-1 bg-secondary"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
@@ -277,8 +310,8 @@ export default function Configuracoes() {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground">Confirmar Nova Senha</label>
-                    <Input 
-                      type="password" 
+                    <Input
+                      type="password"
                       className="mt-1 bg-secondary"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -286,12 +319,7 @@ export default function Configuracoes() {
                     />
                   </div>
                 </div>
-                <Button 
-                  variant="gradient" 
-                  className="mt-4"
-                  onClick={handleChangePassword}
-                  disabled={changingPassword}
-                >
+                <Button variant="gradient" className="mt-4" onClick={handleChangePassword} disabled={changingPassword}>
                   {changingPassword ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
