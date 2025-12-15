@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useContents } from "@/hooks/useContents";
 import { ContentModal } from "@/components/aulas/ContentModal";
+import { useAdmin } from "@/hooks/useAdmin";
 
 const categories = [
   { id: "all", name: "Todas" },
@@ -29,6 +30,7 @@ const categories = [
 
 export default function Aulas() {
   const { contents, loading, addContent, deleteContent } = useContents();
+  const { isAdmin } = useAdmin();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -86,14 +88,16 @@ export default function Aulas() {
               <p className="text-white/80">Ideias produtivas, dicas e conteúdos úteis</p>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            className="bg-white text-primary hover:bg-white/90 border-none"
-            onClick={() => setModalOpen(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Adicionar Conteúdo
-          </Button>
+          {isAdmin && (
+            <Button 
+              variant="outline" 
+              className="bg-white text-primary hover:bg-white/90 border-none"
+              onClick={() => setModalOpen(true)}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar Conteúdo
+            </Button>
+          )}
         </div>
       </div>
 
@@ -122,12 +126,17 @@ export default function Aulas() {
           <Lightbulb className="w-12 h-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Nenhum conteúdo adicionado</p>
           <p className="text-sm text-muted-foreground mb-4">
-            Adicione links, vídeos e outros materiais para organizar seu aprendizado
+            {isAdmin 
+              ? "Adicione links, vídeos e outros materiais para organizar seu aprendizado"
+              : "Aguarde o administrador adicionar conteúdos"
+            }
           </p>
-          <Button onClick={() => setModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Adicionar Conteúdo
-          </Button>
+          {isAdmin && (
+            <Button onClick={() => setModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar Conteúdo
+            </Button>
+          )}
         </div>
       )}
 

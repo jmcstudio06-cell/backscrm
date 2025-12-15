@@ -181,8 +181,8 @@ export function useShowsData() {
         .insert([{
           title: showData.title || "",
           date: showData.date || new Date().toISOString().split("T")[0],
-          start_time: showData.start_time,
-          end_time: showData.end_time,
+          start_time: showData.start_time || null,
+          end_time: showData.end_time || null,
           venue: showData.venue,
           address: showData.address,
           cachet: showData.cachet || 0,

@@ -5,6 +5,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Calendar,
@@ -25,6 +26,7 @@ import {
   Briefcase,
   Truck,
   Shield,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -85,31 +87,21 @@ export function Sidebar() {
   const { isAdmin } = useAdmin();
   const { isBlocked } = useFeatureBlocks();
 
-  // Filter menu items based on admin status and feature blocks
+  // Filter menu items based on admin status only (blocked items still show)
   const filteredMenuItems = menuItems.filter(item => {
     // Admin-only items
     if (item.adminOnly && !isAdmin) return false;
-    
-    // Check if feature is blocked
-    if (item.featureKey && isBlocked(item.featureKey)) return false;
-    
-    return true;
-  }).map(item => {
-    // Filter children based on feature blocks
-    if (item.children) {
-      return {
-        ...item,
-        children: item.children.filter(child => 
-          !child.featureKey || !isBlocked(child.featureKey)
-        )
-      };
-    }
-    return item;
-  }).filter(item => {
-    // Remove parent items if all children are blocked
-    if (item.children && item.children.length === 0) return false;
     return true;
   });
+
+  const handleBlockedClick = (featureLabel: string) => {
+    toast.error(`O seu plano não inclui acesso à página "${featureLabel}". Atualize seu plano para desbloquear.`, {
+      action: {
+        label: "Ver Planos",
+        onClick: () => navigate("/planos"),
+      },
+    });
+  };
 
   const toggleGroup = (label: string) => {
     setOpenGroup((prev) => (prev === label ? null : label));
@@ -183,6 +175,22 @@ export function Sidebar() {
                         const isActive =
                           location.pathname === child.path ||
                           (child.path !== "/" && location.pathname.startsWith(child.path));
+                        const childIsBlocked = child.featureKey && isBlocked(child.featureKey);
+
+                        if (childIsBlocked) {
+                          return (
+                            <button
+                              key={child.path}
+                              onClick={() => handleBlockedClick(child.label)}
+                              className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-sidebar-foreground/50 hover:bg-sidebar-border w-full text-left"
+                            >
+                              <Lock className="w-4 h-4 shrink-0" />
+                              {!collapsed && (
+                                <span className="text-sm truncate">{child.label}</span>
+                              )}
+                            </button>
+                          );
+                        }
 
                         return (
                           <RouterNavLink
@@ -211,6 +219,23 @@ export function Sidebar() {
             const isActive =
               location.pathname === item.path ||
               (item.path !== "/" && location.pathname.startsWith(item.path!));
+            const itemIsBlocked = item.featureKey && isBlocked(item.featureKey);
+
+            if (itemIsBlocked) {
+              return (
+                <li key={item.path}>
+                  <button
+                    onClick={() => handleBlockedClick(item.label)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-sidebar-foreground/50 hover:bg-sidebar-border w-full text-left"
+                  >
+                    <Lock className="w-5 h-5 shrink-0" />
+                    {!collapsed && (
+                      <span className="text-sm font-medium truncate">{item.label}</span>
+                    )}
+                  </button>
+                </li>
+              );
+            }
 
             return (
               <li key={item.path}>
@@ -237,12 +262,12 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Ver Planos Button - Enhanced */}
+      {/* Ver Planos Button - Enhanced with Blue Gradient */}
       <div className="px-3 pb-2">
         <Button
           onClick={() => navigate("/planos")}
           className={cn(
-            "w-full justify-start bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg border-0 py-6",
+            "w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg border-0 py-6",
             collapsed && "justify-center px-2"
           )}
         >
