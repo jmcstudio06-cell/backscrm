@@ -19,12 +19,14 @@ import {
   AlertCircle,
   Search,
   Eye,
-  Key,
-  Trash2,
   Info,
   Upload,
-  Image
+  Image,
+  Target,
+  DollarSign,
+  Mic2,
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface UserProfile {
   id: string;
@@ -41,6 +43,15 @@ interface FeatureBlock {
   user_id: string;
   feature_key: string;
   blocked: boolean;
+}
+
+interface UserGoal {
+  id: string;
+  user_id: string;
+  goal_type: string;
+  target_value: number;
+  month: number;
+  year: number;
 }
 
 const FEATURES = [
@@ -83,6 +94,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [featureBlocks, setFeatureBlocks] = useState<FeatureBlock[]>([]);
+  const [userGoals, setUserGoals] = useState<UserGoal[]>([]);
+  const [userStats, setUserStats] = useState<Record<string, { leads: number; revenue: number; shows: number }>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [trialDays, setTrialDays] = useState("3");
@@ -153,6 +166,72 @@ export default function Admin() {
       if (settingsData) {
         setTrialDays(settingsData.setting_value || "3");
       }
+
+      // Fetch user goals
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const { data: goalsData } = await supabase
+        .from("user_goals")
+        .select("*")
+        .eq("month", currentMonth)
+        .eq("year", currentYear);
+
+      if (goalsData) {
+        setUserGoals(goalsData);
+      }
+
+      // Fetch stats for all users
+      await fetchUserStats(profilesData || []);
+    }
+
+    async function fetchUserStats(profiles: UserProfile[]) {
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const stats: Record<string, { leads: number; revenue: number; shows: number }> = {};
+
+      for (const profile of profiles) {
+        // Fetch leads count
+        const { count: leadsCount } = await supabase
+          .from("leads")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", profile.user_id)
+          .gte("created_at", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
+          .lt("created_at", currentMonth === 12 
+            ? `${currentYear + 1}-01-01` 
+            : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
+
+        // Fetch shows count
+        const { count: showsCount } = await supabase
+          .from("shows")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", profile.user_id)
+          .neq("status", "cancelled")
+          .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
+          .lt("date", currentMonth === 12 
+            ? `${currentYear + 1}-01-01` 
+            : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
+
+        // Fetch revenue
+        const { data: transactionsData } = await supabase
+          .from("transactions")
+          .select("amount")
+          .eq("user_id", profile.user_id)
+          .eq("type", "income")
+          .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
+          .lt("date", currentMonth === 12 
+            ? `${currentYear + 1}-01-01` 
+            : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
+
+        const revenue = transactionsData?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+
+        stats[profile.user_id] = {
+          leads: leadsCount || 0,
+          shows: showsCount || 0,
+          revenue,
+        };
+      }
+
+      setUserStats(stats);
     }
 
     fetchData();
@@ -230,6 +309,54 @@ export default function Admin() {
       ));
       const planDuration = PLAN_DURATIONS[plan];
       toast.success(`Plano atualizado para ${plan.toUpperCase()} (${planDuration} dias)`);
+    }
+  };
+
+  // User goals management
+  const getUserGoal = (userId: string, goalType: string): number => {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    const goal = userGoals.find(
+      g => g.user_id === userId && g.goal_type === goalType && g.month === currentMonth && g.year === currentYear
+    );
+    return goal?.target_value || 0;
+  };
+
+  const updateUserGoal = async (userId: string, goalType: string, targetValue: number) => {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    const { data, error } = await supabase
+      .from("user_goals")
+      .upsert({
+        user_id: userId,
+        goal_type: goalType,
+        target_value: targetValue,
+        month: currentMonth,
+        year: currentYear,
+      }, { onConflict: 'user_id,goal_type,month,year' })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating user goal:", error);
+      toast.error("Erro ao atualizar meta");
+    } else {
+      setUserGoals(prev => {
+        const existing = prev.find(
+          g => g.user_id === userId && g.goal_type === goalType && g.month === currentMonth && g.year === currentYear
+        );
+        if (existing) {
+          return prev.map(g => 
+            g.user_id === userId && g.goal_type === goalType && g.month === currentMonth && g.year === currentYear
+              ? data
+              : g
+          );
+        } else {
+          return [...prev, data];
+        }
+      });
+      toast.success("Meta atualizada!");
     }
   };
 
@@ -542,6 +669,93 @@ export default function Admin() {
                             />
                           </div>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* User Goals */}
+                    <div className="mt-6">
+                      <Label className="mb-2 block flex items-center gap-2">
+                        <Target className="h-4 w-4" />
+                        Metas do Mês para este Usuário
+                      </Label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Defina as metas mensais e veja o progresso do usuário
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Leads Goal */}
+                        <div className="p-4 border rounded-lg bg-blue-50/50">
+                          <div className="flex items-center gap-2 mb-2">
+                            <UsersIcon className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium text-sm">Meta de Leads</span>
+                          </div>
+                          <Input
+                            type="number"
+                            placeholder="Meta"
+                            value={getUserGoal(userProfile.user_id, "leads") || ""}
+                            onChange={(e) => updateUserGoal(userProfile.user_id, "leads", Number(e.target.value))}
+                            className="mb-2"
+                          />
+                          <div className="text-xs text-muted-foreground mb-1">
+                            Atual: {userStats[userProfile.user_id]?.leads || 0} / {getUserGoal(userProfile.user_id, "leads") || 0}
+                          </div>
+                          <Progress 
+                            value={getUserGoal(userProfile.user_id, "leads") > 0 
+                              ? Math.min(((userStats[userProfile.user_id]?.leads || 0) / getUserGoal(userProfile.user_id, "leads")) * 100, 100) 
+                              : 0
+                            } 
+                            className="h-2" 
+                          />
+                        </div>
+
+                        {/* Revenue Goal */}
+                        <div className="p-4 border rounded-lg bg-green-50/50">
+                          <div className="flex items-center gap-2 mb-2">
+                            <DollarSign className="h-4 w-4 text-green-600" />
+                            <span className="font-medium text-sm">Meta de Receita</span>
+                          </div>
+                          <Input
+                            type="number"
+                            placeholder="Meta (R$)"
+                            value={getUserGoal(userProfile.user_id, "revenue") || ""}
+                            onChange={(e) => updateUserGoal(userProfile.user_id, "revenue", Number(e.target.value))}
+                            className="mb-2"
+                          />
+                          <div className="text-xs text-muted-foreground mb-1">
+                            Atual: R$ {(userStats[userProfile.user_id]?.revenue || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} / R$ {(getUserGoal(userProfile.user_id, "revenue") || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </div>
+                          <Progress 
+                            value={getUserGoal(userProfile.user_id, "revenue") > 0 
+                              ? Math.min(((userStats[userProfile.user_id]?.revenue || 0) / getUserGoal(userProfile.user_id, "revenue")) * 100, 100) 
+                              : 0
+                            } 
+                            className="h-2" 
+                          />
+                        </div>
+
+                        {/* Shows Goal */}
+                        <div className="p-4 border rounded-lg bg-purple-50/50">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Mic2 className="h-4 w-4 text-purple-600" />
+                            <span className="font-medium text-sm">Meta de Shows</span>
+                          </div>
+                          <Input
+                            type="number"
+                            placeholder="Meta"
+                            value={getUserGoal(userProfile.user_id, "shows") || ""}
+                            onChange={(e) => updateUserGoal(userProfile.user_id, "shows", Number(e.target.value))}
+                            className="mb-2"
+                          />
+                          <div className="text-xs text-muted-foreground mb-1">
+                            Atual: {userStats[userProfile.user_id]?.shows || 0} / {getUserGoal(userProfile.user_id, "shows") || 0}
+                          </div>
+                          <Progress 
+                            value={getUserGoal(userProfile.user_id, "shows") > 0 
+                              ? Math.min(((userStats[userProfile.user_id]?.shows || 0) / getUserGoal(userProfile.user_id, "shows")) * 100, 100) 
+                              : 0
+                            } 
+                            className="h-2" 
+                          />
+                        </div>
                       </div>
                     </div>
                   </CardContent>
