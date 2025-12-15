@@ -9,7 +9,7 @@ const plans = [
     name: "Inicial",
     description: "Para quem está começando",
     price: "R$ 49,90",
-    installments: null,
+    installments: "apenas",
     period: "por mês",
     icon: Zap,
     highlight: null,
@@ -140,7 +140,7 @@ export default function Planos() {
                 </div>
 
                 <div className="text-center mb-6">
-                  {plan.installments && <div className="text-xs text-muted-foreground mb-1">{plan.installments}</div>}
+                  <div className="text-xs text-muted-foreground mb-1">{plan.installments}</div>
 
                   <div className="text-4xl font-bold">{plan.price}</div>
 
