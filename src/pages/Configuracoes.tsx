@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   User,
@@ -14,17 +14,42 @@ import {
   LogOut,
   Save,
   Loader2,
+  Crown,
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
+import { useTrialStatus } from "@/hooks/useTrialStatus";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const planLabels: Record<string, string> = {
+  trial: "Trial",
+  inicial: "Inicial",
+  essencial: "Essencial",
+  completo: "Completo",
+  expirado: "Expirado",
+};
+
+const planColors: Record<string, string> = {
+  trial: "bg-orange-500",
+  inicial: "bg-blue-500",
+  essencial: "bg-green-500",
+  completo: "bg-purple-500",
+  expirado: "bg-destructive",
+};
 
 export default function Configuracoes() {
   const { profile, loading, updateProfile } = useProfile();
+  const { plan, daysRemaining } = useTrialStatus();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [saving, setSaving] = useState(false);
+  
+  // Password change state
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -46,6 +71,49 @@ export default function Configuracoes() {
     setSaving(false);
   };
 
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast.error("Preencha todos os campos de senha");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("As senhas não coincidem");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) throw error;
+
+      toast.success("Senha alterada com sucesso!");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      console.error("Error changing password:", error);
+      toast.error(error.message || "Erro ao alterar senha");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  const handleLogoutAll = async () => {
+    try {
+      await supabase.auth.signOut({ scope: "global" });
+      toast.success("Todas as sessões foram encerradas");
+      window.location.href = "/auth";
+    } catch (error) {
+      toast.error("Erro ao encerrar sessões");
+    }
+  };
+
   return (
     <Layout title="Configurações" subtitle="Gerencie suas preferências">
       <Tabs defaultValue="profile" className="space-y-6">
@@ -57,6 +125,26 @@ export default function Configuracoes() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
+          {/* Plan Badge Card */}
+          <div className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-6 text-primary-foreground">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                  <Crown className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-sm opacity-90">Seu Plano Atual</p>
+                  <h3 className="text-xl font-bold">{planLabels[plan] || plan}</h3>
+                </div>
+              </div>
+              <div className="text-right">
+                <Badge className={`${planColors[plan] || "bg-muted"} text-white border-0`}>
+                  {daysRemaining > 0 ? `${daysRemaining} dias restantes` : "Expirado"}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
           <ChartCard title="Informações Pessoais" subtitle="Atualize seus dados para aparecer nos orçamentos e contratos">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Avatar */}
@@ -173,40 +261,44 @@ export default function Configuracoes() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Alterar Senha</p>
-                    <p className="text-sm text-muted-foreground">Última alteração há 30 dias</p>
+                    <p className="text-sm text-muted-foreground">Defina uma nova senha para sua conta</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-foreground">Senha Atual</label>
-                    <Input type="password" className="mt-1 bg-secondary" />
-                  </div>
-                  <div />
-                  <div>
                     <label className="text-sm font-medium text-foreground">Nova Senha</label>
-                    <Input type="password" className="mt-1 bg-secondary" />
+                    <Input 
+                      type="password" 
+                      className="mt-1 bg-secondary"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                    />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground">Confirmar Nova Senha</label>
-                    <Input type="password" className="mt-1 bg-secondary" />
+                    <Input 
+                      type="password" 
+                      className="mt-1 bg-secondary"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repita a nova senha"
+                    />
                   </div>
                 </div>
-                <Button variant="gradient" className="mt-4">
+                <Button 
+                  variant="gradient" 
+                  className="mt-4"
+                  onClick={handleChangePassword}
+                  disabled={changingPassword}
+                >
+                  {changingPassword ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Shield className="w-4 h-4 mr-2" />
+                  )}
                   Alterar Senha
                 </Button>
-              </div>
-
-              <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Autenticação em Dois Fatores</p>
-                    <p className="text-sm text-muted-foreground">Adicione uma camada extra de segurança</p>
-                  </div>
-                </div>
-                <Switch />
               </div>
 
               <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
@@ -217,7 +309,7 @@ export default function Configuracoes() {
                     <p className="text-sm text-muted-foreground">Desconectar de todos os dispositivos</p>
                   </div>
                 </div>
-                <Button variant="destructive">
+                <Button variant="destructive" onClick={handleLogoutAll}>
                   Encerrar Todas as Sessões
                 </Button>
               </div>
