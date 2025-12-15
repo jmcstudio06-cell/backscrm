@@ -11,8 +11,12 @@ const plans = [
     price: "R$ 49,90",
     period: "por mês",
     icon: Zap,
-    popular: false,
     highlight: null,
+    styles: {
+      card: "bg-white border border-border",
+      icon: "bg-blue-100 text-blue-600",
+      button: "bg-blue-600 hover:bg-blue-700 text-white",
+    },
     features: [
       { name: "Dashboard", included: true },
       { name: "Agenda de Shows", included: true },
@@ -37,8 +41,12 @@ const plans = [
     price: "R$ 25,98",
     period: "por 6 meses",
     icon: Star,
-    popular: true,
     highlight: "MAIS POPULAR",
+    styles: {
+      card: "bg-gradient-to-b from-blue-100 to-purple-100 border-2 border-blue-400 scale-105 shadow-xl",
+      icon: "bg-gradient-to-br from-blue-500 to-purple-500 text-white",
+      button: "bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white",
+    },
     features: [
       { name: "Dashboard", included: true },
       { name: "Agenda de Shows", included: true },
@@ -63,8 +71,12 @@ const plans = [
     price: "R$ 19,99",
     period: "por 12 meses",
     icon: Crown,
-    popular: false,
     highlight: "MELHOR CUSTO",
+    styles: {
+      card: "bg-white border border-border",
+      icon: "bg-orange-100 text-orange-600",
+      button: "bg-orange-500 hover:bg-orange-600 text-white",
+    },
     features: [
       { name: "Dashboard", included: true },
       { name: "Agenda de Shows", included: true },
@@ -88,26 +100,20 @@ const plans = [
 export default function Planos() {
   return (
     <Layout title="Planos" subtitle="Escolha o plano ideal para sua carreira musical">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan) => {
           const Icon = plan.icon;
 
           return (
-            <div
-              key={plan.name}
-              className={cn(
-                "relative rounded-2xl p-6 border transition-all",
-                plan.popular
-                  ? "bg-gradient-to-b from-primary/20 to-primary/5 border-primary scale-105"
-                  : "bg-background border-border",
-              )}
-            >
+            <div key={plan.name} className={cn("relative rounded-3xl p-8 flex flex-col", plan.styles.card)}>
               {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                   <Badge
                     className={cn(
-                      "px-3 py-1",
-                      plan.popular ? "bg-primary text-primary-foreground" : "bg-orange-500 text-white",
+                      "px-4 py-1 text-xs font-semibold text-white",
+                      plan.highlight === "MAIS POPULAR"
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600"
+                        : "bg-orange-500",
                     )}
                   >
                     {plan.highlight}
@@ -116,19 +122,25 @@ export default function Planos() {
               )}
 
               <div className="text-center mb-6">
-                <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-primary/10">
-                  <Icon className="w-7 h-7 text-primary" />
+                <div
+                  className={cn(
+                    "w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center",
+                    plan.styles.icon,
+                  )}
+                >
+                  <Icon className="w-7 h-7" />
                 </div>
+
                 <h3 className="text-xl font-bold">{plan.name}</h3>
                 <p className="text-sm text-muted-foreground">{plan.description}</p>
               </div>
 
               <div className="text-center mb-6">
-                <span className="text-4xl font-bold">{plan.price}</span>
-                <p className="text-muted-foreground">{plan.period}</p>
+                <div className="text-4xl font-bold">{plan.price}</div>
+                <div className="text-sm text-muted-foreground">{plan.period}</div>
               </div>
 
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-center gap-3">
                     {feature.included ? (
@@ -143,9 +155,7 @@ export default function Planos() {
                 ))}
               </ul>
 
-              <Button className="w-full" variant={plan.popular ? "gradient" : "outline"}>
-                Escolher Plano
-              </Button>
+              <Button className={cn("mt-auto w-full", plan.styles.button)}>Escolher Plano</Button>
             </div>
           );
         })}
