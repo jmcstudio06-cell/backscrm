@@ -10,17 +10,19 @@ interface LayoutProps {
 
 export function Layout({ children, title, subtitle }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar - fixa só no desktop */}
-      <aside className="hidden lg:block">
-        <Sidebar />
-      </aside>
+    <div className="min-h-screen bg-background">
+      {/* Sidebar */}
+      <Sidebar />
 
       {/* Conteúdo */}
-      <div className="flex-1 flex flex-col">
+      <div
+        className="transition-all duration-300
+        pl-0 lg:pl-64
+      "
+      >
         <Header title={title} subtitle={subtitle} />
 
-        <main className="flex-1 p-4 sm:p-6 overflow-y-auto">{children}</main>
+        <main className="p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );
