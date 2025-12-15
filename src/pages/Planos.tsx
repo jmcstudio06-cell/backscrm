@@ -162,7 +162,14 @@ export default function Planos() {
                   ))}
                 </ul>
 
-                <Button className={cn("mt-auto w-full", plan.styles.button)}>Escolher Plano</Button>
+                <Button
+                  className={cn("mt-auto w-full", plan.styles.button)}
+                  onClick={() =>
+                    window.open("https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro", "_blank")
+                  }
+                >
+                  Escolher Plano
+                </Button>
               </div>
             );
           })}
