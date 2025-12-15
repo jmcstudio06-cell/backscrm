@@ -3,19 +3,34 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Viewport CORRETO (não quebra layout mobile) -->
+    <!-- Viewport correto (não quebra layout) -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
     <title>Backstage Pro - Sistema para Artistas</title>
 
     <meta
       name="description"
-      content="O Backstage Agenda é o aplicativo definitivo para quem quer ter o controle total da própria carreira. Mais que uma agenda, ele é o seu assistente pessoal nos bastidores, unindo organização, praticidade e gestão profissional em um só lugar."
+      content="O Backstage Agenda é o aplicativo definitivo para quem quer ter o controle total da própria carreira."
     />
 
     <meta name="author" content="Backstage Pro" />
 
-    <!-- PWA / APP MODE (manifest embutido - sem criar arquivo) -->
+    <!-- ===================== -->
+    <!-- 🔥 APP MODE (CRÍTICO) -->
+    <!-- ===================== -->
+
+    <!-- Android -->
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Backstage Pro" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Tema do app -->
+    <meta name="theme-color" content="#0B0B0F" />
+
+    <!-- Manifest embutido -->
     <link
       rel="manifest"
       href='data:application/json,{
@@ -28,9 +43,6 @@
         "orientation":"portrait"
       }'
     />
-
-    <!-- Cor do sistema (status bar mobile) -->
-    <meta name="theme-color" content="#0B0B0F" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -51,10 +63,10 @@
     />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
-    <!-- Favicon -->
+    <!-- Ícone -->
     <link
       rel="icon"
-      type="image/x-icon"
+      type="image/png"
       href="https://storage.googleapis.com/gpt-engineer-file-uploads/9qj3VeZL91gfDVoFV6uCl6z5ARu2/uploads/1765760875396-12.png"
     />
   </head>
