@@ -3,9 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// Hooks / Providers
 import { AuthProvider } from "@/hooks/useAuth";
 import { ShowsProvider } from "@/contexts/ShowsContext";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
+
+// Pages
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -34,6 +38,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        {/* **Ordem dos Providers IMPORTA!** */}
         <AuthProvider>
           <AppSettingsProvider>
             <ShowsProvider>
