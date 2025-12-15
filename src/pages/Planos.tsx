@@ -100,65 +100,68 @@ const plans = [
 export default function Planos() {
   return (
     <Layout title="Planos" subtitle="Escolha o plano ideal para sua carreira musical">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {plans.map((plan) => {
-          const Icon = plan.icon;
+      {/* ⬇️ ESPAÇAMENTO AJUSTADO AQUI */}
+      <div className="mt-16 pt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {plans.map((plan) => {
+            const Icon = plan.icon;
 
-          return (
-            <div key={plan.name} className={cn("relative rounded-3xl p-8 flex flex-col", plan.styles.card)}>
-              {plan.highlight && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <Badge
+            return (
+              <div key={plan.name} className={cn("relative rounded-3xl p-8 flex flex-col", plan.styles.card)}>
+                {plan.highlight && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <Badge
+                      className={cn(
+                        "px-4 py-1 text-xs font-semibold text-white",
+                        plan.highlight === "MAIS POPULAR"
+                          ? "bg-gradient-to-r from-blue-600 to-purple-600"
+                          : "bg-orange-500",
+                      )}
+                    >
+                      {plan.highlight}
+                    </Badge>
+                  </div>
+                )}
+
+                <div className="text-center mb-6">
+                  <div
                     className={cn(
-                      "px-4 py-1 text-xs font-semibold text-white",
-                      plan.highlight === "MAIS POPULAR"
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600"
-                        : "bg-orange-500",
+                      "w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center",
+                      plan.styles.icon,
                     )}
                   >
-                    {plan.highlight}
-                  </Badge>
-                </div>
-              )}
+                    <Icon className="w-7 h-7" />
+                  </div>
 
-              <div className="text-center mb-6">
-                <div
-                  className={cn(
-                    "w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center",
-                    plan.styles.icon,
-                  )}
-                >
-                  <Icon className="w-7 h-7" />
+                  <h3 className="text-xl font-bold">{plan.name}</h3>
+                  <p className="text-sm text-muted-foreground">{plan.description}</p>
                 </div>
 
-                <h3 className="text-xl font-bold">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <div className="text-center mb-6">
+                  <div className="text-4xl font-bold">{plan.price}</div>
+                  <div className="text-sm text-muted-foreground">{plan.period}</div>
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-3">
+                      {feature.included ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <X className="w-4 h-4 text-muted-foreground" />
+                      )}
+                      <span className={cn("text-sm", feature.included ? "text-foreground" : "text-muted-foreground")}>
+                        {feature.name}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button className={cn("mt-auto w-full", plan.styles.button)}>Escolher Plano</Button>
               </div>
-
-              <div className="text-center mb-6">
-                <div className="text-4xl font-bold">{plan.price}</div>
-                <div className="text-sm text-muted-foreground">{plan.period}</div>
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    {feature.included ? (
-                      <Check className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <X className="w-4 h-4 text-muted-foreground" />
-                    )}
-                    <span className={cn("text-sm", feature.included ? "text-foreground" : "text-muted-foreground")}>
-                      {feature.name}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button className={cn("mt-auto w-full", plan.styles.button)}>Escolher Plano</Button>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </Layout>
   );
