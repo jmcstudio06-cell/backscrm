@@ -26,15 +26,29 @@ export function useClients() {
 
   const fetchClients = async () => {
     if (!user) return;
-    
+
     try {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
 
       if (error) throw error;
-      setClients(data || []);
+
+      const clientsWithTotals = await Promise.all(
+        (data || []).map(async (client) => {
+          const { data: events, error: eventsError } = await supabase
+            .from("events")
+            .select("amount")
+            .eq("client_id", client.id);
+
+          if (eventsError) return client;
+
+          const totalSpent = events.reduce((sum, e) => sum + (e.amount || 0), 0);
+          const showsCount = events.length;
+
+          return { ...client, total_spent: totalSpent, shows_count: showsCount };
+        }),
+      );
+
+      setClients(clientsWithTotals);
     } catch (error) {
       console.error("Error fetching clients:", error);
       toast.error("Erro ao carregar clientes");
@@ -49,19 +63,30 @@ export function useClients() {
     try {
       const { data, error } = await supabase
         .from("clients")
-        .insert([{
-          name: clientData.name || "",
-          email: clientData.email,
-          phone: clientData.phone,
-          company: clientData.company,
-          notes: clientData.notes,
-          user_id: user.id,
-        }])
+        .insert([
+          {
+            name: clientData.name || "",
+            email: clientData.email,
+            phone: clientData.phone,
+            company: clientData.company,
+            notes: clientData.notes,
+            user_id: user.id,
+          },
+        ])
         .select()
         .single();
 
       if (error) throw error;
-      setClients([data, ...clients]);
+
+      const { data: events, error: eventsError } = await supabase
+        .from("events")
+        .select("amount")
+        .eq("client_id", data.id);
+
+      const totalSpent = events?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
+      const showsCount = events?.length || 0;
+
+      setClients([{ ...data, total_spent: totalSpent, shows_count: showsCount }, ...clients]);
       toast.success("Cliente adicionado com sucesso!");
       return data;
     } catch (error) {
@@ -72,15 +97,16 @@ export function useClients() {
 
   const updateClient = async (id: string, updates: Partial<Client>) => {
     try {
-      const { data, error } = await supabase
-        .from("clients")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
+      const { data, error } = await supabase.from("clients").update(updates).eq("id", id).select().single();
 
       if (error) throw error;
-      setClients(clients.map(c => c.id === id ? data : c));
+
+      const { data: events, error: eventsError } = await supabase.from("events").select("amount").eq("client_id", id);
+
+      const totalSpent = events?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
+      const showsCount = events?.length || 0;
+
+      setClients(clients.map((c) => (c.id === id ? { ...data, total_spent: totalSpent, shows_count: showsCount } : c)));
       toast.success("Cliente atualizado com sucesso!");
       return data;
     } catch (error) {
@@ -91,13 +117,10 @@ export function useClients() {
 
   const deleteClient = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("clients")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("clients").delete().eq("id", id);
 
       if (error) throw error;
-      setClients(clients.filter(c => c.id !== id));
+      setClients(clients.filter((c) => c.id !== id));
       toast.success("Cliente excluído com sucesso!");
     } catch (error) {
       console.error("Error deleting client:", error);
