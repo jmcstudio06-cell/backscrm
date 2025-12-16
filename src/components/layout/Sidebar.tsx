@@ -5,7 +5,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
-import { toast } from "sonner";
+import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import {
   LayoutDashboard,
   Calendar,
@@ -86,6 +86,8 @@ const menuItems: MenuItem[] = [
 
 export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
+  const [blockedFeatureName, setBlockedFeatureName] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin } = useAdmin();
@@ -95,12 +97,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
 
   const handleBlockedClick = (label: string) => {
-    toast.error(`O seu plano não inclui acesso à página "${label}".`, {
-      action: {
-        label: "Ver Planos",
-        onClick: () => navigate("/planos"),
-      },
-    });
+    setBlockedFeatureName(label);
+    setBlockedDialogOpen(true);
   };
 
   const isChildActive = (children?: MenuItem["children"]) =>
@@ -249,6 +247,12 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
             Sair
           </Button>
         </div>
+
+        <FeatureBlockedDialog
+          open={blockedDialogOpen}
+          onOpenChange={setBlockedDialogOpen}
+          featureName={blockedFeatureName}
+        />
       </aside>
     </>
   );

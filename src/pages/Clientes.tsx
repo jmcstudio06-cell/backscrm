@@ -2,9 +2,7 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import {
   Plus,
   Search,
@@ -36,17 +34,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useClients, Client } from "@/hooks/useClients";
 import { ClientModal } from "@/components/clientes/ClientModal";
+import { ClientProfileModal } from "@/components/clientes/ClientProfileModal";
 
 export default function Clientes() {
   const { clients, loading, addClient, updateClient, deleteClient } = useClients();
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
-  const filteredClients = clients.filter(client => 
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (client.email || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredClients = clients
+    .filter(client => 
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (client.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
   const totalClients = clients.length;
   const totalRevenue = clients.reduce((sum, c) => sum + (c.total_spent || 0), 0);
@@ -57,13 +59,14 @@ export default function Clientes() {
     setModalOpen(true);
   };
 
-  const handleViewClient = (client: Client) => {
+  const handleViewProfile = (client: Client) => {
     setSelectedClient(client);
-    setModalOpen(true);
+    setProfileModalOpen(true);
   };
 
   const handleEditClient = (client: Client) => {
     setSelectedClient(client);
+    setProfileModalOpen(false);
     setModalOpen(true);
   };
 
@@ -75,7 +78,8 @@ export default function Clientes() {
     }
   };
 
-  const handleDeleteClient = async (client: { id: string; name: string }) => {
+  const handleDeleteClient = async (client: Client) => {
+    setProfileModalOpen(false);
     await deleteClient(client.id);
   };
 
@@ -183,7 +187,7 @@ export default function Clientes() {
             </TableHeader>
             <TableBody>
               {filteredClients.map((client) => (
-                <TableRow key={client.id}>
+                <TableRow key={client.id} className="cursor-pointer hover:bg-secondary/50" onClick={() => handleViewProfile(client)}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
@@ -216,7 +220,7 @@ export default function Clientes() {
                       R$ {(client.total_spent || 0).toLocaleString("pt-BR")}
                     </span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -224,7 +228,7 @@ export default function Clientes() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleViewClient(client)}>
+                        <DropdownMenuItem onClick={() => handleViewProfile(client)}>
                           <Eye className="w-4 h-4 mr-2" />
                           Ver Perfil
                         </DropdownMenuItem>
@@ -254,6 +258,14 @@ export default function Clientes() {
         onOpenChange={setModalOpen}
         client={selectedClient}
         onSave={handleSaveClient}
+      />
+
+      <ClientProfileModal
+        open={profileModalOpen}
+        onOpenChange={setProfileModalOpen}
+        client={selectedClient}
+        onEdit={() => handleEditClient(selectedClient!)}
+        onDelete={() => handleDeleteClient(selectedClient!)}
       />
     </Layout>
   );
