@@ -48,6 +48,8 @@ export function useClients() {
         }),
       );
 
+      // Sort alphabetically by name
+      clientsWithTotals.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
       setClients(clientsWithTotals);
     } catch (error) {
       console.error("Error fetching clients:", error);
