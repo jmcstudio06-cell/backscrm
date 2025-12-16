@@ -178,14 +178,16 @@ export default function Aulas() {
                     <p className="text-sm text-muted-foreground">{item.category.toUpperCase()}</p>
                   </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => handleDeleteContent(item.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {isAdmin && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDeleteContent(item.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           ))}
@@ -271,14 +273,16 @@ export default function Aulas() {
               </div>
               <div className="p-4 flex items-center justify-between">
                 <h3 className="font-semibold text-foreground line-clamp-2 flex-1">{video.title}</h3>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0 ml-2"
-                  onClick={() => handleDeleteContent(video.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {isAdmin && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0 ml-2"
+                    onClick={() => handleDeleteContent(video.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           ))}
