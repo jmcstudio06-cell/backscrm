@@ -77,21 +77,21 @@ export default function Aulas() {
   return (
     <Layout title="" subtitle="">
       {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-r from-primary via-blue-500 to-cyan-400 p-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <Lightbulb className="w-8 h-8 text-white" />
+      <div className="relative rounded-2xl overflow-hidden mb-6 md:mb-8 bg-gradient-to-r from-primary via-blue-500 to-cyan-400 p-4 md:p-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
+              <Lightbulb className="w-6 h-6 md:w-8 md:h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Aulas de alavancagem</h1>
-              <p className="text-white/80">Ideias produtivas, dicas e conteúdos úteis</p>
+              <h1 className="text-lg md:text-2xl font-bold text-white">Apoio e Conhecimentos</h1>
+              <p className="text-white/80 text-sm md:text-base">Ideias produtivas, dicas e conteúdos úteis</p>
             </div>
           </div>
           {isAdmin && (
             <Button 
               variant="outline" 
-              className="bg-white text-primary hover:bg-white/90 border-none"
+              className="bg-white text-primary hover:bg-white/90 border-none w-full md:w-auto"
               onClick={() => setModalOpen(true)}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -102,7 +102,7 @@ export default function Aulas() {
       </div>
 
       {/* Category Filters */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-6 md:mb-8 overflow-x-auto pb-2">
         {categories.map((cat) => (
           <Button
             key={cat.id}
@@ -110,6 +110,7 @@ export default function Aulas() {
             size="sm"
             onClick={() => setSelectedCategory(cat.id)}
             className={cn(
+              "shrink-0 text-xs md:text-sm",
               selectedCategory === cat.id 
                 ? "bg-primary text-primary-foreground" 
                 : "bg-card hover:bg-muted"
@@ -193,40 +194,42 @@ export default function Aulas() {
 
       {/* Content Cards */}
       {linkContents.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
           {linkContents.map((item) => (
             <div 
               key={item.id}
-              className="bg-card rounded-xl border border-border p-4"
+              className="bg-card rounded-xl border border-border p-3 md:p-4"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <ExternalLink className="w-5 h-5 text-primary" />
+              <div className="flex items-start justify-between mb-2 md:mb-3">
+                <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>
-                    <Badge variant="outline" className="mt-1 text-xs">{item.category.toUpperCase()}</Badge>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-foreground text-xs md:text-sm truncate">{item.title}</h3>
+                    <Badge variant="outline" className="mt-1 text-[10px] md:text-xs">{item.category.toUpperCase()}</Badge>
                   </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                  onClick={() => handleDeleteContent(item.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {isAdmin && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 md:h-8 md:w-8 shrink-0"
+                    onClick={() => handleDeleteContent(item.id)}
+                  >
+                    <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
+                  </Button>
+                )}
               </div>
               {item.description && (
-                <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+                <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4 line-clamp-2">{item.description}</p>
               )}
               <Button 
                 variant="outline" 
-                className="w-full"
+                className="w-full text-xs md:text-sm h-8 md:h-9"
                 onClick={() => handleOpenLink(item.url)}
               >
-                <ExternalLink className="w-4 h-4 mr-2" />
+                <ExternalLink className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                 Acessar Link
               </Button>
             </div>

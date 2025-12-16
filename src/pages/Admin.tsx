@@ -25,6 +25,8 @@ import {
   Target,
   DollarSign,
   Mic2,
+  Key,
+  Loader2,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
@@ -104,6 +106,8 @@ export default function Admin() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [userNewPasswords, setUserNewPasswords] = useState<Record<string, string>>({});
+  const [changingPasswords, setChangingPasswords] = useState<Record<string, boolean>>({});
 
   // Check if current user is admin
   useEffect(() => {
@@ -452,6 +456,36 @@ export default function Admin() {
     }
   };
 
+  const handleChangeUserPassword = async (userId: string, userEmail: string) => {
+    const newPassword = userNewPasswords[userId];
+    if (!newPassword || newPassword.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
+    setChangingPasswords(prev => ({ ...prev, [userId]: true }));
+    
+    try {
+      // Use the admin API to update the user's password
+      const { error } = await supabase.auth.admin.updateUserById(userId, {
+        password: newPassword,
+      });
+
+      if (error) {
+        // If admin API fails, try a workaround via edge function or show error
+        throw error;
+      }
+
+      toast.success(`Senha do usuário ${userEmail} alterada com sucesso!`);
+      setUserNewPasswords(prev => ({ ...prev, [userId]: "" }));
+    } catch (error: any) {
+      console.error("Error changing password:", error);
+      toast.error("Erro ao alterar senha. Certifique-se de ter permissões de admin.");
+    } finally {
+      setChangingPasswords(prev => ({ ...prev, [userId]: false }));
+    }
+  };
+
   const getPlanStats = () => {
     const stats = {
       trial: users.filter(u => u.plan === "trial").length,
@@ -755,10 +789,43 @@ export default function Admin() {
                             } 
                             className="h-2" 
                           />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
+                                    </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Password Change */}
+                                    <div className="mt-6 pt-4 border-t border-border">
+                                      <Label className="mb-2 block flex items-center gap-2">
+                                        <Key className="h-4 w-4" />
+                                        Alterar Senha do Usuário
+                                      </Label>
+                                      <p className="text-xs text-muted-foreground mb-3">
+                                        Defina uma nova senha para este usuário
+                                      </p>
+                                      <div className="flex gap-2">
+                                        <Input
+                                          type="password"
+                                          placeholder="Nova senha (mín. 6 caracteres)"
+                                          value={userNewPasswords[userProfile.user_id] || ""}
+                                          onChange={(e) => setUserNewPasswords(prev => ({
+                                            ...prev,
+                                            [userProfile.user_id]: e.target.value
+                                          }))}
+                                          className="flex-1"
+                                        />
+                                        <Button
+                                          onClick={() => handleChangeUserPassword(userProfile.user_id, userProfile.email || "")}
+                                          disabled={changingPasswords[userProfile.user_id] || !userNewPasswords[userProfile.user_id]}
+                                        >
+                                          {changingPasswords[userProfile.user_id] ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                          ) : (
+                                            "Alterar"
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </CardContent>
                 )}
               </Card>
             ))}

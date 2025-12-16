@@ -1,5 +1,6 @@
 import { Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useProfile } from "@/hooks/useProfile";
 
 interface HeaderProps {
   title: string;
@@ -8,6 +9,8 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
+  const { profile } = useProfile();
+
   return (
     <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="flex items-center justify-between h-16 px-4 sm:px-6">
@@ -26,10 +29,18 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
         </div>
 
         {/* Profile */}
-        <Button variant="ghost" size="icon">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <User className="w-4 h-4 text-primary-foreground" />
-          </div>
+        <Button variant="ghost" size="icon" className="rounded-full overflow-hidden">
+          {profile?.avatar_url ? (
+            <img 
+              src={profile.avatar_url} 
+              alt="Avatar" 
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <User className="w-4 h-4 text-primary-foreground" />
+            </div>
+          )}
         </Button>
       </div>
     </header>
