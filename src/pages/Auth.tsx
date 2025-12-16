@@ -403,7 +403,12 @@ const Auth = () => {
                         Lembrar de mim
                       </Label>
                     </div>
-                    <a href="#" className="text-sm text-[#0066CC] hover:underline">
+                    <a 
+                      href="https://wa.me/5512991545726?text=Olá! Gostaria de solicitar a troca da minha senha no Backstage Pro." 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-[#0066CC] hover:underline"
+                    >
                       Esqueceu a senha?
                     </a>
                   </div>

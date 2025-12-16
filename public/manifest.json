@@ -1,0 +1,24 @@
+{
+  "name": "Backstage Pro",
+  "short_name": "Backstage",
+  "description": "Sistema completo para gestão de artistas e músicos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0066CC",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://storage.googleapis.com/gpt-engineer-file-uploads/9qj3VeZL91gfDVoFV6uCl6z5ARu2/uploads/1765760875396-12.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://storage.googleapis.com/gpt-engineer-file-uploads/9qj3VeZL91gfDVoFV6uCl6z5ARu2/uploads/1765760875396-12.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

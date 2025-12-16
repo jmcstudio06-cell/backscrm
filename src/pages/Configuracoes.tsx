@@ -131,6 +131,21 @@ export default function Configuracoes() {
 
         {/* Profile */}
         <TabsContent value="profile" className="space-y-6">
+          {/* Plan Badge */}
+          <ChartCard title="Seu Plano" subtitle="Status da sua assinatura">
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-xl ${planColors[plan] || "bg-muted"} flex items-center justify-center`}>
+                <Crown className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-foreground">{planLabels[plan] || "Trial"}</p>
+                <p className="text-sm text-muted-foreground">
+                  {plan === "expirado" ? "Plano expirado" : `${daysRemaining} dias restantes`}
+                </p>
+              </div>
+            </div>
+          </ChartCard>
+
           <ChartCard title="Informações Pessoais" subtitle="Atualize seus dados">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Avatar */}
@@ -176,6 +191,68 @@ export default function Configuracoes() {
                 {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Salvar Alterações
               </Button>
+            </div>
+          </ChartCard>
+        </TabsContent>
+
+        {/* Preferences - placeholder */}
+        <TabsContent value="preferences" className="space-y-6">
+          <ChartCard title="Preferências" subtitle="Configurações do sistema">
+            <p className="text-muted-foreground">Configurações em breve...</p>
+          </ChartCard>
+        </TabsContent>
+
+        {/* Security */}
+        <TabsContent value="security" className="space-y-6">
+          <ChartCard title="Segurança da Conta" subtitle="Gerencie a segurança da sua conta">
+            <div className="space-y-6">
+              {/* Change Password */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Alterar Senha
+                </h3>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Nova Senha</label>
+                    <Input
+                      type="password"
+                      className="mt-1 bg-secondary"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Confirmar Nova Senha</label>
+                    <Input
+                      type="password"
+                      className="mt-1 bg-secondary"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <Button onClick={handleChangePassword} disabled={changingPassword}>
+                    {changingPassword && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Alterar Senha
+                  </Button>
+                </div>
+              </div>
+
+              {/* Logout All */}
+              <div className="pt-6 border-t border-border">
+                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <LogOut className="w-5 h-5" />
+                  Sessões Ativas
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Encerre todas as sessões ativas em outros dispositivos.
+                </p>
+                <Button variant="destructive" className="mt-4" onClick={handleLogoutAll}>
+                  Encerrar Todas as Sessões
+                </Button>
+              </div>
             </div>
           </ChartCard>
         </TabsContent>

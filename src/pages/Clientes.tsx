@@ -34,11 +34,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useClients } from "@/hooks/useClients";
+import { useClients, Client } from "@/hooks/useClients";
+import { ClientModal } from "@/components/clientes/ClientModal";
 
 export default function Clientes() {
-  const { clients, loading, deleteClient } = useClients();
+  const { clients, loading, addClient, updateClient, deleteClient } = useClients();
   const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const filteredClients = clients.filter(client => 
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -50,15 +53,26 @@ export default function Clientes() {
   const totalEvents = clients.reduce((sum, c) => sum + (c.shows_count || 0), 0);
 
   const handleAddClient = () => {
-    toast.info("Funcionalidade de novo cliente em desenvolvimento!");
+    setSelectedClient(null);
+    setModalOpen(true);
   };
 
-  const handleViewClient = (clientId: string) => {
-    toast.info("Abrindo perfil do cliente...");
+  const handleViewClient = (client: Client) => {
+    setSelectedClient(client);
+    setModalOpen(true);
   };
 
-  const handleEditClient = (clientId: string) => {
-    toast.info("Editando cliente...");
+  const handleEditClient = (client: Client) => {
+    setSelectedClient(client);
+    setModalOpen(true);
+  };
+
+  const handleSaveClient = async (data: Partial<Client>) => {
+    if (selectedClient) {
+      await updateClient(selectedClient.id, data);
+    } else {
+      await addClient(data);
+    }
   };
 
   const handleDeleteClient = async (client: { id: string; name: string }) => {
@@ -210,11 +224,11 @@ export default function Clientes() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleViewClient(client.id)}>
+                        <DropdownMenuItem onClick={() => handleViewClient(client)}>
                           <Eye className="w-4 h-4 mr-2" />
                           Ver Perfil
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEditClient(client.id)}>
+                        <DropdownMenuItem onClick={() => handleEditClient(client)}>
                           <Edit className="w-4 h-4 mr-2" />
                           Editar
                         </DropdownMenuItem>
@@ -234,6 +248,13 @@ export default function Clientes() {
           </Table>
         )}
       </ChartCard>
+
+      <ClientModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        client={selectedClient}
+        onSave={handleSaveClient}
+      />
     </Layout>
   );
 }

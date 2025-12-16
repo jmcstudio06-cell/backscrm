@@ -34,15 +34,15 @@ export function useClients() {
 
       const clientsWithTotals = await Promise.all(
         (data || []).map(async (client) => {
-          const { data: events, error: eventsError } = await supabase
-            .from("events")
-            .select("amount")
+          const { data: showsData, error: showsError } = await supabase
+            .from("shows")
+            .select("cachet")
             .eq("client_id", client.id);
 
-          if (eventsError) return client;
+          if (showsError) return client;
 
-          const totalSpent = events.reduce((sum, e) => sum + (e.amount || 0), 0);
-          const showsCount = events.length;
+          const totalSpent = showsData.reduce((sum, s) => sum + (s.cachet || 0), 0);
+          const showsCount = showsData.length;
 
           return { ...client, total_spent: totalSpent, shows_count: showsCount };
         }),
@@ -78,13 +78,13 @@ export function useClients() {
 
       if (error) throw error;
 
-      const { data: events, error: eventsError } = await supabase
-        .from("events")
-        .select("amount")
+      const { data: showsData, error: showsError } = await supabase
+        .from("shows")
+        .select("cachet")
         .eq("client_id", data.id);
 
-      const totalSpent = events?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
-      const showsCount = events?.length || 0;
+      const totalSpent = showsData?.reduce((sum, s) => sum + (s.cachet || 0), 0) || 0;
+      const showsCount = showsData?.length || 0;
 
       setClients([{ ...data, total_spent: totalSpent, shows_count: showsCount }, ...clients]);
       toast.success("Cliente adicionado com sucesso!");
@@ -101,10 +101,10 @@ export function useClients() {
 
       if (error) throw error;
 
-      const { data: events, error: eventsError } = await supabase.from("events").select("amount").eq("client_id", id);
+      const { data: showsData, error: showsError } = await supabase.from("shows").select("cachet").eq("client_id", id);
 
-      const totalSpent = events?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
-      const showsCount = events?.length || 0;
+      const totalSpent = showsData?.reduce((sum, s) => sum + (s.cachet || 0), 0) || 0;
+      const showsCount = showsData?.length || 0;
 
       setClients(clients.map((c) => (c.id === id ? { ...data, total_spent: totalSpent, shows_count: showsCount } : c)));
       toast.success("Cliente atualizado com sucesso!");
