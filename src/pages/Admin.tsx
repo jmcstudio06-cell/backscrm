@@ -466,21 +466,26 @@ export default function Admin() {
     setChangingPasswords(prev => ({ ...prev, [userId]: true }));
     
     try {
-      // Use the admin API to update the user's password
-      const { error } = await supabase.auth.admin.updateUserById(userId, {
-        password: newPassword,
+      // Update password via Supabase Auth Admin API
+      // Note: This requires service role access through edge function
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+        body: JSON.stringify({ userId, newPassword }),
       });
 
-      if (error) {
-        // If admin API fails, try a workaround via edge function or show error
-        throw error;
+      if (!response.ok) {
+        throw new Error('Erro ao alterar senha');
       }
 
       toast.success(`Senha do usuário ${userEmail} alterada com sucesso!`);
       setUserNewPasswords(prev => ({ ...prev, [userId]: "" }));
     } catch (error: any) {
       console.error("Error changing password:", error);
-      toast.error("Erro ao alterar senha. Certifique-se de ter permissões de admin.");
+      toast.error("Para alterar senhas de usuários, entre em contato via WhatsApp: (12) 99154-5726");
     } finally {
       setChangingPasswords(prev => ({ ...prev, [userId]: false }));
     }
