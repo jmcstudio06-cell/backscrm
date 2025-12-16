@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { TermsModal } from "@/components/auth/TermsModal";
 import { 
   Calendar, 
   Users, 
@@ -19,6 +20,8 @@ import {
 } from "lucide-react";
 
 const Auth = () => {
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [termsModalType, setTermsModalType] = useState<"terms" | "privacy">("terms");
   const [showForm, setShowForm] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -384,9 +387,21 @@ const Auth = () => {
                       />
                       <Label htmlFor="terms" className="text-sm text-slate-500 leading-relaxed">
                         Concordo com os{" "}
-                        <a href="/termos" target="_blank" className="text-[#0066CC] hover:underline">Termos de Uso</a>
+                        <button 
+                          type="button"
+                          onClick={() => { setTermsModalType("terms"); setTermsModalOpen(true); }}
+                          className="text-[#0066CC] hover:underline"
+                        >
+                          Termos de Uso
+                        </button>
                         {" "}e{" "}
-                        <a href="/privacidade" target="_blank" className="text-[#0066CC] hover:underline">Política de Privacidade</a>
+                        <button 
+                          type="button"
+                          onClick={() => { setTermsModalType("privacy"); setTermsModalOpen(true); }}
+                          className="text-[#0066CC] hover:underline"
+                        >
+                          Política de Privacidade
+                        </button>
                       </Label>
                     </div>
                   </>
@@ -453,6 +468,13 @@ const Auth = () => {
           <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white" fillOpacity="0.1"/>
         </svg>
       </div>
+
+      {/* Terms/Privacy Modal */}
+      <TermsModal 
+        open={termsModalOpen} 
+        onOpenChange={setTermsModalOpen} 
+        type={termsModalType} 
+      />
     </div>
   );
 };
