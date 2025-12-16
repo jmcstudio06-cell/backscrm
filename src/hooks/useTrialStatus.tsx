@@ -11,6 +11,14 @@ interface TrialStatus {
   trialDays: number;
 }
 
+// Plan durations in days
+const PLAN_DURATIONS: Record<string, number> = {
+  trial: 3,
+  inicial: 30, // 1 month
+  essencial: 180, // 6 months
+  completo: 365, // 1 year
+};
+
 export function useTrialStatus() {
   const { user } = useAuth();
   const [status, setStatus] = useState<TrialStatus>({
@@ -34,7 +42,7 @@ export function useTrialStatus() {
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("plan, trial_start, trial_days")
+          .select("plan, trial_start, trial_days, updated_at")
           .eq("user_id", user.id)
           .single();
 
@@ -47,13 +55,18 @@ export function useTrialStatus() {
         const plan = profile?.plan || "trial";
         const trialStart = profile?.trial_start;
         const trialDays = profile?.trial_days || 3;
+        const updatedAt = profile?.updated_at;
 
-        // Calculate days remaining for trial
         let daysRemaining = 0;
         let isExpired = false;
         const isTrial = plan === "trial";
 
-        if (isTrial && trialStart) {
+        // Calculate days remaining based on plan type
+        if (plan === "expirado") {
+          isExpired = true;
+          daysRemaining = 0;
+        } else if (plan === "trial" && trialStart) {
+          // Trial uses trial_start date
           const startDate = new Date(trialStart);
           const now = new Date();
           const diffTime = now.getTime() - startDate.getTime();
@@ -62,18 +75,29 @@ export function useTrialStatus() {
           isExpired = daysRemaining <= 0;
 
           // Auto-expire if trial is over
-          if (isExpired && plan === "trial") {
+          if (isExpired) {
             await supabase
               .from("profiles")
               .update({ plan: "expirado" })
               .eq("user_id", user.id);
           }
-        }
+        } else if (PLAN_DURATIONS[plan] && updatedAt) {
+          // Paid plans use updated_at as plan start date + plan duration
+          const planStartDate = new Date(updatedAt);
+          const planDuration = PLAN_DURATIONS[plan];
+          const now = new Date();
+          const diffTime = now.getTime() - planStartDate.getTime();
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          daysRemaining = Math.max(0, planDuration - diffDays);
+          isExpired = daysRemaining <= 0;
 
-        // Check expiration for other plans
-        if (plan === "expirado") {
-          isExpired = true;
-          daysRemaining = 0;
+          // Auto-expire if plan is over
+          if (isExpired) {
+            await supabase
+              .from("profiles")
+              .update({ plan: "expirado" })
+              .eq("user_id", user.id);
+          }
         }
 
         setStatus({

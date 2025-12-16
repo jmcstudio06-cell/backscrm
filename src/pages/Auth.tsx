@@ -384,9 +384,9 @@ const Auth = () => {
                       />
                       <Label htmlFor="terms" className="text-sm text-slate-500 leading-relaxed">
                         Concordo com os{" "}
-                        <a href="#" className="text-[#0066CC] hover:underline">Termos de Uso</a>
+                        <a href="/termos" target="_blank" className="text-[#0066CC] hover:underline">Termos de Uso</a>
                         {" "}e{" "}
-                        <a href="#" className="text-[#0066CC] hover:underline">Política de Privacidade</a>
+                        <a href="/privacidade" target="_blank" className="text-[#0066CC] hover:underline">Política de Privacidade</a>
                       </Label>
                     </div>
                   </>

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useShows, Show } from "@/contexts/ShowsContext";
+import { AddTaskModal } from "@/components/checklist/AddTaskModal";
 
 interface ChecklistItem {
   id: string;
@@ -40,6 +41,7 @@ export default function Checklist() {
   const { getConfirmedShows } = useShows();
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [checklistItems, setChecklistItems] = useState<Record<string, ChecklistItem[]>>({});
+  const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
 
   const confirmedShows = getConfirmedShows();
   const selectedShow = confirmedShows.find(s => s.id === selectedShowId);
@@ -91,10 +93,7 @@ export default function Checklist() {
     toast.success("Tarefa atualizada!");
   };
 
-  const handleAddTask = async (showId: string) => {
-    const taskText = prompt("Digite o nome da nova tarefa:");
-    if (!taskText) return;
-
+  const handleAddTask = async (showId: string, taskText: string) => {
     const { data, error } = await supabase
       .from("show_checklist")
       .insert([{ show_id: showId, item: taskText, completed: false }])
@@ -191,7 +190,7 @@ export default function Checklist() {
         <div className="bg-card rounded-xl border border-border p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Tarefas</h3>
-            <Button size="sm" onClick={() => handleAddTask(selectedShow.id)}>
+            <Button size="sm" onClick={() => setAddTaskModalOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Nova Tarefa
             </Button>
@@ -238,6 +237,13 @@ export default function Checklist() {
             )}
           </div>
         </div>
+
+        {/* Add Task Modal */}
+        <AddTaskModal
+          open={addTaskModalOpen}
+          onOpenChange={setAddTaskModalOpen}
+          onAddTask={(taskName) => handleAddTask(selectedShow.id, taskName)}
+        />
       </Layout>
     );
   }
