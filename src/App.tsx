@@ -26,6 +26,8 @@ import Orcamentos from "./pages/Orcamentos";
 import Contratos from "./pages/Contratos";
 import Repertorio from "./pages/Repertorio";
 import Admin from "./pages/Admin";
+import Termos from "./pages/Termos";
+import Privacidade from "./pages/Privacidade";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +61,8 @@ const App = () => (
                 <Route path="/contratos" element={<Contratos />} />
                 <Route path="/repertorio" element={<Repertorio />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/termos" element={<Termos />} />
+                <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ShowsProvider>

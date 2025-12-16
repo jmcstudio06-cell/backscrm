@@ -238,48 +238,65 @@ const Dashboard = () => {
 
         {/* Goals & Upcoming Shows */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Goals */}
+          {/* Goals - Linear Progress Bars */}
           <div className="glass-card rounded-2xl p-6">
             <h3 className="text-lg font-semibold text-foreground mb-6">Metas do Mês</h3>
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <ProgressRing
-                  progress={getGoalProgress(monthlyRevenue, revenueGoal?.target_value || 0)}
-                  size={60}
-                  strokeWidth={6}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground">Receita</p>
-                  <p className="text-sm text-muted-foreground truncate">
+            <div className="space-y-5">
+              {/* Shows */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-foreground">Shows Realizados</span>
+                  <span className="text-sm font-bold text-foreground">
+                    {showsThisMonth} / {showsGoal?.target_value || 0}
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-3">
+                  <div
+                    className="h-3 rounded-full bg-slate-800 transition-all"
+                    style={{ width: `${getGoalProgress(showsThisMonth, showsGoal?.target_value || 0)}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {getGoalProgress(showsThisMonth, showsGoal?.target_value || 0)}% da meta atingida
+                </p>
+              </div>
+
+              {/* Revenue */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-foreground">Faturamento</span>
+                  <span className="text-sm font-bold text-foreground">
                     R$ {formatCurrency(monthlyRevenue)} / R$ {formatCurrency(revenueGoal?.target_value || 0)}
-                  </p>
+                  </span>
                 </div>
+                <div className="w-full bg-muted rounded-full h-3">
+                  <div
+                    className="h-3 rounded-full bg-slate-800 transition-all"
+                    style={{ width: `${getGoalProgress(monthlyRevenue, revenueGoal?.target_value || 0)}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {getGoalProgress(monthlyRevenue, revenueGoal?.target_value || 0)}% da meta atingida
+                </p>
               </div>
-              <div className="flex items-center gap-4">
-                <ProgressRing
-                  progress={getGoalProgress(showsThisMonth, showsGoal?.target_value || 0)}
-                  size={60}
-                  strokeWidth={6}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground">Shows</p>
-                  <p className="text-sm text-muted-foreground">
-                    {showsThisMonth} / {showsGoal?.target_value || 0} shows
-                  </p>
+
+              {/* Leads */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-foreground">Leads Fechados</span>
+                  <span className="text-sm font-bold text-foreground">
+                    {closedSales} / {leadsGoal?.target_value || 0}
+                  </span>
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <ProgressRing
-                  progress={getGoalProgress(leadsInCRM, leadsGoal?.target_value || 0)}
-                  size={60}
-                  strokeWidth={6}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground">Leads</p>
-                  <p className="text-sm text-muted-foreground">
-                    {leadsInCRM} / {leadsGoal?.target_value || 0} leads
-                  </p>
+                <div className="w-full bg-muted rounded-full h-3">
+                  <div
+                    className="h-3 rounded-full bg-slate-800 transition-all"
+                    style={{ width: `${getGoalProgress(closedSales, leadsGoal?.target_value || 0)}%` }}
+                  />
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {getGoalProgress(closedSales, leadsGoal?.target_value || 0)}% da meta atingida
+                </p>
               </div>
             </div>
           </div>
