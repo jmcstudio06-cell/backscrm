@@ -14,11 +14,13 @@ import {
   AlertCircle,
   Plus,
   ArrowLeft,
-  Trash2
+  Trash2,
+  FolderOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useShows, Show } from "@/contexts/ShowsContext";
 import { AddTaskModal } from "@/components/checklist/AddTaskModal";
+import { ChecklistTemplatesModal } from "@/components/checklist/ChecklistTemplatesModal";
 
 interface ChecklistItem {
   id: string;
@@ -42,6 +44,7 @@ export default function Checklist() {
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [checklistItems, setChecklistItems] = useState<Record<string, ChecklistItem[]>>({});
   const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
+  const [templatesModalOpen, setTemplatesModalOpen] = useState(false);
 
   const confirmedShows = getConfirmedShows();
   const selectedShow = confirmedShows.find(s => s.id === selectedShowId);
@@ -110,6 +113,14 @@ export default function Checklist() {
       [showId]: [...(prev[showId] || []), data]
     }));
     toast.success("Tarefa adicionada!");
+  };
+
+  const handleApplyTemplate = async (tasks: string[]) => {
+    if (!selectedShow) return;
+    
+    for (const task of tasks) {
+      await handleAddTask(selectedShow.id, task);
+    }
   };
 
   const handleDeleteTask = async (showId: string, taskId: string) => {
@@ -190,10 +201,16 @@ export default function Checklist() {
         <div className="bg-card rounded-xl border border-border p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Tarefas</h3>
-            <Button size="sm" onClick={() => setAddTaskModalOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Tarefa
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => setTemplatesModalOpen(true)}>
+                <FolderOpen className="w-4 h-4 mr-2" />
+                Checklist Pronta
+              </Button>
+              <Button size="sm" onClick={() => setAddTaskModalOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Tarefa
+              </Button>
+            </div>
           </div>
           
           <div className="space-y-3">
@@ -243,6 +260,13 @@ export default function Checklist() {
           open={addTaskModalOpen}
           onOpenChange={setAddTaskModalOpen}
           onAddTask={(taskName) => handleAddTask(selectedShow.id, taskName)}
+        />
+
+        {/* Templates Modal */}
+        <ChecklistTemplatesModal
+          open={templatesModalOpen}
+          onOpenChange={setTemplatesModalOpen}
+          onApplyTemplate={handleApplyTemplate}
         />
       </Layout>
     );

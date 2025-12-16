@@ -36,19 +36,31 @@ import { useClients, Client } from "@/hooks/useClients";
 import { ClientModal } from "@/components/clientes/ClientModal";
 import { ClientProfileModal } from "@/components/clientes/ClientProfileModal";
 
+type SortOption = "name" | "total_spent" | "shows_count";
+
 export default function Clientes() {
   const { clients, loading, addClient, updateClient, deleteClient } = useClients();
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>("name");
 
   const filteredClients = clients
     .filter(client => 
       client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (client.email || "").toLowerCase().includes(searchTerm.toLowerCase())
     )
-    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+    .sort((a, b) => {
+      if (sortBy === "name") {
+        return a.name.localeCompare(b.name, 'pt-BR');
+      } else if (sortBy === "total_spent") {
+        return (b.total_spent || 0) - (a.total_spent || 0);
+      } else if (sortBy === "shows_count") {
+        return (b.shows_count || 0) - (a.shows_count || 0);
+      }
+      return 0;
+    });
 
   const totalClients = clients.length;
   const totalRevenue = clients.reduce((sum, c) => sum + (c.total_spent || 0), 0);
@@ -155,10 +167,25 @@ export default function Clientes() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline">
-            <Filter className="w-4 h-4 mr-2" />
-            Filtros
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Filter className="w-4 h-4 mr-2" />
+                {sortBy === "name" ? "A-Z" : sortBy === "total_spent" ? "Maior Valor" : "Mais Shows"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => setSortBy("name")}>
+                Ordem Alfabética (A-Z)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("total_spent")}>
+                Maior Valor Gasto
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("shows_count")}>
+                Mais Shows
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Button className="bg-primary hover:bg-primary/90" onClick={handleAddClient}>
           <Plus className="w-4 h-4 mr-2" />
