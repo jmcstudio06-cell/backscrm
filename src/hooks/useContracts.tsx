@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { compactClauses } from "@/lib/textUtils";
 
 export interface ContractClause {
   id?: string;
@@ -203,7 +204,7 @@ export function useContracts() {
           total_value: contractData.total_value || 0,
           discount: contractData.discount || 0,
           payment_terms: contractData.payment_terms,
-          clauses: JSON.stringify(contractData.clauses || []),
+          clauses: JSON.stringify(compactClauses(contractData.clauses || [])),
           status: contractData.status || "draft",
           user_id: user.id,
         }])
@@ -253,7 +254,7 @@ export function useContracts() {
       if (contractData.total_value !== undefined) updateData.total_value = contractData.total_value;
       if (contractData.discount !== undefined) updateData.discount = contractData.discount;
       if (contractData.payment_terms !== undefined) updateData.payment_terms = contractData.payment_terms;
-      if (contractData.clauses !== undefined) updateData.clauses = JSON.stringify(contractData.clauses);
+      if (contractData.clauses !== undefined) updateData.clauses = JSON.stringify(compactClauses(contractData.clauses));
       if (contractData.status !== undefined) updateData.status = contractData.status;
       if (contractData.signed_at !== undefined) updateData.signed_at = contractData.signed_at;
 

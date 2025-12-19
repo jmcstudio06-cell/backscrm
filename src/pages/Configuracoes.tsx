@@ -10,6 +10,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { processImage, formatFileSize } from "@/lib/imageUtils";
 
 const planLabels: Record<string, string> = {
   trial: "Trial",
@@ -97,12 +98,24 @@ export default function Configuracoes() {
     setUploading(true);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${profile.id}_${Date.now()}.${fileExt}`;
+      // Processar e comprimir imagem (limite 500KB)
+      const result = await processImage(file);
+      
+      if (!result.valid || !result.file) {
+        toast.error(result.error || "Erro ao processar imagem");
+        setUploading(false);
+        return;
+      }
+
+      const processedFile = result.file;
+      const originalSize = formatFileSize(file.size);
+      const newSize = formatFileSize(processedFile.size);
+
+      const fileName = `${profile.id}_${Date.now()}.jpg`;
       const filePath = `${fileName}`;
 
       // Upload para Supabase Storage
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, processedFile, { upsert: true });
       if (uploadError) throw uploadError;
 
       // Pegar URL pública
@@ -111,7 +124,12 @@ export default function Configuracoes() {
 
       // Atualizar perfil com nova URL
       await updateProfile({ avatar_url: data.publicUrl });
-      toast.success("Foto atualizada com sucesso!");
+      
+      if (file.size !== processedFile.size) {
+        toast.success(`Foto otimizada: ${originalSize} → ${newSize}`);
+      } else {
+        toast.success("Foto atualizada com sucesso!");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Erro ao enviar foto");
