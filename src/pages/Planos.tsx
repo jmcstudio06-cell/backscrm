@@ -8,7 +8,7 @@ const plans = [
   {
     name: "Inicial",
     description: "Para quem está começando",
-    price: "R$ 39,90",
+    price: "R$ 29,90",
     installments: "apenas",
     period: "por mês",
     icon: Zap,
@@ -21,27 +21,24 @@ const plans = [
     features: [
       { name: "Dashboard", included: true },
       { name: "Agenda de Shows", included: true },
-      { name: "Funil de Vendas", included: true },
       { name: "Clientes", included: true },
-      { name: "Orçamento Automático", included: true },
-
+      { name: "Financeiro", included: true },
+      { name: "Funil de Vendas", included: false },
+      { name: "Orçamento Automático", included: false },
       { name: "Contrato Automático", included: false },
-      { name: "Resumo Financeiro do Mês", included: false },
       { name: "Checklist de Show", included: false },
       { name: "Equipe e Freelancers", included: false },
-      { name: "Metas", included: false },
       { name: "Suporte via WhatsApp", included: false },
-      { name: "Apoio de Conhecimentos", included: false },
-      { name: "Leads Qualificados para Contratação", included: false },
-      { name: "Histórico Mensal Financeiro", included: false },
+      { name: "Artes Editáveis (Canva)", included: false },
+      { name: "VS de Bônus", included: false },
     ],
   },
   {
     name: "Essencial",
     description: "Para profissionais",
-    price: "R$ 21,90",
-    installments: "6x de",
-    period: "por 6 meses",
+    price: "R$ 39,90",
+    installments: "apenas",
+    period: "por mês",
     icon: Star,
     highlight: "MAIS POPULAR",
     styles: {
@@ -52,27 +49,24 @@ const plans = [
     features: [
       { name: "Dashboard", included: true },
       { name: "Agenda de Shows", included: true },
-      { name: "Funil de Vendas", included: true },
       { name: "Clientes", included: true },
+      { name: "Financeiro Completo", included: true },
+      { name: "Funil de Vendas", included: true },
       { name: "Orçamento Automático", included: true },
-      { name: "Contrato Automático", included: true },
-      { name: "Resumo Financeiro do Mês", included: true },
+      { name: "Contrato Automático", included: false },
       { name: "Checklist de Show", included: true },
       { name: "Equipe e Freelancers", included: true },
-      { name: "Metas", included: true },
-
       { name: "Suporte via WhatsApp", included: false },
-      { name: "Apoio de Conhecimentos", included: false },
-      { name: "Leads Qualificados para Contratação", included: false },
-      { name: "Histórico Mensal Financeiro", included: false },
+      { name: "Artes Editáveis (Canva)", included: false },
+      { name: "VS de Bônus", included: false },
     ],
   },
   {
     name: "Completo",
-    description: "Melhor custo-benefício",
-    price: "R$ 15,90",
-    installments: "12x de",
-    period: "por 12 meses",
+    description: "Tudo liberado",
+    price: "R$ 49,90",
+    installments: "apenas",
+    period: "por mês",
     icon: Crown,
     highlight: "MELHOR CUSTO",
     styles: {
@@ -83,19 +77,16 @@ const plans = [
     features: [
       { name: "Dashboard", included: true },
       { name: "Agenda de Shows", included: true },
-      { name: "Funil de Vendas", included: true },
       { name: "Clientes", included: true },
+      { name: "Financeiro Completo", included: true },
+      { name: "Funil de Vendas", included: true },
       { name: "Orçamento Automático", included: true },
       { name: "Contrato Automático", included: true },
-      { name: "Resumo Financeiro do Mês", included: true },
       { name: "Checklist de Show", included: true },
       { name: "Equipe e Freelancers", included: true },
-      { name: "Metas", included: true },
       { name: "Suporte via WhatsApp", included: true },
-      { name: "Apoio de Conhecimentos", included: true },
-
-      { name: "Leads Qualificados para Contratação", included: false },
-      { name: "Histórico Mensal Financeiro", included: false },
+      { name: "Artes Editáveis (Canva)", included: true },
+      { name: "VS de Bônus", included: true },
     ],
   },
 ];
@@ -107,7 +98,6 @@ export default function Planos() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => {
             const Icon = plan.icon;
-
             return (
               <div key={plan.name} className={cn("relative rounded-3xl p-8 flex flex-col", plan.styles.card)}>
                 {plan.highlight && (
@@ -134,16 +124,13 @@ export default function Planos() {
                   >
                     <Icon className="w-7 h-7" />
                   </div>
-
                   <h3 className="text-xl font-bold">{plan.name}</h3>
                   <p className="text-sm text-muted-foreground">{plan.description}</p>
                 </div>
 
                 <div className="text-center mb-6">
                   <div className="text-xs text-muted-foreground mb-1">{plan.installments}</div>
-
                   <div className="text-4xl font-bold">{plan.price}</div>
-
                   <div className="text-sm text-muted-foreground">{plan.period}</div>
                 </div>
 
