@@ -67,6 +67,7 @@ const FEATURES = [
   { key: "equipe", label: "Equipe" },
   { key: "metas", label: "Metas" },
   { key: "aulas", label: "Aulas" },
+  { key: "tutoriais", label: "Tutoriais" },
   { key: "configuracoes", label: "Configurações" },
   { key: "orcamentos", label: "Orçamentos" },
   { key: "contratos", label: "Contratos" },

@@ -869,6 +869,48 @@ export type Database = {
           },
         ]
       }
+      tutorials: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          id: string
+          thumbnail: string | null
+          title: string
+          type: string | null
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          thumbnail?: string | null
+          title: string
+          type?: string | null
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          thumbnail?: string | null
+          title?: string
+          type?: string | null
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_feature_blocks: {
         Row: {
           blocked: boolean
