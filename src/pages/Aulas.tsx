@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useContents } from "@/hooks/useContents";
 import { ContentModal } from "@/components/aulas/ContentModal";
+import { VideoPlayerModal } from "@/components/aulas/VideoPlayerModal";
 import { useAdmin } from "@/hooks/useAdmin";
 
 const categories = [
@@ -28,11 +29,32 @@ const categories = [
   { id: "outra", name: "OUTRA" },
 ];
 
+// Extrai o ID do vídeo do YouTube e retorna a URL da thumbnail
+function getYouTubeThumbnail(url: string | null): string | null {
+  if (!url) return null;
+  
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+    }
+  }
+  
+  return null;
+}
+
 export default function Aulas() {
   const { contents, loading, addContent, deleteContent } = useContents();
   const { isAdmin } = useAdmin();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
+  const [videoPlayerOpen, setVideoPlayerOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<{ url: string | null; title: string } | null>(null);
 
   const handleSaveContent = async (data: {
     title: string;
@@ -54,6 +76,17 @@ export default function Aulas() {
     if (url) {
       window.open(url, "_blank");
     }
+  };
+
+  const handlePlayVideo = (url: string | null, title: string) => {
+    setSelectedVideo({ url, title });
+    setVideoPlayerOpen(true);
+  };
+
+  // Retorna a thumbnail: primeiro tenta a custom, depois extrai do YouTube
+  const getThumbnail = (customThumbnail: string | null, videoUrl: string | null): string | null => {
+    if (customThumbnail) return customThumbnail;
+    return getYouTubeThumbnail(videoUrl);
   };
 
   const filteredContents = selectedCategory === "all" 
@@ -149,48 +182,71 @@ export default function Aulas() {
             <h2 className="text-lg font-semibold text-foreground">Em Destaque</h2>
           </div>
 
-          {featuredContents.map((item) => (
-            <div 
-              key={item.id}
-              className="bg-card rounded-xl border border-border overflow-hidden mb-4"
-            >
-              <div className="bg-orange-500 text-white px-4 py-2 text-sm font-medium flex items-center gap-2">
-                <Star className="w-4 h-4" />
-                EM DESTAQUE
-              </div>
-              <div className="p-4 flex items-center justify-between">
-                <div 
-                  className="flex items-center gap-3 flex-1 cursor-pointer"
-                  onClick={() => handleOpenLink(item.url)}
-                >
-                  <div className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center",
-                    item.type === "video" ? "bg-red-100" : "bg-primary/10"
-                  )}>
-                    {item.type === "video" ? (
-                      <Play className="w-5 h-5 text-red-500" />
-                    ) : (
-                      <ExternalLink className="w-5 h-5 text-primary" />
+          {featuredContents.map((item) => {
+            const thumbnail = getThumbnail(item.thumbnail, item.url);
+            
+            return (
+              <div 
+                key={item.id}
+                className="bg-card rounded-xl border border-border overflow-hidden mb-4"
+              >
+                <div className="bg-orange-500 text-white px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  EM DESTAQUE
+                </div>
+                <div className="flex flex-col md:flex-row">
+                  {item.type === "video" && thumbnail && (
+                    <div 
+                      className="relative w-full md:w-64 aspect-video md:aspect-auto md:h-32 cursor-pointer group shrink-0"
+                      onClick={() => handlePlayVideo(item.url, item.title)}
+                    >
+                      <img 
+                        src={thumbnail} 
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center">
+                          <Play className="w-6 h-6 text-white ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-4 flex items-center justify-between flex-1">
+                    <div 
+                      className="flex items-center gap-3 flex-1 cursor-pointer"
+                      onClick={() => item.type === "video" ? handlePlayVideo(item.url, item.title) : handleOpenLink(item.url)}
+                    >
+                      <div className={cn(
+                        "w-10 h-10 rounded-lg flex items-center justify-center",
+                        item.type === "video" ? "bg-red-100" : "bg-primary/10"
+                      )}>
+                        {item.type === "video" ? (
+                          <Play className="w-5 h-5 text-red-500" />
+                        ) : (
+                          <ExternalLink className="w-5 h-5 text-primary" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.category.toUpperCase()}</p>
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteContent(item.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     )}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.category.toUpperCase()}</p>
-                  </div>
                 </div>
-                {isAdmin && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => handleDeleteContent(item.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -242,50 +298,54 @@ export default function Aulas() {
       {/* Video Content */}
       {videoContents.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {videoContents.map((video) => (
-            <div 
-              key={video.id}
-              className="bg-card rounded-xl border border-border overflow-hidden group"
-            >
+          {videoContents.map((video) => {
+            const thumbnail = getThumbnail(video.thumbnail, video.url);
+            
+            return (
               <div 
-                className="relative aspect-video cursor-pointer"
-                onClick={() => handleOpenLink(video.url)}
+                key={video.id}
+                className="bg-card rounded-xl border border-border overflow-hidden group"
               >
-                {video.thumbnail ? (
-                  <img 
-                    src={video.thumbnail} 
-                    alt={video.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <Play className="w-12 h-12 text-muted-foreground" />
+                <div 
+                  className="relative aspect-video cursor-pointer"
+                  onClick={() => handlePlayVideo(video.url, video.title)}
+                >
+                  {thumbnail ? (
+                    <img 
+                      src={thumbnail} 
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <Play className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center">
+                      <Play className="w-8 h-8 text-white ml-1" />
+                    </div>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center">
-                    <Play className="w-8 h-8 text-white ml-1" />
-                  </div>
+                  <Badge className="absolute top-2 right-2 bg-black/70 text-white">
+                    {video.category.toUpperCase()}
+                  </Badge>
                 </div>
-                <Badge className="absolute top-2 right-2 bg-black/70 text-white">
-                  {video.category.toUpperCase()}
-                </Badge>
+                <div className="p-4 flex items-center justify-between">
+                  <h3 className="font-semibold text-foreground line-clamp-2 flex-1">{video.title}</h3>
+                  {isAdmin && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0 ml-2"
+                      onClick={() => handleDeleteContent(video.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div className="p-4 flex items-center justify-between">
-                <h3 className="font-semibold text-foreground line-clamp-2 flex-1">{video.title}</h3>
-                {isAdmin && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0 ml-2"
-                    onClick={() => handleDeleteContent(video.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -293,6 +353,13 @@ export default function Aulas() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         onSave={handleSaveContent}
+      />
+
+      <VideoPlayerModal
+        open={videoPlayerOpen}
+        onOpenChange={setVideoPlayerOpen}
+        videoUrl={selectedVideo?.url || null}
+        title={selectedVideo?.title || ""}
       />
     </Layout>
   );
