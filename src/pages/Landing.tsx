@@ -353,28 +353,26 @@ const Landing = () => {
 
           {/* Video Testimonial - Victor Viola */}
           <div className="max-w-xs mx-auto mb-12">
-            <Card className="bg-white rounded-2xl overflow-hidden shadow-2xl">
-              <CardContent className="p-0">
-                <div className="aspect-[9/16] max-h-[400px]">
-                  <iframe
-                    src={getYouTubeEmbedUrl(victorViolaVideoUrl)?.replace('?autoplay=1', '') || ''}
-                    title="Depoimento Victor Viola"
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+            <div className="rounded-2xl overflow-hidden shadow-2xl bg-white">
+              <div className="aspect-[9/16] bg-black">
+                <iframe
+                  src={getYouTubeEmbedUrl(victorViolaVideoUrl)?.replace('?autoplay=1', '') || ''}
+                  title="Depoimento Victor Viola"
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="p-4 text-center">
+                <div className="flex items-center justify-center gap-1 mb-2">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
-                <div className="p-4 bg-white text-center">
-                  <div className="flex items-center justify-center gap-1 mb-2">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <div className="text-slate-800 font-semibold">Victor Viola</div>
-                  <div className="text-[#0066CC] text-sm">Usuário do Backstage Pro</div>
-                </div>
-              </CardContent>
-            </Card>
+                <div className="text-slate-800 font-semibold">Victor Viola</div>
+                <div className="text-[#0066CC] text-sm">Usuário do Backstage Pro</div>
+              </div>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
