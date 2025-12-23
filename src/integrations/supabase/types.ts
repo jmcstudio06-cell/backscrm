@@ -607,6 +607,7 @@ export type Database = {
           email: string | null
           id: string
           name: string | null
+          onboarding_completed: boolean | null
           phone: string | null
           plan: string | null
           trial_days: number | null
@@ -621,6 +622,7 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           plan?: string | null
           trial_days?: number | null
@@ -635,6 +637,7 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           plan?: string | null
           trial_days?: number | null
