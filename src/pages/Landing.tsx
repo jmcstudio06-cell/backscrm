@@ -186,7 +186,7 @@ const Landing = () => {
               ))}
               <span className="ml-1">4.9/5 de avaliação</span>
             </div>
-            <span><span className="text-cyan-300 font-semibold">3 dias</span> grátis para testar</span>
+            
           </div>
         </div>
 
