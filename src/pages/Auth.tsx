@@ -267,7 +267,7 @@ const Auth = () => {
 
             <div className="flex items-center gap-2 text-sm text-white/70">
               <Users className="h-4 w-4" />
-              <span>+500 artistas já estão usando</span>
+              <span>+100 artistas já estão usando</span>
             </div>
           </div>
 
