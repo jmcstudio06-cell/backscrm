@@ -40,16 +40,3 @@ export function SafeImage({
     />
   );
 }
-
-    <img
-      {...imgProps}
-      src={candidates[index]}
-      loading={loading ?? "lazy"}
-      decoding={decoding ?? "async"}
-      onError={(e) => {
-        setIndex((i) => (i + 1 >= candidates.length ? candidates.length : i + 1));
-        onError?.(e);
-      }}
-    />
-  );
-}
