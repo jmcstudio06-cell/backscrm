@@ -15,6 +15,8 @@ import { useContents } from "@/hooks/useContents";
 import { ContentModal } from "@/components/aulas/ContentModal";
 import { VideoPlayerModal } from "@/components/aulas/VideoPlayerModal";
 import { useAdmin } from "@/hooks/useAdmin";
+import { SafeImage } from "@/components/media/SafeImage";
+import { getYouTubeThumbnailCandidates, normalizeUrl } from "@/lib/youtube";
 
 const categories = [
   { id: "all", name: "Todas" },
@@ -29,23 +31,10 @@ const categories = [
   { id: "outra", name: "OUTRA" },
 ];
 
-// Extrai o ID do vídeo do YouTube e retorna a URL da thumbnail
-function getYouTubeThumbnail(url: string | null): string | null {
-  if (!url) return null;
-  
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /youtube\.com\/shorts\/([^&\n?#]+)/,
-  ];
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match && match[1]) {
-      return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
-    }
-  }
-  
-  return null;
+function getThumbnailCandidates(customThumbnail: string | null, videoUrl: string | null): string[] {
+  const custom = normalizeUrl(customThumbnail);
+  const youtube = getYouTubeThumbnailCandidates(videoUrl);
+  return [custom, ...youtube].filter(Boolean) as string[];
 }
 
 export default function Aulas() {
@@ -83,11 +72,6 @@ export default function Aulas() {
     setVideoPlayerOpen(true);
   };
 
-  // Retorna a thumbnail: primeiro tenta a custom, depois extrai do YouTube
-  const getThumbnail = (customThumbnail: string | null, videoUrl: string | null): string | null => {
-    if (customThumbnail) return customThumbnail;
-    return getYouTubeThumbnail(videoUrl);
-  };
 
   const filteredContents = selectedCategory === "all" 
     ? contents 
@@ -183,10 +167,10 @@ export default function Aulas() {
           </div>
 
           {featuredContents.map((item) => {
-            const thumbnail = getThumbnail(item.thumbnail, item.url);
-            
+            const thumbnailCandidates = getThumbnailCandidates(item.thumbnail, item.url);
+
             return (
-              <div 
+              <div
                 key={item.id}
                 className="bg-card rounded-xl border border-border overflow-hidden mb-4"
               >
@@ -195,15 +179,20 @@ export default function Aulas() {
                   EM DESTAQUE
                 </div>
                 <div className="flex flex-col md:flex-row">
-                  {item.type === "video" && thumbnail && (
-                    <div 
+                  {item.type === "video" && (
+                    <div
                       className="relative w-full md:w-64 aspect-video md:aspect-auto md:h-32 cursor-pointer group shrink-0"
                       onClick={() => handlePlayVideo(item.url, item.title)}
                     >
-                      <img 
-                        src={thumbnail} 
+                      <SafeImage
+                        srcCandidates={thumbnailCandidates}
                         alt={item.title}
                         className="w-full h-full object-cover"
+                        fallback={
+                          <div className="w-full h-full bg-muted flex items-center justify-center">
+                            <Play className="w-12 h-12 text-muted-foreground" />
+                          </div>
+                        }
                       />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center">
@@ -213,14 +202,20 @@ export default function Aulas() {
                     </div>
                   )}
                   <div className="p-4 flex items-center justify-between flex-1">
-                    <div 
+                    <div
                       className="flex items-center gap-3 flex-1 cursor-pointer"
-                      onClick={() => item.type === "video" ? handlePlayVideo(item.url, item.title) : handleOpenLink(item.url)}
+                      onClick={() =>
+                        item.type === "video"
+                          ? handlePlayVideo(item.url, item.title)
+                          : handleOpenLink(item.url)
+                      }
                     >
-                      <div className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center",
-                        item.type === "video" ? "bg-red-100" : "bg-primary/10"
-                      )}>
+                      <div
+                        className={cn(
+                          "w-10 h-10 rounded-lg flex items-center justify-center",
+                          item.type === "video" ? "bg-red-100" : "bg-primary/10"
+                        )}
+                      >
                         {item.type === "video" ? (
                           <Play className="w-5 h-5 text-red-500" />
                         ) : (
@@ -229,13 +224,15 @@ export default function Aulas() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.category.toUpperCase()}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {item.category.toUpperCase()}
+                        </p>
                       </div>
                     </div>
                     {isAdmin && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => handleDeleteContent(item.id)}
                       >
@@ -299,28 +296,27 @@ export default function Aulas() {
       {videoContents.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {videoContents.map((video) => {
-            const thumbnail = getThumbnail(video.thumbnail, video.url);
-            
+            const thumbnailCandidates = getThumbnailCandidates(video.thumbnail, video.url);
+
             return (
-              <div 
+              <div
                 key={video.id}
                 className="bg-card rounded-xl border border-border overflow-hidden group"
               >
-                <div 
+                <div
                   className="relative aspect-video cursor-pointer"
                   onClick={() => handlePlayVideo(video.url, video.title)}
                 >
-                  {thumbnail ? (
-                    <img 
-                      src={thumbnail} 
-                      alt={video.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <Play className="w-12 h-12 text-muted-foreground" />
-                    </div>
-                  )}
+                  <SafeImage
+                    srcCandidates={thumbnailCandidates}
+                    alt={video.title}
+                    className="w-full h-full object-cover"
+                    fallback={
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <Play className="w-12 h-12 text-muted-foreground" />
+                      </div>
+                    }
+                  />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center">
                       <Play className="w-8 h-8 text-white ml-1" />
@@ -331,11 +327,13 @@ export default function Aulas() {
                   </Badge>
                 </div>
                 <div className="p-4 flex items-center justify-between">
-                  <h3 className="font-semibold text-foreground line-clamp-2 flex-1">{video.title}</h3>
+                  <h3 className="font-semibold text-foreground line-clamp-2 flex-1">
+                    {video.title}
+                  </h3>
                   {isAdmin && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0 ml-2"
                       onClick={() => handleDeleteContent(video.id)}
                     >
