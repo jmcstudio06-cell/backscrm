@@ -3,13 +3,16 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { ProgressRing } from "@/components/dashboard/ProgressRing";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
+import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { Users, TrendingUp, DollarSign, Target, Clock } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
 import { useShows } from "@/contexts/ShowsContext";
-import { useMemo } from "react";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
+import { useMemo, useState, useEffect } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, getDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -18,6 +21,27 @@ const Dashboard = () => {
   const { transactions } = useTransactions();
   const { goals } = useGoals();
   const { shows } = useShows();
+  const { profile } = useProfile();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Check if user should see onboarding
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("user_id", user.id)
+          .single();
+
+        if (profileData && !profileData.onboarding_completed) {
+          setShowWelcome(true);
+        }
+      }
+    };
+    checkOnboarding();
+  }, []);
 
   // Calculate leads in CRM (only new, proposal, closed, not_closed - NOT repeat or never)
   const leadsInCRM = useMemo(() => {
@@ -167,6 +191,13 @@ const Dashboard = () => {
 
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
+      {/* Welcome/Onboarding Modal */}
+      <WelcomeModal 
+        open={showWelcome} 
+        onClose={() => setShowWelcome(false)}
+        userName={profile?.name || undefined}
+      />
+
       <div className="space-y-6">
         {/* Trial Countdown Card */}
         <TrialCountdownCard />

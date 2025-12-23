@@ -16,7 +16,8 @@ import {
   Eye,
   EyeOff,
   Sparkles,
-  ArrowLeft
+  ArrowLeft,
+  Phone
 } from "lucide-react";
 
 const Auth = () => {
@@ -29,6 +30,7 @@ const Auth = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     acceptTerms: false,
@@ -65,6 +67,29 @@ const Auth = () => {
         variant: "destructive",
       });
       return;
+    }
+
+    // Validate phone for registration
+    if (!isLogin && !formData.phone) {
+      toast({
+        title: "Erro",
+        description: "Por favor, informe seu WhatsApp.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate phone format (Brazilian)
+    if (!isLogin && formData.phone) {
+      const phoneDigits = formData.phone.replace(/\D/g, '');
+      if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+        toast({
+          title: "Erro",
+          description: "Informe um número de WhatsApp válido com DDD.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
@@ -124,6 +149,7 @@ const Auth = () => {
             emailRedirectTo: redirectUrl,
             data: {
               name: formData.name,
+              phone: formData.phone.replace(/\D/g, ''),
             },
           },
         });
@@ -316,17 +342,51 @@ const Auth = () => {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-slate-700">Nome completo</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Seu nome artístico"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20"
-                    />
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-slate-700">Nome completo *</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Seu nome artístico"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-slate-700">
+                        <span className="flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
+                          WhatsApp *
+                        </span>
+                      </Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="(00) 00000-0000"
+                        value={formData.phone}
+                        onChange={(e) => {
+                          // Format phone number
+                          let value = e.target.value.replace(/\D/g, '');
+                          if (value.length <= 11) {
+                            if (value.length > 2) {
+                              value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                            }
+                            if (value.length > 10) {
+                              value = value.slice(0, 10) + '-' + value.slice(10);
+                            }
+                          }
+                          setFormData({ ...formData, phone: value });
+                        }}
+                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20"
+                        required
+                      />
+                      <p className="text-xs text-slate-400">Usaremos para contato e suporte</p>
+                    </div>
+                  </>
                 )}
 
                 <div className="space-y-2">
