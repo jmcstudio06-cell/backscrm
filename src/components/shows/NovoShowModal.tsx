@@ -43,12 +43,14 @@ import {
   ChevronUp,
   UserPlus,
   Building2,
+  Calculator,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
 import { useClients, Client } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
+import TransportCalculatorModal from "@/components/calculadora/TransportCalculatorModal";
 
 interface EditingShow {
   id: string;
@@ -144,6 +146,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
   const [showTeamSelector, setShowTeamSelector] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [clientMode, setClientMode] = useState<"existing" | "new">("existing");
+  const [showTransportCalculator, setShowTransportCalculator] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   
   const [formData, setFormData] = useState({
@@ -771,6 +774,19 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
               </div>
             </Collapsible>
 
+            {/* Transport Calculator Button */}
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTransportCalculator(true)}
+                className="gap-2"
+              >
+                <Calculator className="w-4 h-4" />
+                Calcular Combustível
+              </Button>
+            </div>
+
             {/* Add Other Expense */}
             <div className="p-4 rounded-xl bg-secondary/50">
               <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -1001,6 +1017,22 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Transport Calculator Modal */}
+        <TransportCalculatorModal
+          open={showTransportCalculator}
+          onOpenChange={setShowTransportCalculator}
+          onUseValue={(value) => {
+            const expense: Expense = {
+              id: crypto.randomUUID(),
+              description: "Combustível (calculado)",
+              category: "transporte",
+              value: value,
+            };
+            setExpenses([...expenses, expense]);
+            toast.success("Despesa de transporte adicionada");
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
