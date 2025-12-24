@@ -27,7 +27,9 @@ import {
   Mic2,
   Key,
   Loader2,
+  TrendingUp,
 } from "lucide-react";
+import { AdminInsights } from "@/components/admin/AdminInsights";
 import { Progress } from "@/components/ui/progress";
 
 interface UserProfile {
@@ -35,10 +37,12 @@ interface UserProfile {
   user_id: string;
   name: string | null;
   email: string | null;
+  phone: string | null;
   plan: string | null;
   trial_start: string | null;
   trial_days: number | null;
   created_at: string;
+  last_seen: string | null;
 }
 
 interface FeatureBlock {
@@ -593,8 +597,9 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="users">Usuários</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
           <TabsTrigger value="trial">Config. Trial</TabsTrigger>
         </TabsList>
@@ -635,8 +640,28 @@ export default function Admin() {
                     <div>
                       <CardTitle className="text-lg">{userProfile.name || "Sem nome"}</CardTitle>
                       <CardDescription>{userProfile.email}</CardDescription>
+                      {userProfile.phone && (
+                        <p className="text-xs text-green-600 font-medium mt-1">
+                          📱 {userProfile.phone}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground mt-1">
                         Criado em: {new Date(userProfile.created_at).toLocaleDateString("pt-BR")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Último acesso: {userProfile.last_seen 
+                          ? (() => {
+                              const lastSeen = new Date(userProfile.last_seen);
+                              const now = new Date();
+                              const diffMs = now.getTime() - lastSeen.getTime();
+                              const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                              const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                              if (diffDays > 0) return `${diffDays} dia(s) atrás`;
+                              if (diffHours > 0) return `${diffHours} hora(s) atrás`;
+                              return "Agora";
+                            })()
+                          : "Nunca"
+                        }
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -844,6 +869,24 @@ export default function Admin() {
               </Card>
             )}
           </div>
+        </TabsContent>
+
+        {/* Insights Tab */}
+        <TabsContent value="insights">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Insights da Landing Page
+              </CardTitle>
+              <CardDescription>
+                Métricas de conversão da página /landing
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminInsights />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Personalization Tab */}

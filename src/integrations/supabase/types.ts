@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      annual_goals: {
+        Row: {
+          category: string
+          completed: boolean | null
+          created_at: string
+          current_value: number | null
+          description: string | null
+          id: string
+          target_value: number
+          title: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          category?: string
+          completed?: boolean | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          id?: string
+          target_value?: number
+          title: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          category?: string
+          completed?: boolean | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          id?: string
+          target_value?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           created_at: string
@@ -435,6 +477,39 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_page_visits: {
+        Row: {
+          converted: boolean | null
+          converted_at: string | null
+          created_at: string
+          id: string
+          page_path: string
+          referrer: string | null
+          user_agent: string | null
+          visitor_id: string
+        }
+        Insert: {
+          converted?: boolean | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          visitor_id: string
+        }
+        Update: {
+          converted?: boolean | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       lead_history: {
         Row: {
           changed_at: string
@@ -606,6 +681,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          last_seen: string | null
           name: string | null
           onboarding_completed: boolean | null
           phone: string | null
@@ -621,6 +697,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_seen?: string | null
           name?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
@@ -636,6 +713,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_seen?: string | null
           name?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
