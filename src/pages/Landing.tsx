@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { trackLandingVisit } from "@/hooks/useLandingInsights";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   ArrowRight, 
@@ -21,6 +23,11 @@ import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
 const Landing = () => {
   const navigate = useNavigate();
+
+  // Track landing page visit
+  useEffect(() => {
+    trackLandingVisit();
+  }, []);
 
   const features = [
     {

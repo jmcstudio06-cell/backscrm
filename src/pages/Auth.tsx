@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
+import { markConversion } from "@/hooks/useLandingInsights";
 import { 
   Calendar, 
   Users, 
@@ -160,6 +161,9 @@ const Auth = () => {
           }
           throw error;
         }
+
+        // Mark conversion for landing page tracking
+        await markConversion();
 
         toast({
           title: "Conta criada!",
