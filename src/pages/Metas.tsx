@@ -26,13 +26,20 @@ import {
   TrendingUp,
   Sparkles,
   Calendar,
+  Star,
+  Radio,
+  Tv,
+  Award,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGoals, Goal } from "@/hooks/useGoals";
+import { useAnnualGoals, AnnualGoal } from "@/hooks/useAnnualGoals";
 import { useShowsData } from "@/hooks/useShows";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
 import { GoalModal } from "@/components/metas/GoalModal";
+import { AnnualGoalModal } from "@/components/metas/AnnualGoalModal";
 
 const iconMap: Record<string, React.ElementType> = {
   revenue: DollarSign,
@@ -64,6 +71,22 @@ const goalTypes = [
   { value: "shows", label: "Meta de Shows", icon: Mic2 },
 ];
 
+const annualCategoryIcons: Record<string, React.ElementType> = {
+  marketing: Megaphone,
+  midia: Tv,
+  parcerias: Users,
+  crescimento: TrendingUp,
+  pessoal: Star,
+};
+
+const annualCategoryColors: Record<string, string> = {
+  marketing: "from-pink-500 to-rose-500",
+  midia: "from-cyan-500 to-blue-500",
+  parcerias: "from-amber-500 to-orange-500",
+  crescimento: "from-green-500 to-emerald-500",
+  pessoal: "from-purple-500 to-indigo-500",
+};
+
 const monthNames = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -71,12 +94,22 @@ const monthNames = [
 
 export default function Metas() {
   const { goals, loading, addGoal, updateGoal, deleteGoal } = useGoals();
+  const { 
+    goals: annualGoals, 
+    loading: annualLoading, 
+    addGoal: addAnnualGoal, 
+    updateGoal: updateAnnualGoal, 
+    deleteGoal: deleteAnnualGoal,
+    incrementGoal: incrementAnnualGoal 
+  } = useAnnualGoals();
   const { shows } = useShowsData();
   const { leads } = useLeads();
   const { transactions } = useTransactions();
   
   const [modalOpen, setModalOpen] = useState(false);
+  const [annualModalOpen, setAnnualModalOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [selectedAnnualGoal, setSelectedAnnualGoal] = useState<AnnualGoal | null>(null);
   const [newGoalType, setNewGoalType] = useState<{ type: string; label: string } | null>(null);
 
   const calculateCurrentValue = (goal: Goal): number => {
@@ -165,9 +198,29 @@ export default function Metas() {
     setNewGoalType(null);
   };
 
+  // Annual goals handlers
+  const handleCreateAnnualGoal = () => {
+    setSelectedAnnualGoal(null);
+    setAnnualModalOpen(true);
+  };
+
+  const handleConfigureAnnualGoal = (goal: AnnualGoal) => {
+    setSelectedAnnualGoal(goal);
+    setAnnualModalOpen(true);
+  };
+
+  const handleSaveAnnualGoal = async (id: string, updates: Partial<AnnualGoal>) => {
+    if (!id) {
+      await addAnnualGoal(updates);
+    } else {
+      await updateAnnualGoal(id, updates);
+    }
+  };
+
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   const monthlyGoals = goalsWithCurrentValues.filter(g => g.month === currentMonth && g.year === currentYear);
+  const yearlyAnnualGoals = annualGoals.filter(g => g.year === currentYear);
 
   const overallProgress = monthlyGoals.length > 0
     ? Math.round(
@@ -182,7 +235,18 @@ export default function Metas() {
     g.target_value > 0 && ((g.current_value || 0) / g.target_value) >= 1
   ).length;
 
-  if (loading) {
+  const annualOverallProgress = yearlyAnnualGoals.length > 0
+    ? Math.round(
+        yearlyAnnualGoals.reduce((sum, g) => {
+          const progress = g.target_value > 0 ? (g.current_value / g.target_value) * 100 : 0;
+          return sum + Math.min(progress, 100);
+        }, 0) / yearlyAnnualGoals.length
+      )
+    : 0;
+
+  const completedAnnualGoals = yearlyAnnualGoals.filter(g => g.completed).length;
+
+  if (loading || annualLoading) {
     return (
       <Layout title="Definir Metas" subtitle="Acompanhe e defina seus objetivos">
         <div className="flex items-center justify-center h-64">
@@ -204,49 +268,54 @@ export default function Metas() {
 
   return (
     <Layout title="Definir Metas" subtitle="Acompanhe e defina seus objetivos">
-      <Tabs defaultValue="monthly" className="space-y-8">
+      <Tabs defaultValue="comercial" className="space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <TabsList className="bg-card border border-border shadow-sm">
-            <TabsTrigger value="monthly" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Calendar className="w-4 h-4 mr-2" />
-              Metas do Mês
-            </TabsTrigger>
-            <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="comercial" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Target className="w-4 h-4 mr-2" />
+              Metas Comerciais
+            </TabsTrigger>
+            <TabsTrigger value="anuais" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Star className="w-4 h-4 mr-2" />
+              Metas Anuais
+            </TabsTrigger>
+            <TabsTrigger value="historico" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Clock className="w-4 h-4 mr-2" />
               Histórico
             </TabsTrigger>
           </TabsList>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25">
-                <Plus className="w-4 h-4 mr-2" />
-                Nova Meta
-                <ChevronDown className="w-4 h-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              {goalTypes.map((type) => (
-                <DropdownMenuItem
-                  key={type.value}
-                  onClick={() => handleCreateGoal(type.value, type.label)}
-                  className="cursor-pointer py-3"
-                >
-                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center mr-3", bgColorMap[type.value])}>
-                    <type.icon className={cn("w-4 h-4", textColorMap[type.value])} />
-                  </div>
-                  {type.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
 
-        {/* Monthly Goals Tab */}
-        <TabsContent value="monthly" className="space-y-8 mt-0">
+        {/* Commercial Goals Tab */}
+        <TabsContent value="comercial" className="space-y-8 mt-0">
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nova Meta Comercial
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                {goalTypes.map((type) => (
+                  <DropdownMenuItem
+                    key={type.value}
+                    onClick={() => handleCreateGoal(type.value, type.label)}
+                    className="cursor-pointer py-3"
+                  >
+                    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center mr-3", bgColorMap[type.value])}>
+                      <type.icon className={cn("w-4 h-4", textColorMap[type.value])} />
+                    </div>
+                    {type.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Progress Ring Card */}
             <Card className="glass border-border/50 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
               <CardContent className="p-6 relative">
@@ -267,7 +336,6 @@ export default function Metas() {
               </CardContent>
             </Card>
 
-            {/* Stats Cards */}
             <Card className="glass border-border/50 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent" />
               <CardContent className="p-6 relative flex flex-col justify-center h-full">
@@ -308,7 +376,7 @@ export default function Metas() {
                     <Target className="w-10 h-10 text-primary/50" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Nenhuma meta para este mês
+                    Nenhuma meta comercial para este mês
                   </h3>
                   <p className="text-muted-foreground max-w-md mb-6">
                     Defina suas metas mensais para acompanhar seu progresso e alcançar seus objetivos
@@ -440,13 +508,185 @@ export default function Metas() {
           )}
         </TabsContent>
 
-        {/* All Goals Tab */}
-        <TabsContent value="all" className="space-y-6 mt-0">
+        {/* Annual Goals Tab */}
+        <TabsContent value="anuais" className="space-y-8 mt-0">
+          <div className="flex justify-end">
+            <Button 
+              onClick={handleCreateAnnualGoal}
+              className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-lg shadow-pink-500/25"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nova Meta Anual
+            </Button>
+          </div>
+
+          {/* Annual Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="glass border-border/50 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent" />
+              <CardContent className="p-6 relative">
+                <div className="flex flex-col items-center">
+                  <div className="relative">
+                    <ProgressRing progress={annualOverallProgress} size={140} strokeWidth={10} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Star className="w-8 h-8 text-pink-500/30" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mt-4">
+                    Progresso Anual
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {currentYear}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-border/50 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent" />
+              <CardContent className="p-6 relative flex flex-col justify-center h-full">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                    <Megaphone className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">{yearlyAnnualGoals.length}</p>
+                    <p className="text-sm text-muted-foreground">Metas de Marketing</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-border/50 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent" />
+              <CardContent className="p-6 relative flex flex-col justify-center h-full">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+                    <Award className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">{completedAnnualGoals}</p>
+                    <p className="text-sm text-muted-foreground">Conquistas</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Annual Goals Grid */}
+          {yearlyAnnualGoals.length === 0 ? (
+            <Card className="glass border-border/50 border-dashed">
+              <CardContent className="py-16">
+                <div className="flex flex-col items-center justify-center text-center">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-500/10 to-rose-500/5 flex items-center justify-center mb-6">
+                    <Star className="w-10 h-10 text-pink-500/50" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    Nenhuma meta anual cadastrada
+                  </h3>
+                  <p className="text-muted-foreground max-w-md mb-6">
+                    Crie metas de marketing e visibilidade para o ano! Ex: Tocar na rádio, aparecer na TV, parcerias...
+                  </p>
+                  <Button 
+                    onClick={handleCreateAnnualGoal}
+                    className="bg-gradient-to-r from-pink-500 to-rose-500"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar Primeira Meta Anual
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {yearlyAnnualGoals.map((goal) => {
+                const progress = goal.target_value > 0 
+                  ? Math.round((goal.current_value / goal.target_value) * 100) 
+                  : 0;
+                const Icon = annualCategoryIcons[goal.category] || Star;
+                const gradientColor = annualCategoryColors[goal.category] || "from-pink-500 to-rose-500";
+
+                return (
+                  <Card 
+                    key={goal.id} 
+                    className={cn(
+                      "glass border-border/50 overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                      goal.completed && "ring-2 ring-emerald-500/20"
+                    )}
+                    onClick={() => handleConfigureAnnualGoal(goal)}
+                  >
+                    <div className={cn("h-1.5 bg-gradient-to-r", gradientColor)} />
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-lg",
+                            gradientColor
+                          )}>
+                            <Icon className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground">{goal.title}</h4>
+                            <Badge variant="outline" className="text-xs mt-1 capitalize">
+                              {goal.category}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+
+                      {goal.description && (
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                          {goal.description}
+                        </p>
+                      )}
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl font-bold text-foreground">{goal.current_value}</span>
+                            <span className="text-muted-foreground">/ {goal.target_value}</span>
+                          </div>
+                          {goal.completed ? (
+                            <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Concluída
+                            </Badge>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                incrementAnnualGoal(goal.id);
+                              }}
+                              className="h-8"
+                            >
+                              <Plus className="w-3 h-3 mr-1" />
+                              +1
+                            </Button>
+                          )}
+                        </div>
+
+                        <Progress 
+                          value={Math.min(progress, 100)} 
+                          className="h-2.5 bg-muted" 
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* History Tab */}
+        <TabsContent value="historico" className="space-y-6 mt-0">
           <Card className="glass border-border/50">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="w-5 h-5 text-primary" />
-                Histórico de Metas
+                Histórico de Metas Comerciais
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -520,6 +760,86 @@ export default function Metas() {
               )}
             </CardContent>
           </Card>
+
+          {/* Annual Goals History */}
+          <Card className="glass border-border/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Star className="w-5 h-5 text-pink-500" />
+                Histórico de Metas Anuais
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {annualGoals.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                    <Star className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-foreground font-medium">Nenhuma meta anual cadastrada</p>
+                  <p className="text-sm text-muted-foreground">Crie suas metas de marketing e visibilidade</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {annualGoals.map((goal) => {
+                    const progress = goal.target_value > 0 
+                      ? Math.round((goal.current_value / goal.target_value) * 100) 
+                      : 0;
+                    const Icon = annualCategoryIcons[goal.category] || Star;
+                    const gradientColor = annualCategoryColors[goal.category] || "from-pink-500 to-rose-500";
+
+                    return (
+                      <div
+                        key={goal.id}
+                        className={cn(
+                          "flex items-center gap-4 p-4 rounded-xl transition-all cursor-pointer hover:shadow-md",
+                          goal.completed 
+                            ? "bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10" 
+                            : "bg-muted/30 hover:bg-muted/50 border border-transparent"
+                        )}
+                        onClick={() => handleConfigureAnnualGoal(goal)}
+                      >
+                        <div className={cn(
+                          "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br shadow-md",
+                          gradientColor
+                        )}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <h4 className="font-medium text-foreground truncate">{goal.title}</h4>
+                            <Badge variant="outline" className="text-xs shrink-0">
+                              {goal.year}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Progress value={Math.min(progress, 100)} className="flex-1 h-1.5" />
+                            <span className="text-sm font-medium text-muted-foreground shrink-0">
+                              {goal.current_value}/{goal.target_value}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0">
+                          {goal.completed ? (
+                            <div className="flex items-center gap-1.5 text-emerald-600">
+                              <Trophy className="w-4 h-4" />
+                              <span className="text-sm font-medium">Concluída</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-amber-600">
+                              <Clock className="w-4 h-4" />
+                              <span className="text-sm font-medium">Em andamento</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
@@ -529,6 +849,14 @@ export default function Metas() {
         goal={selectedGoal}
         onSave={handleSaveGoal}
         onDelete={handleDeleteGoal}
+      />
+
+      <AnnualGoalModal
+        open={annualModalOpen}
+        onOpenChange={setAnnualModalOpen}
+        goal={selectedAnnualGoal}
+        onSave={handleSaveAnnualGoal}
+        onDelete={deleteAnnualGoal}
       />
     </Layout>
   );
