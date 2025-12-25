@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,6 +94,16 @@ const PLAN_DURATIONS: Record<string, number> = {
   completo: 365,
 };
 
+// Cache para evitar refetch ao navegar entre abas
+const adminDataCache = {
+  users: null as UserProfile[] | null,
+  featureBlocks: null as FeatureBlock[] | null,
+  userGoals: null as UserGoal[] | null,
+  trialDays: null as string | null,
+  lastFetch: 0,
+  cacheTimeout: 5 * 60 * 1000, // 5 minutos
+};
+
 export default function Admin() {
   const { user, loading: authLoading } = useRequireAuth();
   const { settings, refreshSettings } = useAppSettings();
@@ -113,6 +123,7 @@ export default function Admin() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [userNewPasswords, setUserNewPasswords] = useState<Record<string, string>>({});
   const [changingPasswords, setChangingPasswords] = useState<Record<string, boolean>>({});
+  const dataLoaded = useRef(false);
 
   // Check if current user is admin
   useEffect(() => {
@@ -136,10 +147,24 @@ export default function Admin() {
     }
   }, [user, authLoading]);
 
-  // Fetch users and feature blocks - OTIMIZADO: sem carregar stats de todos usuários
+  // Fetch users and feature blocks - COM CACHE LOCAL
   useEffect(() => {
     async function fetchData() {
       if (!isAdmin) return;
+      
+      const now = Date.now();
+      const cacheValid = adminDataCache.lastFetch > 0 && 
+                         (now - adminDataCache.lastFetch) < adminDataCache.cacheTimeout;
+      
+      // Se cache válido e dados já carregados nesta sessão, usa cache
+      if (cacheValid && adminDataCache.users && !dataLoaded.current) {
+        setUsers(adminDataCache.users);
+        setFeatureBlocks(adminDataCache.featureBlocks || []);
+        setUserGoals(adminDataCache.userGoals || []);
+        setTrialDays(adminDataCache.trialDays || "3");
+        dataLoaded.current = true;
+        return;
+      }
 
       // Fetch all profiles
       const { data: profilesData, error: profilesError } = await supabase
@@ -152,6 +177,7 @@ export default function Admin() {
         toast.error("Erro ao carregar usuários");
       } else {
         setUsers(profilesData || []);
+        adminDataCache.users = profilesData || [];
       }
 
       // Fetch all feature blocks
@@ -163,6 +189,7 @@ export default function Admin() {
         console.error("Error fetching feature blocks:", blocksError);
       } else {
         setFeatureBlocks(blocksData || []);
+        adminDataCache.featureBlocks = blocksData || [];
       }
 
       // Fetch trial duration setting
@@ -174,6 +201,7 @@ export default function Admin() {
 
       if (settingsData) {
         setTrialDays(settingsData.setting_value || "3");
+        adminDataCache.trialDays = settingsData.setting_value || "3";
       }
 
       // Fetch user goals
@@ -187,7 +215,11 @@ export default function Admin() {
 
       if (goalsData) {
         setUserGoals(goalsData);
+        adminDataCache.userGoals = goalsData;
       }
+      
+      adminDataCache.lastFetch = now;
+      dataLoaded.current = true;
     }
 
     fetchData();
