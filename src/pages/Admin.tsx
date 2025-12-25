@@ -136,7 +136,7 @@ export default function Admin() {
     }
   }, [user, authLoading]);
 
-  // Fetch users and feature blocks
+  // Fetch users and feature blocks - OTIMIZADO: sem carregar stats de todos usuários
   useEffect(() => {
     async function fetchData() {
       if (!isAdmin) return;
@@ -188,63 +188,66 @@ export default function Admin() {
       if (goalsData) {
         setUserGoals(goalsData);
       }
-
-      // Fetch stats for all users
-      await fetchUserStats(profilesData || []);
-    }
-
-    async function fetchUserStats(profiles: UserProfile[]) {
-      const currentMonth = new Date().getMonth() + 1;
-      const currentYear = new Date().getFullYear();
-      const stats: Record<string, { leads: number; revenue: number; shows: number }> = {};
-
-      for (const profile of profiles) {
-        // Fetch leads count
-        const { count: leadsCount } = await supabase
-          .from("leads")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", profile.user_id)
-          .gte("created_at", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
-          .lt("created_at", currentMonth === 12 
-            ? `${currentYear + 1}-01-01` 
-            : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
-
-        // Fetch shows count
-        const { count: showsCount } = await supabase
-          .from("shows")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", profile.user_id)
-          .neq("status", "cancelled")
-          .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
-          .lt("date", currentMonth === 12 
-            ? `${currentYear + 1}-01-01` 
-            : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
-
-        // Fetch revenue
-        const { data: transactionsData } = await supabase
-          .from("transactions")
-          .select("amount")
-          .eq("user_id", profile.user_id)
-          .eq("type", "income")
-          .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
-          .lt("date", currentMonth === 12 
-            ? `${currentYear + 1}-01-01` 
-            : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
-
-        const revenue = transactionsData?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-
-        stats[profile.user_id] = {
-          leads: leadsCount || 0,
-          shows: showsCount || 0,
-          revenue,
-        };
-      }
-
-      setUserStats(stats);
     }
 
     fetchData();
   }, [isAdmin]);
+
+  // Buscar stats de um usuário específico sob demanda (quando expandir)
+  const fetchUserStatsOnDemand = async (userId: string) => {
+    if (userStats[userId]) return; // Já carregado, não refaz
+
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    const startDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
+    const endDate = currentMonth === 12 
+      ? `${currentYear + 1}-01-01` 
+      : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+
+    // Fazer as 3 queries em paralelo
+    const [leadsResult, showsResult, transactionsResult] = await Promise.all([
+      supabase
+        .from("leads")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("created_at", startDate)
+        .lt("created_at", endDate),
+      supabase
+        .from("shows")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .neq("status", "cancelled")
+        .gte("date", startDate)
+        .lt("date", endDate),
+      supabase
+        .from("transactions")
+        .select("amount")
+        .eq("user_id", userId)
+        .eq("type", "income")
+        .gte("date", startDate)
+        .lt("date", endDate),
+    ]);
+
+    const revenue = transactionsResult.data?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+
+    setUserStats(prev => ({
+      ...prev,
+      [userId]: {
+        leads: leadsResult.count || 0,
+        shows: showsResult.count || 0,
+        revenue,
+      },
+    }));
+  };
+
+  // Quando expandir um usuário, carregar suas stats
+  const handleExpandUser = (userId: string) => {
+    const newExpandedUser = expandedUser === userId ? null : userId;
+    setExpandedUser(newExpandedUser);
+    if (newExpandedUser) {
+      fetchUserStatsOnDemand(newExpandedUser);
+    }
+  };
 
   // Initialize app settings from context
   useEffect(() => {
@@ -668,7 +671,7 @@ export default function Admin() {
                       <Button 
                         variant="outline" 
                         size="icon"
-                        onClick={() => setExpandedUser(expandedUser === userProfile.user_id ? null : userProfile.user_id)}
+                        onClick={() => handleExpandUser(userProfile.user_id)}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
