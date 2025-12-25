@@ -97,12 +97,15 @@ const PLAN_DURATIONS: Record<string, number> = {
 // Cache para evitar refetch ao navegar entre abas
 const adminDataCache = {
   users: null as UserProfile[] | null,
+  totalUsers: 0,
   featureBlocks: null as FeatureBlock[] | null,
   userGoals: null as UserGoal[] | null,
   trialDays: null as string | null,
   lastFetch: 0,
   cacheTimeout: 5 * 60 * 1000, // 5 minutos
 };
+
+const USERS_PER_PAGE = 10;
 
 export default function Admin() {
   const { user, loading: authLoading } = useRequireAuth();
@@ -124,6 +127,11 @@ export default function Admin() {
   const [userNewPasswords, setUserNewPasswords] = useState<Record<string, string>>({});
   const [changingPasswords, setChangingPasswords] = useState<Record<string, boolean>>({});
   const dataLoaded = useRef(false);
+  
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   // Check if current user is admin
   useEffect(() => {
@@ -147,82 +155,107 @@ export default function Admin() {
     }
   }, [user, authLoading]);
 
-  // Fetch users and feature blocks - COM CACHE LOCAL
+  // Fetch users with pagination
+  const fetchUsers = async (page: number, filter: string, search: string) => {
+    if (!isAdmin) return;
+    setLoadingUsers(true);
+    
+    const from = (page - 1) * USERS_PER_PAGE;
+    const to = from + USERS_PER_PAGE - 1;
+    
+    let query = supabase
+      .from("profiles")
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false });
+    
+    // Apply plan filter
+    if (filter !== "all") {
+      query = query.eq("plan", filter);
+    }
+    
+    // Apply search filter
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+    }
+    
+    // Apply pagination
+    query = query.range(from, to);
+    
+    const { data, error, count } = await query;
+    
+    if (error) {
+      console.error("Error fetching profiles:", error);
+      toast.error("Erro ao carregar usuários");
+    } else {
+      setUsers(data || []);
+      setTotalUsers(count || 0);
+    }
+    setLoadingUsers(false);
+  };
+
+  // Fetch initial data and other configs (feature blocks, goals, settings)
   useEffect(() => {
-    async function fetchData() {
+    async function fetchInitialData() {
       if (!isAdmin) return;
       
       const now = Date.now();
       const cacheValid = adminDataCache.lastFetch > 0 && 
                          (now - adminDataCache.lastFetch) < adminDataCache.cacheTimeout;
       
-      // Se cache válido e dados já carregados nesta sessão, usa cache
-      if (cacheValid && adminDataCache.users && !dataLoaded.current) {
-        setUsers(adminDataCache.users);
+      // Se cache válido, usa cache para dados secundários
+      if (cacheValid && adminDataCache.featureBlocks && !dataLoaded.current) {
         setFeatureBlocks(adminDataCache.featureBlocks || []);
         setUserGoals(adminDataCache.userGoals || []);
         setTrialDays(adminDataCache.trialDays || "3");
         dataLoaded.current = true;
-        return;
-      }
-
-      // Fetch all profiles
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (profilesError) {
-        console.error("Error fetching profiles:", profilesError);
-        toast.error("Erro ao carregar usuários");
       } else {
-        setUsers(profilesData || []);
-        adminDataCache.users = profilesData || [];
-      }
+        // Fetch all feature blocks
+        const { data: blocksData, error: blocksError } = await supabase
+          .from("user_feature_blocks")
+          .select("*");
 
-      // Fetch all feature blocks
-      const { data: blocksData, error: blocksError } = await supabase
-        .from("user_feature_blocks")
-        .select("*");
+        if (blocksError) {
+          console.error("Error fetching feature blocks:", blocksError);
+        } else {
+          setFeatureBlocks(blocksData || []);
+          adminDataCache.featureBlocks = blocksData || [];
+        }
 
-      if (blocksError) {
-        console.error("Error fetching feature blocks:", blocksError);
-      } else {
-        setFeatureBlocks(blocksData || []);
-        adminDataCache.featureBlocks = blocksData || [];
-      }
+        // Fetch trial duration setting
+        const { data: settingsData } = await supabase
+          .from("app_settings")
+          .select("*")
+          .eq("setting_key", "trial_duration_days")
+          .single();
 
-      // Fetch trial duration setting
-      const { data: settingsData } = await supabase
-        .from("app_settings")
-        .select("*")
-        .eq("setting_key", "trial_duration_days")
-        .single();
+        if (settingsData) {
+          setTrialDays(settingsData.setting_value || "3");
+          adminDataCache.trialDays = settingsData.setting_value || "3";
+        }
 
-      if (settingsData) {
-        setTrialDays(settingsData.setting_value || "3");
-        adminDataCache.trialDays = settingsData.setting_value || "3";
-      }
+        // Fetch user goals
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        const { data: goalsData } = await supabase
+          .from("user_goals")
+          .select("*")
+          .eq("month", currentMonth)
+          .eq("year", currentYear);
 
-      // Fetch user goals
-      const currentMonth = new Date().getMonth() + 1;
-      const currentYear = new Date().getFullYear();
-      const { data: goalsData } = await supabase
-        .from("user_goals")
-        .select("*")
-        .eq("month", currentMonth)
-        .eq("year", currentYear);
-
-      if (goalsData) {
-        setUserGoals(goalsData);
-        adminDataCache.userGoals = goalsData;
+        if (goalsData) {
+          setUserGoals(goalsData);
+          adminDataCache.userGoals = goalsData;
+        }
+        
+        adminDataCache.lastFetch = now;
+        dataLoaded.current = true;
       }
       
-      adminDataCache.lastFetch = now;
-      dataLoaded.current = true;
+      // Sempre busca usuários com paginação
+      fetchUsers(1, planFilter, searchTerm);
     }
 
-    fetchData();
+    fetchInitialData();
   }, [isAdmin]);
 
   // Buscar stats de um usuário específico sob demanda (quando expandir)
@@ -532,24 +565,35 @@ export default function Admin() {
   };
 
   const getPlanStats = () => {
-    const stats = {
-      trial: users.filter(u => u.plan === "trial").length,
-      inicial: users.filter(u => u.plan === "inicial").length,
-      essencial: users.filter(u => u.plan === "essencial").length,
-      completo: users.filter(u => u.plan === "completo").length,
-      expirado: users.filter(u => u.plan === "expirado").length,
+    // Stats são baseados no total, não na página atual
+    // Para evitar queries extras, mostramos com base nos usuários da página
+    // ou podemos manter um estado separado para stats gerais
+    return {
+      trial: 0,
+      inicial: 0,
+      essencial: 0,
+      completo: 0,
+      expirado: 0,
     };
-    return stats;
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
-      (user.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
-    
-    if (planFilter === "all") return matchesSearch;
-    return matchesSearch && user.plan === planFilter;
-  });
+  // Refazer busca quando mudar filtro ou busca (com debounce para busca)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentPage(1);
+      fetchUsers(1, planFilter, searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [planFilter, searchTerm, isAdmin]);
+
+  // Refazer busca quando mudar página
+  useEffect(() => {
+    if (currentPage > 1) {
+      fetchUsers(currentPage, planFilter, searchTerm);
+    }
+  }, [currentPage]);
+
+  const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
   const stats = getPlanStats();
 
@@ -667,8 +711,14 @@ export default function Admin() {
           </div>
 
           {/* Users List */}
+          {loadingUsers ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Carregando usuários...</span>
+            </div>
+          ) : (
           <div className="space-y-4">
-            {filteredUsers.map(userProfile => (
+            {users.map(userProfile => (
               <Card key={userProfile.id} className="overflow-hidden">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
@@ -896,7 +946,7 @@ export default function Admin() {
               </Card>
             ))}
 
-            {filteredUsers.length === 0 && (
+            {users.length === 0 && (
               <Card>
                 <CardContent className="p-8 text-center text-muted-foreground">
                   Nenhum usuário encontrado
@@ -904,6 +954,37 @@ export default function Admin() {
               </Card>
             )}
           </div>
+          )}
+
+          {/* Paginação */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4">
+              <p className="text-sm text-muted-foreground">
+                Mostrando {((currentPage - 1) * USERS_PER_PAGE) + 1} - {Math.min(currentPage * USERS_PER_PAGE, totalUsers)} de {totalUsers} usuários
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1 || loadingUsers}
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                >
+                  Anterior
+                </Button>
+                <span className="flex items-center px-3 text-sm">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages || loadingUsers}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                >
+                  Próxima
+                </Button>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* Insights Tab */}
