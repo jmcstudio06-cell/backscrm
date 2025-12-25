@@ -41,21 +41,26 @@ export function useLandingInsights() {
 
   const fetchInsights = async () => {
     try {
+      // Otimização: Buscar apenas dos últimos 30 dias e limitar a 500 registros
+      const monthAgo = new Date();
+      monthAgo.setDate(monthAgo.getDate() - 30);
+      
       const { data, error } = await supabase
         .from("landing_page_visits")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("id, created_at, converted")
+        .gte("created_at", monthAgo.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(500);
 
       if (error) throw error;
 
       const visitsData = data || [];
-      setVisits(visitsData);
+      setVisits(visitsData as LandingVisit[]);
 
       // Calculate insights
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
       const totalVisits = visitsData.length;
       const conversions = visitsData.filter(v => v.converted).length;
@@ -66,9 +71,6 @@ export function useLandingInsights() {
       const weekVisits = visitsData.filter(v => new Date(v.created_at) >= weekAgo).length;
       const weekConversions = visitsData.filter(v => v.converted && new Date(v.created_at) >= weekAgo).length;
 
-      const monthVisits = visitsData.filter(v => new Date(v.created_at) >= monthAgo).length;
-      const monthConversions = visitsData.filter(v => v.converted && new Date(v.created_at) >= monthAgo).length;
-
       setInsights({
         totalVisits,
         conversions,
@@ -77,8 +79,8 @@ export function useLandingInsights() {
         todayConversions,
         weekVisits,
         weekConversions,
-        monthVisits,
-        monthConversions,
+        monthVisits: totalVisits,
+        monthConversions: conversions,
       });
     } catch (error) {
       console.error("Error fetching landing insights:", error);
