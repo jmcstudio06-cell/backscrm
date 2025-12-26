@@ -1,4 +1,4 @@
-import { Target, TrendingUp, Users, Flame, Sparkles } from "lucide-react";
+import { Target, TrendingUp, Users, Flame, Sparkles, Zap, Rocket, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Goal {
@@ -60,12 +60,20 @@ export function MonthlyGoalsCard({
     return Math.min(Math.round((current / target) * 100), 100);
   };
 
-  const getStreakEmoji = (progress: number) => {
-    if (progress >= 100) return "🔥";
-    if (progress >= 75) return "⚡";
-    if (progress >= 50) return "💪";
-    if (progress >= 25) return "🚀";
-    return "🎯";
+  const getProgressIcon = (progress: number) => {
+    if (progress >= 100) return Flame;
+    if (progress >= 75) return Zap;
+    if (progress >= 50) return Rocket;
+    if (progress >= 25) return CheckCircle2;
+    return Target;
+  };
+
+  const getProgressIconColor = (progress: number) => {
+    if (progress >= 100) return "text-orange-400";
+    if (progress >= 75) return "text-yellow-400";
+    if (progress >= 50) return "text-cyan-400";
+    if (progress >= 25) return "text-emerald-400";
+    return "text-slate-400";
   };
 
   return (
@@ -76,12 +84,14 @@ export function MonthlyGoalsCard({
 
       <div className="relative">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30">
             <Flame className="w-5 h-5 text-white" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-white">Metas do Mês</h3>
-            <p className="text-xs text-slate-400">Continue assim! 💪</p>
+            <p className="text-xs text-slate-400 flex items-center gap-1">
+              Continue assim <Sparkles className="w-3 h-3 text-amber-400" />
+            </p>
           </div>
         </div>
 
@@ -89,6 +99,7 @@ export function MonthlyGoalsCard({
           {goals.map((goal, index) => {
             const progress = getProgress(goal.current, goal.target);
             const Icon = goal.icon;
+            const ProgressIcon = getProgressIcon(progress);
             const displayCurrent = goal.formatValue ? goal.formatValue(goal.current) : goal.current;
             const displayTarget = goal.formatValue ? goal.formatValue(goal.target) : goal.target;
 
@@ -111,7 +122,7 @@ export function MonthlyGoalsCard({
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-white">{goal.label}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{getStreakEmoji(progress)}</span>
+                        <ProgressIcon className={cn("w-4 h-4", getProgressIconColor(progress))} />
                         <span className="text-sm font-bold text-white">
                           {displayCurrent} / {displayTarget}
                         </span>
