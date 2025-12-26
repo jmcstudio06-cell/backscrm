@@ -1,8 +1,10 @@
 import { Layout } from "@/components/layout/Layout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
-import { ProgressRing } from "@/components/dashboard/ProgressRing";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
+import { MonthlyGoalsCard } from "@/components/dashboard/MonthlyGoalsCard";
+import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
+import { AchievementsCard } from "@/components/dashboard/AchievementsCard";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { Users, TrendingUp, DollarSign, Target, Clock } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -165,6 +167,18 @@ const Dashboard = () => {
     }).length;
   }, [shows]);
 
+  // Total shows for achievements
+  const totalShows = useMemo(() => {
+    return shows.filter((show) => show.status === "completed").length;
+  }, [shows]);
+
+  // Total revenue for achievements
+  const totalRevenue = useMemo(() => {
+    return transactions
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions]);
+
   // Upcoming shows
   const upcomingShows = useMemo(() => {
     const now = new Date();
@@ -184,10 +198,6 @@ const Dashboard = () => {
     return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  const getGoalProgress = (current: number, target: number) => {
-    if (target === 0) return 0;
-    return Math.min(Math.round((current / target) * 100), 100);
-  };
 
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
@@ -267,97 +277,22 @@ const Dashboard = () => {
           </ChartCard>
         </div>
 
-        {/* Goals & Upcoming Shows */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Goals - Linear Progress Bars */}
-          <div className="glass-card rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-6">Metas do Mês</h3>
-            <div className="space-y-5">
-              {/* Shows */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-foreground">Shows Realizados</span>
-                  <span className="text-sm font-bold text-foreground">
-                    {showsThisMonth} / {showsGoal?.target_value || 0}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3">
-                  <div
-                    className="h-3 rounded-full bg-slate-800 transition-all"
-                    style={{ width: `${getGoalProgress(showsThisMonth, showsGoal?.target_value || 0)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {getGoalProgress(showsThisMonth, showsGoal?.target_value || 0)}% da meta atingida
-                </p>
-              </div>
-
-              {/* Revenue */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-foreground">Faturamento</span>
-                  <span className="text-sm font-bold text-foreground">
-                    R$ {formatCurrency(monthlyRevenue)} / R$ {formatCurrency(revenueGoal?.target_value || 0)}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3">
-                  <div
-                    className="h-3 rounded-full bg-slate-800 transition-all"
-                    style={{ width: `${getGoalProgress(monthlyRevenue, revenueGoal?.target_value || 0)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {getGoalProgress(monthlyRevenue, revenueGoal?.target_value || 0)}% da meta atingida
-                </p>
-              </div>
-
-              {/* Leads */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-foreground">Leads Fechados</span>
-                  <span className="text-sm font-bold text-foreground">
-                    {closedSales} / {leadsGoal?.target_value || 0}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3">
-                  <div
-                    className="h-3 rounded-full bg-slate-800 transition-all"
-                    style={{ width: `${getGoalProgress(closedSales, leadsGoal?.target_value || 0)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {getGoalProgress(closedSales, leadsGoal?.target_value || 0)}% da meta atingida
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Upcoming Shows */}
-          <div className="glass-card rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Próximos Shows</h3>
-            <div className="space-y-4">
-              {upcomingShows.length > 0 ? (
-                upcomingShows.map((show, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start gap-4 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
-                  >
-                    <div className="text-center min-w-[50px]">
-                      <p className="text-xs text-muted-foreground">{show.date.split(" ")[1]}</p>
-                      <p className="text-xl font-bold text-primary">{show.date.split(" ")[0]}</p>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{show.title}</p>
-                      <p className="text-sm text-muted-foreground truncate">{show.location}</p>
-                    </div>
-                    <p className="text-sm font-semibold text-green-500">{show.value}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">Nenhum show agendado</p>
-              )}
-            </div>
-          </div>
+        {/* Goals, Upcoming Shows & Achievements */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <MonthlyGoalsCard
+            showsThisMonth={showsThisMonth}
+            showsTarget={showsGoal?.target_value || 0}
+            revenueThisMonth={monthlyRevenue}
+            revenueTarget={revenueGoal?.target_value || 0}
+            leadsThisMonth={closedSales}
+            leadsTarget={leadsGoal?.target_value || 0}
+          />
+          <UpcomingShowsCard shows={upcomingShows} />
+          <AchievementsCard
+            showsTotal={totalShows}
+            leadsTotal={closedSales}
+            revenueTotal={totalRevenue}
+          />
         </div>
       </div>
     </Layout>
