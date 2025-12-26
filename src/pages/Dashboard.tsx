@@ -4,7 +4,6 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { MonthlyGoalsCard } from "@/components/dashboard/MonthlyGoalsCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
-import { AchievementsCard } from "@/components/dashboard/AchievementsCard";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { Users, TrendingUp, DollarSign, Target, Clock } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -167,17 +166,6 @@ const Dashboard = () => {
     }).length;
   }, [shows]);
 
-  // Total shows for achievements
-  const totalShows = useMemo(() => {
-    return shows.filter((show) => show.status === "completed").length;
-  }, [shows]);
-
-  // Total revenue for achievements
-  const totalRevenue = useMemo(() => {
-    return transactions
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-  }, [transactions]);
 
   // Upcoming shows
   const upcomingShows = useMemo(() => {
@@ -277,8 +265,8 @@ const Dashboard = () => {
           </ChartCard>
         </div>
 
-        {/* Goals, Upcoming Shows & Achievements */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Goals & Upcoming Shows */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <MonthlyGoalsCard
             showsThisMonth={showsThisMonth}
             showsTarget={showsGoal?.target_value || 0}
@@ -288,11 +276,6 @@ const Dashboard = () => {
             leadsTarget={leadsGoal?.target_value || 0}
           />
           <UpcomingShowsCard shows={upcomingShows} />
-          <AchievementsCard
-            showsTotal={totalShows}
-            leadsTotal={closedSales}
-            revenueTotal={totalRevenue}
-          />
         </div>
       </div>
     </Layout>
