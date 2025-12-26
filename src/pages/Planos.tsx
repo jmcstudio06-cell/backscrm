@@ -1,115 +1,76 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Zap, Star, Crown } from "lucide-react";
+import { Check, Zap, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const commonFeatures = [
+  "Centralize contratos e pedidos de show",
+  "Organize agenda, valores e histórico de clientes",
+  "Crie orçamentos e contratos em 1 minuto",
+  "Tenha visão clara da sua carreira em um só lugar",
+];
 
 const plans = [
   {
-    name: "Inicial",
-    description: "Para quem está começando",
-    price: "R$ 29,90",
-    installments: "apenas",
-    period: "por mês",
+    name: "Plano Essencial",
+    description: "1 mês de acesso",
+    price: "R$ 49,90",
+    period: "/mês",
     icon: Zap,
     highlight: null,
+    support: "Acompanhamento estratégico disponível nos planos de maior duração",
     styles: {
       card: "bg-white border border-border",
       icon: "bg-blue-100 text-blue-600",
       button: "bg-blue-600 hover:bg-blue-700 text-white",
     },
-    features: [
-      { name: "Dashboard", included: true },
-      { name: "Agenda de Shows", included: true },
-      { name: "Clientes", included: true },
-      { name: "Financeiro", included: true },
-      { name: "Funil de Vendas", included: false },
-      { name: "Orçamento Automático", included: false },
-      { name: "Contrato Automático", included: false },
-      { name: "Checklist de Show", included: false },
-      { name: "Equipe e Freelancers", included: false },
-      { name: "Suporte via WhatsApp", included: false },
-      { name: "Artes Editáveis (Canva)", included: false },
-      { name: "VS de Bônus", included: false },
-    ],
   },
   {
-    name: "Essencial",
-    description: "Para profissionais",
+    name: "Plano Profissional",
+    description: "3 meses de acesso",
     price: "R$ 39,90",
-    installments: "apenas",
-    period: "por mês",
+    period: "/mês",
     icon: Star,
-    highlight: "MAIS POPULAR",
+    highlight: "MAIS VENDIDO",
+    support: "Inclui 3 acompanhamentos estratégicos remotos",
     styles: {
       card: "bg-gradient-to-b from-blue-100 to-purple-100 border-2 border-blue-400 scale-105 shadow-xl",
       icon: "bg-gradient-to-br from-blue-500 to-purple-500 text-white",
       button: "bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white",
     },
-    features: [
-      { name: "Dashboard", included: true },
-      { name: "Agenda de Shows", included: true },
-      { name: "Clientes", included: true },
-      { name: "Financeiro Completo", included: true },
-      { name: "Funil de Vendas", included: true },
-      { name: "Orçamento Automático", included: true },
-      { name: "Contrato Automático", included: false },
-      { name: "Checklist de Show", included: true },
-      { name: "Equipe e Freelancers", included: true },
-      { name: "Suporte via WhatsApp", included: false },
-      { name: "Artes Editáveis (Canva)", included: false },
-      { name: "VS de Bônus", included: false },
-    ],
   },
   {
-    name: "Completo",
-    description: "Tudo liberado",
-    price: "R$ 49,90",
-    installments: "apenas",
-    period: "por mês",
-    icon: Crown,
+    name: "Plano Profissional",
+    description: "6 meses de acesso",
+    price: "R$ 29,90",
+    period: "/mês",
+    icon: Star,
     highlight: "MELHOR CUSTO",
+    support: "Inclui 6 acompanhamentos estratégicos remotos",
     styles: {
       card: "bg-white border border-border",
-      icon: "bg-orange-100 text-orange-600",
-      button: "bg-orange-500 hover:bg-orange-600 text-white",
+      icon: "bg-indigo-100 text-indigo-600",
+      button: "bg-indigo-600 hover:bg-indigo-700 text-white",
     },
-    features: [
-      { name: "Dashboard", included: true },
-      { name: "Agenda de Shows", included: true },
-      { name: "Clientes", included: true },
-      { name: "Financeiro Completo", included: true },
-      { name: "Funil de Vendas", included: true },
-      { name: "Orçamento Automático", included: true },
-      { name: "Contrato Automático", included: true },
-      { name: "Checklist de Show", included: true },
-      { name: "Equipe e Freelancers", included: true },
-      { name: "Suporte via WhatsApp", included: true },
-      { name: "Artes Editáveis (Canva)", included: true },
-      { name: "VS de Bônus", included: true },
-    ],
   },
 ];
 
 export default function Planos() {
   return (
-    <Layout title="Planos" subtitle="Escolha o plano ideal para sua carreira musical">
+    <Layout
+      title="Conheça nossos Planos"
+      subtitle="Plataforma de gestão para artistas que querem tratar a carreira com visão profissional"
+    >
       <div className="mt-16 pt-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
-              <div key={plan.name} className={cn("relative rounded-3xl p-8 flex flex-col", plan.styles.card)}>
+              <div key={plan.description} className={cn("relative rounded-3xl p-8 flex flex-col", plan.styles.card)}>
                 {plan.highlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge
-                      className={cn(
-                        "px-4 py-1 text-xs font-semibold text-white",
-                        plan.highlight === "MAIS POPULAR"
-                          ? "bg-gradient-to-r from-blue-600 to-purple-600"
-                          : "bg-orange-500",
-                      )}
-                    >
+                    <Badge className="px-4 py-1 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600">
                       {plan.highlight}
                     </Badge>
                   </div>
@@ -129,25 +90,22 @@ export default function Planos() {
                 </div>
 
                 <div className="text-center mb-6">
-                  <div className="text-xs text-muted-foreground mb-1">{plan.installments}</div>
-                  <div className="text-4xl font-bold">{plan.price}</div>
-                  <div className="text-sm text-muted-foreground">{plan.period}</div>
+                  <div className="text-4xl font-bold">
+                    {plan.price}
+                    <span className="text-base font-normal">{plan.period}</span>
+                  </div>
                 </div>
 
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, index) => (
+                <ul className="space-y-3 mb-6">
+                  {commonFeatures.map((feature, index) => (
                     <li key={index} className="flex items-center gap-3">
-                      {feature.included ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <X className="w-4 h-4 text-muted-foreground" />
-                      )}
-                      <span className={cn("text-sm", feature.included ? "text-foreground" : "text-muted-foreground")}>
-                        {feature.name}
-                      </span>
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
+
+                <p className="text-xs text-muted-foreground text-center mb-6">{plan.support}</p>
 
                 <Button
                   className={cn("mt-auto w-full", plan.styles.button)}
@@ -155,12 +113,14 @@ export default function Planos() {
                     window.open("https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro", "_blank")
                   }
                 >
-                  Escolher Plano
+                  Escolher plano
                 </Button>
               </div>
             );
           })}
         </div>
+
+        <p className="text-center mt-10 font-medium">Venda mais shows e organize sua carreira em um só lugar.</p>
       </div>
     </Layout>
   );
