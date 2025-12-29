@@ -378,15 +378,59 @@ export default function Admin() {
     if (error) {
       console.error("Error updating plan:", error);
       toast.error("Erro ao atualizar plano");
-    } else {
-      setUsers(prev => prev.map(u => 
-        u.user_id === userId 
-          ? { ...u, plan, trial_start: updates.trial_start || u.trial_start, trial_days: updates.trial_days || u.trial_days } 
-          : u
-      ));
-      const planDuration = PLAN_DURATIONS[plan];
-      toast.success(`Plano atualizado para ${plan.toUpperCase()} (${planDuration} dias)`);
+      return;
     }
+
+    // Define feature blocks based on plan
+    // trial: block everything except dashboard, agenda, aulas, tutoriais, financeiro
+    // essencial/completo: unblock everything
+    // expirado: block everything
+    const trialAllowedFeatures = ["dashboard", "agenda", "aulas", "tutoriais", "financeiro"];
+    
+    const featureUpdates = FEATURES.map(feature => {
+      let blocked = false;
+      
+      if (plan === "expirado") {
+        // Block all features when expired
+        blocked = true;
+      } else if (plan === "trial") {
+        // Block features not in the allowed list for trial
+        blocked = !trialAllowedFeatures.includes(feature.key);
+      } else if (plan === "essencial" || plan === "completo") {
+        // Unblock all features for paid plans
+        blocked = false;
+      } else if (plan === "inicial") {
+        // For inicial plan, treat same as trial for now
+        blocked = !trialAllowedFeatures.includes(feature.key);
+      }
+      
+      return {
+        user_id: userId,
+        feature_key: feature.key,
+        blocked
+      };
+    });
+
+    // Upsert all feature blocks
+    for (const featureUpdate of featureUpdates) {
+      await supabase
+        .from("user_feature_blocks")
+        .upsert(featureUpdate, { onConflict: 'user_id,feature_key' });
+    }
+
+    // Update local state for feature blocks
+    setFeatureBlocks(prev => {
+      const otherBlocks = prev.filter(b => b.user_id !== userId);
+      return [...otherBlocks, ...featureUpdates];
+    });
+
+    setUsers(prev => prev.map(u => 
+      u.user_id === userId 
+        ? { ...u, plan, trial_start: updates.trial_start || u.trial_start, trial_days: updates.trial_days || u.trial_days } 
+        : u
+    ));
+    const planDuration = PLAN_DURATIONS[plan];
+    toast.success(`Plano atualizado para ${plan.toUpperCase()} (${planDuration} dias)`);
   };
 
   // User goals management
