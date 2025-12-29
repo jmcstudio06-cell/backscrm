@@ -203,7 +203,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Olá, Artista! 👋</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Olá, {profile?.name || 'Artista'}!</h1>
             <p className="text-muted-foreground mt-1">Aqui está o resumo da sua carreira este mês</p>
           </div>
         </div>
