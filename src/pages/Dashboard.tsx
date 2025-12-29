@@ -206,10 +206,6 @@ const Dashboard = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">Olá, Artista! 👋</h1>
             <p className="text-muted-foreground mt-1">Aqui está o resumo da sua carreira este mês</p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="w-4 h-4" />
-            Atualizado há 5 minutos
-          </div>
         </div>
 
         {/* Stats Grid */}
