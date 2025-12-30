@@ -3,17 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Mic, 
-  Guitar, 
-  Piano, 
-  Speaker,
-  Volume2,
   Plus,
   Trash2,
   ChevronLeft,
   ChevronRight,
-  Music2,
-  Radio
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 
 export interface StageElement {
@@ -30,25 +25,18 @@ interface StageCanvasProps {
 }
 
 const ELEMENT_TYPES = [
-  { type: 'vocal', label: 'Voz', icon: Mic, color: 'from-amber-500 to-orange-600' },
-  { type: 'backing', label: 'Backing Vocal', icon: Mic, color: 'from-pink-500 to-rose-600' },
-  { type: 'guitar', label: 'Guitarra', icon: Guitar, color: 'from-red-500 to-red-700' },
-  { type: 'bass', label: 'Baixo', icon: Guitar, color: 'from-purple-500 to-purple-700' },
-  { type: 'keyboard', label: 'Teclado', icon: Piano, color: 'from-blue-500 to-blue-700' },
-  { type: 'drums', label: 'Bateria', icon: Music2, color: 'from-emerald-500 to-emerald-700' },
-  { type: 'dj', label: 'DJ / MPC', icon: Radio, color: 'from-cyan-500 to-cyan-700' },
-  { type: 'monitor', label: 'Retorno', icon: Volume2, color: 'from-slate-500 to-slate-700' },
-  { type: 'pa', label: 'PA', icon: Speaker, color: 'from-zinc-600 to-zinc-800' },
+  { type: 'vocal', label: 'Voz', shortLabel: 'VOZ' },
+  { type: 'backing', label: 'Backing Vocal', shortLabel: 'BV' },
+  { type: 'guitar', label: 'Guitarra', shortLabel: 'GTR' },
+  { type: 'bass', label: 'Baixo', shortLabel: 'BAIXO' },
+  { type: 'keyboard', label: 'Teclado', shortLabel: 'TEC' },
+  { type: 'drums', label: 'Bateria', shortLabel: 'BAT' },
+  { type: 'dj', label: 'DJ / MPC', shortLabel: 'DJ' },
+  { type: 'monitor', label: 'Retorno', shortLabel: 'RET' },
 ];
 
 const POSITIONS = ['left', 'center', 'right'] as const;
-const ROWS = ['front', 'middle', 'back'] as const;
-
-const ROW_LABELS = {
-  front: 'Frente',
-  middle: 'Meio',
-  back: 'Fundo'
-};
+const ROWS = ['back', 'middle', 'front'] as const;
 
 const POSITION_LABELS = {
   left: 'Esquerda',
@@ -56,21 +44,200 @@ const POSITION_LABELS = {
   right: 'Direita'
 };
 
+const ROW_LABELS = {
+  front: 'Frente',
+  middle: 'Meio',
+  back: 'Fundo'
+};
+
+// Stage element visual components
+const DrumKit = () => (
+  <svg viewBox="0 0 120 80" className="w-full h-full">
+    {/* Kick drum */}
+    <ellipse cx="60" cy="55" rx="25" ry="20" fill="#2a2a2a" stroke="#444" strokeWidth="2"/>
+    <ellipse cx="60" cy="55" rx="20" ry="16" fill="#1a1a1a" stroke="#333" strokeWidth="1"/>
+    {/* Toms */}
+    <ellipse cx="35" cy="30" rx="12" ry="8" fill="#2a2a2a" stroke="#444" strokeWidth="1.5"/>
+    <ellipse cx="60" cy="25" rx="12" ry="8" fill="#2a2a2a" stroke="#444" strokeWidth="1.5"/>
+    <ellipse cx="85" cy="30" rx="12" ry="8" fill="#2a2a2a" stroke="#444" strokeWidth="1.5"/>
+    {/* Hi-hat */}
+    <ellipse cx="15" cy="35" rx="10" ry="4" fill="#b8860b" stroke="#8b6914" strokeWidth="1"/>
+    <line x1="15" y1="35" x2="15" y2="70" stroke="#666" strokeWidth="2"/>
+    {/* Cymbals */}
+    <ellipse cx="100" cy="20" rx="12" ry="5" fill="#b8860b" stroke="#8b6914" strokeWidth="1"/>
+    <ellipse cx="20" cy="15" rx="10" ry="4" fill="#b8860b" stroke="#8b6914" strokeWidth="1"/>
+    {/* Snare */}
+    <ellipse cx="40" cy="50" rx="10" ry="6" fill="#333" stroke="#555" strokeWidth="1.5"/>
+    {/* Floor tom */}
+    <ellipse cx="90" cy="55" rx="14" ry="10" fill="#2a2a2a" stroke="#444" strokeWidth="1.5"/>
+  </svg>
+);
+
+const Keyboard = () => (
+  <svg viewBox="0 0 100 50" className="w-full h-full">
+    {/* Keyboard body */}
+    <rect x="5" y="10" width="90" height="35" rx="3" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
+    {/* White keys */}
+    {[...Array(14)].map((_, i) => (
+      <rect key={i} x={8 + i * 6} y="15" width="5" height="25" fill="#f5f5f5" stroke="#ddd" strokeWidth="0.5" rx="1"/>
+    ))}
+    {/* Black keys */}
+    {[0, 1, 3, 4, 5, 7, 8, 10, 11, 12].map((i) => (
+      <rect key={`b${i}`} x={11 + i * 6} y="15" width="4" height="15" fill="#1a1a1a" rx="1"/>
+    ))}
+    {/* Stand */}
+    <rect x="20" y="45" width="8" height="5" fill="#444"/>
+    <rect x="72" y="45" width="8" height="5" fill="#444"/>
+  </svg>
+);
+
+const GuitarAmp = ({ label }: { label: string }) => (
+  <svg viewBox="0 0 60 70" className="w-full h-full">
+    {/* Amp body */}
+    <rect x="5" y="5" width="50" height="60" rx="4" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
+    {/* Speaker */}
+    <circle cx="30" cy="40" r="18" fill="#2a2a2a" stroke="#444" strokeWidth="2"/>
+    <circle cx="30" cy="40" r="14" fill="#1f1f1f"/>
+    <circle cx="30" cy="40" r="3" fill="#333"/>
+    {/* Control panel */}
+    <rect x="10" y="10" width="40" height="12" fill="#333" rx="2"/>
+    {/* Knobs */}
+    {[18, 30, 42].map((x) => (
+      <circle key={x} cx={x} cy="16" r="3" fill="#666" stroke="#888" strokeWidth="1"/>
+    ))}
+    {/* Label */}
+    <text x="30" y="68" textAnchor="middle" fill="#666" fontSize="6" fontWeight="bold">{label}</text>
+  </svg>
+);
+
+const Microphone = ({ label }: { label: string }) => (
+  <svg viewBox="0 0 40 80" className="w-full h-full">
+    {/* Stand base */}
+    <ellipse cx="20" cy="75" rx="15" ry="4" fill="#333"/>
+    {/* Stand pole */}
+    <rect x="18" y="30" width="4" height="45" fill="#444"/>
+    {/* Boom arm */}
+    <rect x="10" y="25" width="20" height="3" fill="#444" rx="1"/>
+    {/* Mic */}
+    <ellipse cx="20" cy="15" rx="8" ry="12" fill="#333" stroke="#555" strokeWidth="1"/>
+    <rect x="14" y="12" width="12" height="8" fill="#222" rx="2"/>
+    {/* Label */}
+    <text x="20" y="68" textAnchor="middle" fill="#888" fontSize="5" fontWeight="bold">{label}</text>
+  </svg>
+);
+
+const Monitor = ({ label }: { label: string }) => (
+  <svg viewBox="0 0 50 35" className="w-full h-full">
+    {/* Wedge shape */}
+    <polygon points="5,30 45,30 40,5 10,5" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
+    {/* Speaker grille */}
+    <rect x="12" y="10" width="26" height="15" fill="#2a2a2a" rx="2"/>
+    {/* Grille lines */}
+    {[12, 15, 18, 21].map((y) => (
+      <line key={y} x1="14" y1={y} x2="36" y2={y} stroke="#444" strokeWidth="0.5"/>
+    ))}
+    {/* Label */}
+    <text x="25" y="32" textAnchor="middle" fill="#666" fontSize="5">{label}</text>
+  </svg>
+);
+
+const PA = () => (
+  <svg viewBox="0 0 40 100" className="w-full h-full">
+    {/* Main cabinet */}
+    <rect x="2" y="5" width="36" height="55" rx="3" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
+    {/* Speakers */}
+    <circle cx="20" cy="22" r="12" fill="#2a2a2a" stroke="#444" strokeWidth="1.5"/>
+    <circle cx="20" cy="22" r="8" fill="#1f1f1f"/>
+    <circle cx="20" cy="22" r="2" fill="#333"/>
+    <circle cx="20" cy="48" r="8" fill="#2a2a2a" stroke="#444" strokeWidth="1"/>
+    <circle cx="20" cy="48" r="5" fill="#1f1f1f"/>
+    {/* Sub */}
+    <rect x="2" y="65" width="36" height="30" rx="3" fill="#0f0f0f" stroke="#333" strokeWidth="2"/>
+    <circle cx="20" cy="80" r="10" fill="#1a1a1a" stroke="#333" strokeWidth="1.5"/>
+    <circle cx="20" cy="80" r="6" fill="#0f0f0f"/>
+  </svg>
+);
+
+const DJSetup = () => (
+  <svg viewBox="0 0 100 60" className="w-full h-full">
+    {/* Table */}
+    <rect x="5" y="20" width="90" height="35" rx="3" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
+    {/* CDJ/Turntable left */}
+    <rect x="10" y="25" width="25" height="25" rx="2" fill="#222" stroke="#444" strokeWidth="1"/>
+    <circle cx="22" cy="37" r="8" fill="#333" stroke="#555" strokeWidth="1"/>
+    <circle cx="22" cy="37" r="2" fill="#111"/>
+    {/* Mixer */}
+    <rect x="38" y="25" width="24" height="25" rx="2" fill="#222" stroke="#444" strokeWidth="1"/>
+    {/* Faders */}
+    {[42, 50, 58].map((x) => (
+      <rect key={x} x={x} y="30" width="2" height="15" fill="#666" rx="1"/>
+    ))}
+    {/* CDJ/Turntable right */}
+    <rect x="65" y="25" width="25" height="25" rx="2" fill="#222" stroke="#444" strokeWidth="1"/>
+    <circle cx="78" cy="37" r="8" fill="#333" stroke="#555" strokeWidth="1"/>
+    <circle cx="78" cy="37" r="2" fill="#111"/>
+    {/* Laptop */}
+    <rect x="35" y="8" width="30" height="18" rx="2" fill="#333" stroke="#555" strokeWidth="1"/>
+    <rect x="37" y="10" width="26" height="14" fill="#1a4a7a"/>
+  </svg>
+);
+
+const getElementVisual = (type: string, name: string) => {
+  switch (type) {
+    case 'drums':
+      return <DrumKit />;
+    case 'keyboard':
+      return <Keyboard />;
+    case 'guitar':
+    case 'bass':
+      return <GuitarAmp label={name} />;
+    case 'vocal':
+    case 'backing':
+      return <Microphone label={name} />;
+    case 'monitor':
+      return <Monitor label={name} />;
+    case 'dj':
+      return <DJSetup />;
+    default:
+      return <Monitor label={name} />;
+  }
+};
+
+const getElementSize = (type: string) => {
+  switch (type) {
+    case 'drums':
+      return 'w-24 h-16';
+    case 'keyboard':
+      return 'w-20 h-10';
+    case 'dj':
+      return 'w-24 h-14';
+    case 'guitar':
+    case 'bass':
+      return 'w-12 h-14';
+    case 'vocal':
+    case 'backing':
+      return 'w-8 h-16';
+    case 'monitor':
+      return 'w-10 h-7';
+    default:
+      return 'w-10 h-10';
+  }
+};
+
 export function StageCanvas({ elements, onChange }: StageCanvasProps) {
-  const addElement = (type: string, position: 'left' | 'center' | 'right', row: 'front' | 'middle' | 'back') => {
+  const addElement = (type: string) => {
     const elementType = ELEMENT_TYPES.find(e => e.type === type);
     if (!elementType) return;
 
-    // Count existing elements of this type to auto-number
     const existingOfType = elements.filter(e => e.type === type);
     const number = existingOfType.length + 1;
     
     const newElement: StageElement = {
       id: `${type}-${Date.now()}`,
       type,
-      name: `${elementType.label} ${number}`,
-      position,
-      row
+      name: `${elementType.shortLabel} ${number}`,
+      position: 'center',
+      row: type === 'drums' || type === 'dj' ? 'back' : type === 'monitor' ? 'front' : 'middle'
     };
 
     onChange([...elements, newElement]);
@@ -80,27 +247,26 @@ export function StageCanvas({ elements, onChange }: StageCanvasProps) {
     onChange(elements.filter(e => e.id !== id));
   };
 
-  const moveElement = (id: string, direction: 'left' | 'right') => {
+  const moveElement = (id: string, direction: 'left' | 'right' | 'up' | 'down') => {
     const positionOrder = ['left', 'center', 'right'];
+    const rowOrder = ['back', 'middle', 'front'];
+    
     onChange(elements.map(e => {
       if (e.id !== id) return e;
-      const currentIndex = positionOrder.indexOf(e.position);
-      const newIndex = direction === 'left' 
-        ? Math.max(0, currentIndex - 1)
-        : Math.min(2, currentIndex + 1);
-      return { ...e, position: positionOrder[newIndex] as 'left' | 'center' | 'right' };
-    }));
-  };
-
-  const moveElementRow = (id: string, direction: 'up' | 'down') => {
-    const rowOrder = ['front', 'middle', 'back'];
-    onChange(elements.map(e => {
-      if (e.id !== id) return e;
-      const currentIndex = rowOrder.indexOf(e.row);
-      const newIndex = direction === 'up' 
-        ? Math.max(0, currentIndex - 1)
-        : Math.min(2, currentIndex + 1);
-      return { ...e, row: rowOrder[newIndex] as 'front' | 'middle' | 'back' };
+      
+      if (direction === 'left' || direction === 'right') {
+        const currentIndex = positionOrder.indexOf(e.position);
+        const newIndex = direction === 'left' 
+          ? Math.max(0, currentIndex - 1)
+          : Math.min(2, currentIndex + 1);
+        return { ...e, position: positionOrder[newIndex] as 'left' | 'center' | 'right' };
+      } else {
+        const currentIndex = rowOrder.indexOf(e.row);
+        const newIndex = direction === 'up' 
+          ? Math.max(0, currentIndex - 1)
+          : Math.min(2, currentIndex + 1);
+        return { ...e, row: rowOrder[newIndex] as 'front' | 'middle' | 'back' };
+      }
     }));
   };
 
@@ -108,208 +274,202 @@ export function StageCanvas({ elements, onChange }: StageCanvasProps) {
     return elements.filter(e => e.position === position && e.row === row);
   };
 
-  const getElementConfig = (type: string) => {
-    return ELEMENT_TYPES.find(e => e.type === type);
-  };
-
   return (
     <div className="space-y-6">
       {/* Add Elements Panel */}
-      <Card className="p-4 bg-card/50 backdrop-blur border-border/50">
-        <p className="text-sm text-muted-foreground mb-3 font-medium">Clique para adicionar ao palco:</p>
+      <Card className="p-4 bg-white dark:bg-zinc-900 border-border">
+        <p className="text-sm text-muted-foreground mb-3 font-medium">Adicionar elementos ao palco:</p>
         <div className="flex flex-wrap gap-2">
-          {ELEMENT_TYPES.map((elementType) => {
-            const Icon = elementType.icon;
-            return (
-              <Button
-                key={elementType.type}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 hover:scale-105 transition-transform"
-                onClick={() => addElement(elementType.type, 'center', 'middle')}
-              >
-                <div className={`w-5 h-5 rounded bg-gradient-to-br ${elementType.color} flex items-center justify-center`}>
-                  <Icon className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-xs">{elementType.label}</span>
-                <Plus className="w-3 h-3 opacity-50" />
-              </Button>
-            );
-          })}
+          {ELEMENT_TYPES.map((elementType) => (
+            <Button
+              key={elementType.type}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 hover:bg-primary/10 transition-colors"
+              onClick={() => addElement(elementType.type)}
+            >
+              <span className="text-xs">{elementType.label}</span>
+              <Plus className="w-3 h-3 opacity-50" />
+            </Button>
+          ))}
         </div>
       </Card>
 
-      {/* Stage Visual */}
-      <div className="relative">
-        {/* Stage Frame */}
-        <div className="relative bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl overflow-hidden border-4 border-zinc-700 shadow-2xl">
-          {/* Top Truss/Lighting */}
-          <div className="h-12 bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-800 border-b-2 border-zinc-600 flex items-center justify-around px-4">
-            <div className="flex gap-8">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/50 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
-              ))}
-            </div>
-          </div>
+      {/* Stage Visual - Professional Rider Style */}
+      <div className="relative bg-white dark:bg-zinc-950 rounded-lg border-2 border-zinc-300 dark:border-zinc-700 overflow-hidden shadow-xl">
+        {/* Header */}
+        <div className="bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 py-3 px-4">
+          <h3 className="text-center font-bold text-lg tracking-wide text-zinc-800 dark:text-zinc-200">
+            MAPEAMENTO DE PALCO
+          </h3>
+        </div>
 
-          {/* Stage Dimensions */}
-          <div className="absolute -left-14 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-mono rotate-[-90deg] whitespace-nowrap">
+        {/* Dimensions Labels */}
+        <div className="relative">
+          <div className="absolute -left-1 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-mono text-zinc-500 whitespace-nowrap bg-white dark:bg-zinc-950 px-1">
             6M (MÍNIMO)
           </div>
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-muted-foreground font-mono">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[10px] font-mono text-zinc-500">
             8M (MÍNIMO)
+          </div>
+        </div>
+
+        {/* Stage Area */}
+        <div className="relative mx-8 my-6">
+          {/* Top Truss Structure */}
+          <div className="relative h-8 bg-gradient-to-b from-zinc-300 to-zinc-200 dark:from-zinc-700 dark:to-zinc-800 border border-zinc-400 dark:border-zinc-600 rounded-t-sm mb-1 flex items-center justify-around px-8">
+            {/* Truss pattern */}
+            <div className="absolute inset-0 flex items-center justify-between px-4">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="w-1 h-full bg-zinc-400 dark:bg-zinc-600" />
+              ))}
+            </div>
+            {/* Lights */}
+            <div className="relative z-10 flex gap-12">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <div className="w-6 h-4 bg-zinc-800 rounded-b-sm" />
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-b from-yellow-300 to-orange-400 shadow-lg shadow-yellow-400/50" />
+                </div>
+              ))}
+            </div>
+            {/* Dimensions on truss */}
+            <div className="absolute top-0 left-4 text-[8px] text-zinc-600 dark:text-zinc-400 font-mono">90cm</div>
+            <div className="absolute top-0 right-4 text-[8px] text-zinc-600 dark:text-zinc-400 font-mono">90cm</div>
           </div>
 
           {/* Stage Floor */}
-          <div className="relative p-6 min-h-[420px]">
-            {/* Grid Background */}
-            <div className="absolute inset-0 opacity-10" 
-              style={{ 
-                backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-                backgroundSize: '40px 40px'
-              }} 
-            />
+          <div className="relative bg-gradient-to-b from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-300 dark:border-zinc-600 min-h-[350px] p-4">
+            {/* Side curtains */}
+            <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-zinc-900 to-zinc-800" />
+            <div className="absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-l from-zinc-900 to-zinc-800" />
 
-            {/* Stage Rows */}
-            {ROWS.map((row, rowIndex) => (
-              <div key={row} className="mb-4 last:mb-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="outline" className="text-[10px] bg-zinc-800 text-zinc-300 border-zinc-600">
-                    {ROW_LABELS[row]}
-                  </Badge>
-                  <div className="flex-1 h-px bg-gradient-to-r from-zinc-600 via-transparent to-zinc-600" />
-                </div>
-                
-                <div className="grid grid-cols-3 gap-3 min-h-[110px]">
+            {/* PA Speakers - Left */}
+            <div className="absolute left-6 top-8">
+              <div className="w-10">
+                <PA />
+              </div>
+              <div className="text-[8px] text-center text-zinc-500 mt-1">120V</div>
+            </div>
+
+            {/* PA Speakers - Right */}
+            <div className="absolute right-6 top-8">
+              <div className="w-10">
+                <PA />
+              </div>
+              <div className="text-[8px] text-center text-zinc-500 mt-1">120V</div>
+            </div>
+
+            {/* Stage Grid */}
+            <div className="ml-16 mr-16 space-y-4 pt-4">
+              {ROWS.map((row) => (
+                <div key={row} className="grid grid-cols-3 gap-2 min-h-[100px]">
                   {POSITIONS.map((position) => {
                     const elementsHere = getElementsInPosition(position, row);
                     
                     return (
                       <div
                         key={position}
-                        className="relative rounded-lg border-2 border-dashed border-zinc-600/50 bg-zinc-800/30 p-2 min-h-[100px] flex flex-col gap-2 transition-all hover:border-primary/50 hover:bg-zinc-800/50"
+                        className="relative flex flex-wrap gap-2 justify-center items-center p-2 min-h-[90px] rounded border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-primary/50 transition-colors"
                       >
-                        {/* Position Label */}
-                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] text-zinc-500 bg-zinc-800 px-2 rounded">
-                          {POSITION_LABELS[position]}
-                        </span>
-
-                        {/* Elements */}
                         {elementsHere.length === 0 ? (
-                          <div className="flex-1 flex items-center justify-center">
-                            <span className="text-xs text-zinc-600">Vazio</span>
-                          </div>
+                          <span className="text-[10px] text-zinc-400">{POSITION_LABELS[position]}</span>
                         ) : (
-                          <div className="flex flex-wrap gap-2 justify-center items-start pt-2">
-                            {elementsHere.map((element) => {
-                              const config = getElementConfig(element.type);
-                              if (!config) return null;
-                              const Icon = config.icon;
+                          elementsHere.map((element) => (
+                            <div key={element.id} className="group relative">
+                              <div className={`${getElementSize(element.type)} cursor-pointer hover:scale-105 transition-transform`}>
+                                {getElementVisual(element.type, element.name)}
+                              </div>
                               
-                              return (
-                                <div
-                                  key={element.id}
-                                  className="group relative"
+                              {/* Controls overlay */}
+                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded flex items-center justify-center gap-1">
+                                <button
+                                  onClick={() => moveElement(element.id, 'left')}
+                                  disabled={position === 'left'}
+                                  className="w-5 h-5 rounded bg-white/90 text-zinc-800 flex items-center justify-center hover:bg-white disabled:opacity-30"
                                 >
-                                  <div className={`flex flex-col items-center p-2 rounded-lg bg-gradient-to-br ${config.color} shadow-lg transition-transform hover:scale-105 cursor-pointer min-w-[65px]`}>
-                                    <Icon className="w-5 h-5 text-white drop-shadow mb-1" />
-                                    <span className="text-[9px] text-white font-medium text-center leading-tight drop-shadow">
-                                      {element.name}
-                                    </span>
-                                  </div>
-                                  
-                                  {/* Delete Button */}
-                                  <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                      onClick={() => removeElement(element.id)}
-                                      className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-md"
-                                    >
-                                      <Trash2 className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                  
-                                  {/* Move Controls - Horizontal */}
-                                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                    <button
-                                      onClick={() => moveElement(element.id, 'left')}
-                                      disabled={position === 'left'}
-                                      className="w-5 h-5 rounded-full bg-zinc-600 text-white flex items-center justify-center hover:bg-zinc-500 shadow-md disabled:opacity-30 disabled:cursor-not-allowed"
-                                    >
-                                      <ChevronLeft className="w-3 h-3" />
-                                    </button>
-                                    <button
-                                      onClick={() => moveElement(element.id, 'right')}
-                                      disabled={position === 'right'}
-                                      className="w-5 h-5 rounded-full bg-zinc-600 text-white flex items-center justify-center hover:bg-zinc-500 shadow-md disabled:opacity-30 disabled:cursor-not-allowed"
-                                    >
-                                      <ChevronRight className="w-3 h-3" />
-                                    </button>
-                                  </div>
+                                  <ChevronLeft className="w-3 h-3" />
+                                </button>
+                                <div className="flex flex-col gap-0.5">
+                                  <button
+                                    onClick={() => moveElement(element.id, 'up')}
+                                    disabled={row === 'back'}
+                                    className="w-5 h-5 rounded bg-white/90 text-zinc-800 flex items-center justify-center hover:bg-white disabled:opacity-30"
+                                  >
+                                    <ChevronUp className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => removeElement(element.id)}
+                                    className="w-5 h-5 rounded bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => moveElement(element.id, 'down')}
+                                    disabled={row === 'front'}
+                                    className="w-5 h-5 rounded bg-white/90 text-zinc-800 flex items-center justify-center hover:bg-white disabled:opacity-30"
+                                  >
+                                    <ChevronDown className="w-3 h-3" />
+                                  </button>
                                 </div>
-                              );
-                            })}
-                          </div>
+                                <button
+                                  onClick={() => moveElement(element.id, 'right')}
+                                  disabled={position === 'right'}
+                                  className="w-5 h-5 rounded bg-white/90 text-zinc-800 flex items-center justify-center hover:bg-white disabled:opacity-30"
+                                >
+                                  <ChevronRight className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          ))
                         )}
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            {/* PA Speakers on sides */}
-            <div className="absolute left-1 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-              <div className="w-6 h-14 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded border border-zinc-500 flex items-center justify-center">
-                <Speaker className="w-3 h-3 text-zinc-400" />
-              </div>
-            </div>
-            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-              <div className="w-6 h-14 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded border border-zinc-500 flex items-center justify-center">
-                <Speaker className="w-3 h-3 text-zinc-400" />
-              </div>
-            </div>
+            {/* Side monitors indicators */}
+            <div className="absolute right-16 top-1/3 text-[8px] text-zinc-500 font-mono">STEREO DI</div>
+            <div className="absolute right-16 top-1/2 text-[8px] text-zinc-500 font-mono">110V</div>
+            <div className="absolute right-16 top-2/3 text-[8px] text-zinc-500 font-mono">120V</div>
           </div>
 
-          {/* Stage Front Edge */}
-          <div className="h-4 bg-gradient-to-r from-zinc-700 via-zinc-600 to-zinc-700 border-t border-zinc-500" />
+          {/* Stage front edge */}
+          <div className="h-3 bg-gradient-to-b from-zinc-400 to-zinc-500 dark:from-zinc-600 dark:to-zinc-700 rounded-b-sm" />
         </div>
 
         {/* Audience indicator */}
-        <div className="text-center mt-4">
-          <Badge variant="secondary" className="text-xs">
-            ⬇️ PÚBLICO / PLATEIA ⬇️
-          </Badge>
+        <div className="text-center pb-4">
+          <span className="text-xs text-zinc-500 font-medium tracking-widest">▼ PLATEIA ▼</span>
         </div>
       </div>
 
-      {/* Summary */}
+      {/* Elements Summary */}
       {elements.length > 0 && (
-        <Card className="p-4 bg-card/50 backdrop-blur border-border/50">
+        <Card className="p-4 bg-white dark:bg-zinc-900 border-border">
           <p className="text-sm font-medium mb-2">Elementos no palco ({elements.length}):</p>
           <div className="flex flex-wrap gap-2">
             {elements.map((element) => {
-              const config = getElementConfig(element.type);
-              if (!config) return null;
-              const Icon = config.icon;
+              const elementType = ELEMENT_TYPES.find(e => e.type === element.type);
               return (
                 <Badge 
                   key={element.id} 
-                  variant="outline" 
-                  className="text-xs flex items-center gap-1.5 py-1"
+                  variant="secondary" 
+                  className="text-xs"
                 >
-                  <div className={`w-4 h-4 rounded bg-gradient-to-br ${config.color} flex items-center justify-center`}>
-                    <Icon className="w-2.5 h-2.5 text-white" />
-                  </div>
-                  <span>{element.name}</span>
-                  <span className="text-muted-foreground">
-                    ({POSITION_LABELS[element.position]} - {ROW_LABELS[element.row]})
-                  </span>
+                  {element.name} ({POSITION_LABELS[element.position]} - {ROW_LABELS[element.row]})
                 </Badge>
               );
             })}
           </div>
         </Card>
       )}
+
+      <p className="text-xs text-muted-foreground text-center">
+        Passe o mouse sobre um elemento para mover ou remover
+      </p>
     </div>
   );
 }
