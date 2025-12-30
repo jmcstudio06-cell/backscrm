@@ -906,6 +906,71 @@ export type Database = {
           },
         ]
       }
+      stage_mappings: {
+        Row: {
+          artist_name: string | null
+          created_at: string
+          event_date: string | null
+          event_location: string | null
+          event_name: string | null
+          id: string
+          input_list: Json | null
+          materials_checklist: Json | null
+          name: string
+          observations: string | null
+          show_id: string | null
+          stage_layout: Json | null
+          technical_contact: string | null
+          technical_phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          artist_name?: string | null
+          created_at?: string
+          event_date?: string | null
+          event_location?: string | null
+          event_name?: string | null
+          id?: string
+          input_list?: Json | null
+          materials_checklist?: Json | null
+          name?: string
+          observations?: string | null
+          show_id?: string | null
+          stage_layout?: Json | null
+          technical_contact?: string | null
+          technical_phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          artist_name?: string | null
+          created_at?: string
+          event_date?: string | null
+          event_location?: string | null
+          event_name?: string | null
+          id?: string
+          input_list?: Json | null
+          materials_checklist?: Json | null
+          name?: string
+          observations?: string | null
+          show_id?: string | null
+          stage_layout?: Json | null
+          technical_contact?: string | null
+          technical_phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_mappings_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number

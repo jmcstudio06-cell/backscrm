@@ -27,6 +27,7 @@ import {
   Lock,
   X,
   BookOpen,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -76,6 +77,7 @@ const menuItems: MenuItem[] = [
     label: "Logística",
     children: [
       { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },
+      { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "checklist" },
       { icon: Users2, label: "Equipe & Freelancer", path: "/equipe", featureKey: "equipe" },
     ],
   },
