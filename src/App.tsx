@@ -26,6 +26,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Orcamentos from "./pages/Orcamentos";
 import Contratos from "./pages/Contratos";
 import Repertorio from "./pages/Repertorio";
+import MapeamentoPalco from "./pages/MapeamentoPalco";
 import Admin from "./pages/Admin";
 import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
@@ -55,6 +56,7 @@ const App = () => (
                 <Route path="/financeiro" element={<Financeiro />} />
                 <Route path="/historico" element={<Historico />} />
                 <Route path="/checklist" element={<Checklist />} />
+                <Route path="/mapeamento-palco" element={<MapeamentoPalco />} />
                 <Route path="/equipe" element={<Equipe />} />
                 <Route path="/metas" element={<Metas />} />
                 <Route path="/planos" element={<Planos />} />
