@@ -6,10 +6,9 @@ import { toast } from "sonner";
 export interface StageElement {
   id: string;
   type: string;
-  label: string;
-  x: number;
-  y: number;
-  channel?: number;
+  name: string;
+  position: 'left' | 'center' | 'right';
+  row: 'front' | 'middle' | 'back';
 }
 
 export interface InputChannel {
