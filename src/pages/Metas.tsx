@@ -221,7 +221,8 @@ export default function Metas() {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   const monthlyGoals = goalsWithCurrentValues.filter(g => g.month === currentMonth && g.year === currentYear);
-  const yearlyAnnualGoals = annualGoals.filter(g => g.year === currentYear);
+  // Show all annual goals (not just current year) so user can see goals for next year too
+  const yearlyAnnualGoals = annualGoals;
 
   const overallProgress = monthlyGoals.length > 0
     ? Math.round(
