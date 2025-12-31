@@ -16,7 +16,7 @@ import {
   Package,
   Info
 } from "lucide-react";
-import { StageCanvas, generateStageLayoutSVG } from "./StageCanvas";
+import { StageCanvas, StageElement as CanvasStageElement, generateStageLayoutSVG } from "./StageCanvas";
 import { InputList } from "./InputList";
 import { MaterialsChecklist } from "./MaterialsChecklist";
 import { EventInfo } from "./EventInfo";

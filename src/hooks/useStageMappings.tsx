@@ -7,8 +7,8 @@ export interface StageElement {
   id: string;
   type: string;
   name: string;
-  position: 'left' | 'center' | 'right';
-  row: 'front' | 'middle' | 'back';
+  x: number;
+  y: number;
 }
 
 export interface InputChannel {
