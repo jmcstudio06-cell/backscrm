@@ -81,6 +81,20 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     }
   };
 
+  // Quando um elemento é adicionado ao palco, adiciona os canais correspondentes
+  const handleElementAdded = (newChannels: InputChannel[]) => {
+    const maxChannel = inputList.length > 0 
+      ? Math.max(...inputList.map(c => c.channel)) 
+      : 0;
+    
+    const channelsWithNumbers = newChannels.map((channel, index) => ({
+      ...channel,
+      channel: maxChannel + index + 1,
+    }));
+    
+    setInputList([...inputList, ...channelsWithNumbers]);
+  };
+
   const generatePrintContent = () => {
     const materialLabels: Record<string, string> = {
       microfones: "Microfones",
@@ -281,7 +295,8 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
             <CardContent>
               <StageCanvas 
                 elements={stageLayout} 
-                onChange={setStageLayout} 
+                onChange={setStageLayout}
+                onElementAdded={handleElementAdded}
               />
             </CardContent>
           </Card>
