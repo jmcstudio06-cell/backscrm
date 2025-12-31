@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   Plus,
   Trash2,
@@ -10,6 +9,7 @@ import {
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
+import { InputChannel } from '@/hooks/useStageMappings';
 
 export interface StageElement {
   id: string;
@@ -22,6 +22,7 @@ export interface StageElement {
 interface StageCanvasProps {
   elements: StageElement[];
   onChange: (elements: StageElement[]) => void;
+  onElementAdded?: (channels: InputChannel[]) => void;
 }
 
 const ELEMENT_TYPES = [
@@ -35,6 +36,41 @@ const ELEMENT_TYPES = [
   { type: 'monitor', label: 'Retorno', shortLabel: 'RET' },
 ];
 
+// Mapeamento de elementos para canais de input
+const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: string; di: boolean }[]> = {
+  vocal: [
+    { instrument: 'Voz Principal', micType: 'SM58', di: false },
+  ],
+  backing: [
+    { instrument: 'Backing Vocal', micType: 'SM58', di: false },
+  ],
+  guitar: [
+    { instrument: 'Guitarra', micType: 'SM57', di: false },
+  ],
+  bass: [
+    { instrument: 'Baixo', micType: '', di: true },
+  ],
+  keyboard: [
+    { instrument: 'Teclado L', micType: '', di: true },
+    { instrument: 'Teclado R', micType: '', di: true },
+  ],
+  drums: [
+    { instrument: 'Bumbo', micType: 'Beta 52', di: false },
+    { instrument: 'Caixa', micType: 'SM57', di: false },
+    { instrument: 'Hi-Hat', micType: 'SM81', di: false },
+    { instrument: 'Tom 1', micType: 'E604', di: false },
+    { instrument: 'Tom 2', micType: 'E604', di: false },
+    { instrument: 'Surdo', micType: 'E602', di: false },
+    { instrument: 'Overhead L', micType: 'SM81', di: false },
+    { instrument: 'Overhead R', micType: 'SM81', di: false },
+  ],
+  dj: [
+    { instrument: 'DJ L', micType: '', di: true },
+    { instrument: 'DJ R', micType: '', di: true },
+  ],
+  monitor: [],
+};
+
 const POSITIONS = ['left', 'center', 'right'] as const;
 const ROWS = ['back', 'middle', 'front'] as const;
 
@@ -42,12 +78,6 @@ const POSITION_LABELS = {
   left: 'Esquerda',
   center: 'Centro',
   right: 'Direita'
-};
-
-const ROW_LABELS = {
-  front: 'Frente',
-  middle: 'Meio',
-  back: 'Fundo'
 };
 
 // Stage element visual components
@@ -224,7 +254,7 @@ const getElementSize = (type: string) => {
   }
 };
 
-export function StageCanvas({ elements, onChange }: StageCanvasProps) {
+export function StageCanvas({ elements, onChange, onElementAdded }: StageCanvasProps) {
   const addElement = (type: string) => {
     const elementType = ELEMENT_TYPES.find(e => e.type === type);
     if (!elementType) return;
@@ -241,6 +271,20 @@ export function StageCanvas({ elements, onChange }: StageCanvasProps) {
     };
 
     onChange([...elements, newElement]);
+
+    // Gerar canais de input automaticamente
+    const inputChannels = ELEMENT_INPUT_CHANNELS[type] || [];
+    if (inputChannels.length > 0 && onElementAdded) {
+      const channels: InputChannel[] = inputChannels.map((channel, index) => ({
+        id: crypto.randomUUID(),
+        channel: 0, // Será calculado no componente pai
+        instrument: number > 1 ? `${channel.instrument} ${number}` : channel.instrument,
+        micType: channel.micType,
+        di: channel.di,
+        observations: '',
+      }));
+      onElementAdded(channels);
+    }
   };
 
   const removeElement = (id: string) => {
@@ -430,46 +474,56 @@ export function StageCanvas({ elements, onChange }: StageCanvasProps) {
               ))}
             </div>
 
-            {/* Side monitors indicators */}
-            <div className="absolute right-16 top-1/3 text-[8px] text-zinc-500 font-mono">STEREO DI</div>
-            <div className="absolute right-16 top-1/2 text-[8px] text-zinc-500 font-mono">110V</div>
-            <div className="absolute right-16 top-2/3 text-[8px] text-zinc-500 font-mono">120V</div>
+            {/* Power requirements */}
+            <div className="absolute bottom-2 left-4 text-[8px] text-zinc-500 font-mono">
+              ⚡ 110V / 220V
+            </div>
+            <div className="absolute bottom-2 right-4 text-[8px] text-zinc-500 font-mono">
+              ⚡ 110V / 220V
+            </div>
           </div>
 
-          {/* Stage front edge */}
-          <div className="h-3 bg-gradient-to-b from-zinc-400 to-zinc-500 dark:from-zinc-600 dark:to-zinc-700 rounded-b-sm" />
+          {/* Front of stage indicator */}
+          <div className="h-6 bg-gradient-to-b from-zinc-400 to-zinc-500 dark:from-zinc-600 dark:to-zinc-700 border border-zinc-400 dark:border-zinc-600 rounded-b-sm flex items-center justify-center">
+            <span className="text-[10px] font-bold text-white tracking-widest">PLATEIA</span>
+          </div>
         </div>
 
-        {/* Audience indicator */}
-        <div className="text-center pb-4">
-          <span className="text-xs text-zinc-500 font-medium tracking-widest">▼ PLATEIA ▼</span>
+        {/* Legend */}
+        <div className="bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-300 dark:border-zinc-700 p-3">
+          <div className="flex flex-wrap gap-4 justify-center text-[10px] text-zinc-600 dark:text-zinc-400">
+            <span>🎤 Microfones</span>
+            <span>🥁 Bateria</span>
+            <span>🎹 Teclado</span>
+            <span>🎸 Guitarra/Baixo</span>
+            <span>🔊 PA/Retornos</span>
+            <span>🎧 DJ</span>
+          </div>
         </div>
       </div>
 
-      {/* Elements Summary */}
+      {/* Summary */}
       {elements.length > 0 && (
-        <Card className="p-4 bg-white dark:bg-zinc-900 border-border">
-          <p className="text-sm font-medium mb-2">Elementos no palco ({elements.length}):</p>
+        <Card className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border-border">
+          <h4 className="text-sm font-medium mb-2">Elementos no palco:</h4>
           <div className="flex flex-wrap gap-2">
-            {elements.map((element) => {
-              const elementType = ELEMENT_TYPES.find(e => e.type === element.type);
-              return (
-                <Badge 
-                  key={element.id} 
-                  variant="secondary" 
-                  className="text-xs"
+            {elements.map((element) => (
+              <span
+                key={element.id}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs"
+              >
+                {element.name}
+                <button
+                  onClick={() => removeElement(element.id)}
+                  className="ml-1 hover:text-destructive transition-colors"
                 >
-                  {element.name} ({POSITION_LABELS[element.position]} - {ROW_LABELS[element.row]})
-                </Badge>
-              );
-            })}
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
           </div>
         </Card>
       )}
-
-      <p className="text-xs text-muted-foreground text-center">
-        Passe o mouse sobre um elemento para mover ou remover
-      </p>
     </div>
   );
 }
