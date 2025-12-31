@@ -8,10 +8,16 @@ import {
   ChevronRight,
   ChevronUp,
   ChevronDown,
-  Music,
   Mic,
+  MicVocal,
+  Guitar,
+  Music2,
+  Piano,
+  Drum,
+  Headphones,
   Speaker,
-  Zap
+  Plug,
+  Music
 } from 'lucide-react';
 import { InputChannel } from '@/hooks/useStageMappings';
 
@@ -31,17 +37,17 @@ interface StageCanvasProps {
 }
 
 const ELEMENT_TYPES = [
-  { type: 'vocal', label: 'Voz', shortLabel: 'VOZ', icon: '🎤', color: 'bg-purple-500' },
-  { type: 'backing', label: 'Backing', shortLabel: 'BV', icon: '🎙️', color: 'bg-purple-400' },
-  { type: 'guitar', label: 'Guitarra', shortLabel: 'GTR', icon: '🎸', color: 'bg-red-500' },
-  { type: 'acoustic', label: 'Violão', shortLabel: 'VIO', icon: '🪕', color: 'bg-amber-600' },
-  { type: 'bass', label: 'Baixo', shortLabel: 'BAIXO', icon: '🎸', color: 'bg-blue-500' },
-  { type: 'keyboard', label: 'Teclado', shortLabel: 'TEC', icon: '🎹', color: 'bg-green-500' },
-  { type: 'drums', label: 'Bateria', shortLabel: 'BAT', icon: '🥁', color: 'bg-orange-500' },
-  { type: 'accordion', label: 'Sanfona', shortLabel: 'SANF', icon: '🪗', color: 'bg-rose-500' },
-  { type: 'dj', label: 'DJ', shortLabel: 'DJ', icon: '🎧', color: 'bg-cyan-500' },
-  { type: 'monitor', label: 'Retorno', shortLabel: 'RET', icon: '🔊', color: 'bg-zinc-600' },
-  { type: 'power', label: 'Tomada AC', shortLabel: 'AC', icon: '⚡', color: 'bg-yellow-500' },
+  { type: 'vocal', label: 'Voz', shortLabel: 'VOZ', Icon: Mic, color: 'bg-purple-500' },
+  { type: 'backing', label: 'Backing', shortLabel: 'BV', Icon: MicVocal, color: 'bg-purple-400' },
+  { type: 'guitar', label: 'Guitarra', shortLabel: 'GTR', Icon: Guitar, color: 'bg-red-500' },
+  { type: 'acoustic', label: 'Violão', shortLabel: 'VIO', Icon: Music2, color: 'bg-amber-600' },
+  { type: 'bass', label: 'Baixo', shortLabel: 'BAIXO', Icon: Guitar, color: 'bg-blue-500' },
+  { type: 'keyboard', label: 'Teclado', shortLabel: 'TEC', Icon: Piano, color: 'bg-green-500' },
+  { type: 'drums', label: 'Bateria', shortLabel: 'BAT', Icon: Drum, color: 'bg-orange-500' },
+  { type: 'accordion', label: 'Sanfona', shortLabel: 'SANF', Icon: Music, color: 'bg-rose-500' },
+  { type: 'dj', label: 'DJ', shortLabel: 'DJ', Icon: Headphones, color: 'bg-cyan-500' },
+  { type: 'monitor', label: 'Retorno', shortLabel: 'RET', Icon: Speaker, color: 'bg-zinc-600' },
+  { type: 'power', label: 'Tomada AC', shortLabel: 'AC', Icon: Plug, color: 'bg-yellow-500' },
 ];
 
 // Mapeamento de elementos para canais de input
@@ -441,7 +447,9 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
               className={`flex flex-col items-center justify-center gap-1 h-auto py-3 px-2 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border-2 border-zinc-300 dark:border-zinc-600 hover:border-primary hover:scale-105 transition-all shadow-sm`}
               onClick={() => addElement(elementType.type)}
             >
-              <span className="text-2xl">{elementType.icon}</span>
+              <div className={`p-2 rounded-lg ${elementType.color}`}>
+                <elementType.Icon className="w-5 h-5 text-white" />
+              </div>
               <span className="text-xs font-medium text-foreground">{elementType.label}</span>
             </Button>
           ))}
