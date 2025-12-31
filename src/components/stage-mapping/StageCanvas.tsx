@@ -88,254 +88,294 @@ const ROWS = ['back', 'middle', 'front'] as const;
 
 const POSITION_LABELS = { left: 'ESQ', center: 'CENTRO', right: 'DIR' };
 
-// ========== SVG ELEMENTS ==========
+// ========== SVG ELEMENTS - Estilo profissional com pessoas ==========
 
-// Bateria completa - Vista de cima
+// Pessoa genérica (silhueta de cima)
+const PersonSilhouette = ({ cx, cy, scale = 1 }: { cx: number; cy: number; scale?: number }) => (
+  <g transform={`translate(${cx}, ${cy}) scale(${scale})`}>
+    {/* Cabeça */}
+    <circle cx="0" cy="-12" r="8" fill="#333" />
+    {/* Corpo/ombros */}
+    <ellipse cx="0" cy="5" rx="12" ry="15" fill="#444" />
+    {/* Braços */}
+    <ellipse cx="-14" cy="8" rx="5" ry="8" fill="#333" />
+    <ellipse cx="14" cy="8" rx="5" ry="8" fill="#333" />
+  </g>
+);
+
+// Bateria completa com baterista
 const DrumKit = () => (
-  <svg viewBox="0 0 180 140" className="w-full h-full">
+  <svg viewBox="0 0 200 160" className="w-full h-full">
+    {/* Baterista */}
+    <PersonSilhouette cx={100} cy={130} scale={0.9} />
+    
     {/* Bumbo */}
-    <ellipse cx="90" cy="70" rx="28" ry="28" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
-    <ellipse cx="90" cy="70" rx="22" ry="22" fill="#0f0f0f" stroke="#222" strokeWidth="1"/>
-    <ellipse cx="90" cy="70" rx="8" ry="8" fill="#333"/>
+    <ellipse cx="100" cy="85" rx="32" ry="30" fill="none" stroke="#333" strokeWidth="3"/>
+    <ellipse cx="100" cy="85" rx="26" ry="24" fill="none" stroke="#666" strokeWidth="1"/>
+    <ellipse cx="100" cy="85" rx="12" ry="12" fill="#eee" stroke="#ccc" strokeWidth="1"/>
+    
     {/* Tom 1 */}
-    <ellipse cx="70" cy="35" rx="16" ry="14" fill="#1a1a1a" stroke="#444" strokeWidth="1.5"/>
-    <ellipse cx="70" cy="35" rx="12" ry="10" fill="#0f0f0f"/>
+    <ellipse cx="75" cy="50" rx="18" ry="14" fill="none" stroke="#333" strokeWidth="2"/>
+    <ellipse cx="75" cy="50" rx="14" ry="10" fill="none" stroke="#666" strokeWidth="1"/>
+    
     {/* Tom 2 */}
-    <ellipse cx="110" cy="35" rx="16" ry="14" fill="#1a1a1a" stroke="#444" strokeWidth="1.5"/>
-    <ellipse cx="110" cy="35" rx="12" ry="10" fill="#0f0f0f"/>
+    <ellipse cx="125" cy="50" rx="18" ry="14" fill="none" stroke="#333" strokeWidth="2"/>
+    <ellipse cx="125" cy="50" rx="14" ry="10" fill="none" stroke="#666" strokeWidth="1"/>
+    
     {/* Caixa */}
-    <ellipse cx="55" cy="85" rx="14" ry="12" fill="#ddd" stroke="#999" strokeWidth="1.5"/>
-    <ellipse cx="55" cy="85" rx="10" ry="8" fill="#f5f5f5"/>
+    <ellipse cx="60" cy="105" rx="16" ry="12" fill="none" stroke="#333" strokeWidth="2"/>
+    <ellipse cx="60" cy="105" rx="12" ry="8" fill="none" stroke="#999" strokeWidth="1"/>
+    <line x1="52" y1="100" x2="68" y2="110" stroke="#ccc" strokeWidth="0.5"/>
+    <line x1="52" y1="110" x2="68" y2="100" stroke="#ccc" strokeWidth="0.5"/>
+    
     {/* Surdo */}
-    <ellipse cx="145" cy="85" rx="20" ry="18" fill="#1a1a1a" stroke="#444" strokeWidth="1.5"/>
-    <ellipse cx="145" cy="85" rx="15" ry="13" fill="#0f0f0f"/>
+    <ellipse cx="160" cy="100" rx="22" ry="18" fill="none" stroke="#333" strokeWidth="2"/>
+    <ellipse cx="160" cy="100" rx="17" ry="13" fill="none" stroke="#666" strokeWidth="1"/>
+    
     {/* Hi-Hat */}
-    <ellipse cx="25" cy="55" rx="14" ry="6" fill="#c9a227" stroke="#8b7355" strokeWidth="1"/>
-    <ellipse cx="25" cy="52" rx="13" ry="5" fill="#d4af37"/>
-    <circle cx="25" cy="55" r="2" fill="#666"/>
+    <ellipse cx="30" cy="70" rx="16" ry="6" fill="none" stroke="#888" strokeWidth="2"/>
+    <ellipse cx="30" cy="66" rx="15" ry="5" fill="none" stroke="#888" strokeWidth="1.5"/>
+    <line x1="30" y1="72" x2="30" y2="110" stroke="#666" strokeWidth="1.5"/>
+    
     {/* Crash */}
-    <ellipse cx="35" cy="20" rx="16" ry="7" fill="#d4af37" stroke="#8b7355" strokeWidth="1"/>
-    <circle cx="35" cy="20" r="2" fill="#666"/>
+    <ellipse cx="45" cy="30" rx="18" ry="7" fill="none" stroke="#888" strokeWidth="2"/>
+    <line x1="45" y1="33" x2="45" y2="60" stroke="#666" strokeWidth="1.5"/>
+    
     {/* Ride */}
-    <ellipse cx="155" cy="40" rx="18" ry="8" fill="#d4af37" stroke="#8b7355" strokeWidth="1"/>
-    <circle cx="155" cy="40" r="3" fill="#666"/>
-    {/* Banco */}
-    <circle cx="90" cy="120" r="12" fill="#333" stroke="#555" strokeWidth="1"/>
-    <text x="160" y="130" fill="#dc2626" fontSize="10" fontWeight="bold">AC</text>
+    <ellipse cx="170" cy="55" rx="20" ry="8" fill="none" stroke="#888" strokeWidth="2"/>
+    <line x1="170" y1="60" x2="170" y2="85" stroke="#666" strokeWidth="1.5"/>
+    
+    {/* Pedal de bumbo */}
+    <rect x="85" y="115" width="30" height="8" fill="none" stroke="#555" strokeWidth="1"/>
+    
+    <text x="180" y="155" fill="#dc2626" fontSize="10" fontWeight="bold">AC</text>
   </svg>
 );
 
-// Teclado
+// Teclado com tecladista
 const Keyboard = () => (
-  <svg viewBox="0 0 160 80" className="w-full h-full">
-    <rect x="5" y="35" width="150" height="40" rx="2" fill="#333" stroke="#555" strokeWidth="1"/>
-    <rect x="15" y="40" width="130" height="30" rx="2" fill="#1a1a1a" stroke="#444" strokeWidth="1.5"/>
-    {[...Array(26)].map((_, i) => (
-      <rect key={i} x={18 + i * 4.8} y="45" width="4" height="20" fill="#f5f5f5" stroke="#ddd" strokeWidth="0.3" rx="0.5"/>
+  <svg viewBox="0 0 180 100" className="w-full h-full">
+    {/* Tecladista */}
+    <PersonSilhouette cx={90} cy={75} scale={0.7} />
+    
+    {/* Suporte X */}
+    <line x1="20" y1="80" x2="50" y2="50" stroke="#555" strokeWidth="2"/>
+    <line x1="50" y1="80" x2="20" y2="50" stroke="#555" strokeWidth="2"/>
+    <line x1="130" y1="80" x2="160" y2="50" stroke="#555" strokeWidth="2"/>
+    <line x1="160" y1="80" x2="130" y2="50" stroke="#555" strokeWidth="2"/>
+    
+    {/* Teclado */}
+    <rect x="10" y="35" width="160" height="22" rx="2" fill="none" stroke="#333" strokeWidth="2"/>
+    
+    {/* Teclas brancas */}
+    {[...Array(28)].map((_, i) => (
+      <rect key={i} x={14 + i * 5.5} y="38" width="4.5" height="16" fill="none" stroke="#666" strokeWidth="0.5"/>
     ))}
-    {[0, 1, 3, 4, 5, 7, 8, 10, 11, 12, 14, 15, 17, 18, 19, 21, 22, 24].map((i) => (
-      <rect key={`b${i}`} x={21 + i * 4.8} y="45" width="3" height="12" fill="#1a1a1a" rx="0.5"/>
+    
+    {/* Teclas pretas */}
+    {[0, 1, 3, 4, 5, 7, 8, 10, 11, 12, 14, 15, 17, 18, 19, 21, 22, 24, 25].map((i) => (
+      <rect key={`b${i}`} x={17 + i * 5.5} y="38" width="3" height="9" fill="#333"/>
     ))}
-    <rect x="60" y="42" width="40" height="4" fill="#2d5a27" rx="1"/>
-    <rect x="140" y="10" width="18" height="22" fill="#1a1a1a" stroke="#444" strokeWidth="1" rx="2"/>
-    <text x="149" y="18" fill="#fff" fontSize="5" textAnchor="middle">STEREO</text>
-    <text x="149" y="26" fill="#fff" fontSize="6" textAnchor="middle" fontWeight="bold">DI</text>
-    <text x="8" y="20" fill="#dc2626" fontSize="10" fontWeight="bold">AC</text>
+    
+    {/* Display/controles */}
+    <rect x="70" y="28" width="40" height="6" fill="none" stroke="#666" strokeWidth="1"/>
+    
+    {/* DI Box */}
+    <rect x="155" y="10" width="22" height="18" fill="none" stroke="#333" strokeWidth="1.5" rx="2"/>
+    <text x="166" y="18" fill="#333" fontSize="5" textAnchor="middle">STEREO</text>
+    <text x="166" y="25" fill="#333" fontSize="6" textAnchor="middle" fontWeight="bold">DI</text>
+    
+    <text x="10" y="15" fill="#dc2626" fontSize="10" fontWeight="bold">AC</text>
   </svg>
 );
 
-// Guitarra Elétrica - Vista de cima (instrumento real)
+// Guitarrista
 const ElectricGuitar = ({ label }: { label: string }) => (
-  <svg viewBox="0 0 50 120" className="w-full h-full">
-    {/* Corpo */}
-    <ellipse cx="25" cy="85" rx="20" ry="25" fill="#8B0000" stroke="#5a0000" strokeWidth="2"/>
-    <ellipse cx="25" cy="75" rx="16" ry="18" fill="#a52a2a"/>
-    {/* Cutaway */}
-    <ellipse cx="12" cy="65" rx="8" ry="12" fill="#8B0000" stroke="#5a0000" strokeWidth="1"/>
-    {/* Pickups */}
-    <rect x="17" y="78" width="16" height="4" rx="1" fill="#333"/>
-    <rect x="17" y="86" width="16" height="4" rx="1" fill="#333"/>
-    {/* Bridge */}
-    <rect x="19" y="95" width="12" height="6" rx="1" fill="#c0c0c0"/>
-    {/* Braço */}
-    <rect x="22" y="15" width="6" height="55" fill="#4a3728" stroke="#3a2718" strokeWidth="1"/>
-    {/* Headstock */}
-    <rect x="20" y="5" width="10" height="15" rx="2" fill="#1a1a1a"/>
-    {/* Tarraxas */}
-    <circle cx="22" cy="8" r="2" fill="#c0c0c0"/>
-    <circle cx="28" cy="8" r="2" fill="#c0c0c0"/>
-    <circle cx="22" cy="14" r="2" fill="#c0c0c0"/>
-    <circle cx="28" cy="14" r="2" fill="#c0c0c0"/>
-    {/* Cordas */}
-    {[23, 24.5, 26, 27.5].map((x, i) => (
-      <line key={i} x1={x - 1} y1="18" x2={x - 1} y2="98" stroke="#888" strokeWidth="0.5"/>
-    ))}
-    <text x="25" y="118" textAnchor="middle" fill="#333" fontSize="7" fontWeight="bold">{label}</text>
+  <svg viewBox="0 0 80 120" className="w-full h-full">
+    {/* Pessoa */}
+    <PersonSilhouette cx={40} cy={70} scale={0.8} />
+    
+    {/* Guitarra na frente */}
+    <ellipse cx="55" cy="75" rx="12" ry="15" fill="none" stroke="#333" strokeWidth="2"/>
+    <ellipse cx="55" cy="70" rx="8" ry="10" fill="none" stroke="#666" strokeWidth="1"/>
+    <rect x="52" y="35" width="4" height="35" fill="none" stroke="#333" strokeWidth="1.5"/>
+    <rect x="50" y="28" width="8" height="10" rx="1" fill="none" stroke="#333" strokeWidth="1"/>
+    
+    {/* Amplificador */}
+    <rect x="5" y="90" width="30" height="25" rx="2" fill="none" stroke="#333" strokeWidth="2"/>
+    <ellipse cx="20" cy="100" rx="10" ry="10" fill="none" stroke="#666" strokeWidth="1"/>
+    <ellipse cx="20" cy="100" rx="6" ry="6" fill="none" stroke="#888" strokeWidth="0.5"/>
+    
+    <text x="40" y="118" textAnchor="middle" fill="#333" fontSize="8" fontWeight="bold">{label}</text>
   </svg>
 );
 
-// Baixo Elétrico
+// Baixista
 const BassGuitar = ({ label }: { label: string }) => (
-  <svg viewBox="0 0 50 130" className="w-full h-full">
-    {/* Corpo */}
-    <ellipse cx="25" cy="100" rx="18" ry="22" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
-    {/* Cutaway */}
-    <ellipse cx="12" cy="85" rx="7" ry="10" fill="#1a1a1a"/>
-    {/* Pickups */}
-    <rect x="18" y="95" width="14" height="5" rx="1" fill="#444"/>
-    <rect x="18" y="103" width="14" height="5" rx="1" fill="#444"/>
-    {/* Bridge */}
-    <rect x="19" y="112" width="12" height="5" rx="1" fill="#c0c0c0"/>
-    {/* Braço (mais longo) */}
-    <rect x="22" y="10" width="6" height="70" fill="#4a3728" stroke="#3a2718" strokeWidth="1"/>
-    {/* Headstock */}
-    <rect x="19" y="2" width="12" height="12" rx="2" fill="#1a1a1a"/>
-    {/* Tarraxas */}
-    <circle cx="22" cy="6" r="2" fill="#c0c0c0"/>
-    <circle cx="28" cy="6" r="2" fill="#c0c0c0"/>
-    <circle cx="22" cy="12" r="2" fill="#c0c0c0"/>
-    <circle cx="28" cy="12" r="2" fill="#c0c0c0"/>
-    {/* Cordas */}
-    {[23.5, 25, 26.5, 28].map((x, i) => (
-      <line key={i} x1={x - 1.5} y1="14" x2={x - 1.5} y2="115" stroke="#888" strokeWidth="0.7"/>
-    ))}
-    <text x="25" y="128" textAnchor="middle" fill="#333" fontSize="7" fontWeight="bold">{label}</text>
+  <svg viewBox="0 0 80 120" className="w-full h-full">
+    {/* Pessoa */}
+    <PersonSilhouette cx={40} cy={70} scale={0.8} />
+    
+    {/* Baixo na frente */}
+    <ellipse cx="55" cy="78" rx="10" ry="14" fill="none" stroke="#333" strokeWidth="2"/>
+    <rect x="52" y="30" width="4" height="45" fill="none" stroke="#333" strokeWidth="1.5"/>
+    <rect x="49" y="22" width="10" height="12" rx="1" fill="none" stroke="#333" strokeWidth="1"/>
+    
+    {/* Amplificador de baixo (maior) */}
+    <rect x="3" y="85" width="32" height="30" rx="2" fill="none" stroke="#333" strokeWidth="2"/>
+    <ellipse cx="19" cy="97" rx="11" ry="11" fill="none" stroke="#666" strokeWidth="1"/>
+    <ellipse cx="19" cy="97" rx="7" ry="7" fill="none" stroke="#888" strokeWidth="0.5"/>
+    
+    <text x="40" y="118" textAnchor="middle" fill="#333" fontSize="8" fontWeight="bold">{label}</text>
   </svg>
 );
 
-// Violão Acústico
+// Violonista
 const AcousticGuitar = ({ label }: { label: string }) => (
-  <svg viewBox="0 0 55 120" className="w-full h-full">
-    {/* Corpo */}
-    <ellipse cx="27" cy="85" rx="22" ry="28" fill="#d2691e" stroke="#8b4513" strokeWidth="2"/>
-    <ellipse cx="27" cy="80" rx="18" ry="22" fill="#deb887"/>
-    {/* Boca */}
-    <circle cx="27" cy="75" r="8" fill="#1a1a1a"/>
-    <circle cx="27" cy="75" r="6" fill="#333" stroke="#222" strokeWidth="1"/>
-    {/* Roseta */}
-    <circle cx="27" cy="75" r="10" fill="none" stroke="#8b4513" strokeWidth="1.5"/>
-    {/* Bridge */}
-    <rect x="20" y="92" width="14" height="4" rx="1" fill="#3d2314"/>
-    {/* Braço */}
-    <rect x="24" y="15" width="6" height="50" fill="#3d2314" stroke="#2d1a0d" strokeWidth="1"/>
-    {/* Headstock */}
-    <path d="M22 5 L32 5 L30 18 L24 18 Z" fill="#1a1a1a"/>
-    {/* Tarraxas */}
-    <circle cx="23" cy="8" r="2" fill="#c0c0c0"/>
-    <circle cx="31" cy="8" r="2" fill="#c0c0c0"/>
-    <circle cx="23" cy="14" r="2" fill="#c0c0c0"/>
-    <circle cx="31" cy="14" r="2" fill="#c0c0c0"/>
-    {/* Cordas */}
-    {[25, 26, 27, 28, 29, 30].map((x, i) => (
-      <line key={i} x1={x - 2} y1="18" x2={x - 2} y2="95" stroke="#888" strokeWidth="0.4"/>
-    ))}
-    <text x="27" y="118" textAnchor="middle" fill="#333" fontSize="7" fontWeight="bold">{label}</text>
+  <svg viewBox="0 0 80 120" className="w-full h-full">
+    {/* Pessoa */}
+    <PersonSilhouette cx={40} cy={70} scale={0.8} />
+    
+    {/* Violão */}
+    <ellipse cx="55" cy="80" rx="14" ry="18" fill="none" stroke="#8b4513" strokeWidth="2"/>
+    <ellipse cx="55" cy="75" rx="10" ry="12" fill="none" stroke="#d2691e" strokeWidth="1"/>
+    <circle cx="55" cy="72" r="5" fill="none" stroke="#333" strokeWidth="1.5"/>
+    <rect x="52" y="35" width="4" height="38" fill="none" stroke="#8b4513" strokeWidth="1.5"/>
+    <path d="M50 28 L58 28 L56 38 L52 38 Z" fill="none" stroke="#333" strokeWidth="1"/>
+    
+    {/* DI Box */}
+    <rect x="5" y="95" width="20" height="14" fill="none" stroke="#333" strokeWidth="1.5" rx="2"/>
+    <text x="15" y="104" fill="#333" fontSize="6" textAnchor="middle" fontWeight="bold">DI</text>
+    
+    <text x="40" y="118" textAnchor="middle" fill="#333" fontSize="8" fontWeight="bold">{label}</text>
   </svg>
 );
 
-// Sanfona / Acordeão
+// Sanfoneiro
 const Accordion = ({ label }: { label: string }) => (
-  <svg viewBox="0 0 100 80" className="w-full h-full">
-    {/* Lado direito (teclado) */}
-    <rect x="60" y="10" width="35" height="60" rx="3" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
-    {/* Teclas */}
-    {[...Array(10)].map((_, i) => (
-      <rect key={i} x="65" y={14 + i * 5.5} width="25" height="4" fill="#f5f5f5" rx="1"/>
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    {/* Pessoa */}
+    <PersonSilhouette cx={50} cy={60} scale={0.8} />
+    
+    {/* Sanfona no colo */}
+    <rect x="25" y="50" width="15" height="30" rx="2" fill="none" stroke="#333" strokeWidth="2"/>
+    <rect x="40" y="52" width="20" height="26" fill="none" stroke="#8b0000" strokeWidth="1.5"/>
+    {[...Array(5)].map((_, i) => (
+      <line key={i} x1="40" y1={55 + i * 5} x2="60" y2={55 + i * 5} stroke="#333" strokeWidth="0.5"/>
     ))}
-    {/* Fole (meio) */}
-    <rect x="30" y="12" width="30" height="56" fill="#8B0000" stroke="#5a0000" strokeWidth="1"/>
-    {[...Array(8)].map((_, i) => (
-      <React.Fragment key={i}>
-        <line x1="30" y1={15 + i * 7} x2="60" y2={15 + i * 7} stroke="#333" strokeWidth="1"/>
-        <path d={`M30 ${15 + i * 7} L45 ${18 + i * 7} L60 ${15 + i * 7}`} fill="none" stroke="#222" strokeWidth="0.5"/>
-      </React.Fragment>
+    <rect x="60" y="50" width="15" height="30" rx="2" fill="none" stroke="#333" strokeWidth="2"/>
+    {[...Array(6)].map((_, i) => (
+      <circle key={i} cx={67} cy={54 + i * 4.5} r="2" fill="none" stroke="#666" strokeWidth="0.5"/>
     ))}
-    {/* Lado esquerdo (baixos) */}
-    <rect x="5" y="10" width="25" height="60" rx="3" fill="#1a1a1a" stroke="#333" strokeWidth="2"/>
-    {/* Botões de baixo */}
-    {[0, 1, 2].map((col) => (
-      [...Array(5)].map((_, row) => (
-        <circle key={`${col}-${row}`} cx={12 + col * 7} cy={20 + row * 11} r="3" fill="#444" stroke="#666" strokeWidth="0.5"/>
-      ))
-    ))}
-    {/* Alça */}
-    <rect x="62" y="2" width="8" height="6" rx="2" fill="#333"/>
-    <text x="50" y="78" textAnchor="middle" fill="#333" fontSize="7" fontWeight="bold">{label}</text>
+    
+    <text x="50" y="95" textAnchor="middle" fill="#333" fontSize="8" fontWeight="bold">{label}</text>
   </svg>
 );
 
-// Microfone
+// Cantor com microfone
 const Microphone = ({ label }: { label: string }) => (
-  <svg viewBox="0 0 50 70" className="w-full h-full">
-    <ellipse cx="25" cy="55" rx="18" ry="10" fill="#333" stroke="#555" strokeWidth="1"/>
-    <ellipse cx="25" cy="55" rx="14" ry="7" fill="#2a2a2a"/>
-    <rect x="23" y="25" width="4" height="30" fill="#444"/>
-    <ellipse cx="25" cy="18" rx="8" ry="12" fill="#333" stroke="#555" strokeWidth="1.5"/>
-    <rect x="19" y="12" width="12" height="10" fill="#222" rx="3"/>
-    <rect x="21" y="14" width="8" height="6" fill="#1a1a1a" rx="2"/>
-    <text x="25" y="68" textAnchor="middle" fill="#333" fontSize="7" fontWeight="bold">{label}</text>
+  <svg viewBox="0 0 60 90" className="w-full h-full">
+    {/* Pessoa */}
+    <PersonSilhouette cx={30} cy={55} scale={0.85} />
+    
+    {/* Pedestal do microfone */}
+    <ellipse cx="30" cy="78" rx="12" ry="4" fill="none" stroke="#555" strokeWidth="1.5"/>
+    <line x1="30" y1="25" x2="30" y2="75" stroke="#555" strokeWidth="2"/>
+    
+    {/* Microfone */}
+    <ellipse cx="30" cy="20" rx="6" ry="10" fill="none" stroke="#333" strokeWidth="2"/>
+    <rect x="26" y="16" width="8" height="8" rx="2" fill="none" stroke="#666" strokeWidth="1"/>
+    
+    <text x="30" y="88" textAnchor="middle" fill="#333" fontSize="8" fontWeight="bold">{label}</text>
   </svg>
 );
 
-// Monitor
+// Monitor de palco
 const Monitor = ({ label }: { label: string }) => (
-  <svg viewBox="0 0 70 45" className="w-full h-full">
-    <polygon points="10,40 60,40 55,10 15,10" fill="#1a1a1a" stroke="#444" strokeWidth="2"/>
-    <rect x="18" y="15" width="34" height="20" fill="#2a2a2a" rx="2"/>
-    {[18, 22, 26, 30].map((y) => (
-      <line key={y} x1="20" y1={y} x2="50" y2={y} stroke="#444" strokeWidth="0.5"/>
+  <svg viewBox="0 0 80 50" className="w-full h-full">
+    {/* Corpo do monitor (trapézio) */}
+    <polygon points="10,45 70,45 62,15 18,15" fill="none" stroke="#333" strokeWidth="2"/>
+    
+    {/* Grade do falante */}
+    <rect x="22" y="20" width="36" height="20" fill="none" stroke="#666" strokeWidth="1"/>
+    {[22, 26, 30, 34].map((y) => (
+      <line key={y} x1="24" y1={y} x2="56" y2={y} stroke="#888" strokeWidth="0.5"/>
     ))}
-    <text x="35" y="8" textAnchor="middle" fill="#333" fontSize="6" fontWeight="bold">MONITOR</text>
-    <text x="35" y="42" textAnchor="middle" fill="#666" fontSize="6">{label}</text>
+    
+    {/* Etiqueta */}
+    <text x="40" y="12" textAnchor="middle" fill="#333" fontSize="6" fontWeight="bold">MONITOR</text>
+    <text x="40" y="48" textAnchor="middle" fill="#666" fontSize="6">{label}</text>
   </svg>
 );
 
-// PA Lateral
+// PA Lateral - Side
 const PA = () => (
-  <svg viewBox="0 0 45 90" className="w-full h-full">
-    <rect x="5" y="5" width="35" height="50" rx="2" fill="#0f0f0f" stroke="#333" strokeWidth="2"/>
-    <circle cx="22" cy="20" r="12" fill="#1a1a1a" stroke="#333" strokeWidth="1"/>
-    <circle cx="22" cy="20" r="8" fill="#111"/>
-    <circle cx="22" cy="20" r="2" fill="#222"/>
-    <rect x="12" y="38" width="21" height="12" fill="#1a1a1a" rx="1"/>
-    <circle cx="22" cy="44" r="4" fill="#333"/>
-    <rect x="5" y="58" width="35" height="30" rx="2" fill="#0a0a0a" stroke="#333" strokeWidth="2"/>
-    <circle cx="22" cy="73" r="12" fill="#111" stroke="#222" strokeWidth="1"/>
-    <circle cx="22" cy="73" r="8" fill="#0a0a0a"/>
-    <text x="22" y="92" textAnchor="middle" fill="#666" fontSize="5">SIDE</text>
+  <svg viewBox="0 0 50 100" className="w-full h-full">
+    {/* Caixa superior */}
+    <rect x="5" y="5" width="40" height="45" rx="2" fill="none" stroke="#333" strokeWidth="2"/>
+    <circle cx="25" cy="22" r="14" fill="none" stroke="#666" strokeWidth="1.5"/>
+    <circle cx="25" cy="22" r="9" fill="none" stroke="#888" strokeWidth="1"/>
+    <circle cx="25" cy="22" r="3" fill="#333"/>
+    <rect x="12" y="40" width="26" height="8" fill="none" stroke="#666" strokeWidth="1"/>
+    
+    {/* Sub */}
+    <rect x="5" y="55" width="40" height="40" rx="2" fill="none" stroke="#333" strokeWidth="2"/>
+    <circle cx="25" cy="75" r="16" fill="none" stroke="#666" strokeWidth="1.5"/>
+    <circle cx="25" cy="75" r="10" fill="none" stroke="#888" strokeWidth="1"/>
+    <circle cx="25" cy="75" r="4" fill="#333"/>
+    
+    <text x="25" y="99" textAnchor="middle" fill="#666" fontSize="6">SIDE</text>
   </svg>
 );
 
 // DJ Setup
 const DJSetup = () => (
-  <svg viewBox="0 0 160 100" className="w-full h-full">
-    <rect x="10" y="30" width="140" height="60" rx="3" fill="#1a1a1a" stroke="#444" strokeWidth="2"/>
-    <rect x="20" y="40" width="45" height="40" rx="2" fill="#222" stroke="#555" strokeWidth="1"/>
-    <circle cx="42" cy="60" r="15" fill="#333" stroke="#444" strokeWidth="1"/>
-    <circle cx="42" cy="60" r="10" fill="#222"/>
-    <circle cx="42" cy="60" r="3" fill="#111"/>
-    <rect x="70" y="40" width="35" height="40" rx="2" fill="#222" stroke="#555" strokeWidth="1"/>
-    {[78, 87, 96].map((x) => (
-      <rect key={x} x={x} y="50" width="3" height="20" fill="#666" rx="1"/>
+  <svg viewBox="0 0 180 110" className="w-full h-full">
+    {/* DJ (pessoa) */}
+    <PersonSilhouette cx={90} cy={85} scale={0.75} />
+    
+    {/* Mesa/Controlador */}
+    <rect x="15" y="35" width="150" height="45" rx="3" fill="none" stroke="#333" strokeWidth="2"/>
+    
+    {/* Toca-discos esquerdo */}
+    <rect x="20" y="40" width="50" height="35" fill="none" stroke="#666" strokeWidth="1"/>
+    <circle cx="45" cy="57" r="14" fill="none" stroke="#888" strokeWidth="1.5"/>
+    <circle cx="45" cy="57" r="9" fill="none" stroke="#aaa" strokeWidth="0.5"/>
+    <circle cx="45" cy="57" r="3" fill="#333"/>
+    
+    {/* Mixer central */}
+    <rect x="75" y="40" width="30" height="35" fill="none" stroke="#666" strokeWidth="1"/>
+    {[82, 90, 98].map((x) => (
+      <rect key={x} x={x} y="48" width="3" height="20" fill="none" stroke="#888" strokeWidth="0.5"/>
     ))}
-    <rect x="110" y="40" width="35" height="40" rx="2" fill="#222" stroke="#555" strokeWidth="1"/>
-    <circle cx="127" cy="60" r="12" fill="#333" stroke="#444" strokeWidth="1"/>
-    <circle cx="127" cy="60" r="8" fill="#222"/>
-    <circle cx="127" cy="60" r="2" fill="#111"/>
-    <rect x="60" y="10" width="40" height="25" rx="2" fill="#333" stroke="#555" strokeWidth="1"/>
-    <rect x="63" y="13" width="34" height="19" fill="#1a4a7a"/>
-    <text x="20" y="20" fill="#dc2626" fontSize="10" fontWeight="bold">AC</text>
+    
+    {/* Toca-discos direito */}
+    <rect x="110" y="40" width="50" height="35" fill="none" stroke="#666" strokeWidth="1"/>
+    <circle cx="135" cy="57" r="14" fill="none" stroke="#888" strokeWidth="1.5"/>
+    <circle cx="135" cy="57" r="9" fill="none" stroke="#aaa" strokeWidth="0.5"/>
+    <circle cx="135" cy="57" r="3" fill="#333"/>
+    
+    {/* Laptop/CDJ */}
+    <rect x="65" y="15" width="50" height="20" rx="2" fill="none" stroke="#555" strokeWidth="1.5"/>
+    <rect x="68" y="18" width="44" height="14" fill="none" stroke="#888" strokeWidth="0.5"/>
+    
+    <text x="20" y="15" fill="#dc2626" fontSize="10" fontWeight="bold">AC</text>
   </svg>
 );
 
 // Tomada / Power
 const PowerOutlet = ({ label }: { label: string }) => (
   <svg viewBox="0 0 50 50" className="w-full h-full">
-    <rect x="5" y="5" width="40" height="40" rx="5" fill="#f5f5f5" stroke="#ccc" strokeWidth="2"/>
-    <rect x="12" y="15" width="8" height="4" rx="1" fill="#333"/>
-    <rect x="30" y="15" width="8" height="4" rx="1" fill="#333"/>
-    <circle cx="25" cy="32" r="5" fill="#333"/>
-    <circle cx="25" cy="32" r="3" fill="#555"/>
+    {/* Caixa da tomada */}
+    <rect x="8" y="8" width="34" height="34" rx="4" fill="none" stroke="#333" strokeWidth="2"/>
+    
+    {/* Pinos */}
+    <rect x="15" y="18" width="6" height="4" rx="1" fill="#333"/>
+    <rect x="29" y="18" width="6" height="4" rx="1" fill="#333"/>
+    
+    {/* Terra */}
+    <circle cx="25" cy="32" r="4" fill="none" stroke="#333" strokeWidth="2"/>
+    
     <text x="25" y="48" textAnchor="middle" fill="#dc2626" fontSize="8" fontWeight="bold">{label}</text>
   </svg>
 );
@@ -359,18 +399,18 @@ const getElementVisual = (type: string, name: string) => {
 
 const getElementSize = (type: string) => {
   switch (type) {
-    case 'drums': return 'w-36 h-28';
-    case 'keyboard': return 'w-32 h-16';
-    case 'dj': return 'w-36 h-22';
-    case 'accordion': return 'w-24 h-20';
+    case 'drums': return 'w-40 h-32';
+    case 'keyboard': return 'w-36 h-20';
+    case 'dj': return 'w-40 h-24';
+    case 'accordion': return 'w-24 h-24';
     case 'guitar':
-    case 'bass': return 'w-12 h-28';
-    case 'acoustic': return 'w-14 h-28';
+    case 'bass': return 'w-20 h-28';
+    case 'acoustic': return 'w-20 h-28';
     case 'vocal':
-    case 'backing': return 'w-12 h-16';
-    case 'monitor': return 'w-16 h-10';
-    case 'power': return 'w-10 h-10';
-    default: return 'w-12 h-12';
+    case 'backing': return 'w-16 h-24';
+    case 'monitor': return 'w-20 h-12';
+    case 'power': return 'w-12 h-12';
+    default: return 'w-16 h-16';
   }
 };
 
