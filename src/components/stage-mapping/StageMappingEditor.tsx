@@ -16,7 +16,7 @@ import {
   Package,
   Info
 } from "lucide-react";
-import { StageCanvas } from "./StageCanvas";
+import { StageCanvas, generateStageLayoutSVG } from "./StageCanvas";
 import { InputList } from "./InputList";
 import { MaterialsChecklist } from "./MaterialsChecklist";
 import { EventInfo } from "./EventInfo";
@@ -113,75 +113,99 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
       .map(([key]) => materialLabels[key])
       .join(", ");
 
+    // Gerar SVG do palco
+    const stageSVG = generateStageLayoutSVG(stageLayout, artistName);
+
     return `
       <html>
         <head>
           <title>Rider Técnico - ${artistName || name}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-            h1 { color: #333; border-bottom: 2px solid #333; padding-bottom: 10px; }
-            h2 { color: #555; margin-top: 30px; }
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-            .info-item { padding: 10px; background: #f5f5f5; border-radius: 4px; }
-            .info-label { font-weight: bold; color: #666; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-            th { background: #333; color: white; }
-            .materials { background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; }
-            .observations { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; }
-            .footer { margin-top: 40px; text-align: center; color: #999; font-size: 12px; }
+            @media print {
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+            body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: white; }
+            h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; text-align: center; font-size: 28px; margin-bottom: 20px; }
+            h2 { color: #333; margin-top: 30px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+            .info-item { padding: 12px; background: #f8f8f8; border-radius: 6px; border-left: 4px solid #333; }
+            .info-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
+            .info-value { font-size: 14px; margin-top: 4px; color: #111; }
+            .stage-drawing { margin: 25px 0; text-align: center; border: 2px solid #333; padding: 10px; background: white; }
+            .stage-drawing svg { max-width: 100%; height: auto; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+            th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+            th { background: #333; color: white; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+            tr:nth-child(even) { background: #f9f9f9; }
+            .materials { background: #f0f0f0; padding: 15px 20px; border-radius: 8px; margin: 20px 0; }
+            .materials-list { display: flex; flex-wrap: wrap; gap: 10px; }
+            .material-item { background: #333; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
+            .observations { background: #fffbeb; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; }
+            .footer { margin-top: 40px; text-align: center; color: #999; font-size: 11px; border-top: 1px solid #eee; padding-top: 15px; }
           </style>
         </head>
         <body>
-          <h1>🎵 RIDER TÉCNICO</h1>
+          <h1>RIDER TÉCNICO</h1>
           
           <div class="info-grid">
-            <div class="info-item"><span class="info-label">Artista:</span> ${artistName || "-"}</div>
-            <div class="info-item"><span class="info-label">Evento:</span> ${eventName || "-"}</div>
-            <div class="info-item"><span class="info-label">Data:</span> ${eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-"}</div>
-            <div class="info-item"><span class="info-label">Local:</span> ${eventLocation || "-"}</div>
-            <div class="info-item"><span class="info-label">Contato Técnico:</span> ${technicalContact || "-"}</div>
-            <div class="info-item"><span class="info-label">Telefone:</span> ${technicalPhone || "-"}</div>
+            <div class="info-item"><div class="info-label">Artista/Banda</div><div class="info-value">${artistName || "-"}</div></div>
+            <div class="info-item"><div class="info-label">Evento</div><div class="info-value">${eventName || "-"}</div></div>
+            <div class="info-item"><div class="info-label">Data</div><div class="info-value">${eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-"}</div></div>
+            <div class="info-item"><div class="info-label">Local</div><div class="info-value">${eventLocation || "-"}</div></div>
+            <div class="info-item"><div class="info-label">Contato Técnico</div><div class="info-value">${technicalContact || "-"}</div></div>
+            <div class="info-item"><div class="info-label">Telefone</div><div class="info-value">${technicalPhone || "-"}</div></div>
           </div>
 
-          <h2>📋 INPUT LIST</h2>
+          <h2>MAPEAMENTO DE PALCO</h2>
+          <div class="stage-drawing">
+            ${stageSVG}
+          </div>
+
+          <h2>INPUT LIST</h2>
           ${inputList.length > 0 ? `
             <table>
               <thead>
                 <tr>
-                  <th>Canal</th>
+                  <th style="width: 60px;">Canal</th>
                   <th>Instrumento / Função</th>
-                  <th>Tipo de Microfone</th>
-                  <th>DI</th>
+                  <th>Microfone</th>
+                  <th style="width: 60px;">DI</th>
                   <th>Observações</th>
                 </tr>
               </thead>
               <tbody>
                 ${inputList.map(channel => `
                   <tr>
-                    <td>${channel.channel}</td>
+                    <td style="text-align: center; font-weight: bold;">${channel.channel}</td>
                     <td>${channel.instrument}</td>
-                    <td>${channel.micType}</td>
-                    <td>${channel.di ? "Sim" : "Não"}</td>
-                    <td>${channel.observations}</td>
+                    <td>${channel.micType || "-"}</td>
+                    <td style="text-align: center;">${channel.di ? "✓" : "-"}</td>
+                    <td>${channel.observations || "-"}</td>
                   </tr>
                 `).join("")}
               </tbody>
             </table>
           ` : "<p>Nenhum canal configurado</p>"}
 
-          <h2>📦 MATERIAL SOLICITADO</h2>
+          <h2>MATERIAL SOLICITADO</h2>
           <div class="materials">
-            ${selectedMaterials || "Nenhum material selecionado"}
+            ${selectedMaterials ? `
+              <div class="materials-list">
+                ${Object.entries(materialsChecklist)
+                  .filter(([_, value]) => value)
+                  .map(([key]) => `<span class="material-item">${materialLabels[key]}</span>`)
+                  .join("")}
+              </div>
+            ` : "Nenhum material selecionado"}
           </div>
 
           ${observations ? `
-            <h2>📝 OBSERVAÇÕES</h2>
+            <h2>OBSERVAÇÕES</h2>
             <div class="observations">${observations}</div>
           ` : ""}
 
           <div class="footer">
-            Gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}
+            Rider gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}
           </div>
         </body>
       </html>
