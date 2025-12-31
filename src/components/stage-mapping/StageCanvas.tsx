@@ -15,6 +15,10 @@ import pedalboardImg from '@/assets/stage/pedalboard.png';
 import ampImg from '@/assets/stage/amp.png';
 import accordionistImg from '@/assets/stage/accordionist.png';
 import acousticImg from '@/assets/stage/acoustic.png';
+import brassImg from '@/assets/stage/brass.png';
+import power110vImg from '@/assets/stage/power110v.png';
+import power220vImg from '@/assets/stage/power220v.png';
+import siderImg from '@/assets/stage/sider.png';
 
 export interface StageElement {
   id: string;
@@ -32,18 +36,23 @@ interface StageCanvasProps {
   artistName?: string;
 }
 
+// Tamanhos padronizados: pessoas ~70x85, equipamentos pequenos ~45x45, equipamentos médios ~60x50
 const ELEMENT_TYPES = [
-  { type: 'vocal', label: 'Cantor', image: singerImg, width: 60, height: 80 },
-  { type: 'backing', label: 'Backing', image: singerImg, width: 50, height: 70 },
-  { type: 'guitar', label: 'Guitarrista', image: guitaristImg, width: 70, height: 90 },
-  { type: 'acoustic', label: 'Violão', image: acousticImg, width: 70, height: 90 },
-  { type: 'bass', label: 'Baixista', image: bassistImg, width: 70, height: 90 },
-  { type: 'keyboard', label: 'Tecladista', image: keyboardistImg, width: 100, height: 90 },
-  { type: 'drums', label: 'Baterista', image: drummerImg, width: 120, height: 100 },
-  { type: 'accordion', label: 'Sanfoneiro', image: accordionistImg, width: 70, height: 90 },
+  { type: 'vocal', label: 'Cantor', image: singerImg, width: 65, height: 85 },
+  { type: 'backing', label: 'Backing', image: singerImg, width: 65, height: 85 },
+  { type: 'guitar', label: 'Guitarrista', image: guitaristImg, width: 70, height: 85 },
+  { type: 'acoustic', label: 'Violão', image: acousticImg, width: 70, height: 85 },
+  { type: 'bass', label: 'Baixista', image: bassistImg, width: 70, height: 85 },
+  { type: 'keyboard', label: 'Tecladista', image: keyboardistImg, width: 90, height: 85 },
+  { type: 'drums', label: 'Baterista', image: drummerImg, width: 100, height: 85 },
+  { type: 'accordion', label: 'Sanfoneiro', image: accordionistImg, width: 70, height: 85 },
+  { type: 'brass', label: 'Sopro', image: brassImg, width: 65, height: 85 },
   { type: 'monitor', label: 'Retorno', image: monitorImg, width: 50, height: 40 },
-  { type: 'pedalboard', label: 'Pedaleira', image: pedalboardImg, width: 60, height: 40 },
-  { type: 'amp', label: 'Cubo/Amp', image: ampImg, width: 60, height: 70 },
+  { type: 'pedalboard', label: 'Pedaleira', image: pedalboardImg, width: 55, height: 35 },
+  { type: 'amp', label: 'Cubo', image: ampImg, width: 50, height: 40 },
+  { type: 'sider', label: 'Sider', image: siderImg, width: 45, height: 70 },
+  { type: 'power110v', label: '110V', image: power110vImg, width: 40, height: 45 },
+  { type: 'power220v', label: '220V', image: power220vImg, width: 40, height: 45 },
 ];
 
 // Mapeamento de elementos para canais de input
@@ -68,9 +77,13 @@ const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: stri
     { instrument: 'Overhead R', micType: 'SM81', di: false },
   ],
   accordion: [{ instrument: 'Sanfona', micType: '', di: true }],
+  brass: [{ instrument: 'Sopro', micType: 'SM57', di: false }],
   monitor: [],
   pedalboard: [],
   amp: [],
+  sider: [],
+  power110v: [],
+  power220v: [],
 };
 
 export function StageCanvas({ elements, onChange, onElementAdded, artistName }: StageCanvasProps) {
@@ -230,21 +243,21 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
       {/* Add Elements Panel */}
       <Card className="p-4 bg-card border-border shadow-md">
         <p className="text-sm font-semibold text-foreground mb-3">Adicionar elementos ao palco:</p>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-15 gap-2">
           {ELEMENT_TYPES.map((elementType) => (
             <Button
               key={elementType.type}
               variant="outline"
               size="sm"
-              className="flex flex-col items-center justify-center gap-1 h-auto py-2 px-2 hover:border-primary hover:scale-105 transition-all"
+              className="flex flex-col items-center justify-center gap-1 h-auto py-2 px-1 hover:border-primary hover:scale-105 transition-all"
               onClick={() => addElement(elementType.type)}
             >
               <img 
                 src={elementType.image} 
                 alt={elementType.label} 
-                className="w-10 h-10 object-contain"
+                className="w-9 h-9 object-contain"
               />
-              <span className="text-[10px] font-medium text-foreground">{elementType.label}</span>
+              <span className="text-[9px] font-medium text-foreground leading-tight text-center">{elementType.label}</span>
             </Button>
           ))}
         </div>
@@ -429,27 +442,31 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 // Exportar função para gerar SVG do palco para impressão
 export function generateStageLayoutSVG(elements: StageElement[], artistName?: string): string {
   const getElementSVG = (type: string, name: string, x: number, y: number, scale: number = 1): string => {
-    // Simplified representations for print
     switch (type) {
       case 'drums':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="60" cy="50" rx="50" ry="40" fill="#1a1a1a" stroke="#333" stroke-width="2"/><text x="60" y="100" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="50" cy="42" rx="45" ry="35" fill="#1a1a1a" stroke="#333" stroke-width="2"/><text x="50" y="90" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'keyboard':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="100" height="45" fill="#333" rx="4"/><text x="50" y="60" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="85" height="40" fill="#333" rx="4"/><text x="42" y="55" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'guitar':
       case 'acoustic':
       case 'bass':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="35" cy="45" rx="28" ry="38" fill="#333"/><text x="35" y="95" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
       case 'accordion':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="35" cy="45" rx="28" ry="38" fill="#333"/><text x="35" y="95" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
+      case 'brass':
+        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="32" cy="42" rx="25" ry="35" fill="#333"/><text x="32" y="90" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'vocal':
       case 'backing':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="30" cy="40" rx="22" ry="32" fill="#333"/><line x1="30" y1="72" x2="30" y2="82" stroke="#333" stroke-width="3"/><text x="30" y="95" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="32" cy="42" rx="22" ry="35" fill="#333"/><text x="32" y="90" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'monitor':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><polygon points="5,35 45,35 40,5 10,5" fill="#333"/><text x="25" y="50" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})"><polygon points="5,35 45,35 40,5 10,5" fill="#333"/><text x="25" y="48" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
       case 'pedalboard':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="60" height="30" fill="#333" rx="3"/><text x="30" y="45" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="50" height="28" fill="#333" rx="3"/><text x="25" y="42" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
       case 'amp':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="50" height="60" fill="#333" rx="3"/><text x="25" y="75" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="45" height="35" fill="#333" rx="3"/><text x="22" y="50" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+      case 'sider':
+        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="40" height="65" fill="#333" rx="3"/><text x="20" y="78" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+      case 'power110v':
+      case 'power220v':
+        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="35" height="40" fill="#333" rx="2"/><text x="17" y="52" text-anchor="middle" fill="#333" font-size="7" font-weight="bold">${name}</text></g>`;
       default:
         return '';
     }
