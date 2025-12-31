@@ -297,6 +297,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
                 elements={stageLayout} 
                 onChange={setStageLayout}
                 onElementAdded={handleElementAdded}
+                artistName={artistName}
               />
             </CardContent>
           </Card>
