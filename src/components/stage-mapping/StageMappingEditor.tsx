@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -14,7 +13,7 @@ import {
   Package,
   Info
 } from "lucide-react";
-import { StageCanvas, StageElement as CanvasStageElement, generateStageLayoutSVG } from "./StageCanvas";
+import { StageCanvas } from "./StageCanvas";
 import { InputList } from "./InputList";
 import { MaterialsChecklist } from "./MaterialsChecklist";
 import { EventInfo } from "./EventInfo";
@@ -25,6 +24,7 @@ import {
   MaterialsChecklist as MaterialsChecklistType 
 } from "@/hooks/useStageMappings";
 import { toast } from "sonner";
+import html2canvas from "html2canvas";
 
 interface StageMappingEditorProps {
   mapping: StageMapping;
@@ -79,7 +79,6 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     }
   };
 
-  // Quando um elemento é adicionado ao palco, adiciona os canais correspondentes
   const handleElementAdded = (newChannels: InputChannel[]) => {
     const maxChannel = inputList.length > 0 
       ? Math.max(...inputList.map(c => c.channel)) 
@@ -93,7 +92,9 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     setInputList([...inputList, ...channelsWithNumbers]);
   };
 
-  const generatePrintContent = async () => {
+  const handlePrint = async () => {
+    toast.info("Gerando rider técnico...");
+    
     const materialLabels: Record<string, string> = {
       microfones: "Microfones",
       pedestais: "Pedestais",
@@ -106,15 +107,23 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
       iluminacao_basica: "Iluminação Básica",
     };
 
-    const selectedMaterials = Object.entries(materialsChecklist)
-      .filter(([_, value]) => value)
-      .map(([key]) => materialLabels[key])
-      .join(", ");
+    let stageImageBase64 = "";
+    const stageCanvasElement = document.getElementById("stage-canvas-print");
+    if (stageCanvasElement) {
+      try {
+        const canvas = await html2canvas(stageCanvasElement, {
+          backgroundColor: "#ffffff",
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+        });
+        stageImageBase64 = canvas.toDataURL("image/png");
+      } catch (error) {
+        console.error("Erro ao capturar canvas:", error);
+      }
+    }
 
-    // Gerar SVG do palco com imagens reais (agora é async)
-    const stageSVG = await generateStageLayoutSVG(stageLayout, artistName);
-
-    return `
+    const printContent = `
       <html>
         <head>
           <title>Rider Técnico - ${artistName || name}</title>
@@ -129,8 +138,8 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
             .info-item { padding: 12px; background: #f8f8f8; border-radius: 6px; border-left: 4px solid #333; }
             .info-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
             .info-value { font-size: 14px; margin-top: 4px; color: #111; }
-            .stage-drawing { margin: 25px 0; text-align: center; border: 2px solid #333; padding: 10px; background: white; }
-            .stage-drawing svg { max-width: 100%; height: auto; }
+            .stage-drawing { margin: 25px 0; text-align: center; }
+            .stage-drawing img { max-width: 100%; height: auto; border: 2px solid #333; }
             table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
             th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
             th { background: #333; color: white; font-weight: bold; text-transform: uppercase; font-size: 11px; }
@@ -156,7 +165,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
 
           <h2>MAPEAMENTO DE PALCO</h2>
           <div class="stage-drawing">
-            ${stageSVG}
+            ${stageImageBase64 ? `<img src="${stageImageBase64}" alt="Mapeamento de Palco" />` : "<p>Erro ao gerar imagem do palco</p>"}
           </div>
 
           <h2>INPUT LIST</h2>
@@ -187,11 +196,11 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
 
           <h2>MATERIAL SOLICITADO</h2>
           <div class="materials">
-            ${selectedMaterials ? `
+            ${Object.entries(materialsChecklist).filter(([_, value]) => value).length > 0 ? `
               <div class="materials-list">
                 ${Object.entries(materialsChecklist)
                   .filter(([_, value]) => value)
-                  .map(([key]) => `<span class="material-item">${materialLabels[key]}</span>`)
+                  .map(([key]) => `<span class="material-item">${materialLabels[key] || key}</span>`)
                   .join("")}
               </div>
             ` : "Nenhum material selecionado"}
@@ -208,15 +217,14 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         </body>
       </html>
     `;
-  };
 
-  const handlePrint = async () => {
-    const printContent = await generatePrintContent();
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(printContent);
       printWindow.document.close();
-      printWindow.print();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
     }
   };
 
