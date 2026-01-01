@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, Plus, Minus, RotateCw } from 'lucide-react';
 import { InputChannel } from '@/hooks/useStageMappings';
 
 // Importar imagens
@@ -10,8 +10,6 @@ import guitaristImg from '@/assets/stage/guitarist.png';
 import keyboardistImg from '@/assets/stage/keyboardist.png';
 import bassistImg from '@/assets/stage/bassist.png';
 import singerImg from '@/assets/stage/singer.png';
-import monitorImg from '@/assets/stage/monitor.png';
-import pedalboardImg from '@/assets/stage/pedalboard.png';
 import ampImg from '@/assets/stage/amp.png';
 import accordionistImg from '@/assets/stage/accordionist.png';
 import acousticImg from '@/assets/stage/acoustic.png';
@@ -27,6 +25,7 @@ export interface StageElement {
   x: number;
   y: number;
   scale?: number;
+  rotation?: number;
 }
 
 interface StageCanvasProps {
@@ -47,8 +46,6 @@ const ELEMENT_TYPES = [
   { type: 'drums', label: 'Baterista', image: drummerImg, width: 100, height: 85 },
   { type: 'accordion', label: 'Sanfoneiro', image: accordionistImg, width: 70, height: 85 },
   { type: 'brass', label: 'Sopro', image: brassImg, width: 65, height: 85 },
-  { type: 'monitor', label: 'Retorno', image: monitorImg, width: 50, height: 40 },
-  { type: 'pedalboard', label: 'Pedaleira', image: pedalboardImg, width: 55, height: 35 },
   { type: 'amp', label: 'Cubo', image: ampImg, width: 50, height: 40 },
   { type: 'sider', label: 'Sider', image: siderImg, width: 45, height: 70 },
   { type: 'power110v', label: '110V', image: power110vImg, width: 40, height: 45 },
@@ -78,8 +75,6 @@ const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: stri
   ],
   accordion: [{ instrument: 'Sanfona', micType: '', di: true }],
   brass: [{ instrument: 'Sopro', micType: 'SM57', di: false }],
-  monitor: [],
-  pedalboard: [],
   amp: [],
   sider: [],
   power110v: [],
@@ -110,6 +105,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
       x: (stageWidth / 2) - (elementType.width / 2),
       y: (stageHeight / 2) - (elementType.height / 2),
       scale: 1,
+      rotation: 0,
     };
 
     onChange([...elements, newElement]);
@@ -140,6 +136,16 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
       if (el.id === id) {
         const newScale = Math.max(0.5, Math.min(2, (el.scale || 1) + delta));
         return { ...el, scale: newScale };
+      }
+      return el;
+    }));
+  };
+
+  const rotateElement = (id: string) => {
+    onChange(elements.map(el => {
+      if (el.id === id) {
+        const newRotation = ((el.rotation || 0) + 90) % 360;
+        return { ...el, rotation: newRotation };
       }
       return el;
     }));
@@ -327,6 +333,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
             if (!elementType) return null;
 
             const scale = element.scale || 1;
+            const rotation = element.rotation || 0;
             const width = elementType.width * scale;
             const height = elementType.height * scale;
             const isSelected = selectedElement === element.id;
@@ -349,6 +356,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                   src={elementType.image}
                   alt={element.name}
                   className="w-full h-full object-contain pointer-events-none"
+                  style={{ transform: `rotate(${rotation}deg)` }}
                   draggable={false}
                 />
                 
@@ -357,7 +365,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                   <span className="text-[9px] font-bold text-zinc-700 bg-white/90 px-1.5 py-0.5 rounded shadow-sm">{element.name}</span>
                 </div>
 
-                {/* Scale controls - only show when selected */}
+                {/* Controls - only show when selected */}
                 {isSelected && (
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-white rounded-full shadow-lg border border-zinc-200 px-1 py-0.5 print:hidden">
                     <button
@@ -366,10 +374,11 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                         scaleElement(element.id, -0.1);
                       }}
                       className="w-6 h-6 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+                      title="Diminuir"
                     >
                       <Minus className="w-3 h-3 text-zinc-600" />
                     </button>
-                    <span className="text-[10px] font-medium text-zinc-600 min-w-[32px] text-center">
+                    <span className="text-[10px] font-medium text-zinc-600 min-w-[28px] text-center">
                       {Math.round(scale * 100)}%
                     </span>
                     <button
@@ -378,8 +387,20 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                         scaleElement(element.id, 0.1);
                       }}
                       className="w-6 h-6 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+                      title="Aumentar"
                     >
                       <Plus className="w-3 h-3 text-zinc-600" />
+                    </button>
+                    <div className="w-px h-4 bg-zinc-300 mx-0.5" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        rotateElement(element.id);
+                      }}
+                      className="w-6 h-6 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+                      title="Girar 90°"
+                    >
+                      <RotateCw className="w-3 h-3 text-zinc-600" />
                     </button>
                   </div>
                 )}
@@ -441,32 +462,30 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 
 // Exportar função para gerar SVG do palco para impressão
 export function generateStageLayoutSVG(elements: StageElement[], artistName?: string): string {
-  const getElementSVG = (type: string, name: string, x: number, y: number, scale: number = 1): string => {
+  const getElementSVG = (type: string, name: string, x: number, y: number, scale: number = 1, rotation: number = 0): string => {
+    const rotateTransform = rotation ? ` rotate(${rotation})` : '';
     switch (type) {
       case 'drums':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="50" cy="42" rx="45" ry="35" fill="#1a1a1a" stroke="#333" stroke-width="2"/><text x="50" y="90" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><ellipse cx="50" cy="42" rx="45" ry="35" fill="#1a1a1a" stroke="#333" stroke-width="2"/><text x="50" y="90" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
       case 'keyboard':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="85" height="40" fill="#333" rx="4"/><text x="42" y="55" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="85" height="40" fill="#333" rx="4"/><text x="42" y="55" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
       case 'guitar':
       case 'acoustic':
       case 'bass':
       case 'accordion':
       case 'brass':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="32" cy="42" rx="25" ry="35" fill="#333"/><text x="32" y="90" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><ellipse cx="35" cy="42" rx="28" ry="35" fill="#333"/><text x="35" y="90" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
       case 'vocal':
       case 'backing':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><ellipse cx="32" cy="42" rx="22" ry="35" fill="#333"/><text x="32" y="90" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
-      case 'monitor':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><polygon points="5,35 45,35 40,5 10,5" fill="#333"/><text x="25" y="48" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
-      case 'pedalboard':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="50" height="28" fill="#333" rx="3"/><text x="25" y="42" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><ellipse cx="32" cy="42" rx="25" ry="35" fill="#333"/><text x="32" y="90" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
       case 'amp':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="45" height="35" fill="#333" rx="3"/><text x="22" y="50" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="45" height="35" fill="#333" rx="3"/><text x="22" y="50" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'sider':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="40" height="65" fill="#333" rx="3"/><text x="20" y="78" text-anchor="middle" fill="#333" font-size="8" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="40" height="65" fill="#333" rx="3"/><text x="20" y="78" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'power110v':
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="35" height="40" fill="#f59e0b" rx="2" stroke="#333" stroke-width="1"/><text x="17" y="24" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">110V</text><text x="17" y="55" text-anchor="middle" fill="#333" font-size="8">${name}</text></g>`;
       case 'power220v':
-        return `<g transform="translate(${x},${y}) scale(${scale})"><rect width="35" height="40" fill="#333" rx="2"/><text x="17" y="52" text-anchor="middle" fill="#333" font-size="7" font-weight="bold">${name}</text></g>`;
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="35" height="40" fill="#ef4444" rx="2" stroke="#333" stroke-width="1"/><text x="17" y="24" text-anchor="middle" fill="white" font-size="9" font-weight="bold">220V</text><text x="17" y="55" text-anchor="middle" fill="#333" font-size="8">${name}</text></g>`;
       default:
         return '';
     }
@@ -474,7 +493,7 @@ export function generateStageLayoutSVG(elements: StageElement[], artistName?: st
 
   let elementsContent = '';
   elements.forEach(el => {
-    elementsContent += getElementSVG(el.type, el.name, el.x, el.y, el.scale || 1);
+    elementsContent += getElementSVG(el.type, el.name, el.x, el.y + 50, el.scale || 1, el.rotation || 0);
   });
 
   return `
@@ -484,23 +503,30 @@ export function generateStageLayoutSVG(elements: StageElement[], artistName?: st
       
       <!-- Header -->
       <rect x="0" y="0" width="800" height="50" fill="#1a1a1a"/>
-      <text x="400" y="32" text-anchor="middle" fill="white" font-size="20" font-weight="bold">MAPEAMENTO DE PALCO</text>
-      ${artistName ? `<text x="400" y="48" text-anchor="middle" fill="#999" font-size="12">${artistName}</text>` : ''}
+      <text x="400" y="32" text-anchor="middle" fill="white" font-size="20" font-weight="bold" font-family="Arial, sans-serif">MAPEAMENTO DE PALCO</text>
+      ${artistName ? `<text x="400" y="48" text-anchor="middle" fill="#ccc" font-size="12" font-family="Arial, sans-serif">${artistName}</text>` : ''}
       
       <!-- Stage area -->
-      <rect x="0" y="50" width="800" height="450" fill="#f8f8f8" stroke="#ccc" stroke-width="1"/>
+      <rect x="0" y="50" width="800" height="450" fill="#fafafa" stroke="#ddd" stroke-width="1"/>
       
-      <!-- Grid -->
-      <line x1="400" y1="50" x2="400" y2="500" stroke="#ddd" stroke-width="1" stroke-dasharray="5,5"/>
-      <line x1="0" y1="200" x2="800" y2="200" stroke="#ddd" stroke-width="1" stroke-dasharray="5,5"/>
-      <line x1="0" y1="350" x2="800" y2="350" stroke="#ddd" stroke-width="1" stroke-dasharray="5,5"/>
+      <!-- Grid lines -->
+      <line x1="400" y1="50" x2="400" y2="500" stroke="#e5e5e5" stroke-width="1"/>
+      <line x1="200" y1="50" x2="200" y2="500" stroke="#f0f0f0" stroke-width="1"/>
+      <line x1="600" y1="50" x2="600" y2="500" stroke="#f0f0f0" stroke-width="1"/>
+      <line x1="0" y1="200" x2="800" y2="200" stroke="#f0f0f0" stroke-width="1"/>
+      <line x1="0" y1="350" x2="800" y2="350" stroke="#f0f0f0" stroke-width="1"/>
+      
+      <!-- Row labels -->
+      <text x="15" y="90" fill="#999" font-size="10" font-family="Arial, sans-serif">FUNDO</text>
+      <text x="15" y="280" fill="#999" font-size="10" font-family="Arial, sans-serif">MEIO</text>
+      <text x="15" y="470" fill="#999" font-size="10" font-family="Arial, sans-serif">FRENTE</text>
       
       <!-- Elements -->
       ${elementsContent}
       
       <!-- Audience -->
       <rect x="0" y="500" width="800" height="50" fill="#d97706"/>
-      <text x="400" y="530" text-anchor="middle" fill="white" font-size="14" font-weight="bold">PLATEIA / PÚBLICO</text>
+      <text x="400" y="532" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial, sans-serif">PLATEIA / PÚBLICO</text>
     </svg>
   `;
 }
