@@ -45,6 +45,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
   const [materialsChecklist, setMaterialsChecklist] = useState<MaterialsChecklistType>(mapping.materials_checklist);
   const [observations, setObservations] = useState(mapping.observations || "");
   const [saving, setSaving] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
   const handleSave = async () => {
@@ -93,138 +94,163 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
   };
 
   const handlePrint = async () => {
+    if (generatingPdf) return;
+
+    setGeneratingPdf(true);
     toast.info("Gerando rider técnico...");
-    
-    const materialLabels: Record<string, string> = {
-      microfones: "Microfones",
-      pedestais: "Pedestais",
-      di_box: "DI Box",
-      cabos: "Cabos",
-      retornos_palco: "Retornos de Palco",
-      monitores: "Monitores",
-      mesa_som: "Mesa de Som",
-      energia_eletrica: "Energia Elétrica",
-      iluminacao_basica: "Iluminação Básica",
-    };
 
-    let stageImageBase64 = "";
-    const stageCanvasElement = document.getElementById("stage-canvas-print");
-    if (stageCanvasElement) {
-      try {
-        const canvas = await html2canvas(stageCanvasElement, {
-          backgroundColor: "#ffffff",
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-        });
-        stageImageBase64 = canvas.toDataURL("image/png");
-      } catch (error) {
-        console.error("Erro ao capturar canvas:", error);
+    try {
+      // Deixa o React renderizar o estado de loading antes de capturar
+      await new Promise((r) => setTimeout(r, 50));
+
+      const materialLabels: Record<string, string> = {
+        microfones: "Microfones",
+        pedestais: "Pedestais",
+        di_box: "DI Box",
+        cabos: "Cabos",
+        retornos_palco: "Retornos de Palco",
+        monitores: "Monitores",
+        mesa_som: "Mesa de Som",
+        energia_eletrica: "Energia Elétrica",
+        iluminacao_basica: "Iluminação Básica",
+      };
+
+      let stageImageSrc = "";
+      const stageCanvasElement = document.getElementById("stage-canvas-print");
+      if (stageCanvasElement) {
+        try {
+          const canvas = await html2canvas(stageCanvasElement, {
+            backgroundColor: "#ffffff",
+            // menor escala para evitar travamentos em telas grandes
+            scale: Math.min(1.5, window.devicePixelRatio || 1),
+            useCORS: true,
+            allowTaint: true,
+          });
+
+          stageImageSrc = canvas.toDataURL("image/jpeg", 0.9);
+        } catch (error) {
+          console.error("Erro ao capturar canvas:", error);
+        }
       }
-    }
 
-    const printContent = `
-      <html>
-        <head>
-          <title>Rider Técnico - ${artistName || name}</title>
-          <style>
-            @media print {
-              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            }
-            body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: white; }
-            h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; text-align: center; font-size: 28px; margin-bottom: 20px; }
-            h2 { color: #333; margin-top: 30px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
-            .info-item { padding: 12px; background: #f8f8f8; border-radius: 6px; border-left: 4px solid #333; }
-            .info-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
-            .info-value { font-size: 14px; margin-top: 4px; color: #111; }
-            .stage-drawing { margin: 25px 0; text-align: center; }
-            .stage-drawing img { width: 100%; height: auto; border: 2px solid #333; display: block; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
-            th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-            th { background: #333; color: white; font-weight: bold; text-transform: uppercase; font-size: 11px; }
-            tr:nth-child(even) { background: #f9f9f9; }
-            .materials { background: #f0f0f0; padding: 15px 20px; border-radius: 8px; margin: 20px 0; }
-            .materials-list { display: flex; flex-wrap: wrap; gap: 10px; }
-            .material-item { background: #333; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
-            .observations { background: #fffbeb; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; }
-            .footer { margin-top: 40px; text-align: center; color: #999; font-size: 11px; border-top: 1px solid #eee; padding-top: 15px; }
-          </style>
-        </head>
-        <body>
-          <h1>RIDER TÉCNICO</h1>
-          
-          <div class="info-grid">
-            <div class="info-item"><div class="info-label">Artista/Banda</div><div class="info-value">${artistName || "-"}</div></div>
-            <div class="info-item"><div class="info-label">Evento</div><div class="info-value">${eventName || "-"}</div></div>
-            <div class="info-item"><div class="info-label">Data</div><div class="info-value">${eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-"}</div></div>
-            <div class="info-item"><div class="info-label">Local</div><div class="info-value">${eventLocation || "-"}</div></div>
-            <div class="info-item"><div class="info-label">Contato Técnico</div><div class="info-value">${technicalContact || "-"}</div></div>
-            <div class="info-item"><div class="info-label">Telefone</div><div class="info-value">${technicalPhone || "-"}</div></div>
-          </div>
+      const printContent = `
+        <html>
+          <head>
+            <title>Rider Técnico - ${artistName || name}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <style>
+              @media print {
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .toolbar { display: none !important; }
+              }
 
-          <h2>MAPEAMENTO DE PALCO</h2>
-          <div class="stage-drawing">
-            ${stageImageBase64 ? `<img src="${stageImageBase64}" alt="Mapeamento de Palco" />` : "<p>Erro ao gerar imagem do palco</p>"}
-          </div>
+              body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: white; }
+              .toolbar { display: flex; gap: 10px; justify-content: center; margin: 0 0 16px; position: sticky; top: 0; background: white; padding: 10px 0; border-bottom: 1px solid #eee; }
+              .btn { background: #111; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+              .btn.secondary { background: #fff; color: #111; border: 1px solid #ddd; }
 
-          <h2>INPUT LIST</h2>
-          ${inputList.length > 0 ? `
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 60px;">Canal</th>
-                  <th>Instrumento / Função</th>
-                  <th>Microfone</th>
-                  <th style="width: 60px;">DI</th>
-                  <th>Observações</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${inputList.map(channel => `
+              h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; text-align: center; font-size: 28px; margin-bottom: 20px; }
+              h2 { color: #333; margin-top: 30px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+              .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+              .info-item { padding: 12px; background: #f8f8f8; border-radius: 6px; border-left: 4px solid #333; }
+              .info-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
+              .info-value { font-size: 14px; margin-top: 4px; color: #111; }
+              .stage-drawing { margin: 25px 0; text-align: center; }
+              .stage-drawing img { width: 100%; height: auto; border: 2px solid #333; display: block; }
+              table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+              th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+              th { background: #333; color: white; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+              tr:nth-child(even) { background: #f9f9f9; }
+              .materials { background: #f0f0f0; padding: 15px 20px; border-radius: 8px; margin: 20px 0; }
+              .materials-list { display: flex; flex-wrap: wrap; gap: 10px; }
+              .material-item { background: #333; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
+              .observations { background: #fffbeb; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; }
+              .footer { margin-top: 40px; text-align: center; color: #999; font-size: 11px; border-top: 1px solid #eee; padding-top: 15px; }
+            </style>
+          </head>
+          <body>
+            <div class="toolbar">
+              <button class="btn" onclick="window.print()">Baixar PDF / Imprimir</button>
+              <button class="btn secondary" onclick="window.close()">Fechar</button>
+            </div>
+
+            <h1>RIDER TÉCNICO</h1>
+            
+            <div class="info-grid">
+              <div class="info-item"><div class="info-label">Artista/Banda</div><div class="info-value">${artistName || "-"}</div></div>
+              <div class="info-item"><div class="info-label">Evento</div><div class="info-value">${eventName || "-"}</div></div>
+              <div class="info-item"><div class="info-label">Data</div><div class="info-value">${eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-"}</div></div>
+              <div class="info-item"><div class="info-label">Local</div><div class="info-value">${eventLocation || "-"}</div></div>
+              <div class="info-item"><div class="info-label">Contato Técnico</div><div class="info-value">${technicalContact || "-"}</div></div>
+              <div class="info-item"><div class="info-label">Telefone</div><div class="info-value">${technicalPhone || "-"}</div></div>
+            </div>
+
+            <h2>MAPEAMENTO DE PALCO</h2>
+            <div class="stage-drawing">
+              ${stageImageSrc ? `<img src="${stageImageSrc}" alt="Mapeamento de Palco" />` : "<p>Erro ao gerar imagem do palco</p>"}
+            </div>
+
+            <h2>INPUT LIST</h2>
+            ${inputList.length > 0 ? `
+              <table>
+                <thead>
                   <tr>
-                    <td style="text-align: center; font-weight: bold;">${channel.channel}</td>
-                    <td>${channel.instrument}</td>
-                    <td>${channel.micType || "-"}</td>
-                    <td style="text-align: center;">${channel.di ? "✓" : "-"}</td>
-                    <td>${channel.observations || "-"}</td>
+                    <th style="width: 60px;">Canal</th>
+                    <th>Instrumento / Função</th>
+                    <th>Microfone</th>
+                    <th style="width: 60px;">DI</th>
+                    <th>Observações</th>
                   </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          ` : "<p>Nenhum canal configurado</p>"}
+                </thead>
+                <tbody>
+                  ${inputList.map(channel => `
+                    <tr>
+                      <td style="text-align: center; font-weight: bold;">${channel.channel}</td>
+                      <td>${channel.instrument}</td>
+                      <td>${channel.micType || "-"}</td>
+                      <td style="text-align: center;">${channel.di ? "✓" : "-"}</td>
+                      <td>${channel.observations || "-"}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            ` : "<p>Nenhum canal configurado</p>"}
 
-          <h2>MATERIAL SOLICITADO</h2>
-          <div class="materials">
-            ${Object.entries(materialsChecklist).filter(([_, value]) => value).length > 0 ? `
-              <div class="materials-list">
-                ${Object.entries(materialsChecklist)
-                  .filter(([_, value]) => value)
-                  .map(([key]) => `<span class="material-item">${materialLabels[key] || key}</span>`)
-                  .join("")}
-              </div>
-            ` : "Nenhum material selecionado"}
-          </div>
+            <h2>MATERIAL SOLICITADO</h2>
+            <div class="materials">
+              ${Object.entries(materialsChecklist).filter(([_, value]) => value).length > 0 ? `
+                <div class="materials-list">
+                  ${Object.entries(materialsChecklist)
+                    .filter(([_, value]) => value)
+                    .map(([key]) => `<span class="material-item">${materialLabels[key] || key}</span>`)
+                    .join("")}
+                </div>
+              ` : "Nenhum material selecionado"}
+            </div>
 
-          ${observations ? `
-            <h2>OBSERVAÇÕES</h2>
-            <div class="observations">${observations}</div>
-          ` : ""}
+            ${observations ? `
+              <h2>OBSERVAÇÕES</h2>
+              <div class="observations">${observations}</div>
+            ` : ""}
 
-          <div class="footer">
-            Rider gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}
-          </div>
-        </body>
-      </html>
-    `;
+            <div class="footer">
+              Rider gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}
+            </div>
+          </body>
+        </html>
+      `;
 
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        toast.error("Não foi possível abrir a prévia. Libere pop-ups e tente novamente.");
+        return;
+      }
+
       printWindow.document.write(printContent);
       printWindow.document.close();
-      setTimeout(() => {
-        printWindow.print();
-      }, 500);
+      toast.success("Prévia aberta em uma nova aba. Clique em 'Baixar PDF / Imprimir'.");
+    } finally {
+      setGeneratingPdf(false);
     }
   };
 
@@ -262,9 +288,9 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handlePrint}>
+          <Button variant="outline" size="sm" onClick={handlePrint} disabled={generatingPdf}>
             <Printer className="w-4 h-4 mr-1" />
-            Imprimir
+            {generatingPdf ? "Gerando..." : "Baixar PDF"}
           </Button>
           <Button variant="outline" size="sm" onClick={handleEmail}>
             <Mail className="w-4 h-4 mr-1" />
