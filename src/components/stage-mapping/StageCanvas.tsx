@@ -284,8 +284,8 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
         </div>
       </Card>
 
-      {/* Stage Visual */}
-      <div className="relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none" id="stage-canvas-print">
+      {/* Stage Visual - Proporção fixa para impressão correta */}
+      <div className="relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none flex flex-col" id="stage-canvas-print" style={{ aspectRatio: '16/9', minHeight: '500px' }}>
         {/* Header */}
         <div className="bg-zinc-900 py-3 px-4">
           <h3 className="text-center font-bold text-xl tracking-wide text-white uppercase">
@@ -305,8 +305,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
         {/* Stage Floor - Área de arraste */}
         <div
           ref={stageRef}
-          className="relative bg-gradient-to-b from-zinc-50 to-zinc-100 cursor-crosshair select-none"
-          style={{ height: '450px' }}
+          className="relative bg-gradient-to-b from-zinc-50 to-zinc-100 cursor-crosshair select-none flex-1"
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
