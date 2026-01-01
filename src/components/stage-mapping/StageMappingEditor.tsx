@@ -93,7 +93,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     setInputList([...inputList, ...channelsWithNumbers]);
   };
 
-  const generatePrintContent = () => {
+  const generatePrintContent = async () => {
     const materialLabels: Record<string, string> = {
       microfones: "Microfones",
       pedestais: "Pedestais",
@@ -111,8 +111,8 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
       .map(([key]) => materialLabels[key])
       .join(", ");
 
-    // Gerar SVG do palco
-    const stageSVG = generateStageLayoutSVG(stageLayout, artistName);
+    // Gerar SVG do palco com imagens reais (agora é async)
+    const stageSVG = await generateStageLayoutSVG(stageLayout, artistName);
 
     return `
       <html>
@@ -210,10 +210,11 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     `;
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const printContent = await generatePrintContent();
     const printWindow = window.open("", "_blank");
     if (printWindow) {
-      printWindow.document.write(generatePrintContent());
+      printWindow.document.write(printContent);
       printWindow.document.close();
       printWindow.print();
     }
