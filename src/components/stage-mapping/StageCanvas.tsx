@@ -284,8 +284,8 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
         </div>
       </Card>
 
-      {/* Stage Visual - Proporção fixa para impressão correta */}
-      <div className="relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none flex flex-col" id="stage-canvas-print" style={{ aspectRatio: '16/9', minHeight: '500px' }}>
+      {/* Stage Visual - Proporção fixa e centralizado para impressão correta */}
+      <div className="relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none flex flex-col mx-auto w-full max-w-[1200px]" id="stage-canvas-print" style={{ aspectRatio: '16/9', minHeight: '500px' }}>
         {/* Header */}
         <div className="bg-zinc-900 py-3 px-4">
           <h3 className="text-center font-bold text-xl tracking-wide text-white uppercase">
