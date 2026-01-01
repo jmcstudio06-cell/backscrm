@@ -19,7 +19,8 @@ import power110vImg from '@/assets/stage/power110v.png';
 import power220vImg from '@/assets/stage/power220v.png';
 import siderImg from '@/assets/stage/sider.png';
 import rackImg from '@/assets/stage/rack.png';
-import monitorImg from '@/assets/stage/monitor.png';
+import monitor1Img from '@/assets/stage/monitor1.png';
+import monitor2Img from '@/assets/stage/monitor2.png';
 import stairsImg from '@/assets/stage/stairs.png';
 import riserImg from '@/assets/stage/riser.png';
 
@@ -53,7 +54,8 @@ const ELEMENT_TYPES = [
   { type: 'brass', label: 'Sopro', image: brassImg, width: 65, height: 85 },
   { type: 'amp', label: 'Cubo', image: ampImg, width: 50, height: 40 },
   { type: 'sider', label: 'Sider', image: siderImg, width: 45, height: 70 },
-  { type: 'monitor', label: 'Retorno', image: monitorImg, width: 45, height: 35 },
+  { type: 'monitor1', label: 'Retorno 1', image: monitor1Img, width: 60, height: 40 },
+  { type: 'monitor2', label: 'Retorno 2', image: monitor2Img, width: 55, height: 50 },
   { type: 'rack', label: 'Rack', image: rackImg, width: 80, height: 55 },
   { type: 'stairs', label: 'Escadaria', image: stairsImg, width: 100, height: 80 },
   { type: 'riser', label: 'Elevado', image: riserImg, width: 100, height: 100 },
@@ -86,7 +88,8 @@ const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: stri
   brass: [{ instrument: 'Sopro', micType: 'SM57', di: false }],
   amp: [],
   sider: [],
-  monitor: [],
+  monitor1: [],
+  monitor2: [],
   rack: [],
   stairs: [],
   riser: [],
