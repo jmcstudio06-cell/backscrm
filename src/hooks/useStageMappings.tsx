@@ -9,6 +9,8 @@ export interface StageElement {
   name: string;
   x: number;
   y: number;
+  scale?: number;
+  rotation?: number;
 }
 
 export interface InputChannel {

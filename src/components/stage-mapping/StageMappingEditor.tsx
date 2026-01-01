@@ -8,9 +8,7 @@ import {
   ArrowLeft, 
   Save, 
   Printer, 
-  MessageCircle, 
   Mail,
-  FileText,
   MapPin,
   List,
   Package,
@@ -221,20 +219,6 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     }
   };
 
-  const handleWhatsApp = () => {
-    const text = encodeURIComponent(
-      `*RIDER TÉCNICO*\n\n` +
-      `*Artista:* ${artistName || "-"}\n` +
-      `*Evento:* ${eventName || "-"}\n` +
-      `*Data:* ${eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-"}\n` +
-      `*Local:* ${eventLocation || "-"}\n\n` +
-      `*INPUT LIST:*\n` +
-      inputList.map(c => `Canal ${c.channel}: ${c.instrument} - ${c.micType}${c.di ? " (DI)" : ""}`).join("\n") +
-      `\n\n*Contato:* ${technicalContact} - ${technicalPhone}`
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
-  };
-
   const handleEmail = () => {
     const subject = encodeURIComponent(`Rider Técnico - ${artistName || name}`);
     const body = encodeURIComponent(
@@ -272,10 +256,6 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
           <Button variant="outline" size="sm" onClick={handlePrint}>
             <Printer className="w-4 h-4 mr-1" />
             Imprimir
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleWhatsApp}>
-            <MessageCircle className="w-4 h-4 mr-1" />
-            WhatsApp
           </Button>
           <Button variant="outline" size="sm" onClick={handleEmail}>
             <Mail className="w-4 h-4 mr-1" />
