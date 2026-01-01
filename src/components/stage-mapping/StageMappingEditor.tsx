@@ -139,7 +139,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
             .info-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
             .info-value { font-size: 14px; margin-top: 4px; color: #111; }
             .stage-drawing { margin: 25px 0; text-align: center; }
-            .stage-drawing img { max-width: 100%; height: auto; border: 2px solid #333; }
+            .stage-drawing img { width: 100%; height: auto; border: 2px solid #333; display: block; }
             table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
             th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
             th { background: #333; color: white; font-weight: bold; text-transform: uppercase; font-size: 11px; }
