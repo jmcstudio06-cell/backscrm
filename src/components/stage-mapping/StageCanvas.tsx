@@ -477,48 +477,97 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
   );
 }
 
-// Exportar função para gerar SVG do palco para impressão
-export function generateStageLayoutSVG(elements: StageElement[], artistName?: string): string {
-  const getElementSVG = (type: string, name: string, x: number, y: number, scale: number = 1, rotation: number = 0): string => {
-    const rotateTransform = rotation ? ` rotate(${rotation})` : '';
-    switch (type) {
-      case 'drums':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><ellipse cx="50" cy="42" rx="45" ry="35" fill="#1a1a1a" stroke="#333" stroke-width="2"/><text x="50" y="90" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
-      case 'keyboard':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="85" height="40" fill="#333" rx="4"/><text x="42" y="55" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
-      case 'guitar':
-      case 'acoustic':
-      case 'bass':
-      case 'accordion':
-      case 'brass':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><ellipse cx="35" cy="42" rx="28" ry="35" fill="#333"/><text x="35" y="90" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
-      case 'vocal':
-      case 'backing':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><ellipse cx="32" cy="42" rx="25" ry="35" fill="#333"/><text x="32" y="90" text-anchor="middle" fill="#333" font-size="10" font-weight="bold">${name}</text></g>`;
-      case 'amp':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="45" height="35" fill="#333" rx="3"/><text x="22" y="50" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
-      case 'sider':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="40" height="65" fill="#333" rx="3"/><text x="20" y="78" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
-      case 'monitor':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><polygon points="0,30 40,30 45,0 -5,0" fill="#444" stroke="#333" stroke-width="1"/><text x="20" y="45" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
-      case 'rack':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="75" height="50" fill="#444" stroke="#333" stroke-width="1" rx="2"/><line x1="5" y1="15" x2="70" y2="15" stroke="#555" stroke-width="1"/><line x1="5" y1="25" x2="70" y2="25" stroke="#555" stroke-width="1"/><line x1="5" y1="35" x2="70" y2="35" stroke="#555" stroke-width="1"/><text x="37" y="60" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
-      case 'stairs':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="95" height="75" fill="none" stroke="#555" stroke-width="2" rx="2"/><line x1="0" y1="37" x2="95" y2="37" stroke="#555" stroke-width="2"/><text x="47" y="85" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
-      case 'riser':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="95" height="95" fill="none" stroke="#555" stroke-width="2" rx="2"/><text x="47" y="105" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
-      case 'power110v':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="35" height="40" fill="#f59e0b" rx="2" stroke="#333" stroke-width="1"/><text x="17" y="24" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">110V</text><text x="17" y="55" text-anchor="middle" fill="#333" font-size="8">${name}</text></g>`;
-      case 'power220v':
-        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="35" height="40" fill="#ef4444" rx="2" stroke="#333" stroke-width="1"/><text x="17" y="24" text-anchor="middle" fill="white" font-size="9" font-weight="bold">220V</text><text x="17" y="55" text-anchor="middle" fill="#333" font-size="8">${name}</text></g>`;
-      default:
-        return '';
-    }
-  };
+// Mapa de imagens para base64 (será preenchido dinamicamente)
+const imageCache: Record<string, string> = {};
 
+// Função para converter imagem para base64
+async function imageToBase64(imageSrc: string): Promise<string> {
+  if (imageCache[imageSrc]) {
+    return imageCache[imageSrc];
+  }
+  
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const base64 = canvas.toDataURL('image/png');
+        imageCache[imageSrc] = base64;
+        resolve(base64);
+      } else {
+        resolve('');
+      }
+    };
+    img.onerror = () => resolve('');
+    img.src = imageSrc;
+  });
+}
+
+// Exportar função para gerar SVG do palco para impressão com imagens reais
+export async function generateStageLayoutSVG(elements: StageElement[], artistName?: string): Promise<string> {
+  // Pré-carregar todas as imagens necessárias
+  const imagePromises: Promise<{ type: string; base64: string }>[] = [];
+  
+  for (const el of elements) {
+    const elementType = ELEMENT_TYPES.find(t => t.type === el.type);
+    if (elementType) {
+      imagePromises.push(
+        imageToBase64(elementType.image).then(base64 => ({ type: el.type, base64 }))
+      );
+    }
+  }
+  
+  const loadedImages = await Promise.all(imagePromises);
+  const imageMap: Record<string, string> = {};
+  loadedImages.forEach(({ type, base64 }) => {
+    imageMap[type] = base64;
+  });
+
+  // Gerar elementos SVG com imagens reais
   let elementsContent = '';
   elements.forEach(el => {
-    elementsContent += getElementSVG(el.type, el.name, el.x, el.y + 50, el.scale || 1, el.rotation || 0);
+    const elementType = ELEMENT_TYPES.find(t => t.type === el.type);
+    if (!elementType) return;
+    
+    const scale = el.scale || 1;
+    const rotation = el.rotation || 0;
+    const width = elementType.width * scale;
+    const height = elementType.height * scale;
+    const base64Image = imageMap[el.type];
+    
+    if (base64Image) {
+      // Calcular o centro do elemento para rotação
+      const centerX = el.x + width / 2;
+      const centerY = el.y + 50 + height / 2;
+      
+      elementsContent += `
+        <g>
+          <image 
+            href="${base64Image}" 
+            x="${el.x}" 
+            y="${el.y + 50}" 
+            width="${width}" 
+            height="${height}"
+            transform="rotate(${rotation}, ${centerX}, ${centerY})"
+            preserveAspectRatio="xMidYMid meet"
+          />
+          <text 
+            x="${el.x + width / 2}" 
+            y="${el.y + 50 + height + 12}" 
+            text-anchor="middle" 
+            fill="#333" 
+            font-size="11" 
+            font-weight="bold" 
+            font-family="Arial, sans-serif"
+          >${el.name}</text>
+        </g>
+      `;
+    }
   });
 
   return `
@@ -546,7 +595,7 @@ export function generateStageLayoutSVG(elements: StageElement[], artistName?: st
       <text x="15" y="280" fill="#999" font-size="10" font-family="Arial, sans-serif">MEIO</text>
       <text x="15" y="470" fill="#999" font-size="10" font-family="Arial, sans-serif">FRENTE</text>
       
-      <!-- Elements -->
+      <!-- Elements with real images -->
       ${elementsContent}
       
       <!-- Audience -->
