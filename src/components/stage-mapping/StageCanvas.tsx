@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trash2, Plus, Minus, RotateCw } from 'lucide-react';
+import { Trash2, Plus, Minus } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 import { InputChannel } from '@/hooks/useStageMappings';
 
 // Importar imagens
@@ -17,6 +18,10 @@ import brassImg from '@/assets/stage/brass.png';
 import power110vImg from '@/assets/stage/power110v.png';
 import power220vImg from '@/assets/stage/power220v.png';
 import siderImg from '@/assets/stage/sider.png';
+import rackImg from '@/assets/stage/rack.png';
+import monitorImg from '@/assets/stage/monitor.png';
+import stairsImg from '@/assets/stage/stairs.png';
+import riserImg from '@/assets/stage/riser.png';
 
 export interface StageElement {
   id: string;
@@ -48,6 +53,10 @@ const ELEMENT_TYPES = [
   { type: 'brass', label: 'Sopro', image: brassImg, width: 65, height: 85 },
   { type: 'amp', label: 'Cubo', image: ampImg, width: 50, height: 40 },
   { type: 'sider', label: 'Sider', image: siderImg, width: 45, height: 70 },
+  { type: 'monitor', label: 'Retorno', image: monitorImg, width: 45, height: 35 },
+  { type: 'rack', label: 'Rack', image: rackImg, width: 80, height: 55 },
+  { type: 'stairs', label: 'Escadaria', image: stairsImg, width: 100, height: 80 },
+  { type: 'riser', label: 'Elevado', image: riserImg, width: 100, height: 100 },
   { type: 'power110v', label: '110V', image: power110vImg, width: 40, height: 45 },
   { type: 'power220v', label: '220V', image: power220vImg, width: 40, height: 45 },
 ];
@@ -77,6 +86,10 @@ const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: stri
   brass: [{ instrument: 'Sopro', micType: 'SM57', di: false }],
   amp: [],
   sider: [],
+  monitor: [],
+  rack: [],
+  stairs: [],
+  riser: [],
   power110v: [],
   power220v: [],
 };
@@ -141,10 +154,9 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
     }));
   };
 
-  const rotateElement = (id: string) => {
+  const rotateElement = (id: string, newRotation: number) => {
     onChange(elements.map(el => {
       if (el.id === id) {
-        const newRotation = ((el.rotation || 0) + 90) % 360;
         return { ...el, rotation: newRotation };
       }
       return el;
@@ -367,41 +379,46 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 
                 {/* Controls - only show when selected */}
                 {isSelected && (
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-white rounded-full shadow-lg border border-zinc-200 px-1 py-0.5 print:hidden">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        scaleElement(element.id, -0.1);
-                      }}
-                      className="w-6 h-6 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
-                      title="Diminuir"
-                    >
-                      <Minus className="w-3 h-3 text-zinc-600" />
-                    </button>
-                    <span className="text-[10px] font-medium text-zinc-600 min-w-[28px] text-center">
-                      {Math.round(scale * 100)}%
-                    </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        scaleElement(element.id, 0.1);
-                      }}
-                      className="w-6 h-6 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
-                      title="Aumentar"
-                    >
-                      <Plus className="w-3 h-3 text-zinc-600" />
-                    </button>
-                    <div className="w-px h-4 bg-zinc-300 mx-0.5" />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        rotateElement(element.id);
-                      }}
-                      className="w-6 h-6 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
-                      title="Girar 90°"
-                    >
-                      <RotateCw className="w-3 h-3 text-zinc-600" />
-                    </button>
+                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 bg-white rounded-lg shadow-lg border border-zinc-200 px-2 py-1.5 print:hidden min-w-[180px]">
+                    {/* Scale controls */}
+                    <div className="flex items-center gap-1 w-full">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          scaleElement(element.id, -0.1);
+                        }}
+                        className="w-5 h-5 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+                        title="Diminuir"
+                      >
+                        <Minus className="w-3 h-3 text-zinc-600" />
+                      </button>
+                      <span className="text-[10px] font-medium text-zinc-600 min-w-[28px] text-center">
+                        {Math.round(scale * 100)}%
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          scaleElement(element.id, 0.1);
+                        }}
+                        className="w-5 h-5 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+                        title="Aumentar"
+                      >
+                        <Plus className="w-3 h-3 text-zinc-600" />
+                      </button>
+                    </div>
+                    {/* Rotation slider */}
+                    <div className="flex items-center gap-1 w-full" onClick={(e) => e.stopPropagation()}>
+                      <span className="text-[9px] text-zinc-500">0°</span>
+                      <Slider
+                        value={[rotation]}
+                        onValueChange={(value) => rotateElement(element.id, value[0])}
+                        min={0}
+                        max={360}
+                        step={1}
+                        className="flex-1"
+                      />
+                      <span className="text-[9px] text-zinc-500 min-w-[24px] text-right">{rotation}°</span>
+                    </div>
                   </div>
                 )}
 
@@ -482,6 +499,14 @@ export function generateStageLayoutSVG(elements: StageElement[], artistName?: st
         return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="45" height="35" fill="#333" rx="3"/><text x="22" y="50" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'sider':
         return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="40" height="65" fill="#333" rx="3"/><text x="20" y="78" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
+      case 'monitor':
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><polygon points="0,30 40,30 45,0 -5,0" fill="#444" stroke="#333" stroke-width="1"/><text x="20" y="45" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
+      case 'rack':
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="75" height="50" fill="#444" stroke="#333" stroke-width="1" rx="2"/><line x1="5" y1="15" x2="70" y2="15" stroke="#555" stroke-width="1"/><line x1="5" y1="25" x2="70" y2="25" stroke="#555" stroke-width="1"/><line x1="5" y1="35" x2="70" y2="35" stroke="#555" stroke-width="1"/><text x="37" y="60" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
+      case 'stairs':
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="95" height="75" fill="none" stroke="#555" stroke-width="2" rx="2"/><line x1="0" y1="37" x2="95" y2="37" stroke="#555" stroke-width="2"/><text x="47" y="85" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
+      case 'riser':
+        return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="95" height="95" fill="none" stroke="#555" stroke-width="2" rx="2"/><text x="47" y="105" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">${name}</text></g>`;
       case 'power110v':
         return `<g transform="translate(${x},${y}) scale(${scale})${rotateTransform}"><rect width="35" height="40" fill="#f59e0b" rx="2" stroke="#333" stroke-width="1"/><text x="17" y="24" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">110V</text><text x="17" y="55" text-anchor="middle" fill="#333" font-size="8">${name}</text></g>`;
       case 'power220v':
