@@ -76,6 +76,7 @@ const menuItems: MenuItem[] = [
     icon: Truck,
     label: "Logística",
     children: [
+      { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
       { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },
       { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "checklist" },
       { icon: Users2, label: "Equipe & Freelancer", path: "/equipe", featureKey: "equipe" },
