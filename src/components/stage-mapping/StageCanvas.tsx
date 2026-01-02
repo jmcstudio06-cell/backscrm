@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, Plus, Minus, ChevronLeft, ChevronRight, Move } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { InputChannel } from '@/hooks/useStageMappings';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Importar imagens
 import drummerImg from '@/assets/stage/drummer.png';
@@ -102,6 +103,19 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
   const [dragging, setDragging] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const isMobile = useIsMobile();
+  const elementsScrollRef = useRef<HTMLDivElement>(null);
+
+  // Scroll horizontal para os elementos no mobile
+  const scrollElements = (direction: 'left' | 'right') => {
+    if (elementsScrollRef.current) {
+      const scrollAmount = 200;
+      elementsScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const addElement = (type: string) => {
     const elementType = ELEMENT_TYPES.find(e => e.type === type);
@@ -112,7 +126,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 
     // Posição inicial centralizada
     const stageWidth = stageRef.current?.offsetWidth || 800;
-    const stageHeight = 450;
+    const stageHeight = stageRef.current?.offsetHeight || 450;
 
     const newElement: StageElement = {
       id: `${type}-${Date.now()}`,
@@ -120,11 +134,12 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
       name: `${elementType.label} ${number}`,
       x: (stageWidth / 2) - (elementType.width / 2),
       y: (stageHeight / 2) - (elementType.height / 2),
-      scale: 1,
+      scale: isMobile ? 0.8 : 1,
       rotation: 0,
     };
 
     onChange([...elements, newElement]);
+    setSelectedElement(newElement.id);
 
     const inputChannels = ELEMENT_INPUT_CHANNELS[type] || [];
     if (inputChannels.length > 0 && onElementAdded) {
@@ -166,6 +181,26 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
     }));
   };
 
+  // Move element by delta (for mobile controls)
+  const moveElement = (id: string, deltaX: number, deltaY: number) => {
+    onChange(elements.map(el => {
+      if (el.id === id) {
+        const stageWidth = stageRef.current?.offsetWidth || 800;
+        const stageHeight = stageRef.current?.offsetHeight || 450;
+        const elementType = ELEMENT_TYPES.find(t => t.type === el.type);
+        const scale = el.scale || 1;
+        const width = (elementType?.width || 50) * scale;
+        const height = (elementType?.height || 50) * scale;
+        
+        let newX = Math.max(0, Math.min(el.x + deltaX, stageWidth - width));
+        let newY = Math.max(0, Math.min(el.y + deltaY, stageHeight - height));
+        
+        return { ...el, x: newX, y: newY };
+      }
+      return el;
+    }));
+  };
+
   const handleMouseDown = (e: React.MouseEvent, elementId: string) => {
     e.preventDefault();
     const element = elements.find(el => el.id === elementId);
@@ -198,7 +233,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 
     // Limitar dentro do palco
     newX = Math.max(0, Math.min(newX, rect.width - width));
-    newY = Math.max(0, Math.min(newY, 450 - height));
+    newY = Math.max(0, Math.min(newY, rect.height - height));
 
     onChange(elements.map(el =>
       el.id === dragging ? { ...el, x: newX, y: newY } : el
@@ -242,7 +277,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 
     // Limitar dentro do palco
     newX = Math.max(0, Math.min(newX, rect.width - width));
-    newY = Math.max(0, Math.min(newY, 450 - height));
+    newY = Math.max(0, Math.min(newY, rect.height - height));
 
     onChange(elements.map(el =>
       el.id === dragging ? { ...el, x: newX, y: newY } : el
@@ -259,45 +294,210 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
     }
   };
 
+  const selectedEl = elements.find(el => el.id === selectedElement);
+  const selectedElType = selectedEl ? ELEMENT_TYPES.find(t => t.type === selectedEl.type) : null;
+
   return (
-    <div className="space-y-6">
-      {/* Add Elements Panel */}
-      <Card className="p-4 bg-card border-border shadow-md">
-        <p className="text-sm font-semibold text-foreground mb-3">Adicionar elementos ao palco:</p>
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-15 gap-2">
-          {ELEMENT_TYPES.map((elementType) => (
-            <Button
-              key={elementType.type}
-              variant="outline"
-              size="sm"
-              className="flex flex-col items-center justify-center gap-1 h-auto py-2 px-1 hover:border-primary hover:scale-105 transition-all"
-              onClick={() => addElement(elementType.type)}
+    <div className="space-y-4">
+      {/* Add Elements Panel - Mobile optimized with horizontal scroll */}
+      <Card className="p-3 sm:p-4 bg-card border-border shadow-md">
+        <p className="text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">Adicionar elementos:</p>
+        
+        {isMobile ? (
+          <div className="relative">
+            {/* Scroll buttons for mobile */}
+            <button
+              onClick={() => scrollElements('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-background/90 border border-border rounded-full flex items-center justify-center shadow-md"
             >
-              <img 
-                src={elementType.image} 
-                alt={elementType.label} 
-                className="w-9 h-9 object-contain"
-              />
-              <span className="text-[9px] font-medium text-foreground leading-tight text-center">{elementType.label}</span>
-            </Button>
-          ))}
-        </div>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => scrollElements('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-background/90 border border-border rounded-full flex items-center justify-center shadow-md"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            
+            {/* Horizontal scrollable container */}
+            <div 
+              ref={elementsScrollRef}
+              className="overflow-x-auto scrollbar-hide mx-8 pb-2"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              <div className="flex gap-2 min-w-max">
+                {ELEMENT_TYPES.map((elementType) => (
+                  <Button
+                    key={elementType.type}
+                    variant="outline"
+                    size="sm"
+                    className="flex flex-col items-center justify-center gap-1 h-auto py-2 px-3 min-w-[70px] hover:border-primary active:scale-95 transition-all"
+                    onClick={() => addElement(elementType.type)}
+                  >
+                    <img 
+                      src={elementType.image} 
+                      alt={elementType.label} 
+                      className="w-10 h-10 object-contain"
+                    />
+                    <span className="text-[10px] font-medium text-foreground leading-tight text-center whitespace-nowrap">{elementType.label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-9 gap-2">
+            {ELEMENT_TYPES.map((elementType) => (
+              <Button
+                key={elementType.type}
+                variant="outline"
+                size="sm"
+                className="flex flex-col items-center justify-center gap-1 h-auto py-2 px-1 hover:border-primary hover:scale-105 transition-all"
+                onClick={() => addElement(elementType.type)}
+              >
+                <img 
+                  src={elementType.image} 
+                  alt={elementType.label} 
+                  className="w-9 h-9 object-contain"
+                />
+                <span className="text-[9px] font-medium text-foreground leading-tight text-center">{elementType.label}</span>
+              </Button>
+            ))}
+          </div>
+        )}
       </Card>
 
+      {/* Mobile controls for selected element */}
+      {isMobile && selectedEl && selectedElType && (
+        <Card className="p-3 bg-primary/5 border-primary/20">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-semibold text-foreground">{selectedEl.name}</span>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => removeElement(selectedEl.id)}
+              className="h-8 px-3"
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Remover
+            </Button>
+          </div>
+          
+          {/* Movement controls - D-pad style */}
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-xs text-muted-foreground mb-1">Mover</span>
+              <div className="grid grid-cols-3 gap-1">
+                <div />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-10 h-10 p-0"
+                  onClick={() => moveElement(selectedEl.id, 0, -20)}
+                >
+                  <ChevronLeft className="w-5 h-5 rotate-90" />
+                </Button>
+                <div />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-10 h-10 p-0"
+                  onClick={() => moveElement(selectedEl.id, -20, 0)}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <Move className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-10 h-10 p-0"
+                  onClick={() => moveElement(selectedEl.id, 20, 0)}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+                <div />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-10 h-10 p-0"
+                  onClick={() => moveElement(selectedEl.id, 0, 20)}
+                >
+                  <ChevronLeft className="w-5 h-5 -rotate-90" />
+                </Button>
+                <div />
+              </div>
+            </div>
+            
+            {/* Scale and rotation */}
+            <div className="flex-1 space-y-3">
+              <div>
+                <span className="text-xs text-muted-foreground">Tamanho: {Math.round((selectedEl.scale || 1) * 100)}%</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-10 h-10 p-0"
+                    onClick={() => scaleElement(selectedEl.id, -0.1)}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <Slider
+                    value={[(selectedEl.scale || 1) * 100]}
+                    onValueChange={(value) => onChange(elements.map(el => 
+                      el.id === selectedEl.id ? { ...el, scale: value[0] / 100 } : el
+                    ))}
+                    min={50}
+                    max={200}
+                    step={10}
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-10 h-10 p-0"
+                    onClick={() => scaleElement(selectedEl.id, 0.1)}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div>
+                <span className="text-xs text-muted-foreground">Rotação: {selectedEl.rotation || 0}°</span>
+                <Slider
+                  value={[selectedEl.rotation || 0]}
+                  onValueChange={(value) => rotateElement(selectedEl.id, value[0])}
+                  min={0}
+                  max={360}
+                  step={15}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Stage Visual - Proporção fixa e centralizado para impressão correta */}
-      <div className="relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none flex flex-col mx-auto w-full max-w-[1200px]" id="stage-canvas-print" style={{ aspectRatio: '16/9', minHeight: '500px' }}>
+      <div 
+        className={`relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none flex flex-col mx-auto w-full max-w-[1200px] ${isMobile ? 'touch-none' : ''}`} 
+        id="stage-canvas-print" 
+        style={{ aspectRatio: '16/9', minHeight: isMobile ? '280px' : '500px' }}
+      >
         {/* Header */}
-        <div className="bg-zinc-900 py-3 px-4">
-          <h3 className="text-center font-bold text-xl tracking-wide text-white uppercase">
+        <div className="bg-zinc-900 py-2 sm:py-3 px-3 sm:px-4">
+          <h3 className="text-center font-bold text-base sm:text-xl tracking-wide text-white uppercase">
             MAPEAMENTO DE PALCO
           </h3>
           {artistName && (
-            <p className="text-center text-sm font-semibold text-zinc-300 mt-1">{artistName}</p>
+            <p className="text-center text-xs sm:text-sm font-semibold text-zinc-300 mt-0.5 sm:mt-1">{artistName}</p>
           )}
         </div>
 
         {/* Dimensions */}
-        <div className="flex justify-between px-4 py-1 bg-zinc-100 text-xs font-mono text-zinc-600 border-b border-zinc-300">
+        <div className="flex justify-between px-3 sm:px-4 py-1 bg-zinc-100 text-[10px] sm:text-xs font-mono text-zinc-600 border-b border-zinc-300">
           <span>8M (MÍNIMO)</span>
           <span>6M (MÍNIMO)</span>
         </div>
@@ -317,27 +517,29 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
           <div className="absolute inset-0 pointer-events-none">
             <div className="w-full h-full" style={{
               backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)',
-              backgroundSize: '50px 50px'
+              backgroundSize: isMobile ? '30px 30px' : '50px 50px'
             }} />
           </div>
 
           {/* Center line */}
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-zinc-300 pointer-events-none" style={{ transform: 'translateX(-50%)' }} />
           
-          {/* Row indicators */}
-          <div className="absolute left-2 top-4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none">Fundo</div>
-          <div className="absolute left-2 top-1/2 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateY(-50%)' }}>Meio</div>
-          <div className="absolute left-2 bottom-4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none">Frente</div>
-
-          {/* Column indicators */}
-          <div className="absolute top-2 left-1/4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateX(-50%)' }}>Esq</div>
-          <div className="absolute top-2 left-1/2 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateX(-50%)' }}>Centro</div>
-          <div className="absolute top-2 left-3/4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateX(-50%)' }}>Dir</div>
+          {/* Row indicators - hidden on mobile for more space */}
+          {!isMobile && (
+            <>
+              <div className="absolute left-2 top-4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none">Fundo</div>
+              <div className="absolute left-2 top-1/2 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateY(-50%)' }}>Meio</div>
+              <div className="absolute left-2 bottom-4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none">Frente</div>
+              <div className="absolute top-2 left-1/4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateX(-50%)' }}>Esq</div>
+              <div className="absolute top-2 left-1/2 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateX(-50%)' }}>Centro</div>
+              <div className="absolute top-2 left-3/4 text-[10px] text-zinc-400 font-medium uppercase pointer-events-none" style={{ transform: 'translateX(-50%)' }}>Dir</div>
+            </>
+          )}
 
           {/* Artist watermark */}
           {artistName && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-6xl font-bold text-zinc-100 uppercase tracking-widest opacity-50">{artistName}</span>
+              <span className={`font-bold text-zinc-100 uppercase tracking-widest opacity-50 ${isMobile ? 'text-3xl' : 'text-6xl'}`}>{artistName}</span>
             </div>
           )}
 
@@ -347,9 +549,10 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
             if (!elementType) return null;
 
             const scale = element.scale || 1;
+            const mobileScale = isMobile ? 0.7 : 1;
             const rotation = element.rotation || 0;
-            const width = elementType.width * scale;
-            const height = elementType.height * scale;
+            const width = elementType.width * scale * mobileScale;
+            const height = elementType.height * scale * mobileScale;
             const isSelected = selectedElement === element.id;
 
             return (
@@ -357,8 +560,8 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                 key={element.id}
                 className={`absolute cursor-move group ${dragging === element.id ? 'z-50' : 'z-10'} ${isSelected ? 'ring-2 ring-primary ring-offset-1 rounded' : ''}`}
                 style={{
-                  left: element.x,
-                  top: element.y,
+                  left: element.x * mobileScale,
+                  top: element.y * mobileScale,
                   width: width,
                   height: height,
                   transition: dragging === element.id ? 'none' : 'all 0.15s ease',
@@ -375,12 +578,12 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                 />
                 
                 {/* Label */}
-                <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                  <span className="text-[9px] font-bold text-zinc-700 bg-white/90 px-1.5 py-0.5 rounded shadow-sm">{element.name}</span>
+                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                  <span className={`font-bold text-zinc-700 bg-white/90 px-1 py-0.5 rounded shadow-sm ${isMobile ? 'text-[7px]' : 'text-[9px]'}`}>{element.name}</span>
                 </div>
 
-                {/* Controls - only show when selected */}
-                {isSelected && (
+                {/* Controls - only show when selected and NOT on mobile (mobile has separate controls) */}
+                {isSelected && !isMobile && (
                   <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 bg-white rounded-lg shadow-lg border border-zinc-200 px-2 py-1.5 print:hidden min-w-[180px]">
                     {/* Scale controls */}
                     <div className="flex items-center gap-1 w-full">
@@ -424,36 +627,38 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                   </div>
                 )}
 
-                {/* Delete button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeElement(element.id);
-                  }}
-                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md print:hidden"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
+                {/* Delete button - desktop only */}
+                {!isMobile && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeElement(element.id);
+                    }}
+                    className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md print:hidden"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             );
           })}
         </div>
 
         {/* Front of stage */}
-        <div className="h-10 bg-gradient-to-b from-amber-500 to-amber-600 border-t-2 border-amber-700 flex items-center justify-center">
-          <span className="text-sm font-bold text-white tracking-widest uppercase">Plateia / Público</span>
+        <div className="h-8 sm:h-10 bg-gradient-to-b from-amber-500 to-amber-600 border-t-2 border-amber-700 flex items-center justify-center">
+          <span className="text-xs sm:text-sm font-bold text-white tracking-widest uppercase">Plateia / Público</span>
         </div>
       </div>
 
       {/* Summary */}
       {elements.length > 0 && (
-        <Card className="p-4 bg-muted/50 border-border print:hidden">
-          <h4 className="text-sm font-medium mb-2">Elementos no palco ({elements.length}):</h4>
-          <div className="flex flex-wrap gap-2">
+        <Card className="p-3 sm:p-4 bg-muted/50 border-border print:hidden">
+          <h4 className="text-xs sm:text-sm font-medium mb-2">Elementos no palco ({elements.length}):</h4>
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {elements.map((element) => (
               <span
                 key={element.id}
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer transition-colors ${
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] sm:text-xs cursor-pointer transition-colors ${
                   selectedElement === element.id 
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-primary/10 text-primary hover:bg-primary/20'
@@ -475,8 +680,13 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
           </div>
         </Card>
       )}
+
+      {/* Mobile hint */}
+      {isMobile && elements.length === 0 && (
+        <p className="text-xs text-muted-foreground text-center">
+          Toque em um elemento acima para adicioná-lo ao palco
+        </p>
+      )}
     </div>
   );
 }
-
-// Nota: A função generateStageLayoutSVG foi removida pois agora usamos html2canvas para capturar o canvas visualmente
