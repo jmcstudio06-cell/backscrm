@@ -103,19 +103,26 @@ export function useAnnualGoals() {
     }
   };
 
-  const incrementGoal = async (id: string) => {
+  const incrementGoal = async (id: string, delta: number = 1) => {
     const goal = goals.find(g => g.id === id);
     if (!goal) return;
 
-    const newValue = Math.min(goal.current_value + 1, goal.target_value);
+    const newValue = Math.max(0, Math.min(goal.current_value + delta, goal.target_value));
     const completed = newValue >= goal.target_value;
 
     await updateGoal(id, { current_value: newValue, completed });
+  };
+
+  const toggleComplete = async (id: string) => {
+    const goal = goals.find(g => g.id === id);
+    if (!goal) return;
+
+    await updateGoal(id, { completed: !goal.completed });
   };
 
   useEffect(() => {
     fetchGoals();
   }, [user]);
 
-  return { goals, loading, addGoal, updateGoal, deleteGoal, incrementGoal, refetch: fetchGoals };
+  return { goals, loading, addGoal, updateGoal, deleteGoal, incrementGoal, toggleComplete, refetch: fetchGoals };
 }
