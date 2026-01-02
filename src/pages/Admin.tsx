@@ -83,19 +83,28 @@ const FEATURES = [
 const PLAN_FILTERS = [
   { value: "all", label: "TODOS" },
   { value: "trial", label: "TRIAL" },
-  { value: "inicial", label: "INICIAL" },
-  { value: "essencial", label: "ESSENCIAL" },
-  { value: "completo", label: "COMPLETO" },
+  { value: "mensal", label: "MENSAL" },
+  { value: "essencial", label: "ESSENCIAL (TRIMESTRAL)" },
+  { value: "completo", label: "COMPLETO (SEMESTRAL)" },
   { value: "expirado", label: "EXPIRADOS" },
 ];
 
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
-  inicial: 30,
-  essencial: 180,
-  completo: 365,
+  mensal: 30,
+  essencial: 90,
+  completo: 180,
 };
+
+// Features blocked for trial users
+const TRIAL_BLOCKED_FEATURES = [
+  "orcamentos",
+  "contratos", 
+  "precificacao",
+  "checklist",
+  "mapeamento-palco",
+];
 
 // Cache para evitar refetch ao navegar entre abas
 const adminDataCache = {
@@ -385,10 +394,9 @@ export default function Admin() {
     }
 
     // Define feature blocks based on plan
-    // trial: block everything except dashboard, agenda, aulas, tutoriais, financeiro
-    // essencial/completo: unblock everything
+    // trial: block specific features (orcamentos, contratos, precificacao, checklist, mapeamento-palco)
+    // mensal/essencial/completo: unblock everything
     // expirado: block everything
-    const trialAllowedFeatures = ["dashboard", "agenda", "aulas", "tutoriais", "financeiro"];
     
     const featureUpdates = FEATURES.map(feature => {
       let blocked = false;
@@ -397,14 +405,11 @@ export default function Admin() {
         // Block all features when expired
         blocked = true;
       } else if (plan === "trial") {
-        // Block features not in the allowed list for trial
-        blocked = !trialAllowedFeatures.includes(feature.key);
-      } else if (plan === "essencial" || plan === "completo") {
+        // Block specific features for trial
+        blocked = TRIAL_BLOCKED_FEATURES.includes(feature.key);
+      } else if (plan === "mensal" || plan === "essencial" || plan === "completo") {
         // Unblock all features for paid plans
         blocked = false;
-      } else if (plan === "inicial") {
-        // For inicial plan, treat same as trial for now
-        blocked = !trialAllowedFeatures.includes(feature.key);
       }
       
       return {
