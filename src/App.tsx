@@ -21,6 +21,7 @@ import Historico from "./pages/Historico";
 import Checklist from "./pages/Checklist";
 import Equipe from "./pages/Equipe";
 import Metas from "./pages/Metas";
+import MetasAnuais from "./pages/MetasAnuais";
 import Planos from "./pages/Planos";
 import Configuracoes from "./pages/Configuracoes";
 import Orcamentos from "./pages/Orcamentos";
@@ -59,6 +60,7 @@ const App = () => (
                 <Route path="/mapeamento-palco" element={<MapeamentoPalco />} />
                 <Route path="/equipe" element={<Equipe />} />
                 <Route path="/metas" element={<Metas />} />
+                <Route path="/metas/anual" element={<MetasAnuais />} />
                 <Route path="/planos" element={<Planos />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
                 <Route path="/orcamentos" element={<Orcamentos />} />

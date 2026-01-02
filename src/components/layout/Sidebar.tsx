@@ -81,7 +81,14 @@ const menuItems: MenuItem[] = [
       { icon: Users2, label: "Equipe & Freelancer", path: "/equipe", featureKey: "equipe" },
     ],
   },
-  { icon: Target, label: "Metas", path: "/metas", featureKey: "metas" },
+  {
+    icon: Target,
+    label: "Controle de Metas",
+    children: [
+      { icon: TrendingUp, label: "Metas Comerciais", path: "/metas", featureKey: "metas" },
+      { icon: Target, label: "Meta Anual 2026", path: "/metas/anual", featureKey: "metas" },
+    ],
+  },
   { icon: GraduationCap, label: "Apoio e Conhecimentos", path: "/aulas", featureKey: "aulas" },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },

@@ -1,256 +1,196 @@
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { ProgressRing } from "@/components/dashboard/ProgressRing";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
-  Plus,
   Target,
-  DollarSign,
-  Mic2,
-  Users,
-  CheckCircle2,
-  Clock,
-  Trophy,
-  ChevronDown,
-  Settings,
+  Save,
   TrendingUp,
-  Sparkles,
-  Star,
-  Award,
-  Megaphone,
+  Users,
+  Mic2,
+  DollarSign,
+  Edit2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useGoals, Goal } from "@/hooks/useGoals";
-import { useAnnualGoals, AnnualGoal } from "@/hooks/useAnnualGoals";
+import { useGoals } from "@/hooks/useGoals";
 import { useShowsData } from "@/hooks/useShows";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
-import { GoalModal } from "@/components/metas/GoalModal";
-import { AnnualGoalModal } from "@/components/metas/AnnualGoalModal";
-
-const iconMap: Record<string, React.ElementType> = {
-  revenue: DollarSign,
-  shows: Mic2,
-  leads: Users,
-};
-
-const colorMap: Record<string, string> = {
-  revenue: "from-emerald-500 to-teal-500",
-  shows: "from-violet-500 to-purple-500",
-  leads: "from-blue-500 to-cyan-500",
-};
-
-const bgColorMap: Record<string, string> = {
-  revenue: "bg-emerald-500/10",
-  shows: "bg-violet-500/10",
-  leads: "bg-blue-500/10",
-};
-
-const textColorMap: Record<string, string> = {
-  revenue: "text-emerald-500",
-  shows: "text-violet-500",
-  leads: "text-blue-500",
-};
-
-const goalTypes = [
-  { value: "leads", label: "Meta de Leads", icon: Users },
-  { value: "revenue", label: "Meta de Receita", icon: DollarSign },
-  { value: "shows", label: "Meta de Shows", icon: Mic2 },
-];
-
-const annualCategoryIcons: Record<string, React.ElementType> = {
-  marketing: Megaphone,
-  midia: TrendingUp,
-  parcerias: Users,
-  crescimento: TrendingUp,
-  pessoal: Star,
-};
-
-const annualCategoryColors: Record<string, string> = {
-  marketing: "from-pink-500 to-rose-500",
-  midia: "from-cyan-500 to-blue-500",
-  parcerias: "from-amber-500 to-orange-500",
-  crescimento: "from-green-500 to-emerald-500",
-  pessoal: "from-purple-500 to-indigo-500",
-};
+import { toast } from "sonner";
 
 const monthNames = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
+interface MonthlyTarget {
+  leads: number;
+  shows: number;
+  revenue: number;
+}
+
 export default function Metas() {
-  const { goals, loading, addGoal, updateGoal, deleteGoal } = useGoals();
-  const { 
-    goals: annualGoals, 
-    loading: annualLoading, 
-    addGoal: addAnnualGoal, 
-    updateGoal: updateAnnualGoal, 
-    deleteGoal: deleteAnnualGoal,
-    incrementGoal: incrementAnnualGoal 
-  } = useAnnualGoals();
+  const { goals, addGoal, updateGoal, loading } = useGoals();
   const { shows } = useShowsData();
   const { leads } = useLeads();
   const { transactions } = useTransactions();
   
-  const [modalOpen, setModalOpen] = useState(false);
-  const [annualModalOpen, setAnnualModalOpen] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
-  const [selectedAnnualGoal, setSelectedAnnualGoal] = useState<AnnualGoal | null>(null);
-  const [newGoalType, setNewGoalType] = useState<{ type: string; label: string } | null>(null);
+  const currentYear = 2026;
+  const [editMode, setEditMode] = useState(false);
+  const [targets, setTargets] = useState<Record<number, MonthlyTarget>>({});
+  const [initialized, setInitialized] = useState(false);
 
-  const calculateCurrentValue = (goal: Goal): number => {
-    const goalMonth = goal.month;
-    const goalYear = goal.year;
-
-    switch (goal.type) {
-      case "shows": {
-        return shows.filter(show => {
-          const showDate = new Date(show.date);
-          const showMonth = showDate.getMonth() + 1;
-          const showYear = showDate.getFullYear();
-          return showMonth === goalMonth && 
-                 showYear === goalYear && 
-                 show.status !== "cancelled";
-        }).length;
-      }
-      case "leads": {
-        return leads.filter(lead => {
-          const leadDate = new Date(lead.created_at);
-          const leadMonth = leadDate.getMonth() + 1;
-          const leadYear = leadDate.getFullYear();
-          return leadMonth === goalMonth && leadYear === goalYear;
-        }).length;
-      }
-      case "revenue": {
-        return transactions
-          .filter(t => {
-            const transDate = new Date(t.date);
-            const transMonth = transDate.getMonth() + 1;
-            const transYear = transDate.getFullYear();
-            return t.type === "income" && 
-                   transMonth === goalMonth && 
-                   transYear === goalYear;
-          })
-          .reduce((sum, t) => sum + t.amount, 0);
-      }
-      default:
-        return 0;
-    }
-  };
-
-  const goalsWithCurrentValues = useMemo(() => {
-    return goals.map(goal => ({
-      ...goal,
-      current_value: calculateCurrentValue(goal),
-    }));
-  }, [goals, shows, leads, transactions]);
-
-  const handleCreateGoal = (type: string, label: string) => {
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
+  // Initialize targets from existing goals
+  useMemo(() => {
+    if (initialized || loading) return;
     
-    setSelectedGoal({
-      id: "",
-      title: label,
-      type,
-      target_value: 0,
-      current_value: 0,
-      month: currentMonth,
-      year: currentYear,
-      created_at: new Date().toISOString(),
-    });
-    setNewGoalType({ type, label });
-    setModalOpen(true);
+    const initialTargets: Record<number, MonthlyTarget> = {};
+    for (let month = 1; month <= 12; month++) {
+      const leadsGoal = goals.find(g => g.month === month && g.year === currentYear && g.type === 'leads');
+      const showsGoal = goals.find(g => g.month === month && g.year === currentYear && g.type === 'shows');
+      const revenueGoal = goals.find(g => g.month === month && g.year === currentYear && g.type === 'revenue');
+      
+      initialTargets[month] = {
+        leads: leadsGoal?.target_value || 0,
+        shows: showsGoal?.target_value || 0,
+        revenue: revenueGoal?.target_value || 0,
+      };
+    }
+    setTargets(initialTargets);
+    setInitialized(true);
+  }, [goals, currentYear, loading, initialized]);
+
+  // Calculate actual values for each month
+  const getActualValues = (month: number) => {
+    const actualLeads = leads.filter(lead => {
+      const leadDate = new Date(lead.created_at);
+      return leadDate.getMonth() + 1 === month && leadDate.getFullYear() === currentYear;
+    }).length;
+
+    const actualShows = shows.filter(show => {
+      const showDate = new Date(show.date);
+      return showDate.getMonth() + 1 === month && showDate.getFullYear() === currentYear && show.status !== 'cancelled';
+    }).length;
+
+    const actualRevenue = transactions
+      .filter(t => {
+        const transDate = new Date(t.date);
+        return t.type === 'income' && transDate.getMonth() + 1 === month && transDate.getFullYear() === currentYear;
+      })
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return { leads: actualLeads, shows: actualShows, revenue: actualRevenue };
   };
 
-  const handleConfigureGoal = (goal: Goal) => {
-    setSelectedGoal(goal);
-    setModalOpen(true);
+  const calculatePercentage = (current: number, target: number) => {
+    if (target === 0) return 0;
+    return Math.round((current / target) * 100);
   };
 
-  const handleSaveGoal = async (id: string, updates: Partial<Goal>) => {
-    if (newGoalType && !id) {
-      await addGoal(updates);
-      setNewGoalType(null);
-    } else {
-      await updateGoal(id, updates);
+  const handleTargetChange = (month: number, type: keyof MonthlyTarget, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setTargets(prev => ({
+      ...prev,
+      [month]: {
+        ...prev[month],
+        [type]: numValue,
+      }
+    }));
+  };
+
+  const handleSaveTargets = async () => {
+    try {
+      for (let month = 1; month <= 12; month++) {
+        const monthTargets = targets[month];
+        if (!monthTargets) continue;
+
+        // Save/update leads goal
+        const existingLeadsGoal = goals.find(g => g.month === month && g.year === currentYear && g.type === 'leads');
+        if (existingLeadsGoal) {
+          await updateGoal(existingLeadsGoal.id, { target_value: monthTargets.leads });
+        } else if (monthTargets.leads > 0) {
+          await addGoal({ title: 'Meta de Leads', type: 'leads', target_value: monthTargets.leads, month, year: currentYear });
+        }
+
+        // Save/update shows goal
+        const existingShowsGoal = goals.find(g => g.month === month && g.year === currentYear && g.type === 'shows');
+        if (existingShowsGoal) {
+          await updateGoal(existingShowsGoal.id, { target_value: monthTargets.shows });
+        } else if (monthTargets.shows > 0) {
+          await addGoal({ title: 'Meta de Shows', type: 'shows', target_value: monthTargets.shows, month, year: currentYear });
+        }
+
+        // Save/update revenue goal
+        const existingRevenueGoal = goals.find(g => g.month === month && g.year === currentYear && g.type === 'revenue');
+        if (existingRevenueGoal) {
+          await updateGoal(existingRevenueGoal.id, { target_value: monthTargets.revenue });
+        } else if (monthTargets.revenue > 0) {
+          await addGoal({ title: 'Meta de Faturamento', type: 'revenue', target_value: monthTargets.revenue, month, year: currentYear });
+        }
+      }
+      
+      setEditMode(false);
+      toast.success('Metas salvas com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao salvar metas');
     }
   };
 
-  const handleDeleteGoal = async (id: string) => {
-    if (id) {
-      await deleteGoal(id);
+  // Calculate totals
+  const totals = useMemo(() => {
+    let totalLeadsTarget = 0;
+    let totalLeadsActual = 0;
+    let totalShowsTarget = 0;
+    let totalShowsActual = 0;
+    let totalRevenueTarget = 0;
+    let totalRevenueActual = 0;
+
+    for (let month = 1; month <= 12; month++) {
+      const monthTargets = targets[month] || { leads: 0, shows: 0, revenue: 0 };
+      const actuals = getActualValues(month);
+      
+      totalLeadsTarget += monthTargets.leads;
+      totalLeadsActual += actuals.leads;
+      totalShowsTarget += monthTargets.shows;
+      totalShowsActual += actuals.shows;
+      totalRevenueTarget += monthTargets.revenue;
+      totalRevenueActual += actuals.revenue;
     }
-    setNewGoalType(null);
+
+    return {
+      leadsTarget: totalLeadsTarget,
+      leadsActual: totalLeadsActual,
+      showsTarget: totalShowsTarget,
+      showsActual: totalShowsActual,
+      revenueTarget: totalRevenueTarget,
+      revenueActual: totalRevenueActual,
+    };
+  }, [targets, leads, shows, transactions]);
+
+  const formatCurrency = (value: number) => {
+    return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
   };
 
-  const handleCreateAnnualGoal = () => {
-    setSelectedAnnualGoal(null);
-    setAnnualModalOpen(true);
+  const getPercentageColor = (percentage: number) => {
+    if (percentage >= 100) return 'text-emerald-600 bg-emerald-100';
+    if (percentage >= 60) return 'text-amber-600 bg-amber-100';
+    if (percentage >= 30) return 'text-orange-600 bg-orange-100';
+    return 'text-red-600 bg-red-100';
   };
 
-  const handleConfigureAnnualGoal = (goal: AnnualGoal) => {
-    setSelectedAnnualGoal(goal);
-    setAnnualModalOpen(true);
-  };
-
-  const handleSaveAnnualGoal = async (id: string, updates: Partial<AnnualGoal>) => {
-    if (!id) {
-      await addAnnualGoal(updates);
-    } else {
-      await updateAnnualGoal(id, updates);
-    }
-  };
-
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const monthlyGoals = goalsWithCurrentValues.filter(g => g.month === currentMonth && g.year === currentYear);
-  // Show all annual goals (not just current year) so user can see goals for next year too
-  const yearlyAnnualGoals = annualGoals;
-
-  const overallProgress = monthlyGoals.length > 0
-    ? Math.round(
-        monthlyGoals.reduce((sum, g) => {
-          const progress = g.target_value > 0 ? ((g.current_value || 0) / g.target_value) * 100 : 0;
-          return sum + Math.min(progress, 100);
-        }, 0) / monthlyGoals.length
-      )
-    : 0;
-
-  const completedGoals = monthlyGoals.filter(g => 
-    g.target_value > 0 && ((g.current_value || 0) / g.target_value) >= 1
-  ).length;
-
-  const annualOverallProgress = yearlyAnnualGoals.length > 0
-    ? Math.round(
-        yearlyAnnualGoals.reduce((sum, g) => {
-          const progress = g.target_value > 0 ? (g.current_value / g.target_value) * 100 : 0;
-          return sum + Math.min(progress, 100);
-        }, 0) / yearlyAnnualGoals.length
-      )
-    : 0;
-
-  const completedAnnualGoals = yearlyAnnualGoals.filter(g => g.completed).length;
-
-  if (loading || annualLoading) {
+  if (loading) {
     return (
-      <Layout title="Definir Metas" subtitle="Acompanhe e defina seus objetivos">
+      <Layout title="Metas Comerciais 2026" subtitle="Acompanhe suas metas mensais">
         <div className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
@@ -261,567 +201,232 @@ export default function Metas() {
     );
   }
 
-  const formatValue = (goal: Goal, value: number) => {
-    if (goal.type === "revenue") {
-      return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
-    }
-    return value.toLocaleString("pt-BR");
-  };
-
   return (
-    <Layout title="Definir Metas" subtitle="Acompanhe e defina seus objetivos">
-      <Accordion type="multiple" defaultValue={["comerciais", "anuais"]} className="space-y-4">
-        {/* Metas Comerciais */}
-        <AccordionItem value="comerciais" className="border rounded-xl bg-card/50 overflow-hidden">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/50 [&[data-state=open]>div]:text-primary">
-            <div className="flex items-center gap-3 text-lg font-semibold">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
-                <Target className="w-5 h-5 text-white" />
-              </div>
-              <span>Metas Comerciais</span>
-              <Badge variant="secondary" className="ml-2">
-                {monthlyGoals.length} ativa{monthlyGoals.length !== 1 ? 's' : ''}
-              </Badge>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="px-6 pb-6">
-            <div className="space-y-6">
-              <div className="flex justify-end">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Nova Meta Comercial
-                      <ChevronDown className="w-4 h-4 ml-2" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    {goalTypes.map((type) => (
-                      <DropdownMenuItem
-                        key={type.value}
-                        onClick={() => handleCreateGoal(type.value, type.label)}
-                        className="cursor-pointer py-3"
-                      >
-                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center mr-3", bgColorMap[type.value])}>
-                          <type.icon className={cn("w-4 h-4", textColorMap[type.value])} />
-                        </div>
-                        {type.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* Stats Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="glass border-border/50 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
-                  <CardContent className="p-4 relative">
-                    <div className="flex flex-col items-center">
-                      <div className="relative">
-                        <ProgressRing progress={overallProgress} size={100} strokeWidth={8} />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Sparkles className="w-5 h-5 text-primary/30" />
-                        </div>
-                      </div>
-                      <h3 className="text-sm font-semibold text-foreground mt-3">
-                        Progresso Geral
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {monthNames[currentMonth - 1]} {currentYear}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="glass border-border/50 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent" />
-                  <CardContent className="p-4 relative flex flex-col justify-center h-full">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                        <Target className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{monthlyGoals.length}</p>
-                        <p className="text-xs text-muted-foreground">Metas Ativas</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="glass border-border/50 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent" />
-                  <CardContent className="p-4 relative flex flex-col justify-center h-full">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                        <Trophy className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{completedGoals}</p>
-                        <p className="text-xs text-muted-foreground">Concluídas</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Goals Grid */}
-              {monthlyGoals.length === 0 ? (
-                <Card className="glass border-border/50 border-dashed">
-                  <CardContent className="py-12">
-                    <div className="flex flex-col items-center justify-center text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-4">
-                        <Target className="w-8 h-8 text-primary/50" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">
-                        Nenhuma meta comercial para este mês
-                      </h3>
-                      <p className="text-muted-foreground max-w-md mb-4 text-sm">
-                        Defina suas metas mensais para acompanhar seu progresso
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {monthlyGoals.map((goal) => {
-                    const progress = goal.target_value > 0 
-                      ? Math.round(((goal.current_value || 0) / goal.target_value) * 100) 
-                      : 0;
-                    const remaining = Math.max(0, goal.target_value - (goal.current_value || 0));
-                    const Icon = iconMap[goal.type] || Target;
-                    const isCompleted = progress >= 100;
-
-                    return (
-                      <Card 
-                        key={goal.id} 
-                        className={cn(
-                          "glass border-border/50 overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
-                          isCompleted && "ring-2 ring-emerald-500/20"
-                        )}
-                        onClick={() => handleConfigureGoal(goal)}
-                      >
-                        <div className={cn(
-                          "h-1.5 bg-gradient-to-r",
-                          colorMap[goal.type] || "from-primary to-primary/80"
-                        )} />
-                        <CardContent className="p-5">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-lg",
-                                colorMap[goal.type] || "from-primary to-primary/80"
-                              )}>
-                                <Icon className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-foreground text-sm">{goal.title}</h4>
-                                <p className="text-xs text-muted-foreground capitalize">{goal.type}</p>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity -mr-2 -mt-2 h-8 w-8"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleConfigureGoal(goal);
-                              }}
-                            >
-                              <Settings className="w-4 h-4" />
-                            </Button>
-                          </div>
-
-                          <div className="space-y-3">
-                            <div className="flex items-end justify-between">
-                              <div>
-                                <p className="text-2xl font-bold text-foreground">
-                                  {goal.type === "revenue" 
-                                    ? `R$ ${((goal.current_value || 0) / 1000).toFixed(1)}k`
-                                    : goal.current_value || 0
-                                  }
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  de {goal.type === "revenue" 
-                                    ? `R$ ${(goal.target_value / 1000).toFixed(1)}k`
-                                    : goal.target_value
-                                  }
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                {isCompleted ? (
-                                  <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20">
-                                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                                    Concluída
-                                  </Badge>
-                                ) : (
-                                  <p className="text-xl font-bold text-primary">{progress}%</p>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="space-y-1.5">
-                              <Progress 
-                                value={Math.min(progress, 100)} 
-                                className="h-2 bg-muted" 
-                              />
-                              <p className="text-xs text-muted-foreground">
-                                {isCompleted 
-                                  ? "🎉 Meta atingida!" 
-                                  : `Faltam ${formatValue(goal, remaining)}`
-                                }
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+    <Layout title="Metas Comerciais 2026" subtitle="Defina e acompanhe suas metas mensais">
+      <div className="space-y-6">
+        {/* Header with stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                  <Users className="w-5 h-5 text-white" />
                 </div>
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        {/* Metas Anuais */}
-        <AccordionItem value="anuais" className="border rounded-xl bg-card/50 overflow-hidden">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/50 [&[data-state=open]>div]:text-pink-500">
-            <div className="flex items-center gap-3 text-lg font-semibold">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
-                <Star className="w-5 h-5 text-white" />
+                <div>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{totals.leadsActual}/{totals.leadsTarget}</p>
+                  <p className="text-xs text-muted-foreground">Leads no Ano</p>
+                </div>
               </div>
-              <span>Metas Anuais</span>
-              <Badge variant="secondary" className="ml-2 bg-pink-500/10 text-pink-600">
-                {yearlyAnnualGoals.length} meta{yearlyAnnualGoals.length !== 1 ? 's' : ''}
-              </Badge>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="px-6 pb-6">
-            <div className="space-y-6">
-              <div className="flex justify-end">
-                <Button 
-                  onClick={handleCreateAnnualGoal}
-                  className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-lg shadow-pink-500/25"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Nova Meta Anual
-                </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 border-violet-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-lg">
+                  <Mic2 className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{totals.showsActual}/{totals.showsTarget}</p>
+                  <p className="text-xs text-muted-foreground">Shows no Ano</p>
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Annual Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="glass border-border/50 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent" />
-                  <CardContent className="p-4 relative">
-                    <div className="flex flex-col items-center">
-                      <div className="relative">
-                        <ProgressRing progress={annualOverallProgress} size={100} strokeWidth={8} />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Star className="w-5 h-5 text-pink-500/30" />
-                        </div>
-                      </div>
-                      <h3 className="text-sm font-semibold text-foreground mt-3">
-                        Progresso Anual
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {currentYear}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="glass border-border/50 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent" />
-                  <CardContent className="p-4 relative flex flex-col justify-center h-full">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/25">
-                        <Megaphone className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{yearlyAnnualGoals.length}</p>
-                        <p className="text-xs text-muted-foreground">Metas de Marketing</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="glass border-border/50 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent" />
-                  <CardContent className="p-4 relative flex flex-col justify-center h-full">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
-                        <Award className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{completedAnnualGoals}</p>
-                        <p className="text-xs text-muted-foreground">Conquistas</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+          <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                  <DollarSign className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm sm:text-lg font-bold text-foreground">{formatCurrency(totals.revenueActual)}</p>
+                  <p className="text-xs text-muted-foreground">Faturado no Ano</p>
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Annual Goals Grid */}
-              {yearlyAnnualGoals.length === 0 ? (
-                <Card className="glass border-border/50 border-dashed">
-                  <CardContent className="py-12">
-                    <div className="flex flex-col items-center justify-center text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500/10 to-rose-500/5 flex items-center justify-center mb-4">
-                        <Star className="w-8 h-8 text-pink-500/50" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">
-                        Nenhuma meta anual cadastrada
-                      </h3>
-                      <p className="text-muted-foreground max-w-md mb-4 text-sm">
-                        Crie metas de marketing e visibilidade! Ex: Tocar na rádio, aparecer na TV...
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {yearlyAnnualGoals.map((goal) => {
-                    const progress = goal.target_value > 0 
-                      ? Math.round((goal.current_value / goal.target_value) * 100) 
-                      : 0;
-                    const Icon = annualCategoryIcons[goal.category] || Star;
-                    const gradientColor = annualCategoryColors[goal.category] || "from-pink-500 to-rose-500";
+          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+                  <Target className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm sm:text-lg font-bold text-foreground">{formatCurrency(totals.revenueTarget)}</p>
+                  <p className="text-xs text-muted-foreground">Meta Anual</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex justify-end gap-2">
+          {editMode ? (
+            <>
+              <Button variant="outline" onClick={() => setEditMode(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveTargets} className="bg-gradient-to-r from-primary to-primary/80">
+                <Save className="w-4 h-4 mr-2" />
+                Salvar Metas
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => setEditMode(true)} variant="outline">
+              <Edit2 className="w-4 h-4 mr-2" />
+              Editar Metas
+            </Button>
+          )}
+        </div>
+
+        {/* Main table */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-zinc-800 to-zinc-700 text-white py-3">
+            <CardTitle className="text-center text-sm sm:text-base">Controle de Metas Comerciais 2026</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gradient-to-r from-emerald-700 to-emerald-600">
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">MÊS</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META LEADS</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">LEADS</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META SHOWS</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">REALIZADOS</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META FATURAMENTO</TableHead>
+                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-white font-bold text-center text-xs sm:text-sm whitespace-nowrap">FATURADO</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {monthNames.map((monthName, index) => {
+                    const month = index + 1;
+                    const monthTargets = targets[month] || { leads: 0, shows: 0, revenue: 0 };
+                    const actuals = getActualValues(month);
+                    
+                    const leadsPercent = calculatePercentage(actuals.leads, monthTargets.leads);
+                    const showsPercent = calculatePercentage(actuals.shows, monthTargets.shows);
+                    const revenuePercent = calculatePercentage(actuals.revenue, monthTargets.revenue);
 
                     return (
-                      <Card 
-                        key={goal.id} 
-                        className={cn(
-                          "glass border-border/50 overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
-                          goal.completed && "ring-2 ring-emerald-500/20"
-                        )}
-                        onClick={() => handleConfigureAnnualGoal(goal)}
-                      >
-                        <div className={cn("h-1.5 bg-gradient-to-r", gradientColor)} />
-                        <CardContent className="p-5">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-lg",
-                                gradientColor
-                              )}>
-                                <Icon className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-foreground text-sm">{goal.title}</h4>
-                                <Badge variant="outline" className="text-xs mt-1 capitalize">
-                                  {goal.category}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-
-                          {goal.description && (
-                            <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                              {goal.description}
-                            </p>
-                          )}
-
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xl font-bold text-foreground">{goal.current_value}</span>
-                                <span className="text-muted-foreground text-sm">/ {goal.target_value}</span>
-                              </div>
-                              {goal.completed ? (
-                                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-                                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                                  Concluída
-                                </Badge>
-                              ) : (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    incrementAnnualGoal(goal.id);
-                                  }}
-                                  className="h-7 text-xs"
-                                >
-                                  <Plus className="w-3 h-3 mr-1" />
-                                  +1
-                                </Button>
-                              )}
-                            </div>
-
-                            <Progress 
-                              value={Math.min(progress, 100)} 
-                              className="h-2 bg-muted" 
+                      <TableRow key={month} className={index % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}>
+                        <TableCell className="font-bold text-center border-r bg-zinc-100 text-xs sm:text-sm whitespace-nowrap">{monthName.toUpperCase()}</TableCell>
+                        
+                        {/* Leads */}
+                        <TableCell className="text-center border-r p-1 sm:p-2">
+                          {editMode ? (
+                            <Input
+                              type="number"
+                              value={monthTargets.leads || ''}
+                              onChange={(e) => handleTargetChange(month, 'leads', e.target.value)}
+                              className="w-14 sm:w-20 h-7 sm:h-8 text-center mx-auto text-xs sm:text-sm"
+                              min="0"
                             />
-                          </div>
-                        </CardContent>
-                      </Card>
+                          ) : (
+                            <span className="text-xs sm:text-sm">{monthTargets.leads || '-'}</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center border-r p-1 sm:p-2">
+                          <span className={cn('px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold', monthTargets.leads > 0 ? getPercentageColor(leadsPercent) : '')}>
+                            {monthTargets.leads > 0 ? `${leadsPercent}%` : '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center border-r font-semibold text-xs sm:text-sm">{actuals.leads}</TableCell>
+
+                        {/* Shows */}
+                        <TableCell className="text-center border-r p-1 sm:p-2">
+                          {editMode ? (
+                            <Input
+                              type="number"
+                              value={monthTargets.shows || ''}
+                              onChange={(e) => handleTargetChange(month, 'shows', e.target.value)}
+                              className="w-14 sm:w-20 h-7 sm:h-8 text-center mx-auto text-xs sm:text-sm"
+                              min="0"
+                            />
+                          ) : (
+                            <span className="text-xs sm:text-sm">{monthTargets.shows || '-'}</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center border-r p-1 sm:p-2">
+                          <span className={cn('px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold', monthTargets.shows > 0 ? getPercentageColor(showsPercent) : '')}>
+                            {monthTargets.shows > 0 ? `${showsPercent}%` : '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center border-r font-semibold text-xs sm:text-sm">{actuals.shows}</TableCell>
+
+                        {/* Revenue */}
+                        <TableCell className="text-center border-r p-1 sm:p-2">
+                          {editMode ? (
+                            <Input
+                              type="number"
+                              value={monthTargets.revenue || ''}
+                              onChange={(e) => handleTargetChange(month, 'revenue', e.target.value)}
+                              className="w-20 sm:w-24 h-7 sm:h-8 text-center mx-auto text-xs sm:text-sm"
+                              min="0"
+                              step="100"
+                            />
+                          ) : (
+                            <span className="text-xs sm:text-sm">{monthTargets.revenue > 0 ? formatCurrency(monthTargets.revenue) : '-'}</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center border-r p-1 sm:p-2">
+                          <span className={cn('px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold', monthTargets.revenue > 0 ? getPercentageColor(revenuePercent) : '')}>
+                            {monthTargets.revenue > 0 ? `${revenuePercent}%` : '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center font-semibold text-emerald-700 text-xs sm:text-sm whitespace-nowrap">
+                          {formatCurrency(actuals.revenue)}
+                        </TableCell>
+                      </TableRow>
                     );
                   })}
-                </div>
-              )}
+
+                  {/* Totals row */}
+                  <TableRow className="bg-gradient-to-r from-zinc-800 to-zinc-700 text-white font-bold">
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">TOTAL</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.leadsTarget}</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.leadsActual}</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.showsTarget}</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.showsActual}</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueTarget)}</TableCell>
+                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center text-emerald-400 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueActual)}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
-          </AccordionContent>
-        </AccordionItem>
+          </CardContent>
+        </Card>
 
-        {/* Histórico */}
-        <AccordionItem value="historico" className="border rounded-xl bg-card/50 overflow-hidden">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/50 [&[data-state=open]>div]:text-amber-500">
-            <div className="flex items-center gap-3 text-lg font-semibold">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
-                <Clock className="w-5 h-5 text-white" />
-              </div>
-              <span>Histórico</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="px-6 pb-6">
-            <div className="space-y-6">
-              {/* Commercial Goals History */}
-              <Card className="glass border-border/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                    Histórico de Metas Comerciais
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {goalsWithCurrentValues.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center mb-3">
-                        <Target className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                      <p className="text-foreground font-medium text-sm">Nenhuma meta cadastrada</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {goalsWithCurrentValues.map((goal) => {
-                        const progress = goal.target_value > 0 
-                          ? Math.round(((goal.current_value || 0) / goal.target_value) * 100) 
-                          : 0;
-                        const isCompleted = progress >= 100;
-                        const Icon = iconMap[goal.type] || Target;
-
-                        return (
-                          <div
-                            key={goal.id}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer hover:shadow-md",
-                              isCompleted 
-                                ? "bg-emerald-500/5 hover:bg-emerald-500/10" 
-                                : "bg-muted/30 hover:bg-muted/50"
-                            )}
-                            onClick={() => handleConfigureGoal(goal)}
-                          >
-                            <div className={cn(
-                              "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-gradient-to-br",
-                              colorMap[goal.type] || "from-primary to-primary/80"
-                            )}>
-                              <Icon className="w-4 h-4 text-white" />
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium text-foreground text-sm truncate">{goal.title}</h4>
-                                <Badge variant="outline" className="text-xs shrink-0">
-                                  {monthNames[goal.month - 1].slice(0, 3)}/{goal.year}
-                                </Badge>
-                              </div>
-                              <Progress value={Math.min(progress, 100)} className="h-1.5" />
-                            </div>
-
-                            <span className="text-xs font-medium text-muted-foreground shrink-0">
-                              {progress}%
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Annual Goals History */}
-              <Card className="glass border-border/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Star className="w-4 h-4 text-pink-500" />
-                    Histórico de Metas Anuais
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {annualGoals.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center mb-3">
-                        <Star className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                      <p className="text-foreground font-medium text-sm">Nenhuma meta anual cadastrada</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {annualGoals.map((goal) => {
-                        const progress = goal.target_value > 0 
-                          ? Math.round((goal.current_value / goal.target_value) * 100) 
-                          : 0;
-                        const Icon = annualCategoryIcons[goal.category] || Star;
-                        const gradientColor = annualCategoryColors[goal.category] || "from-pink-500 to-rose-500";
-
-                        return (
-                          <div
-                            key={goal.id}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer hover:shadow-md",
-                              goal.completed 
-                                ? "bg-emerald-500/5 hover:bg-emerald-500/10" 
-                                : "bg-muted/30 hover:bg-muted/50"
-                            )}
-                            onClick={() => handleConfigureAnnualGoal(goal)}
-                          >
-                            <div className={cn(
-                              "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-gradient-to-br",
-                              gradientColor
-                            )}>
-                              <Icon className="w-4 h-4 text-white" />
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium text-foreground text-sm truncate">{goal.title}</h4>
-                                <Badge variant="outline" className="text-xs shrink-0">
-                                  {goal.year}
-                                </Badge>
-                              </div>
-                              <Progress value={Math.min(progress, 100)} className="h-1.5" />
-                            </div>
-
-                            <span className="text-xs font-medium text-muted-foreground shrink-0">
-                              {goal.current_value}/{goal.target_value}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-
-      <GoalModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        goal={selectedGoal}
-        onSave={handleSaveGoal}
-        onDelete={handleDeleteGoal}
-      />
-
-      <AnnualGoalModal
-        open={annualModalOpen}
-        onOpenChange={setAnnualModalOpen}
-        goal={selectedAnnualGoal}
-        onSave={handleSaveAnnualGoal}
-        onDelete={deleteAnnualGoal}
-      />
+        {/* Legend */}
+        <div className="flex flex-wrap gap-3 sm:gap-4 justify-center text-xs sm:text-sm">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold text-emerald-600 bg-emerald-100">100%+</span>
+            <span className="text-muted-foreground">Meta atingida</span>
+          </div>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold text-amber-600 bg-amber-100">60-99%</span>
+            <span className="text-muted-foreground">Bom progresso</span>
+          </div>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold text-orange-600 bg-orange-100">30-59%</span>
+            <span className="text-muted-foreground">Atenção</span>
+          </div>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold text-red-600 bg-red-100">0-29%</span>
+            <span className="text-muted-foreground">Crítico</span>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 }
