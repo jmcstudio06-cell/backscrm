@@ -14,9 +14,11 @@ interface TrialStatus {
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
-  inicial: 30, // 1 month
-  essencial: 180, // 6 months
-  completo: 365, // 1 year
+  // "inicial" virou "mensal" (mantemos por compatibilidade)
+  mensal: 30, // 1 month
+  inicial: 30, // legacy
+  essencial: 90, // 3 months
+  completo: 180, // 6 months
 };
 
 export function useTrialStatus() {
@@ -81,9 +83,9 @@ export function useTrialStatus() {
               .update({ plan: "expirado" })
               .eq("user_id", user.id);
           }
-        } else if (PLAN_DURATIONS[plan] && updatedAt) {
-          // Paid plans use updated_at as plan start date + plan duration
-          const planStartDate = new Date(updatedAt);
+        } else if (PLAN_DURATIONS[plan] && (trialStart || updatedAt)) {
+          // Paid plans use trial_start (preferred) or updated_at as start date + plan duration
+          const planStartDate = new Date(trialStart || updatedAt);
           const planDuration = PLAN_DURATIONS[plan];
           const now = new Date();
           const diffTime = now.getTime() - planStartDate.getTime();
