@@ -83,9 +83,9 @@ const FEATURES = [
 const PLAN_FILTERS = [
   { value: "all", label: "TODOS" },
   { value: "trial", label: "TRIAL" },
-  { value: "mensal", label: "MENSAL" },
-  { value: "essencial", label: "ESSENCIAL (TRIMESTRAL)" },
-  { value: "completo", label: "COMPLETO (SEMESTRAL)" },
+  { value: "mensal", label: "PLANO MENSAL" },
+  { value: "essencial", label: "PLANO PROFISSIONAL 3 MESES" },
+  { value: "completo", label: "PLANO PROFISSIONAL 6 MESES" },
   { value: "expirado", label: "EXPIRADOS" },
 ];
 
