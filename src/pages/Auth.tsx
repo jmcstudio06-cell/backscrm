@@ -163,6 +163,10 @@ const Auth = () => {
         }
 
         // Mark conversion for landing page tracking
+        // Garantir que existe visitor_id antes de marcar conversão
+        if (!localStorage.getItem("visitor_id")) {
+          localStorage.setItem("visitor_id", crypto.randomUUID());
+        }
         await markConversion();
 
         toast({

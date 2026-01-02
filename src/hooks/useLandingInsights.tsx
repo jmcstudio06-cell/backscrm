@@ -123,15 +123,59 @@ export async function trackLandingVisit() {
 export async function markConversion() {
   try {
     const visitorId = localStorage.getItem("visitor_id");
-    if (!visitorId) return;
+    
+    if (!visitorId) {
+      console.log("markConversion: No visitor_id found in localStorage");
+      return;
+    }
 
-    const { error } = await supabase
+    console.log("markConversion: Attempting to mark conversion for visitor:", visitorId);
+
+    // Primeiro, verificar se existe um registro para este visitante
+    const { data: existingVisit, error: checkError } = await supabase
+      .from("landing_page_visits")
+      .select("id, converted")
+      .eq("visitor_id", visitorId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (checkError) {
+      console.log("markConversion: No existing visit found for this visitor_id");
+      // Se não existe visita, criar uma nova já convertida
+      const { error: insertError } = await supabase.from("landing_page_visits").insert({
+        visitor_id: visitorId,
+        page_path: "/auth",
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent,
+        converted: true,
+        converted_at: new Date().toISOString(),
+      });
+      
+      if (insertError) {
+        console.error("markConversion: Error creating converted visit:", insertError);
+      } else {
+        console.log("markConversion: Created new converted visit");
+      }
+      return;
+    }
+
+    if (existingVisit.converted) {
+      console.log("markConversion: Visit already converted");
+      return;
+    }
+
+    // Atualizar o registro existente
+    const { error: updateError } = await supabase
       .from("landing_page_visits")
       .update({ converted: true, converted_at: new Date().toISOString() })
-      .eq("visitor_id", visitorId)
-      .eq("converted", false);
+      .eq("id", existingVisit.id);
 
-    if (error) throw error;
+    if (updateError) {
+      console.error("markConversion: Error updating visit:", updateError);
+    } else {
+      console.log("markConversion: Successfully marked conversion for visit:", existingVisit.id);
+    }
   } catch (error) {
     console.error("Error marking conversion:", error);
   }
