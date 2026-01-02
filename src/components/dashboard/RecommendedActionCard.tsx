@@ -62,7 +62,7 @@ export function RecommendedActionCard({
         description: "Adicione contatos interessados nos seus shows e comece a vender",
         link: "/crm",
         icon: UserPlus,
-        gradient: "from-cyan-500 to-blue-600",
+        gradient: "from-primary to-primary/80",
         priority: 2,
       });
     }
@@ -75,7 +75,7 @@ export function RecommendedActionCard({
         description: "Transforme seus leads em shows confirmados",
         link: "/agenda",
         icon: Calendar,
-        gradient: "from-emerald-500 to-green-600",
+        gradient: "from-success to-success/80",
         priority: 3,
       });
     }
@@ -88,7 +88,7 @@ export function RecommendedActionCard({
         description: "Formalize seus shows com contratos profissionais",
         link: "/contratos",
         icon: FileText,
-        gradient: "from-amber-500 to-orange-600",
+        gradient: "from-warning to-warning/80",
         priority: 4,
       });
     }
@@ -114,7 +114,7 @@ export function RecommendedActionCard({
         description: `Você tem ${upcomingShowsCount} show${upcomingShowsCount > 1 ? "s" : ""} chegando. Revise os detalhes!`,
         link: "/agenda",
         icon: Calendar,
-        gradient: "from-indigo-500 to-blue-600",
+        gradient: "from-primary to-primary/80",
         priority: 6,
       });
     }
@@ -127,7 +127,7 @@ export function RecommendedActionCard({
         description: "Descubra todas as ferramentas disponíveis para gerenciar sua carreira",
         link: "/agenda",
         icon: Zap,
-        gradient: "from-slate-500 to-gray-600",
+        gradient: "from-muted-foreground to-muted-foreground",
         priority: 99,
       });
     }
@@ -141,16 +141,15 @@ export function RecommendedActionCard({
   const Icon = primaryAction.icon;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6 shadow-sm">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-violet-500/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-cyan-500/10 to-transparent rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute -top-20 -right-20 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
 
       <div className="relative">
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
-          <Zap className="w-5 h-5 text-amber-400" />
-          <h3 className="text-lg font-bold text-white">Próximo Passo</h3>
+          <Zap className="w-5 h-5 text-warning" />
+          <h3 className="text-lg font-bold text-foreground">Próximo Passo</h3>
         </div>
 
         {/* Primary Action */}
@@ -184,7 +183,7 @@ export function RecommendedActionCard({
         {/* Secondary Actions */}
         {secondaryActions.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Outras sugestões</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Outras sugestões</p>
             <div className="grid grid-cols-1 gap-2">
               {secondaryActions.map((action) => {
                 const ActionIcon = action.icon;
@@ -192,15 +191,15 @@ export function RecommendedActionCard({
                   <Link
                     key={action.id}
                     to={action.link}
-                    className="group flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-slate-600 hover:bg-slate-800/80 transition-all"
+                    className="group flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border hover:border-primary/30 hover:bg-secondary transition-all"
                   >
                     <div className={cn("p-2 rounded-lg bg-gradient-to-br", action.gradient)}>
                       <ActionIcon className="w-4 h-4 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{action.title}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{action.title}</p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                   </Link>
                 );
               })}

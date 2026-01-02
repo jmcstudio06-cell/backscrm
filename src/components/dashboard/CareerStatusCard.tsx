@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Minus, Sparkles, AlertTriangle, Pause } from "lucide-react";
+import { TrendingUp, TrendingDown, Sparkles, AlertTriangle, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CareerStatusCardProps {
@@ -56,30 +56,36 @@ export function CareerStatusCard({
       label: "Em Crescimento",
       sublabel: "Sua carreira está evoluindo!",
       icon: TrendingUp,
-      gradient: "from-emerald-500 via-green-500 to-teal-500",
-      bgGlow: "from-emerald-500/30",
-      iconBg: "bg-emerald-500/20",
-      textColor: "text-emerald-400",
+      gradient: "from-emerald-500 to-teal-500",
+      bgGlow: "bg-success/10",
+      iconBg: "bg-success/20",
+      textColor: "text-success",
+      badgeBg: "bg-success/10",
+      badgeBorder: "border-success/30",
       pulse: true,
     },
     attention: {
       label: "Atenção",
       sublabel: "Hora de acelerar as ações",
       icon: AlertTriangle,
-      gradient: "from-amber-500 via-orange-500 to-yellow-500",
-      bgGlow: "from-amber-500/30",
-      iconBg: "bg-amber-500/20",
-      textColor: "text-amber-400",
+      gradient: "from-amber-500 to-orange-500",
+      bgGlow: "bg-warning/10",
+      iconBg: "bg-warning/20",
+      textColor: "text-warning",
+      badgeBg: "bg-warning/10",
+      badgeBorder: "border-warning/30",
       pulse: false,
     },
     stalled: {
       label: "Parado",
       sublabel: "Vamos retomar o ritmo!",
       icon: Pause,
-      gradient: "from-slate-500 via-gray-500 to-zinc-500",
-      bgGlow: "from-slate-500/20",
-      iconBg: "bg-slate-500/20",
-      textColor: "text-slate-400",
+      gradient: "from-muted-foreground to-muted-foreground",
+      bgGlow: "bg-muted/20",
+      iconBg: "bg-muted",
+      textColor: "text-muted-foreground",
+      badgeBg: "bg-muted",
+      badgeBorder: "border-border",
       pulse: false,
     },
   };
@@ -94,16 +100,9 @@ export function CareerStatusCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">
-      {/* Animated background glow */}
-      <div
-        className={cn(
-          "absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl transition-all duration-1000",
-          `bg-gradient-to-br ${config.bgGlow} to-transparent`,
-          config.pulse && "animate-pulse"
-        )}
-      />
-      <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-gradient-to-tr from-slate-700/30 to-transparent rounded-full blur-2xl" />
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6 shadow-sm">
+      {/* Background decoration */}
+      <div className={cn("absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl", config.bgGlow)} />
 
       <div className="relative">
         {/* Header */}
@@ -113,22 +112,22 @@ export function CareerStatusCard({
               <Icon className={cn("w-6 h-6", config.textColor)} />
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wider">Status da Carreira</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Status da Carreira</p>
               <h3 className={cn("text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent", config.gradient)}>
                 {config.label}
               </h3>
             </div>
           </div>
           {status === "growing" && (
-            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-              <Sparkles className="w-3 h-3 text-emerald-400" />
-              <span className="text-xs font-medium text-emerald-400">Excelente!</span>
+            <div className={cn("flex items-center gap-1 px-3 py-1 rounded-full border", config.badgeBg, config.badgeBorder)}>
+              <Sparkles className="w-3 h-3 text-success" />
+              <span className="text-xs font-medium text-success">Excelente!</span>
             </div>
           )}
         </div>
 
         {/* Sublabel */}
-        <p className="text-slate-400 text-sm mb-6">{config.sublabel}</p>
+        <p className="text-muted-foreground text-sm mb-6">{config.sublabel}</p>
 
         {/* Metrics comparison */}
         <div className="grid grid-cols-3 gap-4">
@@ -171,16 +170,16 @@ function MetricItem({ label, current, change, isPositive, isCurrency }: MetricIt
     : current;
 
   return (
-    <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
-      <p className="text-xs text-slate-500 mb-1">{label}</p>
-      <p className="text-lg font-bold text-white">{displayValue}</p>
+    <div className="p-3 rounded-xl bg-secondary/50 border border-border">
+      <p className="text-xs text-muted-foreground mb-1">{label}</p>
+      <p className="text-lg font-bold text-foreground">{displayValue}</p>
       <div className="flex items-center gap-1 mt-1">
         {isPositive ? (
-          <TrendingUp className="w-3 h-3 text-emerald-400" />
+          <TrendingUp className="w-3 h-3 text-success" />
         ) : (
-          <TrendingDown className="w-3 h-3 text-rose-400" />
+          <TrendingDown className="w-3 h-3 text-destructive" />
         )}
-        <span className={cn("text-xs font-medium", isPositive ? "text-emerald-400" : "text-rose-400")}>
+        <span className={cn("text-xs font-medium", isPositive ? "text-success" : "text-destructive")}>
           {change}
         </span>
       </div>
