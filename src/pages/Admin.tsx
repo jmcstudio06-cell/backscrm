@@ -65,16 +65,19 @@ const FEATURES = [
   { key: "agenda", label: "Agenda" },
   { key: "crm", label: "Funil de Vendas" },
   { key: "clientes", label: "Clientes" },
+  { key: "orcamentos", label: "Orçamentos" },
+  { key: "contratos", label: "Contratos" },
   { key: "financeiro", label: "Financeiro" },
   { key: "historico", label: "Histórico" },
+  { key: "precificacao", label: "Precificação" },
   { key: "checklist", label: "Checklist" },
+  { key: "mapeamento-palco", label: "Mapeamento de Palco" },
   { key: "equipe", label: "Equipe" },
   { key: "metas", label: "Metas" },
+  { key: "repertorio", label: "Repertório" },
   { key: "aulas", label: "Aulas" },
   { key: "tutoriais", label: "Tutoriais" },
   { key: "configuracoes", label: "Configurações" },
-  { key: "orcamentos", label: "Orçamentos" },
-  { key: "contratos", label: "Contratos" },
 ];
 
 const PLAN_FILTERS = [
