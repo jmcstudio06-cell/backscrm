@@ -13,15 +13,15 @@ import {
   Filter,
 } from "lucide-react";
 import {
-  BarChart,
+  ComposedChart,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
+  Legend,
 } from "recharts";
 import {
   Table,
@@ -203,16 +203,16 @@ export default function Historico() {
         </div>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <ChartCard title="Evolução Mensal" subtitle="Receita vs Despesa">
+      {/* Chart - Evolução Mensal com Receita, Despesa e Lucro */}
+      <div className="mb-6">
+        <ChartCard title="Evolução Mensal" subtitle="Receita, Despesa e Lucro - últimos 12 meses">
           {monthlyHistory.length === 0 ? (
-            <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+            <div className="flex items-center justify-center h-[350px] text-muted-foreground">
               Nenhum dado para exibir no período selecionado
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyHistory}>
+            <ResponsiveContainer width="100%" height={350}>
+              <ComposedChart data={monthlyHistory}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -222,42 +222,25 @@ export default function Historico() {
                     border: "1px solid hsl(var(--border))",
                     borderRadius: "8px"
                   }}
-                  formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, ""]}
+                  formatter={(value: number, name: string) => [
+                    `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+                    name === "receita" ? "Receita" : name === "despesa" ? "Despesa" : "Lucro"
+                  ]}
                 />
-                <Bar dataKey="receita" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="Receita" />
-                <Bar dataKey="despesa" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="Despesa" />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </ChartCard>
-
-        <ChartCard title="Lucro Mensal" subtitle="Evolução do lucro líquido">
-          {monthlyHistory.length === 0 ? (
-            <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-              Nenhum dado para exibir no período selecionado
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyHistory}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: "hsl(var(--card))", 
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px"
-                  }}
-                  formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, "Lucro"]}
+                <Legend 
+                  formatter={(value) => value === "receita" ? "Receita" : value === "despesa" ? "Despesa" : "Lucro"}
                 />
+                <Bar dataKey="receita" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="receita" />
+                <Bar dataKey="despesa" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="despesa" />
                 <Line
                   type="monotone"
                   dataKey="lucro"
                   stroke="hsl(var(--primary))"
                   strokeWidth={3}
-                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                  name="lucro"
                 />
-              </LineChart>
+              </ComposedChart>
             </ResponsiveContainer>
           )}
         </ChartCard>
