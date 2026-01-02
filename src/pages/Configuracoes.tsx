@@ -14,15 +14,17 @@ import { processImage, formatFileSize } from "@/lib/imageUtils";
 
 const planLabels: Record<string, string> = {
   trial: "Trial",
-  inicial: "Inicial",
-  essencial: "Essencial",
-  completo: "Completo",
+  mensal: "Plano Mensal",
+  inicial: "Plano Mensal", // compatibilidade
+  essencial: "Plano Profissional 3 Meses",
+  completo: "Plano Profissional 6 Meses",
   expirado: "Expirado",
 };
 
 const planColors: Record<string, string> = {
   trial: "bg-orange-500",
-  inicial: "bg-blue-500",
+  mensal: "bg-blue-500",
+  inicial: "bg-blue-500", // compatibilidade
   essencial: "bg-green-500",
   completo: "bg-purple-500",
   expirado: "bg-destructive",

@@ -374,12 +374,15 @@ export default function Admin() {
   };
 
   const updateUserPlan = async (userId: string, plan: string) => {
+    // Backward compatibility: "inicial" virou "mensal"
+    const normalizedPlan = plan === "inicial" ? "mensal" : plan;
+
     // When changing plan, also set trial_start to now for tracking
-    const updates: { plan: string; trial_start?: string; trial_days?: number } = { plan };
+    const updates: { plan: string; trial_start?: string; trial_days?: number } = { plan: normalizedPlan };
     
-    if (plan !== "expirado") {
+    if (normalizedPlan !== "expirado") {
       updates.trial_start = new Date().toISOString();
-      updates.trial_days = PLAN_DURATIONS[plan] || 3;
+      updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
     }
 
     const { error } = await supabase
@@ -622,7 +625,7 @@ export default function Admin() {
     // ou podemos manter um estado separado para stats gerais
     return {
       trial: 0,
-      inicial: 0,
+      mensal: 0,
       essencial: 0,
       completo: 0,
       expirado: 0,
@@ -699,21 +702,21 @@ export default function Admin() {
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">
             <Zap className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-sm text-blue-600">Inicial (1 mês)</p>
-            <p className="text-2xl font-bold text-blue-700">{stats.inicial}</p>
+            <p className="text-sm text-blue-600">Plano Mensal (1 mês)</p>
+            <p className="text-2xl font-bold text-blue-700">{stats.mensal}</p>
           </CardContent>
         </Card>
         <Card className="border-green-200 bg-green-50">
           <CardContent className="p-4 text-center">
             <UsersIcon className="h-6 w-6 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-green-600">Essencial (6 meses)</p>
+            <p className="text-sm text-green-600">Profissional (3 meses)</p>
             <p className="text-2xl font-bold text-green-700">{stats.essencial}</p>
           </CardContent>
         </Card>
         <Card className="border-purple-200 bg-purple-50">
           <CardContent className="p-4 text-center">
             <Heart className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-            <p className="text-sm text-purple-600">Completo (1 ano)</p>
+            <p className="text-sm text-purple-600">Profissional (6 meses)</p>
             <p className="text-2xl font-bold text-purple-700">{stats.completo}</p>
           </CardContent>
         </Card>
@@ -823,13 +826,13 @@ export default function Admin() {
                           value={userProfile.plan || "trial"}
                           onChange={(e) => updateUserPlan(userProfile.user_id, e.target.value)}
                           className="w-full mt-1 px-3 py-2 border rounded-md bg-yellow-50 border-yellow-200"
-                        >
-                          <option value="trial">Trial (3 dias)</option>
-                          <option value="inicial">Inicial (1 mês)</option>
-                          <option value="essencial">Essencial (6 meses)</option>
-                          <option value="completo">Completo (1 ano)</option>
-                          <option value="expirado">Expirado</option>
-                        </select>
+                          >
+                            <option value="trial">Trial (3 dias)</option>
+                            <option value="mensal">Plano Mensal (1 mês)</option>
+                            <option value="essencial">Plano Profissional 3 meses</option>
+                            <option value="completo">Plano Profissional 6 meses</option>
+                            <option value="expirado">Expirado</option>
+                          </select>
                       </div>
                       <div>
                         <Label>Início do Plano</Label>
@@ -1155,9 +1158,9 @@ export default function Admin() {
                       <p className="font-medium text-blue-900">Como funciona:</p>
                       <ul className="text-sm text-blue-800 list-disc list-inside mt-1 space-y-1">
                         <li><strong>TRIAL:</strong> Dura {trialDays} dias, depois expira automaticamente</li>
-                        <li><strong>INICIAL:</strong> Dura 1 mês (30 dias)</li>
-                        <li><strong>ESSENCIAL:</strong> Dura 6 meses (180 dias)</li>
-                        <li><strong>COMPLETO:</strong> Dura 1 ano (365 dias)</li>
+                        <li><strong>PLANO MENSAL:</strong> Dura 1 mês (30 dias)</li>
+                        <li><strong>PLANO PROFISSIONAL 3 MESES:</strong> Dura 3 meses (90 dias)</li>
+                        <li><strong>PLANO PROFISSIONAL 6 MESES:</strong> Dura 6 meses (180 dias)</li>
                         <li>Após expirar, o usuário precisa renovar o plano</li>
                       </ul>
                     </div>
