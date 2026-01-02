@@ -15,21 +15,30 @@ interface SmartStatCardProps {
 }
 
 const gradientMap = {
-  primary: "from-cyan-500 to-blue-600",
+  primary: "from-primary to-primary/80",
   secondary: "from-violet-500 to-purple-600",
-  success: "from-emerald-500 to-green-600",
-  warning: "from-amber-500 to-orange-600",
+  success: "from-success to-success/80",
+  warning: "from-warning to-warning/80",
   purple: "from-purple-500 to-indigo-600",
   cyan: "from-cyan-500 to-teal-600",
 };
 
-const glowMap = {
-  primary: "shadow-cyan-500/30",
-  secondary: "shadow-violet-500/30",
-  success: "shadow-emerald-500/30",
-  warning: "shadow-amber-500/30",
-  purple: "shadow-purple-500/30",
-  cyan: "shadow-cyan-500/30",
+const bgMap = {
+  primary: "bg-primary/10",
+  secondary: "bg-purple-500/10",
+  success: "bg-success/10",
+  warning: "bg-warning/10",
+  purple: "bg-purple-500/10",
+  cyan: "bg-cyan-500/10",
+};
+
+const textMap = {
+  primary: "text-primary",
+  secondary: "text-purple-500",
+  success: "text-success",
+  warning: "text-warning",
+  purple: "text-purple-500",
+  cyan: "text-cyan-500",
 };
 
 export function SmartStatCard({
@@ -49,36 +58,21 @@ export function SmartStatCard({
   if (shouldShowEmpty && emptyMessage && emptyLink) {
     return (
       <Link to={emptyLink} className={cn("group block", className)}>
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50 p-5 h-full hover:border-slate-600 transition-all duration-300">
+        <div className="relative overflow-hidden rounded-xl bg-card border border-border p-5 h-full hover:border-primary/30 hover:shadow-md transition-all duration-300">
           {/* Subtle gradient background */}
-          <div className={cn(
-            "absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity",
-            `bg-gradient-to-br ${gradientMap[gradient]}`
-          )} />
+          <div className={cn("absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl opacity-50", bgMap[gradient])} />
 
           <div className="relative">
             <div className="flex items-start justify-between mb-3">
-              <div className={cn(
-                "p-2 rounded-lg bg-gradient-to-br shadow-lg",
-                gradientMap[gradient],
-                glowMap[gradient]
-              )}>
+              <div className={cn("p-2 rounded-lg bg-gradient-to-br", gradientMap[gradient])}>
                 <Icon className="w-4 h-4 text-white" />
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </div>
 
-            <h3 className="text-sm font-medium text-slate-400 mb-1">{title}</h3>
-            <p className="text-sm text-white font-medium mb-2">{emptyMessage}</p>
-            <p className={cn(
-              "text-xs font-medium",
-              gradient === "primary" && "text-cyan-400",
-              gradient === "secondary" && "text-violet-400",
-              gradient === "success" && "text-emerald-400",
-              gradient === "warning" && "text-amber-400",
-              gradient === "purple" && "text-purple-400",
-              gradient === "cyan" && "text-cyan-400"
-            )}>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">{title}</h3>
+            <p className="text-sm text-foreground font-medium mb-2">{emptyMessage}</p>
+            <p className={cn("text-xs font-medium", textMap[gradient])}>
               {emptyAction} →
             </p>
           </div>
@@ -89,28 +83,21 @@ export function SmartStatCard({
 
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50 p-5",
+      "relative overflow-hidden rounded-xl bg-card border border-border p-5",
       className
     )}>
       {/* Background gradient glow */}
-      <div className={cn(
-        "absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl opacity-20",
-        `bg-gradient-to-br ${gradientMap[gradient]}`
-      )} />
+      <div className={cn("absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl opacity-30", bgMap[gradient])} />
 
       <div className="relative">
         <div className="flex items-start justify-between mb-4">
-          <div className={cn(
-            "p-2 rounded-lg bg-gradient-to-br shadow-lg",
-            gradientMap[gradient],
-            glowMap[gradient]
-          )}>
+          <div className={cn("p-2 rounded-lg bg-gradient-to-br", gradientMap[gradient])}>
             <Icon className="w-4 h-4 text-white" />
           </div>
         </div>
 
-        <h3 className="text-sm font-medium text-slate-400 mb-1">{title}</h3>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <h3 className="text-sm font-medium text-muted-foreground mb-1">{title}</h3>
+        <p className="text-2xl font-bold text-foreground">{value}</p>
       </div>
     </div>
   );
