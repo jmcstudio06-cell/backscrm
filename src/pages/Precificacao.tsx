@@ -26,13 +26,14 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Guitar, Users, Music2, Mic2 } from "lucide-react";
 
 // Configuração de valores base por formação
 const formacaoConfig = {
-  voz_violao: { label: "Voz e Violão", base: 300, icon: "🎸" },
-  duo: { label: "Duo", base: 500, icon: "🎵" },
-  trio: { label: "Trio", base: 800, icon: "🎶" },
-  banda: { label: "Banda Completa", base: 1500, icon: "🎤" },
+  voz_violao: { label: "Voz e Violão", base: 300, Icon: Guitar },
+  duo: { label: "Duo", base: 500, Icon: Users },
+  trio: { label: "Trio", base: 800, Icon: Music2 },
+  banda: { label: "Banda Completa", base: 1500, Icon: Mic2 },
 };
 
 // Configuração por estilo musical
@@ -187,7 +188,7 @@ export default function Precificacao() {
                     }`}
                   >
                     <RadioGroupItem value={key} id={key} className="sr-only" />
-                    <span className="text-2xl">{config.icon}</span>
+                    <config.Icon className="w-6 h-6 text-primary" />
                     <div>
                       <p className="font-medium">{config.label}</p>
                       <p className="text-xs text-muted-foreground">Base: R$ {config.base}</p>
