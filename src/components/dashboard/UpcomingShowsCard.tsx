@@ -1,6 +1,6 @@
 import { Calendar, MapPin, Music, ArrowRight, FileText, MessageCircle, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface Show {
   id: string;
@@ -18,6 +18,8 @@ interface UpcomingShowsCardProps {
 }
 
 export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
+  const navigate = useNavigate();
+
   const getGradient = (index: number) => {
     const gradients = [
       "from-primary to-primary/80",
@@ -25,6 +27,10 @@ export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
       "from-rose-500 to-pink-600",
     ];
     return gradients[index % gradients.length];
+  };
+
+  const handleShowClick = (showId: string) => {
+    navigate(`/agenda?show=${showId}`);
   };
 
   const getStatusConfig = (status: Show["status"]) => {
@@ -106,7 +112,8 @@ export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
               return (
                 <div
                   key={show.id || index}
-                  className="group relative overflow-hidden rounded-xl bg-secondary/30 border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-md"
+                  onClick={() => handleShowClick(show.id)}
+                  className="group relative overflow-hidden rounded-xl bg-secondary/30 border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-md cursor-pointer"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex flex-col">

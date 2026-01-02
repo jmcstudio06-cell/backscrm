@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,10 +38,25 @@ const statusLabels = {
 
 export default function Agenda() {
   const { shows, addShow, updateShow, deleteShow, cancelShow } = useShows();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingShow, setEditingShow] = useState<Show | null>(null);
+
+  // Handle show param from URL to open specific show
+  useEffect(() => {
+    const showId = searchParams.get("show");
+    if (showId && shows.length > 0) {
+      const showToOpen = shows.find(s => s.id === showId);
+      if (showToOpen) {
+        setEditingShow(showToOpen);
+        setIsModalOpen(true);
+        // Clear the URL param after opening
+        setSearchParams({});
+      }
+    }
+  }, [searchParams, shows, setSearchParams]);
 
   const handleShowCreated = (newShow: ShowData) => {
     // Map musicians and expenses to the format expected by useShows
