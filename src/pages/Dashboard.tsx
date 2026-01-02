@@ -75,11 +75,11 @@ const Dashboard = () => {
     }).length;
   }, [leads, lastMonthStart, lastMonthEnd]);
 
-  // Calculate shows this month vs last month
+  // Calculate shows this month vs last month (all statuses except cancelled)
   const showsThisMonth = useMemo(() => {
     return shows.filter((show) => {
       const showDate = new Date(show.date);
-      return (show.status === "completed" || show.status === "confirmed") && 
+      return show.status !== "cancelled" && 
              showDate >= currentMonthStart && 
              showDate <= currentMonthEnd;
     }).length;
@@ -88,7 +88,7 @@ const Dashboard = () => {
   const showsLastMonth = useMemo(() => {
     return shows.filter((show) => {
       const showDate = new Date(show.date);
-      return (show.status === "completed" || show.status === "confirmed") && 
+      return show.status !== "cancelled" && 
              showDate >= lastMonthStart && 
              showDate <= lastMonthEnd;
     }).length;
