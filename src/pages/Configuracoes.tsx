@@ -113,7 +113,9 @@ export default function Configuracoes() {
       const originalSize = formatFileSize(file.size);
       const newSize = formatFileSize(processedFile.size);
 
-      const fileName = `${profile.id}_${Date.now()}.jpg`;
+      // Usar extensão correta baseada no tipo do arquivo processado
+      const extension = processedFile.type === 'image/webp' ? 'webp' : 'jpg';
+      const fileName = `${profile.id}_${Date.now()}.${extension}`;
       const filePath = `${fileName}`;
 
       // Upload para Supabase Storage

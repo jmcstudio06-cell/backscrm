@@ -1,11 +1,11 @@
 /**
  * Utilitários para processamento de imagens
- * Inclui validação de tamanho e compressão
+ * Inclui validação de tamanho e compressão otimizada
  */
 
-const MAX_FILE_SIZE = 500 * 1024; // 500 KB
-const MAX_DIMENSION = 400; // pixels
-const COMPRESSION_QUALITY = 0.8;
+const MAX_FILE_SIZE = 300 * 1024; // 300 KB (reduzido para economizar storage)
+const AVATAR_MAX_DIMENSION = 300; // pixels (otimizado para avatares)
+const COMPRESSION_QUALITY = 0.7; // 70% qualidade (boa relação tamanho/qualidade)
 
 export interface ImageValidationResult {
   valid: boolean;
@@ -29,7 +29,7 @@ export function validateImageSize(file: File): ImageValidationResult {
   if (file.size > MAX_FILE_SIZE * 4) {
     return {
       valid: false,
-      error: 'Imagem muito grande. Máximo permitido: 2MB antes da compressão.'
+      error: 'Imagem muito grande. Máximo permitido: 1.2MB antes da compressão.'
     };
   }
 
@@ -37,9 +37,20 @@ export function validateImageSize(file: File): ImageValidationResult {
 }
 
 /**
- * Comprime uma imagem para o tamanho máximo permitido
+ * Verifica se o navegador suporta WebP
  */
-export async function compressImage(file: File): Promise<File> {
+function supportsWebP(): boolean {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+}
+
+/**
+ * Comprime uma imagem para o tamanho máximo permitido
+ * Otimizado para avatares: 300x300 max, WebP quando suportado, 70% qualidade
+ */
+export async function compressImage(file: File, maxDimension: number = AVATAR_MAX_DIMENSION): Promise<File> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
@@ -50,14 +61,14 @@ export async function compressImage(file: File): Promise<File> {
         const canvas = document.createElement('canvas');
         let { width, height } = img;
         
-        // Redimensionar se necessário
-        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        // Redimensionar se necessário (mantendo proporção)
+        if (width > maxDimension || height > maxDimension) {
           if (width > height) {
-            height = (height / width) * MAX_DIMENSION;
-            width = MAX_DIMENSION;
+            height = Math.round((height / width) * maxDimension);
+            width = maxDimension;
           } else {
-            width = (width / height) * MAX_DIMENSION;
-            height = MAX_DIMENSION;
+            width = Math.round((width / height) * maxDimension);
+            height = maxDimension;
           }
         }
         
@@ -70,7 +81,15 @@ export async function compressImage(file: File): Promise<File> {
           return;
         }
         
+        // Aplicar suavização para melhor qualidade
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
+        
+        // Usar WebP se suportado (menor tamanho), senão JPEG
+        const useWebP = supportsWebP();
+        const mimeType = useWebP ? 'image/webp' : 'image/jpeg';
+        const extension = useWebP ? 'webp' : 'jpg';
         
         // Converter para blob com compressão
         canvas.toBlob(
@@ -80,14 +99,16 @@ export async function compressImage(file: File): Promise<File> {
               return;
             }
             
-            const compressedFile = new File([blob], file.name, {
-              type: 'image/jpeg',
+            // Gerar nome do arquivo com extensão correta
+            const baseName = file.name.replace(/\.[^/.]+$/, '');
+            const compressedFile = new File([blob], `${baseName}.${extension}`, {
+              type: mimeType,
               lastModified: Date.now(),
             });
             
             resolve(compressedFile);
           },
-          'image/jpeg',
+          mimeType,
           COMPRESSION_QUALITY
         );
       };
