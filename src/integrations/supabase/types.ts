@@ -680,6 +680,7 @@ export type Database = {
           city: string | null
           created_at: string
           email: string | null
+          feature_blocks: Json | null
           id: string
           last_seen: string | null
           name: string | null
@@ -696,6 +697,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           email?: string | null
+          feature_blocks?: Json | null
           id?: string
           last_seen?: string | null
           name?: string | null
@@ -712,6 +714,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           email?: string | null
+          feature_blocks?: Json | null
           id?: string
           last_seen?: string | null
           name?: string | null
@@ -1143,6 +1146,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_landing_visits: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

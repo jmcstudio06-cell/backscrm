@@ -2,59 +2,82 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-interface FeatureBlock {
-  feature_key: string;
-  blocked: boolean;
+// Interface para os bloqueios de features (novo formato JSON)
+interface FeatureBlocks {
+  [key: string]: boolean;
 }
+
+// Default feature blocks para trial
+const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
+  dashboard: false,
+  agenda: false,
+  crm: false,
+  clientes: false,
+  orcamentos: true,
+  contratos: true,
+  financeiro: false,
+  historico: false,
+  precificacao: true,
+  checklist: true,
+  "mapeamento-palco": true,
+  equipe: false,
+  metas: false,
+  repertorio: false,
+  aulas: false,
+  tutoriais: false,
+  configuracoes: false,
+};
 
 export function useFeatureBlocks() {
   const { user } = useAuth();
-  const [blocks, setBlocks] = useState<FeatureBlock[]>([]);
+  const [featureBlocks, setFeatureBlocks] = useState<FeatureBlocks>(DEFAULT_FEATURE_BLOCKS);
   const [loading, setLoading] = useState(true);
   const [planExpired, setPlanExpired] = useState(false);
 
   useEffect(() => {
     async function fetchBlocks() {
       if (!user) {
-        setBlocks([]);
+        setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
         setPlanExpired(false);
         setLoading(false);
         return;
       }
 
       try {
-        // Check if user plan is expired
+        // Buscar perfil com feature_blocks (novo formato JSON)
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("plan")
+          .select("plan, feature_blocks")
           .eq("user_id", user.id)
           .single();
 
         if (profileError) {
           console.error("Error fetching profile:", profileError);
-        } else if (profile?.plan === "expirado") {
+          setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
+          setLoading(false);
+          return;
+        }
+
+        // Verificar se o plano expirou
+        if (profile?.plan === "expirado") {
           setPlanExpired(true);
-          setBlocks([]);
+          setFeatureBlocks({});
           setLoading(false);
           return;
         }
 
         setPlanExpired(false);
 
-        const { data, error } = await supabase
-          .from("user_feature_blocks")
-          .select("feature_key, blocked")
-          .eq("user_id", user.id);
-
-        if (error) {
-          console.error("Error fetching feature blocks:", error);
-          setBlocks([]);
+        // Usar feature_blocks do perfil (novo formato JSON)
+        if (profile?.feature_blocks && typeof profile.feature_blocks === 'object') {
+          setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
         } else {
-          setBlocks(data || []);
+          // Fallback para default se não existir
+          setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
         }
       } catch (err) {
         console.error("Error fetching feature blocks:", err);
-        setBlocks([]);
+        setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
       } finally {
         setLoading(false);
       }
@@ -64,14 +87,19 @@ export function useFeatureBlocks() {
   }, [user]);
 
   const isBlocked = (featureKey: string): boolean => {
-    // If plan is expired, ALL features are blocked (except admin panel)
+    // Se o plano expirou, TODAS as features são bloqueadas (exceto admin)
     if (planExpired && featureKey !== "admin") {
       return true;
     }
     
-    const block = blocks.find(b => b.feature_key === featureKey);
-    return block?.blocked || false;
+    return featureBlocks[featureKey] === true;
   };
 
-  return { blocks, loading, isBlocked, planExpired };
+  // Converter para formato antigo (array) para compatibilidade
+  const blocks = Object.entries(featureBlocks).map(([feature_key, blocked]) => ({
+    feature_key,
+    blocked,
+  }));
+
+  return { blocks, loading, isBlocked, planExpired, featureBlocks };
 }

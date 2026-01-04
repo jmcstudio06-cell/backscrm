@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { useLandingInsights } from "@/hooks/useLandingInsights";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   TrendingUp,
   Users,
@@ -13,10 +17,33 @@ import {
   ArrowDownRight,
   BarChart3,
   Loader2,
+  Trash2,
 } from "lucide-react";
 
 export function AdminInsights() {
-  const { insights, loading } = useLandingInsights();
+  const { insights, loading, refetch } = useLandingInsights();
+  const [cleaning, setCleaning] = useState(false);
+
+  const handleCleanupOldVisits = async () => {
+    if (!confirm("Isso vai remover visitas não convertidas com mais de 30 dias. Continuar?")) {
+      return;
+    }
+
+    setCleaning(true);
+    try {
+      const { data, error } = await supabase.rpc('cleanup_old_landing_visits');
+      
+      if (error) throw error;
+      
+      toast.success(`${data || 0} visitas antigas removidas!`);
+      refetch();
+    } catch (error) {
+      console.error("Error cleaning up visits:", error);
+      toast.error("Erro ao limpar visitas antigas");
+    } finally {
+      setCleaning(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -155,24 +182,60 @@ export function AdminInsights() {
         </Card>
       </div>
 
-      {/* Info Card */}
-      <Card className="bg-muted/30 border-dashed">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-5 h-5 text-primary" />
+      {/* Cleanup & Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Cleanup Card */}
+        <Card className="border-red-200 bg-gradient-to-br from-red-50/50 to-white">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg text-red-700">
+              <Trash2 className="w-5 h-5" />
+              Limpeza de Storage
+            </CardTitle>
+            <CardDescription>
+              Remove visitas não convertidas com mais de 30 dias para economizar espaço
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              variant="destructive" 
+              onClick={handleCleanupOldVisits}
+              disabled={cleaning}
+              className="w-full"
+            >
+              {cleaning ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Limpando...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Limpar Visitas Antigas
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Info Card */}
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Como funciona</h3>
+                <p className="text-sm text-muted-foreground">
+                  Os dados são coletados automaticamente quando visitantes acessam a página /landing.
+                  Uma conversão é registrada quando o visitante se cadastra no app.
+                  Quanto maior a taxa de conversão, mais efetiva está sua landing page.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-1">Como funciona</h3>
-              <p className="text-sm text-muted-foreground">
-                Os dados são coletados automaticamente quando visitantes acessam a página /landing.
-                Uma conversão é registrada quando o visitante se cadastra no app.
-                Quanto maior a taxa de conversão, mais efetiva está sua landing page.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
