@@ -32,6 +32,8 @@ import {
 import { AdminInsights } from "@/components/admin/AdminInsights";
 import { Progress } from "@/components/ui/progress";
 
+import type { Json } from "@/integrations/supabase/types";
+
 interface UserProfile {
   id: string;
   user_id: string;
@@ -43,13 +45,14 @@ interface UserProfile {
   trial_days: number | null;
   created_at: string;
   last_seen: string | null;
+  feature_blocks?: Json | null;
 }
 
-interface FeatureBlock {
-  user_id: string;
-  feature_key: string;
-  blocked: boolean;
-}
+// Helper para converter Json para Record<string, boolean>
+const parseFeatureBlocks = (blocks: Json | null | undefined): Record<string, boolean> => {
+  if (!blocks || typeof blocks !== 'object' || Array.isArray(blocks)) return {};
+  return blocks as Record<string, boolean>;
+};
 
 interface UserGoal {
   id: string;
@@ -110,7 +113,6 @@ const TRIAL_BLOCKED_FEATURES = [
 const adminDataCache = {
   users: null as UserProfile[] | null,
   totalUsers: 0,
-  featureBlocks: null as FeatureBlock[] | null,
   userGoals: null as UserGoal[] | null,
   trialDays: null as string | null,
   lastFetch: 0,
@@ -125,7 +127,6 @@ export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [featureBlocks, setFeatureBlocks] = useState<FeatureBlock[]>([]);
   const [userGoals, setUserGoals] = useState<UserGoal[]>([]);
   const [userStats, setUserStats] = useState<Record<string, { leads: number; revenue: number; shows: number }>>({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -177,7 +178,7 @@ export default function Admin() {
     
     let query = supabase
       .from("profiles")
-      .select("*", { count: "exact" })
+      .select("*, feature_blocks", { count: "exact" })
       .order("created_at", { ascending: false });
     
     // Apply plan filter
@@ -205,7 +206,7 @@ export default function Admin() {
     setLoadingUsers(false);
   };
 
-  // Fetch initial data and other configs (feature blocks, goals, settings)
+  // Fetch initial data and other configs (goals, settings)
   useEffect(() => {
     async function fetchInitialData() {
       if (!isAdmin) return;
@@ -215,24 +216,11 @@ export default function Admin() {
                          (now - adminDataCache.lastFetch) < adminDataCache.cacheTimeout;
       
       // Se cache válido, usa cache para dados secundários
-      if (cacheValid && adminDataCache.featureBlocks && !dataLoaded.current) {
-        setFeatureBlocks(adminDataCache.featureBlocks || []);
+      if (cacheValid && !dataLoaded.current) {
         setUserGoals(adminDataCache.userGoals || []);
         setTrialDays(adminDataCache.trialDays || "3");
         dataLoaded.current = true;
       } else {
-        // Fetch all feature blocks
-        const { data: blocksData, error: blocksError } = await supabase
-          .from("user_feature_blocks")
-          .select("*");
-
-        if (blocksError) {
-          console.error("Error fetching feature blocks:", blocksError);
-        } else {
-          setFeatureBlocks(blocksData || []);
-          adminDataCache.featureBlocks = blocksData || [];
-        }
-
         // Fetch trial duration setting
         const { data: settingsData } = await supabase
           .from("app_settings")
@@ -333,42 +321,35 @@ export default function Admin() {
   }, [settings]);
 
   const getFeatureBlocked = (userId: string, featureKey: string): boolean => {
-    const block = featureBlocks.find(
-      b => b.user_id === userId && b.feature_key === featureKey
-    );
-    return block?.blocked || false;
+    const user = users.find(u => u.user_id === userId);
+    const blocks = parseFeatureBlocks(user?.feature_blocks);
+    return blocks[featureKey] === true;
   };
 
   const toggleFeatureBlock = async (userId: string, featureKey: string) => {
-    const currentBlocked = getFeatureBlocked(userId, featureKey);
-    const newBlocked = !currentBlocked;
+    const user = users.find(u => u.user_id === userId);
+    if (!user) return;
+    
+    const currentBlocks = parseFeatureBlocks(user.feature_blocks);
+    const newBlocked = !currentBlocks[featureKey];
+    const newFeatureBlocks = { ...currentBlocks, [featureKey]: newBlocked };
 
-    // Upsert the feature block
+    // Update profile with new feature_blocks JSON
     const { error } = await supabase
-      .from("user_feature_blocks")
-      .upsert({
-        user_id: userId,
-        feature_key: featureKey,
-        blocked: newBlocked
-      }, { onConflict: 'user_id,feature_key' });
+      .from("profiles")
+      .update({ feature_blocks: newFeatureBlocks })
+      .eq("user_id", userId);
 
     if (error) {
       console.error("Error updating feature block:", error);
       toast.error("Erro ao atualizar bloqueio");
     } else {
       // Update local state
-      setFeatureBlocks(prev => {
-        const existing = prev.find(b => b.user_id === userId && b.feature_key === featureKey);
-        if (existing) {
-          return prev.map(b => 
-            b.user_id === userId && b.feature_key === featureKey 
-              ? { ...b, blocked: newBlocked } 
-              : b
-          );
-        } else {
-          return [...prev, { user_id: userId, feature_key: featureKey, blocked: newBlocked }];
-        }
-      });
+      setUsers(prev => prev.map(u => 
+        u.user_id === userId 
+          ? { ...u, feature_blocks: newFeatureBlocks } 
+          : u
+      ));
       toast.success(newBlocked ? "Página bloqueada para o usuário" : "Página desbloqueada para o usuário");
     }
   };
@@ -378,12 +359,28 @@ export default function Admin() {
     const normalizedPlan = plan === "inicial" ? "mensal" : plan;
 
     // When changing plan, also set trial_start to now for tracking
-    const updates: { plan: string; trial_start?: string; trial_days?: number } = { plan: normalizedPlan };
+    const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan: normalizedPlan };
     
     if (normalizedPlan !== "expirado") {
       updates.trial_start = new Date().toISOString();
       updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
     }
+
+    // Build feature_blocks JSON based on plan
+    const newFeatureBlocks: Record<string, boolean> = {};
+    FEATURES.forEach(feature => {
+      if (plan === "expirado") {
+        // Block all features when expired
+        newFeatureBlocks[feature.key] = true;
+      } else if (plan === "trial") {
+        // Block specific features for trial
+        newFeatureBlocks[feature.key] = TRIAL_BLOCKED_FEATURES.includes(feature.key);
+      } else if (plan === "mensal" || plan === "essencial" || plan === "completo") {
+        // Unblock all features for paid plans
+        newFeatureBlocks[feature.key] = false;
+      }
+    });
+    updates.feature_blocks = newFeatureBlocks;
 
     const { error } = await supabase
       .from("profiles")
@@ -396,48 +393,15 @@ export default function Admin() {
       return;
     }
 
-    // Define feature blocks based on plan
-    // trial: block specific features (orcamentos, contratos, precificacao, checklist, mapeamento-palco)
-    // mensal/essencial/completo: unblock everything
-    // expirado: block everything
-    
-    const featureUpdates = FEATURES.map(feature => {
-      let blocked = false;
-      
-      if (plan === "expirado") {
-        // Block all features when expired
-        blocked = true;
-      } else if (plan === "trial") {
-        // Block specific features for trial
-        blocked = TRIAL_BLOCKED_FEATURES.includes(feature.key);
-      } else if (plan === "mensal" || plan === "essencial" || plan === "completo") {
-        // Unblock all features for paid plans
-        blocked = false;
-      }
-      
-      return {
-        user_id: userId,
-        feature_key: feature.key,
-        blocked
-      };
-    });
-
-    // Upsert all feature blocks
-    for (const featureUpdate of featureUpdates) {
-      await supabase
-        .from("user_feature_blocks")
-        .upsert(featureUpdate, { onConflict: 'user_id,feature_key' });
-    }
-
-    // Update local state for feature blocks
-    setFeatureBlocks(prev => {
-      const otherBlocks = prev.filter(b => b.user_id !== userId);
-      return [...otherBlocks, ...featureUpdates];
-    });
-
     setUsers(prev => prev.map(u => 
       u.user_id === userId 
-        ? { ...u, plan, trial_start: updates.trial_start || u.trial_start, trial_days: updates.trial_days || u.trial_days } 
+        ? { 
+            ...u, 
+            plan, 
+            trial_start: updates.trial_start || u.trial_start, 
+            trial_days: updates.trial_days || u.trial_days,
+            feature_blocks: newFeatureBlocks
+          } 
         : u
     ));
     const planDuration = PLAN_DURATIONS[plan];
