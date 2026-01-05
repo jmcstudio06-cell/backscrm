@@ -267,8 +267,12 @@ export function BudgetPreview({
               color: #6366f1;
             }
             @media print { 
-              body { padding: 0; background: white; } 
+              body { padding: 0; background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; } 
               .invoice-container { box-shadow: none; padding: 30px; }
+              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+              .items-table thead tr { background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%) !important; }
+              .items-table th { color: white !important; background: #6366f1 !important; }
+              .totals-row.highlight { background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%) !important; color: white !important; }
             }
           </style>
         </head>
