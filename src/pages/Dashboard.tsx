@@ -16,7 +16,7 @@ import { useContracts } from "@/hooks/useContracts";
 import { useClients } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const Dashboard = () => {
@@ -126,14 +126,14 @@ const Dashboard = () => {
   const pendingCachetData = useMemo(() => {
     const pendingShows = shows
       .filter((show) => {
-        const showDate = new Date(show.date);
+        const showDate = parseISO(show.date);
         return show.status === "confirmed" && showDate >= now;
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
       .map((show) => ({
         id: show.id,
         title: show.title,
-        date: format(new Date(show.date), "dd MMM", { locale: ptBR }),
+        date: format(parseISO(show.date), "dd MMM", { locale: ptBR }),
         cachet: Number(show.cachet),
         status: show.status,
       }));
@@ -157,8 +157,8 @@ const Dashboard = () => {
   // Upcoming shows with enhanced data
   const upcomingShows = useMemo(() => {
     return shows
-      .filter((show) => new Date(show.date) >= now && show.status !== "cancelled")
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .filter((show) => parseISO(show.date) >= now && show.status !== "cancelled")
+      .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
       .slice(0, 3)
       .map((show) => {
         // Find client phone
@@ -168,7 +168,7 @@ const Dashboard = () => {
         
         return {
           id: show.id,
-          date: format(new Date(show.date), "dd MMM", { locale: ptBR }),
+          date: format(parseISO(show.date), "dd MMM", { locale: ptBR }),
           title: show.title,
           location: show.venue || "Local a definir",
           value: `R$ ${Number(show.cachet).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
