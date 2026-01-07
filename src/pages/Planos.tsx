@@ -33,7 +33,7 @@ const plans = [
     period: "/mês",
     icon: Star,
     highlight: "MAIS VENDIDO",
-    support: "Inclui 3 acompanhamentos estratégicos remotos",
+    support: "Inclui 1 consultoria estratégica",
     styles: {
       card: "bg-gradient-to-b from-blue-100 to-purple-100 border-2 border-blue-400 scale-105 shadow-xl",
       icon: "bg-gradient-to-br from-blue-500 to-purple-500 text-white",
@@ -47,7 +47,7 @@ const plans = [
     period: "/mês",
     icon: Star,
     highlight: "MELHOR CUSTO",
-    support: "Inclui 6 acompanhamentos estratégicos remotos",
+    support: "Inclui 3 consultorias estratégicas",
     styles: {
       card: "bg-white border border-border",
       icon: "bg-indigo-100 text-indigo-600",
