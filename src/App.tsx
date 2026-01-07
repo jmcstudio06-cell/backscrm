@@ -29,6 +29,7 @@ import Contratos from "./pages/Contratos";
 import Repertorio from "./pages/Repertorio";
 import MapeamentoPalco from "./pages/MapeamentoPalco";
 import Precificacao from "./pages/Precificacao";
+import Avancos from "./pages/Avancos";
 import Admin from "./pages/Admin";
 import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
@@ -60,6 +61,7 @@ const App = () => (
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/mapeamento-palco" element={<MapeamentoPalco />} />
                 <Route path="/precificacao" element={<Precificacao />} />
+                <Route path="/avancos" element={<Avancos />} />
                 <Route path="/equipe" element={<Equipe />} />
                 <Route path="/metas" element={<Metas />} />
                 <Route path="/metas/anual" element={<MetasAnuais />} />

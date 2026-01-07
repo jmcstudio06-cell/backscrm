@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      advances: {
+        Row: {
+          category: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          due_date: string | null
+          due_type: string
+          id: string
+          priority: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          due_type?: string
+          id?: string
+          priority?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          due_type?: string
+          id?: string
+          priority?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       annual_goals: {
         Row: {
           category: string
