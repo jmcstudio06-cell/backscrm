@@ -11,6 +11,8 @@ export interface Profile {
   phone: string | null;
   avatar_url: string | null;
   city: string | null;
+  trial_start: string | null;
+  plan: string | null;
   created_at: string;
   updated_at: string;
 }
