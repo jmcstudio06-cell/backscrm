@@ -2,11 +2,10 @@ import { Layout } from "@/components/layout/Layout";
 import { CareerStatusCard } from "@/components/dashboard/CareerStatusCard";
 import { RecommendedActionCard } from "@/components/dashboard/RecommendedActionCard";
 import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
-import { SmartStatCard } from "@/components/dashboard/SmartStatCard";
+import { ArtistJourneyCard } from "@/components/dashboard/ArtistJourneyCard";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
-import { Users, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
@@ -14,6 +13,7 @@ import { useShows } from "@/contexts/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useContracts } from "@/hooks/useContracts";
 import { useClients } from "@/hooks/useClients";
+import { useStageMappings } from "@/hooks/useStageMappings";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
@@ -27,13 +27,16 @@ const Dashboard = () => {
   const { profile } = useProfile();
   const { contracts } = useContracts();
   const { clients } = useClients();
+  const { mappings: stageMappings } = useStageMappings();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [checklistsUsed, setChecklistsUsed] = useState(false);
 
-  // Check if user should see onboarding
+  // Check if user should see onboarding and if user has used checklists
   useEffect(() => {
-    const checkOnboarding = async () => {
+    const checkData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Check onboarding
         const { data: profileData } = await supabase
           .from("profiles")
           .select("onboarding_completed")
@@ -43,9 +46,16 @@ const Dashboard = () => {
         if (profileData && !profileData.onboarding_completed) {
           setShowWelcome(true);
         }
+
+        // Check if user has used checklists
+        const { count } = await supabase
+          .from("show_checklist")
+          .select("*", { count: "exact", head: true });
+        
+        setChecklistsUsed((count || 0) > 0);
       }
     };
-    checkOnboarding();
+    checkData();
   }, []);
 
   const now = new Date();
@@ -234,49 +244,15 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Smart Stats - Only show if has data, otherwise show guidance */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <SmartStatCard 
-            title="Leads no CRM" 
-            value={leadsThisMonth}
-            icon={Users} 
-            gradient="purple"
-            isEmpty={leadsThisMonth === 0}
-            emptyMessage="Comece a captar leads"
-            emptyAction="Adicionar primeiro lead"
-            emptyLink="/crm"
-          />
-          <SmartStatCard 
-            title="Vendas Fechadas" 
-            value={closedSales}
-            icon={TrendingUp} 
-            gradient="success"
-            isEmpty={closedSales === 0}
-            emptyMessage="Feche sua primeira venda"
-            emptyAction="Ver pipeline"
-            emptyLink="/crm"
-          />
-          <SmartStatCard
-            title="Receita do Mês"
-            value={`R$ ${formatCurrency(revenueThisMonth)}`}
-            icon={DollarSign}
-            gradient="primary"
-            isEmpty={revenueThisMonth === 0}
-            emptyMessage="Nenhuma receita ainda"
-            emptyAction="Registrar entrada"
-            emptyLink="/financeiro"
-          />
-          <SmartStatCard 
-            title="Shows do Mês" 
-            value={showsThisMonth}
-            icon={Calendar} 
-            gradient="cyan"
-            isEmpty={showsThisMonth === 0}
-            emptyMessage="Nenhum show agendado"
-            emptyAction="Agendar show"
-            emptyLink="/agenda"
-          />
-        </div>
+        {/* Artist Journey Timeline */}
+        <ArtistJourneyCard
+          trialStart={profile?.trial_start || null}
+          showsCount={shows.length}
+          totalRevenue={transactions.filter(t => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0)}
+          contractsCount={contracts.length}
+          checklistsUsed={checklistsUsed}
+          stageMappingsCount={stageMappings.length}
+        />
 
         {/* Financial & Shows Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
