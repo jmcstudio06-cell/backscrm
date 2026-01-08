@@ -81,16 +81,7 @@ export default function Avancos() {
     <Layout title="Avanços" subtitle="Tudo que você faz pra ir mais longe na sua carreira">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Target className="w-6 h-6 text-primary" />
-              Avanços
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Tudo que você faz pra ir mais longe na sua carreira
-            </p>
-          </div>
+        <div className="flex justify-end">
           <Button onClick={() => setModalOpen(true)} className="gap-2">
             <Plus className="w-4 h-4" />
             Novo Avanço
