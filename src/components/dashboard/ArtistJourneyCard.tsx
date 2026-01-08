@@ -63,21 +63,23 @@ export function ArtistJourneyCard({
   // Has at least one professionalization feature
   const hasProfessionalization = contractsCount >= 1 || checklistsUsed || stageMappingsCount >= 1;
 
-  // Build journey steps
+  // Build journey steps - new order: Início → Shows → Profissionalização → Faturamento → Nível
   const journeySteps: JourneyStep[] = [
     {
       id: "entrada",
-      title: "Entrada na Backstage",
+      title: "Primeiro passo dado",
       subtitle: trialStart 
-        ? format(parseISO(trialStart), "dd 'de' MMM, yyyy", { locale: ptBR })
+        ? `Conta criada em ${format(parseISO(trialStart), "dd/MM/yyyy", { locale: ptBR })}`
         : "Bem-vindo!",
       icon: Sparkles,
       completed: true,
     },
     {
       id: "shows",
-      title: "Shows Registrados",
-      subtitle: showsCount > 0 ? `${showsCount} show${showsCount > 1 ? 's' : ''}` : undefined,
+      title: "Shows organizados",
+      subtitle: showsCount > 0 
+        ? `${showsCount} registrado${showsCount > 1 ? 's' : ''}` 
+        : "Nenhum show registrado ainda",
       icon: Music,
       completed: showsCount >= 1,
       current: showsCount === 0,
@@ -85,36 +87,37 @@ export function ArtistJourneyCard({
       ctaLink: showsCount === 0 ? "/agenda" : undefined,
     },
     {
-      id: "faturamento",
-      title: "Faturamento Registrado",
-      subtitle: totalRevenue > 0 
-        ? `R$ ${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` 
-        : undefined,
-      icon: DollarSign,
-      completed: totalRevenue > 0,
-      current: showsCount >= 1 && totalRevenue === 0,
-      ctaText: totalRevenue === 0 && showsCount >= 1 ? "Registrar receita" : undefined,
-      ctaLink: totalRevenue === 0 && showsCount >= 1 ? "/financeiro" : undefined,
-    },
-    {
       id: "profissionalizacao",
-      title: "Profissionalização",
+      title: "Estrutura profissional",
       subtitle: hasProfessionalization 
         ? [
             contractsCount >= 1 && "Contratos",
             checklistsUsed && "Checklist",
-            stageMappingsCount >= 1 && "Mapeamento"
+            stageMappingsCount >= 1 && "Mapa de Palco"
           ].filter(Boolean).join(" • ")
-        : undefined,
+        : "Sua estrutura ainda está incompleta",
       icon: FileText,
       completed: hasProfessionalization,
-      current: totalRevenue > 0 && !hasProfessionalization,
-      ctaText: !hasProfessionalization && totalRevenue > 0 ? "Criar contrato" : undefined,
-      ctaLink: !hasProfessionalization && totalRevenue > 0 ? "/contratos" : undefined,
+      current: showsCount >= 1 && !hasProfessionalization,
+      ctaText: !hasProfessionalization && showsCount >= 1 ? "Criar contrato" : undefined,
+      ctaLink: !hasProfessionalization && showsCount >= 1 ? "/contratos" : undefined,
+    },
+    {
+      id: "faturamento",
+      title: "Faturamento organizado",
+      subtitle: totalRevenue > 0 
+        ? `R$ ${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` 
+        : "Você ainda não acompanha seus ganhos",
+      icon: DollarSign,
+      completed: totalRevenue > 0,
+      current: hasProfessionalization && totalRevenue === 0,
+      ctaText: totalRevenue === 0 && hasProfessionalization ? "Registrar receita" : undefined,
+      ctaLink: totalRevenue === 0 && hasProfessionalization ? "/financeiro" : undefined,
     },
     {
       id: "nivel",
-      title: artistLevel.name,
+      title: "Seu nível hoje",
+      subtitle: artistLevel.name,
       icon: artistLevel.icon,
       completed: true,
     },
