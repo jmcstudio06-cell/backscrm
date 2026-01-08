@@ -129,50 +129,55 @@ export function ArtistJourneyCard({
   return (
     <div className="rounded-xl bg-card border border-border p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4 sm:mb-6">
+      <div className="flex items-center gap-2 mb-6">
         <LayoutDashboard className="w-5 h-5 text-primary" />
         <h3 className="font-semibold text-foreground">Sua Jornada na Backstage</h3>
       </div>
 
       {/* Timeline - Horizontal scroll on mobile */}
       <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 pb-2">
-        <div className="flex items-start gap-0 min-w-max sm:min-w-0 sm:justify-between">
+        <div className="flex items-center min-w-max">
           {journeySteps.map((step, index) => {
             const Icon = step.icon;
             const isLast = index === journeySteps.length - 1;
             const isActive = step === activeCTAStep;
+            const isHighlightedValue = step.id !== "entrada" && step.completed;
             
             return (
-              <div key={step.id} className="flex items-start">
+              <div key={step.id} className="flex items-center">
                 {/* Step */}
-                <div className={cn(
-                  "flex flex-col items-center text-center",
-                  "w-20 sm:w-24 md:w-28"
-                )}>
+                <div className="flex flex-col items-center text-center w-28 sm:w-32">
                   {/* Icon Circle */}
                   <div className={cn(
-                    "relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all",
+                    "relative w-12 h-12 rounded-full flex items-center justify-center transition-all",
                     step.completed 
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" 
                       : "bg-muted text-muted-foreground"
                   )}>
-                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Icon className="w-5 h-5" />
                     {step.completed && (
-                      <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-card" />
+                      <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-card" />
                     )}
                   </div>
 
                   {/* Step Title */}
                   <p className={cn(
-                    "mt-2 text-xs sm:text-sm font-medium leading-tight",
+                    "mt-3 text-xs sm:text-sm font-medium leading-tight",
                     step.completed ? "text-foreground" : "text-muted-foreground"
                   )}>
                     {step.title}
                   </p>
 
-                  {/* Subtitle */}
+                  {/* Subtitle - Highlighted for important values */}
                   {step.subtitle && (
-                    <p className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground leading-tight">
+                    <p className={cn(
+                      "mt-1 text-xs leading-tight font-medium",
+                      isHighlightedValue 
+                        ? "text-primary" 
+                        : step.completed 
+                          ? "text-muted-foreground" 
+                          : "text-muted-foreground/70"
+                    )}>
                       {step.subtitle}
                     </p>
                   )}
@@ -182,7 +187,7 @@ export function ArtistJourneyCard({
                     <Link
                       to={step.ctaLink}
                       className={cn(
-                        "mt-2 inline-flex items-center gap-1 text-[10px] sm:text-xs font-medium",
+                        "mt-2 inline-flex items-center gap-1 text-xs font-medium",
                         "text-primary hover:text-primary/80 transition-colors"
                       )}
                     >
@@ -192,12 +197,12 @@ export function ArtistJourneyCard({
                   )}
                 </div>
 
-                {/* Connector Line */}
+                {/* Connector Line - centered with icons */}
                 {!isLast && (
-                  <div className="flex items-center h-10 sm:h-12 px-1 sm:px-2">
+                  <div className="flex items-center h-12 -mt-8">
                     <div className={cn(
-                      "w-6 sm:w-8 md:w-12 h-0.5 rounded-full transition-colors",
-                      step.completed ? "bg-primary/50" : "bg-border"
+                      "w-10 sm:w-14 h-0.5 rounded-full",
+                      step.completed ? "bg-primary/40" : "bg-border"
                     )} />
                   </div>
                 )}
