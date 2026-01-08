@@ -96,7 +96,7 @@ export default function Historico() {
         shows: monthShows.length,
         lucro: receita - despesa,
       };
-    }).filter(m => m.receita > 0 || m.despesa > 0 || m.shows > 0);
+    });
   };
 
   const monthlyHistory = generateMonthlyHistory();
