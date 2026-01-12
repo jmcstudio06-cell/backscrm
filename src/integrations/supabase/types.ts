@@ -869,6 +869,108 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_config: {
+        Row: {
+          campaign_active: boolean
+          created_at: string
+          id: string
+          min_active_days: number
+          reward_10: number
+          reward_20: number
+          reward_30: number
+          updated_at: string
+        }
+        Insert: {
+          campaign_active?: boolean
+          created_at?: string
+          id?: string
+          min_active_days?: number
+          reward_10?: number
+          reward_20?: number
+          reward_30?: number
+          updated_at?: string
+        }
+        Update: {
+          campaign_active?: boolean
+          created_at?: string
+          id?: string
+          min_active_days?: number
+          reward_10?: number
+          reward_20?: number
+          reward_30?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_rewards: {
+        Row: {
+          claimed_at: string
+          days_awarded: number
+          id: string
+          milestone: number
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          days_awarded: number
+          id?: string
+          milestone: number
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          days_awarded?: number
+          id?: string
+          milestone?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          invalidated_reason: string | null
+          referred_name: string
+          referred_phone: string
+          referred_user_id: string | null
+          referrer_id: string
+          status: string
+          updated_at: string
+          validated_at: string | null
+          whatsapp_sent: boolean
+          whatsapp_sent_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invalidated_reason?: string | null
+          referred_name: string
+          referred_phone: string
+          referred_user_id?: string | null
+          referrer_id: string
+          status?: string
+          updated_at?: string
+          validated_at?: string | null
+          whatsapp_sent?: boolean
+          whatsapp_sent_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invalidated_reason?: string | null
+          referred_name?: string
+          referred_phone?: string
+          referred_user_id?: string | null
+          referrer_id?: string
+          status?: string
+          updated_at?: string
+          validated_at?: string | null
+          whatsapp_sent?: boolean
+          whatsapp_sent_at?: string | null
+        }
+        Relationships: []
+      }
       repertoire_blocks: {
         Row: {
           climate: string

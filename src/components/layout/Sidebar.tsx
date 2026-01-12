@@ -29,6 +29,7 @@ import {
   BookOpen,
   MapPin,
   Music,
+  Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -94,6 +95,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
+  { icon: Gift, label: "Indique e Ganhe", path: "/indicacoes" },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
