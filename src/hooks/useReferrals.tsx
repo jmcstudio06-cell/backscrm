@@ -45,7 +45,7 @@ export interface ReferralStats {
   claimedMilestones: number[];
 }
 
-const MILESTONES = [10, 20, 30];
+const MILESTONES = [10, 30, 60];
 
 export function useReferrals() {
   const { user } = useAuth();
@@ -206,8 +206,9 @@ export function useReferrals() {
       return false;
     }
 
+    // Map milestones to config rewards: 10→reward_10, 30→reward_20, 60→reward_30
     const daysAwarded =
-      milestone === 10 ? config.reward_10 : milestone === 20 ? config.reward_20 : config.reward_30;
+      milestone === 10 ? config.reward_10 : milestone === 30 ? config.reward_20 : config.reward_30;
 
     // Add reward record
     const { error: rewardError } = await supabase.from("referral_rewards").insert({
