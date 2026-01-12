@@ -28,6 +28,8 @@ import {
   Key,
   Loader2,
   TrendingUp,
+  Trophy,
+  PartyPopper,
 } from "lucide-react";
 import { AdminInsights } from "@/components/admin/AdminInsights";
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
@@ -696,13 +698,82 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="marco">Marco</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="referrals">Indicações</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
           <TabsTrigger value="trial">Config. Trial</TabsTrigger>
         </TabsList>
+
+        {/* Marco Tab - Celebration Counter */}
+        <TabsContent value="marco" className="space-y-6">
+          <Card className="overflow-hidden border-0 shadow-xl">
+            <div className="bg-gradient-to-br from-primary via-blue-600 to-purple-600 p-8 text-white text-center relative overflow-hidden">
+              {/* Decorative elements */}
+              <div className="absolute top-4 left-4 animate-bounce">
+                <PartyPopper className="w-8 h-8 text-yellow-300" />
+              </div>
+              <div className="absolute top-4 right-4 animate-bounce delay-100">
+                <Trophy className="w-8 h-8 text-yellow-300" />
+              </div>
+              <div className="absolute bottom-4 left-8 animate-pulse">
+                <span className="text-4xl">🎉</span>
+              </div>
+              <div className="absolute bottom-4 right-8 animate-pulse delay-200">
+                <span className="text-4xl">🚀</span>
+              </div>
+              
+              {/* Main content */}
+              <div className="relative z-10">
+                <h2 className="text-xl md:text-2xl font-medium mb-2 opacity-90">
+                  🎊 Chegamos a
+                </h2>
+                <div className="text-6xl md:text-8xl font-black mb-4 drop-shadow-lg animate-pulse">
+                  {totalUsers}
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-6">
+                  cadastros no aplicativo! 🎯
+                </h3>
+                <div className="bg-white/20 backdrop-blur rounded-xl p-4 max-w-md mx-auto">
+                  <p className="text-lg font-medium">
+                    Parabéns à toda equipe <span className="font-bold">Backstage Pro</span>! 👏
+                  </p>
+                  <p className="text-sm opacity-90 mt-2">
+                    Cada cadastro representa um artista que confia em nós para profissionalizar sua carreira.
+                  </p>
+                </div>
+              </div>
+
+              {/* Background decoration */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-10 left-1/4 w-32 h-32 bg-white rounded-full blur-3xl" />
+                <div className="absolute bottom-10 right-1/4 w-48 h-48 bg-yellow-300 rounded-full blur-3xl" />
+              </div>
+            </div>
+
+            <CardContent className="p-6 bg-gradient-to-b from-primary/5 to-transparent">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
+                  <TrendingUp className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                  <p className="text-sm text-green-600 font-medium">Crescimento</p>
+                  <p className="text-xl font-bold text-green-700">Constante</p>
+                </div>
+                <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <UsersIcon className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                  <p className="text-sm text-blue-600 font-medium">Total de Artistas</p>
+                  <p className="text-xl font-bold text-blue-700">{totalUsers}</p>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-xl border border-purple-200">
+                  <Heart className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+                  <p className="text-sm text-purple-600 font-medium">Confiança</p>
+                  <p className="text-xl font-bold text-purple-700">100%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Users Tab */}
         <TabsContent value="users" className="space-y-4">
