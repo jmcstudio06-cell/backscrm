@@ -24,6 +24,11 @@ import {
 import joseMarioImg from "@/assets/team/jose-mario.png";
 import marianaSantosImg from "@/assets/team/mariana-santos.png";
 import escritorioImg from "@/assets/team/escritorio.png";
+
+// WhatsApp testimonials
+import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
+import paulaSevenWhatsapp from "@/assets/testimonials/paula-seven-whatsapp.png";
+import bandaTragoWhatsapp from "@/assets/testimonials/banda-trago-whatsapp.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
@@ -664,6 +669,66 @@ const Landing = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* WhatsApp Testimonials - Real Screenshots */}
+          <div className="mt-16">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 mb-4">
+                <MessageCircle className="w-4 h-4 text-cyan-300" />
+                <span className="text-white/90 text-sm font-medium">Feedback real de usuários</span>
+              </div>
+              <h4 className="text-2xl font-bold text-white">
+                O que artistas estão nos mandando
+              </h4>
+            </div>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {/* Maria Elisa */}
+              <div className="group">
+                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <img 
+                    src={mariaElisaWhatsapp} 
+                    alt="Depoimento Maria Elisa Fernandes via WhatsApp" 
+                    className="w-full rounded-lg"
+                  />
+                  <div className="mt-3 px-2 pb-1">
+                    <p className="text-slate-700 font-medium text-sm">Maria Elisa Fernandes</p>
+                    <p className="text-slate-500 text-xs">"Você é um gênio por criar ele"</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Paula 7 Seven */}
+              <div className="group">
+                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <img 
+                    src={paulaSevenWhatsapp} 
+                    alt="Depoimento Paula 7 Seven via WhatsApp" 
+                    className="w-full rounded-lg"
+                  />
+                  <div className="mt-3 px-2 pb-1">
+                    <p className="text-slate-700 font-medium text-sm">Paula 7 Seven</p>
+                    <p className="text-slate-500 text-xs">"Achei o Backstage Pro muito prático"</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Banda Trago */}
+              <div className="group sm:col-span-2 lg:col-span-1">
+                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <img 
+                    src={bandaTragoWhatsapp} 
+                    alt="Depoimento Banda Trago via WhatsApp" 
+                    className="w-full rounded-lg"
+                  />
+                  <div className="mt-3 px-2 pb-1">
+                    <p className="text-slate-700 font-medium text-sm">Banda Trago</p>
+                    <p className="text-slate-500 text-xs">"Parece que viramos uma empresa"</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
