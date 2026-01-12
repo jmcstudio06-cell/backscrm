@@ -23,7 +23,7 @@ import {
 // Team images
 import joseMarioImg from "@/assets/team/jose-mario.png";
 import marianaSantosImg from "@/assets/team/mariana-santos.png";
-import felipePaulaImg from "@/assets/team/felipe-paula.png";
+import escritorioImg from "@/assets/team/escritorio.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
@@ -570,28 +570,28 @@ const Landing = () => {
               </CardContent>
             </Card>
 
-            {/* Felipe */}
+            {/* Escritório */}
             <Card className="bg-white border-slate-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
               <CardContent className="p-0">
                 <div className="relative h-72">
                   <img 
-                    src={felipePaulaImg} 
-                    alt="Felipe de Paula" 
-                    className="w-full h-full object-cover object-top"
+                    src={escritorioImg} 
+                    alt="Escritório da Backstage Pro" 
+                    className="w-full h-full object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <h3 className="text-xl font-bold text-white mb-1">
-                      Felipe de Paula
+                      Nosso Escritório
                     </h3>
                     <p className="text-cyan-300 font-medium text-sm">
-                      Estratégia de Marketing
+                      Área Comercial
                     </p>
                   </div>
                 </div>
                 <div className="p-6">
                   <p className="text-slate-600 text-sm">
-                    Criando estratégias inovadoras para levar o Backstage Pro a mais artistas que precisam organizar suas carreiras.
+                    Sede da Backstage Pro, localizada em São Paulo/SP. De onde trabalhamos para ajudar artistas de todo o Brasil!
                   </p>
                 </div>
               </CardContent>
