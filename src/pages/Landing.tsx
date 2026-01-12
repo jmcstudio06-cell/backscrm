@@ -83,32 +83,7 @@ const Landing = () => {
     }
   ];
 
-  const testimonials = [
-    {
-      name: "Lucas Mendes",
-      role: "Cantor Sertanejo",
-      quote: "O Backstage Pro mudou completamente minha forma de gerenciar minha carreira. Antes eu perdia contratos por desorganização, agora tenho tudo na palma da mão!",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
-    },
-    {
-      name: "Amanda Silva",
-      role: "Cantora Sertaneja",
-      quote: "O acompanhamento personalizado é incrível! Me deu insights que aumentaram meu faturamento em 40% em apenas 3 meses. Recomendo demais!",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face"
-    },
-    {
-      name: "Rafael Costa",
-      role: "Cantor de Forró",
-      quote: "Finalmente um app que entende a rotina de um cantor! O controle financeiro automático me salvou de muita dor de cabeça.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
-    },
-    {
-      name: "Mariana Santos",
-      role: "Cantora Pop",
-      quote: "O funil de vendas do Backstage Pro profissionalizou minhas negociações. Fechei o dobro de shows esse ano!",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
-    }
-  ];
+  // User avatars for social proof
 
   const userAvatars = [
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
@@ -647,34 +622,8 @@ const Landing = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-1 mb-4">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-white/90 italic mb-6">"{testimonial.quote}"</p>
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={testimonial.avatar} 
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <div>
-                      <div className="text-white font-semibold">{testimonial.name}</div>
-                      <div className="text-cyan-300 text-sm">{testimonial.role}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
           {/* WhatsApp Testimonials - Real Screenshots */}
-          <div className="mt-16">
+          <div>
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 mb-4">
                 <MessageCircle className="w-4 h-4 text-cyan-300" />
