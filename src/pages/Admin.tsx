@@ -30,6 +30,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AdminInsights } from "@/components/admin/AdminInsights";
+import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 import { Progress } from "@/components/ui/progress";
 
 import type { Json } from "@/integrations/supabase/types";
@@ -695,8 +696,9 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="users">Usuários</TabsTrigger>
+          <TabsTrigger value="referrals">Indicações</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
           <TabsTrigger value="trial">Config. Trial</TabsTrigger>
@@ -1004,6 +1006,11 @@ export default function Admin() {
               </div>
             </div>
           )}
+        </TabsContent>
+
+        {/* Referrals Tab */}
+        <TabsContent value="referrals">
+          <ReferralsAdminPanel />
         </TabsContent>
 
         {/* Insights Tab */}
