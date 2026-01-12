@@ -33,11 +33,11 @@ import { LeadProfileModal } from "@/components/crm/LeadProfileModal";
 
 const stages = [
   { id: "new", name: "Leads Novos", shortName: "Novo", color: "bg-blue-500", textColor: "text-blue-600", bgLight: "bg-blue-50", borderColor: "border-blue-200", icon: Users },
+  { id: "contact", name: "Em Contato", shortName: "Contato", color: "bg-cyan-500", textColor: "text-cyan-600", bgLight: "bg-cyan-50", borderColor: "border-cyan-200", icon: Phone },
   { id: "proposal", name: "Com Proposta", shortName: "Proposta", color: "bg-yellow-500", textColor: "text-yellow-600", bgLight: "bg-yellow-50", borderColor: "border-yellow-200", icon: Target },
+  { id: "negotiation", name: "Negociação", shortName: "Negociação", color: "bg-orange-500", textColor: "text-orange-600", bgLight: "bg-orange-50", borderColor: "border-orange-200", icon: Clock },
   { id: "closed", name: "Fechados", shortName: "Fechado", color: "bg-green-500", textColor: "text-green-600", bgLight: "bg-green-50", borderColor: "border-green-200", icon: TrendingUp },
-  { id: "lost", name: "Não Fechados", shortName: "Não Fechou", color: "bg-red-500", textColor: "text-red-600", bgLight: "bg-red-50", borderColor: "border-red-200", icon: AlertCircle },
-  { id: "repeat", name: "Já Comprou", shortName: "Já Comprou", color: "bg-purple-500", textColor: "text-purple-600", bgLight: "bg-purple-50", borderColor: "border-purple-200", icon: Users },
-  { id: "never", name: "Nunca Comprou", shortName: "Nunca Comprou", color: "bg-gray-500", textColor: "text-gray-600", bgLight: "bg-gray-50", borderColor: "border-gray-200", icon: Clock },
+  { id: "lost", name: "Perdidos", shortName: "Perdido", color: "bg-red-500", textColor: "text-red-600", bgLight: "bg-red-50", borderColor: "border-red-200", icon: AlertCircle },
 ];
 
 const daysFilters = [
