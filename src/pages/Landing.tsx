@@ -32,38 +32,40 @@ const Landing = () => {
   const features = [
     {
       icon: Calendar,
-      title: "Gestão Completa da Carreira",
-      description: "Organize todos os aspectos da sua carreira musical em um único lugar, de forma simples e intuitiva.",
-      color: "bg-blue-500"
+      title: "Agenda de Shows",
+      description: "Gerencie todos os seus eventos e apresentações. Do contato ao pagamento, tudo em um só lugar.",
+      color: "bg-blue-500",
+      highlighted: true,
+      badge: "Mais usado"
     },
     {
       icon: DollarSign,
-      title: "Financeiro Automático",
-      description: "Controle entradas, saídas, cachês e comissões automaticamente. Relatórios claros e precisos.",
+      title: "Financeiro Completo",
+      description: "Controle cachês, despesas e comissões automaticamente. Relatórios claros sem planilhas.",
       color: "bg-emerald-500"
     },
     {
-      icon: Users,
-      title: "CRM e Funil de Vendas",
-      description: "Gerencie contratantes, leads e negociações. Nunca perca uma oportunidade de show.",
+      icon: TrendingUp,
+      title: "CRM de Vendas",
+      description: "Pipeline visual para converter leads em shows. Nunca perca uma oportunidade de negócio.",
       color: "bg-pink-500"
     },
     {
+      icon: Users,
+      title: "Gestão de Músicos",
+      description: "Organize sua banda, freelancers e pagamentos de forma simples e profissional.",
+      color: "bg-purple-500"
+    },
+    {
       icon: CalendarDays,
-      title: "Histórico de Shows",
-      description: "Registre todos os seus shows, locais, valores e detalhes importantes para análise futura.",
+      title: "Contratos Automáticos",
+      description: "Gere contratos prontos com seus dados. Envie para o cliente em segundos.",
       color: "bg-orange-500"
     },
     {
       icon: Heart,
-      title: "Acompanhamento Personalizado",
-      description: "Suporte dedicado e acompanhamento contínuo para ajudar você a crescer na carreira.",
-      color: "bg-purple-500"
-    },
-    {
-      icon: TrendingUp,
-      title: "Pushs de Performance",
-      description: "Receba relatórios mensais com métricas, comparativos e dicas personalizadas.",
+      title: "Suporte Personalizado",
+      description: "Acompanhamento contínuo para ajudar você a crescer na carreira musical.",
       color: "bg-cyan-500"
     }
   ];
@@ -144,56 +146,142 @@ const Landing = () => {
       <section className="pt-32 pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
         
-        <div className="container mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
-            <Sparkles className="w-4 h-4 text-cyan-300" />
-            <span className="text-white/90 text-sm font-medium">100+ artistas já usam o Backstage Pro</span>
-          </div>
-
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            O app mais completo
-          </h1>
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="text-white">de </span>
-            <span className="text-cyan-300">gestão para artistas</span>
-          </h2>
-
-          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Agenda, financeiro, funil de vendas, contratos, repertório e muito mais — tudo em um só lugar.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <Button 
-              onClick={() => navigate('/auth')}
-              size="lg"
-              className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
-            >
-              Começar Agora
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-6 text-white/80 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {userAvatars.map((avatar, i) => (
-                  <img 
-                    key={i} 
-                    src={avatar}
-                    alt={`Usuário ${i + 1}`}
-                    className="w-8 h-8 rounded-full border-2 border-white/30 object-cover"
-                  />
-                ))}
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column - Text */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
+                <Sparkles className="w-4 h-4 text-cyan-300" />
+                <span className="text-white/90 text-sm font-medium">Gestão completa para artistas</span>
               </div>
-              <span>+100+ usuários ativos</span>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
+                Transforme sua
+              </h1>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-cyan-300 mb-6">
+                carreira musical
+              </h2>
+
+              <p className="text-white/90 text-lg md:text-xl max-w-xl mb-4">
+                Do primeiro contato ao pagamento do cachê, sem planilhas.
+              </p>
+              <p className="text-white/70 text-base max-w-xl mb-8">
+                Gerencie shows, contratos e finanças em um só lugar.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mb-6">
+                <Button 
+                  onClick={() => navigate('/auth')}
+                  size="lg"
+                  className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-bold px-8 py-6 text-lg shadow-xl shadow-black/20 transition-all duration-200"
+                >
+                  Começar grátis
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                <Button 
+                  onClick={() => navigate('/auth')}
+                  size="lg"
+                  variant="ghost"
+                  className="text-white/80 hover:text-white hover:bg-white/10 font-medium px-6 py-6 text-lg"
+                >
+                  Fazer login
+                </Button>
+              </div>
+
+              {/* Trust signals below CTA */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-white/70 text-sm mb-8">
+                <div className="flex items-center gap-1">
+                  <Check className="w-4 h-4 text-cyan-300" />
+                  <span>Sem cartão de crédito</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Check className="w-4 h-4 text-cyan-300" />
+                  <span>Leva menos de 2 minutos</span>
+                </div>
+              </div>
+
+              {/* Social proof - visual */}
+              <div className="flex items-center gap-3 justify-center lg:justify-start">
+                <div className="flex -space-x-2">
+                  {userAvatars.map((avatar, i) => (
+                    <img 
+                      key={i} 
+                      src={avatar}
+                      alt={`Usuário ${i + 1}`}
+                      className="w-9 h-9 rounded-full border-2 border-white/30 object-cover"
+                    />
+                  ))}
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <span className="text-white/80 text-sm">+100 artistas organizando seus shows</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              ))}
-              <span className="ml-1">4.9/5 de avaliação</span>
+
+            {/* Right Column - Feature Cards */}
+            <div className="hidden lg:grid grid-cols-2 gap-4">
+              {/* Agenda de Shows - Highlighted */}
+              <Card className="bg-white/10 backdrop-blur-sm border-white/30 border-2 hover:bg-white/15 transition-all relative">
+                <div className="absolute -top-2 -right-2 bg-yellow-400 text-[#0066CC] text-xs font-bold px-2 py-1 rounded-full">
+                  Essencial
+                </div>
+                <CardContent className="p-5">
+                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-3">
+                    <Calendar className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">Agenda de Shows</h3>
+                  <p className="text-white/70 text-sm">Gerencie todos os seus eventos e apresentações</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
+                <CardContent className="p-5">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mb-3">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">Financeiro Completo</h3>
+                  <p className="text-white/70 text-sm">Controle receitas e despesas automaticamente</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
+                <CardContent className="p-5">
+                  <div className="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center mb-3">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">CRM de Vendas</h3>
+                  <p className="text-white/70 text-sm">Pipeline visual para converter leads em shows</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
+                <CardContent className="p-5">
+                  <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-3">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">Gestão de Músicos</h3>
+                  <p className="text-white/70 text-sm">Organize sua banda e pagamentos</p>
+                </CardContent>
+              </Card>
+
+              {/* Revenue Card - Contextualized */}
+              <Card className="col-span-2 bg-white/5 backdrop-blur-sm border-white/20 hover:bg-white/10 transition-all">
+                <CardContent className="p-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-white/60 text-sm mb-1">Receita gerenciada por artistas na plataforma</p>
+                    <p className="text-white font-bold text-3xl">R$ 2.5M+</p>
+                  </div>
+                  <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center">
+                    <DollarSign className="w-7 h-7 text-white/50" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            
           </div>
         </div>
 
@@ -202,6 +290,42 @@ const Landing = () => {
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
           </svg>
+        </div>
+      </section>
+
+      {/* How It Works - 3 Steps */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Como funciona</span>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mt-2">
+              Comece a organizar sua carreira em 3 passos
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#0066CC]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-[#0066CC]">1</span>
+              </div>
+              <h3 className="font-bold text-slate-800 mb-2">Cadastre seus shows</h3>
+              <p className="text-slate-500 text-sm">Adicione eventos, datas e valores em segundos</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#00B4D8]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-[#00B4D8]">2</span>
+              </div>
+              <h3 className="font-bold text-slate-800 mb-2">Organize contatos e contratos</h3>
+              <p className="text-slate-500 text-sm">Gerencie clientes e gere contratos automáticos</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-emerald-500">3</span>
+              </div>
+              <h3 className="font-bold text-slate-800 mb-2">Controle pagamentos e banda</h3>
+              <p className="text-slate-500 text-sm">Acompanhe cachês, despesas e pagamentos de músicos</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -259,7 +383,19 @@ const Landing = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Card 
+                key={index} 
+                className={`border bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative ${
+                  feature.highlighted 
+                    ? 'border-[#0066CC] border-2 bg-blue-50/30' 
+                    : 'border-slate-200'
+                }`}
+              >
+                {feature.badge && (
+                  <div className="absolute -top-3 left-4 bg-[#0066CC] text-white text-xs font-bold px-3 py-1 rounded-full">
+                    {feature.badge}
+                  </div>
+                )}
                 <CardContent className="p-6">
                   <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-4`}>
                     <feature.icon className="w-7 h-7 text-white" />
