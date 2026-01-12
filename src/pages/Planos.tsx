@@ -1,9 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap, Star, Crown, Shield, HeadphonesIcon, XCircle, Quote, Clock, AlertTriangle } from "lucide-react";
+import { Check, Zap, Star, Crown, Shield, HeadphonesIcon, XCircle, Quote, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTrialStatus } from "@/hooks/useTrialStatus";
+
 
 const testimonials = [
   {
@@ -108,7 +108,6 @@ const reassurances = [
 ];
 
 export default function Planos() {
-  const { daysRemaining, isTrial } = useTrialStatus();
 
   return (
     <Layout
@@ -118,29 +117,19 @@ export default function Planos() {
       <div className="pt-4">
         {/* Urgency Banner */}
         <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-xl p-5 max-w-3xl mx-auto mb-8 shadow-xl border border-red-400/30">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-3">
             <div className="flex items-center gap-3">
               <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
                 <AlertTriangle className="w-6 h-6 text-white" />
               </div>
-              <div className="text-center md:text-left">
+              <div className="text-center">
                 <p className="text-white font-bold text-lg md:text-xl">
-                  {isTrial && daysRemaining > 0
-                    ? daysRemaining <= 1 
-                      ? "Último dia para garantir esses preços!" 
-                      : `Restam ${daysRemaining} dias para garantir esses preços!`
-                    : "Oferta por tempo limitado!"}
+                  ⚠️ Esta oferta pode expirar a qualquer momento!
                 </p>
                 <p className="text-white/90 text-sm">
-                  Esses valores são exclusivos do período de teste. Depois, voltam ao normal.
+                  Esses valores são exclusivos e podem voltar ao normal sem aviso prévio.
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-              <Clock className="w-5 h-5 text-white" />
-              <span className="text-white font-semibold text-sm">
-                {isTrial && daysRemaining > 0 ? `${daysRemaining} dia${daysRemaining > 1 ? 's' : ''}` : "Aproveite agora"}
-              </span>
             </div>
           </div>
         </div>
@@ -148,13 +137,12 @@ export default function Planos() {
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h1 className="text-2xl md:text-3xl font-bold mb-4">
-            Chega de perder shows por falta de organização
+            Pare de perder tempo e dinheiro com desorganização
           </h1>
           <p className="text-lg text-muted-foreground">
-            O Backstage Pro é a plataforma que ajuda artistas independentes a{" "}
-            <span className="text-foreground font-medium">vender mais shows</span>,{" "}
-            <span className="text-foreground font-medium">centralizar tudo em um só lugar</span> e{" "}
-            <span className="text-foreground font-medium">tratar a carreira como negócio</span>.
+            O Backstage Pro é o sistema completo para você{" "}
+            <span className="text-foreground font-medium">gerir sua carreira musical como uma empresa</span>,{" "}
+            <span className="text-foreground font-medium">com tudo centralizado em um só lugar</span>.
           </p>
         </div>
 
