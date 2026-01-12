@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { BonusWithProgress } from "@/hooks/useBonuses";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { extractYouTubeVideoId } from "@/lib/youtube";
 
 interface BonusCardProps {
   bonus: BonusWithProgress;
@@ -33,6 +34,21 @@ export function BonusCard({ bonus, index, onComplete, onView }: BonusCardProps) 
   const isLocked = bonus.status === "locked";
   const isCompleted = bonus.status === "completed";
   const isAvailable = bonus.status === "available";
+
+  // Get thumbnail: use provided one, or auto-generate from YouTube URL
+  const getThumbnailUrl = (): string | null => {
+    if (bonus.thumbnail) return bonus.thumbnail;
+    
+    // Auto-generate YouTube thumbnail
+    const videoId = extractYouTubeVideoId(bonus.content_url);
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+    
+    return null;
+  };
+
+  const thumbnailUrl = getThumbnailUrl();
 
   const handleAccess = () => {
     if (isLocked) return;
@@ -74,10 +90,10 @@ export function BonusCard({ bonus, index, onComplete, onView }: BonusCardProps) 
       </div>
 
       {/* Thumbnail */}
-      {bonus.thumbnail && !imageError ? (
+      {thumbnailUrl && !imageError ? (
         <div className="w-full md:w-40 h-24 rounded-lg overflow-hidden shrink-0 bg-muted">
           <img 
-            src={bonus.thumbnail} 
+            src={thumbnailUrl} 
             alt={bonus.title}
             className={`w-full h-full object-cover ${isLocked ? "grayscale" : ""}`}
             onError={() => setImageError(true)}
