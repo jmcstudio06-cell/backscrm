@@ -16,6 +16,7 @@ import {
   Flame,
   Heart,
   Zap,
+  Printer,
   Flag,
   Sparkles,
   Check,
@@ -210,6 +211,81 @@ export default function Repertorio() {
     if (newIndex < 0 || newIndex >= blocks.length) return;
     [newBlocks[index], newBlocks[newIndex]] = [newBlocks[newIndex], newBlocks[index]];
     reorderBlocks(newBlocks);
+  };
+
+  const printBlock = (block: Block) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const songsHtml = block.songs
+      .map(
+        (song, index) => `
+        <tr style="${song.isMain ? "background-color: #f0f9ff; font-weight: bold;" : ""}">
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${index + 1}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+            ${song.title}${song.isMain ? " ⭐" : ""}
+          </td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${song.artist}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.key}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.duration}</td>
+        </tr>
+      `
+      )
+      .join("");
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Bloco: ${block.name}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; color: #1f2937; }
+          h1 { margin-bottom: 5px; }
+          .info { color: #6b7280; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th { background-color: #f3f4f6; text-align: left; padding: 10px 8px; border-bottom: 2px solid #e5e7eb; }
+          .legend { margin-top: 20px; font-size: 12px; color: #6b7280; }
+          @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🎵 ${block.name}</h1>
+        <p class="info">
+          Clima: ${climateLabels[block.climate]} | 
+          Objetivo: ${objectiveLabels[block.objective]} | 
+          Duração: ${block.duration} | 
+          ${block.songs.length} músicas
+        </p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px;">#</th>
+              <th>Música</th>
+              <th>Artista</th>
+              <th style="width: 60px; text-align: center;">Tom</th>
+              <th style="width: 70px; text-align: center;">Duração</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${songsHtml}
+          </tbody>
+        </table>
+        
+        <p class="legend">⭐ = Música principal do bloco</p>
+        
+        <button class="no-print" onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          Imprimir
+        </button>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   if (loading) {
@@ -490,6 +566,14 @@ export default function Repertorio() {
                             className="flex items-center gap-2"
                             onClick={(e) => e.stopPropagation()}
                           >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => printBlock(block)}
+                              title="Imprimir bloco"
+                            >
+                              <Printer className="w-4 h-4" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"
