@@ -69,9 +69,51 @@
     @apply border-border;
   }
 
+  html {
+    /* Mobile-first: smaller base font for phones */
+    font-size: 14px;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      font-size: 15px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Mobile-friendly touch targets */
+  @media (max-width: 768px) {
+    button, a, input, select, textarea {
+      min-height: 44px;
+    }
+
+    /* Reduce padding and margins on mobile */
+    .card, [class*="Card"] {
+      @apply p-3;
+    }
+
+    /* Smaller headings on mobile */
+    h1 {
+      @apply text-xl;
+    }
+
+    h2 {
+      @apply text-lg;
+    }
+
+    h3 {
+      @apply text-base;
+    }
   }
 
   ::-webkit-scrollbar {

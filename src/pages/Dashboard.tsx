@@ -245,24 +245,24 @@ const Dashboard = () => {
         userName={profile?.name || undefined}
       />
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
 
         {/* Welcome Section */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
               Olá, {profile?.name || 'Artista'}!
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-0.5 sm:mt-1">
               {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
             </p>
           </div>
         </div>
 
         {/* Main Status Cards Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <CareerStatusCard
             leadsThisMonth={leadsThisMonth}
             leadsLastMonth={leadsLastMonth}
@@ -282,7 +282,7 @@ const Dashboard = () => {
         </div>
 
         {/* Financial & Shows Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <PendingCachetCard
             pendingShows={pendingCachetData.pendingShows}
             totalPending={pendingCachetData.totalPending}
