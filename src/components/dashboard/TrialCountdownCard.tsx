@@ -1,4 +1,4 @@
-import { Clock, Crown, AlertTriangle } from "lucide-react";
+import { Clock, Crown, AlertTriangle, Sparkles, Gift, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
@@ -18,7 +18,7 @@ export function TrialCountdownCard() {
   return (
     <div 
       className={`
-        relative overflow-hidden rounded-xl p-5 mb-6 border-2
+        relative overflow-hidden rounded-xl p-5 mb-6 border-2 animate-fade-in
         ${isExpired 
           ? "bg-gradient-to-r from-red-500/10 to-red-600/10 border-red-300" 
           : isUrgent 
@@ -33,7 +33,7 @@ export function TrialCountdownCard() {
         <div className="flex items-start gap-4">
           <div 
             className={`
-              w-14 h-14 rounded-xl flex items-center justify-center shrink-0
+              w-14 h-14 rounded-xl flex items-center justify-center shrink-0 animate-pulse
               ${isExpired 
                 ? "bg-red-100 text-red-600" 
                 : isUrgent 
@@ -70,7 +70,7 @@ export function TrialCountdownCard() {
                   }
                 </h3>
                 <p className={`text-sm mt-1 ${isUrgent ? "text-orange-600" : isWarning ? "text-amber-600" : "text-muted-foreground"}`}>
-                  Quer desbloquear todos os recursos? Assine um plano!
+                  Aproveite e conheça todos os recursos do Backstage Pro!
                 </p>
               </>
             )}
@@ -95,8 +95,35 @@ export function TrialCountdownCard() {
         </Button>
       </div>
 
-      {/* Decorative element */}
+      {/* Exclusive Offer Banner */}
+      <div 
+        onClick={() => navigate("/planos")}
+        className="mt-4 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg p-3 cursor-pointer hover:from-amber-600 hover:to-orange-600 transition-all duration-300 group"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 rounded-full p-2">
+              <Gift className="w-5 h-5 text-white animate-bounce" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-yellow-200" />
+                <span className="text-white font-bold text-sm md:text-base">
+                  Ofertas exclusivas do período de teste!
+                </span>
+              </div>
+              <p className="text-white/90 text-xs md:text-sm">
+                Preços especiais que você só encontra agora. Clique e confira!
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
+        </div>
+      </div>
+
+      {/* Decorative elements */}
       <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-2xl" />
+      <div className="absolute -left-4 -top-4 w-24 h-24 rounded-full bg-gradient-to-br from-amber-500/10 to-transparent blur-xl" />
     </div>
   );
 }
