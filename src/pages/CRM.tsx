@@ -20,7 +20,10 @@ import {
   GripVertical,
   ChevronDown,
   ChevronUp,
+  List,
+  Kanban,
 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useLeads, Lead } from "@/hooks/useLeads";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -51,6 +54,7 @@ export default function CRM() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showAllContacts, setShowAllContacts] = useState(false);
+  const [viewMode, setViewMode] = useState<"funnel" | "list">("funnel");
 
   const filteredLeads = leads.filter(lead =>
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -278,7 +282,18 @@ export default function CRM() {
     <Layout title="CRM - Funil de Vendas" subtitle="Gerencie seus contatos e oportunidades">
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div></div>
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "funnel" | "list")}>
+          <TabsList className="h-9">
+            <TabsTrigger value="funnel" className="h-8 text-xs px-3 gap-1.5">
+              <Kanban className="w-3.5 h-3.5" />
+              Funil
+            </TabsTrigger>
+            <TabsTrigger value="list" className="h-8 text-xs px-3 gap-1.5">
+              <List className="w-3.5 h-3.5" />
+              Lista
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={() => setShowAllContacts(!showAllContacts)}>
             <Users className="w-4 h-4 mr-2" />
@@ -345,6 +360,104 @@ export default function CRM() {
               return renderLeadCard(lead, stage, false);
             })
           )}
+        </div>
+      ) : viewMode === "list" ? (
+        /* List View */
+        <div className="bg-card rounded-xl border border-border overflow-hidden">
+          {/* List Header */}
+          <div className="grid grid-cols-[1fr_120px_140px_120px_100px] gap-4 p-4 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground">
+            <span>Lead</span>
+            <span>Etapa</span>
+            <span>Valor Estimado</span>
+            <span>Telefone</span>
+            <span className="text-right">Ações</span>
+          </div>
+          
+          {/* List Content */}
+          <div className="divide-y divide-border">
+            {filteredLeads.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground text-sm">
+                Nenhum lead encontrado
+              </div>
+            ) : (
+              filteredLeads.map((lead) => {
+                const stage = stages.find(s => s.id === lead.status) || stages[0];
+                const daysAgo = getDaysAgo(lead.created_at);
+                
+                return (
+                  <div 
+                    key={lead.id}
+                    className="grid grid-cols-[1fr_120px_140px_120px_100px] gap-4 p-4 items-center hover:bg-muted/30 transition-colors"
+                  >
+                    {/* Lead Info */}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-sm truncate text-foreground">{lead.name}</h4>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {daysAgo > 0 ? `${daysAgo}d` : "Hoje"}
+                        </span>
+                      </div>
+                      {lead.company && (
+                        <p className="text-xs text-muted-foreground truncate">{lead.company}</p>
+                      )}
+                    </div>
+
+                    {/* Stage Badge */}
+                    <div>
+                      <span className={cn(
+                        "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
+                        stage.bgLight,
+                        stage.textColor
+                      )}>
+                        <stage.icon className="w-3 h-3" />
+                        {stage.name.split(' ')[0]}
+                      </span>
+                    </div>
+
+                    {/* Value */}
+                    <div className="font-medium text-sm text-foreground">
+                      R$ {(lead.estimated_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </div>
+
+                    {/* Phone */}
+                    <div className="text-sm text-muted-foreground truncate">
+                      {lead.phone || "-"}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-1">
+                      {lead.phone && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={() => handleWhatsApp(lead.phone, lead.name)}
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleViewProfile(lead)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteLead(lead.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
       ) : isMobile ? (
         /* Mobile: Clickable Stages */
