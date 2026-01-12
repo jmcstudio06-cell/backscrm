@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, Clock, DollarSign } from "lucide-react";
+import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, Clock, DollarSign, FileText, ExternalLink } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
@@ -577,6 +578,32 @@ export default function Configuracoes() {
                 <Button variant="destructive" className="mt-4" onClick={handleLogoutAll}>
                   Encerrar Todas as Sessões
                 </Button>
+              </div>
+
+              <div className="pt-6 border-t border-border">
+                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Documentos Legais
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Consulte nossa política de privacidade e termos de uso.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button variant="outline" asChild>
+                    <Link to="/privacidade">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Política de Privacidade
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/termos">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Termos de Uso
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </ChartCard>
