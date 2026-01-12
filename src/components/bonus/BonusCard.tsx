@@ -1,4 +1,5 @@
-import { Lock, Check, Play, ExternalLink, Download, BookOpen, Gift, Clock } from "lucide-react";
+import { useState } from "react";
+import { Lock, Check, Play, ExternalLink, Download, BookOpen, Gift, Clock, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BonusWithProgress } from "@/hooks/useBonuses";
@@ -27,6 +28,7 @@ const contentTypeLabels = {
 };
 
 export function BonusCard({ bonus, index, onComplete, onView }: BonusCardProps) {
+  const [imageError, setImageError] = useState(false);
   const Icon = contentTypeIcons[bonus.content_type];
   const isLocked = bonus.status === "locked";
   const isCompleted = bonus.status === "completed";
@@ -72,13 +74,18 @@ export function BonusCard({ bonus, index, onComplete, onView }: BonusCardProps) 
       </div>
 
       {/* Thumbnail */}
-      {bonus.thumbnail && (
-        <div className="w-full md:w-40 h-24 rounded-lg overflow-hidden shrink-0">
+      {bonus.thumbnail && !imageError ? (
+        <div className="w-full md:w-40 h-24 rounded-lg overflow-hidden shrink-0 bg-muted">
           <img 
             src={bonus.thumbnail} 
             alt={bonus.title}
             className={`w-full h-full object-cover ${isLocked ? "grayscale" : ""}`}
+            onError={() => setImageError(true)}
           />
+        </div>
+      ) : (
+        <div className={`w-full md:w-40 h-24 rounded-lg shrink-0 bg-muted flex items-center justify-center ${isLocked ? "opacity-50" : ""}`}>
+          <Icon className="w-8 h-8 text-muted-foreground" />
         </div>
       )}
 
