@@ -271,8 +271,9 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
           <Button
             onClick={() => navigate("/planos")}
-            className="w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0"
+            className="w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 relative overflow-hidden group animate-pulse hover:animate-none"
           >
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             <Crown className="w-5 h-5 mr-2" />
             Garantir acesso
           </Button>
