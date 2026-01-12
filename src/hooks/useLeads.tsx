@@ -29,11 +29,11 @@ export interface LeadHistoryEntry {
 
 const stageNames: Record<string, string> = {
   new: "Leads Novos",
+  contact: "Em Contato",
   proposal: "Com Proposta",
+  negotiation: "Negociação",
   closed: "Fechados",
-  lost: "Não Fechados",
-  repeat: "Já Comprou",
-  never: "Nunca Comprou",
+  lost: "Perdidos",
 };
 
 export function useLeads() {
