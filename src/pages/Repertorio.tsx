@@ -22,9 +22,9 @@ import {
   Edit2,
   Trash2,
   Star,
-  Target,
   Users,
   PartyPopper,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -47,28 +47,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-
-interface Song {
-  id: string;
-  title: string;
-  artist: string;
-  key: string;
-  duration: string;
-  isMain: boolean;
-  checked: boolean;
-  keyOk: boolean;
-  chordsReviewed: boolean;
-}
-
-interface Block {
-  id: string;
-  name: string;
-  climate: "animado" | "medio" | "calmo";
-  objective: "segurar" | "levantar" | "finalizar" | "transicao";
-  duration: string;
-  songs: Song[];
-  isExpanded: boolean;
-}
+import { useRepertoire, Block } from "@/hooks/useRepertoire";
 
 const climateIcons = {
   animado: Flame,
@@ -102,84 +81,32 @@ const objectiveLabels = {
   transicao: "Transição",
 };
 
-// Dados de exemplo
-const initialBlocks: Block[] = [
-  {
-    id: "1",
-    name: "Abertura",
-    climate: "medio",
-    objective: "segurar",
-    duration: "20min",
-    isExpanded: true,
-    songs: [
-      { id: "1a", title: "Evidências", artist: "Chitãozinho & Xororó", key: "G", duration: "4:32", isMain: true, checked: true, keyOk: true, chordsReviewed: true },
-      { id: "1b", title: "Shallow", artist: "Lady Gaga", key: "G", duration: "3:37", isMain: false, checked: true, keyOk: true, chordsReviewed: false },
-      { id: "1c", title: "Perfect", artist: "Ed Sheeran", key: "Ab", duration: "4:23", isMain: false, checked: false, keyOk: false, chordsReviewed: false },
-    ],
-  },
-  {
-    id: "2",
-    name: "Animado",
-    climate: "animado",
-    objective: "levantar",
-    duration: "30min",
-    isExpanded: false,
-    songs: [
-      { id: "2a", title: "Sweet Child O' Mine", artist: "Guns N' Roses", key: "D", duration: "5:56", isMain: true, checked: true, keyOk: true, chordsReviewed: true },
-      { id: "2b", title: "Bohemian Rhapsody", artist: "Queen", key: "Bb", duration: "5:55", isMain: false, checked: true, keyOk: true, chordsReviewed: true },
-      { id: "2c", title: "País Tropical", artist: "Jorge Ben Jor", key: "A", duration: "3:28", isMain: false, checked: false, keyOk: true, chordsReviewed: false },
-    ],
-  },
-  {
-    id: "3",
-    name: "Romântico",
-    climate: "calmo",
-    objective: "transicao",
-    duration: "25min",
-    isExpanded: false,
-    songs: [
-      { id: "3a", title: "Trem Bala", artist: "Ana Vilela", key: "C", duration: "4:15", isMain: true, checked: true, keyOk: true, chordsReviewed: true },
-      { id: "3b", title: "Asa Branca", artist: "Luiz Gonzaga", key: "D", duration: "3:45", isMain: false, checked: true, keyOk: true, chordsReviewed: true },
-    ],
-  },
-  {
-    id: "4",
-    name: "Final",
-    climate: "animado",
-    objective: "finalizar",
-    duration: "15min",
-    isExpanded: false,
-    songs: [
-      { id: "4a", title: "We Are The Champions", artist: "Queen", key: "F", duration: "3:00", isMain: true, checked: true, keyOk: true, chordsReviewed: true },
-    ],
-  },
-  {
-    id: "5",
-    name: "Coringa",
-    climate: "medio",
-    objective: "segurar",
-    duration: "Reserva",
-    isExpanded: false,
-    songs: [
-      { id: "5a", title: "Ai Se Eu Te Pego", artist: "Michel Teló", key: "G", duration: "2:54", isMain: false, checked: true, keyOk: true, chordsReviewed: true },
-      { id: "5b", title: "Macarena", artist: "Los Del Rio", key: "Bb", duration: "3:30", isMain: false, checked: true, keyOk: true, chordsReviewed: true },
-    ],
-  },
-];
-
 export default function Repertorio() {
-  const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
+  const {
+    blocks,
+    loading,
+    addBlock,
+    updateBlock,
+    deleteBlock,
+    reorderBlocks,
+    addSong,
+    updateSong,
+    setMainSong,
+    deleteSong,
+  } = useRepertoire();
+
+  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showSongModal, setShowSongModal] = useState(false);
   const [editingBlock, setEditingBlock] = useState<Block | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  
+
   // Form states
   const [blockName, setBlockName] = useState("");
   const [blockClimate, setBlockClimate] = useState<Block["climate"]>("medio");
   const [blockObjective, setBlockObjective] = useState<Block["objective"]>("segurar");
   const [blockDuration, setBlockDuration] = useState("");
-  
+
   const [songTitle, setSongTitle] = useState("");
   const [songArtist, setSongArtist] = useState("");
   const [songKey, setSongKey] = useState("");
@@ -187,45 +114,39 @@ export default function Repertorio() {
 
   // Stats
   const totalSongs = blocks.reduce((acc, b) => acc + b.songs.length, 0);
-  const mainBlocks = blocks.filter(b => b.name !== "Coringa").length;
+  const mainBlocks = blocks.filter((b) => b.name !== "Coringa").length;
   const totalDuration = blocks
-    .filter(b => b.duration !== "Reserva")
+    .filter((b) => b.duration !== "Reserva")
     .reduce((acc, b) => {
       const match = b.duration.match(/(\d+)/);
       return acc + (match ? parseInt(match[1]) : 0);
     }, 0);
-  const checkedSongs = blocks.reduce((acc, b) => 
-    acc + b.songs.filter(s => s.checked && s.keyOk && s.chordsReviewed).length, 0
+  const checkedSongs = blocks.reduce(
+    (acc, b) =>
+      acc + b.songs.filter((s) => s.checked && s.keyOk && s.chordsReviewed).length,
+    0
   );
 
   const toggleBlockExpand = (blockId: string) => {
-    setBlocks(blocks.map(b => 
-      b.id === blockId ? { ...b, isExpanded: !b.isExpanded } : b
-    ));
+    const newExpanded = new Set(expandedBlocks);
+    if (newExpanded.has(blockId)) {
+      newExpanded.delete(blockId);
+    } else {
+      newExpanded.add(blockId);
+    }
+    setExpandedBlocks(newExpanded);
   };
 
-  const toggleSongCheck = (blockId: string, songId: string, field: "checked" | "keyOk" | "chordsReviewed") => {
-    setBlocks(blocks.map(b => 
-      b.id === blockId 
-        ? { 
-            ...b, 
-            songs: b.songs.map(s => 
-              s.id === songId ? { ...s, [field]: !s[field] } : s
-            ) 
-          } 
-        : b
-    ));
-  };
-
-  const setMainSong = (blockId: string, songId: string) => {
-    setBlocks(blocks.map(b => 
-      b.id === blockId 
-        ? { 
-            ...b, 
-            songs: b.songs.map(s => ({ ...s, isMain: s.id === songId })) 
-          } 
-        : b
-    ));
+  const handleToggleSongCheck = (
+    blockId: string,
+    songId: string,
+    field: "checked" | "keyOk" | "chordsReviewed"
+  ) => {
+    const block = blocks.find((b) => b.id === blockId);
+    const song = block?.songs.find((s) => s.id === songId);
+    if (song) {
+      updateSong(blockId, songId, { [field]: !song[field] });
+    }
   };
 
   const openNewBlockModal = () => {
@@ -246,32 +167,22 @@ export default function Repertorio() {
     setShowBlockModal(true);
   };
 
-  const saveBlock = () => {
+  const handleSaveBlock = async () => {
     if (!blockName.trim()) return;
 
     if (editingBlock) {
-      setBlocks(blocks.map(b => 
-        b.id === editingBlock.id 
-          ? { ...b, name: blockName, climate: blockClimate, objective: blockObjective, duration: blockDuration }
-          : b
-      ));
+      await updateBlock(editingBlock.id, blockName, blockClimate, blockObjective, blockDuration);
     } else {
-      const newBlock: Block = {
-        id: Date.now().toString(),
-        name: blockName,
-        climate: blockClimate,
-        objective: blockObjective,
-        duration: blockDuration || "20min",
-        isExpanded: true,
-        songs: [],
-      };
-      setBlocks([...blocks, newBlock]);
+      const newBlock = await addBlock(blockName, blockClimate, blockObjective, blockDuration || "20min");
+      if (newBlock) {
+        setExpandedBlocks(new Set([...expandedBlocks, newBlock.id]));
+      }
     }
     setShowBlockModal(false);
   };
 
-  const deleteBlock = (blockId: string) => {
-    setBlocks(blocks.filter(b => b.id !== blockId));
+  const handleDeleteBlock = async (blockId: string) => {
+    await deleteBlock(blockId);
   };
 
   const openAddSongModal = (blockId: string) => {
@@ -283,35 +194,14 @@ export default function Repertorio() {
     setShowSongModal(true);
   };
 
-  const saveSong = () => {
+  const handleSaveSong = async () => {
     if (!songTitle.trim() || !selectedBlockId) return;
-
-    const newSong: Song = {
-      id: Date.now().toString(),
-      title: songTitle,
-      artist: songArtist,
-      key: songKey,
-      duration: songDuration || "3:30",
-      isMain: false,
-      checked: false,
-      keyOk: false,
-      chordsReviewed: false,
-    };
-
-    setBlocks(blocks.map(b => 
-      b.id === selectedBlockId 
-        ? { ...b, songs: [...b.songs, newSong] }
-        : b
-    ));
+    await addSong(selectedBlockId, songTitle, songArtist, songKey, songDuration || "3:30");
     setShowSongModal(false);
   };
 
-  const deleteSong = (blockId: string, songId: string) => {
-    setBlocks(blocks.map(b => 
-      b.id === blockId 
-        ? { ...b, songs: b.songs.filter(s => s.id !== songId) }
-        : b
-    ));
+  const handleDeleteSong = async (blockId: string, songId: string) => {
+    await deleteSong(blockId, songId);
   };
 
   const moveBlock = (index: number, direction: "up" | "down") => {
@@ -319,8 +209,18 @@ export default function Repertorio() {
     const newIndex = direction === "up" ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= blocks.length) return;
     [newBlocks[index], newBlocks[newIndex]] = [newBlocks[newIndex], newBlocks[index]];
-    setBlocks(newBlocks);
+    reorderBlocks(newBlocks);
   };
+
+  if (loading) {
+    return (
+      <Layout title="Repertório" subtitle="Planejamento de blocos para o show">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Repertório" subtitle="Planejamento de blocos para o show">
@@ -365,7 +265,9 @@ export default function Repertorio() {
               <Check className="w-5 h-5 text-warning" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{checkedSongs}/{totalSongs}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {checkedSongs}/{totalSongs}
+              </p>
               <p className="text-xs text-muted-foreground">Conferidas</p>
             </div>
           </div>
@@ -381,23 +283,43 @@ export default function Repertorio() {
                 <p className="text-xs text-muted-foreground mb-1">Duração Planejada</p>
                 <p className="text-lg font-bold text-foreground">{totalDuration} minutos</p>
               </div>
-              
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground font-medium">Ordem dos Blocos</p>
-                {blocks.filter(b => b.name !== "Coringa").map((block, index) => {
-                  const ClimateIcon = climateIcons[block.climate];
-                  return (
-                    <div key={block.id} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/30">
-                      <span className="text-xs font-medium text-muted-foreground w-5">{index + 1}.</span>
-                      <div className={cn("w-6 h-6 rounded flex items-center justify-center", climateColors[block.climate])}>
-                        <ClimateIcon className="w-3 h-3" />
-                      </div>
-                      <span className="text-sm font-medium text-foreground flex-1">{block.name}</span>
-                      <span className="text-xs text-muted-foreground">{block.duration}</span>
-                    </div>
-                  );
-                })}
-              </div>
+
+              {blocks.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium">Ordem dos Blocos</p>
+                  {blocks
+                    .filter((b) => b.name !== "Coringa")
+                    .map((block, index) => {
+                      const ClimateIcon = climateIcons[block.climate];
+                      return (
+                        <div
+                          key={block.id}
+                          className="flex items-center gap-2 p-2 rounded-lg bg-secondary/30"
+                        >
+                          <span className="text-xs font-medium text-muted-foreground w-5">
+                            {index + 1}.
+                          </span>
+                          <div
+                            className={cn(
+                              "w-6 h-6 rounded flex items-center justify-center",
+                              climateColors[block.climate]
+                            )}
+                          >
+                            <ClimateIcon className="w-3 h-3" />
+                          </div>
+                          <span className="text-sm font-medium text-foreground flex-1">
+                            {block.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{block.duration}</span>
+                        </div>
+                      );
+                    })}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Crie seu primeiro bloco para começar
+                </p>
+              )}
 
               <div className="pt-3 border-t border-border">
                 <p className="text-xs text-muted-foreground mb-2">Legenda de Clima</p>
@@ -405,7 +327,13 @@ export default function Repertorio() {
                   {Object.entries(climateLabels).map(([key, label]) => {
                     const Icon = climateIcons[key as Block["climate"]];
                     return (
-                      <div key={key} className={cn("flex items-center gap-1 px-2 py-1 rounded text-xs", climateColors[key as Block["climate"]])}>
+                      <div
+                        key={key}
+                        className={cn(
+                          "flex items-center gap-1 px-2 py-1 rounded text-xs",
+                          climateColors[key as Block["climate"]]
+                        )}
+                      >
                         <Icon className="w-3 h-3" />
                         {label}
                       </div>
@@ -420,7 +348,7 @@ export default function Repertorio() {
             <div className="space-y-3">
               <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/50">
                 <span className="text-sm text-foreground">Músicas conferidas</span>
-                <Badge variant={checkedSongs === totalSongs ? "default" : "secondary"}>
+                <Badge variant={checkedSongs === totalSongs && totalSongs > 0 ? "default" : "secondary"}>
                   {checkedSongs}/{totalSongs}
                 </Badge>
               </div>
@@ -443,193 +371,254 @@ export default function Repertorio() {
             </Button>
           </div>
 
-          <div className="space-y-3">
-            {blocks.map((block, index) => {
-              const ClimateIcon = climateIcons[block.climate];
-              const ObjectiveIcon = objectiveIcons[block.objective];
-              const mainSong = block.songs.find(s => s.isMain);
-              const allChecked = block.songs.length > 0 && block.songs.every(s => s.checked && s.keyOk && s.chordsReviewed);
-              
-              return (
-                <Collapsible 
-                  key={block.id} 
-                  open={block.isExpanded}
-                  onOpenChange={() => toggleBlockExpand(block.id)}
-                >
-                  <div className={cn(
-                    "rounded-xl border transition-all",
-                    block.name === "Coringa" 
-                      ? "border-dashed border-muted-foreground/30 bg-secondary/20" 
-                      : "border-border bg-card"
-                  )}>
-                    {/* Block Header */}
-                    <CollapsibleTrigger asChild>
-                      <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-secondary/50 transition-colors rounded-t-xl">
-                        <div className="flex flex-col gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-5 w-5"
-                            onClick={(e) => { e.stopPropagation(); moveBlock(index, "up"); }}
-                            disabled={index === 0}
-                          >
-                            <ChevronUp className="w-3 h-3" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-5 w-5"
-                            onClick={(e) => { e.stopPropagation(); moveBlock(index, "down"); }}
-                            disabled={index === blocks.length - 1}
-                          >
-                            <ChevronDown className="w-3 h-3" />
-                          </Button>
-                        </div>
-                        
-                        <GripVertical className="w-4 h-4 text-muted-foreground" />
-                        
-                        <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", climateColors[block.climate])}>
-                          <ClimateIcon className="w-5 h-5" />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-foreground">{block.name}</h3>
-                            {allChecked && (
-                              <Badge variant="outline" className="text-success border-success/30 bg-success/10">
-                                <Check className="w-3 h-3 mr-1" />
-                                OK
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                            <span className="flex items-center gap-1">
-                              <ObjectiveIcon className="w-3 h-3" />
-                              {objectiveLabels[block.objective]}
-                            </span>
-                            <span>•</span>
-                            <span>{block.songs.length} músicas</span>
-                            <span>•</span>
-                            <span>{block.duration}</span>
-                            {mainSong && (
-                              <>
-                                <span>•</span>
-                                <span className="flex items-center gap-1">
-                                  <Star className="w-3 h-3 text-warning" />
-                                  {mainSong.title}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
+          {blocks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border border-dashed border-muted-foreground/30 bg-secondary/10">
+              <ListMusic className="w-12 h-12 text-muted-foreground/50 mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                Nenhum bloco criado
+              </h3>
+              <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
+                Organize seu show em blocos como Abertura, Animado, Romântico, Final e
+                Coringa. Cada bloco pode ter várias músicas.
+              </p>
+              <Button variant="gradient" onClick={openNewBlockModal}>
+                <Plus className="w-4 h-4 mr-2" />
+                Criar Primeiro Bloco
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {blocks.map((block, index) => {
+                const ClimateIcon = climateIcons[block.climate];
+                const ObjectiveIcon = objectiveIcons[block.objective];
+                const mainSong = block.songs.find((s) => s.isMain);
+                const allChecked =
+                  block.songs.length > 0 &&
+                  block.songs.every((s) => s.checked && s.keyOk && s.chordsReviewed);
+                const isExpanded = expandedBlocks.has(block.id);
 
-                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon" onClick={() => openEditBlockModal(block)}>
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => deleteBlock(block.id)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </div>
-                        
-                        {block.isExpanded ? (
-                          <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                        )}
-                      </div>
-                    </CollapsibleTrigger>
+                return (
+                  <Collapsible
+                    key={block.id}
+                    open={isExpanded}
+                    onOpenChange={() => toggleBlockExpand(block.id)}
+                  >
+                    <div
+                      className={cn(
+                        "rounded-xl border transition-all",
+                        block.name === "Coringa"
+                          ? "border-dashed border-muted-foreground/30 bg-secondary/20"
+                          : "border-border bg-card"
+                      )}
+                    >
+                      {/* Block Header */}
+                      <CollapsibleTrigger asChild>
+                        <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-secondary/50 transition-colors rounded-t-xl">
+                          <div className="flex flex-col gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveBlock(index, "up");
+                              }}
+                              disabled={index === 0}
+                            >
+                              <ChevronUp className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveBlock(index, "down");
+                              }}
+                              disabled={index === blocks.length - 1}
+                            >
+                              <ChevronDown className="w-3 h-3" />
+                            </Button>
+                          </div>
 
-                    {/* Block Songs */}
-                    <CollapsibleContent>
-                      <div className="px-4 pb-4 space-y-2">
-                        {block.songs.map((song) => (
-                          <div 
-                            key={song.id}
+                          <GripVertical className="w-4 h-4 text-muted-foreground" />
+
+                          <div
                             className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg transition-all",
-                              song.isMain 
-                                ? "bg-primary/10 border border-primary/20" 
-                                : "bg-secondary/50 hover:bg-secondary"
+                              "w-10 h-10 rounded-lg flex items-center justify-center",
+                              climateColors[block.climate]
                             )}
+                          >
+                            <ClimateIcon className="w-5 h-5" />
+                          </div>
+
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-foreground">{block.name}</h3>
+                              {allChecked && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-success border-success/30 bg-success/10"
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  OK
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                              <span className="flex items-center gap-1">
+                                <ObjectiveIcon className="w-3 h-3" />
+                                {objectiveLabels[block.objective]}
+                              </span>
+                              <span>•</span>
+                              <span>{block.songs.length} músicas</span>
+                              <span>•</span>
+                              <span>{block.duration}</span>
+                              {mainSong && (
+                                <>
+                                  <span>•</span>
+                                  <span className="flex items-center gap-1">
+                                    <Star className="w-3 h-3 text-warning" />
+                                    {mainSong.title}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <div
+                            className="flex items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <Button
-                              variant={song.isMain ? "default" : "ghost"}
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 shrink-0"
-                              onClick={() => setMainSong(block.id, song.id)}
-                              title="Definir como principal"
+                              onClick={() => openEditBlockModal(block)}
                             >
-                              <Star className={cn("w-4 h-4", song.isMain && "fill-current")} />
+                              <Edit2 className="w-4 h-4" />
                             </Button>
-                            
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-foreground text-sm truncate">
-                                {song.title}
-                                {song.isMain && <span className="text-primary ml-2 text-xs">(Principal)</span>}
-                              </p>
-                              <p className="text-xs text-muted-foreground">{song.artist}</p>
-                            </div>
-
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
-                              <span>Tom: {song.key}</span>
-                              <span>•</span>
-                              <span>{song.duration}</span>
-                            </div>
-
-                            <div className="flex items-center gap-3 shrink-0">
-                              <div className="flex items-center gap-1">
-                                <Checkbox 
-                                  id={`${song.id}-checked`}
-                                  checked={song.checked}
-                                  onCheckedChange={() => toggleSongCheck(block.id, song.id, "checked")}
-                                />
-                                <Label htmlFor={`${song.id}-checked`} className="text-xs">✔</Label>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Checkbox 
-                                  id={`${song.id}-key`}
-                                  checked={song.keyOk}
-                                  onCheckedChange={() => toggleSongCheck(block.id, song.id, "keyOk")}
-                                />
-                                <Label htmlFor={`${song.id}-key`} className="text-xs">Tom</Label>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Checkbox 
-                                  id={`${song.id}-chords`}
-                                  checked={song.chordsReviewed}
-                                  onCheckedChange={() => toggleSongCheck(block.id, song.id, "chordsReviewed")}
-                                />
-                                <Label htmlFor={`${song.id}-chords`} className="text-xs">Cifra</Label>
-                              </div>
-                            </div>
-
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => deleteSong(block.id, song.id)}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteBlock(block.id)}
                             >
                               <Trash2 className="w-4 h-4 text-destructive" />
                             </Button>
                           </div>
-                        ))}
-                        
-                        <Button 
-                          variant="outline" 
-                          className="w-full mt-2"
-                          onClick={() => openAddSongModal(block.id)}
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Adicionar Música
-                        </Button>
-                      </div>
-                    </CollapsibleContent>
-                  </div>
-                </Collapsible>
-              );
-            })}
-          </div>
+
+                          {isExpanded ? (
+                            <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                          )}
+                        </div>
+                      </CollapsibleTrigger>
+
+                      {/* Block Songs */}
+                      <CollapsibleContent>
+                        <div className="px-4 pb-4 space-y-2">
+                          {block.songs.map((song) => (
+                            <div
+                              key={song.id}
+                              className={cn(
+                                "flex items-center gap-3 p-3 rounded-lg transition-all",
+                                song.isMain
+                                  ? "bg-primary/10 border border-primary/20"
+                                  : "bg-secondary/50 hover:bg-secondary"
+                              )}
+                            >
+                              <Button
+                                variant={song.isMain ? "default" : "ghost"}
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={() => setMainSong(block.id, song.id)}
+                                title="Definir como principal"
+                              >
+                                <Star className={cn("w-4 h-4", song.isMain && "fill-current")} />
+                              </Button>
+
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-foreground text-sm truncate">
+                                  {song.title}
+                                  {song.isMain && (
+                                    <span className="text-primary ml-2 text-xs">(Principal)</span>
+                                  )}
+                                </p>
+                                <p className="text-xs text-muted-foreground">{song.artist}</p>
+                              </div>
+
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
+                                <span>Tom: {song.key}</span>
+                                <span>•</span>
+                                <span>{song.duration}</span>
+                              </div>
+
+                              <div className="flex items-center gap-3 shrink-0">
+                                <div className="flex items-center gap-1">
+                                  <Checkbox
+                                    id={`${song.id}-checked`}
+                                    checked={song.checked}
+                                    onCheckedChange={() =>
+                                      handleToggleSongCheck(block.id, song.id, "checked")
+                                    }
+                                  />
+                                  <Label htmlFor={`${song.id}-checked`} className="text-xs">
+                                    ✔
+                                  </Label>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Checkbox
+                                    id={`${song.id}-key`}
+                                    checked={song.keyOk}
+                                    onCheckedChange={() =>
+                                      handleToggleSongCheck(block.id, song.id, "keyOk")
+                                    }
+                                  />
+                                  <Label htmlFor={`${song.id}-key`} className="text-xs">
+                                    Tom
+                                  </Label>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Checkbox
+                                    id={`${song.id}-chords`}
+                                    checked={song.chordsReviewed}
+                                    onCheckedChange={() =>
+                                      handleToggleSongCheck(block.id, song.id, "chordsReviewed")
+                                    }
+                                  />
+                                  <Label htmlFor={`${song.id}-chords`} className="text-xs">
+                                    Cifra
+                                  </Label>
+                                </div>
+                              </div>
+
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleDeleteSong(block.id, song.id)}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+
+                          <Button
+                            variant="outline"
+                            className="w-full mt-2"
+                            onClick={() => openAddSongModal(block.id)}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Adicionar Música
+                          </Button>
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -642,7 +631,7 @@ export default function Repertorio() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Nome do Bloco</Label>
-              <Input 
+              <Input
                 placeholder="Ex: Abertura, Animado, Romântico..."
                 value={blockName}
                 onChange={(e) => setBlockName(e.target.value)}
@@ -651,7 +640,10 @@ export default function Repertorio() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Clima</Label>
-                <Select value={blockClimate} onValueChange={(v) => setBlockClimate(v as Block["climate"])}>
+                <Select
+                  value={blockClimate}
+                  onValueChange={(v) => setBlockClimate(v as Block["climate"])}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -679,7 +671,10 @@ export default function Repertorio() {
               </div>
               <div className="space-y-2">
                 <Label>Objetivo</Label>
-                <Select value={blockObjective} onValueChange={(v) => setBlockObjective(v as Block["objective"])}>
+                <Select
+                  value={blockObjective}
+                  onValueChange={(v) => setBlockObjective(v as Block["objective"])}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -694,7 +689,7 @@ export default function Repertorio() {
             </div>
             <div className="space-y-2">
               <Label>Duração Aproximada</Label>
-              <Input 
+              <Input
                 placeholder="Ex: 20min, 30min..."
                 value={blockDuration}
                 onChange={(e) => setBlockDuration(e.target.value)}
@@ -702,8 +697,10 @@ export default function Repertorio() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBlockModal(false)}>Cancelar</Button>
-            <Button onClick={saveBlock}>Salvar</Button>
+            <Button variant="outline" onClick={() => setShowBlockModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveBlock}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -717,7 +714,7 @@ export default function Repertorio() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Título</Label>
-              <Input 
+              <Input
                 placeholder="Nome da música"
                 value={songTitle}
                 onChange={(e) => setSongTitle(e.target.value)}
@@ -725,7 +722,7 @@ export default function Repertorio() {
             </div>
             <div className="space-y-2">
               <Label>Artista</Label>
-              <Input 
+              <Input
                 placeholder="Nome do artista"
                 value={songArtist}
                 onChange={(e) => setSongArtist(e.target.value)}
@@ -734,7 +731,7 @@ export default function Repertorio() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Tom</Label>
-                <Input 
+                <Input
                   placeholder="Ex: C, G, Am..."
                   value={songKey}
                   onChange={(e) => setSongKey(e.target.value)}
@@ -742,7 +739,7 @@ export default function Repertorio() {
               </div>
               <div className="space-y-2">
                 <Label>Duração</Label>
-                <Input 
+                <Input
                   placeholder="Ex: 3:45"
                   value={songDuration}
                   onChange={(e) => setSongDuration(e.target.value)}
@@ -751,8 +748,10 @@ export default function Repertorio() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSongModal(false)}>Cancelar</Button>
-            <Button onClick={saveSong}>Adicionar</Button>
+            <Button variant="outline" onClick={() => setShowSongModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveSong}>Adicionar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

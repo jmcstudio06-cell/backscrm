@@ -815,6 +815,101 @@ export type Database = {
         }
         Relationships: []
       }
+      repertoire_blocks: {
+        Row: {
+          climate: string
+          created_at: string
+          duration: string
+          id: string
+          name: string
+          objective: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          climate?: string
+          created_at?: string
+          duration?: string
+          id?: string
+          name: string
+          objective?: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          climate?: string
+          created_at?: string
+          duration?: string
+          id?: string
+          name?: string
+          objective?: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      repertoire_songs: {
+        Row: {
+          artist: string | null
+          block_id: string
+          checked: boolean
+          chords_reviewed: boolean
+          created_at: string
+          duration: string | null
+          id: string
+          is_main: boolean
+          key_ok: boolean
+          song_key: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          artist?: string | null
+          block_id: string
+          checked?: boolean
+          chords_reviewed?: boolean
+          created_at?: string
+          duration?: string | null
+          id?: string
+          is_main?: boolean
+          key_ok?: boolean
+          song_key?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          artist?: string | null
+          block_id?: string
+          checked?: boolean
+          chords_reviewed?: boolean
+          created_at?: string
+          duration?: string | null
+          id?: string
+          is_main?: boolean
+          key_ok?: boolean
+          song_key?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repertoire_songs_block_id_fkey"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "repertoire_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       show_checklist: {
         Row: {
           completed: boolean | null
