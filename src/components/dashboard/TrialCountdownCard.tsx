@@ -1,4 +1,4 @@
-import { Clock, AlertTriangle, Sparkles, Gift, ArrowRight, Timer } from "lucide-react";
+import { Clock, AlertTriangle, Sparkles, ArrowRight, Timer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { useState, useEffect } from "react";
@@ -128,31 +128,24 @@ export function TrialCountdownCard() {
         </div>
       </div>
 
-      {/* Exclusive Offer Banner */}
-      <div 
+      {/* Compact CTA Button */}
+      <button 
         onClick={() => navigate("/planos")}
-        className="mt-4 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg p-3 cursor-pointer hover:from-amber-600 hover:to-orange-600 transition-all duration-300 group"
+        className="mt-3 w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-lg px-4 py-2.5 cursor-pointer transition-all duration-300 group flex items-center justify-between"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-white/20 rounded-full p-2">
-              <Gift className="w-5 h-5 text-white animate-bounce" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-yellow-200" />
-                <span className="text-white font-bold text-sm md:text-base">
-                  Ofertas exclusivas do período de teste!
-                </span>
-              </div>
-              <p className="text-white/90 text-xs md:text-sm">
-                Preços especiais que você só encontra agora. Clique e confira!
-              </p>
-            </div>
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-yellow-200" />
+          <div className="text-left">
+            <span className="text-white font-semibold text-sm block">
+              Conferir valor promocional
+            </span>
+            <span className="text-white/80 text-xs">
+              Preços especiais que você só encontra agora.
+            </span>
           </div>
-          <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
         </div>
-      </div>
+        <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform shrink-0" />
+      </button>
 
       {/* Decorative elements */}
       <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-2xl" />
