@@ -22,7 +22,7 @@ import {
   TrendingUp,
   CheckSquare,
   Briefcase,
-  Truck,
+  ClipboardList,
   Shield,
   Lock,
   X,
@@ -74,8 +74,8 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    icon: Truck,
-    label: "Logística",
+    icon: ClipboardList,
+    label: "Planejamento",
     children: [
       { icon: Target, label: "Avanços", path: "/avancos", featureKey: "checklist" },
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
