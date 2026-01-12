@@ -274,7 +274,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
             className="w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0"
           >
             <Crown className="w-5 h-5 mr-2" />
-            Garantir meu acesso
+            Garantir acesso
           </Button>
 
           <Button
