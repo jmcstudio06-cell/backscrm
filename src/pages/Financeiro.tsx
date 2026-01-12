@@ -17,6 +17,10 @@ import {
   Plus,
   Wallet,
   Trash2,
+  Users,
+  Car,
+  Utensils,
+  Calculator,
 } from "lucide-react";
 import {
   AreaChart,
@@ -101,6 +105,37 @@ export default function Financeiro() {
     value,
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
+
+  // Custo de Show - Agrupamento por categoria
+  const showCostCategories = {
+    equipe: ["Músico", "Equipe", "Cachê Músico", "Freelancer", "Banda", "Técnico"],
+    transporte: ["Transporte", "Combustível", "Gasolina", "Uber", "Táxi", "Passagem", "Estacionamento"],
+    alimentacao: ["Alimentação", "Comida", "Refeição", "Lanche", "Restaurante"],
+  };
+
+  const custoEquipe = currentMonthTransactions
+    .filter(t => t.type === "expense" && showCostCategories.equipe.some(cat => 
+      t.category.toLowerCase().includes(cat.toLowerCase()) || 
+      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
+    ))
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const custoTransporte = currentMonthTransactions
+    .filter(t => t.type === "expense" && showCostCategories.transporte.some(cat => 
+      t.category.toLowerCase().includes(cat.toLowerCase()) || 
+      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
+    ))
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const custoAlimentacao = currentMonthTransactions
+    .filter(t => t.type === "expense" && showCostCategories.alimentacao.some(cat => 
+      t.category.toLowerCase().includes(cat.toLowerCase()) || 
+      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
+    ))
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao;
+  const lucroRealShow = totalIncome - custoTotalShow;
 
   // Generate last 6 months data for chart
   const monthlyData = [];
@@ -275,6 +310,125 @@ export default function Financeiro() {
               )}
             </ChartCard>
           </div>
+
+          {/* Custo de Show */}
+          <ChartCard 
+            title="💰 Custo de Show" 
+            subtitle="Quanto você realmente lucra?"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Custos */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">Custos do Mês</h4>
+                
+                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Equipe</p>
+                      <p className="text-xs text-muted-foreground">Músicos, técnicos, freelancers</p>
+                    </div>
+                  </div>
+                  <span className="font-semibold text-foreground">
+                    R$ {custoEquipe.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                      <Car className="w-5 h-5 text-orange-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Transporte</p>
+                      <p className="text-xs text-muted-foreground">Combustível, Uber, estacionamento</p>
+                    </div>
+                  </div>
+                  <span className="font-semibold text-foreground">
+                    R$ {custoTransporte.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                      <Utensils className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Alimentação</p>
+                      <p className="text-xs text-muted-foreground">Refeições e lanches</p>
+                    </div>
+                  </div>
+                  <span className="font-semibold text-foreground">
+                    R$ {custoAlimentacao.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+                      <Calculator className="w-5 h-5 text-destructive" />
+                    </div>
+                    <span className="font-medium text-foreground">Custo Total de Shows</span>
+                  </div>
+                  <span className="font-bold text-destructive">
+                    R$ {custoTotalShow.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+
+              {/* Resultado */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">Resultado</h4>
+                
+                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                  <span className="text-muted-foreground">Receita de Shows</span>
+                  <span className="font-semibold text-success">
+                    R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                  <span className="text-muted-foreground">(-) Custos de Show</span>
+                  <span className="font-semibold text-destructive">
+                    R$ {custoTotalShow.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+
+                <div className="h-px bg-border my-2" />
+
+                <div className={`flex items-center justify-between p-4 rounded-xl ${lucroRealShow >= 0 ? 'bg-success/10 border border-success/20' : 'bg-destructive/10 border border-destructive/20'}`}>
+                  <div>
+                    <p className="text-lg font-bold text-foreground">Lucro Real do Show</p>
+                    <p className="text-xs text-muted-foreground">O que sobra no seu bolso</p>
+                  </div>
+                  <span className={`text-2xl font-bold ${lucroRealShow >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    R$ {lucroRealShow.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+
+                {totalIncome > 0 && (
+                  <div className="text-center p-3 rounded-lg bg-primary/5">
+                    <p className="text-sm text-muted-foreground">
+                      Margem de lucro: <span className={`font-bold ${lucroRealShow >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {((lucroRealShow / totalIncome) * 100).toFixed(1)}%
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {custoTotalShow === 0 && (
+              <div className="mt-4 p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-sm text-muted-foreground">
+                  💡 Dica: Categorize suas despesas como "Equipe", "Transporte" ou "Alimentação" para ver o custo real dos seus shows.
+                </p>
+              </div>
+            )}
+          </ChartCard>
 
           {/* Transactions */}
           <ChartCard
