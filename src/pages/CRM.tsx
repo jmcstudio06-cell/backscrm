@@ -132,7 +132,8 @@ export default function CRM() {
       formattedPhone = '55' + formattedPhone;
     }
     const message = encodeURIComponent(`Olá ${name}! Tudo bem?`);
-    window.open(`https://wa.me/${formattedPhone}?text=${message}`, '_blank');
+    // Use web.whatsapp.com for better browser compatibility
+    window.open(`https://web.whatsapp.com/send?phone=${formattedPhone}&text=${message}`, '_blank');
   };
 
   const clearFilters = () => {
