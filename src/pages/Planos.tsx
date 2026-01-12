@@ -1,8 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap, Star, Crown, Shield, HeadphonesIcon, XCircle, Quote } from "lucide-react";
+import { Check, Zap, Star, Crown, Shield, HeadphonesIcon, XCircle, Quote, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTrialStatus } from "@/hooks/useTrialStatus";
 
 const testimonials = [
   {
@@ -27,6 +28,7 @@ const plans = [
     name: "Essencial",
     tagline: "Para quem está começando a profissionalizar",
     description: "1 mês de acesso",
+    originalPrice: "R$ 79,90",
     price: "R$ 49,90",
     period: "/mês",
     totalPrice: "R$ 49,90",
@@ -51,6 +53,7 @@ const plans = [
     name: "Profissional",
     tagline: "Para artistas que já fazem shows regularmente",
     description: "3 meses de acesso",
+    originalPrice: "R$ 69,90",
     price: "R$ 39,90",
     period: "/mês",
     totalPrice: "R$ 119,70",
@@ -61,7 +64,7 @@ const plans = [
     features: [
       "Tudo do plano Essencial",
       "1 consultoria estratégica",
-      "Economia de R$ 30,00",
+      "Economia de R$ 90,00",
       "Funil de vendas completo",
       "Metas e acompanhamento",
     ],
@@ -75,6 +78,7 @@ const plans = [
     name: "Avançado",
     tagline: "Para quem quer dominar o mercado",
     description: "6 meses de acesso",
+    originalPrice: "R$ 49,90",
     price: "R$ 29,90",
     period: "/mês",
     totalPrice: "R$ 179,40",
@@ -104,6 +108,8 @@ const reassurances = [
 ];
 
 export default function Planos() {
+  const { daysRemaining, isTrial } = useTrialStatus();
+
   return (
     <Layout
       title=""
@@ -111,11 +117,28 @@ export default function Planos() {
     >
       <div className="pt-4">
         {/* Urgency Banner */}
-        <div className="bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-500/40 rounded-xl p-4 max-w-3xl mx-auto mb-8 text-center">
-          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-            ⏰ Oferta exclusiva do período de teste! Esses valores são válidos apenas enquanto você está testando o Backstage Pro.
-          </p>
-        </div>
+        {isTrial && (
+          <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-4 max-w-3xl mx-auto mb-8 shadow-lg">
+            <div className="flex items-center justify-center gap-3">
+              <div className="bg-white/20 rounded-full p-2">
+                <AlertTriangle className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-center">
+                <p className="text-white font-bold text-base md:text-lg">
+                  {daysRemaining <= 1 
+                    ? "Último dia para garantir esses preços!" 
+                    : `Restam ${daysRemaining} dias para garantir esses preços!`}
+                </p>
+                <p className="text-white/90 text-sm">
+                  Oferta exclusiva do período de teste. Após isso, os valores serão reajustados.
+                </p>
+              </div>
+              <div className="bg-white/20 rounded-full p-2">
+                <Clock className="w-5 h-5 text-white" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-12">
@@ -183,7 +206,15 @@ export default function Planos() {
                 </div>
 
                 <div className="text-center mb-5">
-                  <div className="text-3xl font-bold">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="text-sm text-muted-foreground line-through">
+                      {plan.originalPrice}
+                    </span>
+                    <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
+                      OFERTA
+                    </Badge>
+                  </div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-500">
                     {plan.price}
                     <span className="text-sm font-normal text-muted-foreground">
                       {plan.period}
