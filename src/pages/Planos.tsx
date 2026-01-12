@@ -106,15 +106,22 @@ const reassurances = [
 export default function Planos() {
   return (
     <Layout
-      title="Escolha seu plano"
-      subtitle="Invista na sua carreira e transforme talento em resultados"
+      title=""
+      subtitle=""
     >
       <div className="pt-4">
+        {/* Urgency Banner */}
+        <div className="bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-500/40 rounded-xl p-4 max-w-3xl mx-auto mb-8 text-center">
+          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+            ⏰ Oferta exclusiva do período de teste! Esses valores são válidos apenas enquanto você está testando o Backstage Pro.
+          </p>
+        </div>
+
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold mb-4">
             Chega de perder shows por falta de organização
-          </h2>
+          </h1>
           <p className="text-lg text-muted-foreground">
             O Backstage Pro é a plataforma que ajuda artistas independentes a{" "}
             <span className="text-foreground font-medium">vender mais shows</span>,{" "}
@@ -236,7 +243,7 @@ export default function Planos() {
             Comece pelo plano Essencial e veja na prática como o Backstage Pro pode transformar sua carreira.
           </p>
           <p className="text-sm text-muted-foreground">
-            Mais de <span className="font-semibold text-foreground">500 artistas</span> já usam o Backstage Pro para organizar e crescer.
+            Mais de <span className="font-semibold text-foreground">100 artistas</span> já usam o Backstage Pro para organizar e crescer.
           </p>
         </div>
       </div>
