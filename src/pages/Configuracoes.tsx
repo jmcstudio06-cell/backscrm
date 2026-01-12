@@ -53,7 +53,6 @@ export default function Configuracoes() {
 
   // Regras de Show
   const [showDuration, setShowDuration] = useState("2 horas");
-  const [startTimeLimit, setStartTimeLimit] = useState("23:00");
   const [delayTolerance, setDelayTolerance] = useState("30 minutos");
   const [hasInterval, setHasInterval] = useState(false);
   const [requiresFood, setRequiresFood] = useState(false);
@@ -91,7 +90,6 @@ export default function Configuracoes() {
       setActionRadius(String(profile.action_radius || 100));
       // Regras de Show
       setShowDuration(profile.show_duration || "2 horas");
-      setStartTimeLimit(profile.start_time_limit || "23:00");
       setDelayTolerance(profile.delay_tolerance || "30 minutos");
       setHasInterval(profile.has_interval || false);
       setRequiresFood(profile.requires_food || false);
@@ -126,7 +124,6 @@ export default function Configuracoes() {
     setSavingShow(true);
     await updateProfile({
       show_duration: showDuration,
-      start_time_limit: startTimeLimit,
       delay_tolerance: delayTolerance,
       has_interval: hasInterval,
       requires_food: requiresFood,
@@ -404,16 +401,6 @@ export default function Configuracoes() {
                     <SelectItem value="4 horas">4 horas</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div>
-                <Label>Horário Limite de Início</Label>
-                <Input 
-                  className="mt-1 bg-secondary" 
-                  type="time"
-                  value={startTimeLimit} 
-                  onChange={(e) => setStartTimeLimit(e.target.value)}
-                />
               </div>
 
               <div>
