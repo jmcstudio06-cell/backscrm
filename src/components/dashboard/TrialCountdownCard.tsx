@@ -1,11 +1,34 @@
-import { Clock, Crown, AlertTriangle, Sparkles, Gift, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Clock, AlertTriangle, Sparkles, Gift, ArrowRight, Timer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
+import { useState, useEffect } from "react";
 
 export function TrialCountdownCard() {
   const navigate = useNavigate();
   const { plan, daysRemaining, isTrial, isExpired, loading } = useTrialStatus();
+  const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
+
+  // Countdown timer effect
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const diff = endOfDay.getTime() - now.getTime();
+      
+      if (diff > 0) {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft({ hours, minutes, seconds });
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Don't show if not on trial or loading
   if (loading || (!isTrial && plan !== "expirado")) {
@@ -14,6 +37,8 @@ export function TrialCountdownCard() {
 
   const isUrgent = daysRemaining <= 1;
   const isWarning = daysRemaining <= 2;
+
+  const formatTime = (num: number) => num.toString().padStart(2, '0');
 
   return (
     <div 
@@ -29,7 +54,7 @@ export function TrialCountdownCard() {
         }
       `}
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div className="flex items-start gap-4">
           <div 
             className={`
@@ -51,7 +76,7 @@ export function TrialCountdownCard() {
             )}
           </div>
           
-          <div>
+          <div className="flex-1">
             {isExpired ? (
               <>
                 <h3 className="text-lg font-bold text-red-700">
@@ -65,7 +90,7 @@ export function TrialCountdownCard() {
               <>
                 <h3 className={`text-lg font-bold ${isUrgent ? "text-orange-700" : isWarning ? "text-amber-700" : "text-foreground"}`}>
                   {daysRemaining === 1 
-                    ? "Último dia de teste!" 
+                    ? "⚠️ Último dia de teste!" 
                     : `Você tem mais ${daysRemaining} dias de teste`
                   }
                 </h3>
@@ -77,22 +102,30 @@ export function TrialCountdownCard() {
           </div>
         </div>
 
-        <Button
-          onClick={() => navigate("/planos")}
-          size="lg"
-          className={`
-            shrink-0 gap-2 font-semibold shadow-lg
-            ${isExpired 
-              ? "bg-red-600 hover:bg-red-700" 
-              : isUrgent 
-                ? "bg-orange-600 hover:bg-orange-700" 
-                : "bg-primary hover:bg-primary/90"
-            }
-          `}
-        >
-          <Crown className="w-5 h-5" />
-          Garantir meu acesso
-        </Button>
+        {/* Urgency Countdown Timer */}
+        <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-lg p-3">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Timer className="w-5 h-5 text-white animate-pulse" />
+              <span className="text-white font-bold text-sm">
+                🔥 OFERTA EXPIRA EM:
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="bg-white/20 backdrop-blur rounded px-2 py-1">
+                <span className="text-white font-mono font-bold text-lg">{formatTime(timeLeft.hours)}</span>
+              </div>
+              <span className="text-white font-bold">:</span>
+              <div className="bg-white/20 backdrop-blur rounded px-2 py-1">
+                <span className="text-white font-mono font-bold text-lg">{formatTime(timeLeft.minutes)}</span>
+              </div>
+              <span className="text-white font-bold">:</span>
+              <div className="bg-white/20 backdrop-blur rounded px-2 py-1">
+                <span className="text-white font-mono font-bold text-lg">{formatTime(timeLeft.seconds)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Exclusive Offer Banner */}
