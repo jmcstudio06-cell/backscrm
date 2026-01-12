@@ -91,7 +91,7 @@ export function TrialCountdownCard() {
           `}
         >
           <Crown className="w-5 h-5" />
-          Ver Planos
+          Garantir meu acesso
         </Button>
       </div>
 
