@@ -122,6 +122,54 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_equipment: {
+        Row: {
+          category: string
+          created_at: string
+          depreciation_method: string
+          id: string
+          is_active: boolean
+          lifespan_months: number | null
+          lifespan_shows: number | null
+          name: string
+          notes: string | null
+          purchase_date: string | null
+          purchase_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          depreciation_method?: string
+          id?: string
+          is_active?: boolean
+          lifespan_months?: number | null
+          lifespan_shows?: number | null
+          name: string
+          notes?: string | null
+          purchase_date?: string | null
+          purchase_value?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          depreciation_method?: string
+          id?: string
+          is_active?: boolean
+          lifespan_months?: number | null
+          lifespan_shows?: number | null
+          name?: string
+          notes?: string | null
+          purchase_date?: string | null
+          purchase_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bonuses: {
         Row: {
           completion_rule: string
