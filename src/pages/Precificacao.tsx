@@ -1,14 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -18,46 +17,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Calculator,
   MapPin,
   DollarSign,
   TrendingUp,
   FileText,
   Target,
-  CheckCircle2,
   Info,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Volume2,
-  Lightbulb,
   Truck,
   Users,
-  Megaphone,
-  Wrench,
   Building2,
   Home,
   Store,
   PartyPopper,
   Briefcase,
   Music,
-  Speaker,
-  Plus,
-  Settings,
-  Mic,
-  Cable,
   Trash2,
   User,
   Utensils,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useEquipment, Equipment } from "@/hooks/useEquipment";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
 
 // Configuração de tipos de ambiente
@@ -122,14 +105,6 @@ const infraestruturaConfig = {
   },
 };
 
-// Categorias de equipamentos
-const equipmentCategories = [
-  { id: "som", label: "Som", Icon: Speaker },
-  { id: "microfones", label: "Microfones", Icon: Mic },
-  { id: "cabos", label: "Cabos/Acessórios", Icon: Cable },
-  { id: "iluminacao", label: "Iluminação", Icon: Lightbulb },
-  { id: "outros", label: "Outros", Icon: Settings },
-];
 
 type Ambiente = keyof typeof ambienteConfig;
 type Infraestrutura = keyof typeof infraestruturaConfig;
@@ -143,46 +118,20 @@ interface SelectedMusician {
 
 export default function Precificacao() {
   const navigate = useNavigate();
-  const { equipment, loading: equipmentLoading, addEquipment, deleteEquipment, calculateDepreciationPerShow, getTotalDepreciationPerShow } = useEquipment();
   const { musicians, loading: musiciansLoading } = useMusicians();
 
   const [step, setStep] = useState(1);
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
   const [infraestrutura, setInfraestrutura] = useState<Infraestrutura | null>(null);
-  const [useEquipmentDepreciation, setUseEquipmentDepreciation] = useState(true);
   const [selectedMusicians, setSelectedMusicians] = useState<SelectedMusician[]>([]);
   const [artistFee, setArtistFee] = useState<number>(0);
   const [transportCost, setTransportCost] = useState<number>(0);
   const [foodCost, setFoodCost] = useState<number>(0);
   const [otherCosts, setOtherCosts] = useState<number>(0);
   const [showResult, setShowResult] = useState(false);
-  const [showEquipmentModal, setShowEquipmentModal] = useState(false);
 
-  // Form para novo equipamento
-  const [newEquipment, setNewEquipment] = useState({
-    name: "",
-    category: "som",
-    purchase_value: 0,
-    lifespan_shows: 500,
-    lifespan_months: 60,
-    depreciation_method: "shows" as "shows" | "months",
-  });
+  const totalSteps = 3;
 
-  const totalSteps = 4;
-
-  // Calcula depreciação considerando infraestrutura
-  const getEffectiveDepreciation = () => {
-    if (!useEquipmentDepreciation) return 0;
-    
-    // Se o local tem som completo, não considera equipamentos de som
-    if (infraestrutura === "completo") {
-      return equipment
-        .filter((eq) => eq.is_active && eq.category !== "som")
-        .reduce((total, eq) => total + calculateDepreciationPerShow(eq), 0);
-    }
-    
-    return getTotalDepreciationPerShow();
-  };
 
   // Calcula custo total da equipe
   const getTeamCost = () => {
@@ -193,10 +142,9 @@ export default function Precificacao() {
   const calcularValores = () => {
     if (!ambiente) return null;
 
-    const depreciation = getEffectiveDepreciation();
     const teamCost = getTeamCost();
     const operationalCosts = transportCost + foodCost + otherCosts;
-    const custoTotal = depreciation + teamCost + artistFee + operationalCosts;
+    const custoTotal = teamCost + artistFee + operationalCosts;
 
     const margemRecomendada = ambienteConfig[ambiente].margemRecomendada;
 
@@ -206,7 +154,6 @@ export default function Precificacao() {
 
     return {
       custoTotal,
-      depreciation,
       teamCost,
       artistFee,
       operationalCosts,
@@ -226,8 +173,6 @@ export default function Precificacao() {
       case 2:
         return infraestrutura !== null;
       case 3:
-        return true;
-      case 4:
         return true;
       default:
         return false;
@@ -274,34 +219,6 @@ export default function Precificacao() {
     setSelectedMusicians((prev) =>
       prev.map((m) => (m.id === id ? { ...m, fee } : m))
     );
-  };
-
-  const handleAddEquipment = async () => {
-    if (!newEquipment.name || newEquipment.purchase_value <= 0) {
-      toast.error("Preencha o nome e valor do equipamento");
-      return;
-    }
-
-    await addEquipment({
-      name: newEquipment.name,
-      category: newEquipment.category,
-      purchase_value: newEquipment.purchase_value,
-      purchase_date: null,
-      lifespan_shows: newEquipment.lifespan_shows,
-      lifespan_months: newEquipment.lifespan_months,
-      depreciation_method: newEquipment.depreciation_method,
-      is_active: true,
-      notes: null,
-    });
-
-    setNewEquipment({
-      name: "",
-      category: "som",
-      purchase_value: 0,
-      lifespan_shows: 500,
-      lifespan_months: 60,
-      depreciation_method: "shows",
-    });
   };
 
   const formatCurrency = (value: number) => {
@@ -425,223 +342,10 @@ export default function Precificacao() {
               </div>
             </RadioGroup>
 
-            {infraestrutura === "completo" && (
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-success/10 border border-success/30 mt-4">
-                <CheckCircle2 className="w-5 h-5 text-success shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-success">Ótimo!</p>
-                  <p className="text-muted-foreground">
-                    Depreciação de equipamentos de som será desconsiderada.
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
         );
 
       case 3:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-4">
-              <Settings className="w-12 h-12 mx-auto text-primary mb-3" />
-              <h3 className="text-lg font-semibold">Seu Setup</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Equipamentos para calcular depreciação por show
-              </p>
-            </div>
-
-            {/* Toggle de usar depreciação */}
-            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
-              <div className="flex items-center gap-3">
-                <Calculator className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-sm">Usar depreciação de equipamentos</p>
-                  <p className="text-xs text-muted-foreground">Inclui custo do desgaste por show</p>
-                </div>
-              </div>
-              <Checkbox
-                checked={useEquipmentDepreciation}
-                onCheckedChange={(checked) => setUseEquipmentDepreciation(checked as boolean)}
-              />
-            </div>
-
-            {useEquipmentDepreciation && (
-              <>
-                {/* Lista de equipamentos */}
-                {equipmentLoading ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                  </div>
-                ) : equipment.length > 0 ? (
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {equipment.filter(eq => eq.is_active).map((eq) => {
-                      const depreciation = calculateDepreciationPerShow(eq);
-                      const isExcluded = infraestrutura === "completo" && eq.category === "som";
-                      return (
-                        <div
-                          key={eq.id}
-                          className={`flex items-center justify-between p-3 rounded-lg border ${
-                            isExcluded ? "opacity-50 bg-muted/30" : "bg-background"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="text-xs text-muted-foreground">
-                              {equipmentCategories.find((c) => c.id === eq.category)?.label || eq.category}
-                            </div>
-                            <div>
-                              <p className="font-medium text-sm">{eq.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {formatCurrency(eq.purchase_value)} ÷ {eq.depreciation_method === "shows" ? `${eq.lifespan_shows} shows` : `${eq.lifespan_months} meses`}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant={isExcluded ? "outline" : "secondary"}>
-                              {isExcluded ? "excluído" : formatCurrency(depreciation)}
-                            </Badge>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive"
-                              onClick={() => deleteEquipment(eq.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center p-6 border-2 border-dashed rounded-xl">
-                    <Settings className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">Nenhum equipamento cadastrado</p>
-                  </div>
-                )}
-
-                {/* Adicionar equipamento */}
-                <Dialog open={showEquipmentModal} onOpenChange={setShowEquipmentModal}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Adicionar Equipamento
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Novo Equipamento</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 mt-4">
-                      <div>
-                        <Label>Nome do equipamento</Label>
-                        <Input
-                          placeholder="Ex: Caixa JBL EON 615"
-                          value={newEquipment.name}
-                          onChange={(e) => setNewEquipment({ ...newEquipment, name: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label>Categoria</Label>
-                        <Select
-                          value={newEquipment.category}
-                          onValueChange={(v) => setNewEquipment({ ...newEquipment, category: v })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {equipmentCategories.map((cat) => (
-                              <SelectItem key={cat.id} value={cat.id}>
-                                {cat.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label>Valor de compra</Label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                            R$
-                          </span>
-                          <Input
-                            type="number"
-                            className="pl-10"
-                            placeholder="0,00"
-                            value={newEquipment.purchase_value || ""}
-                            onChange={(e) =>
-                              setNewEquipment({ ...newEquipment, purchase_value: parseFloat(e.target.value) || 0 })
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Método de depreciação</Label>
-                        <Select
-                          value={newEquipment.depreciation_method}
-                          onValueChange={(v) =>
-                            setNewEquipment({ ...newEquipment, depreciation_method: v as "shows" | "months" })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="shows">Por número de shows</SelectItem>
-                            <SelectItem value="months">Por meses de uso</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {newEquipment.depreciation_method === "shows" ? (
-                        <div>
-                          <Label>Vida útil (shows)</Label>
-                          <Input
-                            type="number"
-                            placeholder="500"
-                            value={newEquipment.lifespan_shows || ""}
-                            onChange={(e) =>
-                              setNewEquipment({ ...newEquipment, lifespan_shows: parseInt(e.target.value) || 500 })
-                            }
-                          />
-                        </div>
-                      ) : (
-                        <div>
-                          <Label>Vida útil (meses)</Label>
-                          <Input
-                            type="number"
-                            placeholder="60"
-                            value={newEquipment.lifespan_months || ""}
-                            onChange={(e) =>
-                              setNewEquipment({ ...newEquipment, lifespan_months: parseInt(e.target.value) || 60 })
-                            }
-                          />
-                        </div>
-                      )}
-                      <Button onClick={handleAddEquipment} className="w-full">
-                        Adicionar
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                {/* Total de depreciação */}
-                {equipment.length > 0 && (
-                  <div className="p-4 rounded-xl bg-primary/10 border border-primary/30">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">Depreciação por show:</span>
-                      <span className="text-xl font-bold text-primary">
-                        {formatCurrency(getEffectiveDepreciation())}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        );
-
-      case 4:
         return (
           <div className="space-y-6">
             <div className="text-center mb-4">
@@ -811,10 +515,6 @@ export default function Precificacao() {
             {/* Resumo parcial */}
             <div className="p-4 rounded-xl bg-muted/50 space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Depreciação:</span>
-                <span>{formatCurrency(getEffectiveDepreciation())}</span>
-              </div>
-              <div className="flex justify-between text-sm">
                 <span>Equipe:</span>
                 <span>{formatCurrency(getTeamCost())}</span>
               </div>
@@ -831,7 +531,7 @@ export default function Precificacao() {
                 <span>Custo Total:</span>
                 <span className="text-primary">
                   {formatCurrency(
-                    getEffectiveDepreciation() + getTeamCost() + artistFee + transportCost + foodCost + otherCosts
+                    getTeamCost() + artistFee + transportCost + foodCost + otherCosts
                   )}
                 </span>
               </div>
@@ -863,15 +563,6 @@ export default function Precificacao() {
         {/* Breakdown de custos */}
         <div className="p-4 rounded-xl bg-muted/50 border space-y-2">
           <h4 className="font-semibold text-sm mb-3">Composição do custo</h4>
-          {valores.depreciation > 0 && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2">
-                <Settings className="w-4 h-4 text-muted-foreground" />
-                Depreciação de equipamentos
-              </span>
-              <span>{formatCurrency(valores.depreciation)}</span>
-            </div>
-          )}
           {valores.teamCost > 0 && (
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2">
