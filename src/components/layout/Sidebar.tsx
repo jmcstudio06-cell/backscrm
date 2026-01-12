@@ -9,7 +9,7 @@ import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import {
   LayoutDashboard,
   Calendar,
-  GraduationCap,
+  Trophy,
   UserCheck,
   DollarSign,
   History,
@@ -93,7 +93,7 @@ const menuItems: MenuItem[] = [
       { icon: Target, label: "Meta Anual 2026", path: "/metas/anual", featureKey: "metas" },
     ],
   },
-  { icon: GraduationCap, label: "Apoio e Conhecimentos", path: "/aulas", featureKey: "aulas" },
+  { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },

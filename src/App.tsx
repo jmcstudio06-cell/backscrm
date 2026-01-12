@@ -12,7 +12,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
-import Aulas from "./pages/Aulas";
+import Bonus from "./pages/Bonus";
 import Tutoriais from "./pages/Tutoriais";
 import CRM from "./pages/CRM";
 import Clientes from "./pages/Clientes";
@@ -52,7 +52,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/agenda" element={<Agenda />} />
-                <Route path="/aulas" element={<Aulas />} />
+                <Route path="/bonus" element={<Bonus />} />
                 <Route path="/tutoriais" element={<Tutoriais />} />
                 <Route path="/crm" element={<CRM />} />
                 <Route path="/clientes" element={<Clientes />} />

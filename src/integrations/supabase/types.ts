@@ -122,6 +122,60 @@ export type Database = {
         }
         Relationships: []
       }
+      bonuses: {
+        Row: {
+          completion_rule: string
+          content_type: string
+          content_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          reward_description: string | null
+          reward_title: string | null
+          reward_url: string | null
+          sort_order: number
+          thumbnail: string | null
+          title: string
+          unlock_delay_hours: number
+          updated_at: string
+        }
+        Insert: {
+          completion_rule?: string
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          reward_description?: string | null
+          reward_title?: string | null
+          reward_url?: string | null
+          sort_order?: number
+          thumbnail?: string | null
+          title: string
+          unlock_delay_hours?: number
+          updated_at?: string
+        }
+        Update: {
+          completion_rule?: string
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          reward_description?: string | null
+          reward_title?: string | null
+          reward_url?: string | null
+          sort_order?: number
+          thumbnail?: string | null
+          title?: string
+          unlock_delay_hours?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       budget_items: {
         Row: {
           budget_id: string
@@ -1241,6 +1295,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_bonus_progress: {
+        Row: {
+          bonus_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          bonus_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          bonus_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bonus_progress_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "bonuses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_feature_blocks: {
         Row: {
