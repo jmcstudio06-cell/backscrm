@@ -208,45 +208,45 @@ export default function Agenda() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Calendar - Reduced size */}
-        <div className="lg:col-span-2 bg-card rounded-xl border border-border p-4">
+        <div className="lg:col-span-2 bg-card rounded-xl border border-border p-3">
           {/* Month Header */}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-foreground capitalize">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-base font-bold text-foreground capitalize">
               {monthNames[currentMonth.getMonth()]} De {currentMonth.getFullYear()}
             </h2>
             <div className="flex items-center gap-1">
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={prevMonth}>
-                <ChevronLeft className="w-4 h-4" />
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth}>
+                <ChevronLeft className="w-3 h-3" />
               </Button>
-              <Button variant="outline" size="sm" className="h-8 text-xs" onClick={goToToday}>
+              <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={goToToday}>
                 Hoje
               </Button>
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={nextMonth}>
-                <ChevronRight className="w-4 h-4" />
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextMonth}>
+                <ChevronRight className="w-3 h-3" />
               </Button>
             </div>
           </div>
 
           {/* Weekday Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-1">
+          <div className="grid grid-cols-7 mb-0.5">
             {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-              <div key={day} className="text-center text-xs font-medium text-muted-foreground py-1">
+              <div key={day} className="text-center text-[10px] font-medium text-muted-foreground py-0.5">
                 {day}
               </div>
             ))}
           </div>
 
-          {/* Calendar Grid - Smaller cells */}
-          <div className="grid grid-cols-7 gap-1">
+          {/* Calendar Grid - Compact square cells */}
+          <div className="grid grid-cols-7 gap-0.5">
             {/* Empty cells for days before the 1st */}
             {Array.from({ length: startingDay }).map((_, i) => (
               <div 
                 key={`empty-start-${i}`} 
-                className="aspect-square rounded-lg border border-border/50 bg-muted/20 flex items-center justify-center"
+                className="aspect-square rounded border border-border/50 bg-muted/20 flex items-center justify-center"
               >
-                <span className="text-muted-foreground/50 text-xs">
+                <span className="text-muted-foreground/50 text-[10px]">
                   {new Date(currentMonth.getFullYear(), currentMonth.getMonth(), -startingDay + i + 1).getDate()}
                 </span>
               </div>
@@ -266,7 +266,7 @@ export default function Agenda() {
                   key={day}
                   onClick={() => setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
                   className={cn(
-                    "aspect-square rounded-lg border flex flex-col items-center justify-center text-xs font-medium transition-all relative",
+                    "aspect-square rounded border flex flex-col items-center justify-center text-[11px] font-medium transition-all relative",
                     selected
                       ? "bg-primary text-primary-foreground border-primary"
                       : hasCancelled
@@ -298,9 +298,9 @@ export default function Agenda() {
             {Array.from({ length: (7 - ((startingDay + daysInMonth) % 7)) % 7 }).map((_, i) => (
               <div 
                 key={`empty-end-${i}`} 
-                className="aspect-square rounded-lg border border-border/50 bg-muted/20 flex items-center justify-center"
+                className="aspect-square rounded border border-border/50 bg-muted/20 flex items-center justify-center"
               >
-                <span className="text-muted-foreground/50 text-xs">{i + 1}</span>
+                <span className="text-muted-foreground/50 text-[10px]">{i + 1}</span>
               </div>
             ))}
           </div>
