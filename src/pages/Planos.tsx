@@ -38,10 +38,10 @@ const plans = [
     cta: "Quero começar agora",
     features: [
       "Agenda de shows organizada",
-      "Orçamentos automáticos",
-      "Contratos prontos para enviar",
-      "Histórico de clientes",
-      "Visão financeira completa",
+      "Orçamentos e contratos prontos em minutos",
+      "Histórico de clientes e contratantes",
+      "Controle financeiro claro e simples",
+      "Tudo da sua carreira em um só lugar",
     ],
     styles: {
       card: "bg-card border border-border hover:border-primary/30 hover:shadow-lg",
@@ -63,10 +63,10 @@ const plans = [
     cta: "Quero crescer agora",
     features: [
       "Tudo do plano Essencial",
-      "1 consultoria estratégica",
-      "Economia de R$ 90,00",
-      "Funil de vendas completo",
-      "Metas e acompanhamento",
+      "Funil de vendas para fechar mais shows",
+      "Metas e acompanhamento de crescimento",
+      "1 consultoria estratégica personalizada",
+      "Economize R$ 90 comparado ao mensal",
     ],
     styles: {
       card: "bg-gradient-to-b from-primary/5 to-primary/10 border-2 border-primary scale-[1.02] shadow-xl ring-1 ring-primary/20",
@@ -88,10 +88,10 @@ const plans = [
     cta: "Quero ser referência",
     features: [
       "Tudo do plano Profissional",
-      "3 consultorias estratégicas",
-      "Economia de R$ 120,00",
-      "Acompanhamento de metas",
-      "Acesso antecipado a novidades",
+      "3 consultorias estratégicas individuais",
+      "Acompanhamento contínuo de metas",
+      "Prioridade em novidades e recursos",
+      "Economize R$ 120 comparado ao mensal",
     ],
     styles: {
       card: "bg-card border border-border hover:border-amber-500/30 hover:shadow-lg",
