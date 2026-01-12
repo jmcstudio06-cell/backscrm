@@ -226,6 +226,13 @@ const Auth = () => {
     { icon: Star, text: "Suporte dedicado" },
   ];
 
+  const userAvatars = [
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop&crop=face",
+    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
+    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+  ];
+
   const handleCreateAccount = () => {
     setShowForm(true);
     setIsLogin(false);
@@ -341,13 +348,13 @@ const Auth = () => {
             {/* Social proof */}
             <div className="flex items-center gap-4 pt-2">
               <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div 
-                    key={i} 
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 border-2 border-white/30 flex items-center justify-center"
-                  >
-                    <Users className="w-4 h-4 text-slate-600" />
-                  </div>
+                {userAvatars.map((avatar, i) => (
+                  <img 
+                    key={i}
+                    src={avatar}
+                    alt={`Usuário ${i + 1}`}
+                    className="w-10 h-10 rounded-full border-2 border-white/30 object-cover"
+                  />
                 ))}
               </div>
               <div>
