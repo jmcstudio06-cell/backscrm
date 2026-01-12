@@ -18,7 +18,11 @@ import {
   EyeOff,
   Sparkles,
   ArrowLeft,
-  Phone
+  Phone,
+  Star,
+  Check,
+  Shield,
+  Zap
 } from "lucide-react";
 
 const Auth = () => {
@@ -190,26 +194,36 @@ const Auth = () => {
       icon: Calendar,
       title: "Agenda de Shows",
       description: "Gerencie todos os seus eventos e apresentações",
-      color: "bg-blue-500"
+      color: "bg-blue-500",
+      delay: "0"
     },
     {
       icon: DollarSign,
       title: "Financeiro Completo",
       description: "Controle receitas e despesas automaticamente",
-      color: "bg-emerald-500"
+      color: "bg-emerald-500",
+      delay: "100"
     },
     {
       icon: BarChart3,
       title: "CRM de Vendas",
       description: "Pipeline visual para converter leads em shows",
-      color: "bg-purple-500"
+      color: "bg-purple-500",
+      delay: "200"
     },
     {
       icon: Users,
       title: "Gestão de Músicos",
       description: "Organize sua banda e pagamentos",
-      color: "bg-pink-500"
+      color: "bg-pink-500",
+      delay: "300"
     },
+  ];
+
+  const benefits = [
+    { icon: Zap, text: "Setup em 2 minutos" },
+    { icon: Shield, text: "Dados seguros" },
+    { icon: Star, text: "Suporte dedicado" },
   ];
 
   const handleCreateAccount = () => {
@@ -227,20 +241,27 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0066CC] via-[#0077DD] to-[#00B4D8] relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 -left-20 w-60 h-60 bg-cyan-400/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-1/4 w-40 h-40 bg-blue-300/10 rounded-full blur-2xl" />
+      </div>
+
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 md:px-12">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+      <header className="relative z-20 flex items-center justify-between px-6 py-4 md:px-12">
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-white">Backstage</span>
-            <span className="text-2xl font-bold text-cyan-300">Pro</span>
+            <span className="text-2xl font-bold text-white transition-transform group-hover:scale-105">Backstage</span>
+            <span className="text-2xl font-bold text-cyan-300 transition-transform group-hover:scale-105">Pro</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
           {showForm && (
             <Button 
               variant="ghost" 
-              className="text-white/80 hover:text-white hover:bg-white/10"
+              className="text-white/80 hover:text-white hover:bg-white/10 transition-all"
               onClick={handleBack}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -249,7 +270,7 @@ const Auth = () => {
           )}
           <Button 
             variant="ghost" 
-            className="text-white hover:text-white hover:bg-white/10"
+            className="text-white hover:text-white hover:bg-white/10 font-medium transition-all"
             onClick={handleLogin}
           >
             Entrar
@@ -258,50 +279,85 @@ const Auth = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12 md:py-16">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
+      <main className="relative z-10 container mx-auto px-6 py-8 md:py-12">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center min-h-[calc(100vh-200px)]">
           {/* Left Side - Hero Content */}
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2">
-              <Sparkles className="h-4 w-4 text-cyan-300" />
-              <span className="text-sm text-white/90">Gestão completa para artistas</span>
+          <div className="space-y-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 border border-white/20">
+              <Sparkles className="h-4 w-4 text-cyan-300 animate-pulse" />
+              <span className="text-sm text-white/90 font-medium">Gestão completa para artistas</span>
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-white">
-                Transforme sua{" "}
-                <span className="text-cyan-300">carreira musical</span>
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-white">
+                Transforme sua
+              </h1>
+              <h2 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-cyan-300">
+                carreira musical
               </h2>
-              <p className="text-lg text-white/80 max-w-lg">
+              <p className="text-lg text-white/80 max-w-lg mt-6">
                 O jeito mais fácil de gerenciar shows, controlar finanças, 
                 organizar sua banda e converter leads em contratos.
               </p>
             </div>
 
             {!showForm && (
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button 
                   size="lg"
-                  className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 h-12 rounded-full"
+                  className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-semibold px-8 h-14 rounded-full shadow-xl shadow-black/20 transition-all duration-300"
                   onClick={handleCreateAccount}
                 >
-                  Criar minha conta
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  Criar minha conta grátis
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white font-semibold px-8 h-12 rounded-full"
+                  className="border-white/30 bg-white/5 backdrop-blur-sm text-white hover:bg-white/15 hover:text-white font-semibold px-8 h-14 rounded-full transition-all duration-300"
                   onClick={handleLogin}
                 >
-                  Fazer login
+                  Já tenho conta
                 </Button>
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-sm text-white/70">
-              <Users className="h-4 w-4" />
-              <span>+100 artistas já estão usando</span>
+            {/* Benefits */}
+            <div className="flex flex-wrap items-center gap-6 pt-4">
+              {benefits.map((benefit, index) => (
+                <div 
+                  key={index} 
+                  className="flex items-center gap-2 text-white/80"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                    <benefit.icon className="w-4 h-4 text-cyan-300" />
+                  </div>
+                  <span className="text-sm font-medium">{benefit.text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Social proof */}
+            <div className="flex items-center gap-4 pt-2">
+              <div className="flex -space-x-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div 
+                    key={i} 
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 border-2 border-white/30 flex items-center justify-center"
+                  >
+                    <Users className="w-4 h-4 text-slate-600" />
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <span className="text-white/80 text-sm">+100 artistas usando</span>
+              </div>
             </div>
           </div>
 
@@ -311,35 +367,43 @@ const Auth = () => {
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="group rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-6 transition-all hover:bg-white/20 hover:border-white/30"
+                  className="group rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-6 transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.02] hover:shadow-xl animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className={`w-12 h-12 ${feature.color} rounded-xl flex items-center justify-center mb-4`}>
-                    <feature.icon className="h-6 w-6 text-white" />
+                  <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-4 shadow-lg transition-transform group-hover:scale-110`}>
+                    <feature.icon className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-sm text-white/70">{feature.description}</p>
+                  <h3 className="font-bold text-white text-lg mb-2">{feature.title}</h3>
+                  <p className="text-sm text-white/70 leading-relaxed">{feature.description}</p>
                 </div>
               ))}
               
               {/* Stats Card */}
-              <div className="col-span-2 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-6">
+              <div 
+                className="col-span-2 rounded-2xl bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 p-6 animate-fade-in"
+                style={{ animationDelay: "400ms" }}
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-white/70 mb-1">Receita gerenciada</p>
-                    <p className="text-3xl font-bold text-white">R$ 2.5M+</p>
+                    <p className="text-sm text-white/70 mb-2">Receita gerenciada por artistas</p>
+                    <p className="text-4xl font-bold text-white">R$ 2.5M+</p>
                   </div>
-                  <div className="h-16 w-16 rounded-full bg-white/10 flex items-center justify-center">
-                    <DollarSign className="h-8 w-8 text-cyan-300" />
+                  <div className="h-20 w-20 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-500/20 flex items-center justify-center">
+                    <DollarSign className="h-10 w-10 text-cyan-300" />
                   </div>
                 </div>
               </div>
             </div>
           ) : (
             /* Auth Form */
-            <div className="rounded-2xl bg-white shadow-2xl p-8">
-              <div className="mb-8">
+            <div className="rounded-3xl bg-white shadow-2xl p-8 md:p-10 animate-scale-in">
+              {/* Form Header */}
+              <div className="mb-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#0066CC] to-[#00B4D8] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
                 <h3 className="text-2xl font-bold text-slate-800">
-                  {isLogin ? "Bem-vindo de volta!" : "Crie sua conta"}
+                  {isLogin ? "Bem-vindo de volta!" : "Crie sua conta grátis"}
                 </h3>
                 <p className="text-slate-500 mt-2">
                   {isLogin 
@@ -352,20 +416,20 @@ const Auth = () => {
                 {!isLogin && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-slate-700">Nome completo *</Label>
+                      <Label htmlFor="name" className="text-slate-700 font-medium">Nome completo *</Label>
                       <Input
                         id="name"
                         type="text"
                         placeholder="Seu nome artístico"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20"
+                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-slate-700">
+                      <Label htmlFor="phone" className="text-slate-700 font-medium">
                         <span className="flex items-center gap-2">
                           <Phone className="w-4 h-4" />
                           WhatsApp *
@@ -389,7 +453,7 @@ const Auth = () => {
                           }
                           setFormData({ ...formData, phone: value });
                         }}
-                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20"
+                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
                         required
                       />
                       <p className="text-xs text-slate-400">Usaremos para contato e suporte</p>
@@ -398,19 +462,19 @@ const Auth = () => {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700">E-mail</Label>
+                  <Label htmlFor="email" className="text-slate-700 font-medium">E-mail</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="seu@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20"
+                    className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-700">Senha</Label>
+                  <Label htmlFor="password" className="text-slate-700 font-medium">Senha</Label>
                   <div className="relative">
                     <Input
                       id="password"
@@ -418,7 +482,7 @@ const Auth = () => {
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 pr-12"
+                      className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 pr-12 rounded-xl transition-all"
                     />
                     <button
                       type="button"
@@ -433,18 +497,18 @@ const Auth = () => {
                 {!isLogin && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-slate-700">Confirmar senha</Label>
+                      <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirmar senha</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
                         placeholder="••••••••"
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20"
+                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
                       />
                     </div>
 
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                       <Checkbox
                         id="terms"
                         checked={formData.acceptTerms}
@@ -453,12 +517,12 @@ const Auth = () => {
                         }
                         className="mt-1 border-slate-300 data-[state=checked]:bg-[#0066CC] data-[state=checked]:border-[#0066CC]"
                       />
-                      <Label htmlFor="terms" className="text-sm text-slate-500 leading-relaxed">
+                      <Label htmlFor="terms" className="text-sm text-slate-600 leading-relaxed">
                         Concordo com os{" "}
                         <button 
                           type="button"
                           onClick={() => { setTermsModalType("terms"); setTermsModalOpen(true); }}
-                          className="text-[#0066CC] hover:underline"
+                          className="text-[#0066CC] hover:underline font-medium"
                         >
                           Termos de Uso
                         </button>
@@ -466,7 +530,7 @@ const Auth = () => {
                         <button 
                           type="button"
                           onClick={() => { setTermsModalType("privacy"); setTermsModalOpen(true); }}
-                          className="text-[#0066CC] hover:underline"
+                          className="text-[#0066CC] hover:underline font-medium"
                         >
                           Política de Privacidade
                         </button>
@@ -490,7 +554,7 @@ const Auth = () => {
                       href="https://wa.me/5512991545726?text=Olá! Gostaria de solicitar a troca da minha senha no Backstage Pro." 
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-[#0066CC] hover:underline"
+                      className="text-sm text-[#0066CC] hover:underline font-medium"
                     >
                       Esqueceu a senha?
                     </a>
@@ -500,17 +564,32 @@ const Auth = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 bg-[#0066CC] hover:bg-[#0055AA] text-white font-semibold rounded-xl"
+                  className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Aguarde...</span>
                     </div>
                   ) : (
-                    isLogin ? "Entrar" : "Criar conta"
+                    <span className="flex items-center gap-2">
+                      {isLogin ? "Entrar" : "Criar minha conta"}
+                      <ArrowRight className="w-5 h-5" />
+                    </span>
                   )}
                 </Button>
+
+                {/* Trust badges */}
+                <div className="flex items-center justify-center gap-4 pt-2">
+                  <div className="flex items-center gap-1 text-slate-400 text-xs">
+                    <Shield className="w-3 h-3" />
+                    <span>Dados seguros</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-slate-400 text-xs">
+                    <Check className="w-3 h-3" />
+                    <span>Sem cartão</span>
+                  </div>
+                </div>
               </form>
 
               <div className="mt-6 text-center">
@@ -519,9 +598,9 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setIsLogin(!isLogin)}
-                    className="text-[#0066CC] font-medium hover:underline"
+                    className="text-[#0066CC] font-semibold hover:underline"
                   >
-                    {isLogin ? "Criar conta" : "Fazer login"}
+                    {isLogin ? "Criar conta grátis" : "Fazer login"}
                   </button>
                 </p>
               </div>
