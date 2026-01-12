@@ -153,25 +153,6 @@ export default function Planos() {
           </p>
         </div>
 
-        {/* Social Proof */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-12">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.name}
-              className="bg-muted/50 rounded-xl p-4 border border-border"
-            >
-              <Quote className="w-5 h-5 text-primary/60 mb-2" />
-              <p className="text-sm text-muted-foreground mb-3 italic">
-                "{testimonial.text}"
-              </p>
-              <div>
-                <p className="text-sm font-semibold">{testimonial.name}</p>
-                <p className="text-xs text-muted-foreground">{testimonial.role}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
         {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-10">
           {plans.map((plan) => {
@@ -253,6 +234,25 @@ export default function Planos() {
               </div>
             );
           })}
+        </div>
+
+        {/* Social Proof */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-10">
+          {testimonials.map((testimonial) => (
+            <div
+              key={testimonial.name}
+              className="bg-muted/50 rounded-xl p-4 border border-border"
+            >
+              <Quote className="w-5 h-5 text-primary/60 mb-2" />
+              <p className="text-sm text-muted-foreground mb-3 italic">
+                "{testimonial.text}"
+              </p>
+              <div>
+                <p className="text-sm font-semibold">{testimonial.name}</p>
+                <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Reassurance Section */}
