@@ -313,7 +313,7 @@ export default function Financeiro() {
 
           {/* Custo de Show */}
           <ChartCard 
-            title="💰 Custo de Show" 
+            title="Custo de Show" 
             subtitle="Quanto você realmente lucra?"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -424,7 +424,7 @@ export default function Financeiro() {
             {custoTotalShow === 0 && (
               <div className="mt-4 p-3 rounded-lg bg-muted/50 text-center">
                 <p className="text-sm text-muted-foreground">
-                  💡 Dica: Categorize suas despesas como "Equipe", "Transporte" ou "Alimentação" para ver o custo real dos seus shows.
+                  Dica: Categorize suas despesas como "Equipe", "Transporte" ou "Alimentação" para ver o custo real dos seus shows.
                 </p>
               </div>
             )}
