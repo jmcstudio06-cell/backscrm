@@ -31,9 +31,9 @@ const statusConfig = {
 };
 
 const milestoneRewards = [
-  { milestone: 10, reward: "+1 mês", icon: "🥉" },
-  { milestone: 20, reward: "+2 meses", icon: "🥈" },
-  { milestone: 30, reward: "+3 meses", icon: "🥇" },
+  { milestone: 10, reward: "+1 mês", icon: Trophy, color: "text-amber-600" },
+  { milestone: 30, reward: "+2 meses", icon: Star, color: "text-blue-500" },
+  { milestone: 60, reward: "+3 meses", icon: Sparkles, color: "text-purple-500" },
 ];
 
 export default function Indicacoes() {
@@ -108,9 +108,9 @@ export default function Indicacoes() {
           </div>
 
           {/* Floating elements for decoration */}
-          <div className="absolute top-4 right-4 text-4xl opacity-20">🎁</div>
-          <div className="absolute bottom-4 left-1/3 text-3xl opacity-20">⭐</div>
-          <div className="absolute top-1/2 right-1/4 text-2xl opacity-20">🎉</div>
+          <Gift className="absolute top-4 right-4 w-12 h-12 opacity-20" />
+          <Star className="absolute bottom-4 left-1/3 w-10 h-10 opacity-20" />
+          <Sparkles className="absolute top-1/2 right-1/4 w-8 h-8 opacity-20" />
         </div>
 
         {/* Stats Row - Gamified Style */}
@@ -196,7 +196,7 @@ export default function Indicacoes() {
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-3 gap-4">
-              {milestoneRewards.map(({ milestone, reward, icon }) => {
+              {milestoneRewards.map(({ milestone, reward, icon: MilestoneIcon, color }) => {
                 const isClaimed = stats.claimedMilestones.includes(milestone);
                 const canClaim = stats.valid >= milestone && !isClaimed;
                 const progress = Math.min(100, (stats.valid / milestone) * 100);
@@ -219,7 +219,7 @@ export default function Indicacoes() {
                     )}
                     
                     <div className="text-center mb-3">
-                      <span className="text-4xl">{icon}</span>
+                      <MilestoneIcon className={`w-10 h-10 mx-auto ${color}`} />
                     </div>
                     
                     <div className="text-center mb-3">
@@ -319,7 +319,7 @@ export default function Indicacoes() {
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
-                          <span className="text-xl">👤</span>
+                          <Users className="w-6 h-6 text-amber-600" />
                         </div>
                         <div>
                           <p className="font-semibold">{referral.referred_name}</p>
