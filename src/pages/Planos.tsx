@@ -117,28 +117,33 @@ export default function Planos() {
     >
       <div className="pt-4">
         {/* Urgency Banner */}
-        {isTrial && (
-          <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-4 max-w-3xl mx-auto mb-8 shadow-lg">
-            <div className="flex items-center justify-center gap-3">
-              <div className="bg-white/20 rounded-full p-2">
-                <AlertTriangle className="w-5 h-5 text-white" />
+        <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-xl p-5 max-w-3xl mx-auto mb-8 shadow-xl border border-red-400/30">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
+                <AlertTriangle className="w-6 h-6 text-white" />
               </div>
-              <div className="text-center">
-                <p className="text-white font-bold text-base md:text-lg">
-                  {daysRemaining <= 1 
-                    ? "Último dia para garantir esses preços!" 
-                    : `Restam ${daysRemaining} dias para garantir esses preços!`}
+              <div className="text-center md:text-left">
+                <p className="text-white font-bold text-lg md:text-xl">
+                  {isTrial && daysRemaining > 0
+                    ? daysRemaining <= 1 
+                      ? "Último dia para garantir esses preços!" 
+                      : `Restam ${daysRemaining} dias para garantir esses preços!`
+                    : "Oferta por tempo limitado!"}
                 </p>
                 <p className="text-white/90 text-sm">
-                  Oferta exclusiva do período de teste. Após isso, os valores serão reajustados.
+                  Esses valores são exclusivos do período de teste. Depois, voltam ao normal.
                 </p>
               </div>
-              <div className="bg-white/20 rounded-full p-2">
-                <Clock className="w-5 h-5 text-white" />
-              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+              <Clock className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold text-sm">
+                {isTrial && daysRemaining > 0 ? `${daysRemaining} dia${daysRemaining > 1 ? 's' : ''}` : "Aproveite agora"}
+              </span>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-12">
