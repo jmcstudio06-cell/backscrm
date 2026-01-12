@@ -201,16 +201,16 @@ export default function Agenda() {
       />
       
       {/* Header Actions */}
-      <div className="flex justify-end mb-6">
-        <Button className="bg-primary hover:bg-primary/90" onClick={handleOpenNewShow}>
+      <div className="flex justify-end mb-3 lg:mb-2">
+        <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={handleOpenNewShow}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Show
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Calendar - Reduced size */}
-        <div className="lg:col-span-2 bg-card rounded-xl border border-border p-3">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(520px,640px)_minmax(320px,1fr)] gap-4 items-start">
+        {/* Calendar */}
+        <div className="w-full lg:justify-self-start lg:max-w-[640px] bg-card rounded-xl border border-border p-3">
           {/* Month Header */}
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base font-bold text-foreground capitalize">
