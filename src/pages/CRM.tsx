@@ -126,59 +126,14 @@ export default function CRM() {
     await updateLead(leadId, { status: newStageId });
   };
 
-  const handleWhatsApp = async (phone: string | null, name: string) => {
+  const handleWhatsApp = (phone: string | null, name: string) => {
     if (!phone) return;
-
-    let formattedPhone = phone.replace(/\D/g, "");
-    if (!formattedPhone.startsWith("55")) {
-      formattedPhone = "55" + formattedPhone;
+    let formattedPhone = phone.replace(/\D/g, '');
+    if (!formattedPhone.startsWith('55')) {
+      formattedPhone = '55' + formattedPhone;
     }
-
-    const rawMessage = `Olá ${name}! Tudo bem?`;
-    const encodedMessage = encodeURIComponent(rawMessage);
-
-    // 1) Try opening the native WhatsApp app (mobile or desktop app), which avoids blocked web domains.
-    let opened = false;
-    try {
-      const w = window.open(
-        `whatsapp://send?phone=${formattedPhone}&text=${encodedMessage}`,
-        "_blank"
-      );
-      opened = !!w;
-    } catch {
-      opened = false;
-    }
-
-    // 2) If the environment blocks WhatsApp domains/app, fall back to copying.
-    if (!opened) {
-      const copyText = `+${formattedPhone}\n${rawMessage}`;
-
-      let copied = false;
-      try {
-        await navigator.clipboard.writeText(copyText);
-        copied = true;
-      } catch {
-        copied = false;
-      }
-
-      toast.error("WhatsApp bloqueado nesta rede/navegador", {
-        description: copied
-          ? "Número e mensagem foram copiados. Cole no WhatsApp."
-          : "Não consegui copiar automaticamente. Vou te mostrar para copiar.",
-        action: copied
-          ? undefined
-          : {
-              label: "Copiar",
-              onClick: () => {
-                window.prompt("Copie e cole no WhatsApp:", copyText);
-              },
-            },
-      });
-
-      if (!copied) {
-        window.prompt("Copie e cole no WhatsApp:", copyText);
-      }
-    }
+    const message = encodeURIComponent(`Olá ${name}! Tudo bem?`);
+    window.open(`https://wa.me/${formattedPhone}?text=${message}`, '_blank');
   };
 
   const clearFilters = () => {
