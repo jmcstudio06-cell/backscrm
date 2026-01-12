@@ -43,11 +43,7 @@ export default function Indicacoes() {
 
   const handleAddReferral = async (name: string, phone: string) => {
     const result = await addReferral(name, phone);
-    if (result.success && result.phone) {
-      const message = encodeURIComponent(
-        `Olá ${name}! 👋\n\nVocê foi indicado(a) por *${profile?.artist_name || profile?.name || "um amigo"}* para conhecer o *Backstage* - a plataforma que ajuda artistas a organizarem sua carreira, gerenciar shows e crescer profissionalmente.\n\n🎵 Crie sua conta grátis e comece agora:\nhttps://backstage.app\n\nQualquer dúvida, pode me chamar!`
-      );
-      window.open(`https://wa.me/55${result.phone}?text=${message}`, "_blank");
+    if (result.success) {
       setModalOpen(false);
     }
     return result.success;
