@@ -78,11 +78,11 @@ const menuItems: MenuItem[] = [
     label: "Planejamento",
     children: [
       { icon: Target, label: "Avanços", path: "/avancos", featureKey: "checklist" },
-      { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
       { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },
-      { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "checklist" },
-      { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
       { icon: Users2, label: "Equipe & Freelancer", path: "/equipe", featureKey: "equipe" },
+      { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "checklist" },
+      { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
+      { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
     ],
   },
   {
