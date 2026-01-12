@@ -3,7 +3,9 @@ import { NavLink as RouterNavLink, useLocation, useNavigate } from "react-router
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { usePendingChecklist } from "@/hooks/usePendingChecklist";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { AppLogo } from "@/components/layout/AppLogo";
 import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import {
@@ -109,6 +111,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { isAdmin } = useAdmin();
   const { isBlocked } = useFeatureBlocks();
   const { signOut } = useAuth();
+  const { pendingCount } = usePendingChecklist();
 
   const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
 
@@ -163,6 +166,11 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                         >
                           <item.icon className="w-5 h-5 shrink-0" />
                           <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
+                          {item.label === "Planejamento" && pendingCount > 0 && (
+                            <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs font-bold">
+                              {pendingCount > 99 ? "99+" : pendingCount}
+                            </Badge>
+                          )}
                           <ChevronDown className="w-4 h-4" />
                         </button>
                       </CollapsibleTrigger>
