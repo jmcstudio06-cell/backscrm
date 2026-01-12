@@ -95,7 +95,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
-  { icon: Gift, label: "Indique e Ganhe", path: "/indicacoes" },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
@@ -247,6 +246,21 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
         {/* Footer */}
         <div className="px-3 pb-2 space-y-2">
+          {/* Indique e Ganhe - Special Button */}
+          <RouterNavLink
+            to="/indicacoes"
+            className={({ isActive }) => cn(
+              "flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200",
+              isActive
+                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+                : "bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-500 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30"
+            )}
+          >
+            <Gift className="w-5 h-5" />
+            <span>Indique e Ganhe</span>
+            <span className="ml-auto text-xs bg-white/20 px-1.5 py-0.5 rounded-full">🎁</span>
+          </RouterNavLink>
+
           <Button
             onClick={() => navigate("/planos")}
             className="w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0"
