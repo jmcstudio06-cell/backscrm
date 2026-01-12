@@ -28,6 +28,7 @@ import {
   X,
   BookOpen,
   MapPin,
+  Music,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -80,6 +81,7 @@ const menuItems: MenuItem[] = [
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
       { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },
       { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "checklist" },
+      { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
       { icon: Users2, label: "Equipe & Freelancer", path: "/equipe", featureKey: "equipe" },
     ],
   },
