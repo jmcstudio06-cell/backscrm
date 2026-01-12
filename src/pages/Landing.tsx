@@ -685,10 +685,10 @@ const Landing = () => {
               </h4>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
-              {/* Maria Elisa */}
-              <div className="group">
-                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto items-start">
+              {/* Maria Elisa - Card maior à esquerda */}
+              <div className="group w-full lg:w-auto lg:flex-shrink-0">
+                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 lg:w-80">
                   <img 
                     src={mariaElisaWhatsapp} 
                     alt="Depoimento Maria Elisa Fernandes via WhatsApp" 
@@ -701,62 +701,65 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Paula 7 Seven */}
-              <div className="group">
-                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <img 
-                    src={paulaSevenWhatsapp} 
-                    alt="Depoimento Paula 7 Seven via WhatsApp" 
-                    className="w-full rounded-lg"
-                  />
-                  <div className="mt-3 px-2 pb-1">
-                    <p className="text-slate-700 font-medium text-sm">Paula 7 Seven</p>
-                    <p className="text-slate-500 text-xs">"Achei o Backstage Pro muito prático"</p>
+              {/* Grid 2x2 com os outros 4 cards */}
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                {/* Paula 7 Seven */}
+                <div className="group">
+                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
+                    <img 
+                      src={paulaSevenWhatsapp} 
+                      alt="Depoimento Paula 7 Seven via WhatsApp" 
+                      className="w-full rounded-lg"
+                    />
+                    <div className="mt-3 px-2 pb-1">
+                      <p className="text-slate-700 font-medium text-sm">Paula 7 Seven</p>
+                      <p className="text-slate-500 text-xs">"Achei o Backstage Pro muito prático"</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Banda Trago */}
-              <div className="group">
-                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <img 
-                    src={bandaTragoWhatsapp} 
-                    alt="Depoimento Banda Trago via WhatsApp" 
-                    className="w-full rounded-lg"
-                  />
-                  <div className="mt-3 px-2 pb-1">
-                    <p className="text-slate-700 font-medium text-sm">Banda Trago</p>
-                    <p className="text-slate-500 text-xs">"Parece que viramos uma empresa"</p>
+                {/* Banda Trago */}
+                <div className="group">
+                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
+                    <img 
+                      src={bandaTragoWhatsapp} 
+                      alt="Depoimento Banda Trago via WhatsApp" 
+                      className="w-full rounded-lg"
+                    />
+                    <div className="mt-3 px-2 pb-1">
+                      <p className="text-slate-700 font-medium text-sm">Banda Trago</p>
+                      <p className="text-slate-500 text-xs">"Parece que viramos uma empresa"</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Beatriz & Band */}
-              <div className="group">
-                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <img 
-                    src={beatrizBandWhatsapp} 
-                    alt="Depoimento Beatriz & Band via WhatsApp" 
-                    className="w-full rounded-lg"
-                  />
-                  <div className="mt-3 px-2 pb-1">
-                    <p className="text-slate-700 font-medium text-sm">Beatriz & Band</p>
-                    <p className="text-slate-500 text-xs">"Vale cada centavo!"</p>
+                {/* Beatriz & Band */}
+                <div className="group">
+                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
+                    <img 
+                      src={beatrizBandWhatsapp} 
+                      alt="Depoimento Beatriz & Band via WhatsApp" 
+                      className="w-full rounded-lg"
+                    />
+                    <div className="mt-3 px-2 pb-1">
+                      <p className="text-slate-700 font-medium text-sm">Beatriz & Band</p>
+                      <p className="text-slate-500 text-xs">"Vale cada centavo!"</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Japa Produções */}
-              <div className="group">
-                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <img 
-                    src={japaProducoesWhatsapp} 
-                    alt="Depoimento Japa Produções via WhatsApp" 
-                    className="w-full rounded-lg"
-                  />
-                  <div className="mt-3 px-2 pb-1">
-                    <p className="text-slate-700 font-medium text-sm">Japa Produções</p>
-                    <p className="text-slate-500 text-xs">"Virou um verdadeiro CRM"</p>
+                {/* Japa Produções */}
+                <div className="group">
+                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
+                    <img 
+                      src={japaProducoesWhatsapp} 
+                      alt="Depoimento Japa Produções via WhatsApp" 
+                      className="w-full rounded-lg"
+                    />
+                    <div className="mt-3 px-2 pb-1">
+                      <p className="text-slate-700 font-medium text-sm">Japa Produções</p>
+                      <p className="text-slate-500 text-xs">"Virou um verdadeiro CRM"</p>
+                    </div>
                   </div>
                 </div>
               </div>
