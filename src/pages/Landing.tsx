@@ -28,6 +28,8 @@ import escritorioImg from "@/assets/team/escritorio.png";
 // WhatsApp testimonials
 import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
 import paulaSevenWhatsapp from "@/assets/testimonials/paula-seven-whatsapp.png";
+import beatrizBandWhatsapp from "@/assets/testimonials/beatriz-band-whatsapp.png";
+import japaProducoesWhatsapp from "@/assets/testimonials/japa-producoes-whatsapp.png";
 import bandaTragoWhatsapp from "@/assets/testimonials/banda-trago-whatsapp.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
@@ -683,7 +685,7 @@ const Landing = () => {
               </h4>
             </div>
             
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
               {/* Maria Elisa */}
               <div className="group">
                 <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
@@ -715,7 +717,7 @@ const Landing = () => {
               </div>
 
               {/* Banda Trago */}
-              <div className="group sm:col-span-2 lg:col-span-1">
+              <div className="group">
                 <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <img 
                     src={bandaTragoWhatsapp} 
@@ -725,6 +727,36 @@ const Landing = () => {
                   <div className="mt-3 px-2 pb-1">
                     <p className="text-slate-700 font-medium text-sm">Banda Trago</p>
                     <p className="text-slate-500 text-xs">"Parece que viramos uma empresa"</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Beatriz & Band */}
+              <div className="group">
+                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <img 
+                    src={beatrizBandWhatsapp} 
+                    alt="Depoimento Beatriz & Band via WhatsApp" 
+                    className="w-full rounded-lg"
+                  />
+                  <div className="mt-3 px-2 pb-1">
+                    <p className="text-slate-700 font-medium text-sm">Beatriz & Band</p>
+                    <p className="text-slate-500 text-xs">"Vale cada centavo!"</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Japa Produções */}
+              <div className="group">
+                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <img 
+                    src={japaProducoesWhatsapp} 
+                    alt="Depoimento Japa Produções via WhatsApp" 
+                    className="w-full rounded-lg"
+                  />
+                  <div className="mt-3 px-2 pb-1">
+                    <p className="text-slate-700 font-medium text-sm">Japa Produções</p>
+                    <p className="text-slate-500 text-xs">"Virou um verdadeiro CRM"</p>
                   </div>
                 </div>
               </div>
