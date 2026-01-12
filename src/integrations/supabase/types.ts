@@ -718,51 +718,96 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accepted_payment: string | null
+          action_radius: number | null
+          artist_name: string | null
           avatar_url: string | null
+          base_city: string | null
           city: string | null
           created_at: string
+          delay_tolerance: string | null
+          deposit_percentage: number | null
           email: string | null
           feature_blocks: Json | null
+          has_interval: boolean | null
           id: string
           last_seen: string | null
+          late_fee_percentage: number | null
+          min_fee: number | null
+          music_style: string | null
           name: string | null
           onboarding_completed: boolean | null
+          payment_deadline: string | null
           phone: string | null
           plan: string | null
+          project_type: string | null
+          requires_food: boolean | null
+          show_duration: string | null
+          start_time_limit: string | null
           trial_days: number | null
           trial_start: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          accepted_payment?: string | null
+          action_radius?: number | null
+          artist_name?: string | null
           avatar_url?: string | null
+          base_city?: string | null
           city?: string | null
           created_at?: string
+          delay_tolerance?: string | null
+          deposit_percentage?: number | null
           email?: string | null
           feature_blocks?: Json | null
+          has_interval?: boolean | null
           id?: string
           last_seen?: string | null
+          late_fee_percentage?: number | null
+          min_fee?: number | null
+          music_style?: string | null
           name?: string | null
           onboarding_completed?: boolean | null
+          payment_deadline?: string | null
           phone?: string | null
           plan?: string | null
+          project_type?: string | null
+          requires_food?: boolean | null
+          show_duration?: string | null
+          start_time_limit?: string | null
           trial_days?: number | null
           trial_start?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          accepted_payment?: string | null
+          action_radius?: number | null
+          artist_name?: string | null
           avatar_url?: string | null
+          base_city?: string | null
           city?: string | null
           created_at?: string
+          delay_tolerance?: string | null
+          deposit_percentage?: number | null
           email?: string | null
           feature_blocks?: Json | null
+          has_interval?: boolean | null
           id?: string
           last_seen?: string | null
+          late_fee_percentage?: number | null
+          min_fee?: number | null
+          music_style?: string | null
           name?: string | null
           onboarding_completed?: boolean | null
+          payment_deadline?: string | null
           phone?: string | null
           plan?: string | null
+          project_type?: string | null
+          requires_food?: boolean | null
+          show_duration?: string | null
+          start_time_limit?: string | null
           trial_days?: number | null
           trial_start?: string | null
           updated_at?: string

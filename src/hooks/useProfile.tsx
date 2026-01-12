@@ -15,6 +15,24 @@ export interface Profile {
   plan: string | null;
   created_at: string;
   updated_at: string;
+  // Perfil Artístico
+  artist_name: string | null;
+  project_type: string | null;
+  music_style: string | null;
+  base_city: string | null;
+  action_radius: number | null;
+  // Regras de Show
+  show_duration: string | null;
+  start_time_limit: string | null;
+  delay_tolerance: string | null;
+  has_interval: boolean | null;
+  requires_food: boolean | null;
+  // Regras Financeiras
+  min_fee: number | null;
+  deposit_percentage: number | null;
+  accepted_payment: string | null;
+  payment_deadline: string | null;
+  late_fee_percentage: number | null;
 }
 
 export function useProfile() {
