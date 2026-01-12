@@ -18,18 +18,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = () => {
-  const { leads } = useLeads();
-  const { transactions } = useTransactions();
-  const { goals } = useGoals();
-  const { shows } = useShows();
-  const { profile } = useProfile();
-  const { contracts } = useContracts();
-  const { clients } = useClients();
-  const { mappings: stageMappings } = useStageMappings();
+  const { leads, loading: leadsLoading } = useLeads();
+  const { transactions, loading: transactionsLoading } = useTransactions();
+  const { goals, loading: goalsLoading } = useGoals();
+  const { shows, loading: showsLoading } = useShows();
+  const { profile, loading: profileLoading } = useProfile();
+  const { contracts, loading: contractsLoading } = useContracts();
+  const { clients, loading: clientsLoading } = useClients();
+  const { mappings: stageMappings, loading: stageMappingsLoading } = useStageMappings();
   const [showWelcome, setShowWelcome] = useState(false);
   const [checklistsUsed, setChecklistsUsed] = useState(false);
+
+  // Unified loading state - only show content when main data is ready
+  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || contractsLoading || clientsLoading;
 
   // Check if user should see onboarding and if user has used checklists
   useEffect(() => {
@@ -198,6 +202,39 @@ const Dashboard = () => {
   const formatCurrency = (value: number) => {
     return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
+        <div className="space-y-6">
+          {/* Trial Card skeleton */}
+          <Skeleton className="h-16 w-full rounded-xl" />
+          
+          {/* Welcome Section skeleton */}
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-5 w-48" />
+          </div>
+
+          {/* Main Status Cards Row skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Skeleton className="h-64 w-full rounded-xl" />
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+
+          {/* Financial & Shows Row skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Skeleton className="h-72 w-full rounded-xl" />
+            <Skeleton className="h-72 w-full rounded-xl" />
+          </div>
+
+          {/* Artist Journey skeleton */}
+          <Skeleton className="h-48 w-full rounded-xl" />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
