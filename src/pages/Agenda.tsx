@@ -238,13 +238,13 @@ export default function Agenda() {
             ))}
           </div>
 
-          {/* Calendar Grid - Smaller cells */}
+          {/* Calendar Grid - Compact cells for desktop */}
           <div className="grid grid-cols-7 gap-1">
             {/* Empty cells for days before the 1st */}
             {Array.from({ length: startingDay }).map((_, i) => (
               <div 
                 key={`empty-start-${i}`} 
-                className="aspect-square rounded-lg border border-border/50 bg-muted/20 flex items-center justify-center"
+                className="h-12 lg:h-10 rounded-lg border border-border/50 bg-muted/20 flex items-center justify-center"
               >
                 <span className="text-muted-foreground/50 text-xs">
                   {new Date(currentMonth.getFullYear(), currentMonth.getMonth(), -startingDay + i + 1).getDate()}
@@ -266,7 +266,7 @@ export default function Agenda() {
                   key={day}
                   onClick={() => setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
                   className={cn(
-                    "aspect-square rounded-lg border flex flex-col items-center justify-center text-xs font-medium transition-all relative",
+                    "h-12 lg:h-10 rounded-lg border flex flex-col items-center justify-center text-xs font-medium transition-all relative",
                     selected
                       ? "bg-primary text-primary-foreground border-primary"
                       : hasCancelled
@@ -298,7 +298,7 @@ export default function Agenda() {
             {Array.from({ length: (7 - ((startingDay + daysInMonth) % 7)) % 7 }).map((_, i) => (
               <div 
                 key={`empty-end-${i}`} 
-                className="aspect-square rounded-lg border border-border/50 bg-muted/20 flex items-center justify-center"
+                className="h-12 lg:h-10 rounded-lg border border-border/50 bg-muted/20 flex items-center justify-center"
               >
                 <span className="text-muted-foreground/50 text-xs">{i + 1}</span>
               </div>
