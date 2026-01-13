@@ -64,6 +64,7 @@ interface EditingShow {
   status: string;
   event_type: string | null;
   notes: string | null;
+  client_id?: string | null;
 }
 
 interface NovoShowModalProps {
@@ -217,23 +218,28 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
   // Load editing show data when modal opens
   useEffect(() => {
     if (open && editingShow) {
+      // Find the client if client_id exists
+      const existingClient = editingShow.client_id 
+        ? clients.find(c => c.id === editingShow.client_id) 
+        : null;
+      
       setFormData({
         name: editingShow.title || "",
         date: editingShow.date || "",
         time: editingShow.start_time || "",
         venue: editingShow.venue || "",
         address: editingShow.address || "",
-        client: "",
-        clientPhone: "",
-        clientEmail: "",
-        clientCompany: "",
+        client: existingClient?.name || "",
+        clientPhone: existingClient?.phone || "",
+        clientEmail: existingClient?.email || "",
+        clientCompany: existingClient?.company || "",
         type: editingShow.event_type || "",
         status: editingShow.status || "scheduled",
         notes: editingShow.notes || "",
         cachet: editingShow.cachet || 0,
       });
       setClientMode("existing");
-      setSelectedClientId("");
+      setSelectedClientId(editingShow.client_id || "");
       setActiveTab("info");
       setShowTeamSelector(false);
       
@@ -263,7 +269,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
       setActiveTab("info");
       setShowTeamSelector(false);
     }
-  }, [open, editingShow]);
+  }, [open, editingShow, clients]);
 
   // Calculate total from musicians + other expenses
   const musiciansCost = selectedMusicians.reduce((sum, m) => sum + m.fee, 0);
