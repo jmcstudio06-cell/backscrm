@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Bonus } from "@/hooks/useBonuses";
+import { supabase } from "@/integrations/supabase/client";
+import { Upload, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { extractYouTubeVideoId } from "@/lib/youtube";
 
 interface BonusAdminModalProps {
   bonus: Bonus | null;
@@ -30,6 +34,8 @@ const completionRules = [
 ];
 
 export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdminModalProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<Bonus>>({
     title: "",
     description: "",
@@ -64,11 +70,68 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
     }
   }, [bonus, open]);
 
+  // Get auto-generated YouTube thumbnail preview
+  const getPreviewThumbnail = (): string | null => {
+    if (formData.thumbnail) return formData.thumbnail;
+    const videoId = extractYouTubeVideoId(formData.content_url);
+    if (videoId) return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    return null;
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione uma imagem válida");
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Máximo 2MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `bonus-thumbnails/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("bonus-assets")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("bonus-assets")
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, thumbnail: publicUrl });
+      toast.success("Imagem enviada!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveThumbnail = () => {
+    setFormData({ ...formData, thumbnail: "" });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
     onOpenChange(false);
   };
+
+  const previewUrl = getPreviewThumbnail();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -155,13 +218,70 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
           </div>
 
           <div>
-            <Label htmlFor="thumbnail">URL da thumbnail</Label>
-            <Input
-              id="thumbnail"
-              value={formData.thumbnail || ""}
-              onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-              placeholder="https://..."
-            />
+            <Label>Thumbnail</Label>
+            <div className="space-y-3">
+              {/* Preview */}
+              {previewUrl && (
+                <div className="relative w-full h-32 rounded-lg overflow-hidden bg-muted">
+                  <img 
+                    src={previewUrl} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover"
+                  />
+                  {formData.thumbnail && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-6 w-6"
+                      onClick={handleRemoveThumbnail}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  )}
+                  {!formData.thumbnail && (
+                    <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                      YouTube (auto)
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Upload button */}
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flex-1"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4 mr-2" />
+                  )}
+                  Upload imagem
+                </Button>
+              </div>
+
+              {/* URL fallback */}
+              <Input
+                value={formData.thumbnail || ""}
+                onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                placeholder="Ou cole a URL da imagem..."
+              />
+              <p className="text-xs text-muted-foreground">
+                💡 Se deixar vazio e for um vídeo do YouTube, a thumbnail será gerada automaticamente.
+              </p>
+            </div>
           </div>
 
           {/* Timing */}
