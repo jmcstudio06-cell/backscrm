@@ -103,7 +103,7 @@ const Landing = () => {
   const mainVideoUrl = "https://www.youtube.com/watch?v=I_5o-hmDuRI";
   const victorViolaVideoUrl = "https://www.youtube.com/shorts/_nUOr9qoNgI";
 
-  const whatsappLink = "https://web.whatsapp.com/send?phone=5512991545726&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
+  const whatsappLink = "https://web.whatsapp.com/send?phone=5512981289496&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
 
   return (
     <div className="min-h-screen bg-white">

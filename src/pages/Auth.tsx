@@ -558,7 +558,7 @@ const Auth = () => {
                       </Label>
                     </div>
                     <a 
-                      href="https://wa.me/5512991545726?text=Olá! Gostaria de solicitar a troca da minha senha no Backstage Pro." 
+                      href="https://wa.me/5512981289496?text=Olá! Gostaria de solicitar a troca da minha senha no Backstage Pro." 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-[#0066CC] hover:underline font-medium"
