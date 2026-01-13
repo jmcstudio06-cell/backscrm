@@ -120,7 +120,7 @@ export default function Privacidade() {
                 Para exercer seus direitos ou tirar dúvidas sobre privacidade, entre em contato 
                 conosco através do WhatsApp: 
                 <a 
-                  href="https://wa.me/5512991545726" 
+                  href="https://wa.me/5512981289496" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-[#0066CC] hover:underline ml-1"
