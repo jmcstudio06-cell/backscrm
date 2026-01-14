@@ -1508,6 +1508,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_gifts: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          enabled_at: string | null
+          expires_at: string | null
+          gift_description: string | null
+          gift_title: string
+          gift_type: string
+          id: string
+          is_claimed: boolean
+          is_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          enabled_at?: string | null
+          expires_at?: string | null
+          gift_description?: string | null
+          gift_title?: string
+          gift_type?: string
+          id?: string
+          is_claimed?: boolean
+          is_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          enabled_at?: string | null
+          expires_at?: string | null
+          gift_description?: string | null
+          gift_title?: string
+          gift_type?: string
+          id?: string
+          is_claimed?: boolean
+          is_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_goals: {
         Row: {
           created_at: string

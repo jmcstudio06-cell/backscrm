@@ -6,6 +6,7 @@ import { ArtistJourneyCard } from "@/components/dashboard/ArtistJourneyCard";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
@@ -246,6 +247,9 @@ const Dashboard = () => {
       />
 
       <div className="space-y-4 sm:space-y-6">
+        {/* Gift Claim Card - shows when user has available gift */}
+        <GiftClaimCard />
+
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
 
