@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { AdminInsights } from "@/components/admin/AdminInsights";
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
+import { GiftsAdminPanel } from "@/components/admin/GiftsAdminPanel";
 import { Progress } from "@/components/ui/progress";
 
 import type { Json } from "@/integrations/supabase/types";
@@ -698,9 +699,10 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="marco">Marco</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
+          <TabsTrigger value="gifts">Presentes</TabsTrigger>
           <TabsTrigger value="referrals">Indicações</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
@@ -1077,6 +1079,11 @@ export default function Admin() {
               </div>
             </div>
           )}
+        </TabsContent>
+
+        {/* Gifts Tab */}
+        <TabsContent value="gifts">
+          <GiftsAdminPanel />
         </TabsContent>
 
         {/* Referrals Tab */}
