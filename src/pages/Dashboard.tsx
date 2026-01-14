@@ -154,10 +154,14 @@ const Dashboard = () => {
 
     const totalPending = pendingShows.reduce((sum, show) => sum + show.cachet, 0);
     
-    // Total received from completed shows (income linked to shows)
+    // Total received from completed shows this month
     const totalReceived = transactions
       .filter((t) => {
-        return t.type === "income" && t.show_id !== null;
+        const transactionDate = new Date(t.date);
+        return t.type === "income" && 
+               t.show_id !== null &&
+               transactionDate >= currentMonthStart && 
+               transactionDate <= currentMonthEnd;
       })
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
