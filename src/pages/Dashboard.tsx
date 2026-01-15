@@ -137,12 +137,14 @@ const Dashboard = () => {
     return leads.filter((lead) => lead.status === "closed").length;
   }, [leads]);
 
-  // Calculate pending cachets (shows confirmed but not completed)
+  // Calculate pending cachets (shows confirmed/scheduled but not completed)
   const pendingCachetData = useMemo(() => {
+    const validStatuses = ["confirmed", "scheduled", "pending", "negotiation"];
     const pendingShows = shows
       .filter((show) => {
         const showDate = parseISO(show.date);
-        return show.status === "confirmed" && showDate >= now;
+        // Include future shows with valid statuses (not completed or cancelled)
+        return validStatuses.includes(show.status) && showDate >= now;
       })
       .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
       .map((show) => ({
