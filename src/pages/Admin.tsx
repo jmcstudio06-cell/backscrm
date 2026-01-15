@@ -873,45 +873,44 @@ export default function Admin() {
               <Card key={userProfile.id} className="overflow-hidden">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{userProfile.name || "Sem nome"}</CardTitle>
-                      <CardDescription>{userProfile.email}</CardDescription>
-                      {userProfile.phone && (
-                        <p className="text-xs text-green-600 font-medium mt-1">
-                          📱 {userProfile.phone}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Criado em: {new Date(userProfile.created_at).toLocaleDateString("pt-BR")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Último acesso: {userProfile.last_seen 
-                          ? (() => {
-                              const lastSeen = new Date(userProfile.last_seen);
-                              const now = new Date();
-                              const diffMs = now.getTime() - lastSeen.getTime();
-                              const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                              const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                              if (diffDays > 0) return `${diffDays} dia(s) atrás`;
-                              if (diffHours > 0) return `${diffHours} hora(s) atrás`;
-                              return "Agora";
-                            })()
-                          : "Nunca"
-                        }
-                      </p>
-                      {/* Gift Status Badge */}
+                    <div className="flex items-start gap-3">
+                      {/* Gift Icon Indicator */}
                       {(() => {
                         const giftStatus = getUserGiftStatus(userProfile.user_id);
-                        if (giftStatus.label) {
-                          return (
-                            <span className={`inline-flex items-center gap-1 mt-2 px-2 py-1 text-xs font-medium rounded-full border ${giftStatus.color}`}>
-                              <Gift className="h-3 w-3" />
-                              {giftStatus.label}
-                            </span>
-                          );
-                        }
-                        return null;
+                        const hasGift = giftStatus.status === 'claimed' || giftStatus.status === 'has_gift';
+                        return (
+                          <div className={`mt-1 p-1.5 rounded-full ${hasGift ? 'bg-green-100' : 'bg-red-100'}`}>
+                            <Gift className={`h-4 w-4 ${hasGift ? 'text-green-600' : 'text-red-600'}`} />
+                          </div>
+                        );
                       })()}
+                      <div>
+                        <CardTitle className="text-lg">{userProfile.name || "Sem nome"}</CardTitle>
+                        <CardDescription>{userProfile.email}</CardDescription>
+                        {userProfile.phone && (
+                          <p className="text-xs text-green-600 font-medium mt-1">
+                            📱 {userProfile.phone}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Criado em: {new Date(userProfile.created_at).toLocaleDateString("pt-BR")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Último acesso: {userProfile.last_seen 
+                            ? (() => {
+                                const lastSeen = new Date(userProfile.last_seen);
+                                const now = new Date();
+                                const diffMs = now.getTime() - lastSeen.getTime();
+                                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                                if (diffDays > 0) return `${diffDays} dia(s) atrás`;
+                                if (diffHours > 0) return `${diffHours} hora(s) atrás`;
+                                return "Agora";
+                              })()
+                            : "Nunca"
+                          }
+                        </p>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <Button 
