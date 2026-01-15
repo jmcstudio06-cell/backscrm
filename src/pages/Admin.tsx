@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAppSettings } from "@/hooks/useAppSettings";
+import { useAdminGifts, UserGiftWithProfile } from "@/hooks/useUserGifts";
 import { 
   Shield, 
   Calendar, 
@@ -29,6 +30,7 @@ import {
   Loader2,
   TrendingUp,
   Trophy,
+  Gift,
   PartyPopper,
 } from "lucide-react";
 import { AdminInsights } from "@/components/admin/AdminInsights";
@@ -96,6 +98,14 @@ const PLAN_FILTERS = [
   { value: "expirado", label: "EXPIRADOS" },
 ];
 
+const GIFT_FILTERS = [
+  { value: "all", label: "Todos" },
+  { value: "has_gift", label: "🎁 Com presente" },
+  { value: "claimed", label: "✅ Resgatou" },
+  { value: "expired", label: "⏰ Expirou" },
+  { value: "no_gift", label: "❌ Sem presente" },
+];
+
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
@@ -128,6 +138,7 @@ const USERS_PER_PAGE = 10;
 export default function Admin() {
   const { user, loading: authLoading } = useRequireAuth();
   const { settings, refreshSettings } = useAppSettings();
+  const { allGifts, loading: giftsLoading, fetchAllGifts } = useAdminGifts();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -135,6 +146,7 @@ export default function Admin() {
   const [userStats, setUserStats] = useState<Record<string, { leads: number; revenue: number; shows: number }>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
+  const [giftFilter, setGiftFilter] = useState("all");
   const [trialDays, setTrialDays] = useState("3");
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [appName, setAppName] = useState("Backstage Pro");
@@ -149,6 +161,36 @@ export default function Admin() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingUsers, setLoadingUsers] = useState(false);
+
+  // Helper to get gift status for a user
+  const getUserGiftStatus = (userId: string) => {
+    const gift = allGifts.find(g => g.user_id === userId);
+    if (!gift) return { status: 'no_gift', label: null, color: null };
+    
+    if (gift.is_claimed) {
+      return { status: 'claimed', label: '✅ Resgatou', color: 'bg-green-100 text-green-700 border-green-200' };
+    }
+    
+    if (gift.expires_at && new Date(gift.expires_at) < new Date()) {
+      return { status: 'expired', label: '⏰ Expirou', color: 'bg-red-100 text-red-700 border-red-200' };
+    }
+    
+    if (gift.is_enabled) {
+      return { status: 'has_gift', label: '🎁 Disponível', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
+    }
+    
+    return { status: 'no_gift', label: null, color: null };
+  };
+
+  // Filter users by gift status
+  const filteredUsersByGift = useMemo(() => {
+    if (giftFilter === 'all') return users;
+    
+    return users.filter(userProfile => {
+      const giftStatus = getUserGiftStatus(userProfile.user_id);
+      return giftStatus.status === giftFilter;
+    });
+  }, [users, giftFilter, allGifts]);
 
   // Check if current user is admin
   useEffect(() => {
@@ -804,6 +846,21 @@ export default function Admin() {
             />
           </div>
 
+          {/* Gift Filter */}
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm font-medium text-muted-foreground self-center mr-2">Presente:</span>
+            {GIFT_FILTERS.map(filter => (
+              <Button
+                key={filter.value}
+                variant={giftFilter === filter.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setGiftFilter(filter.value)}
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </div>
+
           {/* Users List */}
           {loadingUsers ? (
             <div className="flex items-center justify-center py-8">
@@ -812,7 +869,7 @@ export default function Admin() {
             </div>
           ) : (
           <div className="space-y-4">
-            {users.map(userProfile => (
+            {filteredUsersByGift.map(userProfile => (
               <Card key={userProfile.id} className="overflow-hidden">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
@@ -842,6 +899,19 @@ export default function Admin() {
                           : "Nunca"
                         }
                       </p>
+                      {/* Gift Status Badge */}
+                      {(() => {
+                        const giftStatus = getUserGiftStatus(userProfile.user_id);
+                        if (giftStatus.label) {
+                          return (
+                            <span className={`inline-flex items-center gap-1 mt-2 px-2 py-1 text-xs font-medium rounded-full border ${giftStatus.color}`}>
+                              <Gift className="h-3 w-3" />
+                              {giftStatus.label}
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                     <div className="flex gap-2">
                       <Button 
