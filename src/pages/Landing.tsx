@@ -27,10 +27,10 @@ import escritorioImg from "@/assets/team/escritorio.png";
 
 // WhatsApp testimonials
 import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
-import paulaSevenWhatsapp from "@/assets/testimonials/paula-seven-whatsapp.png";
-import beatrizBandWhatsapp from "@/assets/testimonials/beatriz-band-whatsapp.png";
-import japaProducoesWhatsapp from "@/assets/testimonials/japa-producoes-whatsapp.png";
-import bandaTragoWhatsapp from "@/assets/testimonials/banda-trago-whatsapp.png";
+import renatoWhatsapp from "@/assets/testimonials/renato-whatsapp.png";
+import igorWhatsapp from "@/assets/testimonials/igor-whatsapp.png";
+import andreWhatsapp from "@/assets/testimonials/andre-whatsapp.png";
+import caykWhatsapp from "@/assets/testimonials/cayk-whatsapp.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
@@ -652,62 +652,62 @@ const Landing = () => {
 
               {/* Grid 2x2 com os outros 4 cards */}
               <div className="grid grid-cols-2 gap-4 flex-1">
-                {/* Paula 7 Seven */}
+                {/* Renato */}
                 <div className="group">
                   <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
                     <img 
-                      src={paulaSevenWhatsapp} 
-                      alt="Depoimento Paula 7 Seven via WhatsApp" 
+                      src={renatoWhatsapp} 
+                      alt="Depoimento Renato via WhatsApp" 
                       className="w-full rounded-lg"
                     />
                     <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Paula 7 Seven</p>
-                      <p className="text-slate-500 text-xs">"Achei o Backstage Pro muito prático"</p>
+                      <p className="text-slate-700 font-medium text-sm">Renato</p>
+                      <p className="text-slate-500 text-xs">"Esse App é top msm!"</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Banda Trago */}
+                {/* Igor */}
                 <div className="group">
                   <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
                     <img 
-                      src={bandaTragoWhatsapp} 
-                      alt="Depoimento Banda Trago via WhatsApp" 
+                      src={igorWhatsapp} 
+                      alt="Depoimento Igor via WhatsApp" 
                       className="w-full rounded-lg"
                     />
                     <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Banda Trago</p>
-                      <p className="text-slate-500 text-xs">"Parece que viramos uma empresa"</p>
+                      <p className="text-slate-700 font-medium text-sm">Igor</p>
+                      <p className="text-slate-500 text-xs">"Parabéns aos desenvolvedores!"</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Beatriz & Band */}
+                {/* André */}
                 <div className="group">
                   <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
                     <img 
-                      src={beatrizBandWhatsapp} 
-                      alt="Depoimento Beatriz & Band via WhatsApp" 
+                      src={andreWhatsapp} 
+                      alt="Depoimento André via WhatsApp" 
                       className="w-full rounded-lg"
                     />
                     <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Beatriz & Band</p>
-                      <p className="text-slate-500 text-xs">"Vale cada centavo!"</p>
+                      <p className="text-slate-700 font-medium text-sm">André</p>
+                      <p className="text-slate-500 text-xs">"Uma equipe top! Parabéns!"</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Japa Produções */}
+                {/* Cayk */}
                 <div className="group">
                   <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
                     <img 
-                      src={japaProducoesWhatsapp} 
-                      alt="Depoimento Japa Produções via WhatsApp" 
+                      src={caykWhatsapp} 
+                      alt="Depoimento Cayk via WhatsApp" 
                       className="w-full rounded-lg"
                     />
                     <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Japa Produções</p>
-                      <p className="text-slate-500 text-xs">"Virou um verdadeiro CRM"</p>
+                      <p className="text-slate-700 font-medium text-sm">Cayk</p>
+                      <p className="text-slate-500 text-xs">"Meu show mudou de 80% pra 200%!"</p>
                     </div>
                   </div>
                 </div>
