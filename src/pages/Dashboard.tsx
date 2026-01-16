@@ -256,8 +256,8 @@ const Dashboard = () => {
         {/* Gift Claim Card - shows when user has available gift */}
         <GiftClaimCard />
 
-        {/* Trial Countdown Card */}
-        <TrialCountdownCard />
+        {/* Trial Countdown Card - temporarily disabled */}
+        {/* <TrialCountdownCard /> */}
 
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4">
