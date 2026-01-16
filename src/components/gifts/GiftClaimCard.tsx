@@ -3,10 +3,15 @@ import { Gift, Clock, CheckCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserGifts } from "@/hooks/useUserGifts";
+import { useProfile } from "@/hooks/useProfile";
 import ReactConfetti from "react-confetti";
+
+// Planos pagos que não devem ver o card de resgate
+const PAID_PLANS = ["mensal", "essencial", "completo"];
 
 export function GiftClaimCard() {
   const { gifts, loading, claimGift, getAvailableGift } = useUserGifts();
+  const { profile, loading: profileLoading } = useProfile();
   const [claiming, setClaiming] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
@@ -48,8 +53,11 @@ export function GiftClaimCard() {
     setClaiming(false);
   };
 
-  if (loading) return null;
+  if (loading || profileLoading) return null;
   if (!availableGift) return null;
+  
+  // Não mostrar para usuários com planos pagos
+  if (profile?.plan && PAID_PLANS.includes(profile.plan)) return null;
 
   return (
     <>
@@ -102,7 +110,7 @@ export function GiftClaimCard() {
               ) : (
                 <>
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Resgatar Bônus
+                  Garantir Acesso
                 </>
               )}
             </Button>
