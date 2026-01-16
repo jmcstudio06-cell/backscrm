@@ -98,13 +98,7 @@ const PLAN_FILTERS = [
   { value: "expirado", label: "EXPIRADOS" },
 ];
 
-const GIFT_FILTERS = [
-  { value: "all", label: "Todos" },
-  { value: "has_gift", label: "🎁 Com presente" },
-  { value: "claimed", label: "✅ Resgatou" },
-  { value: "expired", label: "⏰ Expirou" },
-  { value: "no_gift", label: "❌ Sem presente" },
-];
+// Removed GIFT_FILTERS - no longer needed
 
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
@@ -146,7 +140,7 @@ export default function Admin() {
   const [userStats, setUserStats] = useState<Record<string, { leads: number; revenue: number; shows: number }>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
-  const [giftFilter, setGiftFilter] = useState("all");
+  
   const [trialDays, setTrialDays] = useState("3");
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [appName, setAppName] = useState("Backstage Pro");
@@ -182,15 +176,6 @@ export default function Admin() {
     return { status: 'no_gift', label: null, color: null };
   };
 
-  // Filter users by gift status
-  const filteredUsersByGift = useMemo(() => {
-    if (giftFilter === 'all') return users;
-    
-    return users.filter(userProfile => {
-      const giftStatus = getUserGiftStatus(userProfile.user_id);
-      return giftStatus.status === giftFilter;
-    });
-  }, [users, giftFilter, allGifts]);
 
   // Check if current user is admin
   useEffect(() => {
@@ -629,18 +614,46 @@ export default function Admin() {
     }
   };
 
-  const getPlanStats = () => {
-    // Stats são baseados no total, não na página atual
-    // Para evitar queries extras, mostramos com base nos usuários da página
-    // ou podemos manter um estado separado para stats gerais
-    return {
-      trial: 0,
-      mensal: 0,
-      essencial: 0,
-      completo: 0,
-      expirado: 0,
-    };
-  };
+  // Plan stats state
+  const [planStats, setPlanStats] = useState<Record<string, number>>({
+    trial: 0,
+    mensal: 0,
+    essencial: 0,
+    completo: 0,
+    expirado: 0,
+  });
+
+  // Fetch plan stats
+  useEffect(() => {
+    async function fetchPlanStats() {
+      if (!isAdmin) return;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("plan");
+      
+      if (data && !error) {
+        const stats: Record<string, number> = {
+          trial: 0,
+          mensal: 0,
+          essencial: 0,
+          completo: 0,
+          expirado: 0,
+        };
+        
+        data.forEach(profile => {
+          const plan = profile.plan || 'trial';
+          if (stats.hasOwnProperty(plan)) {
+            stats[plan]++;
+          }
+        });
+        
+        setPlanStats(stats);
+      }
+    }
+    
+    fetchPlanStats();
+  }, [isAdmin]);
 
   // Refazer busca quando mudar filtro ou busca (com debounce para busca)
   useEffect(() => {
@@ -660,7 +673,7 @@ export default function Admin() {
 
   const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
-  const stats = getPlanStats();
+  
 
   if (authLoading || loading) {
     return (
@@ -706,35 +719,35 @@ export default function Admin() {
           <CardContent className="p-4 text-center">
             <Calendar className="h-6 w-6 text-orange-500 mx-auto mb-2" />
             <p className="text-sm text-orange-600">Trial (3 dias)</p>
-            <p className="text-2xl font-bold text-orange-700">{stats.trial}</p>
+            <p className="text-2xl font-bold text-orange-700">{planStats.trial}</p>
           </CardContent>
         </Card>
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">
             <Zap className="h-6 w-6 text-blue-500 mx-auto mb-2" />
             <p className="text-sm text-blue-600">Plano Mensal (1 mês)</p>
-            <p className="text-2xl font-bold text-blue-700">{stats.mensal}</p>
+            <p className="text-2xl font-bold text-blue-700">{planStats.mensal}</p>
           </CardContent>
         </Card>
         <Card className="border-green-200 bg-green-50">
           <CardContent className="p-4 text-center">
             <UsersIcon className="h-6 w-6 text-green-500 mx-auto mb-2" />
             <p className="text-sm text-green-600">Profissional (3 meses)</p>
-            <p className="text-2xl font-bold text-green-700">{stats.essencial}</p>
+            <p className="text-2xl font-bold text-green-700">{planStats.essencial}</p>
           </CardContent>
         </Card>
         <Card className="border-purple-200 bg-purple-50">
           <CardContent className="p-4 text-center">
             <Heart className="h-6 w-6 text-purple-500 mx-auto mb-2" />
             <p className="text-sm text-purple-600">Profissional (6 meses)</p>
-            <p className="text-2xl font-bold text-purple-700">{stats.completo}</p>
+            <p className="text-2xl font-bold text-purple-700">{planStats.completo}</p>
           </CardContent>
         </Card>
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-4 text-center">
             <AlertCircle className="h-6 w-6 text-red-500 mx-auto mb-2" />
             <p className="text-sm text-red-600">Expirados</p>
-            <p className="text-2xl font-bold text-red-700">{stats.expirado}</p>
+            <p className="text-2xl font-bold text-red-700">{planStats.expirado}</p>
           </CardContent>
         </Card>
       </div>
@@ -846,20 +859,6 @@ export default function Admin() {
             />
           </div>
 
-          {/* Gift Filter */}
-          <div className="flex flex-wrap gap-2">
-            <span className="text-sm font-medium text-muted-foreground self-center mr-2">Presente:</span>
-            {GIFT_FILTERS.map(filter => (
-              <Button
-                key={filter.value}
-                variant={giftFilter === filter.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => setGiftFilter(filter.value)}
-              >
-                {filter.label}
-              </Button>
-            ))}
-          </div>
 
           {/* Users List */}
           {loadingUsers ? (
@@ -869,7 +868,7 @@ export default function Admin() {
             </div>
           ) : (
           <div className="space-y-4">
-            {filteredUsersByGift.map(userProfile => (
+            {users.map(userProfile => (
               <Card key={userProfile.id} className="overflow-hidden">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
