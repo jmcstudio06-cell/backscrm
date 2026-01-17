@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { Gift, Clock, CheckCircle, XCircle, Trash2, Search, UserPlus } from "lucide-react";
+import { Gift, Clock, CheckCircle, XCircle, Trash2, Search, UserPlus, Power } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { useAdminGifts, UserGiftWithProfile } from "@/hooks/useUserGifts";
 import { supabase } from "@/integrations/supabase/client";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -32,10 +34,56 @@ interface Profile {
 
 export function GiftsAdminPanel() {
   const { allGifts, loading, enableGift, disableGift, deleteGift } = useAdminGifts();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [campaignActive, setCampaignActive] = useState(false);
+  const [campaignLoading, setCampaignLoading] = useState(true);
+
+  // Fetch campaign status
+  useEffect(() => {
+    const fetchCampaignStatus = async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("setting_value")
+        .eq("setting_key", "gift_auto_campaign_active")
+        .single();
+      
+      if (data) {
+        setCampaignActive(data.setting_value === "true");
+      }
+      setCampaignLoading(false);
+    };
+    fetchCampaignStatus();
+  }, []);
+
+  // Toggle campaign
+  const toggleCampaign = async () => {
+    const newValue = !campaignActive;
+    setCampaignActive(newValue);
+    
+    const { error } = await supabase
+      .from("app_settings")
+      .update({ setting_value: newValue ? "true" : "false" })
+      .eq("setting_key", "gift_auto_campaign_active");
+    
+    if (error) {
+      setCampaignActive(!newValue);
+      toast({
+        title: "Erro ao atualizar campanha",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: newValue ? "Campanha ativada!" : "Campanha desativada",
+        description: newValue 
+          ? "Novos usuários receberão bônus automaticamente ao cadastrar."
+          : "Bônus só serão liberados manualmente."
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -85,56 +133,80 @@ export function GiftsAdminPanel() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CardTitle className="flex items-center gap-2">
-            <Gift className="w-5 h-5 text-amber-500" />
-            Bônus de Presente
-          </CardTitle>
-          
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2">
-                <UserPlus className="w-4 h-4" />
-                Liberar Bônus
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Liberar Bônus para Usuário</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Selecione o usuário</label>
-                  <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Escolher usuário..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {usersWithoutGifts.map(profile => (
-                        <SelectItem key={profile.user_id} value={profile.user_id}>
-                          {profile.name || profile.email || "Sem nome"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-                  <p className="text-sm text-amber-700 dark:text-amber-300">
-                    ⏱️ O usuário terá <strong>10 minutos</strong> para resgatar o bônus após a liberação.
-                  </p>
-                </div>
-                
-                <Button 
-                  onClick={handleEnableGift} 
-                  disabled={!selectedUserId}
-                  className="w-full"
-                >
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle className="flex items-center gap-2">
+              <Gift className="w-5 h-5 text-amber-500" />
+              Bônus de Presente
+            </CardTitle>
+            
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-2">
+                  <UserPlus className="w-4 h-4" />
                   Liberar Bônus
                 </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Liberar Bônus para Usuário</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Selecione o usuário</label>
+                    <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Escolher usuário..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {usersWithoutGifts.map(profile => (
+                          <SelectItem key={profile.user_id} value={profile.user_id}>
+                            {profile.name || profile.email || "Sem nome"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      ⏱️ O usuário terá <strong>10 minutos</strong> para resgatar o bônus após a liberação.
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    onClick={handleEnableGift} 
+                    disabled={!selectedUserId}
+                    className="w-full"
+                  >
+                    Liberar Bônus
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Campaign Toggle */}
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full ${campaignActive ? 'bg-green-500' : 'bg-gray-400'} flex items-center justify-center transition-colors`}>
+                <Power className="w-5 h-5 text-white" />
               </div>
-            </DialogContent>
-          </Dialog>
+              <div>
+                <p className="font-medium">Campanha Automática</p>
+                <p className="text-sm text-muted-foreground">
+                  {campaignActive 
+                    ? "Novos usuários recebem bônus ao cadastrar" 
+                    : "Bônus liberados apenas manualmente"}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={campaignActive}
+              onCheckedChange={toggleCampaign}
+              disabled={campaignLoading}
+            />
+          </div>
         </div>
       </CardHeader>
       
