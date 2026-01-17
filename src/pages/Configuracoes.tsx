@@ -222,26 +222,31 @@ export default function Configuracoes() {
   return (
     <Layout title="Configurações" subtitle="Gerencie suas preferências e regras de trabalho">
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-secondary flex-wrap h-auto gap-1 p-1">
-          <TabsTrigger value="profile" className="gap-1.5">
+        <TabsList className="bg-secondary flex-wrap h-auto gap-1 p-1 w-full">
+          <TabsTrigger value="profile" className="gap-1.5 flex-1 min-w-fit">
             <User className="w-4 h-4" />
             <span className="hidden sm:inline">Meu Perfil</span>
+            <span className="sm:hidden">Perfil</span>
           </TabsTrigger>
-          <TabsTrigger value="artist" className="gap-1.5">
+          <TabsTrigger value="artist" className="gap-1.5 flex-1 min-w-fit">
             <Music className="w-4 h-4" />
             <span className="hidden sm:inline">Perfil Artístico</span>
+            <span className="sm:hidden">Artístico</span>
           </TabsTrigger>
-          <TabsTrigger value="show-rules" className="gap-1.5">
+          <TabsTrigger value="show-rules" className="gap-1.5 flex-1 min-w-fit">
             <Clock className="w-4 h-4" />
             <span className="hidden sm:inline">Regras de Show</span>
+            <span className="sm:hidden">Show</span>
           </TabsTrigger>
-          <TabsTrigger value="financial" className="gap-1.5">
+          <TabsTrigger value="financial" className="gap-1.5 flex-1 min-w-fit">
             <DollarSign className="w-4 h-4" />
             <span className="hidden sm:inline">Regras Financeiras</span>
+            <span className="sm:hidden">Financeiro</span>
           </TabsTrigger>
-          <TabsTrigger value="security" className="gap-1.5">
+          <TabsTrigger value="security" className="gap-1.5 flex-1 min-w-fit">
             <Shield className="w-4 h-4" />
             <span className="hidden sm:inline">Segurança</span>
+            <span className="sm:hidden">Segurança</span>
           </TabsTrigger>
         </TabsList>
 

@@ -660,8 +660,8 @@ export default function Precificacao() {
           </div>
         </div>
 
-        {/* Ações */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Ações - Hidden on mobile */}
+        <div className="hidden sm:grid sm:grid-cols-3 gap-3">
           <Button onClick={handleGerarOrcamento} variant="outline" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Gerar Orçamento
