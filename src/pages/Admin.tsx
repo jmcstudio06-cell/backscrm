@@ -538,7 +538,8 @@ export default function Admin() {
         .from("app-assets")
         .getPublicUrl(fileName);
 
-      const logoUrl = urlData.publicUrl;
+      // Add cache-busting timestamp to avoid browser caching issues
+      const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
       // Save URL to app_settings
       const { error: settingsError } = await supabase

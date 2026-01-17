@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   UserPlus, 
   FileText, 
@@ -6,9 +6,12 @@ import {
   Wallet,
   ArrowRight,
   Zap,
-  Target
+  Target,
+  Lock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { toast } from "sonner";
 
 interface RecommendedActionCardProps {
   hasLeads: boolean;
@@ -37,6 +40,27 @@ export function RecommendedActionCard({
   pendingCachet,
   upcomingShowsCount,
 }: RecommendedActionCardProps) {
+  const navigate = useNavigate();
+  const { isBlocked } = useFeatureBlocks();
+
+  // Map routes to feature keys
+  const routeToFeatureKey: Record<string, string> = {
+    "/metas": "metas",
+    "/crm": "crm",
+    "/agenda": "agenda",
+    "/contratos": "contratos",
+    "/financeiro": "financeiro",
+  };
+
+  const handleActionClick = (e: React.MouseEvent, link: string) => {
+    const featureKey = routeToFeatureKey[link];
+    if (featureKey && isBlocked(featureKey)) {
+      e.preventDefault();
+      toast.error("Funcionalidade bloqueada. Faça upgrade do seu plano para acessar.");
+      navigate("/planos");
+    }
+  };
+
   // Determine recommended actions based on user state
   const getRecommendedActions = (): Action[] => {
     const actions: Action[] = [];
@@ -139,6 +163,8 @@ export function RecommendedActionCard({
   const primaryAction = actions[0];
   const secondaryActions = actions.slice(1, 3);
   const Icon = primaryAction.icon;
+  const primaryFeatureKey = routeToFeatureKey[primaryAction.link];
+  const isPrimaryBlocked = primaryFeatureKey ? isBlocked(primaryFeatureKey) : false;
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6 shadow-sm">
@@ -155,20 +181,30 @@ export function RecommendedActionCard({
         {/* Primary Action */}
         <Link
           to={primaryAction.link}
+          onClick={(e) => handleActionClick(e, primaryAction.link)}
           className="group block mb-4"
         >
           <div className={cn(
             "relative overflow-hidden rounded-xl p-4 transition-all duration-300",
             "bg-gradient-to-r hover:scale-[1.02]",
-            primaryAction.gradient
+            isPrimaryBlocked ? "from-muted to-muted-foreground/50 opacity-75" : primaryAction.gradient
           )}>
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
-                <Icon className="w-6 h-6 text-white" />
+                {isPrimaryBlocked ? (
+                  <Lock className="w-6 h-6 text-white" />
+                ) : (
+                  <Icon className="w-6 h-6 text-white" />
+                )}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-white text-lg">{primaryAction.title}</h4>
-                <p className="text-white/80 text-sm mt-0.5 line-clamp-2">{primaryAction.description}</p>
+                <h4 className="font-bold text-white text-lg flex items-center gap-2">
+                  {primaryAction.title}
+                  {isPrimaryBlocked && <Lock className="w-4 h-4" />}
+                </h4>
+                <p className="text-white/80 text-sm mt-0.5 line-clamp-2">
+                  {isPrimaryBlocked ? "Faça upgrade para acessar" : primaryAction.description}
+                </p>
               </div>
               <ArrowRight className="w-5 h-5 text-white/80 group-hover:translate-x-1 transition-transform" />
             </div>
@@ -187,17 +223,35 @@ export function RecommendedActionCard({
             <div className="grid grid-cols-1 gap-2">
               {secondaryActions.map((action) => {
                 const ActionIcon = action.icon;
+                const featureKey = routeToFeatureKey[action.link];
+                const actionIsBlocked = featureKey ? isBlocked(featureKey) : false;
                 return (
                   <Link
                     key={action.id}
                     to={action.link}
-                    className="group flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border hover:border-primary/30 hover:bg-secondary transition-all"
+                    onClick={(e) => handleActionClick(e, action.link)}
+                    className={cn(
+                      "group flex items-center gap-3 p-3 rounded-xl border transition-all",
+                      actionIsBlocked 
+                        ? "bg-muted/30 border-border opacity-60" 
+                        : "bg-secondary/50 border-border hover:border-primary/30 hover:bg-secondary"
+                    )}
                   >
-                    <div className={cn("p-2 rounded-lg bg-gradient-to-br", action.gradient)}>
-                      <ActionIcon className="w-4 h-4 text-white" />
+                    <div className={cn(
+                      "p-2 rounded-lg bg-gradient-to-br",
+                      actionIsBlocked ? "from-muted to-muted-foreground/50" : action.gradient
+                    )}>
+                      {actionIsBlocked ? (
+                        <Lock className="w-4 h-4 text-white" />
+                      ) : (
+                        <ActionIcon className="w-4 h-4 text-white" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{action.title}</p>
+                      <p className="text-sm font-medium text-foreground truncate flex items-center gap-2">
+                        {action.title}
+                        {actionIsBlocked && <Lock className="w-3 h-3 text-muted-foreground" />}
+                      </p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                   </Link>

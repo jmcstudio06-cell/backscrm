@@ -61,7 +61,12 @@ export function useFeatureBlocks() {
         // Verificar se o plano expirou
         if (profile?.plan === "expirado") {
           setPlanExpired(true);
-          setFeatureBlocks({});
+          // Quando expirado, carregar feature_blocks do perfil para respeitar desbloqueios específicos
+          if (profile?.feature_blocks && typeof profile.feature_blocks === 'object') {
+            setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
+          } else {
+            setFeatureBlocks({});
+          }
           setLoading(false);
           return;
         }
@@ -87,8 +92,13 @@ export function useFeatureBlocks() {
   }, [user]);
 
   const isBlocked = (featureKey: string): boolean => {
-    // Se o plano expirou, TODAS as features são bloqueadas (exceto admin)
+    // Se o plano expirou, verificar se a feature está explicitamente desbloqueada (false)
     if (planExpired && featureKey !== "admin") {
+      // Se a feature está explicitamente desbloqueada (false), respeitar isso
+      if (featureBlocks[featureKey] === false) {
+        return false;
+      }
+      // Caso contrário, bloquear
       return true;
     }
     
