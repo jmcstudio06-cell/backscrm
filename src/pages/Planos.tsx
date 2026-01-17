@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Zap, Star, Crown, Shield, HeadphonesIcon, XCircle, Quote, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-
 const testimonials = [
   {
     name: "Paula Seven",
@@ -29,9 +28,9 @@ const plans = [
     tagline: "Para quem está começando a profissionalizar",
     description: "1 mês de acesso",
     originalPrice: "R$ 79,90",
-    price: "R$ 49,90",
+    price: "R$ 59,90",
     period: "/mês",
-    totalPrice: "R$ 49,90",
+    totalPrice: "R$ 59,90",
     icon: Zap,
     highlight: null,
     support: "Suporte por chat",
@@ -54,9 +53,9 @@ const plans = [
     tagline: "Para artistas que já fazem shows regularmente",
     description: "3 meses de acesso",
     originalPrice: "R$ 69,90",
-    price: "R$ 39,90",
+    price: "R$ 49,90",
     period: "/mês",
-    totalPrice: "R$ 119,70",
+    totalPrice: "R$ 149,70",
     icon: Star,
     highlight: "MAIS ESCOLHIDO",
     support: "Suporte prioritário + 1 consultoria",
@@ -66,7 +65,7 @@ const plans = [
       "Funil de vendas para fechar mais shows",
       "Metas e acompanhamento de crescimento",
       "1 consultoria estratégica personalizada",
-      "Economize R$ 90 comparado ao mensal",
+      "Economize comparado ao plano mensal",
     ],
     styles: {
       card: "bg-gradient-to-b from-primary/5 to-primary/10 border-2 border-primary scale-[1.02] shadow-xl ring-1 ring-primary/20",
@@ -78,10 +77,10 @@ const plans = [
     name: "Avançado",
     tagline: "Para quem quer dominar o mercado",
     description: "6 meses de acesso",
-    originalPrice: "R$ 49,90",
-    price: "R$ 29,90",
+    originalPrice: "R$ 59,90",
+    price: "R$ 39,90",
     period: "/mês",
-    totalPrice: "R$ 179,40",
+    totalPrice: "R$ 239,40",
     icon: Crown,
     highlight: "MELHOR VALOR",
     support: "Suporte VIP + 3 consultorias",
@@ -91,7 +90,7 @@ const plans = [
       "3 consultorias estratégicas individuais",
       "Acompanhamento contínuo de metas",
       "Prioridade em novidades e recursos",
-      "Economize R$ 120 comparado ao mensal",
+      "Economize comparado ao plano mensal",
     ],
     styles: {
       card: "bg-card border border-border hover:border-amber-500/30 hover:shadow-lg",
@@ -108,12 +107,8 @@ const reassurances = [
 ];
 
 export default function Planos() {
-
   return (
-    <Layout
-      title=""
-      subtitle=""
-    >
+    <Layout title="" subtitle="">
       <div className="pt-4">
         {/* Urgency Banner */}
         <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-xl p-5 max-w-3xl mx-auto mb-8 shadow-xl border border-red-400/30">
@@ -134,29 +129,24 @@ export default function Planos() {
           </div>
         </div>
 
-        {/* Hero Section */}
+        {/* Hero */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h1 className="text-2xl md:text-3xl font-bold mb-4">
-            Pare de perder tempo e dinheiro com desorganização
-          </h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-4">Pare de perder tempo e dinheiro com desorganização</h1>
           <p className="text-lg text-muted-foreground">
-            O Backstage Pro é o sistema completo para você{" "}
-            <span className="text-foreground font-medium">gerir sua carreira musical como uma empresa</span>,{" "}
-            <span className="text-foreground font-medium">com tudo centralizado em um só lugar</span>.
+            O Backstage Pro é o sistema completo para{" "}
+            <span className="text-foreground font-medium">gerir sua carreira musical como uma empresa</span>, com tudo
+            centralizado em um só lugar.
           </p>
         </div>
 
-        {/* Plans Grid */}
+        {/* Plans */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-10">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
               <div
                 key={plan.description}
-                className={cn(
-                  "relative rounded-2xl p-6 flex flex-col transition-all duration-300",
-                  plan.styles.card
-                )}
+                className={cn("relative rounded-2xl p-6 flex flex-col transition-all duration-300", plan.styles.card)}
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -170,7 +160,7 @@ export default function Planos() {
                   <div
                     className={cn(
                       "w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center",
-                      plan.styles.icon
+                      plan.styles.icon,
                     )}
                   >
                     <Icon className="w-6 h-6" />
@@ -181,18 +171,14 @@ export default function Planos() {
 
                 <div className="text-center mb-5">
                   <div className="flex items-center justify-center gap-2 mb-1">
-                    <span className="text-sm text-muted-foreground line-through">
-                      {plan.originalPrice}
-                    </span>
+                    <span className="text-sm text-muted-foreground line-through">{plan.originalPrice}</span>
                     <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
                       OFERTA
                     </Badge>
                   </div>
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-500">
+                  <div className="text-3xl font-bold text-green-600">
                     {plan.price}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      {plan.period}
-                    </span>
+                    <span className="text-sm font-normal text-muted-foreground">{plan.period}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {plan.description} • Total: {plan.totalPrice}
@@ -202,24 +188,19 @@ export default function Planos() {
                 <ul className="space-y-2.5 mb-5 flex-1">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-green-500 mt-0.5" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
-                <p className="text-xs text-muted-foreground text-center mb-4">
-                  {plan.support}
-                </p>
+                <p className="text-xs text-muted-foreground text-center mb-4">{plan.support}</p>
 
                 <Button
                   size="lg"
                   className={cn("w-full font-semibold", plan.styles.button)}
                   onClick={() =>
-                    window.open(
-                      "https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro",
-                      "_blank"
-                    )
+                    window.open("https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro", "_blank")
                   }
                 >
                   {plan.cta}
@@ -232,14 +213,9 @@ export default function Planos() {
         {/* Social Proof */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-10">
           {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.name}
-              className="bg-muted/50 rounded-xl p-4 border border-border"
-            >
+            <div key={testimonial.name} className="bg-muted/50 rounded-xl p-4 border border-border">
               <Quote className="w-5 h-5 text-primary/60 mb-2" />
-              <p className="text-sm text-muted-foreground mb-3 italic">
-                "{testimonial.text}"
-              </p>
+              <p className="text-sm text-muted-foreground mb-3 italic">"{testimonial.text}"</p>
               <div>
                 <p className="text-sm font-semibold">{testimonial.name}</p>
                 <p className="text-xs text-muted-foreground">{testimonial.role}</p>
@@ -248,7 +224,7 @@ export default function Planos() {
           ))}
         </div>
 
-        {/* Reassurance Section */}
+        {/* Reassurance */}
         <div className="flex flex-wrap justify-center gap-6 mb-8">
           {reassurances.map((item) => (
             <div key={item.text} className="flex items-center gap-2 text-muted-foreground">
@@ -260,14 +236,13 @@ export default function Planos() {
 
         {/* Final CTA */}
         <div className="text-center bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-8 max-w-3xl mx-auto border border-primary/10">
-          <h3 className="text-xl font-bold mb-2">
-            Ainda com dúvida?
-          </h3>
+          <h3 className="text-xl font-bold mb-2">Ainda com dúvida?</h3>
           <p className="text-muted-foreground mb-4">
             Comece pelo plano Essencial e veja na prática como o Backstage Pro pode transformar sua carreira.
           </p>
           <p className="text-sm text-muted-foreground">
-            Mais de <span className="font-semibold text-foreground">100 artistas</span> já usam o Backstage Pro para organizar e crescer.
+            Mais de <span className="font-semibold text-foreground">100 artistas</span> já usam o Backstage Pro para
+            organizar e crescer.
           </p>
         </div>
       </div>
