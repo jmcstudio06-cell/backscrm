@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { trackLandingVisit } from "@/hooks/useLandingInsights";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +17,11 @@ import {
   Smartphone,
   Monitor,
   MessageCircle,
-  Quote
+  Quote,
+  Gift,
+  X,
+  Clock,
+  Zap
 } from "lucide-react";
 
 // Team images
@@ -105,10 +109,51 @@ const Landing = () => {
 
   const whatsappLink = "https://web.whatsapp.com/send?phone=5512981289496&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
 
+  const [showPromoBanner, setShowPromoBanner] = useState(true);
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Promotional Banner - Fixed at very top */}
+      {showPromoBanner && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-500 text-white py-2.5 px-4 shadow-lg">
+          <div className="container mx-auto flex items-center justify-center gap-3 relative">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-2">
+              <div className="animate-pulse">
+                <Gift className="w-5 h-5 text-yellow-300" />
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 sm:gap-3 text-center">
+              <div className="hidden sm:flex items-center gap-1 bg-white/20 rounded-full px-2 py-0.5">
+                <Zap className="w-3 h-3 text-yellow-300" />
+                <span className="text-xs font-bold uppercase tracking-wider">Oferta Especial</span>
+              </div>
+              <span className="text-sm sm:text-base font-medium">
+                🎁 <span className="font-bold">AGENDA DE SHOWS GRÁTIS</span> por tempo indeterminado!
+              </span>
+              <Button 
+                onClick={() => navigate('/auth')}
+                size="sm"
+                className="bg-white text-emerald-600 hover:bg-white/90 font-bold text-xs sm:text-sm px-3 py-1 h-7 shadow-md hover:scale-105 transition-transform"
+              >
+                Resgatar Agora
+                <ArrowRight className="w-3 h-3 ml-1" />
+              </Button>
+            </div>
+            
+            <button 
+              onClick={() => setShowPromoBanner(false)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Fechar banner"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm">
+      <header className={`fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm transition-all duration-300 ${showPromoBanner ? 'top-10' : 'top-0'}`}>
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold text-[#0066CC]">Backstage</span>
@@ -132,7 +177,7 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden">
+      <section className={`pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden transition-all duration-300 ${showPromoBanner ? 'pt-44' : 'pt-32'}`}>
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
         
         <div className="container mx-auto px-6 relative z-10">
