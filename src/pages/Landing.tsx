@@ -166,13 +166,6 @@ const Landing = () => {
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
             <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
           </nav>
-
-          <Button 
-            onClick={() => navigate('/auth')}
-            className="bg-[#0066CC] text-white hover:bg-[#0055AA] font-semibold"
-          >
-            Testar Grátis
-          </Button>
         </div>
       </header>
 
