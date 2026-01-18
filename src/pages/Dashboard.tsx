@@ -1,20 +1,20 @@
 import { Layout } from "@/components/layout/Layout";
 import { CareerStatusCard } from "@/components/dashboard/CareerStatusCard";
 import { RecommendedActionCard } from "@/components/dashboard/RecommendedActionCard";
-import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
-import { ArtistJourneyCard } from "@/components/dashboard/ArtistJourneyCard";
-import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
-import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
+import { FinancialSummaryCard } from "@/components/dashboard/FinancialSummaryCard";
+import { Last30DaysCard } from "@/components/dashboard/Last30DaysCard";
+import { JourneyChecklistCard } from "@/components/dashboard/JourneyChecklistCard";
+import { BonusCard } from "@/components/dashboard/BonusCard";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
+import { useAnnualGoals } from "@/hooks/useAnnualGoals";
 import { useShows } from "@/contexts/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useContracts } from "@/hooks/useContracts";
 import { useClients } from "@/hooks/useClients";
-import { useStageMappings } from "@/hooks/useStageMappings";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
@@ -25,23 +25,21 @@ const Dashboard = () => {
   const { leads, loading: leadsLoading } = useLeads();
   const { transactions, loading: transactionsLoading } = useTransactions();
   const { goals, loading: goalsLoading } = useGoals();
+  const { goals: annualGoals, loading: annualGoalsLoading } = useAnnualGoals();
   const { shows, loading: showsLoading } = useShows();
   const { profile, loading: profileLoading } = useProfile();
   const { contracts, loading: contractsLoading } = useContracts();
   const { clients, loading: clientsLoading } = useClients();
-  const { mappings: stageMappings, loading: stageMappingsLoading } = useStageMappings();
   const [showWelcome, setShowWelcome] = useState(false);
-  const [checklistsUsed, setChecklistsUsed] = useState(false);
 
-  // Unified loading state - only show content when main data is ready
-  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || contractsLoading || clientsLoading;
+  // Unified loading state
+  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || contractsLoading || clientsLoading || goalsLoading;
 
-  // Check if user should see onboarding and if user has used checklists
+  // Check if user should see onboarding
   useEffect(() => {
     const checkData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Check onboarding
         const { data: profileData } = await supabase
           .from("profiles")
           .select("onboarding_completed")
@@ -51,13 +49,6 @@ const Dashboard = () => {
         if (profileData && !profileData.onboarding_completed) {
           setShowWelcome(true);
         }
-
-        // Check if user has used checklists
-        const { count } = await supabase
-          .from("show_checklist")
-          .select("*", { count: "exact", head: true });
-        
-        setChecklistsUsed((count || 0) > 0);
       }
     };
     checkData();
@@ -90,7 +81,7 @@ const Dashboard = () => {
     }).length;
   }, [leads, lastMonthStart, lastMonthEnd]);
 
-  // Calculate shows this month vs last month (all statuses except cancelled)
+  // Calculate shows this month vs last month
   const showsThisMonth = useMemo(() => {
     return shows.filter((show) => {
       const showDate = new Date(show.date);
@@ -132,36 +123,20 @@ const Dashboard = () => {
       .reduce((sum, t) => sum + Number(t.amount), 0);
   }, [transactions, lastMonthStart, lastMonthEnd]);
 
-  // Calculate closed sales
-  const closedSales = useMemo(() => {
-    return leads.filter((lead) => lead.status === "closed").length;
-  }, [leads]);
-
-  // Calculate pending cachets (shows confirmed/scheduled but not completed)
+  // Calculate pending cachets
   const pendingCachetData = useMemo(() => {
     const validStatuses = ["confirmed", "scheduled", "pending", "negotiation"];
-    // Use start of today for comparison to include shows happening today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     const pendingShows = shows
       .filter((show) => {
         const showDate = parseISO(show.date);
-        // Include shows from today onwards with valid statuses (not completed or cancelled)
         return validStatuses.includes(show.status) && showDate >= today;
-      })
-      .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
-      .map((show) => ({
-        id: show.id,
-        title: show.title,
-        date: format(parseISO(show.date), "dd MMM", { locale: ptBR }),
-        cachet: Number(show.cachet),
-        status: show.status,
-      }));
+      });
 
-    const totalPending = pendingShows.reduce((sum, show) => sum + show.cachet, 0);
+    const totalPending = pendingShows.reduce((sum, show) => sum + Number(show.cachet), 0);
     
-    // Total received from completed shows this month
     const totalReceived = transactions
       .filter((t) => {
         const transactionDate = new Date(t.date);
@@ -172,72 +147,49 @@ const Dashboard = () => {
       })
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
-    return { pendingShows, totalPending, totalReceived };
-  }, [shows, transactions, now, currentMonthStart, currentMonthEnd]);
+    return { totalPending, totalReceived };
+  }, [shows, transactions, currentMonthStart, currentMonthEnd]);
 
-  // Upcoming shows with enhanced data
-  const upcomingShows = useMemo(() => {
-    return shows
-      .filter((show) => parseISO(show.date) >= now && show.status !== "cancelled")
-      .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
-      .slice(0, 3)
-      .map((show) => {
-        // Find client phone
-        const client = clients.find(c => c.id === show.client_id);
-        // Check if has contract
-        const hasContract = contracts.some(c => c.show_id === show.id);
-        
-        return {
-          id: show.id,
-          date: format(parseISO(show.date), "dd MMM", { locale: ptBR }),
-          title: show.title,
-          location: show.venue || "Local a definir",
-          value: `R$ ${Number(show.cachet).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-          status: show.status as "confirmed" | "pending" | "completed",
-          clientPhone: client?.phone || undefined,
-          hasContract,
-        };
-      });
-  }, [shows, clients, contracts, now]);
+  // Upcoming shows count
+  const upcomingShowsCount = useMemo(() => {
+    return shows.filter((show) => parseISO(show.date) >= now && show.status !== "cancelled").length;
+  }, [shows, now]);
 
   // Check if user has data for recommended actions
   const hasLeads = leads.length > 0;
   const hasShows = shows.length > 0;
   const hasContracts = contracts.length > 0;
   const hasGoals = goals.length > 0;
+  const hasMonthlyGoal = goals.length > 0;
+  const hasAnnualGoal = annualGoals.length > 0;
 
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
+  // Total revenue for journey card
+  const totalRevenue = useMemo(() => {
+    return transactions.filter(t => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions]);
 
   // Loading skeleton
   if (isLoading) {
     return (
       <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
-        <div className="space-y-6">
-          {/* Trial Card skeleton */}
-          <Skeleton className="h-16 w-full rounded-xl" />
-          
-          {/* Welcome Section skeleton */}
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex flex-col gap-2">
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-5 w-48" />
           </div>
 
-          {/* Main Status Cards Row skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Skeleton className="h-64 w-full rounded-xl" />
-            <Skeleton className="h-64 w-full rounded-xl" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-4 sm:space-y-6">
+              <Skeleton className="h-64 w-full rounded-2xl" />
+              <Skeleton className="h-32 w-full rounded-2xl" />
+              <Skeleton className="h-32 w-full rounded-2xl" />
+            </div>
+            <div className="space-y-4 sm:space-y-6">
+              <Skeleton className="h-48 w-full rounded-2xl" />
+              <Skeleton className="h-56 w-full rounded-2xl" />
+              <Skeleton className="h-40 w-full rounded-2xl" />
+            </div>
           </div>
-
-          {/* Financial & Shows Row skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Skeleton className="h-72 w-full rounded-xl" />
-            <Skeleton className="h-72 w-full rounded-xl" />
-          </div>
-
-          {/* Artist Journey skeleton */}
-          <Skeleton className="h-48 w-full rounded-xl" />
         </div>
       </Layout>
     );
@@ -253,63 +205,77 @@ const Dashboard = () => {
       />
 
       <div className="space-y-4 sm:space-y-6">
-        {/* Gift Claim Card - shows when user has available gift */}
+        {/* Gift Claim Card */}
         <GiftClaimCard />
 
-        {/* Trial Countdown Card - temporarily disabled */}
-        {/* <TrialCountdownCard /> */}
-
         {/* Welcome Section */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-              Olá, {profile?.name || 'Artista'}!
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5 sm:mt-1">
-              {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
-            </p>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+            Olá, {profile?.name || profile?.artist_name || 'Artista'}!
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
+          </p>
+        </div>
+
+        {/* Main 2-Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {/* Left Column */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Career Status Card */}
+            <CareerStatusCard
+              leadsThisMonth={leadsThisMonth}
+              leadsLastMonth={leadsLastMonth}
+              showsThisMonth={showsThisMonth}
+              showsLastMonth={showsLastMonth}
+              revenueThisMonth={revenueThisMonth}
+              revenueLastMonth={revenueLastMonth}
+            />
+
+            {/* Financial Summary Card */}
+            <FinancialSummaryCard
+              totalPending={pendingCachetData.totalPending}
+              totalReceived={pendingCachetData.totalReceived}
+              hasContracts={hasContracts}
+            />
+
+            {/* Last 30 Days Card */}
+            <Last30DaysCard
+              leadsThisMonth={leadsThisMonth}
+              leadsLastMonth={leadsLastMonth}
+              showsThisMonth={showsThisMonth}
+              showsLastMonth={showsLastMonth}
+              revenueThisMonth={revenueThisMonth}
+              revenueLastMonth={revenueLastMonth}
+            />
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Recommended Action Card */}
+            <RecommendedActionCard
+              hasLeads={hasLeads}
+              hasShows={hasShows}
+              hasContracts={hasContracts}
+              hasGoals={hasGoals}
+              pendingCachet={pendingCachetData.totalPending}
+              upcomingShowsCount={upcomingShowsCount}
+            />
+
+            {/* Journey Checklist Card */}
+            <JourneyChecklistCard
+              trialStart={profile?.trial_start || null}
+              showsCount={shows.length}
+              totalRevenue={totalRevenue}
+              contractsCount={contracts.length}
+              hasMonthlyGoal={hasMonthlyGoal}
+              hasAnnualGoal={hasAnnualGoal}
+            />
+
+            {/* Bonus Card */}
+            <BonusCard />
           </div>
         </div>
-
-        {/* Main Status Cards Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <CareerStatusCard
-            leadsThisMonth={leadsThisMonth}
-            leadsLastMonth={leadsLastMonth}
-            showsThisMonth={showsThisMonth}
-            showsLastMonth={showsLastMonth}
-            revenueThisMonth={revenueThisMonth}
-            revenueLastMonth={revenueLastMonth}
-          />
-          <RecommendedActionCard
-            hasLeads={hasLeads}
-            hasShows={hasShows}
-            hasContracts={hasContracts}
-            hasGoals={hasGoals}
-            pendingCachet={pendingCachetData.totalPending}
-            upcomingShowsCount={upcomingShows.length}
-          />
-        </div>
-
-        {/* Financial & Shows Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <PendingCachetCard
-            pendingShows={pendingCachetData.pendingShows}
-            totalPending={pendingCachetData.totalPending}
-            totalReceived={pendingCachetData.totalReceived}
-          />
-          <UpcomingShowsCard shows={upcomingShows} />
-        </div>
-
-        {/* Artist Journey Timeline */}
-        <ArtistJourneyCard
-          trialStart={profile?.trial_start || null}
-          showsCount={shows.length}
-          totalRevenue={transactions.filter(t => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0)}
-          contractsCount={contracts.length}
-          checklistsUsed={checklistsUsed}
-          stageMappingsCount={stageMappings.length}
-        />
       </div>
     </Layout>
   );
