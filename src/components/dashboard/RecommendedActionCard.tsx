@@ -5,14 +5,13 @@ import {
   Calendar, 
   Wallet,
   ArrowRight,
+  Zap,
   Target,
-  Lock,
-  Star
+  Lock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 
 interface RecommendedActionCardProps {
   hasLeads: boolean;
@@ -27,7 +26,6 @@ interface Action {
   id: string;
   title: string;
   description: string;
-  benefit: string;
   link: string;
   icon: React.ElementType;
   gradient: string;
@@ -45,6 +43,7 @@ export function RecommendedActionCard({
   const navigate = useNavigate();
   const { isBlocked } = useFeatureBlocks();
 
+  // Map routes to feature keys
   const routeToFeatureKey: Record<string, string> = {
     "/metas": "metas",
     "/crm": "crm",
@@ -62,67 +61,68 @@ export function RecommendedActionCard({
     }
   };
 
+  // Determine recommended actions based on user state
   const getRecommendedActions = (): Action[] => {
     const actions: Action[] = [];
 
-    if (!hasContracts) {
-      actions.push({
-        id: "contracts",
-        title: "Crie um contrato",
-        description: "Contratos aumentam em até 70% a chance de receber corretamente.",
-        benefit: "Proteja sua receita",
-        link: "/contratos",
-        icon: FileText,
-        gradient: "from-primary to-primary/80",
-        priority: 1,
-      });
-    }
-
+    // Priority 1: No goals set
     if (!hasGoals) {
       actions.push({
         id: "goals",
         title: "Defina suas metas",
-        description: "Artistas com metas definidas crescem 2x mais rápido.",
-        benefit: "Acelere seu crescimento",
+        description: "Configure metas de shows, leads e faturamento para acompanhar seu progresso",
         link: "/metas",
         icon: Target,
         gradient: "from-violet-500 to-purple-600",
-        priority: 2,
+        priority: 1,
       });
     }
 
+    // Priority 2: No leads
     if (!hasLeads) {
       actions.push({
         id: "leads",
         title: "Cadastre seu primeiro lead",
-        description: "Comece a organizar seus contatos e oportunidades de shows.",
-        benefit: "Organize suas vendas",
+        description: "Adicione contatos interessados nos seus shows e comece a vender",
         link: "/crm",
         icon: UserPlus,
         gradient: "from-primary to-primary/80",
-        priority: 3,
+        priority: 2,
       });
     }
 
+    // Priority 3: Has leads but no shows
     if (hasLeads && !hasShows) {
       actions.push({
         id: "shows",
         title: "Agende seu primeiro show",
-        description: "Transforme seus leads em shows confirmados.",
-        benefit: "Feche negócios",
+        description: "Transforme seus leads em shows confirmados",
         link: "/agenda",
         icon: Calendar,
-        gradient: "from-emerald-500 to-teal-600",
+        gradient: "from-success to-success/80",
+        priority: 3,
+      });
+    }
+
+    // Priority 4: Has shows but no contracts
+    if (hasShows && !hasContracts) {
+      actions.push({
+        id: "contracts",
+        title: "Crie um contrato",
+        description: "Formalize seus shows com contratos profissionais",
+        link: "/contratos",
+        icon: FileText,
+        gradient: "from-warning to-warning/80",
         priority: 4,
       });
     }
 
+    // Priority 5: Has pending cachet
     if (pendingCachet > 0) {
       actions.push({
         id: "cachet",
         title: "Acompanhe seus cachês",
-        description: `Você tem R$ ${pendingCachet.toLocaleString("pt-BR")} em cachês pendentes.`,
-        benefit: "Controle financeiro",
+        description: `Você tem R$ ${pendingCachet.toLocaleString("pt-BR")} em cachês pendentes`,
         link: "/financeiro",
         icon: Wallet,
         gradient: "from-rose-500 to-pink-600",
@@ -130,12 +130,12 @@ export function RecommendedActionCard({
       });
     }
 
+    // Priority 6: Active user - suggest reviewing upcoming shows
     if (upcomingShowsCount > 0) {
       actions.push({
         id: "upcoming",
         title: "Prepare seus próximos shows",
-        description: `${upcomingShowsCount} show${upcomingShowsCount > 1 ? "s" : ""} chegando. Revise os detalhes!`,
-        benefit: "Organize-se",
+        description: `Você tem ${upcomingShowsCount} show${upcomingShowsCount > 1 ? "s" : ""} chegando. Revise os detalhes!`,
         link: "/agenda",
         icon: Calendar,
         gradient: "from-primary to-primary/80",
@@ -143,15 +143,15 @@ export function RecommendedActionCard({
       });
     }
 
+    // Default action if nothing else
     if (actions.length === 0) {
       actions.push({
         id: "default",
-        title: "Continue evoluindo",
-        description: "Explore todas as ferramentas para gerenciar sua carreira.",
-        benefit: "Cresça sempre",
+        title: "Explore suas funcionalidades",
+        description: "Descubra todas as ferramentas disponíveis para gerenciar sua carreira",
         link: "/agenda",
-        icon: Star,
-        gradient: "from-primary to-primary/80",
+        icon: Zap,
+        gradient: "from-muted-foreground to-muted-foreground",
         priority: 99,
       });
     }
@@ -161,59 +161,105 @@ export function RecommendedActionCard({
 
   const actions = getRecommendedActions();
   const primaryAction = actions[0];
+  const secondaryActions = actions.slice(1, 3);
   const Icon = primaryAction.icon;
   const primaryFeatureKey = routeToFeatureKey[primaryAction.link];
   const isPrimaryBlocked = primaryFeatureKey ? isBlocked(primaryFeatureKey) : false;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <Star className="w-5 h-5 text-amber-500" />
-        <h3 className="text-sm sm:text-base font-bold text-foreground uppercase tracking-wide">
-          Missão Prioritária
-        </h3>
-      </div>
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6 shadow-sm">
+      {/* Background decoration */}
+      <div className="absolute -top-20 -right-20 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
 
-      {/* Primary Action Card */}
-      <div className={cn(
-        "relative overflow-hidden rounded-xl p-4 sm:p-5",
-        "bg-gradient-to-r",
-        isPrimaryBlocked ? "from-muted to-muted-foreground/50 opacity-75" : primaryAction.gradient
-      )}>
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm flex-shrink-0">
-            {isPrimaryBlocked ? (
-              <Lock className="w-6 h-6 text-white" />
-            ) : (
-              <Icon className="w-6 h-6 text-white" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="font-bold text-white text-base sm:text-lg flex items-center gap-2">
-              {primaryAction.title}
-              {isPrimaryBlocked && <Lock className="w-4 h-4" />}
-            </h4>
-            <p className="text-white/80 text-xs sm:text-sm mt-1 leading-relaxed">
-              {isPrimaryBlocked ? "Faça upgrade para acessar" : primaryAction.description}
-            </p>
-          </div>
+      <div className="relative">
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="w-5 h-5 text-warning" />
+          <h3 className="text-lg font-bold text-foreground">Próximo Passo</h3>
         </div>
 
-        {/* CTA Button */}
+        {/* Primary Action */}
         <Link
           to={primaryAction.link}
           onClick={(e) => handleActionClick(e, primaryAction.link)}
-          className="block mt-4"
+          className="group block mb-4"
         >
-          <Button
-            variant="secondary"
-            className="w-full bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm group"
-          >
-            {isPrimaryBlocked ? "Ver planos" : `${primaryAction.title.split(" ")[0]} agora`}
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <div className={cn(
+            "relative overflow-hidden rounded-xl p-4 transition-all duration-300",
+            "bg-gradient-to-r hover:scale-[1.02]",
+            isPrimaryBlocked ? "from-muted to-muted-foreground/50 opacity-75" : primaryAction.gradient
+          )}>
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
+                {isPrimaryBlocked ? (
+                  <Lock className="w-6 h-6 text-white" />
+                ) : (
+                  <Icon className="w-6 h-6 text-white" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-white text-lg flex items-center gap-2">
+                  {primaryAction.title}
+                  {isPrimaryBlocked && <Lock className="w-4 h-4" />}
+                </h4>
+                <p className="text-white/80 text-sm mt-0.5 line-clamp-2">
+                  {isPrimaryBlocked ? "Faça upgrade para acessar" : primaryAction.description}
+                </p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-white/80 group-hover:translate-x-1 transition-transform" />
+            </div>
+            
+            {/* Shine effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+            </div>
+          </div>
         </Link>
+
+        {/* Secondary Actions */}
+        {secondaryActions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Outras sugestões</p>
+            <div className="grid grid-cols-1 gap-2">
+              {secondaryActions.map((action) => {
+                const ActionIcon = action.icon;
+                const featureKey = routeToFeatureKey[action.link];
+                const actionIsBlocked = featureKey ? isBlocked(featureKey) : false;
+                return (
+                  <Link
+                    key={action.id}
+                    to={action.link}
+                    onClick={(e) => handleActionClick(e, action.link)}
+                    className={cn(
+                      "group flex items-center gap-3 p-3 rounded-xl border transition-all",
+                      actionIsBlocked 
+                        ? "bg-muted/30 border-border opacity-60" 
+                        : "bg-secondary/50 border-border hover:border-primary/30 hover:bg-secondary"
+                    )}
+                  >
+                    <div className={cn(
+                      "p-2 rounded-lg bg-gradient-to-br",
+                      actionIsBlocked ? "from-muted to-muted-foreground/50" : action.gradient
+                    )}>
+                      {actionIsBlocked ? (
+                        <Lock className="w-4 h-4 text-white" />
+                      ) : (
+                        <ActionIcon className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate flex items-center gap-2">
+                        {action.title}
+                        {actionIsBlocked && <Lock className="w-3 h-3 text-muted-foreground" />}
+                      </p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
