@@ -219,15 +219,15 @@ export function BudgetModal({
             <RadioGroup
               value={clientMode}
               onValueChange={(value) => setClientMode(value as "existing" | "new")}
-              className="flex flex-col sm:flex-row gap-3 sm:gap-6"
+              className="flex flex-wrap items-center gap-x-6 gap-y-3"
             >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="existing" id="budget-existing" className="shrink-0 h-5 w-5" />
-                <Label htmlFor="budget-existing" className="font-normal cursor-pointer">Cliente existente</Label>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="existing" id="budget-existing" className="shrink-0" />
+                <Label htmlFor="budget-existing" className="font-normal cursor-pointer text-sm">Cliente existente</Label>
               </div>
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="new" id="budget-new" className="shrink-0 h-5 w-5" />
-                <Label htmlFor="budget-new" className="font-normal cursor-pointer">Novo cliente</Label>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="new" id="budget-new" className="shrink-0" />
+                <Label htmlFor="budget-new" className="font-normal cursor-pointer text-sm">Novo cliente</Label>
               </div>
             </RadioGroup>
 
