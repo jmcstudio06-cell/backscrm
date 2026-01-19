@@ -511,17 +511,17 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                       setSelectedClientId("");
                     }
                   }}
-                  className="flex flex-col sm:flex-row gap-3 sm:gap-6"
+                  className="flex flex-wrap items-center gap-x-6 gap-y-3"
                 >
-                  <div className="flex items-center gap-3">
-                    <RadioGroupItem value="existing" id="show-existing" className="shrink-0 h-5 w-5" />
-                    <Label htmlFor="show-existing" className="font-normal cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="existing" id="show-existing" className="shrink-0" />
+                    <Label htmlFor="show-existing" className="font-normal cursor-pointer text-sm">
                       Selecionar existente
                     </Label>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <RadioGroupItem value="new" id="show-new" className="shrink-0 h-5 w-5" />
-                    <Label htmlFor="show-new" className="font-normal cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="new" id="show-new" className="shrink-0" />
+                    <Label htmlFor="show-new" className="font-normal cursor-pointer text-sm">
                       Criar novo
                     </Label>
                   </div>
