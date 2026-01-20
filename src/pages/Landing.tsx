@@ -794,7 +794,7 @@ const Landing = () => {
                     </div>
                     <div>
                       <p className="text-slate-700 font-medium">Abra no Safari</p>
-                      <p className="text-slate-500 text-sm">Acesse backstagepro.lovable.app no Safari</p>
+                      <p className="text-slate-500 text-sm">Acesse backstagepro.online no Safari</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -836,7 +836,7 @@ const Landing = () => {
                     </div>
                     <div>
                       <p className="text-slate-700 font-medium">Abra no Chrome</p>
-                      <p className="text-slate-500 text-sm">Acesse backstagepro.lovable.app no Chrome</p>
+                      <p className="text-slate-500 text-sm">Acesse backstagepro.online no Chrome</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
