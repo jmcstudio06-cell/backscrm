@@ -21,7 +21,8 @@ import {
   Gift,
   X,
   Clock,
-  Zap
+  Zap,
+  ClipboardCheck
 } from "lucide-react";
 
 // Team images
@@ -37,6 +38,7 @@ import andreWhatsapp from "@/assets/testimonials/andre-whatsapp.png";
 import caykWhatsapp from "@/assets/testimonials/cayk-whatsapp.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
+import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -162,6 +164,10 @@ const Landing = () => {
           
           <nav className="hidden md:flex items-center gap-8">
             <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
+            <a href="#analise" className="text-slate-600 hover:text-[#0066CC] transition-colors flex items-center gap-1">
+              <ClipboardCheck className="w-4 h-4" />
+              Análise Gratuita
+            </a>
             <a href="#instalar" className="text-slate-600 hover:text-[#0066CC] transition-colors">Instalar App</a>
             <a href="#quem-somos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Quem Somos</a>
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
@@ -867,6 +873,30 @@ const Landing = () => {
               💡 Dica: Após instalar, o app funciona como um aplicativo nativo, com ícone na tela inicial!
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Artist Analysis Form Section */}
+      <section id="analise" className="py-20 bg-gradient-to-b from-white to-slate-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-[#0066CC]/10 rounded-full px-4 py-2 mb-4">
+              <ClipboardCheck className="w-4 h-4 text-[#0066CC]" />
+              <span className="text-[#0066CC] font-semibold text-sm">Exclusivo e Gratuito</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-2">
+              Análise de Gestão
+            </h2>
+            <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
+              Artística
+            </h3>
+            <p className="text-slate-500 max-w-2xl mx-auto mb-8">
+              Descubra as falhas de organização que podem estar travando sua carreira. 
+              Preencha o formulário e nossa equipe entrará em contato para uma análise personalizada.
+            </p>
+          </div>
+
+          <ArtistAnalysisForm />
         </div>
       </section>
 

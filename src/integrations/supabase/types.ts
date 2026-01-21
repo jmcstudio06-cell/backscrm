@@ -122,6 +122,51 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_analyses: {
+        Row: {
+          artist_name: string
+          availability: string
+          created_at: string
+          difficulties: string[]
+          history_reflection: string | null
+          id: string
+          lost_opportunities: string
+          shows_per_month: string
+          status: string
+          updated_at: string
+          whatsapp: string
+          who_manages: string
+        }
+        Insert: {
+          artist_name: string
+          availability: string
+          created_at?: string
+          difficulties: string[]
+          history_reflection?: string | null
+          id?: string
+          lost_opportunities: string
+          shows_per_month: string
+          status?: string
+          updated_at?: string
+          whatsapp: string
+          who_manages: string
+        }
+        Update: {
+          artist_name?: string
+          availability?: string
+          created_at?: string
+          difficulties?: string[]
+          history_reflection?: string | null
+          id?: string
+          lost_opportunities?: string
+          shows_per_month?: string
+          status?: string
+          updated_at?: string
+          whatsapp?: string
+          who_manages?: string
+        }
+        Relationships: []
+      }
       artist_equipment: {
         Row: {
           category: string
