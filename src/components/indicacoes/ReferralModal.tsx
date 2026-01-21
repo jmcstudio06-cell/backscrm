@@ -28,8 +28,10 @@ export function ReferralModal({ open, onOpenChange, onSubmit, userName }: Referr
 
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
+
     if (digits.length <= 2) return digits;
     if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   };
 
@@ -37,22 +39,9 @@ export function ReferralModal({ open, onOpenChange, onSubmit, userName }: Referr
     setPhone(formatPhone(e.target.value));
   };
 
-  const resetForm = () => {
-    setName("");
-    setPhone("");
-    setConfirmed(false);
-  };
-
-  // ✅ Handler correto do Dialog (só reseta quando FECHA)
-  const handleDialogOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      resetForm();
-    }
-    onOpenChange(nextOpen);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!confirmed) return;
 
     setLoading(true);
@@ -60,20 +49,23 @@ export function ReferralModal({ open, onOpenChange, onSubmit, userName }: Referr
     setLoading(false);
 
     if (success) {
-      resetForm();
-      onOpenChange(false); // opcional: fecha após enviar
+      setName("");
+      setPhone("");
+      setConfirmed(false);
     }
   };
 
-  const handleCancel = () => {
-    resetForm();
+  const handleClose = () => {
+    setName("");
+    setPhone("");
+    setConfirmed(false);
     onOpenChange(false);
   };
 
   const isValid = name.trim().length >= 2 && phone.replace(/\D/g, "").length === 11 && confirmed;
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -129,7 +121,7 @@ export function ReferralModal({ open, onOpenChange, onSubmit, userName }: Referr
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={handleCancel}>
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
             <Button type="submit" disabled={!isValid || loading}>
