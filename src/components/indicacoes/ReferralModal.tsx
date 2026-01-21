@@ -37,42 +37,50 @@ export function ReferralModal({ open, onOpenChange, onSubmit, userName }: Referr
     setPhone(formatPhone(e.target.value));
   };
 
+  const resetForm = () => {
+    setName("");
+    setPhone("");
+    setConfirmed(false);
+  };
+
+  // ✅ Handler correto do Dialog (só reseta quando FECHA)
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      resetForm();
+    }
+    onOpenChange(nextOpen);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!confirmed) return;
-    
+
     setLoading(true);
     const success = await onSubmit(name, phone);
     setLoading(false);
 
     if (success) {
-      setName("");
-      setPhone("");
-      setConfirmed(false);
+      resetForm();
+      onOpenChange(false); // opcional: fecha após enviar
     }
   };
 
-  const handleClose = () => {
-    setName("");
-    setPhone("");
-    setConfirmed(false);
+  const handleCancel = () => {
+    resetForm();
     onOpenChange(false);
   };
 
   const isValid = name.trim().length >= 2 && phone.replace(/\D/g, "").length === 11 && confirmed;
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-primary" />
             Nova Indicação
           </DialogTitle>
-          <DialogDescription>
-            Indique um artista para conhecer o Backstage
-          </DialogDescription>
+          <DialogDescription>Indique um artista para conhecer o Backstage</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -96,20 +104,14 @@ export function ReferralModal({ open, onOpenChange, onSubmit, userName }: Referr
               <MessageCircle className="w-4 h-4" />
               WhatsApp
             </Label>
-            <Input
-              id="phone"
-              placeholder="(11) 99999-9999"
-              value={phone}
-              onChange={handlePhoneChange}
-              required
-            />
+            <Input id="phone" placeholder="(11) 99999-9999" value={phone} onChange={handlePhoneChange} required />
           </div>
 
           <Alert className="border-yellow-500/30 bg-yellow-500/10">
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
             <AlertDescription className="text-sm">
-              <strong>Atenção:</strong> Ao confirmar, seu nome ({userName || "você"}) será informado ao
-              artista indicado na mensagem automática do WhatsApp.
+              <strong>Atenção:</strong> Ao confirmar, seu nome ({userName || "você"}) será informado ao artista indicado
+              na mensagem automática do WhatsApp.
             </AlertDescription>
           </Alert>
 
@@ -127,7 +129,7 @@ export function ReferralModal({ open, onOpenChange, onSubmit, userName }: Referr
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
             <Button type="submit" disabled={!isValid || loading}>
