@@ -166,7 +166,7 @@ const Landing = () => {
             <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
             <a href="#analise" className="text-slate-600 hover:text-[#0066CC] transition-colors flex items-center gap-1">
               <ClipboardCheck className="w-4 h-4" />
-              Análise Gratuita
+              Análise de Carreira
             </a>
             <a href="#instalar" className="text-slate-600 hover:text-[#0066CC] transition-colors">Instalar App</a>
             <a href="#quem-somos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Quem Somos</a>
@@ -879,24 +879,24 @@ const Landing = () => {
       {/* Artist Analysis Form Section */}
       <section id="analise" className="py-20 bg-gradient-to-b from-white to-slate-50">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
+          <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-[#0066CC]/10 rounded-full px-4 py-2 mb-4">
               <ClipboardCheck className="w-4 h-4 text-[#0066CC]" />
-              <span className="text-[#0066CC] font-semibold text-sm">Exclusivo e Gratuito</span>
+              <span className="text-[#0066CC] font-semibold text-sm">Identifique falhas na gestão</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-2">
-              Análise de Gestão
+              Análise de
             </h2>
             <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
-              Artística
+              Carreira
             </h3>
             <p className="text-slate-500 max-w-2xl mx-auto mb-8">
               Descubra as falhas de organização que podem estar travando sua carreira. 
-              Preencha o formulário e nossa equipe entrará em contato para uma análise personalizada.
+              Nossa equipe entrará em contato para uma análise personalizada.
             </p>
+            
+            <ArtistAnalysisForm />
           </div>
-
-          <ArtistAnalysisForm />
         </div>
       </section>
 
