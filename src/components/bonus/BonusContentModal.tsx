@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Download, Check, Gift } from "lucide-react";
+import { ExternalLink, Download, Check, Gift, Clock } from "lucide-react";
 import { BonusWithProgress } from "@/hooks/useBonuses";
 import { extractYouTubeVideoId } from "@/lib/youtube";
 
@@ -64,7 +64,7 @@ export function BonusContentModal({ bonus, open, onOpenChange, onComplete }: Bon
             {hasCompleted && (
               <span className="inline-flex items-center gap-1 text-sm font-normal text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
                 <Check className="w-4 h-4" />
-                Concluído
+                Resgatado
               </span>
             )}
           </DialogTitle>
@@ -132,7 +132,7 @@ export function BonusContentModal({ bonus, open, onOpenChange, onComplete }: Bon
             <div className="flex justify-center pt-4">
               <Button onClick={handleComplete} variant="default" size="lg">
                 <Check className="w-5 h-5 mr-2" />
-                Marcar como concluído
+                Resgatar prêmio
               </Button>
             </div>
           )}
@@ -160,10 +160,11 @@ export function BonusContentModal({ bonus, open, onOpenChange, onComplete }: Bon
             </div>
           )}
 
-          {/* Next bonus info */}
+          {/* Timeline info */}
           {hasCompleted && (
-            <div className="text-center text-sm text-muted-foreground pt-4">
-              Próximo bônus libera em {bonus.unlock_delay_hours} hora{bonus.unlock_delay_hours > 1 ? "s" : ""}
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground pt-4">
+              <Clock className="w-4 h-4" />
+              <span>Prêmio liberado {bonus.timeLabel} após cadastro</span>
             </div>
           )}
         </div>

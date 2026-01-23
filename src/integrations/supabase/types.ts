@@ -230,7 +230,7 @@ export type Database = {
           sort_order: number
           thumbnail: string | null
           title: string
-          unlock_delay_hours: number
+          unlock_after_hours: number
           updated_at: string
         }
         Insert: {
@@ -247,7 +247,7 @@ export type Database = {
           sort_order?: number
           thumbnail?: string | null
           title: string
-          unlock_delay_hours?: number
+          unlock_after_hours?: number
           updated_at?: string
         }
         Update: {
@@ -264,7 +264,7 @@ export type Database = {
           sort_order?: number
           thumbnail?: string | null
           title?: string
-          unlock_delay_hours?: number
+          unlock_after_hours?: number
           updated_at?: string
         }
         Relationships: []

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Bonus } from "@/hooks/useBonuses";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { extractYouTubeVideoId } from "@/lib/youtube";
 
@@ -33,9 +33,22 @@ const completionRules = [
   { value: "download", label: "Ao baixar" }
 ];
 
+// Predefined time options for better UX
+const timePresets = [
+  { value: 0, label: "Imediato" },
+  { value: 24, label: "24 horas" },
+  { value: 72, label: "3 dias" },
+  { value: 168, label: "1 semana" },
+  { value: 360, label: "15 dias" },
+  { value: 720, label: "1 mês" },
+  { value: 1440, label: "2 meses" },
+  { value: 2160, label: "3 meses" },
+];
+
 export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdminModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [customHours, setCustomHours] = useState(false);
   const [formData, setFormData] = useState<Partial<Bonus>>({
     title: "",
     description: "",
@@ -43,7 +56,7 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
     content_url: "",
     thumbnail: "",
     completion_rule: "click",
-    unlock_delay_hours: 24,
+    unlock_after_hours: 24,
     is_active: true,
     reward_title: "",
     reward_description: "",
@@ -52,7 +65,13 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
 
   useEffect(() => {
     if (bonus) {
-      setFormData(bonus);
+      setFormData({
+        ...bonus,
+        unlock_after_hours: bonus.unlock_after_hours
+      });
+      // Check if it's a custom value
+      const isPreset = timePresets.some(p => p.value === bonus.unlock_after_hours);
+      setCustomHours(!isPreset);
     } else {
       setFormData({
         title: "",
@@ -61,12 +80,13 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
         content_url: "",
         thumbnail: "",
         completion_rule: "click",
-        unlock_delay_hours: 24,
+        unlock_after_hours: 24,
         is_active: true,
         reward_title: "",
         reward_description: "",
         reward_url: ""
       });
+      setCustomHours(false);
     }
   }, [bonus, open]);
 
@@ -82,13 +102,11 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("Selecione uma imagem válida");
       return;
     }
 
-    // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast.error("Imagem muito grande. Máximo 2MB");
       return;
@@ -137,7 +155,7 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{bonus ? "Editar Bônus" : "Novo Bônus"}</DialogTitle>
+          <DialogTitle>{bonus ? "Editar Prêmio" : "Novo Prêmio"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -149,7 +167,7 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Nome do bônus"
+                placeholder="Nome do prêmio"
                 required
               />
             </div>
@@ -164,6 +182,54 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
                 rows={3}
               />
             </div>
+          </div>
+
+          {/* Timing - Now more prominent */}
+          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-5 h-5 text-primary" />
+              <Label className="text-base font-semibold">Quando liberar?</Label>
+            </div>
+            
+            <p className="text-sm text-muted-foreground mb-3">
+              Tempo após o cadastro do usuário para este prêmio ser liberado
+            </p>
+
+            {!customHours ? (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                {timePresets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    type="button"
+                    variant={formData.unlock_after_hours === preset.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFormData({ ...formData, unlock_after_hours: preset.value })}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex gap-2 mb-3">
+                <Input
+                  type="number"
+                  min={0}
+                  value={formData.unlock_after_hours}
+                  onChange={(e) => setFormData({ ...formData, unlock_after_hours: parseInt(e.target.value) || 0 })}
+                  className="w-32"
+                />
+                <span className="flex items-center text-sm text-muted-foreground">horas após cadastro</span>
+              </div>
+            )}
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setCustomHours(!customHours)}
+            >
+              {customHours ? "Usar opções rápidas" : "Definir horas personalizadas"}
+            </Button>
           </div>
 
           {/* Content settings */}
@@ -220,7 +286,6 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
           <div>
             <Label>Thumbnail</Label>
             <div className="space-y-3">
-              {/* Preview */}
               {previewUrl && (
                 <div className="relative w-full h-32 rounded-lg overflow-hidden bg-muted">
                   <img 
@@ -247,7 +312,6 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
                 </div>
               )}
 
-              {/* Upload button */}
               <div className="flex gap-2">
                 <input
                   ref={fileInputRef}
@@ -272,7 +336,6 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
                 </Button>
               </div>
 
-              {/* URL fallback */}
               <Input
                 value={formData.thumbnail || ""}
                 onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
@@ -284,32 +347,19 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
             </div>
           </div>
 
-          {/* Timing */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="unlock_delay">Tempo para liberar próximo (horas)</Label>
-              <Input
-                id="unlock_delay"
-                type="number"
-                min={0}
-                value={formData.unlock_delay_hours}
-                onChange={(e) => setFormData({ ...formData, unlock_delay_hours: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-
-            <div className="flex items-center gap-3 pt-6">
-              <Switch
-                id="is_active"
-                checked={formData.is_active}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-              />
-              <Label htmlFor="is_active">Bônus ativo</Label>
-            </div>
+          {/* Active toggle */}
+          <div className="flex items-center gap-3">
+            <Switch
+              id="is_active"
+              checked={formData.is_active}
+              onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+            />
+            <Label htmlFor="is_active">Prêmio ativo</Label>
           </div>
 
           {/* Reward section */}
           <div className="border-t pt-4">
-            <h4 className="font-medium mb-4">Recompensa (opcional)</h4>
+            <h4 className="font-medium mb-4">Recompensa extra (opcional)</h4>
             
             <div className="space-y-4">
               <div>
@@ -350,7 +400,7 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
               Cancelar
             </Button>
             <Button type="submit">
-              {bonus ? "Salvar alterações" : "Criar bônus"}
+              {bonus ? "Salvar alterações" : "Criar prêmio"}
             </Button>
           </DialogFooter>
         </form>
