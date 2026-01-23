@@ -286,12 +286,16 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
           <div>
             <Label>Thumbnail</Label>
             <div className="space-y-3">
-              {previewUrl && (
+              {previewUrl ? (
                 <div className="relative w-full h-32 rounded-lg overflow-hidden bg-muted">
                   <img 
                     src={previewUrl} 
                     alt="Preview" 
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
+                    }}
                   />
                   {formData.thumbnail && (
                     <Button
@@ -309,6 +313,10 @@ export function BonusAdminModal({ bonus, open, onOpenChange, onSave }: BonusAdmi
                       YouTube (auto)
                     </div>
                   )}
+                </div>
+              ) : (
+                <div className="relative w-full h-32 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                  <span className="text-sm text-muted-foreground">Nenhuma imagem</span>
                 </div>
               )}
 
