@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useProfile } from "./useProfile";
 import { useToast } from "./use-toast";
 
 export interface Bonus {
@@ -11,7 +12,7 @@ export interface Bonus {
   content_url: string | null;
   thumbnail: string | null;
   completion_rule: "click" | "watch_50" | "watch_100" | "download";
-  unlock_delay_hours: number;
+  unlock_after_hours: number; // Hours after user registration
   sort_order: number;
   is_active: boolean;
   reward_title: string | null;
@@ -34,10 +35,28 @@ export interface BonusWithProgress extends Bonus {
   progress: UserBonusProgress | null;
   status: "locked" | "available" | "completed";
   unlockTime: Date | null;
+  timeLabel: string; // e.g. "24h", "3 dias", "15 dias", "1 mês"
+}
+
+// Convert hours to readable label
+function getTimeLabel(hours: number): string {
+  if (hours <= 0) return "Imediato";
+  if (hours < 24) return `${hours}h`;
+  if (hours < 48) return "1 dia";
+  
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} dias`;
+  if (days < 14) return "1 semana";
+  if (days < 30) return `${Math.floor(days / 7)} semanas`;
+  if (days < 60) return "1 mês";
+  
+  const months = Math.floor(days / 30);
+  return `${months} meses`;
 }
 
 export function useBonuses() {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const { toast } = useToast();
   const [bonuses, setBonuses] = useState<BonusWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +72,7 @@ export function useBonuses() {
       const { data: bonusesData, error: bonusesError } = await supabase
         .from("bonuses")
         .select("*")
-        .order("sort_order", { ascending: true });
+        .order("unlock_after_hours", { ascending: true });
 
       if (bonusesError) throw bonusesError;
 
@@ -65,35 +84,28 @@ export function useBonuses() {
 
       if (progressError) throw progressError;
 
-      // Combine bonuses with progress
-      const bonusesWithProgress: BonusWithProgress[] = (bonusesData || []).map((bonus, index) => {
+      // Get user registration date from profile or user metadata
+      const registrationDate = profile?.created_at 
+        ? new Date(profile.created_at) 
+        : new Date(user.created_at || Date.now());
+
+      // Calculate status based on time since registration
+      const bonusesWithProgress: BonusWithProgress[] = (bonusesData || []).map((bonus) => {
         const progress = progressData?.find(p => p.bonus_id === bonus.id) || null;
+        
+        // Calculate unlock time based on registration
+        const unlockTime = new Date(registrationDate.getTime() + (bonus.unlock_after_hours * 60 * 60 * 1000));
+        const now = new Date();
         
         // Determine status
         let status: "locked" | "available" | "completed" = "locked";
-        let unlockTime: Date | null = null;
-
+        
         if (progress?.completed_at) {
           status = "completed";
-        } else if (index === 0) {
-          // First bonus is always available
+        } else if (now >= unlockTime) {
           status = "available";
         } else {
-          // Check if previous bonus is completed
-          const prevBonus = bonusesData[index - 1];
-          const prevProgress = progressData?.find(p => p.bonus_id === prevBonus.id);
-          
-          if (prevProgress?.completed_at) {
-            const completedAt = new Date(prevProgress.completed_at);
-            const unlockAt = new Date(completedAt.getTime() + (prevBonus.unlock_delay_hours * 60 * 60 * 1000));
-            
-            if (new Date() >= unlockAt) {
-              status = "available";
-            } else {
-              status = "locked";
-              unlockTime = unlockAt;
-            }
-          }
+          status = "locked";
         }
 
         return {
@@ -102,7 +114,8 @@ export function useBonuses() {
           completion_rule: bonus.completion_rule as BonusWithProgress["completion_rule"],
           progress,
           status,
-          unlockTime
+          unlockTime: status === "locked" ? unlockTime : null,
+          timeLabel: getTimeLabel(bonus.unlock_after_hours)
         };
       });
 
@@ -170,13 +183,6 @@ export function useBonuses() {
   // Admin functions
   const createBonus = async (bonus: Partial<Bonus>) => {
     try {
-      const { data: maxOrder } = await supabase
-        .from("bonuses")
-        .select("sort_order")
-        .order("sort_order", { ascending: false })
-        .limit(1)
-        .single();
-
       const newBonus = {
         title: bonus.title || "Novo Bônus",
         description: bonus.description,
@@ -184,8 +190,8 @@ export function useBonuses() {
         content_url: bonus.content_url,
         thumbnail: bonus.thumbnail,
         completion_rule: bonus.completion_rule || "click",
-        unlock_delay_hours: bonus.unlock_delay_hours || 24,
-        sort_order: (maxOrder?.sort_order || 0) + 1,
+        unlock_after_hours: bonus.unlock_after_hours || 24,
+        sort_order: bonus.unlock_after_hours || 24, // Use hours as sort order
         is_active: bonus.is_active ?? true,
         reward_title: bonus.reward_title,
         reward_description: bonus.reward_description,
@@ -200,7 +206,7 @@ export function useBonuses() {
 
       toast({
         title: "Bônus criado",
-        description: "O bônus foi adicionado à trilha"
+        description: "O prêmio foi adicionado à trajetória"
       });
 
       fetchBonuses();
@@ -276,7 +282,7 @@ export function useBonuses() {
 
   useEffect(() => {
     fetchBonuses();
-  }, [user]);
+  }, [user, profile]);
 
   return {
     bonuses,

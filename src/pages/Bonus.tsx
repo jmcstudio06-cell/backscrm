@@ -3,24 +3,25 @@ import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useBonuses, type Bonus as BonusType, type BonusWithProgress } from "@/hooks/useBonuses";
-import { BonusCard } from "@/components/bonus/BonusCard";
+import { PrizeTimelineCard } from "@/components/bonus/PrizeTimelineCard";
 import { BonusContentModal } from "@/components/bonus/BonusContentModal";
 import { BonusAdminModal } from "@/components/bonus/BonusAdminModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
   Settings, 
   Trophy, 
-  Target, 
   Gift,
   Sparkles,
-  GripVertical,
   Pencil,
   Trash2,
   Eye,
-  EyeOff
+  EyeOff,
+  Clock,
+  Rocket
 } from "lucide-react";
 import {
   AlertDialog,
@@ -36,7 +37,7 @@ import {
 export default function BonusPage() {
   useRequireAuth();
   const { isAdmin } = useAdmin();
-  const { bonuses, loading, completeBonus, createBonus, updateBonus, deleteBonus, reorderBonuses } = useBonuses();
+  const { bonuses, loading, completeBonus, createBonus, updateBonus, deleteBonus } = useBonuses();
   
   const [selectedBonus, setSelectedBonus] = useState<BonusWithProgress | null>(null);
   const [contentModalOpen, setContentModalOpen] = useState(false);
@@ -46,9 +47,14 @@ export default function BonusPage() {
   const [bonusToDelete, setBonusToDelete] = useState<string | null>(null);
   const [adminMode, setAdminMode] = useState(false);
 
-  const completedCount = bonuses.filter(b => b.status === "completed").length;
-  const totalCount = bonuses.filter(b => b.is_active).length;
+  const activeBonuses = bonuses.filter(b => b.is_active);
+  const completedCount = activeBonuses.filter(b => b.status === "completed").length;
+  const availableCount = activeBonuses.filter(b => b.status === "available").length;
+  const totalCount = activeBonuses.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  // Get next available prize
+  const nextPrize = activeBonuses.find(b => b.status === "available" && !b.progress?.completed_at);
 
   const handleViewBonus = (bonus: BonusWithProgress) => {
     setSelectedBonus(bonus);
@@ -90,36 +96,18 @@ export default function BonusPage() {
     updateBonus(bonus.id, { is_active: !bonus.is_active });
   };
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newOrder = bonuses.map((b, i) => ({
-      id: b.id,
-      sort_order: i === index ? index - 1 : i === index - 1 ? index : i
-    }));
-    reorderBonuses(newOrder);
-  };
-
-  const handleMoveDown = (index: number) => {
-    if (index === bonuses.length - 1) return;
-    const newOrder = bonuses.map((b, i) => ({
-      id: b.id,
-      sort_order: i === index ? index + 1 : i === index + 1 ? index : i
-    }));
-    reorderBonuses(newOrder);
-  };
-
   return (
-    <Layout title="Bônus">
+    <Layout title="Trajetória de Prêmios">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Trophy className="w-7 h-7 text-primary" />
-              Bônus
+              <Trophy className="w-7 h-7 text-amber-500" />
+              Trajetória de Prêmios
             </h1>
             <p className="text-muted-foreground">
-              Sua trilha de evolução profissional
+              Prêmios exclusivos que você desbloqueia ao longo da sua jornada
             </p>
           </div>
 
@@ -135,77 +123,78 @@ export default function BonusPage() {
               {adminMode && (
                 <Button onClick={handleNewBonus}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Novo Bônus
+                  Novo Prêmio
                 </Button>
               )}
             </div>
           )}
         </div>
 
-        {/* Progress Card */}
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-          <CardContent className="py-6">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="relative w-24 h-24">
-                <svg className="w-24 h-24 transform -rotate-90">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="none"
-                    className="text-muted"
-                  />
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="none"
-                    strokeDasharray={251.2}
-                    strokeDashoffset={251.2 - (251.2 * progressPercent) / 100}
-                    className="text-primary transition-all duration-500"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold">{progressPercent}%</span>
-                </div>
+        {/* Progress Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-amber-500/30">
+            <CardContent className="py-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Gift className="w-6 h-6 text-amber-500" />
               </div>
-
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-xl font-semibold mb-1">Sua Jornada</h3>
-                <p className="text-muted-foreground">
-                  {completedCount} de {totalCount} bônus concluídos
-                </p>
+              <div>
+                <p className="text-sm text-muted-foreground">Prêmios Resgatados</p>
+                <p className="text-2xl font-bold">{completedCount} <span className="text-sm font-normal text-muted-foreground">/ {totalCount}</span></p>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="flex gap-4 text-center">
-                <div className="p-4 rounded-lg bg-card">
-                  <Target className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <div className="text-2xl font-bold">{completedCount}</div>
-                  <div className="text-xs text-muted-foreground">Concluídos</div>
-                </div>
-                <div className="p-4 rounded-lg bg-card">
-                  <Gift className="w-6 h-6 mx-auto mb-2 text-amber-500" />
-                  <div className="text-2xl font-bold">
-                    {bonuses.filter(b => b.status === "completed" && b.reward_title).length}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Recompensas</div>
-                </div>
+          <Card className="bg-gradient-to-br from-primary/20 to-primary/10 border-primary/30">
+            <CardContent className="py-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-primary" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <div>
+                <p className="text-sm text-muted-foreground">Disponíveis Agora</p>
+                <p className="text-2xl font-bold">{availableCount}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Bonus Trail */}
+          <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30">
+            <CardContent className="py-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                <Rocket className="w-6 h-6 text-green-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Progresso</p>
+                <p className="text-2xl font-bold">{progressPercent}%</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Next Prize Alert */}
+        {nextPrize && (
+          <Card className="bg-gradient-to-r from-primary/10 via-amber-500/10 to-primary/10 border-primary/30 animate-pulse-slow">
+            <CardContent className="py-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center">
+                  <Gift className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">Prêmio disponível para resgate!</p>
+                  <p className="font-semibold">{nextPrize.title}</p>
+                </div>
+                <Button onClick={() => handleViewBonus(nextPrize)}>
+                  Resgatar agora
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Prize Timeline */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              Trilha de Bônus
+              <Clock className="w-5 h-5 text-primary" />
+              Linha do Tempo
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -215,21 +204,21 @@ export default function BonusPage() {
                   <Skeleton key={i} className="h-32 w-full" />
                 ))}
               </div>
-            ) : bonuses.length === 0 ? (
+            ) : activeBonuses.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhum bônus disponível ainda</p>
+                <p>Nenhum prêmio disponível ainda</p>
                 {isAdmin && (
                   <Button className="mt-4" onClick={handleNewBonus}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Criar primeiro bônus
+                    Criar primeiro prêmio
                   </Button>
                 )}
               </div>
             ) : adminMode ? (
               // Admin list view
               <div className="space-y-2">
-                {bonuses.map((bonus, index) => (
+                {bonuses.map((bonus) => (
                   <div
                     key={bonus.id}
                     className={`
@@ -237,35 +226,14 @@ export default function BonusPage() {
                       ${bonus.is_active ? "bg-card" : "bg-muted/30 opacity-60"}
                     `}
                   >
-                    <div className="flex flex-col gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => handleMoveUp(index)}
-                        disabled={index === 0}
-                      >
-                        <GripVertical className="w-4 h-4 rotate-90" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => handleMoveDown(index)}
-                        disabled={index === bonuses.length - 1}
-                      >
-                        <GripVertical className="w-4 h-4 rotate-90" />
-                      </Button>
-                    </div>
-
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
-                      {index + 1}
-                    </div>
+                    <Badge variant="outline" className="shrink-0">
+                      {bonus.timeLabel}
+                    </Badge>
 
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium truncate">{bonus.title}</h4>
                       <p className="text-sm text-muted-foreground">
-                        {bonus.content_type} • {bonus.unlock_delay_hours}h delay
+                        {bonus.content_type} • {bonus.unlock_after_hours}h após cadastro
                         {bonus.reward_title && " • Com recompensa"}
                       </p>
                     </div>
@@ -303,18 +271,15 @@ export default function BonusPage() {
                 ))}
               </div>
             ) : (
-              // User journey view
-              <div className="relative space-y-6 pl-4">
-                {/* Vertical line */}
-                <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gradient-to-b from-primary via-primary/50 to-muted" />
-
-                {bonuses.filter(b => b.is_active).map((bonus, index) => (
-                  <BonusCard
+              // User timeline view
+              <div className="py-4">
+                {activeBonuses.map((bonus, index) => (
+                  <PrizeTimelineCard
                     key={bonus.id}
                     bonus={bonus}
-                    index={index}
                     onComplete={completeBonus}
                     onView={handleViewBonus}
+                    isLast={index === activeBonuses.length - 1}
                   />
                 ))}
               </div>
@@ -341,9 +306,9 @@ export default function BonusPage() {
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remover bônus?</AlertDialogTitle>
+            <AlertDialogTitle>Remover prêmio?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O progresso dos usuários neste bônus será perdido.
+              Esta ação não pode ser desfeita. O progresso dos usuários neste prêmio será perdido.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
