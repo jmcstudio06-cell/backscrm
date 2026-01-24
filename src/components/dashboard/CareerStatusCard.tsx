@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Sparkles, AlertTriangle, Pause } from "lucide-react";
+import { TrendingUp, TrendingDown, Sparkles, AlertTriangle, Pause, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CareerStatusCardProps {
@@ -20,33 +20,28 @@ export function CareerStatusCard({
   revenueThisMonth,
   revenueLastMonth,
 }: CareerStatusCardProps) {
-  // Calculate career status based on trends
   const calculateStatus = (): CareerStatus => {
     let positiveIndicators = 0;
     let negativeIndicators = 0;
 
-    // Compare leads
     if (leadsThisMonth > leadsLastMonth) positiveIndicators++;
     else if (leadsThisMonth < leadsLastMonth) negativeIndicators++;
 
-    // Compare shows
     if (showsThisMonth > showsLastMonth) positiveIndicators++;
     else if (showsThisMonth < showsLastMonth) negativeIndicators++;
 
-    // Compare revenue
     if (revenueThisMonth > revenueLastMonth) positiveIndicators++;
     else if (revenueThisMonth < revenueLastMonth) negativeIndicators++;
 
-    // Also consider if there's activity at all
     const hasActivity = leadsThisMonth > 0 || showsThisMonth > 0 || revenueThisMonth > 0;
 
     if (!hasActivity && leadsLastMonth === 0 && showsLastMonth === 0 && revenueLastMonth === 0) {
-      return "stalled"; // No activity at all
+      return "stalled";
     }
 
     if (positiveIndicators >= 2) return "growing";
     if (negativeIndicators >= 2) return "attention";
-    return "attention"; // Mixed signals = attention
+    return "attention";
   };
 
   const status = calculateStatus();
@@ -56,37 +51,34 @@ export function CareerStatusCard({
       label: "Em Crescimento",
       sublabel: "Sua carreira está evoluindo!",
       icon: TrendingUp,
-      gradient: "from-emerald-500 to-teal-500",
-      bgGlow: "bg-success/10",
-      iconBg: "bg-success/20",
+      gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+      bgGlow: "bg-gradient-to-br from-success/20 via-success/10 to-transparent",
+      iconBg: "bg-gradient-to-br from-success to-teal-500",
       textColor: "text-success",
       badgeBg: "bg-success/10",
       badgeBorder: "border-success/30",
-      pulse: true,
     },
     attention: {
       label: "Atenção",
       sublabel: "Hora de acelerar as ações",
       icon: AlertTriangle,
-      gradient: "from-amber-500 to-orange-500",
-      bgGlow: "bg-warning/10",
-      iconBg: "bg-warning/20",
+      gradient: "from-amber-500 via-orange-500 to-rose-500",
+      bgGlow: "bg-gradient-to-br from-warning/20 via-warning/10 to-transparent",
+      iconBg: "bg-gradient-to-br from-warning to-orange-500",
       textColor: "text-warning",
       badgeBg: "bg-warning/10",
       badgeBorder: "border-warning/30",
-      pulse: false,
     },
     stalled: {
       label: "Parado",
       sublabel: "Vamos retomar o ritmo!",
       icon: Pause,
-      gradient: "from-muted-foreground to-muted-foreground",
-      bgGlow: "bg-muted/20",
-      iconBg: "bg-muted",
+      gradient: "from-slate-400 via-slate-500 to-slate-600",
+      bgGlow: "bg-gradient-to-br from-muted/30 via-muted/20 to-transparent",
+      iconBg: "bg-gradient-to-br from-muted-foreground/50 to-muted-foreground",
       textColor: "text-muted-foreground",
       badgeBg: "bg-muted",
       badgeBorder: "border-border",
-      pulse: false,
     },
   };
 
@@ -100,28 +92,42 @@ export function CareerStatusCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6 shadow-sm">
-      {/* Background decoration */}
-      <div className={cn("absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl", config.bgGlow)} />
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
+      {/* Animated mesh background */}
+      <div className={cn("absolute inset-0 opacity-60", config.bgGlow)} />
+      <div className="absolute -top-32 -right-32 w-64 h-64 rounded-full blur-3xl opacity-30 bg-gradient-to-br from-primary/20 to-accent/20 group-hover:opacity-50 transition-opacity duration-700" />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-4 right-4 w-20 h-20 rounded-full border border-border/20 opacity-20" />
+      <div className="absolute top-8 right-8 w-12 h-12 rounded-full border border-border/20 opacity-20" />
 
       <div className="relative">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className={cn("p-3 rounded-xl", config.iconBg)}>
-              <Icon className={cn("w-6 h-6", config.textColor)} />
+          <div className="flex items-center gap-4">
+            <div className={cn(
+              "p-3 rounded-2xl shadow-lg",
+              config.iconBg
+            )}>
+              <Icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Status da Carreira</p>
-              <h3 className={cn("text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent", config.gradient)}>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Status da Carreira</p>
+              <h3 className={cn(
+                "text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                config.gradient
+              )}>
                 {config.label}
               </h3>
             </div>
           </div>
           {status === "growing" && (
-            <div className={cn("flex items-center gap-1 px-3 py-1 rounded-full border", config.badgeBg, config.badgeBorder)}>
-              <Sparkles className="w-3 h-3 text-success" />
-              <span className="text-xs font-medium text-success">Excelente!</span>
+            <div className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border backdrop-blur-sm",
+              config.badgeBg, config.badgeBorder
+            )}>
+              <Sparkles className="w-3.5 h-3.5 text-success animate-pulse-soft" />
+              <span className="text-xs font-semibold text-success">Excelente!</span>
             </div>
           )}
         </div>
@@ -129,8 +135,8 @@ export function CareerStatusCard({
         {/* Sublabel */}
         <p className="text-muted-foreground text-sm mb-6">{config.sublabel}</p>
 
-        {/* Metrics comparison */}
-        <div className="grid grid-cols-3 gap-4">
+        {/* Metrics Grid - Modern bento style */}
+        <div className="grid grid-cols-3 gap-3">
           <MetricItem
             label="Leads"
             current={leadsThisMonth}
@@ -170,18 +176,22 @@ function MetricItem({ label, current, change, isPositive, isCurrency }: MetricIt
     : current;
 
   return (
-    <div className="p-3 rounded-xl bg-secondary/50 border border-border">
-      <p className="text-xs text-muted-foreground mb-1">{label}</p>
-      <p className="text-lg font-bold text-foreground">{displayValue}</p>
-      <div className="flex items-center gap-1 mt-1">
-        {isPositive ? (
-          <TrendingUp className="w-3 h-3 text-success" />
-        ) : (
-          <TrendingDown className="w-3 h-3 text-destructive" />
-        )}
-        <span className={cn("text-xs font-medium", isPositive ? "text-success" : "text-destructive")}>
+    <div className="relative p-4 rounded-2xl bg-secondary/30 border border-border/50 backdrop-blur-sm group/metric hover:bg-secondary/50 transition-all duration-300">
+      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/metric:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/5 to-transparent" />
+      <div className="relative">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-2">{label}</p>
+        <p className="text-xl font-bold text-foreground">{displayValue}</p>
+        <div className={cn(
+          "inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full text-xs font-semibold",
+          isPositive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+        )}>
+          {isPositive ? (
+            <ArrowUpRight className="w-3 h-3" />
+          ) : (
+            <ArrowDownRight className="w-3 h-3" />
+          )}
           {change}
-        </span>
+        </div>
       </div>
     </div>
   );
