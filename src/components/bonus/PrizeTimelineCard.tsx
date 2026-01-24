@@ -105,12 +105,38 @@ export function PrizeTimelineCard({ bonus, onComplete, onView, isLast }: PrizeTi
               />
             </div>
           ) : (
-            <div className={`w-full sm:w-32 h-24 shrink-0 bg-muted flex items-center justify-center ${isLocked ? "opacity-50" : ""}`}>
-              {isLocked ? (
-                <Lock className="w-8 h-8 text-muted-foreground" />
-              ) : (
-                <Icon className="w-8 h-8 text-muted-foreground" />
-              )}
+            <div className={`w-full sm:w-32 h-24 shrink-0 flex items-center justify-center relative overflow-hidden ${isLocked ? "opacity-50" : ""}`}>
+              {/* Gradient background */}
+              <div className={`absolute inset-0 ${
+                isCompleted 
+                  ? "bg-gradient-to-br from-green-400/20 via-emerald-500/30 to-green-600/20" 
+                  : isAvailable 
+                    ? "bg-gradient-to-br from-primary/20 via-primary/30 to-primary/20" 
+                    : "bg-gradient-to-br from-muted via-muted/80 to-muted"
+              }`} />
+              
+              {/* Decorative circles */}
+              <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full ${
+                isCompleted ? "bg-green-500/10" : isAvailable ? "bg-primary/10" : "bg-muted-foreground/5"
+              }`} />
+              <div className={`absolute -bottom-2 -left-2 w-12 h-12 rounded-full ${
+                isCompleted ? "bg-green-500/10" : isAvailable ? "bg-primary/10" : "bg-muted-foreground/5"
+              }`} />
+              
+              {/* Icon */}
+              <div className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center ${
+                isCompleted 
+                  ? "bg-green-500/20 text-green-600" 
+                  : isAvailable 
+                    ? "bg-primary/20 text-primary" 
+                    : "bg-muted-foreground/10 text-muted-foreground"
+              }`}>
+                {isLocked ? (
+                  <Lock className="w-6 h-6" />
+                ) : (
+                  <Icon className="w-6 h-6" />
+                )}
+              </div>
             </div>
           )}
 
