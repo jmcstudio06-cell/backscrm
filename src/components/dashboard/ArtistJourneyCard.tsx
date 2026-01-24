@@ -127,83 +127,98 @@ export function ArtistJourneyCard({
   const activeCTAStep = journeySteps.find(step => step.ctaText && step.ctaLink);
 
   return (
-    <div className="rounded-xl bg-card border border-border p-4 sm:p-6">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <LayoutDashboard className="w-5 h-5 text-primary" />
-        <h3 className="font-semibold text-foreground">Sua Jornada na Backstage</h3>
-      </div>
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 sm:p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/3 via-transparent to-accent/3 opacity-70" />
+      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl opacity-50" />
+      
+      <div className="relative">
+        {/* Header */}
+        <div className="flex items-center gap-2.5 mb-6">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <LayoutDashboard className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">Sua Jornada na Backstage</h3>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Progresso atual</p>
+          </div>
+        </div>
 
-      {/* Timeline */}
-      <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6">
-        <div className="flex items-start justify-between min-w-[500px]">
-          {journeySteps.map((step, index) => {
-            const Icon = step.icon;
-            const isLast = index === journeySteps.length - 1;
-            const isActive = step === activeCTAStep;
-            const isHighlightedValue = step.id !== "entrada" && step.completed;
-            
-            return (
-              <div key={step.id} className="flex items-start flex-1">
-                {/* Step */}
-                <div className="flex flex-col items-center text-center flex-1">
-                  {/* Icon Circle */}
-                  <div className={cn(
-                    "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all",
-                    step.completed 
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
-                      : "bg-muted text-muted-foreground"
-                  )}>
-                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                    {step.completed && (
-                      <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-card" />
+        {/* Timeline - Horizontal scroll on mobile */}
+        <div className="overflow-x-auto -mx-5 sm:-mx-6 px-5 sm:px-6 pb-2">
+          <div className="flex items-start justify-between min-w-[520px] gap-1">
+            {journeySteps.map((step, index) => {
+              const Icon = step.icon;
+              const isLast = index === journeySteps.length - 1;
+              const isActive = step === activeCTAStep;
+              const isHighlightedValue = step.id !== "entrada" && step.completed;
+              
+              return (
+                <div key={step.id} className="flex items-start flex-1">
+                  {/* Step */}
+                  <div className="flex flex-col items-center text-center flex-1">
+                    {/* Icon Circle */}
+                    <div className={cn(
+                      "relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg",
+                      step.completed 
+                        ? "bg-gradient-to-br from-primary to-accent text-white" 
+                        : "bg-muted/50 text-muted-foreground border border-border/50"
+                    )}>
+                      <Icon className="w-5 h-5" />
+                      {step.completed && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-success rounded-lg border-2 border-card flex items-center justify-center">
+                          <span className="text-[8px] text-white font-bold">✓</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Step Title */}
+                    <p className={cn(
+                      "mt-3 text-xs font-semibold leading-tight max-w-[85px] sm:max-w-[100px]",
+                      step.completed ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      {step.title}
+                    </p>
+
+                    {/* Subtitle - Highlighted for important values */}
+                    {step.subtitle && (
+                      <p className={cn(
+                        "mt-1 text-[10px] sm:text-xs leading-tight max-w-[85px] sm:max-w-[100px]",
+                        isHighlightedValue 
+                          ? "font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent" 
+                          : "text-muted-foreground"
+                      )}>
+                        {step.subtitle}
+                      </p>
+                    )}
+
+                    {/* CTA Button */}
+                    {isActive && step.ctaLink && (
+                      <Link
+                        to={step.ctaLink}
+                        className="mt-2 inline-flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold text-primary hover:text-primary/80 transition-colors px-2 py-1 rounded-full bg-primary/5 hover:bg-primary/10"
+                      >
+                        {step.ctaText}
+                        <ChevronRight className="w-3 h-3" />
+                      </Link>
                     )}
                   </div>
 
-                  {/* Step Title */}
-                  <p className={cn(
-                    "mt-2 text-xs font-medium leading-tight max-w-[80px] sm:max-w-[100px]",
-                    step.completed ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    {step.title}
-                  </p>
-
-                  {/* Subtitle - Highlighted for important values */}
-                  {step.subtitle && (
-                    <p className={cn(
-                      "mt-0.5 text-[10px] sm:text-xs leading-tight max-w-[80px] sm:max-w-[100px]",
-                      isHighlightedValue 
-                        ? "text-primary font-semibold" 
-                        : "text-muted-foreground"
-                    )}>
-                      {step.subtitle}
-                    </p>
-                  )}
-
-                  {/* CTA Button */}
-                  {isActive && step.ctaLink && (
-                    <Link
-                      to={step.ctaLink}
-                      className="mt-1.5 inline-flex items-center gap-0.5 text-[10px] sm:text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-                    >
-                      {step.ctaText}
-                      <ChevronRight className="w-3 h-3" />
-                    </Link>
+                  {/* Connector Line */}
+                  {!isLast && (
+                    <div className="flex items-center h-12 flex-shrink-0 px-1">
+                      <div className={cn(
+                        "w-8 sm:w-12 h-1 rounded-full transition-all duration-500",
+                        step.completed 
+                          ? "bg-gradient-to-r from-primary to-accent" 
+                          : "bg-border"
+                      )} />
+                    </div>
                   )}
                 </div>
-
-                {/* Connector Line */}
-                {!isLast && (
-                  <div className="flex items-center h-10 sm:h-11 flex-shrink-0">
-                    <div className={cn(
-                      "w-6 sm:w-10 h-0.5 rounded-full",
-                      step.completed ? "bg-primary/40" : "bg-border"
-                    )} />
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

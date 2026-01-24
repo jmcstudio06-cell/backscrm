@@ -259,13 +259,16 @@ const Dashboard = () => {
         {/* Trial Countdown Card - temporarily disabled */}
         {/* <TrialCountdownCard /> */}
 
-        {/* Welcome Section */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-              Olá, {profile?.name || 'Artista'}!
+        {/* Welcome Section - More dramatic */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
+          <div className="relative">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+              <span className="text-foreground">Olá, </span>
+              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+                {profile?.name || 'Artista'}!
+              </span>
             </h1>
-            <p className="text-sm text-muted-foreground mt-0.5 sm:mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
             </p>
           </div>
