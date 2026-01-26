@@ -111,51 +111,11 @@ const Landing = () => {
 
   const whatsappLink = "https://web.whatsapp.com/send?phone=5512981289496&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
 
-  const [showPromoBanner, setShowPromoBanner] = useState(true);
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Promotional Banner - Fixed at very top */}
-      {showPromoBanner && (
-        <div className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-500 text-white py-2.5 px-4 shadow-lg">
-          <div className="container mx-auto flex items-center justify-center gap-3 relative">
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-2">
-              <div className="animate-pulse">
-                <Gift className="w-5 h-5 text-yellow-300" />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-3 text-center">
-              <div className="hidden sm:flex items-center gap-1 bg-white/20 rounded-full px-2 py-0.5">
-                <Zap className="w-3 h-3 text-yellow-300" />
-                <span className="text-xs font-bold uppercase tracking-wider">Oferta Especial</span>
-              </div>
-              <span className="text-sm sm:text-base font-medium">
-                🎁 <span className="font-bold">AGENDA DE SHOWS GRÁTIS</span> por tempo indeterminado!
-              </span>
-              <Button 
-                onClick={() => navigate('/auth')}
-                size="sm"
-                className="bg-white text-emerald-600 hover:bg-white/90 font-bold text-xs sm:text-sm px-3 py-1 h-7 shadow-md hover:scale-105 transition-transform"
-              >
-                Resgatar Agora
-                <ArrowRight className="w-3 h-3 ml-1" />
-              </Button>
-            </div>
-            
-            <button 
-              onClick={() => setShowPromoBanner(false)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors"
-              aria-label="Fechar banner"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Header */}
-      <header className={`fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm transition-all duration-300 ${showPromoBanner ? 'top-10' : 'top-0'}`}>
+      <header className="fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm transition-all duration-300 top-0">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold text-[#0066CC]">Backstage</span>
@@ -177,7 +137,7 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className={`pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden transition-all duration-300 ${showPromoBanner ? 'pt-44' : 'pt-32'}`}>
+      <section className="pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden transition-all duration-300 pt-32">
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
         
         <div className="container mx-auto px-6 relative z-10">
@@ -234,25 +194,32 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Social proof - visual */}
-              <div className="flex items-center gap-3 justify-center lg:justify-start">
-                <div className="flex -space-x-2">
-                  {userAvatars.map((avatar, i) => (
-                    <img 
-                      key={i} 
-                      src={avatar}
-                      alt={`Usuário ${i + 1}`}
-                      className="w-9 h-9 rounded-full border-2 border-white/30 object-cover"
-                    />
-                  ))}
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center gap-1 mb-0.5">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              {/* Social proof - BIG HIGHLIGHT */}
+              <div className="mt-4 p-4 bg-white/15 backdrop-blur-sm rounded-2xl border border-white/30">
+                <div className="flex items-center gap-4">
+                  <div className="flex -space-x-3">
+                    {userAvatars.map((avatar, i) => (
+                      <img 
+                        key={i} 
+                        src={avatar}
+                        alt={`Usuário ${i + 1}`}
+                        className="w-12 h-12 rounded-full border-3 border-white/50 object-cover shadow-lg"
+                      />
                     ))}
                   </div>
-                  <span className="text-white/80 text-sm">+100 artistas organizando seus shows</span>
+                  <div className="text-left">
+                    <div className="flex items-center gap-1 mb-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-white font-bold text-xl md:text-2xl">
+                      +90 Artistas
+                    </p>
+                    <p className="text-white/90 text-sm md:text-base">
+                      se organizando com o Backstage Pro
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
