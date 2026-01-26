@@ -58,13 +58,13 @@ const plans = [
     totalPrice: "R$ 149,70",
     icon: Star,
     highlight: "MAIS ESCOLHIDO",
-    support: "Suporte prioritário + 1 consultoria",
+    support: "Suporte prioritário",
     cta: "Quero crescer agora",
     features: [
       "Tudo do plano Essencial",
       "Funil de vendas para fechar mais shows",
       "Metas e acompanhamento de crescimento",
-      "1 consultoria estratégica personalizada",
+      "Relatórios de performance detalhados",
       "Economize comparado ao plano mensal",
     ],
     styles: {
@@ -83,13 +83,13 @@ const plans = [
     totalPrice: "R$ 239,40",
     icon: Crown,
     highlight: "MELHOR VALOR",
-    support: "Suporte VIP + 3 consultorias",
+    support: "Suporte VIP",
     cta: "Quero ser referência",
     features: [
       "Tudo do plano Profissional",
-      "3 consultorias estratégicas individuais",
       "Acompanhamento contínuo de metas",
       "Prioridade em novidades e recursos",
+      "Acesso antecipado a novas funcionalidades",
       "Economize comparado ao plano mensal",
     ],
     styles: {
