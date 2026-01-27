@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +44,7 @@ import {
   UserPlus,
   Building2,
   Calculator,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,8 @@ import { useMusicians, Musician } from "@/hooks/useMusicians";
 import { useClients, Client } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import TransportCalculatorModal from "@/components/calculadora/TransportCalculatorModal";
+import { useFormPersistence, clearAllShowFormData, hasPersistedShowData } from "@/hooks/useFormPersistence";
+import { RecurringEventSection, RecurringConfig, generateRecurringDates } from "./RecurringEventSection";
 
 interface EditingShow {
   id: string;
@@ -140,6 +143,30 @@ const formatCurrency = (value: number): string => {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
+const initialFormData = {
+  name: "",
+  date: "",
+  time: "",
+  venue: "",
+  address: "",
+  client: "",
+  clientPhone: "",
+  clientEmail: "",
+  clientCompany: "",
+  type: "",
+  status: "scheduled",
+  notes: "",
+  cachet: 0,
+};
+
+const initialRecurringConfig: RecurringConfig = {
+  enabled: false,
+  frequency: "weekly",
+  dayOfWeek: 1,
+  startDate: "",
+  endDate: "",
+};
+
 export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading } = useMusicians();
   const { clients, loading: clientsLoading, addClient } = useClients();
@@ -149,30 +176,77 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
   const [clientMode, setClientMode] = useState<"existing" | "new">("existing");
   const [showTransportCalculator, setShowTransportCalculator] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [showRestoredBanner, setShowRestoredBanner] = useState(false);
+
+  // Form persistence - only for new shows, not editing
+  const isEditing = !!editingShow;
   
-  const [formData, setFormData] = useState({
-    name: "",
-    date: "",
-    time: "",
-    venue: "",
-    address: "",
-    client: "",
-    clientPhone: "",
-    clientEmail: "",
-    clientCompany: "",
-    type: "",
-    status: "scheduled",
-    notes: "",
-    cachet: 0,
+  const {
+    value: formData,
+    setValue: setFormData,
+    reset: resetFormData,
+  } = useFormPersistence({
+    key: "novo_show_form",
+    initialValue: initialFormData,
+    enabled: !isEditing,
   });
 
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [selectedMusicians, setSelectedMusicians] = useState<SelectedMusician[]>([]);
+  const {
+    value: expenses,
+    setValue: setExpenses,
+    reset: resetExpenses,
+  } = useFormPersistence<Expense[]>({
+    key: "novo_show_expenses",
+    initialValue: [],
+    enabled: !isEditing,
+  });
+
+  const {
+    value: selectedMusicians,
+    setValue: setSelectedMusicians,
+    reset: resetMusicians,
+  } = useFormPersistence<SelectedMusician[]>({
+    key: "novo_show_musicians",
+    initialValue: [],
+    enabled: !isEditing,
+  });
+
+  const {
+    value: persistedClientId,
+    setValue: setPersistedClientId,
+    reset: resetClientId,
+  } = useFormPersistence({
+    key: "novo_show_client",
+    initialValue: "",
+    enabled: !isEditing,
+  });
+
+  const {
+    value: recurringConfig,
+    setValue: setRecurringConfig,
+    reset: resetRecurring,
+  } = useFormPersistence<RecurringConfig>({
+    key: "novo_show_recurring",
+    initialValue: initialRecurringConfig,
+    enabled: !isEditing,
+  });
+
   const [newExpense, setNewExpense] = useState({
     description: "",
     category: "transporte",
     value: 0,
   });
+
+  // Check for restored data when opening
+  useEffect(() => {
+    if (open && !isEditing && hasPersistedShowData()) {
+      setShowRestoredBanner(true);
+      // Also restore clientId
+      if (persistedClientId) {
+        setSelectedClientId(persistedClientId);
+      }
+    }
+  }, [open, isEditing, persistedClientId]);
 
   // Load saved musicians and expenses when editing
   const loadShowFinancialData = async (showId: string) => {
@@ -215,6 +289,55 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
     }
   };
 
+  // Fetch last show info for a client to auto-fill
+  const fetchClientLastShowInfo = useCallback(async (clientId: string) => {
+    try {
+      const { data } = await supabase
+        .from("shows")
+        .select("venue, address, event_type, title")
+        .eq("client_id", clientId)
+        .order("date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      return data;
+    } catch (error) {
+      console.error("Error fetching client last show:", error);
+      return null;
+    }
+  }, []);
+
+  // Handle client selection with auto-fill
+  const handleClientSelect = useCallback(async (clientId: string) => {
+    setSelectedClientId(clientId);
+    setPersistedClientId(clientId);
+    
+    const client = clients.find(c => c.id === clientId);
+    if (!client) return;
+
+    // Get last show info for this client
+    const lastShowInfo = await fetchClientLastShowInfo(clientId);
+
+    setFormData((prev) => ({
+      ...prev,
+      client: client.name,
+      clientPhone: client.phone || "",
+      clientEmail: client.email || "",
+      clientCompany: client.company || "",
+      // Auto-fill from last show if available and current fields are empty
+      venue: prev.venue || lastShowInfo?.venue || "",
+      address: prev.address || lastShowInfo?.address || "",
+      type: prev.type || lastShowInfo?.event_type || "",
+      name: prev.name || (lastShowInfo?.title ? `${lastShowInfo.title} (novo)` : ""),
+    }));
+
+    if (lastShowInfo?.venue) {
+      toast.info("Informações do último show preenchidas automaticamente", {
+        description: `Local: ${lastShowInfo.venue}`,
+      });
+    }
+  }, [clients, fetchClientLastShowInfo, setFormData, setPersistedClientId]);
+
   // Load editing show data when modal opens
   useEffect(() => {
     if (open && editingShow) {
@@ -242,32 +365,10 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
       setSelectedClientId(editingShow.client_id || "");
       setActiveTab("info");
       setShowTeamSelector(false);
+      setRecurringConfig(initialRecurringConfig);
       
       // Load financial data
       loadShowFinancialData(editingShow.id);
-    } else if (open && !editingShow) {
-      // Reset form for new show
-      setFormData({
-        name: "",
-        date: "",
-        time: "",
-        venue: "",
-        address: "",
-        client: "",
-        clientPhone: "",
-        clientEmail: "",
-        clientCompany: "",
-        type: "",
-        status: "scheduled",
-        notes: "",
-        cachet: 0,
-      });
-      setClientMode("existing");
-      setSelectedClientId("");
-      setExpenses([]);
-      setSelectedMusicians([]);
-      setActiveTab("info");
-      setShowTeamSelector(false);
     }
   }, [open, editingShow, clients]);
 
@@ -320,6 +421,19 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
     setExpenses(expenses.filter((exp) => exp.id !== id));
   };
 
+  const clearFormAndStorage = () => {
+    resetFormData();
+    resetExpenses();
+    resetMusicians();
+    resetClientId();
+    resetRecurring();
+    setSelectedClientId("");
+    setClientMode("existing");
+    setActiveTab("info");
+    setShowTeamSelector(false);
+    setShowRestoredBanner(false);
+  };
+
   const handleSubmit = async () => {
     if (!formData.name || !formData.date || !formData.venue) {
       toast.error("Preencha os campos obrigatórios: Nome, Data e Local");
@@ -341,42 +455,62 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
       }
     }
 
-    const showData: ShowData = {
-      id: editingShow?.id || crypto.randomUUID(),
-      ...formData,
-      clientId,
-      expenses,
-      totalExpenses,
-      netProfit,
-      selectedMusicians,
-    };
+    // Handle recurring events
+    if (recurringConfig.enabled && !editingShow) {
+      const dates = generateRecurringDates(recurringConfig);
+      
+      if (dates.length === 0) {
+        toast.error("Configure o período de recorrência corretamente");
+        return;
+      }
 
-    onShowCreated?.(showData);
-    toast.success(editingShow ? "Show atualizado com sucesso!" : "Show lançado com sucesso!");
+      if (dates.length > 52) {
+        toast.error("Máximo de 52 shows recorrentes permitidos");
+        return;
+      }
+
+      // Create multiple shows
+      for (let i = 0; i < dates.length; i++) {
+        const showData: ShowData = {
+          id: crypto.randomUUID(),
+          ...formData,
+          date: dates[i],
+          clientId,
+          expenses,
+          totalExpenses,
+          netProfit,
+          selectedMusicians,
+        };
+        onShowCreated?.(showData);
+      }
+
+      toast.success(`${dates.length} shows recorrentes criados com sucesso!`);
+    } else {
+      // Single show
+      const showData: ShowData = {
+        id: editingShow?.id || crypto.randomUUID(),
+        ...formData,
+        clientId,
+        expenses,
+        totalExpenses,
+        netProfit,
+        selectedMusicians,
+      };
+
+      onShowCreated?.(showData);
+      toast.success(editingShow ? "Show atualizado com sucesso!" : "Show lançado com sucesso!");
+    }
     
-    // Reset form
-    setFormData({
-      name: "",
-      date: "",
-      time: "",
-      venue: "",
-      address: "",
-      client: "",
-      clientPhone: "",
-      clientEmail: "",
-      clientCompany: "",
-      type: "",
-      status: "scheduled",
-      notes: "",
-      cachet: 0,
-    });
-    setClientMode("existing");
-    setSelectedClientId("");
-    setExpenses([]);
-    setSelectedMusicians([]);
-    setActiveTab("info");
-    setShowTeamSelector(false);
+    // Clear form and storage
+    clearFormAndStorage();
     onOpenChange(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearAllShowFormData();
+    clearFormAndStorage();
+    setShowRestoredBanner(false);
+    toast.success("Rascunho descartado");
   };
 
   const getCategoryIcon = (category: string) => {
@@ -400,6 +534,24 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
             {editingShow ? "Editar Show" : "Novo Show"}
           </DialogTitle>
         </DialogHeader>
+
+        {/* Restored Draft Banner */}
+        {showRestoredBanner && !isEditing && (
+          <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+              <AlertCircle className="w-4 h-4" />
+              <span>Rascunho recuperado! Continue de onde parou.</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDiscardDraft}
+              className="text-xs text-muted-foreground hover:text-destructive"
+            >
+              Descartar
+            </Button>
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <TabsList className="grid grid-cols-3 w-full bg-secondary">
@@ -509,6 +661,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                       setFormData({ ...formData, client: "", clientPhone: "", clientEmail: "", clientCompany: "" });
                     } else {
                       setSelectedClientId("");
+                      setPersistedClientId("");
                     }
                   }}
                   className="flex flex-wrap items-center gap-x-6 gap-y-3"
@@ -531,19 +684,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                   <div className="space-y-2">
                     <Select
                       value={selectedClientId}
-                      onValueChange={(value) => {
-                        setSelectedClientId(value);
-                        const client = clients.find(c => c.id === value);
-                        if (client) {
-                          setFormData({
-                            ...formData,
-                            client: client.name,
-                            clientPhone: client.phone || "",
-                            clientEmail: client.email || "",
-                            clientCompany: client.company || "",
-                          });
-                        }
-                      }}
+                      onValueChange={handleClientSelect}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder={clientsLoading ? "Carregando..." : clients.length === 0 ? "Nenhum cliente cadastrado" : "Selecione um cliente"} />
@@ -658,6 +799,15 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               />
             </div>
+
+            {/* Recurring Events Section - Only for new shows */}
+            {!editingShow && (
+              <RecurringEventSection
+                config={recurringConfig}
+                onChange={setRecurringConfig}
+                baseDate={formData.date}
+              />
+            )}
 
             <div className="flex justify-end">
               <Button onClick={() => setActiveTab("financial")} variant="gradient">
@@ -948,6 +1098,12 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                       {showStatuses.find(s => s.value === formData.status)?.label || formData.status}
                     </span>
                   </div>
+                  {recurringConfig.enabled && !editingShow && (
+                    <div className="flex justify-between text-primary">
+                      <span>Recorrência</span>
+                      <span className="font-medium">{generateRecurringDates(recurringConfig).length} shows</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1018,7 +1174,12 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
               </Button>
               <Button onClick={handleSubmit} variant="gradient" className="gap-2">
                 <Mic2 className="w-4 h-4" />
-                {editingShow ? "Salvar Alterações" : "Lançar Show"}
+                {editingShow 
+                  ? "Salvar Alterações" 
+                  : recurringConfig.enabled 
+                    ? `Criar ${generateRecurringDates(recurringConfig).length} Shows` 
+                    : "Lançar Show"
+                }
               </Button>
             </div>
           </TabsContent>
