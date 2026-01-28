@@ -30,6 +30,12 @@ import joseMarioImg from "@/assets/team/jose-mario.png";
 import marianaSantosImg from "@/assets/team/mariana-santos.png";
 import escritorioImg from "@/assets/team/escritorio.png";
 
+// Artist images for social proof
+import artist1Img from "@/assets/artists/artist-1.png";
+import artist2Img from "@/assets/artists/artist-2.png";
+import artist3Img from "@/assets/artists/artist-3.png";
+import artist4Img from "@/assets/artists/artist-4.png";
+
 // WhatsApp testimonials
 import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
 import renatoWhatsapp from "@/assets/testimonials/renato-whatsapp.png";
@@ -92,10 +98,10 @@ const Landing = () => {
   // User avatars for social proof
 
   const userAvatars = [
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    artist1Img,
+    artist2Img,
+    artist3Img,
+    artist4Img
   ];
 
   const benefitsList = [
@@ -194,32 +200,30 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Social proof - BIG HIGHLIGHT */}
-              <div className="mt-4 p-4 bg-white/15 backdrop-blur-sm rounded-2xl border border-white/30">
-                <div className="flex items-center gap-4">
-                  <div className="flex -space-x-3">
-                    {userAvatars.map((avatar, i) => (
-                      <img 
-                        key={i} 
-                        src={avatar}
-                        alt={`Usuário ${i + 1}`}
-                        className="w-12 h-12 rounded-full border-3 border-white/50 object-cover shadow-lg"
-                      />
+              {/* Social proof - CLEAN DESIGN */}
+              <div className="mt-4 flex items-center gap-4">
+                <div className="flex -space-x-3">
+                  {userAvatars.map((avatar, i) => (
+                    <img 
+                      key={i} 
+                      src={avatar}
+                      alt={`Artista ${i + 1}`}
+                      className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-lg"
+                    />
+                  ))}
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-1 mb-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-1 mb-1">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <p className="text-white font-bold text-xl md:text-2xl">
-                      +90 Artistas
-                    </p>
-                    <p className="text-white/90 text-sm md:text-base">
-                      se organizando com o Backstage Pro
-                    </p>
-                  </div>
+                  <p className="text-white font-bold text-xl md:text-2xl">
+                    +90 Artistas
+                  </p>
+                  <p className="text-white/90 text-sm md:text-base">
+                    se organizando com o Backstage Pro
+                  </p>
                 </div>
               </div>
             </div>
