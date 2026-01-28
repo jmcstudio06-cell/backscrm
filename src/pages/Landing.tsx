@@ -39,9 +39,12 @@ import artist4Img from "@/assets/artists/artist-4.png";
 // WhatsApp testimonials
 import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
 import renatoWhatsapp from "@/assets/testimonials/renato-whatsapp.png";
-import igorWhatsapp from "@/assets/testimonials/igor-whatsapp.png";
 import andreWhatsapp from "@/assets/testimonials/andre-whatsapp.png";
 import caykWhatsapp from "@/assets/testimonials/cayk-whatsapp.png";
+
+// Google reviews
+import larissaGoogle from "@/assets/testimonials/larissa-google.png";
+import marceloGoogle from "@/assets/testimonials/marcelo-google.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
@@ -132,7 +135,7 @@ const Landing = () => {
             <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
             <a href="#analise" className="text-slate-600 hover:text-[#0066CC] transition-colors flex items-center gap-1">
               <ClipboardCheck className="w-4 h-4" />
-              Análise de Carreira
+              Consultoria de Carreira
             </a>
             <a href="#instalar" className="text-slate-600 hover:text-[#0066CC] transition-colors">Instalar App</a>
             <a href="#quem-somos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Quem Somos</a>
@@ -683,32 +686,32 @@ const Landing = () => {
                   </div>
                 </div>
 
-                {/* Igor */}
+                {/* Larissa - Google */}
                 <div className="group">
                   <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
                     <img 
-                      src={igorWhatsapp} 
-                      alt="Depoimento Igor via WhatsApp" 
+                      src={larissaGoogle} 
+                      alt="Avaliação Larissa Santos Producoes no Google" 
                       className="w-full rounded-lg"
                     />
                     <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Igor</p>
-                      <p className="text-slate-500 text-xs">"Parabéns aos desenvolvedores!"</p>
+                      <p className="text-slate-700 font-medium text-sm">Larissa Santos Producoes</p>
+                      <p className="text-slate-500 text-xs">"O app trouxe muito mais organização pra minha carreira"</p>
                     </div>
                   </div>
                 </div>
 
-                {/* André */}
+                {/* Marcelo - Google */}
                 <div className="group">
                   <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
                     <img 
-                      src={andreWhatsapp} 
-                      alt="Depoimento André via WhatsApp" 
+                      src={marceloGoogle} 
+                      alt="Avaliação marcelocantor no Google" 
                       className="w-full rounded-lg"
                     />
                     <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">André</p>
-                      <p className="text-slate-500 text-xs">"Uma equipe top! Parabéns!"</p>
+                      <p className="text-slate-700 font-medium text-sm">marcelocantor</p>
+                      <p className="text-slate-500 text-xs">"Gosto muito do aplicativo, parabéns aos desenvolvedores!"</p>
                     </div>
                   </div>
                 </div>
@@ -861,7 +864,7 @@ const Landing = () => {
               <span className="text-white/90 font-semibold text-sm">Identifique falhas na gestão</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-2">
-              Análise de
+              Consultoria de
             </h2>
             <h3 className="text-3xl md:text-5xl font-bold text-yellow-400 mb-4">
               Carreira
@@ -878,7 +881,7 @@ const Landing = () => {
                   className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-bold px-8 py-6 text-lg shadow-xl shadow-black/20 transition-all duration-200"
                 >
                   <ClipboardCheck className="w-5 h-5 mr-2" />
-                  Solicitar Análise de Carreira
+                  Solicitar Consultoria de Carreira
                 </Button>
               }
             />
