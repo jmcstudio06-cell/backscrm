@@ -11,14 +11,12 @@ import {
   Target,
   AlertCircle,
   Phone,
-  DollarSign,
-  Eye,
-  Trash2,
-  MessageCircle,
   Users,
   Filter,
   X,
   ChevronDown,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,11 +24,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { useLeads, Lead } from "@/hooks/useLeads";
 import { LeadModal } from "@/components/crm/LeadModal";
 import { LeadProfileModal } from "@/components/crm/LeadProfileModal";
+import { CRMKanbanView } from "@/components/crm/CRMKanbanView";
+import { CRMListView } from "@/components/crm/CRMListView";
 
 const stages = [
   { id: "new", name: "Leads Novos", shortName: "Novo", color: "bg-blue-500", textColor: "text-blue-600", bgLight: "bg-blue-50", borderColor: "border-blue-200", icon: Users },
@@ -55,6 +55,7 @@ export default function CRM() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
   const [selectedDaysFilter, setSelectedDaysFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
 
   // Modal states
   const [leadModalOpen, setLeadModalOpen] = useState(false);
@@ -170,7 +171,19 @@ export default function CRM() {
   return (
     <Layout title="CRM - Gestão de Leads" subtitle="Gerencie seus contatos e oportunidades">
       {/* Header Actions */}
-      <div className="flex justify-end mb-6">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        {/* View Mode Toggle */}
+        <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as "kanban" | "list")}>
+          <ToggleGroupItem value="kanban" aria-label="Kanban" className="gap-2 px-3">
+            <LayoutGrid className="w-4 h-4" />
+            <span className="hidden sm:inline">Kanban</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem value="list" aria-label="Lista" className="gap-2 px-3">
+            <List className="w-4 h-4" />
+            <span className="hidden sm:inline">Lista</span>
+          </ToggleGroupItem>
+        </ToggleGroup>
+
         <Button className="bg-primary hover:bg-primary/90" onClick={handleAddLead}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Lead
@@ -282,155 +295,24 @@ export default function CRM() {
         </div>
       </div>
 
-      {/* List View */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
-        {/* List Header - Desktop */}
-        <div className="hidden md:grid grid-cols-[1fr_140px_100px_140px_120px_100px] gap-4 p-4 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground">
-          <span>Lead</span>
-          <span>Etapa</span>
-          <span>Dias</span>
-          <span>Valor Estimado</span>
-          <span>Telefone</span>
-          <span className="text-right">Ações</span>
-        </div>
-        
-        {/* List Content */}
-        <div className="divide-y divide-border">
-          {filteredLeads.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">
-              <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              Nenhum lead encontrado
-              {hasActiveFilters && (
-                <p className="text-xs mt-2">Tente ajustar os filtros</p>
-              )}
-            </div>
-          ) : (
-            filteredLeads.map((lead) => {
-              const stage = stages.find(s => s.id === lead.status) || stages[0];
-              const daysAgo = getDaysAgo(lead.created_at);
-              
-              return (
-                <div 
-                  key={lead.id}
-                  className="flex flex-col md:grid md:grid-cols-[1fr_140px_100px_140px_120px_100px] gap-2 md:gap-4 p-4 items-start md:items-center hover:bg-muted/30 transition-colors"
-                >
-                  {/* Lead Info */}
-                  <div className="min-w-0 w-full md:w-auto">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm truncate text-foreground">{lead.name}</h4>
-                    </div>
-                    {lead.company && (
-                      <p className="text-xs text-muted-foreground truncate">{lead.company}</p>
-                    )}
-                    {lead.email && (
-                      <p className="text-xs text-muted-foreground truncate">{lead.email}</p>
-                    )}
-                  </div>
-
-                  {/* Stage Dropdown - Clickable to change */}
-                  <div className="md:hidden text-xs text-muted-foreground mb-1">Etapa:</div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className={cn(
-                        "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer hover:opacity-80",
-                        stage.bgLight,
-                        stage.textColor,
-                        stage.borderColor,
-                        "border"
-                      )}>
-                        <stage.icon className="w-3 h-3" />
-                        {stage.shortName}
-                        <ChevronDown className="w-3 h-3 opacity-60" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      {stages.map((s) => (
-                        <DropdownMenuItem
-                          key={s.id}
-                          onClick={() => handleChangeStage(lead.id, s.id)}
-                          className={cn(
-                            "flex items-center gap-2",
-                            lead.status === s.id && "bg-muted"
-                          )}
-                        >
-                          <div className={cn("w-2 h-2 rounded-full", s.color)} />
-                          {s.name}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Days in Stage */}
-                  <div className="hidden md:block">
-                    <span className={cn(
-                      "text-xs font-medium",
-                      daysAgo <= 3 ? "text-green-600" : daysAgo <= 7 ? "text-yellow-600" : "text-red-500"
-                    )}>
-                      {daysAgo === 0 ? "Hoje" : daysAgo === 1 ? "1 dia" : `${daysAgo} dias`}
-                    </span>
-                  </div>
-
-                  {/* Value */}
-                  <div className="flex items-center gap-1 md:block">
-                    <DollarSign className="w-3 h-3 text-muted-foreground md:hidden" />
-                    <span className="font-medium text-sm text-foreground">
-                      R$ {(lead.estimated_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-
-                  {/* Phone */}
-                  <div className="flex items-center gap-1 md:block">
-                    <Phone className="w-3 h-3 text-muted-foreground md:hidden" />
-                    <span className="text-sm text-muted-foreground truncate">
-                      {lead.phone || "-"}
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-end gap-1 w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t md:border-t-0 border-border">
-                    {lead.phone && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                        onClick={() => handleWhatsApp(lead.phone, lead.name)}
-                        title="WhatsApp"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleViewProfile(lead)}
-                      title="Ver perfil"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteLead(lead.id)}
-                      title="Excluir"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Footer with count */}
-        {filteredLeads.length > 0 && (
-          <div className="p-3 bg-muted/30 border-t border-border text-xs text-muted-foreground text-center">
-            {filteredLeads.length} {filteredLeads.length === 1 ? "lead encontrado" : "leads encontrados"}
-          </div>
-        )}
-      </div>
+      {/* View Content */}
+      {viewMode === "kanban" ? (
+        <CRMKanbanView
+          leads={filteredLeads}
+          onViewProfile={handleViewProfile}
+          onDelete={handleDeleteLead}
+          onChangeStage={handleChangeStage}
+          onWhatsApp={handleWhatsApp}
+        />
+      ) : (
+        <CRMListView
+          leads={filteredLeads}
+          onViewProfile={handleViewProfile}
+          onDelete={handleDeleteLead}
+          onChangeStage={handleChangeStage}
+          onWhatsApp={handleWhatsApp}
+        />
+      )}
 
       {/* Modals */}
       <LeadModal
