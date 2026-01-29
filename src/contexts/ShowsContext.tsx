@@ -25,7 +25,7 @@ interface ShowExpense {
 interface ShowsContextType {
   shows: Show[];
   loading: boolean;
-  addShow: (show: Partial<Show>, musicians?: ShowMusician[], expenses?: ShowExpense[]) => Promise<Show | undefined>;
+  addShow: (show: Partial<Show>, musicians?: ShowMusician[], expenses?: ShowExpense[], checklistTemplateId?: string) => Promise<Show | undefined>;
   updateShow: (id: string, updates: Partial<Show>, musicians?: ShowMusician[], expenses?: ShowExpense[]) => Promise<Show | undefined>;
   deleteShow: (id: string) => Promise<void>;
   cancelShow: (id: string) => Promise<void>;

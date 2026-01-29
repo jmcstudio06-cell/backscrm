@@ -275,12 +275,16 @@ export default function Checklist() {
   return (
     <Layout title="Checklist de Show" subtitle="Organize tudo antes do evento">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
             Apenas shows confirmados
           </Badge>
         </div>
+        <Button onClick={() => setTemplatesModalOpen(true)}>
+          <FolderOpen className="w-4 h-4 mr-2" />
+          Modelos de Checklist
+        </Button>
       </div>
 
       {confirmedShows.length === 0 ? (
@@ -369,6 +373,13 @@ export default function Checklist() {
           })}
         </div>
       )}
+
+      {/* Templates Modal - available on main page */}
+      <ChecklistTemplatesModal
+        open={templatesModalOpen}
+        onOpenChange={setTemplatesModalOpen}
+        showApplyButton={false}
+      />
     </Layout>
   );
 }

@@ -109,7 +109,8 @@ export default function Agenda() {
           client_id: newShow.clientId || null,
         },
         musicians,
-        expenses
+        expenses,
+        newShow.checklistTemplateId
       );
     }
   };
