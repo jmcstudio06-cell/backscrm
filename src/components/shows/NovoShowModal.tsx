@@ -50,6 +50,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
 import { useClients, Client } from "@/hooks/useClients";
+import { useChecklistTemplates } from "@/hooks/useChecklistTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import TransportCalculatorModal from "@/components/calculadora/TransportCalculatorModal";
 import { useFormPersistence, clearAllShowFormData, hasPersistedShowData } from "@/hooks/useFormPersistence";
@@ -105,6 +106,7 @@ export interface ShowData {
   totalExpenses: number;
   netProfit: number;
   selectedMusicians: SelectedMusician[];
+  checklistTemplateId?: string;
 }
 
 interface SelectedMusician {
@@ -170,6 +172,7 @@ const initialRecurringConfig: RecurringConfig = {
 export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading } = useMusicians();
   const { clients, loading: clientsLoading, addClient } = useClients();
+  const { templates: checklistTemplates, loading: templatesLoading } = useChecklistTemplates();
   const [activeTab, setActiveTab] = useState("info");
   const [showTeamSelector, setShowTeamSelector] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
@@ -177,6 +180,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
   const [showTransportCalculator, setShowTransportCalculator] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
+  const [selectedChecklistTemplateId, setSelectedChecklistTemplateId] = useState<string>("");
 
   // Form persistence - only for new shows, not editing
   const isEditing = !!editingShow;
@@ -428,6 +432,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
     resetClientId();
     resetRecurring();
     setSelectedClientId("");
+    setSelectedChecklistTemplateId("");
     setClientMode("existing");
     setActiveTab("info");
     setShowTeamSelector(false);
@@ -480,6 +485,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
           totalExpenses,
           netProfit,
           selectedMusicians,
+          checklistTemplateId: selectedChecklistTemplateId || undefined,
         };
         onShowCreated?.(showData);
       }
@@ -495,6 +501,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
         totalExpenses,
         netProfit,
         selectedMusicians,
+        checklistTemplateId: selectedChecklistTemplateId || undefined,
       };
 
       onShowCreated?.(showData);
@@ -766,7 +773,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                 )}
               </div>
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2">
                 <Label htmlFor="status">Status do Show</Label>
                 <Select
                   value={formData.status}
@@ -786,6 +793,39 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Checklist Template Selector */}
+              <div className="space-y-2">
+                <Label htmlFor="checklist">Modelo de Checklist</Label>
+                <Select
+                  value={selectedChecklistTemplateId}
+                  onValueChange={(v) => setSelectedChecklistTemplateId(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={templatesLoading ? "Carregando..." : checklistTemplates.length === 0 ? "Nenhum modelo criado" : "Selecione um modelo (opcional)"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      <span className="text-muted-foreground">Sem checklist</span>
+                    </SelectItem>
+                    {checklistTemplates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{template.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({template.tasks.length} tarefas)
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {checklistTemplates.length === 0 && !templatesLoading && (
+                  <p className="text-xs text-muted-foreground">
+                    Crie modelos de checklist na página de Checklist de Show
+                  </p>
+                )}
               </div>
             </div>
 

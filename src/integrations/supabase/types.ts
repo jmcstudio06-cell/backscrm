@@ -393,6 +393,33 @@ export type Database = {
           },
         ]
       }
+      checklist_templates: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          tasks: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          tasks?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          tasks?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           address: string | null
@@ -1272,6 +1299,7 @@ export type Database = {
         Row: {
           address: string | null
           cachet: number
+          checklist_template_id: string | null
           client_id: string | null
           created_at: string
           date: string
@@ -1290,6 +1318,7 @@ export type Database = {
         Insert: {
           address?: string | null
           cachet?: number
+          checklist_template_id?: string | null
           client_id?: string | null
           created_at?: string
           date: string
@@ -1308,6 +1337,7 @@ export type Database = {
         Update: {
           address?: string | null
           cachet?: number
+          checklist_template_id?: string | null
           client_id?: string | null
           created_at?: string
           date?: string
@@ -1324,6 +1354,13 @@ export type Database = {
           venue?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "shows_checklist_template_id_fkey"
+            columns: ["checklist_template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shows_client_id_fkey"
             columns: ["client_id"]

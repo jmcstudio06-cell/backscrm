@@ -168,10 +168,47 @@ export function useShowsData() {
     }
   };
 
+  // Apply checklist template to a show
+  const applyChecklistTemplateToShow = async (showId: string, templateId: string) => {
+    try {
+      // Fetch the template
+      const { data: template, error: templateError } = await supabase
+        .from("checklist_templates")
+        .select("tasks")
+        .eq("id", templateId)
+        .single();
+
+      if (templateError || !template) {
+        console.error("Error fetching template:", templateError);
+        return;
+      }
+
+      const tasks = Array.isArray(template.tasks) ? template.tasks : [];
+      if (tasks.length === 0) return;
+
+      // Create checklist items for the show
+      const checklistItems = tasks.map((task: string) => ({
+        show_id: showId,
+        item: task,
+        completed: false,
+      }));
+
+      const { error } = await supabase
+        .from("show_checklist")
+        .insert(checklistItems);
+
+      if (error) throw error;
+      console.log(`Applied ${tasks.length} checklist items to show ${showId}`);
+    } catch (error) {
+      console.error("Error applying checklist template:", error);
+    }
+  };
+
   const addShow = async (
     showData: Partial<Show>,
     musicians: ShowMusician[] = [],
-    expenses: ShowExpense[] = []
+    expenses: ShowExpense[] = [],
+    checklistTemplateId?: string
   ) => {
     if (!user) return;
 
@@ -192,6 +229,7 @@ export function useShowsData() {
           event_type: showData.event_type,
           notes: showData.notes,
           user_id: user.id,
+          checklist_template_id: checklistTemplateId || null,
         }])
         .select()
         .single();
@@ -201,6 +239,11 @@ export function useShowsData() {
       // Save musicians and expenses
       await saveShowMusicians(data.id, musicians);
       await saveShowExpenses(data.id, expenses);
+
+      // Apply checklist template if provided
+      if (checklistTemplateId) {
+        await applyChecklistTemplateToShow(data.id, checklistTemplateId);
+      }
 
       // If status is completed, create transactions
       if (data.status === "completed") {
