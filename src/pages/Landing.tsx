@@ -36,13 +36,8 @@ import artist2Img from "@/assets/artists/artist-2.png";
 import artist3Img from "@/assets/artists/artist-3.png";
 import artist4Img from "@/assets/artists/artist-4.png";
 
-// WhatsApp testimonials
+// Testimonials
 import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
-import renatoWhatsapp from "@/assets/testimonials/renato-whatsapp.png";
-import andreWhatsapp from "@/assets/testimonials/andre-whatsapp.png";
-import caykWhatsapp from "@/assets/testimonials/cayk-whatsapp.png";
-
-// Google reviews
 import larissaGoogle from "@/assets/testimonials/larissa-google.png";
 import marceloGoogle from "@/assets/testimonials/marcelo-google.png";
 import { useNavigate } from "react-router-dom";
@@ -116,7 +111,6 @@ const Landing = () => {
   ];
 
   const mainVideoUrl = "https://www.youtube.com/watch?v=I_5o-hmDuRI";
-  const victorViolaVideoUrl = "https://www.youtube.com/shorts/_nUOr9qoNgI";
 
   const whatsappLink = "https://web.whatsapp.com/send?phone=5512981289496&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
 
@@ -617,118 +611,64 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* Video Testimonial - Victor Viola */}
-          <div className="max-w-xs mx-auto mb-12">
-            <div className="rounded-2xl overflow-hidden shadow-2xl bg-white">
-              <div className="aspect-[9/16] bg-black">
-                <iframe
-                  src={getYouTubeEmbedUrl(victorViolaVideoUrl)?.replace('?autoplay=1', '') || ''}
-                  title="Depoimento Victor Viola"
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+          {/* Testimonials Grid - 3 cards maiores */}
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Maria Elisa */}
+            <div className="group">
+              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                <img 
+                  src={mariaElisaWhatsapp} 
+                  alt="Depoimento Maria Elisa Fernandes via WhatsApp" 
+                  className="w-full rounded-xl"
                 />
-              </div>
-              <div className="p-4 text-center">
-                <div className="flex items-center justify-center gap-1 mb-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+                <div className="mt-4 px-2 pb-2">
+                  <div className="flex items-center gap-1 mb-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-slate-800 font-semibold">Maria Elisa Fernandes</p>
+                  <p className="text-slate-500 text-sm">"Você é um gênio por criar ele"</p>
                 </div>
-                <div className="text-slate-800 font-semibold">Victor Viola</div>
-                <div className="text-[#0066CC] text-sm">Usuário do Backstage Pro</div>
               </div>
             </div>
-          </div>
 
-          {/* WhatsApp Testimonials - Real Screenshots */}
-          <div>
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 mb-4">
-                <MessageCircle className="w-4 h-4 text-cyan-300" />
-                <span className="text-white/90 text-sm font-medium">Feedback real de usuários</span>
+            {/* Larissa - Google */}
+            <div className="group">
+              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                <img 
+                  src={larissaGoogle} 
+                  alt="Avaliação Larissa Santos Producoes no Google" 
+                  className="w-full rounded-xl"
+                />
+                <div className="mt-4 px-2 pb-2">
+                  <div className="flex items-center gap-1 mb-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-slate-800 font-semibold">Larissa Santos Producoes</p>
+                  <p className="text-slate-500 text-sm">"O app trouxe muito mais organização pra minha carreira"</p>
+                </div>
               </div>
-              <h4 className="text-2xl font-bold text-white">
-                O que artistas estão nos mandando
-              </h4>
             </div>
-            
-            <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto items-start">
-              {/* Maria Elisa - Card maior à esquerda */}
-              <div className="group w-full lg:w-auto lg:flex-shrink-0">
-                <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 lg:w-80">
-                  <img 
-                    src={mariaElisaWhatsapp} 
-                    alt="Depoimento Maria Elisa Fernandes via WhatsApp" 
-                    className="w-full rounded-lg"
-                  />
-                  <div className="mt-3 px-2 pb-1">
-                    <p className="text-slate-700 font-medium text-sm">Maria Elisa Fernandes</p>
-                    <p className="text-slate-500 text-xs">"Você é um gênio por criar ele"</p>
-                  </div>
-                </div>
-              </div>
 
-              {/* Grid 2x2 com os outros 4 cards */}
-              <div className="grid grid-cols-2 gap-4 flex-1">
-                {/* Renato */}
-                <div className="group">
-                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
-                    <img 
-                      src={renatoWhatsapp} 
-                      alt="Depoimento Renato via WhatsApp" 
-                      className="w-full rounded-lg"
-                    />
-                    <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Renato</p>
-                      <p className="text-slate-500 text-xs">"Esse App é top msm!"</p>
-                    </div>
+            {/* Marcelo - Google */}
+            <div className="group">
+              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                <img 
+                  src={marceloGoogle} 
+                  alt="Avaliação marcelocantor no Google" 
+                  className="w-full rounded-xl"
+                />
+                <div className="mt-4 px-2 pb-2">
+                  <div className="flex items-center gap-1 mb-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
                   </div>
-                </div>
-
-                {/* Larissa - Google */}
-                <div className="group">
-                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
-                    <img 
-                      src={larissaGoogle} 
-                      alt="Avaliação Larissa Santos Producoes no Google" 
-                      className="w-full rounded-lg"
-                    />
-                    <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Larissa Santos Producoes</p>
-                      <p className="text-slate-500 text-xs">"O app trouxe muito mais organização pra minha carreira"</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Marcelo - Google */}
-                <div className="group">
-                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
-                    <img 
-                      src={marceloGoogle} 
-                      alt="Avaliação marcelocantor no Google" 
-                      className="w-full rounded-lg"
-                    />
-                    <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">marcelocantor</p>
-                      <p className="text-slate-500 text-xs">"Gosto muito do aplicativo, parabéns aos desenvolvedores!"</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cayk */}
-                <div className="group">
-                  <div className="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
-                    <img 
-                      src={caykWhatsapp} 
-                      alt="Depoimento Cayk via WhatsApp" 
-                      className="w-full rounded-lg"
-                    />
-                    <div className="mt-3 px-2 pb-1">
-                      <p className="text-slate-700 font-medium text-sm">Cayk</p>
-                      <p className="text-slate-500 text-xs">"Meu show mudou de 80% pra 200%!"</p>
-                    </div>
-                  </div>
+                  <p className="text-slate-800 font-semibold">marcelocantor</p>
+                  <p className="text-slate-500 text-sm">"Gosto muito do aplicativo, parabéns aos desenvolvedores!"</p>
                 </div>
               </div>
             </div>
