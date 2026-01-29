@@ -612,11 +612,11 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* Testimonials Grid - 4 cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {/* Testimonials - Layout vertical */}
+          <div className="flex flex-col gap-8 max-w-2xl mx-auto">
             {/* Maria Elisa */}
             <div className="group">
-              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
                 <img 
                   src={mariaElisaWhatsapp} 
                   alt="Depoimento Maria Elisa Fernandes via WhatsApp" 
@@ -625,18 +625,18 @@ const Landing = () => {
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-slate-800 font-semibold">Maria Elisa Fernandes</p>
-                  <p className="text-slate-500 text-sm">"Você é um gênio por criar ele"</p>
+                  <p className="text-slate-800 font-semibold text-lg">Maria Elisa Fernandes</p>
+                  <p className="text-slate-500">"Você é um gênio por criar ele"</p>
                 </div>
               </div>
             </div>
 
             {/* Larissa - Google */}
             <div className="group">
-              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
                 <img 
                   src={larissaGoogle} 
                   alt="Avaliação Larissa Santos Producoes no Google" 
@@ -645,18 +645,18 @@ const Landing = () => {
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-slate-800 font-semibold">Larissa Santos Producoes</p>
-                  <p className="text-slate-500 text-sm">"O app trouxe muito mais organização pra minha carreira"</p>
+                  <p className="text-slate-800 font-semibold text-lg">Larissa Santos Producoes</p>
+                  <p className="text-slate-500">"O app trouxe muito mais organização pra minha carreira"</p>
                 </div>
               </div>
             </div>
 
             {/* Marcelo - Google */}
             <div className="group">
-              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
                 <img 
                   src={marceloGoogle} 
                   alt="Avaliação marcelocantor no Google" 
@@ -665,18 +665,18 @@ const Landing = () => {
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-slate-800 font-semibold">marcelocantor</p>
-                  <p className="text-slate-500 text-sm">"Gosto muito do aplicativo, parabéns aos desenvolvedores!"</p>
+                  <p className="text-slate-800 font-semibold text-lg">marcelocantor</p>
+                  <p className="text-slate-500">"Gosto muito do aplicativo, parabéns aos desenvolvedores!"</p>
                 </div>
               </div>
             </div>
 
             {/* Fábio - Google */}
             <div className="group">
-              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
                 <img 
                   src={fabioGoogle} 
                   alt="Avaliação Fábio Martins - Viverarte Violão no Google" 
@@ -685,11 +685,11 @@ const Landing = () => {
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-slate-800 font-semibold">Fábio Martins - Viverarte Violão</p>
-                  <p className="text-slate-500 text-sm">"Organizou muito bem minha agenda. Estou gostando."</p>
+                  <p className="text-slate-800 font-semibold text-lg">Fábio Martins - Viverarte Violão</p>
+                  <p className="text-slate-500">"Organizou muito bem minha agenda. Estou gostando."</p>
                 </div>
               </div>
             </div>
