@@ -40,6 +40,7 @@ import artist4Img from "@/assets/artists/artist-4.png";
 import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
 import larissaGoogle from "@/assets/testimonials/larissa-google.png";
 import marceloGoogle from "@/assets/testimonials/marcelo-google.png";
+import fabioGoogle from "@/assets/testimonials/fabio-google.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
@@ -611,8 +612,8 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* Testimonials Grid - 3 cards maiores */}
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {/* Testimonials Grid - 4 cards */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {/* Maria Elisa */}
             <div className="group">
               <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
@@ -669,6 +670,26 @@ const Landing = () => {
                   </div>
                   <p className="text-slate-800 font-semibold">marcelocantor</p>
                   <p className="text-slate-500 text-sm">"Gosto muito do aplicativo, parabéns aos desenvolvedores!"</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Fábio - Google */}
+            <div className="group">
+              <div className="bg-white rounded-2xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                <img 
+                  src={fabioGoogle} 
+                  alt="Avaliação Fábio Martins - Viverarte Violão no Google" 
+                  className="w-full rounded-xl"
+                />
+                <div className="mt-4 px-2 pb-2">
+                  <div className="flex items-center gap-1 mb-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-slate-800 font-semibold">Fábio Martins - Viverarte Violão</p>
+                  <p className="text-slate-500 text-sm">"Organizou muito bem minha agenda. Estou gostando."</p>
                 </div>
               </div>
             </div>
