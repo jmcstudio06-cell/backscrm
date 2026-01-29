@@ -473,21 +473,21 @@ export default function Agenda() {
                   <div 
                     key={show.id}
                     className={cn(
-                      "flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors",
+                      "flex items-center gap-3 p-3 sm:p-4 hover:bg-muted/50 transition-colors",
                       show.status === "cancelled" && "opacity-60"
                     )}
                   >
                     {/* Date Column */}
-                    <div className="flex-shrink-0 text-center w-14">
-                      <div className="text-2xl font-bold text-foreground">{showDate.getDate()}</div>
-                      <div className="text-xs text-muted-foreground uppercase">{dayOfWeek}</div>
+                    <div className="flex-shrink-0 text-center w-10 sm:w-14">
+                      <div className="text-xl sm:text-2xl font-bold text-foreground">{showDate.getDate()}</div>
+                      <div className="text-[10px] sm:text-xs text-muted-foreground uppercase">{dayOfWeek}</div>
                     </div>
 
-                    {/* Show Info */}
+                    {/* Show Info - takes remaining space */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
                         <h4 className={cn(
-                          "font-medium text-sm truncate",
+                          "font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none",
                           show.status === "cancelled" ? "text-destructive line-through" : "text-foreground"
                         )}>
                           {show.title}
@@ -495,7 +495,7 @@ export default function Agenda() {
                         <Badge 
                           variant="outline"
                           className={cn(
-                            "text-[10px] px-1.5 py-0 h-4 flex-shrink-0",
+                            "text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 flex-shrink-0",
                             show.status === "scheduled" && "bg-blue-500/10 text-blue-500 border-blue-500/30",
                             show.status === "confirmed" && "bg-primary/10 text-primary border-primary/30",
                             show.status === "pending" && "bg-warning/10 text-warning border-warning/30",
@@ -506,55 +506,57 @@ export default function Agenda() {
                           {statusLabels[show.status as keyof typeof statusLabels] || show.status}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                         {show.start_time && (
                           <span>{show.start_time}</span>
                         )}
                         {show.venue && (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {show.venue}
+                          <span className="flex items-center gap-1 truncate max-w-[80px] sm:max-w-none">
+                            <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                            <span className="truncate">{show.venue}</span>
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Cachet */}
-                    {show.cachet > 0 && (
-                      <div className="flex-shrink-0 text-right">
-                        <div className="text-sm font-semibold text-primary">
+                    {/* Cachet - fixed width for alignment */}
+                    <div className="flex-shrink-0 w-16 sm:w-20 text-right">
+                      {show.cachet > 0 ? (
+                        <div className="text-xs sm:text-sm font-semibold text-primary">
                           R$ {show.cachet.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </div>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="text-xs text-muted-foreground">-</div>
+                      )}
+                    </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-1 flex-shrink-0">
+                    {/* Actions - compact on mobile */}
+                    <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8"
+                        className="h-7 w-7 sm:h-8 sm:w-8"
                         onClick={() => handleEditShow(show)}
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
                       {show.status !== "cancelled" && (
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-warning hover:text-warning"
+                          className="h-7 w-7 sm:h-8 sm:w-8 text-warning hover:text-warning"
                           onClick={() => handleCancelShow(show.id)}
                         >
-                          <XCircle className="w-4 h-4" />
+                          <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </Button>
                       )}
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive"
                         onClick={() => handleDeleteShow(show.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </div>
