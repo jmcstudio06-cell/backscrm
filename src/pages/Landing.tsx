@@ -618,7 +618,7 @@ const Landing = () => {
               <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
                 <div className="aspect-video rounded-xl overflow-hidden">
                   <iframe
-                    src={getYouTubeEmbedUrl("https://www.youtube.com/watch?v=4xJnMICAFv4")?.replace('?autoplay=1', '') || ''}
+                    src={getYouTubeEmbedUrl("https://www.youtube.com/shorts/_nUOr9qoNgI")?.replace('?autoplay=1', '') || ''}
                     title="Depoimento Victor Viola"
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
