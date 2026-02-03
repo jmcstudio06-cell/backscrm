@@ -70,22 +70,29 @@ export default function Metas() {
     setInitialized(true);
   }, [goals, currentYear, loading, initialized]);
 
+  // Parse date string safely to avoid timezone issues
+  const parseLocalDate = (dateStr: string) => {
+    // Handle both "2026-02-01" and "2026-02-01T..." formats
+    const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+    return { year, month, day };
+  };
+
   // Calculate actual values for each month
   const getActualValues = (month: number) => {
     const actualLeads = leads.filter(lead => {
-      const leadDate = new Date(lead.created_at);
-      return leadDate.getMonth() + 1 === month && leadDate.getFullYear() === currentYear;
+      const parsed = parseLocalDate(lead.created_at);
+      return parsed.month === month && parsed.year === currentYear;
     }).length;
 
     const actualShows = shows.filter(show => {
-      const showDate = new Date(show.date);
-      return showDate.getMonth() + 1 === month && showDate.getFullYear() === currentYear && show.status === 'completed';
+      const parsed = parseLocalDate(show.date);
+      return parsed.month === month && parsed.year === currentYear && show.status === 'completed';
     }).length;
 
     const actualRevenue = transactions
       .filter(t => {
-        const transDate = new Date(t.date);
-        return t.type === 'income' && transDate.getMonth() + 1 === month && transDate.getFullYear() === currentYear;
+        const parsed = parseLocalDate(t.date);
+        return t.type === 'income' && parsed.month === month && parsed.year === currentYear;
       })
       .reduce((sum, t) => sum + t.amount, 0);
 
