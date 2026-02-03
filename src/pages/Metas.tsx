@@ -79,7 +79,7 @@ export default function Metas() {
 
     const actualShows = shows.filter(show => {
       const showDate = new Date(show.date);
-      return showDate.getMonth() + 1 === month && showDate.getFullYear() === currentYear && show.status !== 'cancelled';
+      return showDate.getMonth() + 1 === month && showDate.getFullYear() === currentYear && show.status === 'completed';
     }).length;
 
     const actualRevenue = transactions
