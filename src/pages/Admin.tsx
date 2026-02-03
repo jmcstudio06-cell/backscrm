@@ -139,6 +139,7 @@ export default function Admin() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [userGoals, setUserGoals] = useState<UserGoal[]>([]);
   const [userStats, setUserStats] = useState<Record<string, { leads: number; revenue: number; shows: number }>>({});
+  const [userLastActivity, setUserLastActivity] = useState<Record<string, { date: Date | null; type: string | null }>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   
@@ -234,8 +235,86 @@ export default function Admin() {
     } else {
       setUsers(data || []);
       setTotalUsers(count || 0);
+      
+      // Fetch last activity for each user
+      if (data && data.length > 0) {
+        const userIds = data.map(u => u.user_id);
+        fetchUsersLastActivity(userIds);
+      }
     }
     setLoadingUsers(false);
+  };
+
+  // Fetch last activity for multiple users at once
+  const fetchUsersLastActivity = async (userIds: string[]) => {
+    try {
+      // Fetch most recent records from each table in parallel
+      const [showsResult, transactionsResult, leadsResult, clientsResult] = await Promise.all([
+        supabase
+          .from("shows")
+          .select("user_id, created_at")
+          .in("user_id", userIds)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("transactions")
+          .select("user_id, created_at")
+          .in("user_id", userIds)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("leads")
+          .select("user_id, created_at")
+          .in("user_id", userIds)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("clients")
+          .select("user_id, created_at")
+          .in("user_id", userIds)
+          .order("created_at", { ascending: false }),
+      ]);
+
+      const activityMap: Record<string, { date: Date | null; type: string | null }> = {};
+
+      // Initialize all users with null
+      userIds.forEach(userId => {
+        activityMap[userId] = { date: null, type: null };
+      });
+
+      // Process shows
+      showsResult.data?.forEach(item => {
+        const date = new Date(item.created_at);
+        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
+          activityMap[item.user_id] = { date, type: "Show" };
+        }
+      });
+
+      // Process transactions
+      transactionsResult.data?.forEach(item => {
+        const date = new Date(item.created_at);
+        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
+          activityMap[item.user_id] = { date, type: "Transação" };
+        }
+      });
+
+      // Process leads
+      leadsResult.data?.forEach(item => {
+        const date = new Date(item.created_at);
+        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
+          activityMap[item.user_id] = { date, type: "Lead" };
+        }
+      });
+
+      // Process clients
+      clientsResult.data?.forEach(item => {
+        const date = new Date(item.created_at);
+        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
+          activityMap[item.user_id] = { date, type: "Cliente" };
+        }
+      });
+
+      setUserLastActivity(prev => ({ ...prev, ...activityMap }));
+    } catch (error) {
+      console.error("Error fetching last activity:", error);
+    }
   };
 
   // Fetch initial data and other configs (goals, settings)
@@ -915,6 +994,24 @@ export default function Admin() {
                                 return "Agora";
                               })()
                             : "Nunca"
+                          }
+                        </p>
+                        <p className="text-xs text-primary font-medium">
+                          Última atividade: {userLastActivity[userProfile.user_id]?.date 
+                            ? (() => {
+                                const lastActivity = userLastActivity[userProfile.user_id].date!;
+                                const activityType = userLastActivity[userProfile.user_id].type;
+                                const now = new Date();
+                                const diffMs = now.getTime() - lastActivity.getTime();
+                                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                                let timeAgo = "";
+                                if (diffDays > 0) timeAgo = `${diffDays} dia(s) atrás`;
+                                else if (diffHours > 0) timeAgo = `${diffHours} hora(s) atrás`;
+                                else timeAgo = "Agora";
+                                return `${activityType} - ${timeAgo}`;
+                              })()
+                            : "Nenhuma atividade"
                           }
                         </p>
                       </div>
