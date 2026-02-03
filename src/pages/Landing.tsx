@@ -37,7 +37,6 @@ import artist3Img from "@/assets/artists/artist-3.png";
 import artist4Img from "@/assets/artists/artist-4.png";
 
 // Testimonials
-import mariaElisaWhatsapp from "@/assets/testimonials/maria-elisa-whatsapp.png";
 import larissaGoogle from "@/assets/testimonials/larissa-google.png";
 import marceloGoogle from "@/assets/testimonials/marcelo-google.png";
 import fabioGoogle from "@/assets/testimonials/fabio-google.png";
@@ -614,22 +613,26 @@ const Landing = () => {
 
           {/* Testimonials - Layout vertical */}
           <div className="flex flex-col gap-8 max-w-2xl mx-auto">
-            {/* Maria Elisa */}
+            {/* Victor Viola - Video */}
             <div className="group">
               <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                <img 
-                  src={mariaElisaWhatsapp} 
-                  alt="Depoimento Maria Elisa Fernandes via WhatsApp" 
-                  className="w-full rounded-xl"
-                />
+                <div className="aspect-video rounded-xl overflow-hidden">
+                  <iframe
+                    src={getYouTubeEmbedUrl("https://www.youtube.com/watch?v=4xJnMICAFv4")?.replace('?autoplay=1', '') || ''}
+                    title="Depoimento Victor Viola"
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-slate-800 font-semibold text-lg">Maria Elisa Fernandes</p>
-                  <p className="text-slate-500">"Você é um gênio por criar ele"</p>
+                  <p className="text-slate-800 font-semibold text-lg">Victor Viola</p>
+                  <p className="text-slate-500">"Depoimento em vídeo"</p>
                 </div>
               </div>
             </div>
