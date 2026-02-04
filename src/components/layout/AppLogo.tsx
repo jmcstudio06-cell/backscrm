@@ -37,7 +37,7 @@ export function AppLogo({ collapsed = false, size = "md" }: AppLogoProps) {
       {!collapsed && (
         <div className="flex flex-col">
           <span className="font-bold text-sidebar-primary">{settings.app_name}</span>
-          <span className="text-xs text-sidebar-foreground">CRM para Artistas</span>
+          <span className="text-xs text-sidebar-foreground">O coração da carreira</span>
         </div>
       )}
     </div>
