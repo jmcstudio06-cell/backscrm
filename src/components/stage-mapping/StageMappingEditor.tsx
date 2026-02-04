@@ -25,6 +25,103 @@ import {
 } from "@/hooks/useStageMappings";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
+// Importar imagens para o PDF
+import drummerImg from '@/assets/stage/drummer.png';
+import guitaristImg from '@/assets/stage/guitarist.png';
+import keyboardistImg from '@/assets/stage/keyboardist.png';
+import bassistImg from '@/assets/stage/bassist.png';
+import singerImg from '@/assets/stage/singer.png';
+import ampImg from '@/assets/stage/amp.png';
+import accordionistImg from '@/assets/stage/accordionist.png';
+import acousticImg from '@/assets/stage/acoustic.png';
+import brassImg from '@/assets/stage/brass.png';
+import power110vImg from '@/assets/stage/power110v.png';
+import power220vImg from '@/assets/stage/power220v.png';
+import siderImg from '@/assets/stage/sider.png';
+import rackImg from '@/assets/stage/rack.png';
+import monitor1Img from '@/assets/stage/monitor1.png';
+import monitor2Img from '@/assets/stage/monitor2.png';
+import stairsImg from '@/assets/stage/stairs.png';
+import riserImg from '@/assets/stage/riser.png';
+
+const ELEMENT_TYPE_IMAGES: Record<string, string> = {
+  vocal: singerImg,
+  backing: singerImg,
+  guitar: guitaristImg,
+  acoustic: acousticImg,
+  bass: bassistImg,
+  keyboard: keyboardistImg,
+  drums: drummerImg,
+  accordion: accordionistImg,
+  brass: brassImg,
+  amp: ampImg,
+  sider: siderImg,
+  monitor1: monitor1Img,
+  monitor2: monitor2Img,
+  rack: rackImg,
+  stairs: stairsImg,
+  riser: riserImg,
+  power110v: power110vImg,
+  power220v: power220vImg,
+};
+
+const ELEMENT_TYPE_SIZES: Record<string, { width: number; height: number }> = {
+  vocal: { width: 65, height: 85 },
+  backing: { width: 65, height: 85 },
+  guitar: { width: 70, height: 85 },
+  acoustic: { width: 70, height: 85 },
+  bass: { width: 70, height: 85 },
+  keyboard: { width: 90, height: 85 },
+  drums: { width: 100, height: 85 },
+  accordion: { width: 70, height: 85 },
+  brass: { width: 65, height: 85 },
+  amp: { width: 50, height: 40 },
+  sider: { width: 45, height: 70 },
+  monitor1: { width: 70, height: 45 },
+  monitor2: { width: 65, height: 55 },
+  rack: { width: 80, height: 55 },
+  stairs: { width: 100, height: 80 },
+  riser: { width: 100, height: 100 },
+  power110v: { width: 40, height: 45 },
+  power220v: { width: 40, height: 45 },
+};
+
+function generateStageHtml(stageLayout: StageElement[], artistName: string): string {
+  const elements = stageLayout.map((el) => {
+    const image = ELEMENT_TYPE_IMAGES[el.type] || "";
+    const size = ELEMENT_TYPE_SIZES[el.type] || { width: 60, height: 60 };
+    const scale = el.scale || 1;
+    const rotation = el.rotation || 0;
+    const width = size.width * scale;
+    const height = size.height * scale;
+
+    return `
+      <div style="position: absolute; left: ${el.x}px; top: ${el.y}px; width: ${width}px; height: ${height}px;">
+        <img src="${image}" style="width: 100%; height: 100%; object-fit: contain; transform: rotate(${rotation}deg);" />
+        <div style="position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); white-space: nowrap;">
+          <span style="font-weight: bold; font-size: 9px; color: #333; background: rgba(255,255,255,0.9); padding: 2px 4px; border-radius: 3px;">${el.name}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div style="position: relative; width: 1000px; aspect-ratio: 16/9; background: white; border: 2px solid #555; overflow: hidden; font-family: Arial, sans-serif;">
+      <div style="background: #1a1a1a; padding: 12px 16px; text-align: center;">
+        <h3 style="margin: 0; color: white; font-size: 18px; letter-spacing: 2px;">MAPEAMENTO DE PALCO</h3>
+        ${artistName ? `<p style="margin: 4px 0 0; color: #ccc; font-size: 12px;">${artistName}</p>` : ""}
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 4px 16px; background: #f5f5f5; border-bottom: 1px solid #ddd; font-size: 10px; color: #666;">
+        <span>8M (MÍNIMO)</span>
+        <span>6M (MÍNIMO)</span>
+      </div>
+      <div style="position: relative; height: calc(100% - 60px); background: linear-gradient(to bottom, #fafafa, #f0f0f0);">
+        ${artistName ? `<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;"><span style="font-weight: bold; color: rgba(0,0,0,0.06); font-size: 60px; text-transform: uppercase; letter-spacing: 8px;">${artistName}</span></div>` : ""}
+        ${elements}
+      </div>
+    </div>
+  `;
+}
 
 interface StageMappingEditorProps {
   mapping: StageMapping;
@@ -100,9 +197,6 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     toast.info("Gerando rider técnico...");
 
     try {
-      // Deixa o React renderizar o estado de loading antes de capturar
-      await new Promise((r) => setTimeout(r, 50));
-
       const materialLabels: Record<string, string> = {
         microfones: "Microfones",
         pedestais: "Pedestais",
@@ -115,22 +209,46 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         iluminacao_basica: "Iluminação Básica",
       };
 
+      // Gerar o mapeamento de palco em um container temporário offscreen
       let stageImageSrc = "";
-      const stageCanvasElement = document.getElementById("stage-canvas-print");
-      if (stageCanvasElement) {
-        try {
-          const canvas = await html2canvas(stageCanvasElement, {
-            backgroundColor: "#ffffff",
-            // menor escala para evitar travamentos em telas grandes
-            scale: Math.min(1.5, window.devicePixelRatio || 1),
-            useCORS: true,
-            allowTaint: true,
-          });
+      const tempContainer = document.createElement("div");
+      tempContainer.style.cssText = "position: absolute; left: -9999px; top: 0; width: 1000px; background: white;";
+      document.body.appendChild(tempContainer);
 
-          stageImageSrc = canvas.toDataURL("image/jpeg", 0.9);
-        } catch (error) {
-          console.error("Erro ao capturar canvas:", error);
-        }
+      try {
+        // Renderizar o stage layout manualmente no container temporário
+        const stageHtml = generateStageHtml(stageLayout, artistName);
+        tempContainer.innerHTML = stageHtml;
+
+        // Aguardar as imagens carregarem
+        const images = tempContainer.querySelectorAll("img");
+        await Promise.all(
+          Array.from(images).map(
+            (img) =>
+              new Promise((resolve) => {
+                if (img.complete) resolve(true);
+                else {
+                  img.onload = () => resolve(true);
+                  img.onerror = () => resolve(true);
+                }
+              })
+          )
+        );
+
+        await new Promise((r) => setTimeout(r, 100));
+
+        const canvas = await html2canvas(tempContainer, {
+          backgroundColor: "#ffffff",
+          scale: 1.5,
+          useCORS: true,
+          allowTaint: true,
+        });
+
+        stageImageSrc = canvas.toDataURL("image/jpeg", 0.9);
+      } catch (error) {
+        console.error("Erro ao capturar canvas:", error);
+      } finally {
+        document.body.removeChild(tempContainer);
       }
 
       const printContent = `
