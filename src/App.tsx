@@ -38,6 +38,19 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+ // Register service worker for push notifications
+ if ('serviceWorker' in navigator) {
+   window.addEventListener('load', () => {
+     navigator.serviceWorker.register('/sw.js')
+       .then((registration) => {
+         console.log('ServiceWorker registered:', registration.scope);
+       })
+       .catch((error) => {
+         console.log('ServiceWorker registration failed:', error);
+       });
+   });
+ }
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
