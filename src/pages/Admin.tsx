@@ -32,11 +32,13 @@ import {
   Trophy,
   Gift,
   PartyPopper,
+   Bell,
 } from "lucide-react";
 import { AdminInsights } from "@/components/admin/AdminInsights";
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 import { GiftsAdminPanel } from "@/components/admin/GiftsAdminPanel";
 import { AnalysesAdminPanel } from "@/components/admin/AnalysesAdminPanel";
+ import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { Progress } from "@/components/ui/progress";
 
 import type { Json } from "@/integrations/supabase/types";
@@ -835,12 +837,13 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+         <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="marco">Marco</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="analyses">Análises</TabsTrigger>
           <TabsTrigger value="gifts">Presentes</TabsTrigger>
           <TabsTrigger value="referrals">Indicações</TabsTrigger>
+           <TabsTrigger value="notifications">Notificações</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
           <TabsTrigger value="trial">Config. Trial</TabsTrigger>
@@ -1263,6 +1266,11 @@ export default function Admin() {
         <TabsContent value="referrals">
           <ReferralsAdminPanel />
         </TabsContent>
+
+         {/* Notifications Tab */}
+         <TabsContent value="notifications">
+           <NotificationsAdminPanel />
+         </TabsContent>
 
         {/* Insights Tab */}
         <TabsContent value="insights">
