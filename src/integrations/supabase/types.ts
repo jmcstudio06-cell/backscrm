@@ -860,6 +860,75 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_history: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          id: string
+          message: string
+          notification_type: string
+          sent_at: string
+          sent_by: string | null
+          target_audience: string
+          title: string
+          users_reached: number
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          notification_type?: string
+          sent_at?: string
+          sent_by?: string | null
+          target_audience?: string
+          title: string
+          users_reached?: number
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          notification_type?: string
+          sent_at?: string
+          sent_by?: string | null
+          target_audience?: string
+          title?: string
+          users_reached?: number
+        }
+        Relationships: []
+      }
+      notification_settings: {
+        Row: {
+          config: Json | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          notification_text: string | null
+          setting_key: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          notification_text?: string | null
+          setting_key: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          notification_text?: string | null
+          setting_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       performance_types: {
         Row: {
           created_at: string
@@ -1665,6 +1734,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           year?: number
+        }
+        Relationships: []
+      }
+      user_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          is_active: boolean
+          p256dh: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          is_active?: boolean
+          p256dh: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          is_active?: boolean
+          p256dh?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
