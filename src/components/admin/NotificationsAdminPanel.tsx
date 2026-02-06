@@ -236,65 +236,82 @@
      }
    };
  
-   const sendManualNotification = async () => {
-     if (!manualTitle.trim() || !manualMessage.trim()) {
-       toast.error("Preencha o título e a mensagem");
-       return;
-     }
- 
-     if (manualMessage.length > 120) {
-       toast.error("A mensagem deve ter no máximo 120 caracteres");
-       return;
-     }
- 
-     setSending(true);
-     try {
-       // Get users count based on audience
-       let usersQuery = supabase.from("profiles").select("user_id", { count: "exact", head: true });
- 
-       if (manualAudience === "active") {
-         // Active = accessed in last 7 days
-         const sevenDaysAgo = new Date();
-         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-         usersQuery = usersQuery.gte("last_seen", sevenDaysAgo.toISOString());
-       } else if (manualAudience === "inactive") {
-         // Inactive = not accessed in last 7 days
-         const sevenDaysAgo = new Date();
-         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-         usersQuery = usersQuery.or(`last_seen.lt.${sevenDaysAgo.toISOString()},last_seen.is.null`);
-       }
- 
-       const { count } = await usersQuery;
- 
-       // Insert into history
-       const { error } = await supabase.from("notification_history").insert({
-         title: manualTitle,
-         message: manualMessage,
-         action_url: manualActionUrl || null,
-         notification_type: "manual",
-         target_audience: manualAudience,
-         users_reached: count || 0,
-       });
- 
-       if (error) throw error;
- 
-       toast.success(`Notificação enviada para ${count || 0} usuários!`);
- 
-       // Reset form
-       setManualTitle("");
-       setManualMessage("");
-       setManualActionUrl("");
-       setManualAudience("all");
- 
-       // Refresh history
-       fetchData();
-     } catch (error) {
-       console.error("Error sending notification:", error);
-       toast.error("Erro ao enviar notificação");
-     } finally {
-       setSending(false);
-     }
-   };
+  const sendManualNotification = async () => {
+    if (!manualTitle.trim() || !manualMessage.trim()) {
+      toast.error("Preencha o título e a mensagem");
+      return;
+    }
+
+    if (manualMessage.length > 120) {
+      toast.error("A mensagem deve ter no máximo 120 caracteres");
+      return;
+    }
+
+    setSending(true);
+    try {
+      // Get auth token
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
+      if (!token) {
+        toast.error("Você precisa estar logado para enviar notificações");
+        return;
+      }
+
+      // Call edge function to send real push notifications
+      const { data, error } = await supabase.functions.invoke("send-push-notification", {
+        body: {
+          title: manualTitle,
+          body: manualMessage,
+          url: manualActionUrl || "/dashboard",
+          target_audience: manualAudience,
+        },
+      });
+
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Erro ao enviar notificações");
+      }
+
+      console.log("Push response:", data);
+
+      const sentCount = data?.sent || 0;
+      const totalValid = data?.total_valid || 0;
+      const totalSubs = data?.total_subscriptions || 0;
+
+      if (sentCount > 0) {
+        toast.success(`🔔 ${sentCount} notificações enviadas com sucesso!`);
+      } else if (totalValid === 0 && totalSubs > 0) {
+        toast.warning("Nenhuma assinatura push válida encontrada", {
+          description: "Os usuários precisam autorizar notificações no app.",
+        });
+      } else if (totalSubs === 0) {
+        toast.warning("Nenhum usuário inscrito para notificações", {
+          description: "Os usuários precisam ativar notificações no app.",
+        });
+      } else {
+        toast.info("Notificação registrada", {
+          description: `${totalValid} dispositivos válidos, mas nenhum recebeu a notificação.`,
+        });
+      }
+
+      // Reset form
+      setManualTitle("");
+      setManualMessage("");
+      setManualActionUrl("");
+      setManualAudience("all");
+
+      // Refresh history
+      fetchData();
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      toast.error("Erro ao enviar notificação", {
+        description: error instanceof Error ? error.message : "Tente novamente",
+      });
+    } finally {
+      setSending(false);
+    }
+  };
  
    const getNotificationTypeBadge = (type: string) => {
      if (type === "manual") {
