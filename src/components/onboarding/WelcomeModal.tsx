@@ -27,6 +27,18 @@ interface WelcomeModalProps {
   userName?: string;
 }
 
+// Store the beforeinstallprompt event globally
+let deferredPrompt: any = null;
+
+// Listen for the beforeinstallprompt event
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('PWA install prompt captured');
+  });
+}
+
 const installSteps = [
   {
     platform: "access",
@@ -195,7 +207,67 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
   const [step, setStep] = useState(0);
   const [showConfetti, setShowConfetti] = useState(true);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [canAutoInstall, setCanAutoInstall] = useState(false);
   const { toast } = useToast();
+
+  // Check if already installed or can auto-install
+  useEffect(() => {
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || 
+                         (window.navigator as any).standalone === true;
+    setIsInstalled(isStandalone);
+    
+    // Check if we have the deferred prompt (Android/Chrome)
+    setCanAutoInstall(!!deferredPrompt);
+    
+    // Listen for changes
+    const handlePrompt = () => setCanAutoInstall(true);
+    window.addEventListener('beforeinstallprompt', handlePrompt);
+    
+    return () => window.removeEventListener('beforeinstallprompt', handlePrompt);
+  }, [open]);
+
+  const handleAutoInstall = async () => {
+    if (!deferredPrompt) {
+      toast({
+        title: "Instalação não disponível",
+        description: "Use o menu do navegador para instalar o app.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsInstalling(true);
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        toast({
+          title: "App instalado! 🎉",
+          description: "O Backstage Pro foi adicionado à sua tela inicial.",
+        });
+        setIsInstalled(true);
+        deferredPrompt = null;
+        handleNeverShowAgain();
+      } else {
+        toast({
+          title: "Instalação cancelada",
+          description: "Você pode instalar depois pelo menu do navegador.",
+        });
+      }
+    } catch (error) {
+      console.error('Install error:', error);
+      toast({
+        title: "Erro na instalação",
+        description: "Tente instalar manualmente pelo menu do navegador.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsInstalling(false);
+    }
+  };
 
   useEffect(() => {
     if (open) {
@@ -240,6 +312,57 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
     handleNeverShowAgain();
   };
 
+  // Check if iOS
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  // If already installed, just show welcome
+  if (isInstalled) {
+    return (
+      <>
+        {showConfetti && (
+          <Confetti
+            width={windowSize.width}
+            height={windowSize.height}
+            recycle={false}
+            numberOfPieces={300}
+            colors={['#0066CC', '#00B4D8', '#FFD700', '#FF6B6B', '#4ECDC4']}
+          />
+        )}
+        <Dialog open={open} onOpenChange={onClose}>
+          <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0 bg-gradient-to-b from-primary via-primary/90 to-accent">
+            <div className="p-8 text-center">
+              <div className="flex justify-center gap-2 mb-6">
+                <PartyPopper className="w-12 h-12 text-yellow-400 animate-bounce" />
+                <Check className="w-10 h-10 text-green-400 animate-pulse" />
+                <Star className="w-12 h-12 text-yellow-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
+              </div>
+
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Tudo pronto, {userName || "Artista"}! 🎉
+              </h2>
+              
+              <p className="text-xl text-cyan-300 font-medium mb-4">
+                O app já está instalado!
+              </p>
+
+              <p className="text-white/90 mb-6">
+                Agora é só começar a usar o <span className="font-bold">Backstage Pro</span>!
+              </p>
+
+              <Button 
+                onClick={handleNeverShowAgain}
+                className="w-full bg-white text-primary hover:bg-white/90 font-semibold h-12"
+              >
+                <Rocket className="mr-2 w-5 h-5" />
+                Começar a usar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
   // Welcome screen (step 0)
   if (step === 0) {
     return (
@@ -254,7 +377,7 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
           />
         )}
         <Dialog open={open} onOpenChange={onClose}>
-          <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8]">
+          <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0 bg-gradient-to-b from-primary via-primary/90 to-accent">
             <div className="p-8 text-center">
               <div className="flex justify-center gap-2 mb-6">
                 <PartyPopper className="w-12 h-12 text-yellow-400 animate-bounce" />
@@ -277,23 +400,58 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
 
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <Rocket className="w-8 h-8 text-cyan-300" />
+                  <Smartphone className="w-8 h-8 text-cyan-300" />
                   <span className="text-white font-semibold text-lg">Instale o app no celular!</span>
                 </div>
                 <p className="text-white/80 text-sm">
-                  Para uma experiência completa, instale o Backstage Pro como um aplicativo 
-                  no seu celular. É rápido, fácil e funciona offline!
+                  {canAutoInstall 
+                    ? "Clique no botão abaixo para instalar automaticamente!"
+                    : isIOS 
+                      ? "No iPhone, você precisa seguir alguns passos simples."
+                      : "Instale para ter acesso offline e notificações!"
+                  }
                 </p>
               </div>
 
               <div className="flex flex-col gap-3">
-                <Button 
-                  onClick={handleNext}
-                  className="w-full bg-white text-[#0066CC] hover:bg-white/90 font-semibold h-12"
-                >
-                  Ver tutorial de instalação
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
+                {canAutoInstall ? (
+                  // Auto-install button for Android/Chrome
+                  <Button 
+                    onClick={handleAutoInstall}
+                    disabled={isInstalling}
+                    className="w-full bg-white text-primary hover:bg-white/90 font-semibold h-12"
+                  >
+                    {isInstalling ? (
+                      <>
+                        <Sparkles className="mr-2 w-5 h-5 animate-spin" />
+                        Instalando...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2 w-5 h-5" />
+                        Instalar Agora
+                      </>
+                    )}
+                  </Button>
+                ) : isIOS ? (
+                  // iOS - Show tutorial
+                  <Button 
+                    onClick={handleNext}
+                    className="w-full bg-white text-primary hover:bg-white/90 font-semibold h-12"
+                  >
+                    Ver como instalar no iPhone
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                ) : (
+                  // Fallback - Show tutorial
+                  <Button 
+                    onClick={handleNext}
+                    className="w-full bg-white text-primary hover:bg-white/90 font-semibold h-12"
+                  >
+                    Ver tutorial de instalação
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                )}
                 <Button 
                   variant="ghost"
                   onClick={handleSkip}
@@ -309,20 +467,25 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
     );
   }
 
-  // Installation steps
-  const currentInstall = installSteps[step - 1];
-  const isLastStep = step === installSteps.length;
-  const nextPlatform = step === 1 ? "iPhone" : step === 2 ? "Android" : null;
+  // Installation steps (only for iOS now)
+  const iosSteps = installSteps.filter(s => s.platform === "access" || s.platform === "ios");
+  const currentInstall = iosSteps[step - 1];
+  const isLastStep = step === iosSteps.length;
+
+  if (!currentInstall) {
+    handleNeverShowAgain();
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0">
-        <div className="bg-white">
+        <div className="bg-background">
           {/* Progress bar */}
-          <div className="h-1.5 bg-slate-100">
+          <div className="h-1.5 bg-muted">
             <div 
-              className="h-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] transition-all duration-500"
-              style={{ width: `${(step / installSteps.length) * 100}%` }}
+              className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+              style={{ width: `${(step / iosSteps.length) * 100}%` }}
             />
           </div>
 
@@ -358,16 +521,16 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
 
             {/* Step dots indicator */}
             <div className="flex justify-center gap-2 mb-4">
-              {installSteps.map((_, index) => (
+              {iosSteps.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setStep(index + 1)}
                   className={`w-2.5 h-2.5 rounded-full transition-all ${
                     index + 1 === step 
-                      ? 'w-8 bg-[#0066CC]' 
+                      ? 'w-8 bg-primary' 
                       : index + 1 < step 
-                        ? 'bg-[#00B4D8]' 
-                        : 'bg-slate-200 hover:bg-slate-300'
+                        ? 'bg-accent' 
+                        : 'bg-muted hover:bg-muted-foreground/30'
                   }`}
                 />
               ))}
@@ -386,7 +549,7 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
                   </>
                 ) : (
                   <>
-                    Próximo: {nextPlatform}
+                    Próximo passo
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </>
                 )}
@@ -394,7 +557,7 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
               <Button 
                 variant="ghost"
                 onClick={handleSkip}
-                className="w-full text-slate-400 hover:text-slate-600 text-sm"
+                className="w-full text-muted-foreground hover:text-foreground text-sm"
               >
                 Pular tutorial
               </Button>
