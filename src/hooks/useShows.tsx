@@ -39,10 +39,47 @@ export function useShowsData() {
   const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Auto-complete past shows that weren't cancelled
+  const autoCompletePastShows = async () => {
+    if (!user) return;
+    
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      
+      // Find shows that should be auto-completed
+      const { data: pastShows, error: fetchError } = await supabase
+        .from("shows")
+        .select("id, title, date, cachet, status")
+        .lt("date", today)
+        .in("status", ["scheduled", "confirmed", "pending", "negotiation"]);
+      
+      if (fetchError) throw fetchError;
+      
+      if (pastShows && pastShows.length > 0) {
+        // Update each show to completed and create transactions
+        for (const show of pastShows) {
+          const { error: updateError } = await supabase
+            .from("shows")
+            .update({ status: "completed", updated_at: new Date().toISOString() })
+            .eq("id", show.id);
+          
+          if (!updateError) {
+            console.log(`Auto-completed show: ${show.title}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error auto-completing shows:", error);
+    }
+  };
+
   const fetchShows = async () => {
     if (!user) return;
     
     try {
+      // First auto-complete past shows
+      await autoCompletePastShows();
+      
       const { data, error } = await supabase
         .from("shows")
         .select("*")
