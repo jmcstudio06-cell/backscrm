@@ -19,7 +19,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
 import { toast } from "sonner";
-import { useShows, Show } from "@/contexts/ShowsContext";
+import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 
 const statusColors = {
   confirmed: "bg-primary",

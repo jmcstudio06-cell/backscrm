@@ -10,7 +10,7 @@ import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
-import { useShows } from "@/contexts/ShowsContext";
+import { useShows } from "@/contexts/shows/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useContracts } from "@/hooks/useContracts";
 import { useClients } from "@/hooks/useClients";
