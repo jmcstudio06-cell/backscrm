@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { AuthProvider } from "@/hooks/useAuth";
-import { ShowsProvider } from "@/contexts/ShowsContext";
+import { ShowsProvider } from "@/contexts/shows/ShowsProvider";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 
 import Landing from "./pages/Landing";

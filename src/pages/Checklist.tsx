@@ -18,7 +18,7 @@ import {
   FolderOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useShows, Show } from "@/contexts/ShowsContext";
+import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { AddTaskModal } from "@/components/checklist/AddTaskModal";
 import { ChecklistTemplatesModal } from "@/components/checklist/ChecklistTemplatesModal";
 
