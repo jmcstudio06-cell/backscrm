@@ -281,9 +281,14 @@ export function useShowsData() {
       // Get current show to check status change
       const currentShow = shows.find((s) => s.id === id);
 
+      // Sanitize updates: convert empty strings to null for time fields
+      const sanitizedUpdates = { ...updates };
+      if (sanitizedUpdates.start_time === "") sanitizedUpdates.start_time = null;
+      if (sanitizedUpdates.end_time === "") sanitizedUpdates.end_time = null;
+
       const { data, error } = await supabase
         .from("shows")
-        .update(updates)
+        .update(sanitizedUpdates)
         .eq("id", id)
         .select()
         .single();
