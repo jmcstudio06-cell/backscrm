@@ -258,7 +258,7 @@
         return;
       }
 
-      // Call edge function to send real push notifications
+      // Call edge function to send push via OneSignal
       const { data, error } = await supabase.functions.invoke("send-push-notification", {
         body: {
           title: manualTitle,
@@ -276,22 +276,17 @@
       console.log("Push response:", data);
 
       const sentCount = data?.sent || 0;
-      const totalValid = data?.total_valid || 0;
-      const totalSubs = data?.total_subscriptions || 0;
+      const notificationId = data?.notification_id;
 
       if (sentCount > 0) {
         toast.success(`🔔 ${sentCount} notificações enviadas com sucesso!`);
-      } else if (totalValid === 0 && totalSubs > 0) {
-        toast.warning("Nenhuma assinatura push válida encontrada", {
-          description: "Os usuários precisam autorizar notificações no app.",
-        });
-      } else if (totalSubs === 0) {
-        toast.warning("Nenhum usuário inscrito para notificações", {
-          description: "Os usuários precisam ativar notificações no app.",
+      } else if (notificationId) {
+        toast.info("Notificação enviada", {
+          description: "Será entregue aos usuários inscritos.",
         });
       } else {
-        toast.info("Notificação registrada", {
-          description: `${totalValid} dispositivos válidos, mas nenhum recebeu a notificação.`,
+        toast.warning("Nenhum usuário inscrito para notificações", {
+          description: "Os usuários precisam ativar notificações no app.",
         });
       }
 
