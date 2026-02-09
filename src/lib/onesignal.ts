@@ -66,7 +66,26 @@ export async function promptForPushNotifications(): Promise<boolean> {
   try {
     await initOneSignal();
 
-    // Force native permission prompt via OneSignal
+    // On iOS PWA, we must use Slidedown.promptPush() instead of Notifications.requestPermission()
+    // because iOS Safari has special rules for push permission prompts.
+    // Using promptPush will display the OneSignal slidedown and then trigger native permission.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    if (isIOS) {
+      console.log("iOS detected, using Slidedown.promptPush()");
+      try {
+        await OneSignal.Slidedown.promptPush();
+        // After promptPush, check if permission was granted
+        const permission = OneSignal.Notifications.permission;
+        console.log("iOS push permission after promptPush:", permission);
+        return permission;
+      } catch (slidedownError) {
+        console.warn("Slidedown.promptPush failed, falling back:", slidedownError);
+        // Fall through to regular method
+      }
+    }
+
+    // Standard path for non-iOS or fallback
     const permission = await OneSignal.Notifications.requestPermission();
     console.log("Push permission result:", permission);
     
