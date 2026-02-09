@@ -28,9 +28,9 @@ const plans = [
     tagline: "Para quem está começando a profissionalizar",
     description: "1 mês de acesso",
     originalPrice: "R$ 79,90",
-    price: "1x de R$ 39,90",
+    price: "1x de R$ 45,00",
     period: "",
-    totalPrice: "R$ 39,90",
+    totalPrice: "R$ 45,00",
     icon: Zap,
     highlight: null,
     support: "Suporte por chat",
@@ -52,10 +52,10 @@ const plans = [
     name: "Profissional",
     tagline: "Para artistas que já fazem shows regularmente",
     description: "3 meses de acesso",
-    originalPrice: "R$ 59,99",
-    price: "3x de R$ 20,00",
+    originalPrice: "R$ 135,00",
+    price: "3x de R$ 25,00",
     period: "",
-    totalPrice: "R$ 60,00",
+    totalPrice: "R$ 75,00",
     icon: Star,
     highlight: "MAIS ESCOLHIDO",
     support: "Suporte prioritário",
@@ -65,7 +65,7 @@ const plans = [
       "Funil de vendas para fechar mais shows",
       "Metas e acompanhamento de crescimento",
       "Relatórios de performance detalhados",
-      "Economize comparado ao plano mensal",
+      "Economize R$ 60,00 comparado ao mensal",
     ],
     styles: {
       card: "bg-gradient-to-b from-primary/5 to-primary/10 border-2 border-primary scale-[1.02] shadow-xl ring-1 ring-primary/20",
@@ -77,7 +77,7 @@ const plans = [
     name: "Avançado",
     tagline: "Para quem quer dominar o mercado",
     description: "6 meses de acesso",
-    originalPrice: "R$ 199,90",
+    originalPrice: "R$ 270,00",
     price: "6x de R$ 16,66",
     period: "",
     totalPrice: "R$ 99,99",
@@ -90,7 +90,7 @@ const plans = [
       "Acompanhamento contínuo de metas",
       "Prioridade em novidades e recursos",
       "Acesso antecipado a novas funcionalidades",
-      "Economize comparado ao plano mensal",
+      "Economize R$ 170,01 comparado ao mensal",
     ],
     styles: {
       card: "bg-card border border-border hover:border-amber-500/30 hover:shadow-lg",
@@ -110,21 +110,15 @@ export default function Planos() {
   return (
     <Layout title="" subtitle="">
       <div className="pt-4">
-        {/* Urgency Banner */}
+        {/* Banner de urgência */}
         <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-xl p-5 max-w-3xl mx-auto mb-8 shadow-xl border border-red-400/30">
-          <div className="flex flex-col items-center justify-center gap-3">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
-                <AlertTriangle className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-center">
-                <p className="text-white font-bold text-lg md:text-xl">
-                  ⚠️ Esta oferta pode expirar a qualquer momento!
-                </p>
-                <p className="text-white/90 text-sm">
-                  Esses valores são exclusivos e podem voltar ao normal sem aviso prévio.
-                </p>
-              </div>
+          <div className="flex items-center gap-3 justify-center">
+            <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+            <div className="text-center">
+              <p className="text-white font-bold text-lg">⚠️ Oferta por tempo limitado</p>
+              <p className="text-white/90 text-sm">Os valores podem voltar ao normal sem aviso prévio.</p>
             </div>
           </div>
         </div>
@@ -134,23 +128,22 @@ export default function Planos() {
           <h1 className="text-2xl md:text-3xl font-bold mb-4">Pare de perder tempo e dinheiro com desorganização</h1>
           <p className="text-lg text-muted-foreground">
             O Backstage Pro é o sistema completo para{" "}
-            <span className="text-foreground font-medium">gerir sua carreira musical como uma empresa</span>, com tudo
-            centralizado em um só lugar.
+            <span className="text-foreground font-medium">gerir sua carreira musical como uma empresa</span>.
           </p>
         </div>
 
-        {/* Plans */}
+        {/* Planos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-10">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
               <div
-                key={plan.description}
+                key={plan.name}
                 className={cn("relative rounded-2xl p-6 flex flex-col transition-all duration-300", plan.styles.card)}
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-blue-600 shadow-md">
+                    <Badge className="px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-blue-600">
                       {plan.highlight}
                     </Badge>
                   </div>
@@ -172,14 +165,11 @@ export default function Planos() {
                 <div className="text-center mb-5">
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <span className="text-sm text-muted-foreground line-through">{plan.originalPrice}</span>
-                    <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
+                    <Badge variant="destructive" className="text-xs">
                       OFERTA
                     </Badge>
                   </div>
-                  <div className="text-3xl font-bold text-green-600">
-                    {plan.price}
-                    <span className="text-sm font-normal text-muted-foreground">{plan.period}</span>
-                  </div>
+                  <div className="text-3xl font-bold text-green-600">{plan.price}</div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {plan.description} • Total: {plan.totalPrice}
                   </p>
@@ -210,40 +200,26 @@ export default function Planos() {
           })}
         </div>
 
-        {/* Social Proof */}
+        {/* Prova social */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-10">
           {testimonials.map((testimonial) => (
             <div key={testimonial.name} className="bg-muted/50 rounded-xl p-4 border border-border">
               <Quote className="w-5 h-5 text-primary/60 mb-2" />
-              <p className="text-sm text-muted-foreground mb-3 italic">"{testimonial.text}"</p>
-              <div>
-                <p className="text-sm font-semibold">{testimonial.name}</p>
-                <p className="text-xs text-muted-foreground">{testimonial.role}</p>
-              </div>
+              <p className="text-sm italic mb-3">"{testimonial.text}"</p>
+              <p className="text-sm font-semibold">{testimonial.name}</p>
+              <p className="text-xs text-muted-foreground">{testimonial.role}</p>
             </div>
           ))}
         </div>
 
-        {/* Reassurance */}
+        {/* Garantias */}
         <div className="flex flex-wrap justify-center gap-6 mb-8">
           {reassurances.map((item) => (
-            <div key={item.text} className="flex items-center gap-2 text-muted-foreground">
+            <div key={item.text} className="flex items-center gap-2">
               <item.icon className="w-4 h-4" />
               <span className="text-sm">{item.text}</span>
             </div>
           ))}
-        </div>
-
-        {/* Final CTA */}
-        <div className="text-center bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-8 max-w-3xl mx-auto border border-primary/10">
-          <h3 className="text-xl font-bold mb-2">Ainda com dúvida?</h3>
-          <p className="text-muted-foreground mb-4">
-            Comece pelo plano Essencial e veja na prática como o Backstage Pro pode transformar sua carreira.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Mais de <span className="font-semibold text-foreground">100 artistas</span> já usam o Backstage Pro para
-            organizar e crescer.
-          </p>
         </div>
       </div>
     </Layout>
