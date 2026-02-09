@@ -136,8 +136,12 @@ serve(async (req) => {
       },
     };
 
+    console.log(`Sending push to ${subs?.length ?? 0} subscriptions`);
+
     const results = await Promise.allSettled(
       (subs ?? []).map(async (s: any) => {
+        console.log(`Processing subscription: ${s.id}, endpoint: ${s.endpoint.substring(0, 50)}...`);
+        
         const subscription: PushSubscription = {
           endpoint: s.endpoint,
           expirationTime: null,
@@ -147,15 +151,31 @@ serve(async (req) => {
           },
         };
 
-        const payload = await buildPushPayload(message, subscription, vapid);
-        const res = await fetch(s.endpoint, payload as RequestInit);
+        try {
+          const payload = await buildPushPayload(message, subscription, vapid);
+          console.log(`Built payload for ${s.id}`);
+          
+          const res = await fetch(s.endpoint, payload as RequestInit);
+          console.log(`Push response for ${s.id}: status=${res.status}`);
 
-        // 404/410 typically means subscription is gone
-        if (res.status === 404 || res.status === 410) {
-          await supabaseAdmin.from("user_push_subscriptions").update({ is_active: false }).eq("id", s.id);
+          // 404/410 typically means subscription is gone
+          if (res.status === 404 || res.status === 410) {
+            console.log(`Marking subscription ${s.id} as inactive (status ${res.status})`);
+            await supabaseAdmin.from("user_push_subscriptions").update({ is_active: false }).eq("id", s.id);
+            return false;
+          }
+
+          if (!res.ok) {
+            const errorText = await res.text();
+            console.error(`Push failed for ${s.id}: ${res.status} - ${errorText}`);
+            return false;
+          }
+
+          return true;
+        } catch (err) {
+          console.error(`Error sending push to ${s.id}:`, err);
+          return false;
         }
-
-        return res.ok;
       })
     );
 
