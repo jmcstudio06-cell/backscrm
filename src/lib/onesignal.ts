@@ -66,11 +66,31 @@ export async function promptForPushNotifications(): Promise<boolean> {
   try {
     await initOneSignal();
 
+    // Force native permission prompt via OneSignal
     const permission = await OneSignal.Notifications.requestPermission();
     console.log("Push permission result:", permission);
+    
+    // If OneSignal's method didn't trigger native prompt, try native API as fallback
+    if (!permission && "Notification" in window && Notification.permission === "default") {
+      console.log("Falling back to native Notification.requestPermission");
+      const nativeResult = await Notification.requestPermission();
+      return nativeResult === "granted";
+    }
+    
     return permission;
   } catch (error) {
     console.error("Error requesting push permission:", error);
+    
+    // Fallback to native API on error
+    if ("Notification" in window && Notification.permission === "default") {
+      try {
+        const nativeResult = await Notification.requestPermission();
+        return nativeResult === "granted";
+      } catch {
+        return false;
+      }
+    }
+    
     return false;
   }
 }
