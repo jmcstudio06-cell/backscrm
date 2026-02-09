@@ -3,37 +3,68 @@ import OneSignal from "react-onesignal";
 const ONESIGNAL_APP_ID = import.meta.env.VITE_ONESIGNAL_APP_ID;
 
 let initialized = false;
+let initPromise: Promise<void> | null = null;
+
+function isValidAppId(appId: unknown): appId is string {
+  return (
+    typeof appId === "string" &&
+    appId.trim().length > 0 &&
+    appId !== "PLACEHOLDER_TO_BE_REPLACED"
+  );
+}
 
 export async function initOneSignal(): Promise<void> {
-  if (initialized || !ONESIGNAL_APP_ID) {
-    if (!ONESIGNAL_APP_ID) {
-      console.warn("OneSignal App ID not configured");
-    }
+  if (initialized) return;
+
+  if (!isValidAppId(ONESIGNAL_APP_ID)) {
+    console.warn("OneSignal App ID not configured");
     return;
   }
 
-  try {
-    await OneSignal.init({
-      appId: ONESIGNAL_APP_ID,
-      safari_web_id: undefined,
-      allowLocalhostAsSecureOrigin: true,
-      serviceWorkerParam: {
-        scope: "/",
-      },
-    });
+  // Prevent concurrent inits (React 18 StrictMode can run effects twice in dev)
+  if (initPromise) return initPromise;
 
-    initialized = true;
-    console.log("OneSignal initialized successfully");
-  } catch (error) {
-    console.error("Error initializing OneSignal:", error);
-  }
+  initPromise = (async () => {
+    try {
+      await OneSignal.init({
+        appId: ONESIGNAL_APP_ID,
+        safari_web_id: undefined,
+        allowLocalhostAsSecureOrigin: true,
+        serviceWorkerParam: {
+          scope: "/",
+        },
+      });
+
+      initialized = true;
+      console.log("OneSignal initialized successfully");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : JSON.stringify(error);
+
+      // OneSignal throws this if init is called twice — treat as success.
+      if (message.toLowerCase().includes("already initialized")) {
+        initialized = true;
+        console.warn("OneSignal already initialized; skipping init");
+        return;
+      }
+
+      console.error("Error initializing OneSignal:", error);
+      throw error;
+    } finally {
+      initPromise = null;
+    }
+  })();
+
+  return initPromise;
 }
 
 export async function promptForPushNotifications(): Promise<boolean> {
   try {
-    if (!initialized) {
-      await initOneSignal();
-    }
+    await initOneSignal();
 
     const permission = await OneSignal.Notifications.requestPermission();
     console.log("Push permission result:", permission);
@@ -46,9 +77,7 @@ export async function promptForPushNotifications(): Promise<boolean> {
 
 export async function setExternalUserId(userId: string): Promise<void> {
   try {
-    if (!initialized) {
-      await initOneSignal();
-    }
+    await initOneSignal();
 
     await OneSignal.login(userId);
     console.log("OneSignal user ID set:", userId);
