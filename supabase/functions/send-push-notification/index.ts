@@ -64,32 +64,65 @@ serve(async (req) => {
 
     console.log("OneSignal payload:", JSON.stringify(notificationPayload));
 
-    // Send notification via OneSignal REST API
-    const response = await fetch("https://onesignal.com/api/v1/notifications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${ONESIGNAL_REST_API_KEY}`,
-      },
-      body: JSON.stringify(notificationPayload),
-    });
+    // Send notification via OneSignal API
+    // OneSignal has two auth schemes in the wild:
+    // - New endpoint: https://api.onesignal.com/notifications with `Authorization: Key <RICH_API_KEY>`
+    // - Legacy endpoint: https://onesignal.com/api/v1/notifications with `Authorization: Basic <REST_API_KEY>`
+    // We'll try the new endpoint first and fallback to legacy on 401/403.
 
-    const result = await response.json();
-    console.log("OneSignal response:", JSON.stringify(result));
+    const rawKey = String(ONESIGNAL_REST_API_KEY).trim();
+    const normalizedKey = rawKey.replace(/^(Basic|Key|Bearer)\s+/i, "");
 
-    if (!response.ok) {
-      console.error("OneSignal error:", result);
+    const trySend = async (endpoint: string, authScheme: "Key" | "Basic") => {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `${authScheme} ${normalizedKey}`,
+        },
+        body: JSON.stringify(notificationPayload),
+      });
+
+      const text = await res.text();
+      let json: any = null;
+      try {
+        json = text ? JSON.parse(text) : null;
+      } catch (_e) {
+        json = { raw: text };
+      }
+
+      return { res, json };
+    };
+
+    console.log("OneSignal auth key present:", Boolean(normalizedKey), "len:", normalizedKey.length);
+
+    let response = await trySend("https://api.onesignal.com/notifications", "Key");
+
+    // Fallback to legacy scheme/endpoint if access denied
+    if (!response.res.ok && (response.res.status === 401 || response.res.status === 403)) {
+      console.log("OneSignal new endpoint auth failed; falling back to legacy endpoint");
+      response = await trySend("https://onesignal.com/api/v1/notifications", "Basic");
+    }
+
+    console.log("OneSignal response status:", response.res.status);
+    console.log("OneSignal response:", JSON.stringify(response.json));
+
+    if (!response.res.ok) {
+      console.error("OneSignal error:", response.json);
       return new Response(
         JSON.stringify({
-          error: result.errors?.[0] || "Failed to send notification",
-          details: result,
+          error: response.json?.errors?.[0] || response.json?.error || "Failed to send notification",
+          details: response.json,
         }),
         {
-          status: response.status,
+          status: response.res.status,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
+
+    const result = response.json;
 
     // Log notification to history
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
