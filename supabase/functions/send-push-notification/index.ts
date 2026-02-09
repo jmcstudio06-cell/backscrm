@@ -1,5 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  buildPushPayload,
+  type PushSubscription,
+  type PushMessage,
+  type VapidKeys,
+} from "https://esm.sh/@block65/webcrypto-web-push@1.0.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,149 +13,176 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+type RequestBody = {
+  title: string;
+  body: string;
+  url?: string;
+  target_audience?: "all" | "active" | "inactive";
+  user_ids?: string[];
+};
+
+const ACTIVE_DAYS = 7;
+
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const ONESIGNAL_APP_ID = Deno.env.get("ONESIGNAL_APP_ID");
-    const ONESIGNAL_REST_API_KEY = Deno.env.get("ONESIGNAL_REST_API_KEY");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) {
-      console.error("OneSignal credentials not configured");
-      return new Response(
-        JSON.stringify({ error: "OneSignal not configured" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+    const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY");
+    const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY");
+    const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT");
 
-    const { title, body, url, target_audience, user_ids } = await req.json();
+    if (!supabaseUrl) throw new Error("SUPABASE_URL is not configured");
+    if (!supabaseAnonKey) throw new Error("SUPABASE_ANON_KEY is not configured");
+    if (!supabaseServiceRoleKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+
+    if (!VAPID_PUBLIC_KEY) throw new Error("VAPID_PUBLIC_KEY is not configured");
+    if (!VAPID_PRIVATE_KEY) throw new Error("VAPID_PRIVATE_KEY is not configured");
+    if (!VAPID_SUBJECT) throw new Error("VAPID_SUBJECT is not configured");
+
+    const { title, body, url, target_audience, user_ids } = (await req.json()) as RequestBody;
 
     if (!title || !body) {
-      return new Response(
-        JSON.stringify({ error: "Title and body are required" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    console.log("Sending notification:", { title, body, url, target_audience, user_ids });
-
-    // Build OneSignal notification payload
-    const notificationPayload: Record<string, unknown> = {
-      app_id: ONESIGNAL_APP_ID,
-      headings: { en: title },
-      contents: { en: body },
-      url: url ? `https://backstagepro.lovable.app${url}` : "https://backstagepro.lovable.app/dashboard",
-    };
-
-    // Target specific users or all subscribed users
-    if (user_ids && user_ids.length > 0) {
-      // Send to specific external user IDs
-      notificationPayload.include_aliases = {
-        external_id: user_ids,
-      };
-      notificationPayload.target_channel = "push";
-    } else {
-      // Send to all subscribed users
-      notificationPayload.included_segments = ["Subscribed Users"];
-    }
-
-    console.log("OneSignal payload:", JSON.stringify(notificationPayload));
-
-    // Send notification via OneSignal API
-    // OneSignal has two auth schemes in the wild:
-    // - New endpoint: https://api.onesignal.com/notifications with `Authorization: Key <RICH_API_KEY>`
-    // - Legacy endpoint: https://onesignal.com/api/v1/notifications with `Authorization: Basic <REST_API_KEY>`
-    // We'll try the new endpoint first and fallback to legacy on 401/403.
-
-    const rawKey = String(ONESIGNAL_REST_API_KEY).trim();
-    const normalizedKey = rawKey.replace(/^(Basic|Key|Bearer)\s+/i, "");
-
-    const trySend = async (endpoint: string, authScheme: "Key" | "Basic") => {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `${authScheme} ${normalizedKey}`,
-        },
-        body: JSON.stringify(notificationPayload),
+      return new Response(JSON.stringify({ error: "Title and body are required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
 
-      const text = await res.text();
-      let json: any = null;
-      try {
-        json = text ? JSON.parse(text) : null;
-      } catch (_e) {
-        json = { raw: text };
+    // Verify user (must be admin to broadcast)
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: req.headers.get("Authorization") ?? "",
+        },
+      },
+    });
+
+    const { data: userData } = await supabaseAuth.auth.getUser();
+    if (!userData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: isAdmin, error: adminErr } = await supabaseAuth.rpc("has_role", {
+      _user_id: userData.user.id,
+      _role: "admin",
+    });
+
+    if (adminErr || isAdmin !== true) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    // Figure out which user_ids should be targeted
+    let targetUserIds: string[] | null = null;
+
+    if (Array.isArray(user_ids) && user_ids.length > 0) {
+      targetUserIds = user_ids;
+    } else if (target_audience && target_audience !== "all") {
+      const cutoff = new Date(Date.now() - ACTIVE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+      const profilesQuery = supabaseAdmin.from("profiles").select("user_id,last_seen");
+
+      if (target_audience === "active") {
+        const { data: activeProfiles } = await profilesQuery.gte("last_seen", cutoff);
+        targetUserIds = (activeProfiles ?? []).map((p: any) => p.user_id);
+      } else {
+        // inactive
+        const { data: inactiveProfiles } = await profilesQuery.or(`last_seen.is.null,last_seen.lt.${cutoff}`);
+        targetUserIds = (inactiveProfiles ?? []).map((p: any) => p.user_id);
       }
+    }
 
-      return { res, json };
+    let subsQuery = supabaseAdmin
+      .from("user_push_subscriptions")
+      .select("id,user_id,endpoint,p256dh,auth")
+      .eq("is_active", true);
+
+    if (targetUserIds && targetUserIds.length > 0) {
+      subsQuery = subsQuery.in("user_id", targetUserIds);
+    }
+
+    const { data: subs, error: subsError } = await subsQuery;
+    if (subsError) throw subsError;
+
+    const vapid: VapidKeys = {
+      subject: VAPID_SUBJECT,
+      publicKey: VAPID_PUBLIC_KEY,
+      privateKey: VAPID_PRIVATE_KEY,
     };
 
-    console.log("OneSignal auth key present:", Boolean(normalizedKey), "len:", normalizedKey.length);
+    const message: PushMessage = {
+      data: JSON.stringify({
+        title,
+        body,
+        icon: "/favicon.ico",
+        badge: "/favicon.ico",
+        url: url || "/dashboard",
+      }),
+      options: {
+        ttl: 60 * 60, // 1 hour
+      },
+    };
 
-    let response = await trySend("https://api.onesignal.com/notifications", "Key");
+    const results = await Promise.allSettled(
+      (subs ?? []).map(async (s: any) => {
+        const subscription: PushSubscription = {
+          endpoint: s.endpoint,
+          expirationTime: null,
+          keys: {
+            p256dh: s.p256dh,
+            auth: s.auth,
+          },
+        };
 
-    // Fallback to legacy scheme/endpoint if access denied
-    if (!response.res.ok && (response.res.status === 401 || response.res.status === 403)) {
-      console.log("OneSignal new endpoint auth failed; falling back to legacy endpoint");
-      response = await trySend("https://onesignal.com/api/v1/notifications", "Basic");
-    }
+        const payload = await buildPushPayload(message, subscription, vapid);
+        const res = await fetch(s.endpoint, payload as RequestInit);
 
-    console.log("OneSignal response status:", response.res.status);
-    console.log("OneSignal response:", JSON.stringify(response.json));
-
-    if (!response.res.ok) {
-      console.error("OneSignal error:", response.json);
-      return new Response(
-        JSON.stringify({
-          error: response.json?.errors?.[0] || response.json?.error || "Failed to send notification",
-          details: response.json,
-        }),
-        {
-          status: response.res.status,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        // 404/410 typically means subscription is gone
+        if (res.status === 404 || res.status === 410) {
+          await supabaseAdmin.from("user_push_subscriptions").update({ is_active: false }).eq("id", s.id);
         }
-      );
-    }
 
-    const result = response.json;
+        return res.ok;
+      })
+    );
 
-    // Log notification to history
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const sent = results.reduce((acc, r) => acc + (r.status === "fulfilled" && r.value ? 1 : 0), 0);
 
-    await supabase.from("notification_history").insert({
+    // Log to history
+    await supabaseAdmin.from("notification_history").insert({
       title,
       message: body,
       action_url: url || "/dashboard",
       notification_type: "manual",
       target_audience: target_audience || "all",
-      users_reached: result.recipients || 0,
+      users_reached: sent,
     });
 
     return new Response(
       JSON.stringify({
         success: true,
-        sent: result.recipients || 0,
-        notification_id: result.id,
+        sent,
+        notification_id: "",
       }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in send-push-notification:", error);
     return new Response(
       JSON.stringify({

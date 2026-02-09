@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import {
@@ -12,20 +12,28 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Bell, Smartphone } from "lucide-react";
-import {
-  initOneSignal,
-  promptForPushNotifications,
-  setExternalUserId,
-} from "@/lib/onesignal";
+import { isWebPushSubscribed, subscribeToWebPush } from "@/lib/webPush";
 
 const PROMPT_DISMISSED_KEY = "notification_prompt_dismissed";
 const PROMPT_DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function isIOS(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
+function isStandalonePwa(): boolean {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true
+  );
+}
 
 export function NotificationPrompt() {
   const { user } = useAuth();
   const [showPrompt, setShowPrompt] = useState(false);
   const [showIOSInstruction, setShowIOSInstruction] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const promptTimers = useRef<number[]>([]);
   const promptOpenRef = useRef(false);
   const iosOpenRef = useRef(false);
@@ -40,7 +48,7 @@ export function NotificationPrompt() {
 
   useEffect(() => {
     if (user) {
-      initializeOneSignal();
+      checkNotificationStatus();
     }
 
     return () => {
@@ -49,94 +57,68 @@ export function NotificationPrompt() {
         localStorage.setItem(PROMPT_DISMISSED_KEY, Date.now().toString());
       }
 
-      // Avoid showing prompts after route changes/unmounts
       promptTimers.current.forEach((id) => clearTimeout(id));
       promptTimers.current = [];
     };
   }, [user]);
 
-  const initializeOneSignal = async () => {
-    try {
-      await initOneSignal();
-
-      // Don't login/link user before permission/subscription, it can break the SDK on some devices.
-      // We'll link the user after they grant permission.
-
-      // Check if we should show the prompt
-      checkNotificationStatus();
-    } catch (error) {
-      console.error("Error initializing OneSignal:", error);
-    }
-  };
-
-  const checkNotificationStatus = () => {
+  const checkNotificationStatus = async () => {
     const schedule = (fn: () => void, ms: number) => {
       const id = window.setTimeout(fn, ms);
       promptTimers.current.push(id);
       return id;
     };
 
-    // Check if notifications are supported
-    if (!("Notification" in window)) {
-      console.log("Notifications not supported");
+    // Browser support
+    if (!(
+      "Notification" in window &&
+      "serviceWorker" in navigator &&
+      "PushManager" in window
+    )) {
+      console.log("Push not supported");
       return;
     }
 
-    // Check if already granted
-    if (Notification.permission === "granted") {
-      return;
+    // If already subscribed, do nothing
+    try {
+      const subscribed = await isWebPushSubscribed();
+      if (subscribed) return;
+    } catch {
+      // ignore
     }
 
-    // Check if already denied
-    if (Notification.permission === "denied") {
-      return;
-    }
+    // If denied, do nothing
+    if (Notification.permission === "denied") return;
 
     // Check if dismissed recently
     const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
     if (dismissedAt) {
       const dismissedTime = parseInt(dismissedAt, 10);
-      if (Date.now() - dismissedTime < PROMPT_DISMISSED_DURATION) {
-        return;
-      }
+      if (Date.now() - dismissedTime < PROMPT_DISMISSED_DURATION) return;
     }
 
-    // Check if running as standalone PWA on iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-
-    // On iOS, push only works if installed as PWA
-    if (isIOS && !isStandalone) {
-      // Show iOS-specific instruction to install PWA first
+    // iOS requires installed PWA
+    if (isIOS() && !isStandalonePwa()) {
       schedule(() => setShowIOSInstruction(true), 2000);
       return;
     }
 
-    // Show prompt after a delay
+    // Show prompt after delay
     schedule(() => {
-      if (user) {
-        setShowPrompt(true);
-      }
+      if (user) setShowPrompt(true);
     }, 3000);
   };
 
   const requestNotificationPermission = async () => {
     setLoading(true);
     try {
-      const granted = await promptForPushNotifications();
+      const granted = await subscribeToWebPush();
 
       // Avoid re-prompting immediately if user navigates away
       localStorage.setItem(PROMPT_DISMISSED_KEY, Date.now().toString());
 
       if (granted) {
-        // Link OneSignal subscription to our user AFTER opt-in
-        if (user) {
-          await setExternalUserId(user.id);
-        }
-
-        toast.success("Notificações ativadas! 🔔", {
+        toast.success("Notificações ativadas!", {
           description: "Você receberá alertas importantes sobre seus shows.",
         });
       } else {
@@ -166,7 +148,6 @@ export function NotificationPrompt() {
 
   const handlePromptOpenChange = (open: boolean) => {
     if (!open) {
-      // If it closes by clicking outside, Esc, route change, etc. treat as dismiss
       dismissPrompt();
       return;
     }
@@ -181,7 +162,6 @@ export function NotificationPrompt() {
     setShowIOSInstruction(true);
   };
 
-  // iOS PWA installation instruction
   if (showIOSInstruction) {
     return (
       <AlertDialog open={showIOSInstruction} onOpenChange={handleIOSOpenChange}>
@@ -216,9 +196,7 @@ export function NotificationPrompt() {
                   </li>
                 </ol>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Requer iOS 16.4 ou superior
-              </p>
+              <p className="text-xs text-muted-foreground">Requer iOS 16.4 ou superior</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
@@ -234,7 +212,6 @@ export function NotificationPrompt() {
     );
   }
 
-  // Main notification permission prompt
   return (
     <AlertDialog open={showPrompt} onOpenChange={handlePromptOpenChange}>
       <AlertDialogContent className="max-w-sm">
@@ -244,9 +221,7 @@ export function NotificationPrompt() {
               <Bell className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <AlertDialogTitle className="text-center">
-            Ativar Notificações? 🔔
-          </AlertDialogTitle>
+          <AlertDialogTitle className="text-center">Ativar Notificações?</AlertDialogTitle>
           <AlertDialogDescription className="text-center space-y-2">
             <p>Receba alertas importantes sobre:</p>
             <ul className="text-left text-sm space-y-1 bg-muted p-3 rounded-lg">
