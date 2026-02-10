@@ -6,6 +6,7 @@ import { ArtistJourneyCard } from "@/components/dashboard/ArtistJourneyCard";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -31,6 +32,7 @@ const Dashboard = () => {
   const { clients, loading: clientsLoading } = useClients();
   const { mappings: stageMappings, loading: stageMappingsLoading } = useStageMappings();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [checklistsUsed, setChecklistsUsed] = useState(false);
 
   // Unified loading state - only show content when main data is ready
@@ -41,7 +43,7 @@ const Dashboard = () => {
     const checkData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Check onboarding
+        // Check onboarding (first-time welcome)
         const { data: profileData } = await supabase
           .from("profiles")
           .select("onboarding_completed")
@@ -50,6 +52,18 @@ const Dashboard = () => {
 
         if (profileData && !profileData.onboarding_completed) {
           setShowWelcome(true);
+        } else {
+          // For returning users: show install prompt if app is NOT installed as PWA
+          const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+            (window.navigator as any).standalone === true;
+          
+          if (!isStandalone) {
+            // Check if they dismissed recently (7 days)
+            const dismissed = localStorage.getItem("install_prompt_dismissed");
+            if (!dismissed || Date.now() - parseInt(dismissed, 10) > 7 * 24 * 60 * 60 * 1000) {
+              setShowInstallPrompt(true);
+            }
+          }
         }
 
         // Check if user has used checklists
@@ -245,11 +259,17 @@ const Dashboard = () => {
 
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
-      {/* Welcome/Onboarding Modal */}
+      {/* Welcome/Onboarding Modal (first-time users) */}
       <WelcomeModal 
         open={showWelcome} 
         onClose={() => setShowWelcome(false)}
         userName={profile?.name || undefined}
+      />
+
+      {/* Install Prompt for returning users who haven't installed PWA */}
+      <InstallPromptModal
+        open={showInstallPrompt}
+        onClose={() => setShowInstallPrompt(false)}
       />
 
       <div className="space-y-4 sm:space-y-6">
