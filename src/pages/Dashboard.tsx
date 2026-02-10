@@ -58,7 +58,6 @@ const Dashboard = () => {
             (window.navigator as any).standalone === true;
           
           if (!isStandalone) {
-            // Check if they dismissed recently (7 days)
             const dismissed = localStorage.getItem("install_prompt_dismissed");
             if (!dismissed || Date.now() - parseInt(dismissed, 10) > 7 * 24 * 60 * 60 * 1000) {
               setShowInstallPrompt(true);
