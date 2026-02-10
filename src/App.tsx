@@ -36,6 +36,8 @@ import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
+import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +52,8 @@ const App = () => (
         <AuthProvider>
           <AppSettingsProvider>
             <ShowsProvider>
+              <NotificationPrompt />
+              <PushSubscriptionRefresher />
               <Routes>
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
