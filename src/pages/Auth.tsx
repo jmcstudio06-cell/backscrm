@@ -161,7 +161,7 @@ const Auth = () => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: "https://backstagepro.online/reset-password",
       });
       if (error) throw error;
       toast({ title: "E-mail enviado!", description: "Verifique sua caixa de entrada e spam." });

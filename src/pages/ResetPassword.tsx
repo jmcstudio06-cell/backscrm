@@ -17,22 +17,46 @@ const ResetPassword = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event) => {
-        if (event === "PASSWORD_RECOVERY") {
+    // Handle the hash fragment from the recovery link
+    // Supabase appends #access_token=...&type=recovery to the URL
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get("access_token");
+    const refreshToken = hashParams.get("refresh_token");
+    const type = hashParams.get("type");
+
+    if (accessToken && type === "recovery") {
+      // Set the session from the URL tokens
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken || "",
+      }).then(({ error }) => {
+        if (!error) {
+          setIsReady(true);
+          // Clean the URL
+          window.history.replaceState(null, "", window.location.pathname);
+        } else {
+          toast({ title: "Link inválido", description: "O link expirou ou é inválido. Solicite um novo.", variant: "destructive" });
+        }
+      });
+    } else {
+      // Listen for PASSWORD_RECOVERY event (fallback)
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event) => {
+          if (event === "PASSWORD_RECOVERY") {
+            setIsReady(true);
+          }
+        }
+      );
+
+      // Check if already has a session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
           setIsReady(true);
         }
-      }
-    );
+      });
 
-    // Also check if we already have a session (user clicked the link)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setIsReady(true);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+      return () => subscription.unsubscribe();
+    }
   }, []);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
