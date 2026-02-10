@@ -60,10 +60,6 @@ const Auth = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (event === "PASSWORD_RECOVERY") {
-          setView("new-password");
-          return;
-        }
         if (session?.user && view !== "new-password") {
           navigate("/dashboard");
         }
@@ -169,14 +165,34 @@ const Auth = () => {
     }
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/auth`,
-      });
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail);
       if (error) throw error;
-      toast({ title: "E-mail enviado!", description: "Verifique sua caixa de entrada e spam. Clique no link recebido para redefinir sua senha." });
+      toast({ title: "Código enviado!", description: "Verifique sua caixa de entrada e spam." });
       setView("reset-code");
     } catch (error: any) {
       toast({ title: "Erro", description: error.message || "Falha ao enviar e-mail.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!resetCode || resetCode.length < 6) {
+      toast({ title: "Erro", description: "Digite o código de 6 dígitos.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: resetEmail,
+        token: resetCode,
+        type: 'recovery',
+      });
+      if (error) throw error;
+      toast({ title: "Código verificado!", description: "Agora defina sua nova senha." });
+      setView("new-password");
+    } catch (error: any) {
+      toast({ title: "Código inválido", description: "O código não confere ou expirou. Tente novamente.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -200,6 +216,7 @@ const Auth = () => {
       setView("login");
       setNewPassword("");
       setNewPasswordConfirm("");
+      setResetCode("");
     } catch (error: any) {
       toast({ title: "Erro", description: error.message || "Falha ao atualizar senha.", variant: "destructive" });
     } finally {
@@ -248,8 +265,8 @@ const Auth = () => {
   };
 
   const getFormSubtitle = () => {
-    if (isForgot) return "Informe seu e-mail para receber o link de recuperação";
-    if (isResetCode) return "Enviamos um link para seu e-mail. Clique nele para redefinir sua senha.";
+    if (isForgot) return "Informe seu e-mail para receber o código de recuperação";
+    if (isResetCode) return "Digite o código de 6 dígitos enviado para seu e-mail";
     if (isNewPassword) return "Defina sua nova senha abaixo";
     if (isLogin) return "Entre para acessar seu painel";
     return "Comece a gerenciar sua carreira hoje";
@@ -455,7 +472,7 @@ const Auth = () => {
                     ) : (
                       <span className="flex items-center gap-2">
                         <Mail className="w-5 h-5" />
-                        Enviar link de recuperação
+                        Enviar código de recuperação
                       </span>
                     )}
                   </Button>
@@ -476,21 +493,52 @@ const Auth = () => {
                     <div className="flex items-start gap-3">
                       <Mail className="w-5 h-5 text-[#0066CC] mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-slate-700 font-medium">Link enviado para:</p>
+                        <p className="text-sm text-slate-700 font-medium">Código enviado para:</p>
                         <p className="text-sm text-[#0066CC] font-semibold">{resetEmail}</p>
                         <p className="text-xs text-slate-500 mt-2">
-                          Abra o link recebido no e-mail para redefinir sua senha. Verifique também a pasta de spam.
+                          Digite o código de 6 dígitos recebido no e-mail. Verifique também a pasta de spam.
                         </p>
                       </div>
                     </div>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="otpCode" className="text-slate-700 font-medium">Código de verificação</Label>
+                    <Input
+                      id="otpCode"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="000000"
+                      value={resetCode}
+                      onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="h-14 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all text-center text-2xl tracking-[0.5em] font-mono"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    disabled={isLoading || resetCode.length < 6}
+                    onClick={handleVerifyOtp}
+                    className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Verificando...</span>
+                      </div>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <KeyRound className="w-5 h-5" />
+                        Verificar código
+                      </span>
+                    )}
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => { setView("forgot"); }}
+                    onClick={() => { setResetCode(""); setView("forgot"); }}
                     className="w-full h-12 rounded-xl border-slate-200 text-slate-700 font-medium"
                   >
-                    Reenviar e-mail
+                    Reenviar código
                   </Button>
                   <button
                     type="button"
