@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
 import { markConversion } from "@/hooks/useLandingInsights";
-import { lovable } from "@/integrations/lovable/index";
 import { 
   Calendar, 
   Users, 
@@ -23,20 +22,23 @@ import {
   Star,
   Check,
   Shield,
-  Zap
+  Zap,
+  Mail,
+  KeyRound
 } from "lucide-react";
+
+type AuthView = "landing" | "login" | "register" | "forgot" | "reset-code" | "new-password";
 
 const Auth = () => {
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [termsModalType, setTermsModalType] = useState<"terms" | "privacy">("terms");
-  const [showForm, setShowForm] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
+  const [view, setView] = useState<AuthView>("landing");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [phoneLoginMode, setPhoneLoginMode] = useState(false);
-  const [otpStep, setOtpStep] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [phoneForOtp, setPhoneForOtp] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -48,11 +50,21 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const showForm = view !== "landing";
+  const isLogin = view === "login";
+  const isForgot = view === "forgot";
+  const isResetCode = view === "reset-code";
+  const isNewPassword = view === "new-password";
+
   // Check if user is already logged in
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (session?.user) {
+        if (event === "PASSWORD_RECOVERY") {
+          setView("new-password");
+          return;
+        }
+        if (session?.user && view !== "new-password") {
           navigate("/dashboard");
         }
       }
@@ -65,67 +77,41 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, view]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.email || !formData.password) {
-      toast({
-        title: "Erro",
-        description: "Por favor, preencha todos os campos.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: "Por favor, preencha todos os campos.", variant: "destructive" });
       return;
     }
 
-    // Validate phone for registration
     if (!isLogin && !formData.phone) {
-      toast({
-        title: "Erro",
-        description: "Por favor, informe seu WhatsApp.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: "Por favor, informe seu WhatsApp.", variant: "destructive" });
       return;
     }
 
-    // Validate phone format (Brazilian)
     if (!isLogin && formData.phone) {
       const phoneDigits = formData.phone.replace(/\D/g, '');
       if (phoneDigits.length < 10 || phoneDigits.length > 11) {
-        toast({
-          title: "Erro",
-          description: "Informe um número de WhatsApp válido com DDD.",
-          variant: "destructive",
-        });
+        toast({ title: "Erro", description: "Informe um número de WhatsApp válido com DDD.", variant: "destructive" });
         return;
       }
     }
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Erro",
-        description: "As senhas não coincidem.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: "As senhas não coincidem.", variant: "destructive" });
       return;
     }
 
     if (!isLogin && !formData.acceptTerms) {
-      toast({
-        title: "Erro",
-        description: "Você precisa aceitar os termos de uso.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: "Você precisa aceitar os termos de uso.", variant: "destructive" });
       return;
     }
 
     if (formData.password.length < 6) {
-      toast({
-        title: "Erro",
-        description: "A senha deve ter pelo menos 6 caracteres.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
       return;
     }
 
@@ -137,21 +123,15 @@ const Auth = () => {
           email: formData.email,
           password: formData.password,
         });
-
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
             throw new Error("Email ou senha incorretos.");
           }
           throw error;
         }
-
-        toast({
-          title: "Login realizado!",
-          description: "Bem-vindo de volta ao Backstage Pro!",
-        });
+        toast({ title: "Login realizado!", description: "Bem-vindo de volta ao Backstage Pro!" });
       } else {
         const redirectUrl = `${window.location.origin}/`;
-        
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -163,112 +143,75 @@ const Auth = () => {
             },
           },
         });
-
         if (error) {
           if (error.message.includes("already registered")) {
             throw new Error("Este email já está cadastrado. Tente fazer login.");
           }
           throw error;
         }
-
-        // Mark conversion for landing page tracking
-        // Garantir que existe visitor_id antes de marcar conversão
         if (!localStorage.getItem("visitor_id")) {
           localStorage.setItem("visitor_id", crypto.randomUUID());
         }
         await markConversion();
-
-        toast({
-          title: "Conta criada!",
-          description: "Sua conta foi criada com sucesso!",
-        });
+        toast({ title: "Conta criada!", description: "Sua conta foi criada com sucesso!" });
       }
     } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro. Tente novamente.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: error.message || "Ocorreu um erro. Tente novamente.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSendPhoneOtp = async () => {
-    const digits = phoneForOtp.replace(/\D/g, '');
-    if (digits.length < 10 || digits.length > 11) {
-      toast({ title: "Erro", description: "Informe um número válido com DDD.", variant: "destructive" });
+  const handleSendResetEmail = async () => {
+    if (!resetEmail) {
+      toast({ title: "Erro", description: "Informe seu e-mail.", variant: "destructive" });
       return;
     }
-    const fullPhone = `+55${digits}`;
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: fullPhone,
-        options: { channel: 'whatsapp' },
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth`,
       });
       if (error) throw error;
-      setOtpStep(true);
-      toast({ title: "Código enviado!", description: "Verifique seu WhatsApp." });
+      toast({ title: "E-mail enviado!", description: "Verifique sua caixa de entrada e spam. Clique no link recebido para redefinir sua senha." });
+      setView("reset-code");
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Falha ao enviar código.", variant: "destructive" });
+      toast({ title: "Erro", description: error.message || "Falha ao enviar e-mail.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otpCode || otpCode.length < 6) {
-      toast({ title: "Erro", description: "Digite o código de 6 dígitos.", variant: "destructive" });
+  const handleUpdatePassword = async () => {
+    if (!newPassword || newPassword.length < 6) {
+      toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
       return;
     }
-    const digits = phoneForOtp.replace(/\D/g, '');
-    const fullPhone = `+55${digits}`;
+    if (newPassword !== newPasswordConfirm) {
+      toast({ title: "Erro", description: "As senhas não coincidem.", variant: "destructive" });
+      return;
+    }
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone: fullPhone,
-        token: otpCode,
-        type: 'sms',
-      });
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast({ title: "Login realizado!", description: "Bem-vindo ao Backstage Pro!" });
+      toast({ title: "Senha atualizada!", description: "Sua senha foi alterada com sucesso. Faça login." });
+      await supabase.auth.signOut();
+      setView("login");
+      setNewPassword("");
+      setNewPasswordConfirm("");
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Código inválido.", variant: "destructive" });
+      toast({ title: "Erro", description: error.message || "Falha ao atualizar senha.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
   const features = [
-    {
-      icon: Calendar,
-      title: "Agenda de Shows",
-      description: "Gerencie todos os seus eventos e apresentações",
-      color: "bg-blue-500",
-      delay: "0"
-    },
-    {
-      icon: DollarSign,
-      title: "Financeiro Completo",
-      description: "Controle receitas e despesas automaticamente",
-      color: "bg-emerald-500",
-      delay: "100"
-    },
-    {
-      icon: BarChart3,
-      title: "CRM de Vendas",
-      description: "Pipeline visual para converter leads em shows",
-      color: "bg-purple-500",
-      delay: "200"
-    },
-    {
-      icon: Users,
-      title: "Gestão de Músicos",
-      description: "Organize sua banda e pagamentos",
-      color: "bg-pink-500",
-      delay: "300"
-    },
+    { icon: Calendar, title: "Agenda de Shows", description: "Gerencie todos os seus eventos e apresentações", color: "bg-blue-500", delay: "0" },
+    { icon: DollarSign, title: "Financeiro Completo", description: "Controle receitas e despesas automaticamente", color: "bg-emerald-500", delay: "100" },
+    { icon: BarChart3, title: "CRM de Vendas", description: "Pipeline visual para converter leads em shows", color: "bg-purple-500", delay: "200" },
+    { icon: Users, title: "Gestão de Músicos", description: "Organize sua banda e pagamentos", color: "bg-pink-500", delay: "300" },
   ];
 
   const benefits = [
@@ -284,28 +227,32 @@ const Auth = () => {
     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   ];
 
-  const handleCreateAccount = () => {
-    setShowForm(true);
-    setIsLogin(false);
-    setPhoneLoginMode(false);
-    setOtpStep(false);
-  };
-
-  const handleLogin = () => {
-    setShowForm(true);
-    setIsLogin(true);
-    setPhoneLoginMode(false);
-    setOtpStep(false);
-  };
-
   const handleBack = () => {
-    if (otpStep) {
-      setOtpStep(false);
-    } else if (phoneLoginMode) {
-      setPhoneLoginMode(false);
+    if (isNewPassword) {
+      setView("login");
+    } else if (isResetCode) {
+      setView("forgot");
+    } else if (isForgot) {
+      setView("login");
     } else {
-      setShowForm(false);
+      setView("landing");
     }
+  };
+
+  const getFormTitle = () => {
+    if (isForgot) return "Recuperar senha";
+    if (isResetCode) return "Verifique seu e-mail";
+    if (isNewPassword) return "Nova senha";
+    if (isLogin) return "Bem-vindo de volta!";
+    return "Crie sua conta grátis";
+  };
+
+  const getFormSubtitle = () => {
+    if (isForgot) return "Informe seu e-mail para receber o link de recuperação";
+    if (isResetCode) return "Enviamos um link para seu e-mail. Clique nele para redefinir sua senha.";
+    if (isNewPassword) return "Defina sua nova senha abaixo";
+    if (isLogin) return "Entre para acessar seu painel";
+    return "Comece a gerenciar sua carreira hoje";
   };
 
   return (
@@ -339,7 +286,7 @@ const Auth = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-white/10 font-medium transition-all"
-            onClick={handleLogin}
+            onClick={() => setView("login")}
           >
             Entrar
           </Button>
@@ -374,7 +321,7 @@ const Auth = () => {
                 <Button 
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-semibold px-8 h-14 rounded-full shadow-xl shadow-black/20 transition-all duration-300"
-                  onClick={handleCreateAccount}
+                  onClick={() => setView("register")}
                 >
                   Criar minha conta grátis
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -383,7 +330,7 @@ const Auth = () => {
                   size="lg"
                   variant="outline"
                   className="border-white/30 bg-white/5 backdrop-blur-sm text-white hover:bg-white/15 hover:text-white font-semibold px-8 h-14 rounded-full transition-all duration-300"
-                  onClick={handleLogin}
+                  onClick={() => setView("login")}
                 >
                   Já tenho conta
                 </Button>
@@ -468,350 +415,343 @@ const Auth = () => {
               {/* Form Header */}
               <div className="mb-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#0066CC] to-[#00B4D8] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Sparkles className="w-8 h-8 text-white" />
+                  {isForgot || isResetCode ? (
+                    <Mail className="w-8 h-8 text-white" />
+                  ) : isNewPassword ? (
+                    <KeyRound className="w-8 h-8 text-white" />
+                  ) : (
+                    <Sparkles className="w-8 h-8 text-white" />
+                  )}
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800">
-                  {phoneLoginMode 
-                    ? (otpStep ? "Digite o código" : "Entrar com WhatsApp")
-                    : (isLogin ? "Bem-vindo de volta!" : "Crie sua conta grátis")}
-                </h3>
-                <p className="text-slate-500 mt-2">
-                  {phoneLoginMode
-                    ? (otpStep ? "Insira o código de 6 dígitos enviado ao seu WhatsApp" : "Enviaremos um código de verificação via WhatsApp")
-                    : (isLogin 
-                      ? "Entre para acessar seu painel" 
-                      : "Comece a gerenciar sua carreira hoje")}
-                </p>
+                <h3 className="text-2xl font-bold text-slate-800">{getFormTitle()}</h3>
+                <p className="text-slate-500 mt-2">{getFormSubtitle()}</p>
               </div>
 
-              {phoneLoginMode ? (
+              {/* Forgot Password - Enter Email */}
+              {isForgot && (
                 <div className="space-y-5">
-                  {!otpStep ? (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="otpPhone" className="text-slate-700 font-medium">
-                          <span className="flex items-center gap-2">
-                            <Phone className="w-4 h-4" />
-                            Número do WhatsApp
-                          </span>
-                        </Label>
-                        <Input
-                          id="otpPhone"
-                          type="tel"
-                          placeholder="(00) 00000-0000"
-                          value={phoneForOtp}
-                          onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, '');
-                            if (value.length <= 11) {
-                              if (value.length > 2) {
-                                value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
-                              }
-                              if (value.length > 10) {
-                                value = value.slice(0, 10) + '-' + value.slice(10);
-                              }
-                            }
-                            setPhoneForOtp(value);
-                          }}
-                          className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        disabled={isLoading}
-                        onClick={handleSendPhoneOtp}
-                        className="w-full h-14 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20BD5A] hover:to-[#0F7A6E] text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span>Enviando...</span>
-                          </div>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            <Phone className="w-5 h-5" />
-                            Enviar código via WhatsApp
-                          </span>
-                        )}
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="otpCode" className="text-slate-700 font-medium">Código de verificação</Label>
-                        <Input
-                          id="otpCode"
-                          type="text"
-                          inputMode="numeric"
-                          maxLength={6}
-                          placeholder="000000"
-                          value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                          className="h-14 bg-slate-50 border-slate-200 text-slate-800 text-center text-2xl tracking-[0.5em] font-mono placeholder:text-slate-300 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        disabled={isLoading}
-                        onClick={handleVerifyOtp}
-                        className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span>Verificando...</span>
-                          </div>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            Verificar e entrar
-                            <ArrowRight className="w-5 h-5" />
-                          </span>
-                        )}
-                      </Button>
-                      <button
-                        type="button"
-                        onClick={() => { setOtpStep(false); setOtpCode(""); }}
-                        className="w-full text-sm text-[#0066CC] hover:underline font-medium"
-                      >
-                        Reenviar código
-                      </button>
-                    </>
-                  )}
-
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-200"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="bg-white px-4 text-slate-400">ou</span>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="resetEmail" className="text-slate-700 font-medium">E-mail cadastrado</Label>
+                    <Input
+                      id="resetEmail"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                    />
                   </div>
-
+                  <Button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={handleSendResetEmail}
+                    className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Enviando...</span>
+                      </div>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Mail className="w-5 h-5" />
+                        Enviar link de recuperação
+                      </span>
+                    )}
+                  </Button>
                   <button
                     type="button"
-                    onClick={() => { setPhoneLoginMode(false); setOtpStep(false); setOtpCode(""); }}
-                    className="w-full text-sm text-slate-500 hover:text-slate-700 font-medium"
+                    onClick={() => setView("login")}
+                    className="w-full text-sm text-[#0066CC] hover:underline font-medium mt-2"
                   >
-                    Entrar com e-mail e senha
+                    Voltar para o login
                   </button>
                 </div>
-              ) : (
-              <>
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {!isLogin && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-slate-700 font-medium">Nome completo *</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        placeholder="Seu nome artístico"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
-                        required
-                      />
-                    </div>
+              )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-slate-700 font-medium">
-                        <span className="flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          WhatsApp *
-                        </span>
-                      </Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="(00) 00000-0000"
-                        value={formData.phone}
-                        onChange={(e) => {
-                          // Format phone number
-                          let value = e.target.value.replace(/\D/g, '');
-                          if (value.length <= 11) {
-                            if (value.length > 2) {
-                              value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
-                            }
-                            if (value.length > 10) {
-                              value = value.slice(0, 10) + '-' + value.slice(10);
-                            }
-                          }
-                          setFormData({ ...formData, phone: value });
-                        }}
-                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
-                        required
-                      />
-                      <p className="text-xs text-slate-400">Usaremos para contato e suporte</p>
-                    </div>
-                  </>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 font-medium">E-mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-700 font-medium">Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 pr-12 rounded-xl transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                </div>
-
-                {!isLogin && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirmar senha</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        placeholder="••••••••"
-                        value={formData.confirmPassword}
-                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
-                      />
-                    </div>
-
-                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-                      <Checkbox
-                        id="terms"
-                        checked={formData.acceptTerms}
-                        onCheckedChange={(checked) => 
-                          setFormData({ ...formData, acceptTerms: checked as boolean })
-                        }
-                        className="mt-1 border-slate-300 data-[state=checked]:bg-[#0066CC] data-[state=checked]:border-[#0066CC]"
-                      />
-                      <Label htmlFor="terms" className="text-sm text-slate-600 leading-relaxed">
-                        Concordo com os{" "}
-                        <button 
-                          type="button"
-                          onClick={() => { setTermsModalType("terms"); setTermsModalOpen(true); }}
-                          className="text-[#0066CC] hover:underline font-medium"
-                        >
-                          Termos de Uso
-                        </button>
-                        {" "}e{" "}
-                        <button 
-                          type="button"
-                          onClick={() => { setTermsModalType("privacy"); setTermsModalOpen(true); }}
-                          className="text-[#0066CC] hover:underline font-medium"
-                        >
-                          Política de Privacidade
-                        </button>
-                      </Label>
-                    </div>
-                  </>
-                )}
-
-                {isLogin && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Checkbox 
-                        id="remember"
-                        className="border-slate-300 data-[state=checked]:bg-[#0066CC] data-[state=checked]:border-[#0066CC]"
-                      />
-                      <Label htmlFor="remember" className="text-sm text-slate-500">
-                        Lembrar de mim
-                      </Label>
-                    </div>
-                    <a 
-                      href="https://wa.me/5512981289496?text=Olá! Gostaria de solicitar a troca da minha senha no Backstage Pro." 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-[#0066CC] hover:underline font-medium"
-                    >
-                      Esqueceu a senha?
-                    </a>
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Aguarde...</span>
-                    </div>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      {isLogin ? "Entrar" : "Criar minha conta"}
-                      <ArrowRight className="w-5 h-5" />
-                    </span>
-                  )}
-                </Button>
-
-                {/* Trust badges */}
-                <div className="flex items-center justify-center gap-4 pt-2">
-                  <div className="flex items-center gap-1 text-slate-400 text-xs">
-                    <Shield className="w-3 h-3" />
-                    <span>Dados seguros</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-slate-400 text-xs">
-                    <Check className="w-3 h-3" />
-                    <span>Sem cartão</span>
-                  </div>
-                </div>
-              </form>
-
-              {isLogin && (
-                <>
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-200"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="bg-white px-4 text-slate-400">ou</span>
+              {/* Reset Code - Waiting for link click */}
+              {isResetCode && (
+                <div className="space-y-5">
+                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div className="flex items-start gap-3">
+                      <Mail className="w-5 h-5 text-[#0066CC] mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-slate-700 font-medium">Link enviado para:</p>
+                        <p className="text-sm text-[#0066CC] font-semibold">{resetEmail}</p>
+                        <p className="text-xs text-slate-500 mt-2">
+                          Abra o link recebido no e-mail para redefinir sua senha. Verifique também a pasta de spam.
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full h-12 rounded-xl border-[#25D366] bg-[#25D366]/5 hover:bg-[#25D366]/15 text-[#128C7E] font-medium transition-all"
-                    onClick={() => { setPhoneLoginMode(true); setOtpStep(false); setOtpCode(""); }}
+                    onClick={() => { setView("forgot"); }}
+                    className="w-full h-12 rounded-xl border-slate-200 text-slate-700 font-medium"
                   >
-                    <Phone className="w-5 h-5 mr-2" />
-                    Entrar com WhatsApp
+                    Reenviar e-mail
                   </Button>
-                </>
-              )}
-              </>
-              )}
-
-              <div className="mt-6 text-center">
-                <p className="text-slate-500">
-                  {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
                   <button
                     type="button"
-                    onClick={() => { setIsLogin(!isLogin); setPhoneLoginMode(false); setOtpStep(false); }}
-                    className="text-[#0066CC] font-semibold hover:underline"
+                    onClick={() => setView("login")}
+                    className="w-full text-sm text-[#0066CC] hover:underline font-medium"
                   >
-                    {isLogin ? "Criar conta grátis" : "Fazer login"}
+                    Voltar para o login
                   </button>
-                </p>
-              </div>
+                </div>
+              )}
+
+              {/* New Password */}
+              {isNewPassword && (
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword" className="text-slate-700 font-medium">Nova senha</Label>
+                    <div className="relative">
+                      <Input
+                        id="newPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 pr-12 rounded-xl transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="newPasswordConfirm" className="text-slate-700 font-medium">Confirmar nova senha</Label>
+                    <Input
+                      id="newPasswordConfirm"
+                      type="password"
+                      placeholder="••••••••"
+                      value={newPasswordConfirm}
+                      onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                      className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={handleUpdatePassword}
+                    className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Salvando...</span>
+                      </div>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <KeyRound className="w-5 h-5" />
+                        Salvar nova senha
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              )}
+
+              {/* Login / Register Form */}
+              {(isLogin || view === "register") && (
+                <>
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    {!isLogin && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="name" className="text-slate-700 font-medium">Nome completo *</Label>
+                          <Input
+                            id="name"
+                            type="text"
+                            placeholder="Seu nome artístico"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-slate-700 font-medium">
+                            <span className="flex items-center gap-2">
+                              <Phone className="w-4 h-4" />
+                              WhatsApp *
+                            </span>
+                          </Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            placeholder="(00) 00000-0000"
+                            value={formData.phone}
+                            onChange={(e) => {
+                              let value = e.target.value.replace(/\D/g, '');
+                              if (value.length <= 11) {
+                                if (value.length > 2) {
+                                  value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                                }
+                                if (value.length > 10) {
+                                  value = value.slice(0, 10) + '-' + value.slice(10);
+                                }
+                              }
+                              setFormData({ ...formData, phone: value });
+                            }}
+                            className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                            required
+                          />
+                          <p className="text-xs text-slate-400">Usaremos para contato e suporte</p>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-slate-700 font-medium">E-mail</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-slate-700 font-medium">Senha</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 pr-12 rounded-xl transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {!isLogin && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirmar senha</Label>
+                          <Input
+                            id="confirmPassword"
+                            type="password"
+                            placeholder="••••••••"
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                          />
+                        </div>
+
+                        <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
+                          <Checkbox
+                            id="terms"
+                            checked={formData.acceptTerms}
+                            onCheckedChange={(checked) => 
+                              setFormData({ ...formData, acceptTerms: checked as boolean })
+                            }
+                            className="mt-1 border-slate-300 data-[state=checked]:bg-[#0066CC] data-[state=checked]:border-[#0066CC]"
+                          />
+                          <Label htmlFor="terms" className="text-sm text-slate-600 leading-relaxed">
+                            Concordo com os{" "}
+                            <button 
+                              type="button"
+                              onClick={() => { setTermsModalType("terms"); setTermsModalOpen(true); }}
+                              className="text-[#0066CC] hover:underline font-medium"
+                            >
+                              Termos de Uso
+                            </button>
+                            {" "}e{" "}
+                            <button 
+                              type="button"
+                              onClick={() => { setTermsModalType("privacy"); setTermsModalOpen(true); }}
+                              className="text-[#0066CC] hover:underline font-medium"
+                            >
+                              Política de Privacidade
+                            </button>
+                          </Label>
+                        </div>
+                      </>
+                    )}
+
+                    {isLogin && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Checkbox 
+                            id="remember"
+                            className="border-slate-300 data-[state=checked]:bg-[#0066CC] data-[state=checked]:border-[#0066CC]"
+                          />
+                          <Label htmlFor="remember" className="text-sm text-slate-500">
+                            Lembrar de mim
+                          </Label>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setView("forgot")}
+                          className="text-sm text-[#0066CC] hover:underline font-medium"
+                        >
+                          Esqueceu a senha?
+                        </button>
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30"
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Aguarde...</span>
+                        </div>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          {isLogin ? "Entrar" : "Criar minha conta"}
+                          <ArrowRight className="w-5 h-5" />
+                        </span>
+                      )}
+                    </Button>
+
+                    {/* Trust badges */}
+                    <div className="flex items-center justify-center gap-4 pt-2">
+                      <div className="flex items-center gap-1 text-slate-400 text-xs">
+                        <Shield className="w-3 h-3" />
+                        <span>Dados seguros</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-slate-400 text-xs">
+                        <Check className="w-3 h-3" />
+                        <span>Sem cartão</span>
+                      </div>
+                    </div>
+                  </form>
+
+                  <div className="mt-6 text-center">
+                    <p className="text-slate-500">
+                      {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
+                      <button
+                        type="button"
+                        onClick={() => setView(isLogin ? "register" : "login")}
+                        className="text-[#0066CC] font-semibold hover:underline"
+                      >
+                        {isLogin ? "Criar conta grátis" : "Fazer login"}
+                      </button>
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
