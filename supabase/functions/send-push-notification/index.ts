@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SignJWT, importJWK } from "https://deno.land/x/jose@v5.2.0/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,7 +36,7 @@ function b64urlDecode(str: string): Uint8Array {
   return bytes;
 }
 
-// ---- VAPID JWT (Apple-compatible: 1h expiry) ----
+// ---- VAPID JWT using jose library (Apple-compatible) ----
 async function createVapidAuth(
   endpoint: string,
   subject: string,
@@ -44,44 +45,31 @@ async function createVapidAuth(
 ): Promise<string> {
   const url = new URL(endpoint);
   const aud = url.origin;
-  const exp = Math.floor(Date.now() / 1000) + 3600;
 
-  const iat = Math.floor(Date.now() / 1000);
-  console.log(`[VAPID] aud=${aud} sub=${subject} pubBytes=${b64urlDecode(publicKeyB64).length} privBytes=${b64urlDecode(privateKeyB64).length}`);
+  // Clean subject: remove angle brackets and extra spaces
+  const cleanSubject = subject.replace(/[<>]/g, "").trim();
 
-  const headerB64 = b64url(encoder.encode(JSON.stringify({ alg: "ES256" })));
-  const payloadB64 = b64url(encoder.encode(JSON.stringify({ aud, exp, iat, sub: subject })));
-  const unsignedToken = `${headerB64}.${payloadB64}`;
+  console.log(`[VAPID] aud=${aud} sub=${cleanSubject}`);
 
-  // Import ECDSA signing key from raw VAPID keys
+  // Build JWK from raw VAPID keys
   const pubRaw = b64urlDecode(publicKeyB64);
   const privRaw = b64urlDecode(privateKeyB64);
 
-  const jwk: JsonWebKey = {
-    kty: "EC",
-    crv: "P-256",
+  const jwk = {
+    kty: "EC" as const,
+    crv: "P-256" as const,
     x: b64url(pubRaw.slice(1, 33)),
     y: b64url(pubRaw.slice(33, 65)),
     d: b64url(privRaw),
   };
 
-  const key = await crypto.subtle.importKey(
-    "jwk",
-    jwk,
-    { name: "ECDSA", namedCurve: "P-256" },
-    false,
-    ["sign"],
-  );
+  const key = await importJWK(jwk, "ES256");
 
-  const sigBuf = await crypto.subtle.sign(
-    { name: "ECDSA", hash: "SHA-256" },
-    key,
-    encoder.encode(unsignedToken),
-  );
-
-  // WebCrypto ECDSA returns IEEE P1363 format (r||s, 64 bytes) which is what JWT ES256 expects
-  const sig = b64url(sigBuf);
-  const jwt = `${unsignedToken}.${sig}`;
+  const jwt = await new SignJWT({ aud, sub: cleanSubject })
+    .setProtectedHeader({ alg: "ES256" })
+    .setIssuedAt()
+    .setExpirationTime("1h")
+    .sign(key);
 
   return `vapid t=${jwt}, k=${publicKeyB64}`;
 }
