@@ -33,6 +33,10 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [phoneLoginMode, setPhoneLoginMode] = useState(false);
+  const [otpStep, setOtpStep] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [phoneForOtp, setPhoneForOtp] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -190,6 +194,52 @@ const Auth = () => {
     }
   };
 
+  const handleSendPhoneOtp = async () => {
+    const digits = phoneForOtp.replace(/\D/g, '');
+    if (digits.length < 10 || digits.length > 11) {
+      toast({ title: "Erro", description: "Informe um número válido com DDD.", variant: "destructive" });
+      return;
+    }
+    const fullPhone = `+55${digits}`;
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: fullPhone,
+        options: { channel: 'whatsapp' },
+      });
+      if (error) throw error;
+      setOtpStep(true);
+      toast({ title: "Código enviado!", description: "Verifique seu WhatsApp." });
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message || "Falha ao enviar código.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpCode || otpCode.length < 6) {
+      toast({ title: "Erro", description: "Digite o código de 6 dígitos.", variant: "destructive" });
+      return;
+    }
+    const digits = phoneForOtp.replace(/\D/g, '');
+    const fullPhone = `+55${digits}`;
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        phone: fullPhone,
+        token: otpCode,
+        type: 'sms',
+      });
+      if (error) throw error;
+      toast({ title: "Login realizado!", description: "Bem-vindo ao Backstage Pro!" });
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message || "Código inválido.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const features = [
     {
       icon: Calendar,
@@ -237,15 +287,25 @@ const Auth = () => {
   const handleCreateAccount = () => {
     setShowForm(true);
     setIsLogin(false);
+    setPhoneLoginMode(false);
+    setOtpStep(false);
   };
 
   const handleLogin = () => {
     setShowForm(true);
     setIsLogin(true);
+    setPhoneLoginMode(false);
+    setOtpStep(false);
   };
 
   const handleBack = () => {
-    setShowForm(false);
+    if (otpStep) {
+      setOtpStep(false);
+    } else if (phoneLoginMode) {
+      setPhoneLoginMode(false);
+    } else {
+      setShowForm(false);
+    }
   };
 
   return (
@@ -411,15 +471,131 @@ const Auth = () => {
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800">
-                  {isLogin ? "Bem-vindo de volta!" : "Crie sua conta grátis"}
+                  {phoneLoginMode 
+                    ? (otpStep ? "Digite o código" : "Entrar com WhatsApp")
+                    : (isLogin ? "Bem-vindo de volta!" : "Crie sua conta grátis")}
                 </h3>
                 <p className="text-slate-500 mt-2">
-                  {isLogin 
-                    ? "Entre para acessar seu painel" 
-                    : "Comece a gerenciar sua carreira hoje"}
+                  {phoneLoginMode
+                    ? (otpStep ? "Insira o código de 6 dígitos enviado ao seu WhatsApp" : "Enviaremos um código de verificação via WhatsApp")
+                    : (isLogin 
+                      ? "Entre para acessar seu painel" 
+                      : "Comece a gerenciar sua carreira hoje")}
                 </p>
               </div>
 
+              {phoneLoginMode ? (
+                <div className="space-y-5">
+                  {!otpStep ? (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="otpPhone" className="text-slate-700 font-medium">
+                          <span className="flex items-center gap-2">
+                            <Phone className="w-4 h-4" />
+                            Número do WhatsApp
+                          </span>
+                        </Label>
+                        <Input
+                          id="otpPhone"
+                          type="tel"
+                          placeholder="(00) 00000-0000"
+                          value={phoneForOtp}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, '');
+                            if (value.length <= 11) {
+                              if (value.length > 2) {
+                                value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                              }
+                              if (value.length > 10) {
+                                value = value.slice(0, 10) + '-' + value.slice(10);
+                              }
+                            }
+                            setPhoneForOtp(value);
+                          }}
+                          className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        disabled={isLoading}
+                        onClick={handleSendPhoneOtp}
+                        className="w-full h-14 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20BD5A] hover:to-[#0F7A6E] text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Enviando...</span>
+                          </div>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            <Phone className="w-5 h-5" />
+                            Enviar código via WhatsApp
+                          </span>
+                        )}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="otpCode" className="text-slate-700 font-medium">Código de verificação</Label>
+                        <Input
+                          id="otpCode"
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={6}
+                          placeholder="000000"
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          className="h-14 bg-slate-50 border-slate-200 text-slate-800 text-center text-2xl tracking-[0.5em] font-mono placeholder:text-slate-300 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        disabled={isLoading}
+                        onClick={handleVerifyOtp}
+                        className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Verificando...</span>
+                          </div>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            Verificar e entrar
+                            <ArrowRight className="w-5 h-5" />
+                          </span>
+                        )}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => { setOtpStep(false); setOtpCode(""); }}
+                        className="w-full text-sm text-[#0066CC] hover:underline font-medium"
+                      >
+                        Reenviar código
+                      </button>
+                    </>
+                  )}
+
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="bg-white px-4 text-slate-400">ou</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => { setPhoneLoginMode(false); setOtpStep(false); setOtpCode(""); }}
+                    className="w-full text-sm text-slate-500 hover:text-slate-700 font-medium"
+                  >
+                    Entrar com e-mail e senha
+                  </button>
+                </div>
+              ) : (
+              <>
               <form onSubmit={handleSubmit} className="space-y-5">
                 {!isLogin && (
                   <>
@@ -600,12 +776,36 @@ const Auth = () => {
                 </div>
               </form>
 
+              {isLogin && (
+                <>
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="bg-white px-4 text-slate-400">ou</span>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-12 rounded-xl border-[#25D366] bg-[#25D366]/5 hover:bg-[#25D366]/15 text-[#128C7E] font-medium transition-all"
+                    onClick={() => { setPhoneLoginMode(true); setOtpStep(false); setOtpCode(""); }}
+                  >
+                    <Phone className="w-5 h-5 mr-2" />
+                    Entrar com WhatsApp
+                  </Button>
+                </>
+              )}
+              </>
+              )}
+
               <div className="mt-6 text-center">
                 <p className="text-slate-500">
                   {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
                   <button
                     type="button"
-                    onClick={() => setIsLogin(!isLogin)}
+                    onClick={() => { setIsLogin(!isLogin); setPhoneLoginMode(false); setOtpStep(false); }}
                     className="text-[#0066CC] font-semibold hover:underline"
                   >
                     {isLogin ? "Criar conta grátis" : "Fazer login"}
