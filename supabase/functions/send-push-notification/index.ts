@@ -158,8 +158,8 @@ serve(async (req) => {
           const res = await fetch(s.endpoint, payload as RequestInit);
           console.log(`Push response for ${s.id}: status=${res.status}`);
 
-          // 404/410 typically means subscription is gone
-          if (res.status === 404 || res.status === 410) {
+          // 403/404/410 means subscription is invalid or gone
+          if (res.status === 403 || res.status === 404 || res.status === 410) {
             console.log(`Marking subscription ${s.id} as inactive (status ${res.status})`);
             await supabaseAdmin.from("user_push_subscriptions").update({ is_active: false }).eq("id", s.id);
             return false;
