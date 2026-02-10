@@ -23,11 +23,10 @@ import {
   Check,
   Shield,
   Zap,
-  Mail,
-  KeyRound
+  Mail
 } from "lucide-react";
 
-type AuthView = "landing" | "login" | "register" | "forgot" | "reset-code" | "new-password";
+type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent";
 
 const Auth = () => {
   const [termsModalOpen, setTermsModalOpen] = useState(false);
@@ -36,9 +35,6 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
-  const [resetCode, setResetCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -53,14 +49,13 @@ const Auth = () => {
   const showForm = view !== "landing";
   const isLogin = view === "login";
   const isForgot = view === "forgot";
-  const isResetCode = view === "reset-code";
-  const isNewPassword = view === "new-password";
+  const isResetSent = view === "reset-sent";
 
   // Check if user is already logged in
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (session?.user && view !== "new-password") {
+        if (session?.user) {
           navigate("/dashboard");
         }
       }
@@ -165,60 +160,14 @@ const Auth = () => {
     }
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail);
-      if (error) throw error;
-      toast({ title: "Código enviado!", description: "Verifique sua caixa de entrada e spam." });
-      setView("reset-code");
-    } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Falha ao enviar e-mail.", variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!resetCode || resetCode.length < 6) {
-      toast({ title: "Erro", description: "Digite o código de 6 dígitos.", variant: "destructive" });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email: resetEmail,
-        token: resetCode,
-        type: 'recovery',
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: "Código verificado!", description: "Agora defina sua nova senha." });
-      setView("new-password");
+      toast({ title: "E-mail enviado!", description: "Verifique sua caixa de entrada e spam." });
+      setView("reset-sent");
     } catch (error: any) {
-      toast({ title: "Código inválido", description: "O código não confere ou expirou. Tente novamente.", variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUpdatePassword = async () => {
-    if (!newPassword || newPassword.length < 6) {
-      toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
-      return;
-    }
-    if (newPassword !== newPasswordConfirm) {
-      toast({ title: "Erro", description: "As senhas não coincidem.", variant: "destructive" });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      toast({ title: "Senha atualizada!", description: "Sua senha foi alterada com sucesso. Faça login." });
-      await supabase.auth.signOut();
-      setView("login");
-      setNewPassword("");
-      setNewPasswordConfirm("");
-      setResetCode("");
-    } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Falha ao atualizar senha.", variant: "destructive" });
+      toast({ title: "Erro", description: error.message || "Falha ao enviar e-mail.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -245,9 +194,7 @@ const Auth = () => {
   ];
 
   const handleBack = () => {
-    if (isNewPassword) {
-      setView("login");
-    } else if (isResetCode) {
+    if (isResetSent) {
       setView("forgot");
     } else if (isForgot) {
       setView("login");
@@ -258,16 +205,14 @@ const Auth = () => {
 
   const getFormTitle = () => {
     if (isForgot) return "Recuperar senha";
-    if (isResetCode) return "Verifique seu e-mail";
-    if (isNewPassword) return "Nova senha";
+    if (isResetSent) return "Verifique seu e-mail";
     if (isLogin) return "Bem-vindo de volta!";
     return "Crie sua conta grátis";
   };
 
   const getFormSubtitle = () => {
-    if (isForgot) return "Informe seu e-mail para receber o código de recuperação";
-    if (isResetCode) return "Digite o código de 6 dígitos enviado para seu e-mail";
-    if (isNewPassword) return "Defina sua nova senha abaixo";
+    if (isForgot) return "Informe seu e-mail para receber o link de recuperação";
+    if (isResetSent) return "Enviamos um link de redefinição de senha para seu e-mail";
     if (isLogin) return "Entre para acessar seu painel";
     return "Comece a gerenciar sua carreira hoje";
   };
@@ -432,10 +377,8 @@ const Auth = () => {
               {/* Form Header */}
               <div className="mb-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#0066CC] to-[#00B4D8] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  {isForgot || isResetCode ? (
+                  {isForgot || isResetSent ? (
                     <Mail className="w-8 h-8 text-white" />
-                  ) : isNewPassword ? (
-                    <KeyRound className="w-8 h-8 text-white" />
                   ) : (
                     <Sparkles className="w-8 h-8 text-white" />
                   )}
@@ -458,24 +401,24 @@ const Auth = () => {
                       className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
                     />
                   </div>
-                  <Button
-                    type="button"
-                    disabled={isLoading}
-                    onClick={handleSendResetEmail}
-                    className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Enviando...</span>
-                      </div>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Mail className="w-5 h-5" />
-                        Enviar código de recuperação
-                      </span>
-                    )}
-                  </Button>
+                    <Button
+                      type="button"
+                      disabled={isLoading}
+                      onClick={handleSendResetEmail}
+                      className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Enviando...</span>
+                        </div>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Mail className="w-5 h-5" />
+                          Enviar link de recuperação
+                        </span>
+                      )}
+                    </Button>
                   <button
                     type="button"
                     onClick={() => setView("login")}
@@ -486,59 +429,28 @@ const Auth = () => {
                 </div>
               )}
 
-              {/* Reset Code - Waiting for link click */}
-              {isResetCode && (
+              {/* Reset Sent - Confirmation */}
+              {isResetSent && (
                 <div className="space-y-5">
                   <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
                     <div className="flex items-start gap-3">
                       <Mail className="w-5 h-5 text-[#0066CC] mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-slate-700 font-medium">Código enviado para:</p>
+                        <p className="text-sm text-slate-700 font-medium">Link enviado para:</p>
                         <p className="text-sm text-[#0066CC] font-semibold">{resetEmail}</p>
                         <p className="text-xs text-slate-500 mt-2">
-                          Digite o código de 6 dígitos recebido no e-mail. Verifique também a pasta de spam.
+                          Clique no link enviado para seu e-mail para redefinir sua senha. Verifique também a pasta de spam.
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="otpCode" className="text-slate-700 font-medium">Código de verificação</Label>
-                    <Input
-                      id="otpCode"
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={6}
-                      placeholder="000000"
-                      value={resetCode}
-                      onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="h-14 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all text-center text-2xl tracking-[0.5em] font-mono"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    disabled={isLoading || resetCode.length < 6}
-                    onClick={handleVerifyOtp}
-                    className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Verificando...</span>
-                      </div>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <KeyRound className="w-5 h-5" />
-                        Verificar código
-                      </span>
-                    )}
-                  </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => { setResetCode(""); setView("forgot"); }}
+                    onClick={() => { setView("forgot"); }}
                     className="w-full h-12 rounded-xl border-slate-200 text-slate-700 font-medium"
                   >
-                    Reenviar código
+                    Reenviar link
                   </Button>
                   <button
                     type="button"
@@ -547,61 +459,6 @@ const Auth = () => {
                   >
                     Voltar para o login
                   </button>
-                </div>
-              )}
-
-              {/* New Password */}
-              {isNewPassword && (
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword" className="text-slate-700 font-medium">Nova senha</Label>
-                    <div className="relative">
-                      <Input
-                        id="newPassword"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 pr-12 rounded-xl transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="newPasswordConfirm" className="text-slate-700 font-medium">Confirmar nova senha</Label>
-                    <Input
-                      id="newPasswordConfirm"
-                      type="password"
-                      placeholder="••••••••"
-                      value={newPasswordConfirm}
-                      onChange={(e) => setNewPasswordConfirm(e.target.value)}
-                      className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    disabled={isLoading}
-                    onClick={handleUpdatePassword}
-                    className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Salvando...</span>
-                      </div>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <KeyRound className="w-5 h-5" />
-                        Salvar nova senha
-                      </span>
-                    )}
-                  </Button>
                 </div>
               )}
 

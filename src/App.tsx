@@ -34,6 +34,7 @@ import Indicacoes from "./pages/Indicacoes";
 import Admin from "./pages/Admin";
 import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,7 @@ const App = () => (
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ShowsProvider>
