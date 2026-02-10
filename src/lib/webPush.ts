@@ -78,16 +78,29 @@ export async function subscribeToWebPush(): Promise<boolean> {
   if (permission !== "granted") return false;
 
   const reg = await ensurePushServiceWorker();
-
-  // Reuse existing subscription when possible
-  const existing = await reg.pushManager.getSubscription();
-  if (existing) {
-    await upsertSubscriptionOnBackend(existing);
-    return true;
-  }
-
   const publicKey = await getVapidPublicKey();
   const applicationServerKey = urlBase64ToUint8Array(publicKey);
+
+  // If there's an existing subscription, check if it matches the current VAPID key.
+  // If not, unsubscribe and create a fresh one.
+  const existing = await reg.pushManager.getSubscription();
+  if (existing) {
+    const existingKey = existing.options?.applicationServerKey;
+    let keysMatch = false;
+    if (existingKey) {
+      const existingArr = new Uint8Array(existingKey);
+      keysMatch =
+        existingArr.length === applicationServerKey.length &&
+        existingArr.every((v, i) => v === applicationServerKey[i]);
+    }
+    if (keysMatch) {
+      await upsertSubscriptionOnBackend(existing);
+      return true;
+    }
+    // Key mismatch — unsubscribe old and create new
+    console.log("VAPID key mismatch, re-subscribing...");
+    await existing.unsubscribe();
+  }
 
   const sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
