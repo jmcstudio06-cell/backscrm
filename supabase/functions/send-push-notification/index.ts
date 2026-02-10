@@ -46,8 +46,10 @@ async function createVapidAuth(
   const url = new URL(endpoint);
   const aud = url.origin;
 
-  // Clean subject: remove angle brackets and extra spaces
-  const cleanSubject = subject.replace(/[<>]/g, "").trim();
+  // Clean subject: remove angle brackets, extra spaces, and fix mailto format
+  const cleanSubject = subject.replace(/[<>]/g, "").replace(/\s+/g, "").trim();
+  // Ensure mailto: format is correct (no spaces)
+  const finalSubject = cleanSubject.startsWith("mailto:") ? cleanSubject : `mailto:${cleanSubject}`;
 
   console.log(`[VAPID] aud=${aud} sub=${cleanSubject}`);
 
