@@ -13,49 +13,73 @@ export function NotificationPrompt() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      console.log("[NotifPrompt] No user, skipping");
+      return;
+    }
 
     const check = async () => {
-      if (
-        !("Notification" in window) ||
-        !("serviceWorker" in navigator) ||
-        !("PushManager" in window)
-      ) return;
+      const hasNotification = "Notification" in window;
+      const hasSW = "serviceWorker" in navigator;
+      const hasPush = "PushManager" in window;
 
-      // Already granted & subscribed
-      try {
-        if (await isWebPushSubscribed()) return;
-      } catch { /* ignore */ }
+      console.log("[NotifPrompt] Support check:", { hasNotification, hasSW, hasPush });
+
+      if (!hasNotification || !hasSW || !hasPush) {
+        console.log("[NotifPrompt] Browser doesn't support push notifications");
+        return;
+      }
+
+      const permission = Notification.permission;
+      console.log("[NotifPrompt] Current permission:", permission);
 
       // Already denied — can't prompt again
-      if (Notification.permission === "denied") return;
+      if (permission === "denied") {
+        console.log("[NotifPrompt] Permission denied, can't show prompt");
+        return;
+      }
+
+      // Already granted — check if subscribed
+      if (permission === "granted") {
+        try {
+          const subscribed = await isWebPushSubscribed();
+          console.log("[NotifPrompt] Already granted, subscribed:", subscribed);
+          if (subscribed) return;
+          // Permission granted but not subscribed — show banner to re-subscribe
+        } catch (e) {
+          console.log("[NotifPrompt] Error checking subscription:", e);
+        }
+      }
 
       // Dismissed recently
       const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
       if (dismissedAt) {
         const elapsed = Date.now() - parseInt(dismissedAt, 10);
+        console.log("[NotifPrompt] Dismissed", Math.round(elapsed / 1000 / 60), "minutes ago");
         if (elapsed < PROMPT_DISMISSED_DURATION) return;
       }
 
-      // Show banner after short delay
-      const timer = setTimeout(() => setVisible(true), 3000);
-      return () => clearTimeout(timer);
+      console.log("[NotifPrompt] Showing banner!");
+      setVisible(true);
     };
 
-    check();
+    // Delay to not block initial render
+    const timer = setTimeout(check, 2000);
+    return () => clearTimeout(timer);
   }, [user]);
 
   const handleEnable = async () => {
     setLoading(true);
     try {
       const granted = await subscribeToWebPush();
+      console.log("[NotifPrompt] subscribeToWebPush result:", granted);
       if (granted) {
         toast.success("Notificações ativadas!", {
           description: "Você receberá alertas importantes sobre seus shows.",
         });
       }
     } catch (error) {
-      console.error("Error requesting notification permission:", error);
+      console.error("[NotifPrompt] Error:", error);
     } finally {
       setVisible(false);
       setLoading(false);
