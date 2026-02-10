@@ -1,5 +1,5 @@
 // Service Worker for Push Notifications
-const CACHE_NAME = 'backstage-pro-v1';
+const CACHE_NAME = 'backstage-pro-v2';
 
 // Install event
 self.addEventListener('install', (event) => {
@@ -7,10 +7,18 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate event
+// Activate event - Clear old caches
 self.addEventListener('activate', (event) => {
   console.log('[SW] Service Worker activated');
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    }).then(() => clients.claim())
+  );
 });
 
 // Push event - Handle incoming push notifications
@@ -36,8 +44,6 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  // iOS Safari doesn't support 'actions' in notifications
-  // Keep options minimal for maximum compatibility
   const options = {
     body: data.body,
     icon: data.icon || '/favicon.ico',
@@ -67,14 +73,12 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // Check if there is already a window open
       for (let client of windowClients) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.navigate(url);
           return client.focus();
         }
       }
-      // Open a new window
       if (clients.openWindow) {
         return clients.openWindow(url);
       }
@@ -82,14 +86,22 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Fetch event - Basic caching strategy
+// Fetch event - Network first, no caching for navigation requests
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
   if (event.request.method !== 'GET') return;
-
-  // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) return;
 
+  // For navigation requests (HTML pages), ALWAYS go to network
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match('/index.html');
+      })
+    );
+    return;
+  }
+
+  // For other assets, network first with no cache storage
   event.respondWith(
     fetch(event.request).catch(() => {
       return caches.match(event.request);
