@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAppSettings } from "@/hooks/useAppSettings";
-import { useAdminGifts, UserGiftWithProfile } from "@/hooks/useUserGifts";
+import { useAdminGifts } from "@/hooks/useUserGifts";
 import { 
   Shield, 
   Calendar, 
@@ -34,9 +34,9 @@ import {
   PartyPopper,
    Bell,
 } from "lucide-react";
-import { AdminInsights } from "@/components/admin/AdminInsights";
+// AdminInsights temporarily disabled
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
-import { GiftsAdminPanel } from "@/components/admin/GiftsAdminPanel";
+// GiftsAdminPanel temporarily disabled
 import { AnalysesAdminPanel } from "@/components/admin/AnalysesAdminPanel";
  import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { Progress } from "@/components/ui/progress";
@@ -837,14 +837,12 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-         <TabsList className="grid w-full grid-cols-9">
+         <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="marco">Marco</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="analyses">Análises</TabsTrigger>
-          <TabsTrigger value="gifts">Presentes</TabsTrigger>
           <TabsTrigger value="referrals">Indicações</TabsTrigger>
            <TabsTrigger value="notifications">Notificações</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
           <TabsTrigger value="trial">Config. Trial</TabsTrigger>
         </TabsList>
@@ -999,24 +997,6 @@ export default function Admin() {
                             : "Nunca"
                           }
                         </p>
-                        <p className="text-xs text-primary font-medium">
-                          Última atividade: {userLastActivity[userProfile.user_id]?.date 
-                            ? (() => {
-                                const lastActivity = userLastActivity[userProfile.user_id].date!;
-                                const activityType = userLastActivity[userProfile.user_id].type;
-                                const now = new Date();
-                                const diffMs = now.getTime() - lastActivity.getTime();
-                                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                                let timeAgo = "";
-                                if (diffDays > 0) timeAgo = `${diffDays} dia(s) atrás`;
-                                else if (diffHours > 0) timeAgo = `${diffHours} hora(s) atrás`;
-                                else timeAgo = "Agora";
-                                return `${activityType} - ${timeAgo}`;
-                              })()
-                            : "Nenhuma atividade"
-                          }
-                        </p>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -1092,125 +1072,6 @@ export default function Admin() {
                       </div>
                     </div>
 
-                    {/* User Goals */}
-                    <div className="mt-6">
-                      <Label className="mb-2 block flex items-center gap-2">
-                        <Target className="h-4 w-4" />
-                        Metas do Mês para este Usuário
-                      </Label>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        Defina as metas mensais e veja o progresso do usuário
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Leads Goal */}
-                        <div className="p-4 border rounded-lg bg-blue-50/50">
-                          <div className="flex items-center gap-2 mb-2">
-                            <UsersIcon className="h-4 w-4 text-blue-600" />
-                            <span className="font-medium text-sm">Meta de Leads</span>
-                          </div>
-                          <Input
-                            type="number"
-                            placeholder="Meta"
-                            value={getUserGoal(userProfile.user_id, "leads") || ""}
-                            onChange={(e) => updateUserGoal(userProfile.user_id, "leads", Number(e.target.value))}
-                            className="mb-2"
-                          />
-                          <div className="text-xs text-muted-foreground mb-1">
-                            Atual: {userStats[userProfile.user_id]?.leads || 0} / {getUserGoal(userProfile.user_id, "leads") || 0}
-                          </div>
-                          <Progress 
-                            value={getUserGoal(userProfile.user_id, "leads") > 0 
-                              ? Math.min(((userStats[userProfile.user_id]?.leads || 0) / getUserGoal(userProfile.user_id, "leads")) * 100, 100) 
-                              : 0
-                            } 
-                            className="h-2" 
-                          />
-                        </div>
-
-                        {/* Revenue Goal */}
-                        <div className="p-4 border rounded-lg bg-green-50/50">
-                          <div className="flex items-center gap-2 mb-2">
-                            <DollarSign className="h-4 w-4 text-green-600" />
-                            <span className="font-medium text-sm">Meta de Receita</span>
-                          </div>
-                          <Input
-                            type="number"
-                            placeholder="Meta (R$)"
-                            value={getUserGoal(userProfile.user_id, "revenue") || ""}
-                            onChange={(e) => updateUserGoal(userProfile.user_id, "revenue", Number(e.target.value))}
-                            className="mb-2"
-                          />
-                          <div className="text-xs text-muted-foreground mb-1">
-                            Atual: R$ {(userStats[userProfile.user_id]?.revenue || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} / R$ {(getUserGoal(userProfile.user_id, "revenue") || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </div>
-                          <Progress 
-                            value={getUserGoal(userProfile.user_id, "revenue") > 0 
-                              ? Math.min(((userStats[userProfile.user_id]?.revenue || 0) / getUserGoal(userProfile.user_id, "revenue")) * 100, 100) 
-                              : 0
-                            } 
-                            className="h-2" 
-                          />
-                        </div>
-
-                        {/* Shows Goal */}
-                        <div className="p-4 border rounded-lg bg-purple-50/50">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Mic2 className="h-4 w-4 text-purple-600" />
-                            <span className="font-medium text-sm">Meta de Shows</span>
-                          </div>
-                          <Input
-                            type="number"
-                            placeholder="Meta"
-                            value={getUserGoal(userProfile.user_id, "shows") || ""}
-                            onChange={(e) => updateUserGoal(userProfile.user_id, "shows", Number(e.target.value))}
-                            className="mb-2"
-                          />
-                          <div className="text-xs text-muted-foreground mb-1">
-                            Atual: {userStats[userProfile.user_id]?.shows || 0} / {getUserGoal(userProfile.user_id, "shows") || 0}
-                          </div>
-                          <Progress 
-                            value={getUserGoal(userProfile.user_id, "shows") > 0 
-                              ? Math.min(((userStats[userProfile.user_id]?.shows || 0) / getUserGoal(userProfile.user_id, "shows")) * 100, 100) 
-                              : 0
-                            } 
-                            className="h-2" 
-                          />
-                                    </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Password Change */}
-                                    <div className="mt-6 pt-4 border-t border-border">
-                                      <Label className="mb-2 block flex items-center gap-2">
-                                        <Key className="h-4 w-4" />
-                                        Alterar Senha do Usuário
-                                      </Label>
-                                      <p className="text-xs text-muted-foreground mb-3">
-                                        Defina uma nova senha para este usuário
-                                      </p>
-                                      <div className="flex gap-2">
-                                        <Input
-                                          type="password"
-                                          placeholder="Nova senha (mín. 6 caracteres)"
-                                          value={userNewPasswords[userProfile.user_id] || ""}
-                                          onChange={(e) => setUserNewPasswords(prev => ({
-                                            ...prev,
-                                            [userProfile.user_id]: e.target.value
-                                          }))}
-                                          className="flex-1"
-                                        />
-                                        <Button
-                                          onClick={() => handleChangeUserPassword(userProfile.user_id, userProfile.email || "")}
-                                          disabled={changingPasswords[userProfile.user_id] || !userNewPasswords[userProfile.user_id]}
-                                        >
-                                          {changingPasswords[userProfile.user_id] ? (
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                          ) : (
-                                            "Alterar"
-                                          )}
-                                        </Button>
-                                      </div>
-                                    </div>
                                   </CardContent>
                 )}
               </Card>
@@ -1257,10 +1118,7 @@ export default function Admin() {
           )}
         </TabsContent>
 
-        {/* Gifts Tab */}
-        <TabsContent value="gifts">
-          <GiftsAdminPanel />
-        </TabsContent>
+        {/* Gifts Tab - temporarily disabled */}
 
         {/* Referrals Tab */}
         <TabsContent value="referrals">
@@ -1272,23 +1130,7 @@ export default function Admin() {
            <NotificationsAdminPanel />
          </TabsContent>
 
-        {/* Insights Tab */}
-        <TabsContent value="insights">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Insights da Landing Page
-              </CardTitle>
-              <CardDescription>
-                Métricas de conversão da página /landing
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AdminInsights />
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Insights Tab - temporarily disabled */}
 
         {/* Personalization Tab */}
         <TabsContent value="personalization">
