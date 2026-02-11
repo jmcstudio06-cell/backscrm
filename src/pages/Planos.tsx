@@ -98,6 +98,31 @@ const plans = [
       button: "bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 text-white",
     },
   },
+  {
+    name: "Anual",
+    tagline: "Máxima economia para quem pensa a longo prazo",
+    description: "12 meses de acesso",
+    originalPrice: "R$ 540,00",
+    price: "12x de R$ 12,50",
+    period: "",
+    totalPrice: "R$ 149,99",
+    icon: Shield,
+    highlight: "ECONOMIA MÁXIMA",
+    support: "Suporte VIP",
+    cta: "Garantir plano anual",
+    features: [
+      "Tudo do plano Avançado",
+      "12 meses de acesso completo",
+      "Maior economia por mês",
+      "Prioridade máxima em suporte",
+      "Economize R$ 390,01 comparado ao mensal",
+    ],
+    styles: {
+      card: "bg-card border border-border hover:border-emerald-500/30 hover:shadow-lg",
+      icon: "bg-gradient-to-br from-emerald-500 to-teal-600 text-white",
+      button: "bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white",
+    },
+  },
 ];
 
 const reassurances = [
@@ -133,7 +158,7 @@ export default function Planos() {
         </div>
 
         {/* Planos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-10">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (

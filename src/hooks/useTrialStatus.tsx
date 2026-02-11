@@ -19,6 +19,7 @@ const PLAN_DURATIONS: Record<string, number> = {
   inicial: 30, // legacy
   essencial: 90, // 3 months
   completo: 180, // 6 months
+  anual: 365, // 1 year
 };
 
 export function useTrialStatus() {
