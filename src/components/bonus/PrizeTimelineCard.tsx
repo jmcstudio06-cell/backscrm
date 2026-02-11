@@ -96,11 +96,11 @@ export function PrizeTimelineCard({ bonus, onComplete, onView, isLast }: PrizeTi
         <div className="flex flex-col sm:flex-row">
           {/* Thumbnail */}
           {thumbnailUrl && !imageError ? (
-            <div className={`w-full sm:w-32 h-24 shrink-0 ${isLocked ? "grayscale" : ""}`}>
+            <div className={`w-full sm:w-36 h-28 shrink-0 rounded-l-xl overflow-hidden ${isLocked ? "grayscale" : ""}`}>
               <img 
                 src={thumbnailUrl} 
                 alt={bonus.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain bg-muted/30"
                 onError={() => setImageError(true)}
               />
             </div>
