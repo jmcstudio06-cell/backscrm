@@ -98,6 +98,7 @@ const PLAN_FILTERS = [
   { value: "mensal", label: "PLANO MENSAL" },
   { value: "essencial", label: "PLANO PROFISSIONAL 3 MESES" },
   { value: "completo", label: "PLANO PROFISSIONAL 6 MESES" },
+  { value: "anual", label: "PLANO ANUAL" },
   { value: "expirado", label: "EXPIRADOS" },
 ];
 
@@ -109,6 +110,7 @@ const PLAN_DURATIONS: Record<string, number> = {
   mensal: 30,
   essencial: 90,
   completo: 180,
+  anual: 365,
 };
 
 // Features blocked for trial users
@@ -488,7 +490,7 @@ export default function Admin() {
       } else if (plan === "trial") {
         // Block specific features for trial
         newFeatureBlocks[feature.key] = TRIAL_BLOCKED_FEATURES.includes(feature.key);
-      } else if (plan === "mensal" || plan === "essencial" || plan === "completo") {
+      } else if (plan === "mensal" || plan === "essencial" || plan === "completo" || plan === "anual") {
         // Unblock all features for paid plans
         newFeatureBlocks[feature.key] = false;
       }
@@ -703,6 +705,7 @@ export default function Admin() {
     mensal: 0,
     essencial: 0,
     completo: 0,
+    anual: 0,
     expirado: 0,
   });
 
@@ -721,6 +724,7 @@ export default function Admin() {
           mensal: 0,
           essencial: 0,
           completo: 0,
+          anual: 0,
           expirado: 0,
         };
         
@@ -797,7 +801,7 @@ export default function Admin() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
         <Card className="border-orange-200 bg-orange-50">
           <CardContent className="p-4 text-center">
             <Calendar className="h-6 w-6 text-orange-500 mx-auto mb-2" />
@@ -808,22 +812,29 @@ export default function Admin() {
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">
             <Zap className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-sm text-blue-600">Plano Mensal (1 mês)</p>
+            <p className="text-sm text-blue-600">Mensal (1 mês)</p>
             <p className="text-2xl font-bold text-blue-700">{planStats.mensal}</p>
           </CardContent>
         </Card>
         <Card className="border-green-200 bg-green-50">
           <CardContent className="p-4 text-center">
             <UsersIcon className="h-6 w-6 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-green-600">Profissional (3 meses)</p>
+            <p className="text-sm text-green-600">Prof. (3 meses)</p>
             <p className="text-2xl font-bold text-green-700">{planStats.essencial}</p>
           </CardContent>
         </Card>
         <Card className="border-purple-200 bg-purple-50">
           <CardContent className="p-4 text-center">
             <Heart className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-            <p className="text-sm text-purple-600">Profissional (6 meses)</p>
+            <p className="text-sm text-purple-600">Prof. (6 meses)</p>
             <p className="text-2xl font-bold text-purple-700">{planStats.completo}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="p-4 text-center">
+            <Trophy className="h-6 w-6 text-amber-500 mx-auto mb-2" />
+            <p className="text-sm text-amber-600">Anual (12 meses)</p>
+            <p className="text-2xl font-bold text-amber-700">{planStats.anual}</p>
           </CardContent>
         </Card>
         <Card className="border-red-200 bg-red-50">
@@ -1026,6 +1037,7 @@ export default function Admin() {
                             <option value="mensal">Plano Mensal (1 mês)</option>
                             <option value="essencial">Plano Profissional 3 meses</option>
                             <option value="completo">Plano Profissional 6 meses</option>
+                            <option value="anual">Plano Anual (12 meses)</option>
                             <option value="expirado">Expirado</option>
                           </select>
                       </div>
@@ -1233,6 +1245,7 @@ export default function Admin() {
                         <li><strong>PLANO MENSAL:</strong> Dura 1 mês (30 dias)</li>
                         <li><strong>PLANO PROFISSIONAL 3 MESES:</strong> Dura 3 meses (90 dias)</li>
                         <li><strong>PLANO PROFISSIONAL 6 MESES:</strong> Dura 6 meses (180 dias)</li>
+                        <li><strong>PLANO ANUAL:</strong> Dura 12 meses (365 dias)</li>
                         <li>Após expirar, o usuário precisa renovar o plano</li>
                       </ul>
                     </div>
