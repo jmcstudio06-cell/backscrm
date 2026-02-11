@@ -29,7 +29,6 @@ const plans = [
     description: "1 mês de acesso",
     originalPrice: "R$ 79,90",
     price: "1x de R$ 45,00",
-    period: "",
     totalPrice: "R$ 45,00",
     icon: Zap,
     highlight: null,
@@ -54,7 +53,6 @@ const plans = [
     description: "3 meses de acesso",
     originalPrice: "R$ 135,00",
     price: "3x de R$ 25,00",
-    period: "",
     totalPrice: "R$ 75,00",
     icon: Star,
     highlight: "MAIS ESCOLHIDO",
@@ -79,7 +77,6 @@ const plans = [
     description: "6 meses de acesso",
     originalPrice: "R$ 270,00",
     price: "6x de R$ 16,66",
-    period: "",
     totalPrice: "R$ 99,99",
     icon: Crown,
     highlight: "MELHOR VALOR",
@@ -98,6 +95,7 @@ const plans = [
       button: "bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 text-white",
     },
   },
+];
 
 const reassurances = [
   { icon: Shield, text: "Pagamento 100% seguro" },
@@ -132,7 +130,7 @@ export default function Planos() {
         </div>
 
         {/* Planos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-10">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
