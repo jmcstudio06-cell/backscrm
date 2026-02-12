@@ -36,9 +36,113 @@ async function getVapidPublicKey(): Promise<string> {
 
   const publicKey = (data as { publicKey?: string } | null)?.publicKey;
   if (!publicKey) throw new Error("VAPID public key not available");
+
   return publicKey;
 }
 
 export async function ensurePushServiceWorker(): Promise<ServiceWorkerRegistration> {
   if (!("serviceWorker" in navigator)) {
-    t
+    throw new Error("Service Worker not supported");
+  }
+
+  const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+
+  // Força buscar versão nova do SW (evita SW “preso”)
+  try {
+    await registration.update();
+  } catch {
+    // ignore
+  }
+
+  await navigator.serviceWorker.ready;
+  return registration;
+}
+
+export async function getExistingPushSubscription(): Promise<PushSubscription | null> {
+  if (!("serviceWorker" in navigator)) return null;
+  const reg = await navigator.serviceWorker.ready;
+  return reg.pushManager.getSubscription();
+}
+
+export async function isWebPushSubscribed(): Promise<boolean> {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission !== "granted") return false;
+  const sub = await getExistingPushSubscription();
+  return Boolean(sub);
+}
+
+async function upsertSubscriptionOnBackend(sub: PushSubscription) {
+  const json = sub.toJSON() as PushSubscriptionJson;
+  const endpoint = json.endpoint;
+  const p256dh = json.keys?.p256dh;
+  const auth = json.keys?.auth;
+
+  if (!endpoint || !p256dh || !auth) {
+    throw new Error("Invalid push subscription keys");
+  }
+
+  const { error } = await supabase.functions.invoke("upsert-push-subscription", {
+    body: { endpoint, p256dh, auth },
+  });
+
+  if (error) throw error;
+}
+
+export async function subscribeToWebPush(): Promise<boolean> {
+  if (!("Notification" in window)) return false;
+  if (!("serviceWorker" in navigator)) return false;
+
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") return false;
+
+  const reg = await ensurePushServiceWorker();
+  const publicKey = await getVapidPublicKey();
+  const applicationServerKey = urlBase64ToUint8Array(publicKey);
+
+  const existing = await reg.pushManager.getSubscription();
+
+  if (existing) {
+    const existingKey = existing.options?.applicationServerKey;
+    const keysMatch = existingKey ? uint8ArraysEqual(toUint8Array(existingKey), applicationServerKey) : false;
+
+    if (keysMatch) {
+      await upsertSubscriptionOnBackend(existing);
+      return true;
+    }
+
+    console.log("VAPID key mismatch, re-subscribing...");
+    try {
+      await existing.unsubscribe();
+    } catch {
+      // ignore
+    }
+  }
+
+  const sub = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey,
+  });
+
+  await upsertSubscriptionOnBackend(sub);
+  return true;
+}
+
+export async function unsubscribeFromWebPush(): Promise<void> {
+  const sub = await getExistingPushSubscription();
+  if (!sub) return;
+
+  const json = sub.toJSON() as PushSubscriptionJson;
+
+  try {
+    await sub.unsubscribe();
+  } catch {
+    // ignore
+  }
+
+  // Mark as inactive on backend (best-effort)
+  if (json.endpoint) {
+    await supabase.functions.invoke("upsert-push-subscription", {
+      body: { endpoint: json.endpoint, is_active: false },
+    });
+  }
+}
