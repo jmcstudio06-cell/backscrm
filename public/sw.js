@@ -1,110 +1,111 @@
-// Service Worker for Push Notifications
-const CACHE_NAME = 'backstage-pro-v2';
+// Service Worker for Push Notifications (Backstage Pro)
+const SW_VERSION = "backstage-pro-sw-v3";
+const DEFAULT_URL = "/dashboard";
+const DEFAULT_ICON = "/favicon.ico";
+const DEFAULT_BADGE = "/favicon.ico";
 
-// Install event
-self.addEventListener('install', (event) => {
-  console.log('[SW] Service Worker installed');
+// Install
+self.addEventListener("install", (event) => {
+  console.log(`[SW] Installed: ${SW_VERSION}`);
   self.skipWaiting();
 });
 
-// Activate event - Clear old caches
-self.addEventListener('activate', (event) => {
-  console.log('[SW] Service Worker activated');
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    }).then(() => clients.claim())
-  );
+// Activate
+self.addEventListener("activate", (event) => {
+  console.log(`[SW] Activated: ${SW_VERSION}`);
+  event.waitUntil((async () => {
+    // Não vamos deletar caches aqui porque você não está realmente usando cache offline.
+    // Isso evita apagar caches que outros SW/rotas possam usar.
+    await clients.claim();
+  })());
 });
 
-// Push event - Handle incoming push notifications
-self.addEventListener('push', (event) => {
-  console.log('[SW] Push notification received');
-
-  let data = {
-    title: 'Backstage Pro',
-    body: 'Você tem uma nova notificação!',
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
-    url: '/dashboard'
+// Helpers
+function normalizePayload(payload) {
+  // Suporta:
+  // 1) { title, body, icon, badge, url }
+  // 2) { notification: { title, body, icon, badge }, data: { url } } (padrão comum)
+  // 3) texto simples
+  const base = {
+    title: "Backstage Pro",
+    body: "Você tem uma nova notificação!",
+    icon: DEFAULT_ICON,
+    badge: DEFAULT_BADGE,
+    url: DEFAULT_URL,
   };
 
-  if (event.data) {
-    try {
-      const payload = event.data.json();
-      console.log('[SW] Push payload:', payload);
-      data = { ...data, ...payload };
-    } catch (e) {
-      console.log('[SW] Push data as text:', event.data.text());
-      data.body = event.data.text();
-    }
+  if (!payload) return base;
+
+  // Texto
+  if (typeof payload === "string") {
+    return { ...base, body: payload };
   }
 
-  const options = {
-    body: data.body,
-    icon: data.icon || '/favicon.ico',
-    badge: data.badge || '/favicon.ico',
-    tag: 'backstage-notification',
-    renotify: true,
-    requireInteraction: false,
-    data: {
-      url: data.url || '/dashboard',
-      dateOfArrival: Date.now()
-    }
+  // Formato padrão
+  if (payload.notification) {
+    return {
+      ...base,
+      title: payload.notification.title || base.title,
+      body: payload.notification.body || base.body,
+      icon: payload.notification.icon || base.icon,
+      badge: payload.notification.badge || base.badge,
+      url: (payload.data && payload.data.url) || payload.url || base.url,
+    };
+  }
+
+  // Seu formato direto
+  return {
+    ...base,
+    title: payload.title || base.title,
+    body: payload.body || base.body,
+    icon: payload.icon || base.icon,
+    badge: payload.badge || base.badge,
+    url: payload.url || base.url,
   };
+}
 
-  console.log('[SW] Showing notification with options:', options);
+// Push
+self.addEventListener("push", (event) => {
+  console.log("[SW] Push received");
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+  event.waitUntil((async () => {
+    let payload = null;
+
+    if (event.data) {
+      try {
+        payload = event.data.json();
+        console.log("[SW] Payload JSON:", payload);
+      } catch (e) {
+        const text = event.data.text();
+        console.log("[SW] Payload text:", text);
+        payload = text;
+      }
+    }
+
+    const data = normalizePayload(payload);
+
+    const options = {
+      body: data.body,
+      icon: data.icon,
+      badge: data.badge,
+      tag: "backstage-notification",      // agrupa notificações
+      renotify: true,                      // se repetir tag, notifica de novo
+      requireInteraction: false,           // não “prende” a notificação
+      silent: false,
+      timestamp: Date.now(),
+      data: {
+        url: data.url || DEFAULT_URL,
+      },
+    };
+
+    console.log("[SW] showNotification:", data.title, options);
+    await self.registration.showNotification(data.title, options);
+  })());
 });
 
-// Notification click event
-self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked');
+// Click
+self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || '/dashboard';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      for (let client of windowClients) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(url);
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(url);
-      }
-    })
-  );
-});
-
-// Fetch event - Network first, no caching for navigation requests
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  if (!event.request.url.startsWith(self.location.origin)) return;
-
-  // For navigation requests (HTML pages), ALWAYS go to network
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('/index.html');
-      })
-    );
-    return;
-  }
-
-  // For other assets, network first with no cache storage
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
-  );
-});
+  const url = event.notification?.data?.url || DEFAULT_URL;
+  const targetUrl = new URL(url, self.location.origin).t
