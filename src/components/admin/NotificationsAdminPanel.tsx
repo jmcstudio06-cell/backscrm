@@ -12,19 +12,22 @@
  import { Badge } from "@/components/ui/badge";
  import { Separator } from "@/components/ui/separator";
  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
- import { 
-   Bell, 
-   Send, 
-   Clock, 
-   DollarSign, 
-   Target, 
-   UserX, 
-   Settings2,
-   History,
-   Loader2,
-   Info,
-   ExternalLink,
- } from "lucide-react";
+import { 
+  Bell, 
+  Send, 
+  Clock, 
+  DollarSign, 
+  Target, 
+  UserX, 
+  Settings2,
+  History,
+  Loader2,
+  Info,
+  ExternalLink,
+  TrendingDown,
+  CalendarCheck,
+  Play,
+} from "lucide-react";
  import { format } from "date-fns";
  import { ptBR } from "date-fns/locale";
  
@@ -55,48 +58,68 @@
    return {};
  };
  
- const AUTOMATION_CONFIG = [
-   {
-     key: "show_reminder",
-     icon: Bell,
-     title: "Lembrete de Show",
-     description: "Enviar notificação X horas antes de um show agendado",
-     configField: "hours_before",
-     configLabel: "Horas antes do show",
-     configType: "number",
-     defaultConfig: { hours_before: 24 },
-   },
-   {
-     key: "pending_payment",
-     icon: DollarSign,
-     title: "Cachê Pendente",
-     description: "Notificar quando existir show realizado com pagamento pendente",
-     configField: null,
-     configLabel: null,
-     configType: null,
-     defaultConfig: {},
-   },
-   {
-     key: "monthly_goal",
-     icon: Target,
-     title: "Meta Mensal",
-     description: "Notificar quando o usuário estiver próximo ou abaixo da meta",
-     configField: null,
-     configLabel: null,
-     configType: null,
-     defaultConfig: {},
-   },
-   {
-     key: "inactivity",
-     icon: UserX,
-     title: "Inatividade",
-     description: "Notificar quando o usuário ficar X dias sem acessar o app",
-     configField: "days_inactive",
-     configLabel: "Dias de inatividade",
-     configType: "number",
-     defaultConfig: { days_inactive: 7 },
-   },
- ];
+const AUTOMATION_CONFIG = [
+  {
+    key: "show_reminder",
+    icon: Bell,
+    title: "Lembrete de Show",
+    description: "Enviar notificação X horas antes de um show agendado",
+    configField: "hours_before",
+    configLabel: "Horas antes do show",
+    configType: "number",
+    defaultConfig: { hours_before: 24 },
+  },
+  {
+    key: "pending_payment",
+    icon: DollarSign,
+    title: "Cachê Pendente",
+    description: "Notificar quando existir show realizado com pagamento pendente",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
+  {
+    key: "monthly_goal",
+    icon: Target,
+    title: "Meta Mensal",
+    description: "Notificar quando o usuário estiver abaixo do ritmo esperado da meta",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
+  {
+    key: "inactivity",
+    icon: UserX,
+    title: "Inatividade",
+    description: "Notificar quando o usuário ficar X dias sem acessar o app",
+    configField: "days_inactive",
+    configLabel: "Dias de inatividade",
+    configType: "number",
+    defaultConfig: { days_inactive: 7 },
+  },
+  {
+    key: "goal_reminder",
+    icon: CalendarCheck,
+    title: "Lembrete de Metas (periódico)",
+    description: "Lembrar o usuário de conferir suas metas periodicamente",
+    configField: "interval_days",
+    configLabel: "Intervalo em dias",
+    configType: "number",
+    defaultConfig: { interval_days: 10 },
+  },
+  {
+    key: "low_performance",
+    icon: TrendingDown,
+    title: "Desempenho Baixo",
+    description: "Notificar usuários que não agendaram shows nos últimos 30 dias",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
+];
  
  const ACTION_URLS = [
    { value: "/dashboard", label: "Dashboard" },
@@ -126,9 +149,9 @@
    const [manualActionUrl, setManualActionUrl] = useState("");
    const [manualAudience, setManualAudience] = useState("all");
  
-   // Editing automation texts
-   const [editingTexts, setEditingTexts] = useState<Record<string, string>>({});
-   const [editingConfigs, setEditingConfigs] = useState<Record<string, number>>({});
+  const [editingTexts, setEditingTexts] = useState<Record<string, string>>({});
+  const [editingConfigs, setEditingConfigs] = useState<Record<string, number>>({});
+  const [runningAutomations, setRunningAutomations] = useState(false);
  
    useEffect(() => {
      fetchData();
@@ -157,8 +180,9 @@
          settingsResult.data.forEach((s: NotificationSetting) => {
            texts[s.setting_key] = s.notification_text || "";
            const config = parseConfig(s.config);
-           if (config.hours_before) configs[`${s.setting_key}_hours_before`] = config.hours_before as number;
-           if (config.days_inactive) configs[`${s.setting_key}_days_inactive`] = config.days_inactive as number;
+            if (config.hours_before) configs[`${s.setting_key}_hours_before`] = config.hours_before as number;
+            if (config.days_inactive) configs[`${s.setting_key}_days_inactive`] = config.days_inactive as number;
+            if (config.interval_days) configs[`${s.setting_key}_interval_days`] = config.interval_days as number;
          });
          setEditingTexts(texts);
          setEditingConfigs(configs);
@@ -234,8 +258,33 @@
      } finally {
        setSavingSettings((prev) => ({ ...prev, [`save_${settingKey}`]: false }));
      }
-   };
- 
+    };
+
+  const runAutomationsNow = async () => {
+    setRunningAutomations(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("run-automated-notifications", {
+        body: {},
+      });
+
+      if (error) throw error;
+
+      const sent = data?.sent || 0;
+      if (sent > 0) {
+        toast.success(`🔔 Automações executadas! ${sent} notificações enviadas.`);
+      } else {
+        toast.info("Automações executadas, mas nenhum usuário se enquadrou nos critérios.");
+      }
+
+      fetchData();
+    } catch (error) {
+      console.error("Error running automations:", error);
+      toast.error("Erro ao executar automações");
+    } finally {
+      setRunningAutomations(false);
+    }
+  };
+
   const sendManualNotification = async () => {
     if (!manualTitle.trim() || !manualMessage.trim()) {
       toast.error("Preencha o título e a mensagem");
@@ -423,15 +472,32 @@
  
        {/* Automations Section */}
        <Card>
-         <CardHeader>
-           <CardTitle className="flex items-center gap-2">
-             <Settings2 className="h-5 w-5" />
-             Automações
-           </CardTitle>
-           <CardDescription>
-             Configure notificações automáticas baseadas em ações dos usuários
-           </CardDescription>
-         </CardHeader>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings2 className="h-5 w-5" />
+                  Automações
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  Configure notificações automáticas baseadas em ações dos usuários
+                </CardDescription>
+              </div>
+              <Button
+                onClick={runAutomationsNow}
+                disabled={runningAutomations}
+                variant="outline"
+                size="sm"
+              >
+                {runningAutomations ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4 mr-2" />
+                )}
+                Executar Agora
+              </Button>
+            </div>
+          </CardHeader>
          <CardContent className="space-y-6">
            {AUTOMATION_CONFIG.map((automation) => {
              const setting = settings.find((s) => s.setting_key === automation.key);
@@ -544,9 +610,9 @@
              <History className="h-5 w-5" />
              Histórico de Notificações
            </CardTitle>
-           <CardDescription>
-             Últimas 50 notificações enviadas
-           </CardDescription>
+            <CardDescription>
+              Histórico das últimas 48 horas (limpo automaticamente)
+            </CardDescription>
          </CardHeader>
          <CardContent>
            {history.length === 0 ? (
