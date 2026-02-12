@@ -20,11 +20,25 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+function toUint8Array(key: BufferSource): Uint8Array {
+  if (key instanceof Uint8Array) return key;
+  // ArrayBuffer
+  return new Uint8Array(key as ArrayBuffer);
+}
+
+function uint8ArraysEqual(a: Uint8Array, b: Uint8Array) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
 async function getVapidPublicKey(): Promise<string> {
   const { data, error } = await supabase.functions.invoke("get-vapid-key");
   if (error) throw error;
+
   const publicKey = (data as { publicKey?: string } | null)?.publicKey;
   if (!publicKey) throw new Error("VAPID public key not available");
+
   return publicKey;
 }
 
@@ -33,9 +47,29 @@ export async function ensurePushServiceWorker(): Promise<ServiceWorkerRegistrati
     throw new Error("Service Worker not supported");
   }
 
-  // Register/update the SW that handles Push events
-  const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+  // Se já existir registro, pega ele
+  let registration = await navigator.serviceWorker.getRegistration("/");
+
+  if (!registration) {
+    registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+  } else {
+    // Garante que está apontando pro SW certo e atualiza
+    // (mesmo se o browser estiver segurando SW antigo)
+    try {
+      await registration.update();
+    } catch {
+      // ignorar falha de update (alguns browsers/estados)
+    }
+  }
+
+  // Espera o SW ficar ready e tenta atualizar de novo (reduz casos de SW preso)
   await navigator.serviceWorker.ready;
+  try {
+    await registration.update();
+  } catch {
+    // ignore
+  }
+
   return registration;
 }
 
@@ -73,54 +107,88 @@ export async function subscribeToWebPush(): Promise<boolean> {
   if (!("Notification" in window)) return false;
   if (!("serviceWorker" in navigator)) return false;
 
-  // Must run from a user gesture on iOS.
+  // Importante: em iOS e alguns Androids precisa gesto do usuário mesmo
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return false;
 
   const reg = await ensurePushServiceWorker();
+
+  // Algumas vezes o SW não controla a página ainda; isso ajuda a estabilizar
+  // (não é obrigatório, mas evita estados estranhos após updates)
+  try {
+    await navigator.serviceWorker.ready;
+  } catch {
+    // ignore
+  }
+
   const publicKey = await getVapidPublicKey();
   const applicationServerKey = urlBase64ToUint8Array(publicKey);
 
-  // If there's an existing subscription, check if it matches the current VAPID key.
-  // If not, unsubscribe and create a fresh one.
+  // Se existir subscription, valida se a chave VAPID bate.
   const existing = await reg.pushManager.getSubscription();
+
   if (existing) {
     const existingKey = existing.options?.applicationServerKey;
-    let keysMatch = false;
-    if (existingKey) {
-      const existingArr = new Uint8Array(existingKey);
-      keysMatch =
-        existingArr.length === applicationServerKey.length &&
-        existingArr.every((v, i) => v === applicationServerKey[i]);
-    }
+
+    // existingKey pode vir em formatos diferentes dependendo do browser
+    const keysMatch = existingKey ? uint8ArraysEqual(toUint8Array(existingKey), applicationServerKey) : false;
+
     if (keysMatch) {
-      await upsertSubscriptionOnBackend(existing);
-      return true;
+      // Re-sincroniza no backend (se o backend perdeu/limpou o registro)
+      try {
+        await upsertSubscriptionOnBackend(existing);
+        return true;
+      } catch (e) {
+        // Se falhar aqui, pode ser que o backend esteja rejeitando endpoint antigo.
+        // Tenta recriar a subscription do zero.
+        try {
+          await existing.unsubscribe();
+        } catch {
+          // ignore
+        }
+      }
+    } else {
+      // VAPID trocou ou subscription antiga -> recriar
+      try {
+        await existing.unsubscribe();
+      } catch {
+        // ignore
+      }
     }
-    // Key mismatch — unsubscribe old and create new
-    console.log("VAPID key mismatch, re-subscribing...");
-    await existing.unsubscribe();
   }
 
+  // Cria subscription nova
   const sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey,
   });
 
+  // Salva no backend
   await upsertSubscriptionOnBackend(sub);
+
   return true;
 }
 
 export async function unsubscribeFromWebPush(): Promise<void> {
   const sub = await getExistingPushSubscription();
   if (!sub) return;
-  await sub.unsubscribe();
 
-  // Mark as inactive on backend (best-effort)
   const json = sub.toJSON() as PushSubscriptionJson;
+
+  try {
+    await sub.unsubscribe();
+  } catch {
+    // ignore
+  }
+
+  // Marca como inativo no backend (best-effort)
   if (json.endpoint) {
-    await supabase.functions.invoke("upsert-push-subscription", {
-      body: { endpoint: json.endpoint, is_active: false },
-    });
+    try {
+      await supabase.functions.invoke("upsert-push-subscription", {
+        body: { endpoint: json.endpoint, is_active: false },
+      });
+    } catch {
+      // ignore
+    }
   }
 }
