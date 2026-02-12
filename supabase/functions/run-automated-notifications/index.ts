@@ -198,8 +198,7 @@ async function handleInactivity(supabase: any, config: any, text: string, vapidP
   if (!inactiveUsers || inactiveUsers.length === 0) return 0;
 
   const userIds = inactiveUsers.map((u: any) => u.user_id);
-  const userName = inactiveUsers[0]?.artist_name || inactiveUsers[0]?.name || "Artista";
-  const message = (text || "👋 {user_name}, sentimos sua falta!").replace(/{user_name}/g, userName);
+  const message = text || "👋 Sentimos sua falta! Volte e continue evoluindo sua carreira musical.";
 
   console.log(`[Inactivity] Found ${userIds.length} inactive users (>${daysInactive} days)`);
   return sendToUsers(supabase, userIds, "⏰ Você sumiu!", message, "/dashboard", vapidPub, vapidPriv, vapidSub, "inactivity");
@@ -233,9 +232,9 @@ async function handleShowReminder(supabase: any, config: any, text: string, vapi
 
   for (const [userId, shows] of byUser) {
     const showTitle = shows[0].title;
-    const message = (text || "🎤 {user_name}, seu show \"{show_title}\" é em breve!")
-      .replace(/{show_title}/g, showTitle)
-      .replace(/{user_name}/g, "");
+    const message = text
+      ? text.replace(/{show_title}/g, showTitle)
+      : `🎤 Seu show "${showTitle}" é em breve! Confira os detalhes.`;
 
     const sent = await sendToUsers(supabase, [userId], "🎤 Show chegando!", message.trim(), "/agenda", vapidPub, vapidPriv, vapidSub, "show_reminder");
     totalSent += sent;
@@ -260,7 +259,7 @@ async function handleGoalReminder(supabase: any, _config: any, text: string, vap
   if (!usersWithGoals || usersWithGoals.length === 0) return 0;
 
   const userIds = [...new Set(usersWithGoals.map((g: any) => g.user_id))];
-  const message = (text || "🎯 {user_name}, como estão suas metas? Bora manter o foco!").replace(/{user_name}/g, "");
+  const message = text || "🎯 Como estão suas metas? Bora manter o foco!";
 
   console.log(`[GoalReminder] Sending to ${userIds.length} users with goals`);
   return sendToUsers(supabase, userIds as string[], "🎯 Lembrete de Metas", message.trim(), "/metas", vapidPub, vapidPriv, vapidSub, "goal_reminder");
@@ -291,7 +290,7 @@ async function handleLowPerformance(supabase: any, _config: any, text: string, v
 
   if (lowPerfUsers.length === 0) return 0;
 
-  const message = (text || "📉 {user_name}, seu desempenho está abaixo do esperado. Que tal agendar mais shows?").replace(/{user_name}/g, "");
+  const message = text || "📉 Seu desempenho está abaixo do esperado. Que tal agendar mais shows?";
 
   console.log(`[LowPerformance] Found ${lowPerfUsers.length} users with 0 shows in 30 days`);
   return sendToUsers(supabase, lowPerfUsers, "📉 Desempenho Baixo", message.trim(), "/agenda", vapidPub, vapidPriv, vapidSub, "low_performance");
@@ -320,7 +319,7 @@ async function handlePendingPayment(supabase: any, _config: any, text: string, v
   if (unpaidShows.length === 0) return 0;
 
   const userIds = [...new Set(unpaidShows.map((s: any) => s.user_id))];
-  const message = (text || "💰 {user_name}, você tem cachês pendentes!").replace(/{user_name}/g, "");
+  const message = text || "💰 Você tem cachês pendentes! Confira no financeiro.";
 
   console.log(`[PendingPayment] Found ${unpaidShows.length} unpaid shows for ${userIds.length} users`);
   return sendToUsers(supabase, userIds as string[], "💰 Cachê Pendente", message.trim(), "/financeiro", vapidPub, vapidPriv, vapidSub, "pending_payment");
@@ -376,7 +375,7 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
   if (behindUsers.length === 0) return 0;
 
   const uniqueUsers = [...new Set(behindUsers)];
-  const message = (text || "📊 {user_name}, sua meta mensal precisa de atenção!").replace(/{user_name}/g, "");
+  const message = text || "📊 Sua meta mensal precisa de atenção! Confira seu progresso.";
 
   console.log(`[MonthlyGoal] Found ${uniqueUsers.length} users behind on goals`);
   return sendToUsers(supabase, uniqueUsers, "📊 Meta Mensal", message.trim(), "/metas", vapidPub, vapidPriv, vapidSub, "monthly_goal");
