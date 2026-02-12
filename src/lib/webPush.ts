@@ -42,7 +42,7 @@ export async function ensurePushServiceWorker(): Promise<ServiceWorkerRegistrati
 export async function getExistingPushSubscription(): Promise<PushSubscription | null> {
   if (!("serviceWorker" in navigator)) return null;
   const reg = await navigator.serviceWorker.ready;
-  return (reg as any).pushManager.getSubscription();
+  return reg.pushManager.getSubscription();
 }
 
 export async function isWebPushSubscribed(): Promise<boolean> {
@@ -83,7 +83,7 @@ export async function subscribeToWebPush(): Promise<boolean> {
 
   // If there's an existing subscription, check if it matches the current VAPID key.
   // If not, unsubscribe and create a fresh one.
-  const existing = await (reg as any).pushManager.getSubscription();
+  const existing = await reg.pushManager.getSubscription();
   if (existing) {
     const existingKey = existing.options?.applicationServerKey;
     let keysMatch = false;
@@ -102,7 +102,7 @@ export async function subscribeToWebPush(): Promise<boolean> {
     await existing.unsubscribe();
   }
 
-  const sub = await (reg as any).pushManager.subscribe({
+  const sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey,
   });
