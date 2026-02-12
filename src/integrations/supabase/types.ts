@@ -1798,7 +1798,6 @@ export type Database = {
     Functions: {
       auto_complete_past_shows: { Args: never; Returns: number }
       cleanup_old_landing_visits: { Args: never; Returns: number }
-      cleanup_old_notifications: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
