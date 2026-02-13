@@ -13,8 +13,6 @@ import {
   Music,
   Sparkles,
   Lock,
-  Target,
-  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
@@ -47,10 +45,10 @@ const reassurances = [
 
 const basePlan = {
   name: "Plano Profissional",
+  subtitle: "Tudo que você precisa para começar",
   priceNumber: 19.9,
   priceLabel: "R$ 19,90",
   period: "/mês",
-  subtitle: "Tudo que você precisa para começar",
   features: [
     "Dashboard completo",
     "Agenda de Shows",
@@ -61,20 +59,7 @@ const basePlan = {
   ],
 };
 
-type Upgrade = {
-  id: string;
-  name: string;
-  subtitle: string;
-  priceNumber: number; // adicional (não inclui base)
-  priceLabel: string; // "+ R$ xx,xx"
-  period: "/mês";
-  color: string;
-  borderColor: string;
-  icon: any;
-  features: string[];
-};
-
-const upgrades: Upgrade[] = [
+const upgrades = [
   {
     id: "upgrade-comercial-performance",
     name: "Upgrade Comercial & Performance",
@@ -107,7 +92,7 @@ const upgrades: Upgrade[] = [
     borderColor: "border-purple-200 hover:border-purple-400",
     features: ["Checklist de Show", "Mapeamento de Palco", "Precificação", "Gestão de equipe e freelancers por show"],
   },
-];
+] as const;
 
 function formatBRL(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -135,12 +120,12 @@ function UrgencyBanner() {
 function TestimonialsSection() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-10">
-      {testimonials.map((testimonial) => (
-        <div key={testimonial.name} className="bg-muted/50 rounded-xl p-4 border border-border">
+      {testimonials.map((t) => (
+        <div key={t.name} className="bg-muted/50 rounded-xl p-4 border border-border">
           <Quote className="w-5 h-5 text-primary/60 mb-2" />
-          <p className="text-sm italic mb-3">"{testimonial.text}"</p>
-          <p className="text-sm font-semibold">{testimonial.name}</p>
-          <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+          <p className="text-sm italic mb-3">"{t.text}"</p>
+          <p className="text-sm font-semibold">{t.name}</p>
+          <p className="text-xs text-muted-foreground">{t.role}</p>
         </div>
       ))}
     </div>
@@ -166,7 +151,6 @@ export default function Planos() {
       <div className="pt-4">
         <UrgencyBanner />
 
-        {/* Logo + Hero */}
         <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="flex justify-center mb-4">
             <AppLogo size="lg" collapsed />
@@ -240,21 +224,18 @@ export default function Planos() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-            {upgrades.map((upg) => {
-              const Icon = upg.icon;
-              const total = basePlan.priceNumber + upg.priceNumber;
+            {upgrades.map((u) => {
+              const Icon = u.icon;
+              const total = basePlan.priceNumber + u.priceNumber;
 
               return (
-                <Card
-                  key={upg.id}
-                  className={cn("transition-all duration-300 hover:shadow-lg border", upg.borderColor)}
-                >
+                <Card key={u.id} className={cn("transition-all duration-300 hover:shadow-lg border", u.borderColor)}>
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
                       <div
                         className={cn(
                           "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br text-white",
-                          upg.color,
+                          u.color,
                         )}
                       >
                         <Icon className="w-5 h-5" />
@@ -262,17 +243,17 @@ export default function Planos() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2 mb-1">
-                          <h4 className="font-bold text-sm">{upg.name}</h4>
+                          <h4 className="font-bold text-sm">{u.name}</h4>
                           <span className="font-bold text-foreground whitespace-nowrap">
-                            {upg.priceLabel}
-                            <span className="text-xs font-normal text-muted-foreground">{upg.period}</span>
+                            {u.priceLabel}
+                            <span className="text-xs font-normal text-muted-foreground">{u.period}</span>
                           </span>
                         </div>
 
-                        <p className="text-xs text-muted-foreground mb-3">{upg.subtitle}</p>
+                        <p className="text-xs text-muted-foreground mb-3">{u.subtitle}</p>
 
                         <ul className="space-y-1.5 mb-3">
-                          {upg.features.map((f, i) => (
+                          {u.features.map((f, i) => (
                             <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Lock className="w-3.5 h-3.5 text-primary shrink-0" />
                               {f}
