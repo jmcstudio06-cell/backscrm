@@ -64,8 +64,8 @@ const upgrades = [
     id: "upgrade-comercial-performance",
     name: "Upgrade Comercial & Performance",
     subtitle: "Venda mais, acompanhe metas e performance da carreira",
-    priceNumber: 16.8, // 9,90 + 6,90
-    priceLabel: "+ R$ 16,80",
+    priceNumber: 16.99,
+    priceLabel: "+ R$ 16,99",
     period: "/mês",
     icon: Briefcase,
     color: "from-blue-500 to-cyan-500",
@@ -84,8 +84,8 @@ const upgrades = [
     id: "upgrade-producao-show",
     name: "Upgrade Produção de Show",
     subtitle: "Planejamento completo + equipe e freelancers por show",
-    priceNumber: 14.8, // 7,90 + 6,90
-    priceLabel: "+ R$ 14,80",
+    priceNumber: 13.1,
+    priceLabel: "+ R$ 13,10",
     period: "/mês",
     icon: Music,
     color: "from-purple-500 to-pink-500",
@@ -164,7 +164,7 @@ export default function Planos() {
         </div>
 
         <div className="max-w-5xl mx-auto">
-          {/* Plano Base */}
+          {/* PLANO BASE */}
           <div className="mb-10">
             <div className="relative rounded-2xl border-2 border-primary bg-gradient-to-b from-primary/5 to-primary/10 p-6 md:p-8 shadow-xl max-w-2xl mx-auto">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -216,7 +216,7 @@ export default function Planos() {
             </div>
           </div>
 
-          {/* Upgrades */}
+          {/* UPGRADES */}
           <div className="text-center mb-6">
             <h2 className="text-xl font-bold">Upgrades para liberar recursos avançados</h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -235,7 +235,7 @@ export default function Planos() {
                   className={cn("transition-all duration-300 hover:shadow-lg border h-full", u.borderColor)}
                 >
                   <CardContent className="p-5 h-full flex flex-col">
-                    {/* TOPO FIXO */}
+                    {/* TOPO */}
                     <div className="flex items-start gap-4">
                       <div
                         className={cn(
@@ -254,12 +254,11 @@ export default function Planos() {
                             <span className="text-xs font-normal text-muted-foreground">{u.period}</span>
                           </span>
                         </div>
-
                         <p className="text-xs text-muted-foreground mt-1">{u.subtitle}</p>
                       </div>
                     </div>
 
-                    {/* LISTA CRESCE */}
+                    {/* LISTA */}
                     <ul className="space-y-1.5 mt-4">
                       {u.features.map((f, i) => (
                         <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -269,7 +268,7 @@ export default function Planos() {
                       ))}
                     </ul>
 
-                    {/* RODAPÉ ALINHADO */}
+                    {/* RODAPÉ */}
                     <div className="mt-auto pt-4">
                       <div className="text-xs text-muted-foreground mb-3">
                         Total com este upgrade:{" "}
