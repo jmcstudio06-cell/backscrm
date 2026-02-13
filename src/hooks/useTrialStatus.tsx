@@ -20,6 +20,7 @@ const PLAN_DURATIONS: Record<string, number> = {
   essencial: 90, // 3 months
   completo: 180, // 6 months
   anual: 365, // 1 year
+  base: 30, // Plano Base (novo modelo)
 };
 
 export function useTrialStatus() {
