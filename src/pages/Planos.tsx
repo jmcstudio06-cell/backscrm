@@ -151,6 +151,7 @@ export default function Planos() {
       <div className="pt-4">
         <UrgencyBanner />
 
+        {/* Logo + Hero */}
         <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="flex justify-center mb-4">
             <AppLogo size="lg" collapsed />
@@ -163,7 +164,7 @@ export default function Planos() {
         </div>
 
         <div className="max-w-5xl mx-auto">
-          {/* PLANO BASE */}
+          {/* Plano Base */}
           <div className="mb-10">
             <div className="relative rounded-2xl border-2 border-primary bg-gradient-to-b from-primary/5 to-primary/10 p-6 md:p-8 shadow-xl max-w-2xl mx-auto">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -215,7 +216,7 @@ export default function Planos() {
             </div>
           </div>
 
-          {/* UPGRADES */}
+          {/* Upgrades */}
           <div className="text-center mb-6">
             <h2 className="text-xl font-bold">Upgrades para liberar recursos avançados</h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -223,14 +224,18 @@ export default function Planos() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10 items-stretch">
             {upgrades.map((u) => {
               const Icon = u.icon;
               const total = basePlan.priceNumber + u.priceNumber;
 
               return (
-                <Card key={u.id} className={cn("transition-all duration-300 hover:shadow-lg border", u.borderColor)}>
-                  <CardContent className="p-5">
+                <Card
+                  key={u.id}
+                  className={cn("transition-all duration-300 hover:shadow-lg border h-full", u.borderColor)}
+                >
+                  <CardContent className="p-5 h-full flex flex-col">
+                    {/* TOPO FIXO */}
                     <div className="flex items-start gap-4">
                       <div
                         className={cn(
@@ -242,7 +247,7 @@ export default function Planos() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center justify-between gap-2">
                           <h4 className="font-bold text-sm">{u.name}</h4>
                           <span className="font-bold text-foreground whitespace-nowrap">
                             {u.priceLabel}
@@ -250,36 +255,40 @@ export default function Planos() {
                           </span>
                         </div>
 
-                        <p className="text-xs text-muted-foreground mb-3">{u.subtitle}</p>
-
-                        <ul className="space-y-1.5 mb-3">
-                          {u.features.map((f, i) => (
-                            <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Lock className="w-3.5 h-3.5 text-primary shrink-0" />
-                              {f}
-                            </li>
-                          ))}
-                        </ul>
-
-                        <div className="text-xs text-muted-foreground mb-3">
-                          Total com este upgrade:{" "}
-                          <span className="font-semibold text-foreground">{formatBRL(total)}</span>
-                          <span className="text-muted-foreground">/mês</span>
-                        </div>
-
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => window.open(INFINITEPAY_URL, "_blank")}
-                        >
-                          Ativar upgrade
-                        </Button>
-
-                        <p className="text-[11px] text-muted-foreground mt-2">
-                          Valor adicional ao plano base. Cobrança pré-paga.
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">{u.subtitle}</p>
                       </div>
+                    </div>
+
+                    {/* LISTA CRESCE */}
+                    <ul className="space-y-1.5 mt-4">
+                      {u.features.map((f, i) => (
+                        <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Lock className="w-3.5 h-3.5 text-primary shrink-0" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* RODAPÉ ALINHADO */}
+                    <div className="mt-auto pt-4">
+                      <div className="text-xs text-muted-foreground mb-3">
+                        Total com este upgrade:{" "}
+                        <span className="font-semibold text-foreground">{formatBRL(total)}</span>
+                        <span className="text-muted-foreground">/mês</span>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => window.open(INFINITEPAY_URL, "_blank")}
+                      >
+                        Ativar upgrade
+                      </Button>
+
+                      <p className="text-[11px] text-muted-foreground mt-2">
+                        Valor adicional ao plano base. Cobrança pré-paga.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
