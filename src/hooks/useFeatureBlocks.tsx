@@ -28,6 +28,51 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   configuracoes: false,
 };
 
+// Default feature blocks para Plano Base (novo modelo)
+export const BASE_PLAN_FEATURE_BLOCKS: FeatureBlocks = {
+  dashboard: false,
+  agenda: false,
+  crm: true,
+  clientes: false,
+  orcamentos: true,
+  contratos: true,
+  financeiro: false,
+  historico: true,
+  precificacao: true,
+  checklist: true,
+  "mapeamento-palco": true,
+  equipe: true,
+  metas: true,
+  repertorio: false,
+  aulas: true,
+  tutoriais: false,
+  configuracoes: false,
+};
+
+// Módulos e quais features eles desbloqueiam
+export const PLAN_MODULES = {
+  comercial: {
+    name: "Área Comercial PRO",
+    features: ["crm", "orcamentos", "contratos", "historico"],
+    price: "R$ 9,90/mês",
+  },
+  show: {
+    name: "Planejamento de Show PRO",
+    features: ["checklist", "mapeamento-palco", "precificacao"],
+    price: "R$ 7,90/mês",
+  },
+  equipe: {
+    name: "Equipe & Freelancer",
+    features: ["equipe"],
+    price: "R$ 6,90/mês",
+  },
+  metas: {
+    name: "Metas & Performance",
+    features: ["metas", "aulas", "avancos"],
+    price: "R$ 6,90/mês",
+  },
+};
+
 export function useFeatureBlocks() {
   const { user } = useAuth();
   const [featureBlocks, setFeatureBlocks] = useState<FeatureBlocks>(DEFAULT_FEATURE_BLOCKS);

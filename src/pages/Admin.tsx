@@ -95,6 +95,7 @@ const FEATURES = [
 const PLAN_FILTERS = [
   { value: "all", label: "TODOS" },
   { value: "trial", label: "TRIAL" },
+  { value: "base", label: "PLANO BASE" },
   { value: "mensal", label: "PLANO MENSAL" },
   { value: "essencial", label: "PLANO PROFISSIONAL 3 MESES" },
   { value: "completo", label: "PLANO PROFISSIONAL 6 MESES" },
@@ -107,6 +108,7 @@ const PLAN_FILTERS = [
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
+  base: 30,
   mensal: 30,
   essencial: 90,
   completo: 180,
@@ -490,7 +492,7 @@ export default function Admin() {
       } else if (plan === "trial") {
         // Block specific features for trial
         newFeatureBlocks[feature.key] = TRIAL_BLOCKED_FEATURES.includes(feature.key);
-      } else if (plan === "mensal" || plan === "essencial" || plan === "completo" || plan === "anual") {
+      } else if (plan === "mensal" || plan === "essencial" || plan === "completo" || plan === "anual" || plan === "base") {
         // Unblock all features for paid plans
         newFeatureBlocks[feature.key] = false;
       }
@@ -702,6 +704,7 @@ export default function Admin() {
   // Plan stats state
   const [planStats, setPlanStats] = useState<Record<string, number>>({
     trial: 0,
+    base: 0,
     mensal: 0,
     essencial: 0,
     completo: 0,
@@ -721,6 +724,7 @@ export default function Admin() {
       if (data && !error) {
         const stats: Record<string, number> = {
           trial: 0,
+          base: 0,
           mensal: 0,
           essencial: 0,
           completo: 0,
@@ -801,12 +805,19 @@ export default function Admin() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-4 mb-6">
         <Card className="border-orange-200 bg-orange-50">
           <CardContent className="p-4 text-center">
             <Calendar className="h-6 w-6 text-orange-500 mx-auto mb-2" />
             <p className="text-sm text-orange-600">Trial (3 dias)</p>
             <p className="text-2xl font-bold text-orange-700">{planStats.trial}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-cyan-200 bg-cyan-50">
+          <CardContent className="p-4 text-center">
+            <Shield className="h-6 w-6 text-cyan-500 mx-auto mb-2" />
+            <p className="text-sm text-cyan-600">Base (1 mês)</p>
+            <p className="text-2xl font-bold text-cyan-700">{planStats.base}</p>
           </CardContent>
         </Card>
         <Card className="border-blue-200 bg-blue-50">
@@ -1034,6 +1045,7 @@ export default function Admin() {
                           className="w-full mt-1 px-3 py-2 border rounded-md bg-yellow-50 border-yellow-200"
                           >
                             <option value="trial">Trial (3 dias)</option>
+                            <option value="base">Plano Base (1 mês)</option>
                             <option value="mensal">Plano Mensal (1 mês)</option>
                             <option value="essencial">Plano Profissional 3 meses</option>
                             <option value="completo">Plano Profissional 6 meses</option>
@@ -1242,6 +1254,7 @@ export default function Admin() {
                       <p className="font-medium text-blue-900">Como funciona:</p>
                       <ul className="text-sm text-blue-800 list-disc list-inside mt-1 space-y-1">
                         <li><strong>TRIAL:</strong> Dura {trialDays} dias, depois expira automaticamente</li>
+                        <li><strong>PLANO BASE:</strong> Dura 1 mês (30 dias) — novo modelo modular</li>
                         <li><strong>PLANO MENSAL:</strong> Dura 1 mês (30 dias)</li>
                         <li><strong>PLANO PROFISSIONAL 3 MESES:</strong> Dura 3 meses (90 dias)</li>
                         <li><strong>PLANO PROFISSIONAL 6 MESES:</strong> Dura 6 meses (180 dias)</li>
