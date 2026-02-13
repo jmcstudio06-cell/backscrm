@@ -2,22 +2,19 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Check,
-  Shield,
-  HeadphonesIcon,
-  XCircle,
-  Quote,
-  AlertTriangle,
-  Briefcase,
-  Music,
-  Sparkles,
-  Lock,
-} from "lucide-react";
+import { Check, Shield, HeadphonesIcon, XCircle, Quote, AlertTriangle, Sparkles, Briefcase, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
+/**
+ * Troque por URLs diferentes quando você tiver o checkout separado por plano.
+ * Por enquanto, deixei os 3 iguais pro código funcionar já.
+ */
 const INFINITEPAY_URL = "https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro";
+
+const STARTER_URL = INFINITEPAY_URL;
+const PRO_URL = INFINITEPAY_URL;
+const FULL_URL = INFINITEPAY_URL;
 
 const testimonials = [
   {
@@ -43,63 +40,75 @@ const reassurances = [
   { icon: HeadphonesIcon, text: "Suporte humano real" },
 ];
 
-const basePlan = {
-  name: "Plano Profissional",
-  subtitle: "Tudo que você precisa para começar",
-  priceNumber: 19.9,
-  priceLabel: "R$ 19,90",
-  period: "/mês",
-  features: [
-    "Dashboard completo",
-    "Agenda de Shows",
-    "Gestão de Clientes",
-    "Financeiro básico (Resumo Geral)",
-    "Repertório",
-    "Tutoriais e Configurações",
-  ],
-};
-
-const upgrades = [
+const plans = [
   {
-    id: "upgrade-comercial-performance",
-    name: "Upgrade Comercial & Performance",
-    subtitle: "Venda mais, acompanhe metas e performance da carreira",
-    priceNumber: 16.99,
-    priceLabel: "+ R$ 16,99",
+    id: "starter",
+    name: "Starter",
+    subtitle: "Para começar e parar de se perder",
+    price: "R$ 19,90",
     period: "/mês",
-    icon: Briefcase,
-    color: "from-blue-500 to-cyan-500",
-    borderColor: "border-blue-200 hover:border-blue-400",
+    buttonText: "Começar agora",
+    url: STARTER_URL,
+    highlight: false,
+    badgeText: "",
+    icon: Sparkles,
+    headerGradient: "from-primary/10 to-primary/5",
+    iconGradient: "from-primary to-blue-600",
     features: [
+      "Dashboard completo",
+      "Agenda de Shows",
+      "Gestão de Clientes",
+      "Financeiro básico (Resumo Geral)",
+      "Repertório",
+      "Tutoriais e Configurações",
+    ],
+  },
+  {
+    id: "pro",
+    name: "Profissional",
+    subtitle: "O plano ideal para quem quer vender mais shows",
+    price: "R$ 34,90",
+    period: "/mês",
+    buttonText: "Escolher Profissional",
+    url: PRO_URL,
+    highlight: true,
+    badgeText: "MAIS POPULAR",
+    icon: Briefcase,
+    headerGradient: "from-blue-500/15 to-cyan-500/10",
+    iconGradient: "from-blue-500 to-cyan-500",
+    features: [
+      "Tudo do Starter",
       "Funil de Vendas (CRM)",
       "Orçamento Automático",
       "Contrato Automático",
       "Histórico Mensal Financeiro",
-      "Metas Comerciais",
-      "Meta Anual",
-      "Avanços & Performance",
+      "Checklist de Show",
+      "Mapeamento de Palco",
+      "Precificação",
     ],
   },
   {
-    id: "upgrade-producao-show",
-    name: "Upgrade Produção de Show",
-    subtitle: "Planejamento completo + equipe e freelancers por show",
-    priceNumber: 13.1,
-    priceLabel: "+ R$ 13,10",
+    id: "full",
+    name: "Completo",
+    subtitle: "Controle total da carreira, como uma empresa",
+    price: "R$ 49,99",
     period: "/mês",
-    icon: Music,
-    color: "from-purple-500 to-pink-500",
-    borderColor: "border-purple-200 hover:border-purple-400",
-    features: ["Checklist de Show", "Mapeamento de Palco", "Precificação", "Gestão de equipe e freelancers por show"],
+    buttonText: "Escolher Completo",
+    url: FULL_URL,
+    highlight: false,
+    badgeText: "",
+    icon: Crown,
+    headerGradient: "from-amber-500/15 to-orange-500/10",
+    iconGradient: "from-amber-500 to-orange-500",
+    features: [
+      "Tudo do Profissional",
+      "Metas Comerciais",
+      "Meta Anual",
+      "Avanços & Performance",
+      "Gestão de Equipe & Freelancers",
+    ],
   },
 ] as const;
-
-function formatBRL(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
-}
 
 function UrgencyBanner() {
   return (
@@ -158,135 +167,89 @@ export default function Planos() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold mb-4">Pare de perder tempo e dinheiro com desorganização</h1>
           <p className="text-lg text-muted-foreground">
-            O Backstage Pro é o sistema para{" "}
-            <span className="text-foreground font-medium">gerir sua carreira musical como uma empresa</span>.
+            Escolha um plano e organize sua carreira musical como{" "}
+            <span className="text-foreground font-medium">uma empresa</span>.
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          {/* PLANO BASE */}
-          <div className="mb-10">
-            <div className="relative rounded-2xl border-2 border-primary bg-gradient-to-b from-primary/5 to-primary/10 p-6 md:p-8 shadow-xl max-w-2xl mx-auto">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="px-4 py-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-blue-600">
-                  OBRIGATÓRIO
-                </Badge>
-              </div>
-
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold">{basePlan.name}</h3>
-                      <p className="text-xs text-muted-foreground">{basePlan.subtitle}</p>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-2 mb-4">
-                    {basePlan.features.map((f, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500 shrink-0" />
-                        <span className="text-sm">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <p className="text-xs text-muted-foreground">
-                    Depois, você pode ativar upgrades conforme sua necessidade.
-                  </p>
-                </div>
-
-                <div className="text-center shrink-0">
-                  <div className="text-4xl font-bold text-foreground">
-                    {basePlan.priceLabel}
-                    <span className="text-base font-normal text-muted-foreground">{basePlan.period}</span>
-                  </div>
-                  <Button
-                    size="lg"
-                    className="mt-4 w-full bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 text-white shadow-lg"
-                    onClick={() => window.open(INFINITEPAY_URL, "_blank")}
-                  >
-                    Começar agora
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* UPGRADES */}
+        {/* Planos */}
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-bold">Upgrades para liberar recursos avançados</h2>
+            <h2 className="text-xl font-bold">Planos</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Os valores abaixo são <span className="font-medium">adicionais</span> ao plano base.
+              Comece no Starter e evolua conforme sua carreira cresce.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10 items-stretch">
-            {upgrades.map((u) => {
-              const Icon = u.icon;
-              const total = basePlan.priceNumber + u.priceNumber;
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10 items-stretch">
+            {plans.map((p) => {
+              const Icon = p.icon;
 
               return (
                 <Card
-                  key={u.id}
-                  className={cn("transition-all duration-300 hover:shadow-lg border h-full", u.borderColor)}
+                  key={p.id}
+                  className={cn(
+                    "border h-full transition-all duration-300",
+                    p.highlight ? "border-blue-400 shadow-lg" : "hover:shadow-lg",
+                  )}
                 >
                   <CardContent className="p-5 h-full flex flex-col">
-                    {/* TOPO */}
-                    <div className="flex items-start gap-4">
-                      <div
-                        className={cn(
-                          "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br text-white",
-                          u.color,
-                        )}
-                      >
-                        <Icon className="w-5 h-5" />
+                    {/* Topo */}
+                    <div className={cn("rounded-xl p-4 border bg-gradient-to-b", p.headerGradient)}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={cn(
+                              "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br text-white",
+                              p.iconGradient,
+                            )}
+                          >
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold leading-tight">{p.name}</h3>
+                            <p className="text-xs text-muted-foreground">{p.subtitle}</p>
+                          </div>
+                        </div>
+
+                        {p.badgeText ? (
+                          <Badge className="text-xs font-bold bg-blue-600 text-white">{p.badgeText}</Badge>
+                        ) : null}
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <h4 className="font-bold text-sm">{u.name}</h4>
-                          <span className="font-bold text-foreground whitespace-nowrap">
-                            {u.priceLabel}
-                            <span className="text-xs font-normal text-muted-foreground">{u.period}</span>
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">{u.subtitle}</p>
+                      <div className="mt-4">
+                        <span className="text-3xl font-bold">{p.price}</span>
+                        <span className="text-sm text-muted-foreground">{p.period}</span>
                       </div>
                     </div>
 
-                    {/* LISTA */}
-                    <ul className="space-y-1.5 mt-4">
-                      {u.features.map((f, i) => (
-                        <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Lock className="w-3.5 h-3.5 text-primary shrink-0" />
-                          {f}
+                    {/* Features */}
+                    <ul className="space-y-2 mt-4">
+                      {p.features.map((f, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                          <span className="text-sm">{f}</span>
                         </li>
                       ))}
                     </ul>
 
-                    {/* RODAPÉ */}
+                    {/* Rodapé alinhado */}
                     <div className="mt-auto pt-4">
-                      <div className="text-xs text-muted-foreground mb-3">
-                        Total com este upgrade:{" "}
-                        <span className="font-semibold text-foreground">{formatBRL(total)}</span>
-                        <span className="text-muted-foreground">/mês</span>
-                      </div>
-
                       <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => window.open(INFINITEPAY_URL, "_blank")}
+                        size="lg"
+                        className={cn(
+                          "w-full shadow-sm",
+                          p.highlight
+                            ? "bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white"
+                            : "bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 text-white",
+                        )}
+                        onClick={() => window.open(p.url, "_blank")}
                       >
-                        Ativar upgrade
+                        {p.buttonText}
                       </Button>
 
-                      <p className="text-[11px] text-muted-foreground mt-2">
-                        Valor adicional ao plano base. Cobrança pré-paga.
+                      <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                        Cobrança mensal pré-paga. Cancele quando quiser.
                       </p>
                     </div>
                   </CardContent>
