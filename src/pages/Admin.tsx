@@ -42,6 +42,7 @@ import { AnalysesAdminPanel } from "@/components/admin/AnalysesAdminPanel";
 import { Progress } from "@/components/ui/progress";
 
 import type { Json } from "@/integrations/supabase/types";
+import { PLAN_MODULES } from "@/hooks/useFeatureBlocks";
 
 interface UserProfile {
   id: string;
@@ -1064,11 +1065,83 @@ export default function Admin() {
                       </div>
                     </div>
 
+                    {/* Module Management */}
+                    <div className="mb-6">
+                      <Label className="mb-2 block text-base font-semibold">Módulos do Plano</Label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Ative um módulo para desbloquear todas as páginas incluídas nele.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {Object.entries(PLAN_MODULES).map(([moduleId, mod]) => {
+                          const blocks = parseFeatureBlocks(userProfile.feature_blocks);
+                          const allUnlocked = mod.features.every(f => blocks[f] === false);
+                          return (
+                            <div
+                              key={moduleId}
+                              className={`p-4 border rounded-xl transition-colors ${
+                                allUnlocked
+                                  ? "bg-green-50 border-green-300"
+                                  : "bg-red-50 border-red-200"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <div>
+                                  <p className="font-bold text-sm">{mod.name}</p>
+                                  <p className="text-xs text-muted-foreground">{mod.price}</p>
+                                </div>
+                                <Switch
+                                  checked={allUnlocked}
+                                  onCheckedChange={async (checked) => {
+                                    const currentBlocks = parseFeatureBlocks(userProfile.feature_blocks);
+                                    const newBlocks = { ...currentBlocks };
+                                    mod.features.forEach(f => {
+                                      newBlocks[f] = !checked;
+                                    });
+                                    const { error } = await supabase
+                                      .from("profiles")
+                                      .update({ feature_blocks: newBlocks })
+                                      .eq("user_id", userProfile.user_id);
+                                    if (error) {
+                                      toast.error("Erro ao atualizar módulo");
+                                    } else {
+                                      setUsers(prev => prev.map(u =>
+                                        u.user_id === userProfile.user_id
+                                          ? { ...u, feature_blocks: newBlocks }
+                                          : u
+                                      ));
+                                      toast.success(checked
+                                        ? `${mod.name} desbloqueado!`
+                                        : `${mod.name} bloqueado!`
+                                      );
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <div className="flex flex-wrap gap-1">
+                                {mod.features.map(f => (
+                                  <span
+                                    key={f}
+                                    className={`text-xs px-2 py-0.5 rounded-full ${
+                                      blocks[f] === false
+                                        ? "bg-green-200 text-green-800"
+                                        : "bg-red-200 text-red-800"
+                                    }`}
+                                  >
+                                    {FEATURES.find(fe => fe.key === f)?.label || f}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     {/* Feature Blocks */}
                     <div>
-                      <Label className="mb-2 block">Bloqueios de Páginas</Label>
+                      <Label className="mb-2 block">Bloqueios de Páginas (Individual)</Label>
                       <p className="text-xs text-muted-foreground mb-3">
-                        Ative para bloquear o acesso à página para este usuário.
+                        Controle granular — ative para bloquear o acesso à página.
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {FEATURES.map(feature => (
