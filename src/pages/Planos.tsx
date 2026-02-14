@@ -17,15 +17,10 @@ import {
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-/**
- * Troque por URLs diferentes quando você tiver o checkout separado por plano.
- * Por enquanto, deixei os 3 iguais pro código funcionar já.
- */
-const INFINITEPAY_URL = "https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro";
-
-const STARTER_URL = INFINITEPAY_URL;
-const PRO_URL = INFINITEPAY_URL;
-const FULL_URL = INFINITEPAY_URL;
+// Links corretos (Infinity)
+const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
+const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
+const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
 
 const testimonials = [
   {
@@ -55,7 +50,7 @@ const plans = [
   {
     id: "starter",
     name: "Starter",
-    subtitle: "Para começar e parar de se perder",
+    subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
     price: "R$ 19,90",
     period: "/mês",
     buttonText: "Começar no Starter",
@@ -66,19 +61,12 @@ const plans = [
     ring: "ring-1 ring-border",
     accent: "from-primary to-blue-600",
     softBg: "from-primary/10 to-transparent",
-    features: [
-      "Dashboard completo",
-      "Agenda de Shows",
-      "Gestão de Clientes",
-      "Financeiro básico (Resumo Geral)",
-      "Repertório",
-      "Tutoriais e Configurações",
-    ],
+    features: ["Dashboard", "Agenda", "Clientes", "Financeiro", "Repertório", "Tutoriais", "Configurações"],
   },
   {
     id: "pro",
     name: "Profissional",
-    subtitle: "O plano ideal para quem quer vender mais shows",
+    subtitle: "Organize sua área comercial e feche mais shows com processos profissionais.",
     price: "R$ 34,90",
     period: "/mês",
     buttonText: "Escolher Profissional",
@@ -89,21 +77,12 @@ const plans = [
     ring: "ring-2 ring-blue-500/60",
     accent: "from-blue-600 to-cyan-500",
     softBg: "from-blue-500/15 to-transparent",
-    features: [
-      "Tudo do Starter",
-      "Funil de Vendas (CRM)",
-      "Orçamento Automático",
-      "Contrato Automático",
-      "Histórico Mensal Financeiro",
-      "Checklist de Show",
-      "Mapeamento de Palco",
-      "Precificação",
-    ],
+    features: ["Funil de Vendas", "Orçamentos", "Aulas", "Checklist", "Avanços", "Precificação"],
   },
   {
     id: "full",
     name: "Completo",
-    subtitle: "Controle total da carreira, como uma empresa",
+    subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
     price: "R$ 49,99",
     period: "/mês",
     buttonText: "Escolher Completo",
@@ -114,13 +93,7 @@ const plans = [
     ring: "ring-1 ring-border",
     accent: "from-amber-500 to-orange-500",
     softBg: "from-amber-500/15 to-transparent",
-    features: [
-      "Tudo do Profissional",
-      "Metas Comerciais",
-      "Meta Anual",
-      "Avanços & Performance",
-      "Gestão de Equipe & Freelancers",
-    ],
+    features: ["Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
   },
 ] as const;
 
@@ -330,6 +303,10 @@ export default function Planos() {
                       {p.highlight ? (
                         <p className="text-[11px] text-muted-foreground mt-2 text-center">
                           Recomendado para quem quer fechar mais shows.
+                        </p>
+                      ) : p.id === "full" ? (
+                        <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                          Para quem quer controle total da carreira.
                         </p>
                       ) : (
                         <p className="text-[11px] text-muted-foreground mt-2 text-center">
