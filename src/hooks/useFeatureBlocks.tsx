@@ -60,12 +60,12 @@ export const PLAN_MODULES = {
   },
   profissional: {
     name: "Profissional",
-    features: ["crm", "orcamentos", "contratos", "historico", "checklist", "mapeamento-palco", "precificacao"],
+    features: ["crm", "orcamentos", "aulas", "checklist", "avancos", "precificacao"],
     price: "R$ 34,90/mês",
   },
   completo: {
     name: "Completo",
-    features: ["metas", "aulas", "avancos", "equipe"],
+    features: ["contratos", "historico", "mapeamento-palco", "metas", "equipe"],
     price: "R$ 49,99/mês",
   },
 };

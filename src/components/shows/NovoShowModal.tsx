@@ -45,16 +45,20 @@ import {
   Building2,
   Calculator,
   AlertCircle,
+  Lock,
+  Crown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
 import { useClients, Client } from "@/hooks/useClients";
 import { useChecklistTemplates } from "@/hooks/useChecklistTemplates";
+import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { supabase } from "@/integrations/supabase/client";
 import TransportCalculatorModal from "@/components/calculadora/TransportCalculatorModal";
 import { useFormPersistence, clearAllShowFormData, hasPersistedShowData } from "@/hooks/useFormPersistence";
 import { RecurringEventSection, RecurringConfig, generateRecurringDates } from "./RecurringEventSection";
+import { useNavigate } from "react-router-dom";
 
 interface EditingShow {
   id: string;
@@ -173,8 +177,11 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
   const { musicians, loading: musiciansLoading } = useMusicians();
   const { clients, loading: clientsLoading, addClient } = useClients();
   const { templates: checklistTemplates, loading: templatesLoading } = useChecklistTemplates();
+  const { isBlocked } = useFeatureBlocks();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("info");
   const [showTeamSelector, setShowTeamSelector] = useState(false);
+  const [showPlanLockDialog, setShowPlanLockDialog] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [clientMode, setClientMode] = useState<"existing" | "new">("existing");
   const [showTransportCalculator, setShowTransportCalculator] = useState(false);
@@ -796,35 +803,54 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
               </div>
 
               {/* Checklist Template Selector */}
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="checklist">Modelo de Checklist</Label>
-                <Select
-                  value={selectedChecklistTemplateId}
-                  onValueChange={(v) => setSelectedChecklistTemplateId(v === "none" ? "" : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={templatesLoading ? "Carregando..." : checklistTemplates.length === 0 ? "Nenhum modelo criado" : "Selecione um modelo (opcional)"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">
-                      <span className="text-muted-foreground">Sem checklist</span>
-                    </SelectItem>
-                    {checklistTemplates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        <div className="flex items-center gap-2">
-                          <span>{template.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            ({template.tasks.length} tarefas)
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {checklistTemplates.length === 0 && !templatesLoading && (
-                  <p className="text-xs text-muted-foreground">
-                    Crie modelos de checklist na página de Checklist de Show
-                  </p>
+                {isBlocked("checklist") ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toast.error("Recurso exclusivo do Plano Profissional", {
+                        description: "Assine o plano Profissional para usar modelos de checklist.",
+                        action: { label: "Ver Planos", onClick: () => navigate("/planos") },
+                      });
+                    }}
+                    className="flex items-center gap-2 w-full px-3 py-2 rounded-md border border-border bg-muted/50 text-muted-foreground text-sm cursor-pointer hover:bg-muted transition-colors"
+                  >
+                    <Lock className="w-4 h-4" />
+                    <span>Selecione um modelo (Plano Profissional)</span>
+                    <Crown className="w-4 h-4 ml-auto text-warning" />
+                  </button>
+                ) : (
+                  <>
+                    <Select
+                      value={selectedChecklistTemplateId}
+                      onValueChange={(v) => setSelectedChecklistTemplateId(v === "none" ? "" : v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={templatesLoading ? "Carregando..." : checklistTemplates.length === 0 ? "Nenhum modelo criado" : "Selecione um modelo (opcional)"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">
+                          <span className="text-muted-foreground">Sem checklist</span>
+                        </SelectItem>
+                        {checklistTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex items-center gap-2">
+                              <span>{template.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({template.tasks.length} tarefas)
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {checklistTemplates.length === 0 && !templatesLoading && (
+                      <p className="text-xs text-muted-foreground">
+                        Crie modelos de checklist na página de Checklist de Show
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -842,11 +868,28 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
 
             {/* Recurring Events Section - Only for new shows */}
             {!editingShow && (
-              <RecurringEventSection
-                config={recurringConfig}
-                onChange={setRecurringConfig}
-                baseDate={formData.date}
-              />
+              isBlocked("checklist") ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    toast.error("Recurso exclusivo do Plano Profissional", {
+                      description: "Assine o plano Profissional para criar eventos recorrentes.",
+                      action: { label: "Ver Planos", onClick: () => navigate("/planos") },
+                    });
+                  }}
+                  className="flex items-center gap-3 w-full p-4 rounded-xl border border-border bg-muted/50 text-muted-foreground cursor-pointer hover:bg-muted transition-colors"
+                >
+                  <Lock className="w-5 h-5" />
+                  <span className="text-sm font-medium">Evento Recorrente (Plano Profissional)</span>
+                  <Crown className="w-5 h-5 ml-auto text-warning" />
+                </button>
+              ) : (
+                <RecurringEventSection
+                  config={recurringConfig}
+                  onChange={setRecurringConfig}
+                  baseDate={formData.date}
+                />
+              )
             )}
 
             <div className="flex justify-end">
@@ -884,91 +927,108 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
             </div>
 
             {/* Select Team Members - Collapsible */}
-            <Collapsible open={showTeamSelector} onOpenChange={setShowTeamSelector}>
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                <CollapsibleTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-between p-0 h-auto hover:bg-transparent"
-                  >
-                    <h4 className="font-semibold text-foreground flex items-center gap-2">
-                      <Users className="w-5 h-5 text-primary" />
-                      Selecionar Minha Equipe
-                      {selectedMusicians.length > 0 && (
-                        <span className="text-sm font-normal text-muted-foreground">
-                          ({selectedMusicians.length} selecionado{selectedMusicians.length > 1 ? "s" : ""})
-                        </span>
+            {isBlocked("checklist") ? (
+              <button
+                type="button"
+                onClick={() => {
+                  toast.error("Recurso exclusivo do Plano Profissional", {
+                    description: "Assine o plano Profissional para selecionar sua equipe nos shows.",
+                    action: { label: "Ver Planos", onClick: () => navigate("/planos") },
+                  });
+                }}
+                className="flex items-center gap-3 w-full p-4 rounded-xl border border-border bg-muted/50 text-muted-foreground cursor-pointer hover:bg-muted transition-colors"
+              >
+                <Lock className="w-5 h-5" />
+                <span className="text-sm font-medium">Selecionar Minha Equipe (Plano Profissional)</span>
+                <Crown className="w-5 h-5 ml-auto text-warning" />
+              </button>
+            ) : (
+              <Collapsible open={showTeamSelector} onOpenChange={setShowTeamSelector}>
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <CollapsibleTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-between p-0 h-auto hover:bg-transparent"
+                    >
+                      <h4 className="font-semibold text-foreground flex items-center gap-2">
+                        <Users className="w-5 h-5 text-primary" />
+                        Selecionar Minha Equipe
+                        {selectedMusicians.length > 0 && (
+                          <span className="text-sm font-normal text-muted-foreground">
+                            ({selectedMusicians.length} selecionado{selectedMusicians.length > 1 ? "s" : ""})
+                          </span>
+                        )}
+                      </h4>
+                      {showTeamSelector ? (
+                        <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-muted-foreground" />
                       )}
-                    </h4>
-                    {showTeamSelector ? (
-                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                    </Button>
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent className="mt-4">
+                    {musiciansLoading ? (
+                      <p className="text-sm text-muted-foreground">Carregando equipe...</p>
+                    ) : musicians.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        Nenhum músico cadastrado. Cadastre sua equipe em Logística → Equipe & Freelancer.
+                      </p>
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent className="mt-4">
-                  {musiciansLoading ? (
-                    <p className="text-sm text-muted-foreground">Carregando equipe...</p>
-                  ) : musicians.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      Nenhum músico cadastrado. Cadastre sua equipe em Logística → Equipe & Freelancer.
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {musicians.map((musician) => {
-                        const selected = selectedMusicians.find((m) => m.musicianId === musician.id);
-                        return (
-                          <div
-                            key={musician.id}
-                            className={cn(
-                              "flex items-center justify-between p-3 rounded-lg transition-colors",
-                              selected ? "bg-primary/10" : "bg-secondary/50"
-                            )}
-                          >
-                            <div className="flex items-center gap-3">
-                              <Checkbox
-                                checked={!!selected}
-                                onCheckedChange={(checked) =>
-                                  handleToggleMusician(musician, checked as boolean)
-                                }
-                              />
-                              <div>
-                                <p className="text-sm font-medium text-foreground">{musician.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {musician.instrument || "Músico"} • Cachê padrão: R${formatCurrency(musician.rate || 0)}
-                                </p>
-                              </div>
-                            </div>
-                            {selected && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">R$</span>
-                                <Input
-                                  type="number"
-                                  className="w-24 h-8 text-right"
-                                  value={selected.fee || ""}
-                                  onChange={(e) =>
-                                    handleUpdateMusicianFee(musician.id, Number(e.target.value))
+                      <div className="space-y-3">
+                        {musicians.map((musician) => {
+                          const selected = selectedMusicians.find((m) => m.musicianId === musician.id);
+                          return (
+                            <div
+                              key={musician.id}
+                              className={cn(
+                                "flex items-center justify-between p-3 rounded-lg transition-colors",
+                                selected ? "bg-primary/10" : "bg-secondary/50"
+                              )}
+                            >
+                              <div className="flex items-center gap-3">
+                                <Checkbox
+                                  checked={!!selected}
+                                  onCheckedChange={(checked) =>
+                                    handleToggleMusician(musician, checked as boolean)
                                   }
                                 />
+                                <div>
+                                  <p className="text-sm font-medium text-foreground">{musician.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {musician.instrument || "Músico"} • Cachê padrão: R${formatCurrency(musician.rate || 0)}
+                                  </p>
+                                </div>
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                              {selected && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-muted-foreground">R$</span>
+                                  <Input
+                                    type="number"
+                                    className="w-24 h-8 text-right"
+                                    value={selected.fee || ""}
+                                    onChange={(e) =>
+                                      handleUpdateMusicianFee(musician.id, Number(e.target.value))
+                                    }
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </CollapsibleContent>
+                  
+                  {selectedMusicians.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-border flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Total Equipe</span>
+                      <span className="font-bold text-destructive">- R${formatCurrency(musiciansCost)}</span>
                     </div>
                   )}
-                </CollapsibleContent>
-                
-                {selectedMusicians.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-border flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Equipe</span>
-                    <span className="font-bold text-destructive">- R${formatCurrency(musiciansCost)}</span>
-                  </div>
-                )}
-              </div>
-            </Collapsible>
+                </div>
+              </Collapsible>
+            )}
 
             {/* Transport Calculator Button */}
             <div className="flex justify-end">
