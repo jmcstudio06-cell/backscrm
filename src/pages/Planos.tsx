@@ -51,7 +51,7 @@ const plans = [
   {
     id: "starter",
     name: "Starter",
-    subtitle: "Para começar e parar de se perder",
+    subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
     price: "R$ 19,90",
     period: "/mês",
     buttonText: "Começar no Starter",
@@ -59,12 +59,13 @@ const plans = [
     highlight: false,
     badgeText: "",
     icon: Sparkles,
+    socialProof: "19 Artistas estão nesse plano!",
     features: ["Dashboard", "Agenda", "Clientes", "Financeiro", "Repertório", "Tutoriais", "Configurações"],
   },
   {
     id: "pro",
     name: "Profissional",
-    subtitle: "O plano ideal para quem quer vender mais shows",
+    subtitle: "Organize sua área comercial e feche mais shows com processos profissionais.",
     price: "R$ 34,90",
     period: "/mês",
     buttonText: "Escolher Profissional",
@@ -72,12 +73,13 @@ const plans = [
     highlight: true,
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
+    socialProof: "47 artistas estão nesse plano!",
     features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Aulas", "Checklist", "Avanços", "Precificação"],
   },
   {
     id: "full",
     name: "Completo",
-    subtitle: "Controle total da carreira, como uma empresa",
+    subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
     price: "R$ 49,99",
     period: "/mês",
     buttonText: "Escolher Completo",
@@ -85,6 +87,7 @@ const plans = [
     highlight: false,
     badgeText: "TUDO LIBERADO",
     icon: Crown,
+    socialProof: "21 artistas estão nesse plano!",
     features: ["Tudo do Profissional+", "Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
   },
 ] as const;
@@ -259,6 +262,8 @@ export default function Planos() {
                           <ArrowRight className="w-4 h-4" />
                         </span>
                       </Button>
+
+                      <p className="text-xs text-center text-muted-foreground mt-3">{p.socialProof}</p>
                     </div>
                   </CardContent>
                 </Card>
