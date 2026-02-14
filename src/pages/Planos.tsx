@@ -17,7 +17,6 @@ import {
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-/* LINKS ATUALIZADOS */
 const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
 
 const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
@@ -48,7 +47,6 @@ const reassurances = [
   { icon: HeadphonesIcon, text: "Suporte humano real" },
 ];
 
-/* BENEFÍCIOS AJUSTADOS */
 const plans = [
   {
     id: "starter",
@@ -74,7 +72,7 @@ const plans = [
     highlight: true,
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
-    features: ["Funil de Vendas", "Orçamentos", "BÔNUS", "Checklist", "Avanços", "Precificação"],
+    features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Aulas", "Checklist", "Avanços", "Precificação"],
   },
   {
     id: "full",
@@ -87,7 +85,7 @@ const plans = [
     highlight: false,
     badgeText: "TUDO LIBERADO",
     icon: Crown,
-    features: ["Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
+    features: ["Tudo do Profissional+", "Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
   },
 ] as const;
 
