@@ -89,6 +89,7 @@ const FEATURES = [
   { key: "metas", label: "Metas" },
   { key: "repertorio", label: "Repertório" },
   { key: "aulas", label: "Aulas" },
+  { key: "avancos", label: "Avanços" },
   { key: "tutoriais", label: "Tutoriais" },
   { key: "configuracoes", label: "Configurações" },
 ];
