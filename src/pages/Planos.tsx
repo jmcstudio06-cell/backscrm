@@ -19,19 +19,19 @@ import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
 /* ============================= */
-/* USUÁRIOS / PROVA SOCIAL */
+/* CONFIG USUÁRIOS               */
 /* ============================= */
 
 const TOTAL_USERS = 77;
 
-const PLAN_USAGE: Record<string, number> = {
+const PLAN_USAGE = {
   starter: 18,
   pro: 34,
   full: 25,
 };
 
 /* ============================= */
-/* CHECKOUT */
+/* CHECKOUT LINKS                 */
 /* ============================= */
 
 const INFINITEPAY_URL = "https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro";
@@ -41,7 +41,7 @@ const PRO_URL = INFINITEPAY_URL;
 const FULL_URL = INFINITEPAY_URL;
 
 /* ============================= */
-/* RESTANTE DO SEU CÓDIGO */
+/* DEPOIMENTOS                   */
 /* ============================= */
 
 const testimonials = [
@@ -62,11 +62,19 @@ const testimonials = [
   },
 ];
 
+/* ============================= */
+/* GARANTIAS                     */
+/* ============================= */
+
 const reassurances = [
   { icon: Shield, text: "Pagamento 100% seguro" },
   { icon: XCircle, text: "Cancele quando quiser" },
   { icon: HeadphonesIcon, text: "Suporte humano real" },
 ];
+
+/* ============================= */
+/* PLANOS                        */
+/* ============================= */
 
 const plans = [
   {
@@ -142,7 +150,7 @@ const plans = [
 ] as const;
 
 /* ============================= */
-/* COMPONENTES ORIGINAIS */
+/* COMPONENTES                   */
 /* ============================= */
 
 function UrgencyBanner() {
@@ -163,8 +171,50 @@ function UrgencyBanner() {
   );
 }
 
+function TestimonialsSection() {
+  return (
+    <div className="max-w-6xl mx-auto mt-10">
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold">Quem usa, sente a diferença</h3>
+        <p className="text-sm text-muted-foreground mt-1">Feedback real de artistas e produtores</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {testimonials.map((t) => (
+          <div key={t.name} className="bg-muted/40 rounded-2xl p-5 border border-border shadow-sm">
+            <Quote className="w-5 h-5 text-primary/60 mb-2" />
+            <p className="text-sm italic mb-4">"{t.text}"</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold">{t.name}</p>
+                <p className="text-xs text-muted-foreground">{t.role}</p>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-blue-600/10 border border-border" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReassurancesBar() {
+  return (
+    <div className="max-w-6xl mx-auto mt-10 mb-4">
+      <div className="flex flex-wrap justify-center gap-6 rounded-2xl border border-border bg-muted/30 p-4">
+        {reassurances.map((item) => (
+          <div key={item.text} className="flex items-center gap-2">
+            <item.icon className="w-4 h-4" />
+            <span className="text-sm">{item.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ============================= */
-/* PÁGINA */
+/* PAGE                          */
 /* ============================= */
 
 export default function Planos() {
@@ -185,10 +235,9 @@ export default function Planos() {
             Menos improviso. Mais controle. Escolha um plano e comece hoje.
           </p>
 
-          {/* CONTADOR TOTAL */}
-          <div className="flex items-center justify-center gap-2 mt-4 text-sm text-primary font-medium">
+          <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
             <Users className="w-4 h-4" />
-            {TOTAL_USERS} artistas já utilizam a plataforma
+            <span>{TOTAL_USERS} artistas já utilizam a plataforma</span>
           </div>
         </div>
 
@@ -199,9 +248,9 @@ export default function Planos() {
               const usage = PLAN_USAGE[p.id];
 
               return (
-                <Card key={p.id} className="relative h-full rounded-2xl border bg-background shadow-sm">
+                <Card key={p.id} className={cn("relative h-full rounded-2xl border bg-background shadow-sm")}>
                   <CardContent className="p-6 flex flex-col h-full">
-                    <h3 className="text-xl font-bold">{p.name}</h3>
+                    <h3 className="text-xl font-bold mb-1">{p.name}</h3>
                     <p className="text-sm text-muted-foreground mb-3">{p.subtitle}</p>
 
                     <div className="text-4xl font-bold">
@@ -209,8 +258,8 @@ export default function Planos() {
                       <span className="text-sm text-muted-foreground ml-1">{p.period}</span>
                     </div>
 
-                    {/* PROVA SOCIAL POR PLANO */}
-                    <div className="flex items-center gap-2 mt-3 text-sm text-primary">
+                    {/* PROVA SOCIAL */}
+                    <div className="flex items-center gap-2 mt-3 text-sm text-primary font-medium">
                       <Users className="w-4 h-4" />
                       {usage} artistas usam este plano
                     </div>
@@ -236,6 +285,9 @@ export default function Planos() {
             })}
           </div>
         </div>
+
+        <TestimonialsSection />
+        <ReassurancesBar />
       </div>
     </Layout>
   );
