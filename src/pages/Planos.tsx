@@ -53,6 +53,7 @@ const plans = [
     name: "Starter",
     subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
     price: "R$ 19,90",
+    oldPrice: "R$ 24,90",
     period: "/mês",
     buttonText: "Começar no Starter",
     url: STARTER_URL,
@@ -218,6 +219,9 @@ export default function Planos() {
                     </div>
 
                     <div className="mb-6">
+                      {p.id === "starter" && (
+                        <p className="text-sm text-muted-foreground line-through mb-1">R$ 24,90</p>
+                      )}
                       <div className="flex items-end gap-2">
                         <span className="text-4xl font-bold">{p.price}</span>
                         <span className="text-sm text-muted-foreground mb-1">{p.period}</span>
