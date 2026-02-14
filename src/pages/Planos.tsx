@@ -75,7 +75,7 @@ const plans = [
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
-    features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Aulas", "Checklist", "Avanços", "Precificação"],
+    features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Bonûs", "Checklist", "Avanços", "Precificação"],
   },
   {
     id: "full",
@@ -103,7 +103,7 @@ function UrgencyBanner() {
           </div>
           <div className="text-center">
             <p className="text-white font-bold text-lg">Oferta por tempo limitado</p>
-            <p className="text-white/90 text-sm">Os valores podem voltar ao normal sem aviso prévio.</p>
+            <p className="text-white/90 text-sm font-medium">Os valores podem voltar ao normal sem aviso prévio.</p>
           </div>
         </div>
       </div>
@@ -116,17 +116,17 @@ function TestimonialsSection() {
     <div className="max-w-6xl mx-auto mt-14">
       <div className="text-center mb-8">
         <h3 className="text-xl font-bold">Quem usa, sente a diferença</h3>
-        <p className="text-sm text-muted-foreground mt-1">Feedback real de artistas e produtores</p>
+        <p className="text-sm text-muted-foreground mt-1 font-medium">Feedback real de artistas e produtores</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {testimonials.map((t) => (
           <div key={t.name} className="bg-muted/40 rounded-2xl p-6 border border-border shadow-sm">
             <Quote className="w-5 h-5 text-primary/60 mb-3" />
-            <p className="text-sm italic mb-4">"{t.text}"</p>
+            <p className="text-sm italic mb-4 font-medium">"{t.text}"</p>
             <div>
               <p className="text-sm font-semibold">{t.name}</p>
-              <p className="text-xs text-muted-foreground">{t.role}</p>
+              <p className="text-xs text-muted-foreground font-medium">{t.role}</p>
             </div>
           </div>
         ))}
@@ -140,7 +140,7 @@ function ReassurancesBar() {
     <div className="max-w-6xl mx-auto mt-14 mb-6">
       <div className="flex flex-wrap justify-center gap-6 rounded-2xl border border-border bg-muted/30 p-4">
         {reassurances.map((item) => (
-          <div key={item.text} className="flex items-center gap-2">
+          <div key={item.text} className="flex items-center gap-2 font-medium">
             <item.icon className="w-4 h-4" />
             <span className="text-sm">{item.text}</span>
           </div>
@@ -156,12 +156,12 @@ function InfoStrip() {
       <div className="rounded-2xl border border-border bg-gradient-to-r from-muted/40 to-muted/10 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <p className="font-semibold">Comece no Starter e evolua quando quiser.</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-medium">
             A troca de plano é simples. Você pode subir de nível conforme sua carreira cresce.
           </p>
         </div>
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Dica:</span> O Profissional é o mais escolhido.
+        <div className="text-sm text-muted-foreground font-medium">
+          <span className="font-semibold text-foreground">Dica:</span> O Profissional é o mais escolhido.
         </div>
       </div>
     </div>
@@ -181,7 +181,7 @@ export default function Planos() {
 
           <h1 className="text-3xl md:text-4xl font-bold mb-4">Organize sua carreira como uma empresa</h1>
 
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-lg font-medium">
             Menos improviso. Mais controle. Escolha um plano e comece hoje.
           </p>
         </div>
@@ -203,7 +203,9 @@ export default function Planos() {
                 >
                   {p.badgeText && (
                     <div className="absolute top-5 right-5">
-                      <Badge className="bg-blue-600 text-white rounded-full px-3 py-1 text-xs">{p.badgeText}</Badge>
+                      <Badge className="bg-blue-600 text-white rounded-full px-3 py-1 text-xs font-semibold">
+                        {p.badgeText}
+                      </Badge>
                     </div>
                   )}
 
@@ -214,19 +216,19 @@ export default function Planos() {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold">{p.name}</h3>
-                        <p className="text-sm text-muted-foreground">{p.subtitle}</p>
+                        <p className="text-sm text-muted-foreground font-medium">{p.subtitle}</p>
                       </div>
                     </div>
 
                     <div className="mb-6">
                       {p.id === "starter" && (
-                        <p className="text-sm text-muted-foreground line-through mb-1">R$ 24,90</p>
+                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
                       )}
                       <div className="flex items-end gap-2">
                         <span className="text-4xl font-bold">{p.price}</span>
-                        <span className="text-sm text-muted-foreground mb-1">{p.period}</span>
+                        <span className="text-sm text-muted-foreground mb-1 font-medium">{p.period}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-1 font-medium">
                         Cobrança mensal pré-paga. Cancele quando quiser.
                       </p>
                     </div>
@@ -239,7 +241,7 @@ export default function Planos() {
 
                         <ul className="space-y-3">
                           {p.features.map((f, i) => (
-                            <li key={i} className="flex items-start gap-3 text-sm">
+                            <li key={i} className="flex items-start gap-3 text-sm font-medium">
                               <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
                                 <Check className="w-3 h-3 text-white" />
                               </div>
@@ -267,7 +269,7 @@ export default function Planos() {
                         </span>
                       </Button>
 
-                      <p className="text-xs text-center text-muted-foreground mt-3">{p.socialProof}</p>
+                      <p className="text-xs text-center text-muted-foreground mt-3 font-medium">{p.socialProof}</p>
                     </div>
                   </CardContent>
                 </Card>
