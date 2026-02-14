@@ -53,25 +53,20 @@ export const BASE_PLAN_FEATURE_BLOCKS: FeatureBlocks = {
 
 // Módulos e quais features eles desbloqueiam
 export const PLAN_MODULES = {
-  comercial: {
-    name: "Área Comercial PRO",
-    features: ["crm", "orcamentos", "contratos", "historico"],
-    price: "R$ 9,90/mês",
+  starter: {
+    name: "Starter",
+    features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "tutoriais", "configuracoes"],
+    price: "R$ 19,90/mês",
   },
-  show: {
-    name: "Planejamento de Show PRO",
-    features: ["checklist", "mapeamento-palco", "precificacao"],
-    price: "R$ 7,90/mês",
+  profissional: {
+    name: "Profissional",
+    features: ["crm", "orcamentos", "contratos", "historico", "checklist", "mapeamento-palco", "precificacao"],
+    price: "R$ 34,90/mês",
   },
-  equipe: {
-    name: "Equipe & Freelancer",
-    features: ["equipe"],
-    price: "R$ 6,90/mês",
-  },
-  metas: {
-    name: "Metas & Performance",
-    features: ["metas", "aulas", "avancos"],
-    price: "R$ 6,90/mês",
+  completo: {
+    name: "Completo",
+    features: ["metas", "aulas", "avancos", "equipe"],
+    price: "R$ 49,99/mês",
   },
 };
 
