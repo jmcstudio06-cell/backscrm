@@ -17,11 +17,12 @@ import {
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-const INFINITEPAY_URL = "https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro";
+/* LINKS CORRETOS */
+const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
 
-const STARTER_URL = INFINITEPAY_URL;
-const PRO_URL = INFINITEPAY_URL;
-const FULL_URL = INFINITEPAY_URL;
+const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
+
+const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
 
 const testimonials = [
   {
@@ -59,14 +60,7 @@ const plans = [
     highlight: false,
     badgeText: "",
     icon: Sparkles,
-    features: [
-      "Dashboard completo",
-      "Agenda de Shows",
-      "Gestão de Clientes",
-      "Financeiro básico (Resumo Geral)",
-      "Repertório",
-      "Tutoriais e Configurações",
-    ],
+    features: ["Dashboard", "Agenda", "Clientes", "Financeiro", "Repertório", "Tutoriais", "Configurações"],
   },
   {
     id: "pro",
@@ -79,16 +73,7 @@ const plans = [
     highlight: true,
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
-    features: [
-      "Tudo do Starter",
-      "Funil de Vendas (CRM)",
-      "Orçamento Automático",
-      "Contrato Automático",
-      "Histórico Mensal Financeiro",
-      "Checklist de Show",
-      "Mapeamento de Palco",
-      "Precificação",
-    ],
+    features: ["Funil de Vendas", "Orçamentos", "BÔNUS", "Checklist", "Avanços", "Precificação"],
   },
   {
     id: "full",
@@ -101,13 +86,7 @@ const plans = [
     highlight: false,
     badgeText: "TUDO LIBERADO",
     icon: Crown,
-    features: [
-      "Tudo do Profissional",
-      "Metas Comerciais",
-      "Meta Anual",
-      "Avanços & Performance",
-      "Gestão de Equipe & Freelancers",
-    ],
+    features: ["Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
   },
 ] as const;
 
@@ -206,90 +185,62 @@ export default function Planos() {
 
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-            {plans.map((p) => {
-              return (
-                <Card
-                  key={p.id}
-                  className={cn(
-                    "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
-                    p.highlight
-                      ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-                      : p.id === "full"
-                        ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
-                        : "border-border bg-gradient-to-br from-white to-muted/20",
-                  )}
-                >
-                  {p.badgeText && (
-                    <div className="absolute top-5 right-5">
-                      <Badge className="bg-blue-600 text-white rounded-full px-3 py-1 text-xs">{p.badgeText}</Badge>
-                    </div>
-                  )}
+            {plans.map((p) => (
+              <Card
+                key={p.id}
+                className={cn(
+                  "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
+                  p.highlight
+                    ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+                    : p.id === "full"
+                      ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
+                      : "border-border bg-gradient-to-br from-white to-muted/20",
+                )}
+              >
+                {p.badgeText && (
+                  <div className="absolute top-5 right-5">
+                    <Badge className="bg-blue-600 text-white rounded-full px-3 py-1 text-xs">{p.badgeText}</Badge>
+                  </div>
+                )}
 
-                  <CardContent className="p-8 flex flex-col h-full">
-                    {/* HEADER */}
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                        <AppLogo size="sm" collapsed />
+                <CardContent className="p-8 flex flex-col h-full">
+                  <div className="flex items-center gap-4 mb-6">
+                    <AppLogo size="sm" collapsed />
+                    <div>
+                      <h3 className="text-xl font-bold">{p.name}</h3>
+                      <p className="text-sm text-muted-foreground">{p.subtitle}</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="flex items-end gap-2">
+                      <span className="text-4xl font-bold">{p.price}</span>
+                      <span className="text-sm text-muted-foreground mb-1">{p.period}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mb-8">
+                    {p.features.map((f, i) => (
+                      <div key={i} className="flex items-center gap-3 text-sm">
+                        <Check className="w-4 h-4 text-green-500" />
+                        {f}
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold">{p.name}</h3>
-                        <p className="text-sm text-muted-foreground">{p.subtitle}</p>
-                      </div>
-                    </div>
+                    ))}
+                  </div>
 
-                    {/* PRICE */}
-                    <div className="mb-6">
-                      <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold">{p.price}</span>
-                        <span className="text-sm text-muted-foreground mb-1">{p.period}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Cobrança mensal pré-paga. Cancele quando quiser.
-                      </p>
-                    </div>
-
-                    {/* FEATURES PREMIUM */}
-                    <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-white/20 to-white/40 mb-6">
-                      <div className="rounded-2xl bg-background/80 backdrop-blur-md border border-white/20 shadow-inner p-6 flex-1">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
-                          O que inclui
-                        </p>
-
-                        <ul className="space-y-3">
-                          {p.features.map((f, i) => (
-                            <li key={i} className="flex items-start gap-3 text-sm">
-                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                                <Check className="w-3 h-3 text-white" />
-                              </div>
-                              <span>{f}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    {/* CTA */}
-                    <div className="mt-auto">
-                      <Button
-                        size="lg"
-                        className={cn(
-                          "w-full rounded-2xl text-white font-semibold shadow-md",
-                          p.highlight
-                            ? "bg-gradient-to-r from-blue-600 to-cyan-500"
-                            : "bg-gradient-to-r from-primary to-blue-600",
-                        )}
-                        onClick={() => window.open(p.url, "_blank")}
-                      >
-                        <span className="flex items-center justify-center gap-2">
-                          {p.buttonText}
-                          <ArrowRight className="w-4 h-4" />
-                        </span>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  <Button
+                    size="lg"
+                    className="w-full rounded-2xl text-white font-semibold bg-gradient-to-r from-primary to-blue-600"
+                    onClick={() => window.open(p.url, "_blank")}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      {p.buttonText}
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 
