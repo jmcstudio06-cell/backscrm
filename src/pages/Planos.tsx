@@ -14,6 +14,7 @@ import {
   Crown,
   ArrowRight,
   Users,
+  Music2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
@@ -62,10 +63,6 @@ const testimonials = [
   },
 ];
 
-/* ============================= */
-/* GARANTIAS                     */
-/* ============================= */
-
 const reassurances = [
   { icon: Shield, text: "Pagamento 100% seguro" },
   { icon: XCircle, text: "Cancele quando quiser" },
@@ -85,12 +82,7 @@ const plans = [
     period: "/mês",
     buttonText: "Começar no Starter",
     url: STARTER_URL,
-    highlight: false,
-    badgeText: "",
-    icon: Sparkles,
-    ring: "ring-1 ring-border",
-    accent: "from-primary to-blue-600",
-    softBg: "from-primary/10 to-transparent",
+    color: "blue",
     features: [
       "Dashboard completo",
       "Agenda de Shows",
@@ -108,12 +100,7 @@ const plans = [
     period: "/mês",
     buttonText: "Escolher Profissional",
     url: PRO_URL,
-    highlight: true,
-    badgeText: "MAIS POPULAR",
-    icon: Briefcase,
-    ring: "ring-2 ring-blue-500/60",
-    accent: "from-blue-600 to-cyan-500",
-    softBg: "from-blue-500/15 to-transparent",
+    color: "indigo",
     features: [
       "Tudo do Starter",
       "Funil de Vendas (CRM)",
@@ -133,12 +120,7 @@ const plans = [
     period: "/mês",
     buttonText: "Escolher Completo",
     url: FULL_URL,
-    highlight: false,
-    badgeText: "TUDO LIBERADO",
-    icon: Crown,
-    ring: "ring-1 ring-border",
-    accent: "from-amber-500 to-orange-500",
-    softBg: "from-amber-500/15 to-transparent",
+    color: "gold",
     features: [
       "Tudo do Profissional",
       "Metas Comerciais",
@@ -155,12 +137,10 @@ const plans = [
 
 function UrgencyBanner() {
   return (
-    <div className="max-w-5xl mx-auto mb-8">
-      <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl border border-red-400/30">
+    <div className="max-w-5xl mx-auto mb-10">
+      <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl">
         <div className="flex items-center gap-3 justify-center">
-          <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
-            <AlertTriangle className="w-6 h-6 text-white" />
-          </div>
+          <AlertTriangle className="w-6 h-6 text-white" />
           <div className="text-center">
             <p className="text-white font-bold text-lg">Oferta por tempo limitado</p>
             <p className="text-white/90 text-sm">Os valores podem voltar ao normal sem aviso prévio.</p>
@@ -173,23 +153,28 @@ function UrgencyBanner() {
 
 function TestimonialsSection() {
   return (
-    <div className="max-w-6xl mx-auto mt-10">
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-bold">Quem usa, sente a diferença</h3>
-        <p className="text-sm text-muted-foreground mt-1">Feedback real de artistas e produtores</p>
+    <div className="max-w-6xl mx-auto mt-16">
+      <div className="text-center mb-10">
+        <h3 className="text-2xl font-bold">Quem usa, sente a diferença</h3>
+        <p className="text-muted-foreground">Feedback real de artistas e produtores</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {testimonials.map((t) => (
-          <div key={t.name} className="bg-muted/40 rounded-2xl p-5 border border-border shadow-sm">
-            <Quote className="w-5 h-5 text-primary/60 mb-2" />
-            <p className="text-sm italic mb-4">"{t.text}"</p>
+          <div key={t.name} className="rounded-2xl p-6 border bg-background shadow-md hover:shadow-xl transition">
+            <Quote className="w-6 h-6 text-primary mb-3" />
+
+            <p className="text-sm italic mb-6">"{t.text}"</p>
+
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold">{t.name}</p>
+                <p className="font-semibold">{t.name}</p>
                 <p className="text-xs text-muted-foreground">{t.role}</p>
               </div>
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-blue-600/10 border border-border" />
+
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                <Music2 className="w-5 h-5 text-primary" />
+              </div>
             </div>
           </div>
         ))}
@@ -200,8 +185,8 @@ function TestimonialsSection() {
 
 function ReassurancesBar() {
   return (
-    <div className="max-w-6xl mx-auto mt-10 mb-4">
-      <div className="flex flex-wrap justify-center gap-6 rounded-2xl border border-border bg-muted/30 p-4">
+    <div className="max-w-6xl mx-auto mt-16">
+      <div className="flex flex-wrap justify-center gap-6 rounded-2xl border bg-muted/30 p-5">
         {reassurances.map((item) => (
           <div key={item.text} className="flex items-center gap-2">
             <item.icon className="w-4 h-4" />
@@ -220,70 +205,72 @@ function ReassurancesBar() {
 export default function Planos() {
   return (
     <Layout title="" subtitle="">
-      <div className="pt-4">
+      <div className="pt-6">
         <UrgencyBanner />
 
         {/* HERO */}
-        <div className="text-center max-w-4xl mx-auto mb-10">
-          <div className="flex justify-center mb-4">
-            <AppLogo size="lg" collapsed />
-          </div>
+        <div className="text-center max-w-4xl mx-auto mb-16">
+          <AppLogo size="lg" collapsed />
+          <h1 className="text-4xl font-bold mt-6 mb-4">Organize sua carreira como uma empresa</h1>
+          <p className="text-muted-foreground">Menos improviso. Mais controle. Escolha um plano e comece hoje.</p>
 
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">Organize sua carreira como uma empresa</h1>
-
-          <p className="text-base md:text-lg text-muted-foreground">
-            Menos improviso. Mais controle. Escolha um plano e comece hoje.
-          </p>
-
-          <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
+          <div className="flex justify-center items-center gap-2 mt-4 text-sm text-muted-foreground">
             <Users className="w-4 h-4" />
-            <span>{TOTAL_USERS} artistas já utilizam a plataforma</span>
+            {TOTAL_USERS} artistas já utilizam a plataforma
           </div>
         </div>
 
         {/* PLANS */}
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-            {plans.map((p) => {
-              const usage = PLAN_USAGE[p.id];
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+          {plans.map((p) => {
+            const usage = PLAN_USAGE[p.id];
 
-              return (
-                <Card key={p.id} className={cn("relative h-full rounded-2xl border bg-background shadow-sm")}>
-                  <CardContent className="p-6 flex flex-col h-full">
-                    <h3 className="text-xl font-bold mb-1">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{p.subtitle}</p>
+            const isFull = p.id === "full";
 
-                    <div className="text-4xl font-bold">
-                      {p.price}
-                      <span className="text-sm text-muted-foreground ml-1">{p.period}</span>
-                    </div>
+            return (
+              <Card
+                key={p.id}
+                className={cn(
+                  "rounded-3xl border shadow-lg hover:shadow-2xl transition-all duration-300",
+                  isFull ? "border-amber-400 bg-gradient-to-b from-amber-50/60 to-background" : "bg-background",
+                )}
+              >
+                <CardContent className="p-8 flex flex-col h-full">
+                  <h3 className="text-2xl font-bold">{p.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{p.subtitle}</p>
 
-                    {/* PROVA SOCIAL */}
-                    <div className="flex items-center gap-2 mt-3 text-sm text-primary font-medium">
-                      <Users className="w-4 h-4" />
-                      {usage} artistas usam este plano
-                    </div>
+                  <div className="text-4xl font-bold mb-2">
+                    {p.price}
+                    <span className="text-sm text-muted-foreground ml-1">{p.period}</span>
+                  </div>
 
-                    <div className="mt-6 space-y-2">
-                      {p.features.map((f, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-green-500 mt-0.5" />
-                          <span className="text-sm">{f}</span>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-2 text-sm font-medium text-primary mb-6">
+                    <Users className="w-4 h-4" />
+                    {usage} artistas usam este plano
+                  </div>
 
-                    <div className="mt-auto pt-6">
-                      <Button className="w-full" onClick={() => window.open(p.url, "_blank")}>
-                        {p.buttonText}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  <div className="space-y-3 mb-8">
+                    {p.features.map((f, i) => (
+                      <div key={i} className="flex gap-2 items-start">
+                        <Check className="w-4 h-4 text-green-500 mt-1" />
+                        <span className="text-sm">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-auto">
+                    <Button
+                      className={cn("w-full rounded-xl", isFull ? "bg-amber-500 hover:bg-amber-600 text-white" : "")}
+                      onClick={() => window.open(p.url, "_blank")}
+                    >
+                      {p.buttonText}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <TestimonialsSection />
