@@ -1,274 +1,134 @@
-import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Check,
-  Shield,
-  HeadphonesIcon,
-  XCircle,
-  Quote,
-  AlertTriangle,
-  Sparkles,
-  Briefcase,
-  Crown,
-  ArrowRight,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { AppLogo } from "@/components/layout/AppLogo";
+import { Users, Check } from "lucide-react";
 
-const INFINITEPAY_URL = "https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro";
+const totalUsers = 77;
 
-const STARTER_URL = INFINITEPAY_URL;
-const PRO_URL = INFINITEPAY_URL;
-const FULL_URL = INFINITEPAY_URL;
-
-/* ===============================
-   SOCIAL PROOF
-================================= */
-
-const TOTAL_USERS = 77;
-
-const PLAN_USAGE: Record<string, number> = {
-  starter: 18,
-  pro: 42,
-  full: 17,
+const planUsage = {
+  essencial: 18,
+  profissional: 34,
+  avancado: 25,
 };
 
-/* =============================== */
-
-const testimonials = [
-  {
-    name: "Paula Seven",
-    role: "Cantora, São Paulo",
-    text: "Parei de perder orçamentos e fechei 3x mais shows no primeiro mês.",
-  },
-  {
-    name: "Japa Produções",
-    role: "Produtor Musical, Rio de Janeiro",
-    text: "Finalmente tenho controle real da minha carreira. É como ter um empresário digital.",
-  },
-  {
-    name: "Banda Trago",
-    role: "Banda de Rock, Belo Horizonte",
-    text: "A gente achava que era organizado. Depois do Backstage, vimos que não era.",
-  },
-];
-
-const reassurances = [
-  { icon: Shield, text: "Pagamento 100% seguro" },
-  { icon: XCircle, text: "Cancele quando quiser" },
-  { icon: HeadphonesIcon, text: "Suporte humano real" },
-];
-
-const plans = [
-  {
-    id: "starter",
-    name: "Starter",
-    subtitle: "Para começar e parar de se perder",
-    price: "R$ 19,90",
-    period: "/mês",
-    buttonText: "Começar no Starter",
-    url: STARTER_URL,
-    highlight: false,
-    badgeText: "",
-    icon: Sparkles,
-    ring: "ring-1 ring-border",
-    accent: "from-primary to-blue-600",
-    softBg: "from-primary/10 to-transparent",
-    features: [
-      "Dashboard completo",
-      "Agenda de Shows",
-      "Gestão de Clientes",
-      "Financeiro básico (Resumo Geral)",
-      "Repertório",
-      "Tutoriais e Configurações",
-    ],
-  },
-  {
-    id: "pro",
-    name: "Profissional",
-    subtitle: "O plano ideal para quem quer vender mais shows",
-    price: "R$ 34,90",
-    period: "/mês",
-    buttonText: "Escolher Profissional",
-    url: PRO_URL,
-    highlight: true,
-    badgeText: "MAIS POPULAR",
-    icon: Briefcase,
-    ring: "ring-2 ring-blue-500/60",
-    accent: "from-blue-600 to-cyan-500",
-    softBg: "from-blue-500/15 to-transparent",
-    features: [
-      "Tudo do Starter",
-      "Funil de Vendas (CRM)",
-      "Orçamento Automático",
-      "Contrato Automático",
-      "Histórico Mensal Financeiro",
-      "Checklist de Show",
-      "Mapeamento de Palco",
-      "Precificação",
-    ],
-  },
-  {
-    id: "full",
-    name: "Completo",
-    subtitle: "Controle total da carreira, como uma empresa",
-    price: "R$ 49,99",
-    period: "/mês",
-    buttonText: "Escolher Completo",
-    url: FULL_URL,
-    highlight: false,
-    badgeText: "TUDO LIBERADO",
-    icon: Crown,
-    ring: "ring-1 ring-border",
-    accent: "from-amber-500 to-orange-500",
-    softBg: "from-amber-500/15 to-transparent",
-    features: [
-      "Tudo do Profissional",
-      "Metas Comerciais",
-      "Meta Anual",
-      "Avanços & Performance",
-      "Gestão de Equipe & Freelancers",
-    ],
-  },
-] as const;
-
-/* =============================== */
-
-export default function Planos() {
+export default function PricingSection() {
   return (
-    <Layout title="" subtitle="">
-      <div className="pt-4">
-        <div className="text-center max-w-4xl mx-auto mb-10">
-          <div className="flex justify-center mb-4">
-            <AppLogo size="lg" collapsed />
-          </div>
+    <section className="relative py-20 bg-black text-white overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 via-black to-black opacity-60" />
 
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">Organize sua carreira como uma empresa</h1>
-
-          <p className="text-base md:text-lg text-muted-foreground">
-            Menos improviso. Mais controle. Escolha um plano e comece hoje.
-          </p>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Agenda + clientes + financeiro
-            </Badge>
-            <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Área comercial completa
-            </Badge>
-            <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Planejamento e performance
-            </Badge>
-          </div>
-
-          {/* TOTAL USERS */}
-          <p className="mt-4 text-sm font-semibold text-primary">
-            🎤 {TOTAL_USERS} artistas já organizam sua carreira com o Backstage Pro
-          </p>
+      <div className="relative max-w-6xl mx-auto px-6">
+        {/* Título */}
+        <div className="text-center mb-14">
+          <h2 className="text-4xl font-bold mb-4">Escolha o plano ideal para sua carreira</h2>
+          <p className="text-zinc-400">Hoje já são {totalUsers} artistas usando a plataforma</p>
         </div>
 
-        {/* PLANS */}
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-            {plans.map((p) => {
-              const Icon = p.icon;
+        {/* Cards */}
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* ESSENCIAL */}
+          <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition">
+            <h3 className="text-xl font-semibold mb-2">Essencial</h3>
 
-              return (
-                <Card
-                  key={p.id}
-                  className={cn(
-                    "relative h-full overflow-hidden rounded-2xl border bg-background shadow-sm transition-all duration-300 hover:shadow-lg",
-                    p.ring,
-                    p.highlight ? "scale-[1.01]" : "",
-                  )}
-                >
-                  <div className={cn("absolute inset-x-0 top-0 h-40 bg-gradient-to-b", p.softBg)} />
+            <div className="text-3xl font-bold mb-4">R$ 59,90</div>
 
-                  {p.badgeText ? (
-                    <div className="absolute top-4 right-4">
-                      <Badge
-                        className={cn(
-                          "rounded-full px-3 py-1 text-xs font-bold text-white",
-                          p.highlight ? "bg-blue-600" : "bg-amber-600",
-                        )}
-                      >
-                        {p.badgeText}
-                      </Badge>
-                    </div>
-                  ) : null}
+            <div className="flex items-center gap-2 text-sm text-zinc-400 mb-6">
+              <Users size={16} />
+              <span>{planUsage.essencial} artistas usam este plano</span>
+            </div>
 
-                  <CardContent className="relative p-6 h-full flex flex-col">
-                    <div className="flex items-start gap-3 mb-4">
-                      <AppLogo size="sm" collapsed />
-                      <div>
-                        <h3 className="text-xl font-bold">{p.name}</h3>
-                        <p className="text-sm text-muted-foreground">{p.subtitle}</p>
-                      </div>
-                    </div>
+            <ul className="space-y-3 text-sm text-zinc-300 mb-8">
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Agenda de Shows
+              </li>
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Controle de Cachês
+              </li>
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Gestão de Contratos
+              </li>
+            </ul>
 
-                    {/* PRICE */}
-                    <div className="mb-3">
-                      <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold">{p.price}</span>
-                        <span className="text-sm text-muted-foreground mb-1">{p.period}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Cobrança mensal pré-paga. Cancele quando quiser.
-                      </p>
-                    </div>
+            <button className="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-medium transition">
+              Escolher Plano
+            </button>
+          </div>
 
-                    {/* SOCIAL PROOF */}
-                    <div className="mb-4">
-                      <p className={cn("text-xs font-semibold", p.highlight ? "text-blue-600" : "text-primary")}>
-                        {p.highlight ? "🔥" : "🎤"} {PLAN_USAGE[p.id]} artistas usam esse plano
-                      </p>
-                    </div>
+          {/* PROFISSIONAL */}
+          <div className="bg-zinc-900 p-8 rounded-2xl border-2 border-primary relative scale-105 shadow-2xl">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-black text-xs font-semibold px-4 py-1 rounded-full">
+              MAIS ESCOLHIDO
+            </div>
 
-                    {/* FEATURES */}
-                    <div className="rounded-xl border border-border bg-muted/25 p-4">
-                      <p className="text-xs font-semibold text-muted-foreground mb-3">O que inclui:</p>
-                      <ul className="space-y-2">
-                        {p.features.map((f, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                            <span className="text-sm">{f}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+            <h3 className="text-xl font-semibold mb-2">Profissional</h3>
 
-                    <div className="mt-auto pt-5">
-                      <Button
-                        size="lg"
-                        className={cn(
-                          "w-full rounded-xl shadow-sm",
-                          p.highlight
-                            ? "bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white"
-                            : "bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 text-white",
-                        )}
-                        onClick={() => window.open(p.url, "_blank")}
-                      >
-                        <span className="flex items-center justify-center gap-2">
-                          {p.buttonText}
-                          <ArrowRight className="w-4 h-4" />
-                        </span>
-                      </Button>
+            <div className="text-3xl font-bold mb-4">
+              R$ 49,90 <span className="text-sm font-normal">3x</span>
+            </div>
 
-                      <p className="text-[11px] text-muted-foreground mt-2 text-center">
-                        {p.highlight
-                          ? "Recomendado para quem quer fechar mais shows."
-                          : "Ideal para o seu momento atual."}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            <div className="flex items-center gap-2 text-sm text-primary font-medium mb-6">
+              <Users size={16} />
+              <span>{planUsage.profissional} artistas escolheram este plano</span>
+            </div>
+
+            <ul className="space-y-3 text-sm text-zinc-300 mb-8">
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Tudo do Essencial
+              </li>
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Planejamento de Redes Sociais
+              </li>
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Relatórios Financeiros
+              </li>
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Aulas Exclusivas de Bônus
+              </li>
+            </ul>
+
+            <button className="w-full bg-primary text-black hover:opacity-90 py-3 rounded-xl font-semibold transition">
+              Começar Agora
+            </button>
+          </div>
+
+          {/* AVANÇADO */}
+          <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition">
+            <h3 className="text-xl font-semibold mb-2">Avançado</h3>
+
+            <div className="text-3xl font-bold mb-4">
+              R$ 39,90 <span className="text-sm font-normal">6x</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-zinc-400 mb-6">
+              <Users size={16} />
+              <span>{planUsage.avancado} artistas usam este plano</span>
+            </div>
+
+            <ul className="space-y-3 text-sm text-zinc-300 mb-8">
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Tudo do Profissional
+              </li>
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Suporte Prioritário
+              </li>
+              <li className="flex items-center gap-2">
+                <Check size={16} />
+                Mentoria Estratégica
+              </li>
+            </ul>
+
+            <button className="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-medium transition">
+              Escolher Plano
+            </button>
           </div>
         </div>
       </div>
-    </Layout>
+    </section>
   );
 }
