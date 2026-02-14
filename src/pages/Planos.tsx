@@ -2,20 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Check,
-  Shield,
-  HeadphonesIcon,
-  XCircle,
-  Quote,
-  AlertTriangle,
-  ArrowRight,
-  Users,
-  Sparkles,
-  Briefcase,
-  Crown,
-  UserCircle2,
-} from "lucide-react";
+import { Check, Shield, HeadphonesIcon, XCircle, Quote, AlertTriangle, ArrowRight, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
@@ -32,7 +19,7 @@ const PLAN_USAGE = {
 };
 
 /* ============================= */
-/* LINKS                         */
+/* CHECKOUT LINKS                */
 /* ============================= */
 
 const INFINITEPAY_URL = "https://loja.infinitepay.io/backstagegroup?categories=1311210-backstage-pro";
@@ -74,88 +61,69 @@ const reassurances = [
 ];
 
 /* ============================= */
-/* PLANOS                        */
-/* ============================= */
-
-const plans = [
-  {
-    id: "starter",
-    name: "Starter",
-    subtitle: "Para começar e parar de se perder",
-    price: "R$ 19,90",
-    period: "/mês",
-    buttonText: "Começar no Starter",
-    url: STARTER_URL,
-    highlight: false,
-    badgeText: "",
-    accent: "blue",
-    features: [
-      "Dashboard completo",
-      "Agenda de Shows",
-      "Gestão de Clientes",
-      "Financeiro básico (Resumo Geral)",
-      "Repertório",
-      "Tutoriais e Configurações",
-    ],
-  },
-  {
-    id: "pro",
-    name: "Profissional",
-    subtitle: "O plano ideal para quem quer vender mais shows",
-    price: "R$ 34,90",
-    period: "/mês",
-    buttonText: "Escolher Profissional",
-    url: PRO_URL,
-    highlight: true,
-    badgeText: "MAIS POPULAR",
-    accent: "blue",
-    features: [
-      "Tudo do Starter",
-      "Funil de Vendas (CRM)",
-      "Orçamento Automático",
-      "Contrato Automático",
-      "Histórico Mensal Financeiro",
-      "Checklist de Show",
-      "Mapeamento de Palco",
-      "Precificação",
-    ],
-  },
-  {
-    id: "full",
-    name: "Completo",
-    subtitle: "Controle total da carreira, como uma empresa",
-    price: "R$ 49,99",
-    period: "/mês",
-    buttonText: "Escolher Completo",
-    url: FULL_URL,
-    highlight: false,
-    badgeText: "TUDO LIBERADO",
-    accent: "gold",
-    features: [
-      "Tudo do Profissional",
-      "Metas Comerciais",
-      "Meta Anual",
-      "Avanços & Performance",
-      "Gestão de Equipe & Freelancers",
-    ],
-  },
-];
-
-/* ============================= */
 /* COMPONENTES                   */
 /* ============================= */
 
 function UrgencyBanner() {
   return (
     <div className="max-w-5xl mx-auto mb-8">
-      <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl">
-        <div className="flex items-center justify-center gap-3">
-          <AlertTriangle className="w-5 h-5 text-white" />
+      <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl border border-red-400/30">
+        <div className="flex items-center gap-3 justify-center">
+          <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
+            <AlertTriangle className="w-6 h-6 text-white" />
+          </div>
           <div className="text-center">
-            <p className="text-white font-bold">Oferta por tempo limitado</p>
+            <p className="text-white font-bold text-lg">Oferta por tempo limitado</p>
             <p className="text-white/90 text-sm">Os valores podem voltar ao normal sem aviso prévio.</p>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function TestimonialsSection() {
+  return (
+    <div className="max-w-6xl mx-auto mt-14">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold">Quem usa, sente a diferença</h3>
+        <p className="text-sm text-muted-foreground mt-1">Feedback real de artistas e produtores</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {testimonials.map((t) => (
+          <div key={t.name} className="bg-white rounded-3xl p-6 border shadow-md hover:shadow-xl transition">
+            <Quote className="w-6 h-6 text-blue-600 mb-3" />
+            <p className="text-sm italic mb-5">"{t.text}"</p>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-sm">{t.name}</p>
+                <p className="text-xs text-muted-foreground">{t.role}</p>
+              </div>
+
+              {/* Ícone dentro do quadrado */}
+              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                <Users className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReassurancesBar() {
+  return (
+    <div className="max-w-6xl mx-auto mt-14 mb-10">
+      <div className="flex flex-wrap justify-center gap-6 rounded-2xl border bg-muted/30 p-5">
+        {reassurances.map((item) => (
+          <div key={item.text} className="flex items-center gap-2">
+            <item.icon className="w-4 h-4" />
+            <span className="text-sm">{item.text}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -172,14 +140,16 @@ export default function Planos() {
         <UrgencyBanner />
 
         {/* HERO */}
-        <div className="text-center max-w-4xl mx-auto mb-10">
+        <div className="text-center max-w-4xl mx-auto mb-14">
           <div className="flex justify-center mb-4">
             <AppLogo size="lg" collapsed />
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">Organize sua carreira como uma empresa</h1>
+          <h1 className="text-4xl font-bold mb-3">Organize sua carreira como uma empresa</h1>
 
-          <p className="text-muted-foreground">Menos improviso. Mais controle. Escolha um plano e comece hoje.</p>
+          <p className="text-lg text-muted-foreground">
+            Menos improviso. Mais controle. Escolha um plano e comece hoje.
+          </p>
 
           <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
             <Users className="w-4 h-4" />
@@ -188,122 +158,153 @@ export default function Planos() {
         </div>
 
         {/* PLANOS */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((p) => {
-            const usage = PLAN_USAGE[p.id];
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {/* STARTER */}
+          <Card className="rounded-3xl border border-blue-200 bg-gradient-to-b from-blue-50/40 to-white shadow-md hover:shadow-xl transition flex flex-col">
+            <CardContent className="p-8 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-2">
+                <AppLogo size="sm" collapsed />
+                <h3 className="text-2xl font-bold">Starter</h3>
+              </div>
 
-            const isPro = p.id === "pro";
-            const isFull = p.id === "full";
+              <p className="text-sm text-muted-foreground mb-4">Para começar e parar de se perder</p>
 
-            return (
-              <Card
-                key={p.id}
-                className={cn(
-                  "relative rounded-3xl border transition-all duration-300 hover:shadow-2xl",
-                  isPro && "border-blue-500 shadow-xl scale-[1.02]",
-                  isFull && "border-amber-500 shadow-lg",
-                  !isPro && !isFull && "border-border shadow-sm",
-                )}
-              >
-                {p.badgeText && (
-                  <div className="absolute top-5 right-5">
-                    <Badge
-                      className={cn(
-                        "px-4 py-1 rounded-full text-xs font-semibold shadow",
-                        isFull ? "bg-amber-500 text-white" : "bg-blue-600 text-white",
-                      )}
-                    >
-                      {p.badgeText}
-                    </Badge>
-                  </div>
-                )}
+              <div className="text-4xl font-bold mb-1">
+                R$ 19,90 <span className="text-sm text-muted-foreground">/mês</span>
+              </div>
 
-                <CardContent className="p-8 flex flex-col h-full">
-                  <h3 className="text-2xl font-bold mb-1">{p.name}</h3>
+              <p className="text-xs text-muted-foreground mb-4">Cobrança mensal pré-paga. Cancele quando quiser.</p>
 
-                  <p className="text-sm text-muted-foreground mb-4">{p.subtitle}</p>
+              <div className="flex items-center gap-2 text-blue-600 font-medium text-sm mb-6">
+                <Users className="w-4 h-4" />
+                18 artistas usam este plano
+              </div>
 
-                  <div className="text-4xl font-bold">
-                    {p.price}
-                    <span className="text-base font-normal text-muted-foreground ml-1">{p.period}</span>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground mt-2">Cobrança mensal pré-paga. Cancele quando quiser.</p>
-
-                  {/* PROVA SOCIAL */}
-                  <div
-                    className={cn(
-                      "flex items-center gap-2 text-sm font-medium mt-4 mb-6",
-                      isFull ? "text-amber-600" : "text-blue-600",
-                    )}
-                  >
-                    <Users className="w-4 h-4" />
-                    {usage} artistas usam este plano
-                  </div>
-
-                  {/* FEATURES BOX */}
-                  <div className="bg-muted/40 rounded-2xl p-5 border mb-8">
-                    <p className="text-sm font-semibold mb-4">O que inclui:</p>
-
-                    <div className="space-y-3">
-                      {p.features.map((f, i) => (
-                        <div key={i} className="flex gap-2">
-                          <Check className="w-4 h-4 text-green-500 mt-1" />
-                          <span className="text-sm">{f}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Button
-                    className={cn(
-                      "w-full rounded-xl font-semibold shadow-md",
-                      isFull
-                        ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
-                        : "bg-gradient-to-r from-blue-600 to-cyan-500 text-white",
-                    )}
-                    onClick={() => window.open(p.url, "_blank")}
-                  >
-                    {p.buttonText}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* DEPOIMENTOS */}
-        <div className="max-w-6xl mx-auto mt-14">
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div key={t.name} className="bg-muted/40 rounded-2xl p-6 border shadow-sm">
-                <Quote className="w-5 h-5 text-primary/60 mb-3" />
-                <p className="text-sm italic mb-4">"{t.text}"</p>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-sm">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-
-                  <UserCircle2 className="w-8 h-8 text-muted-foreground/50" />
+              <div className="bg-white rounded-2xl border p-5 flex-1 mb-8">
+                <p className="font-semibold mb-4 text-sm">O que inclui:</p>
+                <div className="space-y-3">
+                  <Feature text="Dashboard completo" />
+                  <Feature text="Agenda de Shows" />
+                  <Feature text="Gestão de Clientes" />
+                  <Feature text="Financeiro básico (Resumo Geral)" />
+                  <Feature text="Repertório" />
+                  <Feature text="Tutoriais e Configurações" />
                 </div>
               </div>
-            ))}
-          </div>
+
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white">
+                Começar no Starter
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* PROFISSIONAL */}
+          <Card className="rounded-3xl border-2 border-blue-500 bg-white shadow-xl scale-[1.02] flex flex-col">
+            <CardContent className="p-8 flex flex-col h-full relative">
+              <Badge className="absolute top-6 right-6 bg-blue-600 text-white px-4 py-1 rounded-full">
+                MAIS POPULAR
+              </Badge>
+
+              <div className="flex items-center gap-3 mb-2">
+                <AppLogo size="sm" collapsed />
+                <h3 className="text-2xl font-bold">Profissional</h3>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-4">O plano ideal para quem quer vender mais shows</p>
+
+              <div className="text-4xl font-bold mb-1">
+                R$ 34,90 <span className="text-sm text-muted-foreground">/mês</span>
+              </div>
+
+              <p className="text-xs text-muted-foreground mb-4">Cobrança mensal pré-paga. Cancele quando quiser.</p>
+
+              <div className="flex items-center gap-2 text-blue-600 font-medium text-sm mb-6">
+                <Users className="w-4 h-4" />
+                34 artistas usam este plano
+              </div>
+
+              <div className="bg-white rounded-2xl border p-5 flex-1 mb-8">
+                <p className="font-semibold mb-4 text-sm">O que inclui:</p>
+                <div className="space-y-3">
+                  <Feature text="Tudo do Starter" />
+                  <Feature text="Funil de Vendas (CRM)" />
+                  <Feature text="Orçamento Automático" />
+                  <Feature text="Contrato Automático" />
+                  <Feature text="Histórico Mensal Financeiro" />
+                  <Feature text="Checklist de Show" />
+                  <Feature text="Mapeamento de Palco" />
+                  <Feature text="Precificação" />
+                </div>
+              </div>
+
+              <Button className="w-full bg-gradient-to-r from-blue-700 to-cyan-500 text-white">
+                Escolher Profissional
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* COMPLETO */}
+          <Card className="rounded-3xl border-2 border-amber-400 bg-gradient-to-b from-amber-50 to-white shadow-lg flex flex-col">
+            <CardContent className="p-8 flex flex-col h-full relative">
+              <Badge className="absolute top-6 right-6 bg-amber-500 text-white px-4 py-1 rounded-full">
+                TUDO LIBERADO
+              </Badge>
+
+              <div className="flex items-center gap-3 mb-2">
+                <AppLogo size="sm" collapsed />
+                <h3 className="text-2xl font-bold">Completo</h3>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-4">Controle total da carreira, como uma empresa</p>
+
+              <div className="text-4xl font-bold mb-1">
+                R$ 49,99 <span className="text-sm text-muted-foreground">/mês</span>
+              </div>
+
+              <p className="text-xs text-muted-foreground mb-4">Cobrança mensal pré-paga. Cancele quando quiser.</p>
+
+              <div className="flex items-center gap-2 text-amber-600 font-medium text-sm mb-6">
+                <Users className="w-4 h-4" />
+                25 artistas usam este plano
+              </div>
+
+              <div className="bg-white rounded-2xl border p-5 flex-1 mb-8">
+                <p className="font-semibold mb-4 text-sm">O que inclui:</p>
+                <div className="space-y-3">
+                  <Feature text="Tudo do Profissional" />
+                  <Feature text="Metas Comerciais" />
+                  <Feature text="Meta Anual" />
+                  <Feature text="Avanços & Performance" />
+                  <Feature text="Gestão de Equipe & Freelancers" />
+                </div>
+              </div>
+
+              <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                Escolher Completo
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* GARANTIAS */}
-        <div className="max-w-6xl mx-auto mt-10 mb-6 flex flex-wrap justify-center gap-6 rounded-2xl border bg-muted/30 p-4">
-          {reassurances.map((item) => (
-            <div key={item.text} className="flex items-center gap-2">
-              <item.icon className="w-4 h-4" />
-              <span className="text-sm">{item.text}</span>
-            </div>
-          ))}
-        </div>
+        <TestimonialsSection />
+        <ReassurancesBar />
       </div>
     </Layout>
+  );
+}
+
+/* ============================= */
+/* COMPONENTE FEATURE            */
+/* ============================= */
+
+function Feature({ text }: { text: string }) {
+  return (
+    <div className="flex gap-2">
+      <Check className="w-4 h-4 text-green-500 mt-1" />
+      <span className="text-sm">{text}</span>
+    </div>
   );
 }
