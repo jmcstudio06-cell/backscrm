@@ -1,6 +1,10 @@
-// Service Worker for Push Notifications
-const CACHE_NAME = "backstage-pro-v2";
+// Service Worker for Push Notifications (PWA)
+const CACHE_NAME = "backstage-pro-v3";
 const NOTIF_TAG = "backstage-notification";
+
+// ✅ ÍCONES PADRÃO (use os do seu PWA)
+const DEFAULT_ICON = "/icons/icon-192.png"; // logo "grande" (colorido ok)
+const DEFAULT_BADGE = "/icons/badge-72.png"; // ícone pequeno (Android: branco/transparente)
 
 // Install event
 self.addEventListener("install", (event) => {
@@ -27,11 +31,12 @@ self.addEventListener("push", (event) => {
 
   event.waitUntil(
     (async () => {
+      // ✅ Defaults
       let data = {
         title: "Backstage Pro",
         body: "Você tem uma nova notificação!",
-        icon: "/favicon.ico",
-        badge: "/favicon.ico",
+        icon: DEFAULT_ICON,
+        badge: DEFAULT_BADGE,
         url: "/dashboard",
       };
 
@@ -52,34 +57,55 @@ self.addEventListener("push", (event) => {
               badge: payload.notification.badge || data.badge,
               url: (payload.data && payload.data.url) || data.url,
             };
-          } else {
-            data = { ...data, ...(payload || {}) };
+          } else if (payload) {
+            data = {
+              ...data,
+              title: payload.title || data.title,
+              body: payload.body || data.body,
+              icon: payload.icon || data.icon,
+              badge: payload.badge || data.badge,
+              url: payload.url || data.url,
+            };
           }
         } catch (e) {
-          const text = event.data.text();
-          console.log("[SW] Push data as text:", text);
-          data.body = text;
+          // Se vier texto puro
+          try {
+            const text = event.data.text();
+            console.log("[SW] Push data as text:", text);
+            data.body = text || data.body;
+          } catch {
+            // ignore
+          }
         }
       }
 
-      // ✅ MATA DUPLICADAS: fecha qualquer notificação anterior com a mesma TAG
+      // ✅ Fecha notificação anterior com mesma tag (evita duplicadas)
       const existing = await self.registration.getNotifications({ tag: NOTIF_TAG });
       existing.forEach((n) => n.close());
 
+      // ✅ Normaliza URL
+      const safeUrl = data.url && typeof data.url === "string" ? data.url : "/dashboard";
+
       const options = {
         body: data.body,
-        icon: data.icon || "/favicon.ico",
-        badge: data.badge || "/favicon.ico",
+        // ✅ Aqui é onde o Android “fica bonito”
+        icon: data.icon || DEFAULT_ICON,
+        badge: data.badge || DEFAULT_BADGE,
+
         tag: NOTIF_TAG,
-        renotify: false, // ✅ evita “re-notify” com mesma tag
+        renotify: false,
         requireInteraction: false,
+
+        // (Opcional) mostra a hora certinha em alguns Androids
+        timestamp: Date.now(),
+
         data: {
-          url: data.url || "/dashboard",
+          url: safeUrl,
           dateOfArrival: Date.now(),
         },
       };
 
-      console.log("[SW] Showing notification with options:", options);
+      console.log("[SW] Showing notification:", data.title, options);
       await self.registration.showNotification(data.title, options);
     })(),
   );
@@ -90,7 +116,7 @@ self.addEventListener("notificationclick", (event) => {
   console.log("[SW] Notification clicked");
   event.notification.close();
 
-  const url = event.notification.data?.url || "/dashboard";
+  const url = event.notification?.data?.url || "/dashboard";
   const targetUrl = new URL(url, self.location.origin).toString();
 
   event.waitUntil(
@@ -100,11 +126,12 @@ self.addEventListener("notificationclick", (event) => {
         includeUncontrolled: true,
       });
 
+      // Se já tem aba aberta, foca e navega
       for (const client of windowClients) {
         if (client.url && client.url.startsWith(self.location.origin) && "focus" in client) {
           try {
             await client.focus();
-            await client.navigate(targetUrl);
+            if ("navigate" in client) await client.navigate(targetUrl);
           } catch {
             // ignore
           }
@@ -112,6 +139,7 @@ self.addEventListener("notificationclick", (event) => {
         }
       }
 
+      // Se não tem, abre nova
       if (clients.openWindow) {
         await clients.openWindow(targetUrl);
       }
@@ -128,15 +156,13 @@ self.addEventListener("fetch", (event) => {
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request).catch(() => {
-        // ⚠️ Só funciona se você tiver index.html no cache.
-        // Se você não faz precache, esse fallback pode retornar null.
         return caches.match("/index.html");
       }),
     );
     return;
   }
 
-  // For other assets, network first with cache fallback (se existir cache)
+  // For other assets, network first with cache fallback
   event.respondWith(
     fetch(event.request).catch(() => {
       return caches.match(event.request);
