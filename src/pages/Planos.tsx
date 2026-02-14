@@ -278,14 +278,7 @@ export default function Planos() {
                   <CardContent className="relative p-6 h-full flex flex-col">
                     {/* header */}
                     <div className="flex items-start gap-3 mb-4">
-                      <div
-                        className={cn(
-                          "w-11 h-11 rounded-2xl bg-gradient-to-br text-white flex items-center justify-center shadow-sm",
-                          p.accent,
-                        )}
-                      >
-                        <Icon className="w-5 h-5" />
-                      </div>
+                      <AppLogo size="sm" collapsed />
                       <div className="min-w-0">
                         <h3 className="text-xl font-bold leading-tight">{p.name}</h3>
                         <p className="text-sm text-muted-foreground">{p.subtitle}</p>
