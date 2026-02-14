@@ -24,6 +24,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   metas: false,
   repertorio: false,
   aulas: false,
+  avancos: false,
   tutoriais: false,
   configuracoes: false,
 };
@@ -45,6 +46,7 @@ export const BASE_PLAN_FEATURE_BLOCKS: FeatureBlocks = {
   metas: true,
   repertorio: false,
   aulas: true,
+  avancos: true,
   tutoriais: false,
   configuracoes: false,
 };
