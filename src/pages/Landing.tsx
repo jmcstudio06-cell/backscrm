@@ -182,7 +182,7 @@ const Landing = () => {
               <ClipboardCheck className="w-4 h-4" />
               Consultoria de Carreira
             </a>
-            <a href="#instalar" className="text-slate-600 hover:text-[#0066CC] transition-colors">Instalar App</a>
+            
             <a href="#quem-somos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Quem Somos</a>
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
             <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
@@ -751,119 +751,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Install App Section */}
-      <section id="instalar" className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Smartphone className="w-5 h-5 text-[#0066CC]" />
-              <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Instale o App</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-2">
-              Tenha o Backstage Pro
-            </h2>
-            <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
-              no seu celular
-            </h3>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Instale o aplicativo direto do navegador, sem precisar de loja de apps. 
-              Funciona offline e é super rápido!
-            </p>
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* iOS Installation */}
-            <Card className="overflow-hidden border-slate-200 shadow-xl hover:shadow-2xl transition-all">
-              <CardContent className="p-0">
-                <div className="bg-slate-800 p-6 text-center">
-                  <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Smartphone className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-white mb-2">iPhone / iPad</h4>
-                  <p className="text-white/70 text-sm">Instalação via Safari</p>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold">1</span>
-                    </div>
-                    <div>
-                      <p className="text-slate-700 font-medium">Abra no Safari</p>
-                      <p className="text-slate-500 text-sm">Acesse backstagepro.online no Safari</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold">2</span>
-                    </div>
-                    <div>
-                      <p className="text-slate-700 font-medium">Toque em Compartilhar</p>
-                      <p className="text-slate-500 text-sm">Ícone de compartilhar na barra inferior</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold">3</span>
-                    </div>
-                    <div>
-                      <p className="text-slate-700 font-medium">Adicionar à Tela de Início</p>
-                      <p className="text-slate-500 text-sm">Role e selecione essa opção</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Android Installation */}
-            <Card className="overflow-hidden border-slate-200 shadow-xl hover:shadow-2xl transition-all">
-              <CardContent className="p-0">
-                <div className="bg-emerald-500 p-6 text-center">
-                  <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Smartphone className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-white mb-2">Android</h4>
-                  <p className="text-white/70 text-sm">Instalação via Chrome</p>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold">1</span>
-                    </div>
-                    <div>
-                      <p className="text-slate-700 font-medium">Abra no Chrome</p>
-                      <p className="text-slate-500 text-sm">Acesse backstagepro.online no Chrome</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold">2</span>
-                    </div>
-                    <div>
-                      <p className="text-slate-700 font-medium">Menu (3 pontinhos)</p>
-                      <p className="text-slate-500 text-sm">No canto superior direito</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold">3</span>
-                    </div>
-                    <div>
-                      <p className="text-slate-700 font-medium">Instalar aplicativo</p>
-                      <p className="text-slate-500 text-sm">Ou "Adicionar à tela inicial"</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center mt-8">
-            <p className="text-slate-500 text-sm">
-              💡 Dica: Após instalar, o app funciona como um aplicativo nativo, com ícone na tela inicial!
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* Artist Analysis Form Section */}
       <section id="analise" className="py-20 bg-gradient-to-b from-[#0066CC] via-[#0077DD] to-[#00B4D8] relative overflow-hidden">
@@ -920,20 +809,8 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* Urgency Banner */}
-          <div className="max-w-5xl mx-auto mb-8">
-            <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl">
-              <div className="flex items-center gap-3 justify-center">
-                <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
-                  <AlertTriangle className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-center">
-                  <p className="text-white font-bold text-lg">Oferta por tempo limitado</p>
-                  <p className="text-white/90 text-sm font-medium">Os valores podem voltar ao normal sem aviso prévio.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+
+
 
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
