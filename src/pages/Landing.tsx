@@ -43,6 +43,57 @@ import fabioGoogle from "@/assets/testimonials/fabio-google.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
+import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
+import { AppLogo } from "@/components/layout/AppLogo";
+
+const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
+const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
+const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
+
+const plans = [
+  {
+    id: "starter",
+    name: "Starter",
+    subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
+    price: "R$ 19,90",
+    period: "/mês",
+    buttonText: "Começar no Starter",
+    url: STARTER_URL,
+    highlight: false,
+    badgeText: "",
+    icon: Sparkles,
+    socialProof: "19 Artistas estão nesse plano!",
+    features: ["Dashboard", "Agenda", "Clientes", "Financeiro", "Repertório", "Tutoriais", "Configurações"],
+  },
+  {
+    id: "pro",
+    name: "Profissional",
+    subtitle: "Organize sua área comercial e feche mais shows com processos profissionais.",
+    price: "R$ 34,90",
+    period: "/mês",
+    buttonText: "Escolher Profissional",
+    url: PRO_URL,
+    highlight: true,
+    badgeText: "MAIS POPULAR",
+    icon: Briefcase,
+    socialProof: "47 artistas estão nesse plano!",
+    features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Bônus", "Checklist", "Avanços", "Precificação"],
+  },
+  {
+    id: "full",
+    name: "Completo",
+    subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
+    price: "R$ 49,99",
+    period: "/mês",
+    buttonText: "Escolher Completo",
+    url: FULL_URL,
+    highlight: false,
+    badgeText: "TUDO LIBERADO",
+    icon: Crown,
+    socialProof: "21 artistas estão nesse plano!",
+    features: ["Tudo do Profissional+", "Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
+  },
+] as const;
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -849,6 +900,141 @@ const Landing = () => {
                 </Button>
               }
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Plans Section */}
+      <section id="planos" className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Planos</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
+              Organize sua carreira
+            </h2>
+            <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
+              como uma empresa
+            </h3>
+            <p className="text-slate-500">
+              Menos improviso. Mais controle. Escolha um plano e comece hoje.
+            </p>
+          </div>
+
+          {/* Urgency Banner */}
+          <div className="max-w-5xl mx-auto mb-8">
+            <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl">
+              <div className="flex items-center gap-3 justify-center">
+                <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
+                  <AlertTriangle className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-bold text-lg">Oferta por tempo limitado</p>
+                  <p className="text-white/90 text-sm font-medium">Os valores podem voltar ao normal sem aviso prévio.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+              {plans.map((p) => (
+                <div
+                  key={p.id}
+                  className={`relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col ${
+                    p.highlight
+                      ? "border-[#0066CC] bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+                      : p.id === "full"
+                        ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
+                        : "border-slate-200 bg-white"
+                  }`}
+                >
+                  {p.badgeText && (
+                    <div className="absolute top-5 right-5">
+                      <span className="bg-[#0066CC] text-white rounded-full px-3 py-1 text-xs font-semibold">
+                        {p.badgeText}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="p-8 flex flex-col h-full">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                        <AppLogo size="sm" collapsed />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-slate-800">{p.name}</h4>
+                        <p className="text-sm text-slate-500 font-medium">{p.subtitle}</p>
+                      </div>
+                    </div>
+
+                    <div className="mb-6">
+                      {p.id === "starter" && (
+                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
+                      )}
+                      <div className="flex items-end gap-2">
+                        <span className="text-4xl font-bold text-slate-800">{p.price}</span>
+                        <span className="text-sm text-slate-500 mb-1 font-medium">{p.period}</span>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1 font-medium">
+                        Cobrança mensal pré-paga. Cancele quando quiser.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-6 flex-1 mb-6">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-4">
+                        O que inclui
+                      </p>
+                      <ul className="space-y-3">
+                        {p.features.map((f, i) => (
+                          <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-700">
+                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                              <Check className="w-3 h-3 text-white" />
+                            </div>
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mt-auto">
+                      <Button
+                        size="lg"
+                        className={`w-full rounded-2xl text-white font-semibold shadow-md ${
+                          p.highlight
+                            ? "bg-gradient-to-r from-[#0066CC] to-[#00B4D8]"
+                            : "bg-gradient-to-r from-[#0066CC] to-[#0088DD]"
+                        }`}
+                        onClick={() => window.open(p.url, "_blank")}
+                      >
+                        <span className="flex items-center justify-center gap-2">
+                          {p.buttonText}
+                          <ArrowRight className="w-4 h-4" />
+                        </span>
+                      </Button>
+                      <p className="text-xs text-center text-slate-400 mt-3 font-medium">{p.socialProof}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Reassurances */}
+          <div className="max-w-4xl mx-auto mt-10">
+            <div className="flex flex-wrap justify-center gap-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="flex items-center gap-2 font-medium text-slate-600">
+                <Shield className="w-4 h-4" />
+                <span className="text-sm">Pagamento 100% seguro</span>
+              </div>
+              <div className="flex items-center gap-2 font-medium text-slate-600">
+                <XCircle className="w-4 h-4" />
+                <span className="text-sm">Cancele quando quiser</span>
+              </div>
+              <div className="flex items-center gap-2 font-medium text-slate-600">
+                <HeadphonesIcon className="w-4 h-4" />
+                <span className="text-sm">Suporte humano real</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
