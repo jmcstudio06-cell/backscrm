@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { trackLandingVisit } from "@/hooks/useLandingInsights";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,11 +18,11 @@ import {
   Monitor,
   MessageCircle,
   Quote,
-  ClipboardCheck,
-  AlertTriangle,
-  FileQuestion,
-  PhoneOff,
-  NotebookPen
+  Gift,
+  X,
+  Clock,
+  Zap,
+  ClipboardCheck
 } from "lucide-react";
 
 // Team images
@@ -43,7 +43,7 @@ import fabioGoogle from "@/assets/testimonials/fabio-google.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
-import { Shield, HeadphonesIcon, XCircle, Briefcase, Crown } from "lucide-react";
+import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
 
 const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
@@ -74,7 +74,7 @@ const plans = [
     buttonText: "Escolher Profissional",
     url: PRO_URL,
     highlight: true,
-    badgeText: "MAIS ESCOLHIDO",
+    badgeText: "MAIS POPULAR",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
     features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Bônus", "Checklist", "Avanços", "Precificação"],
@@ -98,6 +98,7 @@ const plans = [
 const Landing = () => {
   const navigate = useNavigate();
 
+  // Track landing page visit
   useEffect(() => {
     trackLandingVisit();
   }, []);
@@ -105,7 +106,7 @@ const Landing = () => {
   const features = [
     {
       icon: Calendar,
-      title: "Nunca mais esqueça um show",
+      title: "Agenda de Shows",
       description: "Gerencie todos os seus eventos e apresentações. Do contato ao pagamento, tudo em um só lugar.",
       color: "bg-blue-500",
       highlighted: true,
@@ -113,37 +114,44 @@ const Landing = () => {
     },
     {
       icon: DollarSign,
-      title: "Saiba exatamente quanto você lucra",
+      title: "Financeiro Completo",
       description: "Controle cachês, despesas e comissões automaticamente. Relatórios claros sem planilhas.",
       color: "bg-emerald-500"
     },
     {
       icon: TrendingUp,
-      title: "Transforme contatos em shows fechados",
+      title: "CRM de Vendas",
       description: "Pipeline visual para converter leads em shows. Nunca perca uma oportunidade de negócio.",
       color: "bg-pink-500"
     },
     {
       icon: Users,
-      title: "Organize sua equipe",
+      title: "Gestão de Músicos",
       description: "Organize sua banda, freelancers e pagamentos de forma simples e profissional.",
       color: "bg-purple-500"
     },
     {
       icon: CalendarDays,
-      title: "Tenha tudo documentado",
+      title: "Contratos Automáticos",
       description: "Gere contratos prontos com seus dados. Envie para o cliente em segundos.",
       color: "bg-orange-500"
     },
     {
       icon: Heart,
-      title: "Ajuda quando precisar",
+      title: "Suporte Personalizado",
       description: "Acompanhamento contínuo para ajudar você a crescer na carreira musical.",
       color: "bg-cyan-500"
     }
   ];
 
-  const userAvatars = [artist1Img, artist2Img, artist3Img, artist4Img];
+  // User avatars for social proof
+
+  const userAvatars = [
+    artist1Img,
+    artist2Img,
+    artist3Img,
+    artist4Img
+  ];
 
   const benefitsList = [
     "Agenda inteligente com lembretes",
@@ -154,14 +162,8 @@ const Landing = () => {
   ];
 
   const mainVideoUrl = "https://www.youtube.com/watch?v=I_5o-hmDuRI";
-  const whatsappLink = "https://web.whatsapp.com/send?phone=5512981289496&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
 
-  const painPoints = [
-    { icon: AlertTriangle, text: "Já perdeu show por falta de organização?" },
-    { icon: FileQuestion, text: "Não sabe quanto faturou esse mês?" },
-    { icon: PhoneOff, text: "Esquece de responder contratantes?" },
-    { icon: NotebookPen, text: "Depende de caderno ou WhatsApp para controlar tudo?" },
-  ];
+  const whatsappLink = "https://web.whatsapp.com/send?phone=5512981289496&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
 
   return (
     <div className="min-h-screen bg-white">
@@ -175,38 +177,16 @@ const Landing = () => {
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
+            <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
+            <a href="#analise" className="text-slate-600 hover:text-[#0066CC] transition-colors flex items-center gap-1">
+              <ClipboardCheck className="w-4 h-4" />
+              Consultoria de Carreira
+            </a>
+            
+            <a href="#quem-somos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Quem Somos</a>
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
-            <a href="#planos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Planos</a>
-            <button 
-              onClick={() => navigate('/auth')}
-              className="text-slate-600 hover:text-[#0066CC] transition-colors text-sm"
-            >
-              Login
-            </button>
-            <Button 
-              onClick={() => navigate('/auth')}
-              className="bg-[#0066CC] hover:bg-[#0055AA] text-white font-semibold px-6"
-            >
-              Começar grátis
-            </Button>
+            <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
           </nav>
-
-          {/* Mobile nav */}
-          <div className="flex md:hidden items-center gap-3">
-            <button 
-              onClick={() => navigate('/auth')}
-              className="text-slate-600 text-sm"
-            >
-              Login
-            </button>
-            <Button 
-              onClick={() => navigate('/auth')}
-              size="sm"
-              className="bg-[#0066CC] hover:bg-[#0055AA] text-white font-semibold"
-            >
-              Começar grátis
-            </Button>
-          </div>
         </div>
       </header>
 
@@ -223,13 +203,18 @@ const Landing = () => {
                 <span className="text-white/90 text-sm font-medium">Gestão completa para artistas</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                O sistema feito para cantores que querem{" "}
-                <span className="text-cyan-300">viver de música.</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
+                Transforme sua
               </h1>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-cyan-300 mb-6">
+                carreira musical
+              </h2>
 
-              <p className="text-white/90 text-lg md:text-xl max-w-xl mb-8">
-                Organize shows, leads, contratos e faturamento em um só lugar.
+              <p className="text-white/90 text-lg md:text-xl max-w-xl mb-4">
+                Do primeiro contato ao pagamento do cachê, sem planilhas.
+              </p>
+              <p className="text-white/70 text-base max-w-xl mb-8">
+                Gerencie shows, contratos e finanças em um só lugar.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mb-6">
@@ -242,19 +227,16 @@ const Landing = () => {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button 
-                  onClick={() => {
-                    document.getElementById('video-section')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                  onClick={() => navigate('/auth')}
                   size="lg"
                   variant="ghost"
                   className="text-white/80 hover:text-white hover:bg-white/10 font-medium px-6 py-6 text-lg"
                 >
-                  <Play className="mr-2 w-5 h-5" />
-                  Ver como funciona
+                  Fazer login
                 </Button>
               </div>
 
-              {/* Trust signals */}
+              {/* Trust signals below CTA */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-white/70 text-sm mb-8">
                 <div className="flex items-center gap-1">
                   <Check className="w-4 h-4 text-cyan-300" />
@@ -266,7 +248,7 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Social proof */}
+              {/* Social proof - CLEAN DESIGN */}
               <div className="mt-4 flex items-center gap-4">
                 <div className="flex -space-x-3">
                   {userAvatars.map((avatar, i) => (
@@ -284,16 +266,23 @@ const Landing = () => {
                       <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-white font-bold text-xl md:text-2xl">+90 Artistas</p>
-                  <p className="text-white/90 text-sm md:text-base">se organizando com o Backstage Pro</p>
+                  <p className="text-white font-bold text-xl md:text-2xl">
+                    +90 Artistas
+                  </p>
+                  <p className="text-white/90 text-sm md:text-base">
+                    se organizando com o Backstage Pro
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Right Column - Feature Cards */}
             <div className="hidden lg:grid grid-cols-2 gap-4">
+              {/* Agenda de Shows - Highlighted */}
               <Card className="bg-white/10 backdrop-blur-sm border-white/30 border-2 hover:bg-white/15 transition-all relative">
-                <div className="absolute -top-2 -right-2 bg-yellow-400 text-[#0066CC] text-xs font-bold px-2 py-1 rounded-full">Essencial</div>
+                <div className="absolute -top-2 -right-2 bg-yellow-400 text-[#0066CC] text-xs font-bold px-2 py-1 rounded-full">
+                  Essencial
+                </div>
                 <CardContent className="p-5">
                   <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-3">
                     <Calendar className="w-6 h-6 text-white" />
@@ -302,6 +291,7 @@ const Landing = () => {
                   <p className="text-white/70 text-sm">Gerencie todos os seus eventos e apresentações</p>
                 </CardContent>
               </Card>
+
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
                 <CardContent className="p-5">
                   <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mb-3">
@@ -311,6 +301,7 @@ const Landing = () => {
                   <p className="text-white/70 text-sm">Controle receitas e despesas automaticamente</p>
                 </CardContent>
               </Card>
+
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
                 <CardContent className="p-5">
                   <div className="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center mb-3">
@@ -320,6 +311,7 @@ const Landing = () => {
                   <p className="text-white/70 text-sm">Pipeline visual para converter leads em shows</p>
                 </CardContent>
               </Card>
+
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
                 <CardContent className="p-5">
                   <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-3">
@@ -329,6 +321,8 @@ const Landing = () => {
                   <p className="text-white/70 text-sm">Organize sua banda e pagamentos</p>
                 </CardContent>
               </Card>
+
+              {/* Revenue Card - Contextualized */}
               <Card className="col-span-2 bg-white/5 backdrop-blur-sm border-white/20 hover:bg-white/10 transition-all">
                 <CardContent className="p-5 flex items-center justify-between">
                   <div>
@@ -352,33 +346,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Pain Points Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-10">
-              Sua carreira está organizada ou{" "}
-              <span className="text-[#0066CC]">improvisada?</span>
-            </h2>
-            
-            <div className="grid sm:grid-cols-2 gap-4 mb-10">
-              {painPoints.map((point, i) => (
-                <div key={i} className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl p-4 text-left">
-                  <point.icon className="w-5 h-5 text-red-500 shrink-0" />
-                  <span className="text-slate-700 font-medium">{point.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-xl font-bold text-[#0066CC]">
-              O Backstage Pro resolve isso em minutos.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* How It Works - 3 Steps */}
-      <section className="py-16 bg-slate-50">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Como funciona</span>
@@ -392,21 +361,21 @@ const Landing = () => {
               <div className="w-16 h-16 bg-[#0066CC]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[#0066CC]">1</span>
               </div>
-              <h3 className="font-bold text-slate-800 mb-2">Registre cada show fechado</h3>
+              <h3 className="font-bold text-slate-800 mb-2">Cadastre seus shows</h3>
               <p className="text-slate-500 text-sm">Adicione eventos, datas e valores em segundos</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-[#00B4D8]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[#00B4D8]">2</span>
               </div>
-              <h3 className="font-bold text-slate-800 mb-2">Gerencie contratantes e leads</h3>
-              <p className="text-slate-500 text-sm">Organize contatos e gere contratos automáticos</p>
+              <h3 className="font-bold text-slate-800 mb-2">Organize contatos e contratos</h3>
+              <p className="text-slate-500 text-sm">Gerencie clientes e gere contratos automáticos</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-emerald-500">3</span>
               </div>
-              <h3 className="font-bold text-slate-800 mb-2">Controle entradas, comissões e lucro real</h3>
+              <h3 className="font-bold text-slate-800 mb-2">Controle pagamentos e banda</h3>
               <p className="text-slate-500 text-sm">Acompanhe cachês, despesas e pagamentos de músicos</p>
             </div>
           </div>
@@ -414,7 +383,7 @@ const Landing = () => {
       </section>
 
       {/* Video Section */}
-      <section id="video-section" className="py-20 bg-white">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Play className="w-5 h-5 text-[#0066CC]" />
@@ -449,11 +418,11 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features / Benefits Section */}
+      {/* Features Section */}
       <section id="recursos" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Benefícios</span>
+            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Recursos Poderosos</span>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
               Tudo que você precisa para
             </h2>
@@ -499,10 +468,12 @@ const Landing = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Demonstração</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mt-4 mb-6">
-                Veja como sua carreira pode parecer{" "}
-                <span className="text-[#00B4D8]">organizada em poucos dias.</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mt-4 mb-2">
+                Crie uma rotina inteligente e
               </h2>
+              <h3 className="text-3xl md:text-4xl font-bold text-[#00B4D8] mb-6">
+                aumente seus resultados
+              </h3>
               
               <p className="text-slate-500 mb-8">
                 Com o Backstage Pro, você tem controle total da sua carreira na palma da mão. Interface intuitiva, dados organizados e insights poderosos para você focar no que realmente importa: sua música.
@@ -573,13 +544,17 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* CEO */}
+          {/* CEO - Full width card */}
           <div className="mb-12">
             <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200 overflow-hidden">
               <CardContent className="p-0">
                 <div className="grid lg:grid-cols-2 gap-8 items-center">
                   <div className="relative h-80 lg:h-[450px]">
-                    <img src={joseMarioImg} alt="José Mario Campos - CEO" className="w-full h-full object-cover object-top" />
+                    <img 
+                      src={joseMarioImg} 
+                      alt="José Mario Campos - CEO" 
+                      className="w-full h-full object-cover object-top"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent lg:hidden" />
                   </div>
                   <div className="p-8 lg:pr-12">
@@ -587,8 +562,12 @@ const Landing = () => {
                       <Sparkles className="w-4 h-4 text-[#0066CC]" />
                       <span className="text-[#0066CC] text-sm font-medium">Fundador & CEO</span>
                     </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">José Mario Campos</h3>
-                    <p className="text-[#00B4D8] font-medium mb-4">Também conhecido artisticamente como Mario Oliveira</p>
+                    <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
+                      José Mario Campos
+                    </h3>
+                    <p className="text-[#00B4D8] font-medium mb-4">
+                      Também conhecido artisticamente como Mario Oliveira
+                    </p>
                     
                     <div className="relative">
                       <Quote className="w-8 h-8 text-[#0066CC]/20 absolute -left-2 -top-2" />
@@ -610,33 +589,56 @@ const Landing = () => {
 
           {/* Team members */}
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Mariana */}
             <Card className="bg-white border-slate-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
               <CardContent className="p-0">
                 <div className="relative h-72">
-                  <img src={marianaSantosImg} alt="Mariana Santos Andrade" className="w-full h-full object-cover object-top" />
+                  <img 
+                    src={marianaSantosImg} 
+                    alt="Mariana Santos Andrade" 
+                    className="w-full h-full object-cover object-top"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="text-xl font-bold text-white mb-1">Mariana Santos Andrade</h3>
-                    <p className="text-cyan-300 font-medium text-sm">Atendimento Comercial</p>
+                    <h3 className="text-xl font-bold text-white mb-1">
+                      Mariana Santos Andrade
+                    </h3>
+                    <p className="text-cyan-300 font-medium text-sm">
+                      Atendimento Comercial
+                    </p>
                   </div>
                 </div>
                 <div className="p-6">
-                  <p className="text-slate-600 text-sm">Responsável por garantir a melhor experiência para todos os artistas que chegam ao Backstage Pro. Sempre pronta para ajudar!</p>
+                  <p className="text-slate-600 text-sm">
+                    Responsável por garantir a melhor experiência para todos os artistas que chegam ao Backstage Pro. Sempre pronta para ajudar!
+                  </p>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Escritório */}
             <Card className="bg-white border-slate-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
               <CardContent className="p-0">
                 <div className="relative h-72">
-                  <img src={escritorioImg} alt="Escritório da Backstage Pro" className="w-full h-full object-cover object-center" />
+                  <img 
+                    src={escritorioImg} 
+                    alt="Escritório da Backstage Pro" 
+                    className="w-full h-full object-cover object-center"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="text-xl font-bold text-white mb-1">Nosso Escritório</h3>
-                    <p className="text-cyan-300 font-medium text-sm">Área Comercial</p>
+                    <h3 className="text-xl font-bold text-white mb-1">
+                      Nosso Escritório
+                    </h3>
+                    <p className="text-cyan-300 font-medium text-sm">
+                      Área Comercial
+                    </p>
                   </div>
                 </div>
                 <div className="p-6">
-                  <p className="text-slate-600 text-sm">Sede da Backstage Pro, localizada em São Paulo/SP. De onde trabalhamos para ajudar artistas de todo o Brasil!</p>
+                  <p className="text-slate-600 text-sm">
+                    Sede da Backstage Pro, localizada em São Paulo/SP. De onde trabalhamos para ajudar artistas de todo o Brasil!
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -644,17 +646,23 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Testimonials Section - Before Plans */}
+      {/* Testimonials Section */}
       <section id="depoimentos" className="py-20 bg-gradient-to-b from-[#0066CC] to-[#0088DD]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <span className="text-cyan-300 font-semibold uppercase tracking-wider text-sm">Depoimentos</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mt-4 mb-4">
-              Mais de 90 artistas já organizam a carreira com o{" "}
-              <span className="text-yellow-400">Backstage Pro.</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mt-4 mb-2">
+              O que os cantores estão
             </h2>
+            <h3 className="text-3xl md:text-5xl font-bold text-yellow-400 mb-4">
+              dizendo sobre nós
+            </h3>
+            <p className="text-white/80">
+              Junte-se a centenas de artistas que já transformaram suas carreiras
+            </p>
           </div>
 
+          {/* Testimonials - Layout vertical */}
           <div className="flex flex-col gap-8 max-w-2xl mx-auto">
             {/* Victor Viola - Video */}
             <div className="group">
@@ -680,10 +688,14 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Larissa */}
+            {/* Larissa - Google */}
             <div className="group">
               <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                <img src={larissaGoogle} alt="Avaliação Larissa Santos Producoes no Google" className="w-full rounded-xl" />
+                <img 
+                  src={larissaGoogle} 
+                  alt="Avaliação Larissa Santos Producoes no Google" 
+                  className="w-full rounded-xl"
+                />
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
@@ -696,10 +708,14 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Marcelo */}
+            {/* Marcelo - Google */}
             <div className="group">
               <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                <img src={marceloGoogle} alt="Avaliação marcelocantor no Google" className="w-full rounded-xl" />
+                <img 
+                  src={marceloGoogle} 
+                  alt="Avaliação marcelocantor no Google" 
+                  className="w-full rounded-xl"
+                />
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
@@ -712,10 +728,14 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Fábio */}
+            {/* Fábio - Google */}
             <div className="group">
               <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                <img src={fabioGoogle} alt="Avaliação Fábio Martins no Google" className="w-full rounded-xl" />
+                <img 
+                  src={fabioGoogle} 
+                  alt="Avaliação Fábio Martins - Viverarte Violão no Google" 
+                  className="w-full rounded-xl"
+                />
                 <div className="mt-4 px-2 pb-2">
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((i) => (
@@ -731,19 +751,66 @@ const Landing = () => {
         </div>
       </section>
 
+
+
+
+      {/* Artist Analysis Form Section */}
+      <section id="analise" className="py-20 bg-gradient-to-b from-[#0066CC] via-[#0077DD] to-[#00B4D8] relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+        <div className="absolute top-10 left-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-60 h-60 bg-cyan-400/10 rounded-full blur-3xl" />
+        
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-4">
+              <ClipboardCheck className="w-4 h-4 text-cyan-300" />
+              <span className="text-white/90 font-semibold text-sm">Identifique falhas na gestão</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-2">
+              Consultoria de
+            </h2>
+            <h3 className="text-3xl md:text-5xl font-bold text-yellow-400 mb-4">
+              Carreira
+            </h3>
+            <p className="text-white/80 max-w-2xl mx-auto mb-8">
+              Descubra as falhas de organização que podem estar travando sua carreira. 
+              Nossa equipe entrará em contato para uma análise personalizada.
+            </p>
+            
+            <ArtistAnalysisForm 
+              triggerButton={
+                <Button 
+                  size="lg"
+                  className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-bold px-8 py-6 text-lg shadow-xl shadow-black/20 transition-all duration-200"
+                >
+                  <ClipboardCheck className="w-5 h-5 mr-2" />
+                  Solicitar Consultoria de Carreira
+                </Button>
+              }
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Plans Section */}
       <section id="planos" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-14">
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Planos</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-4">
-              Escolha o plano ideal para seu{" "}
-              <span className="text-[#0066CC]">momento.</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
+              Organize sua carreira
             </h2>
+            <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
+              como uma empresa
+            </h3>
             <p className="text-slate-500">
-              Cancele quando quiser. Garantia de 7 dias.
+              Menos improviso. Mais controle. Escolha um plano e comece hoje.
             </p>
           </div>
+
+
+
 
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
@@ -752,7 +819,7 @@ const Landing = () => {
                   key={p.id}
                   className={`relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col ${
                     p.highlight
-                      ? "border-[#0066CC] border-2 bg-gradient-to-br from-blue-50 via-white to-cyan-50 scale-[1.02]"
+                      ? "border-[#0066CC] bg-gradient-to-br from-blue-50 via-white to-cyan-50"
                       : p.id === "full"
                         ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
                         : "border-slate-200 bg-white"
@@ -760,11 +827,7 @@ const Landing = () => {
                 >
                   {p.badgeText && (
                     <div className="absolute top-5 right-5">
-                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        p.badgeText === "MAIS ESCOLHIDO" 
-                          ? "bg-yellow-400 text-slate-800" 
-                          : "bg-[#0066CC] text-white"
-                      }`}>
+                      <span className="bg-[#0066CC] text-white rounded-full px-3 py-1 text-xs font-semibold">
                         {p.badgeText}
                       </span>
                     </div>
@@ -790,12 +853,14 @@ const Landing = () => {
                         <span className="text-sm text-slate-500 mb-1 font-medium">{p.period}</span>
                       </div>
                       <p className="text-xs text-slate-400 mt-1 font-medium">
-                        Cancele quando quiser. Garantia de 7 dias.
+                        Cobrança mensal pré-paga. Cancele quando quiser.
                       </p>
                     </div>
 
                     <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-6 flex-1 mb-6">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-4">O que inclui</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-4">
+                        O que inclui
+                      </p>
                       <ul className="space-y-3">
                         {p.features.map((f, i) => (
                           <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-700">
@@ -846,53 +911,12 @@ const Landing = () => {
                 <HeadphonesIcon className="w-4 h-4" />
                 <span className="text-sm">Suporte humano real</span>
               </div>
-              <div className="flex items-center gap-2 font-medium text-slate-600">
-                <Shield className="w-4 h-4" />
-                <span className="text-sm">Garantia de 7 dias</span>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Consultoria - Upsell after Plans */}
-      <section id="analise" className="py-20 bg-gradient-to-b from-[#0066CC] via-[#0077DD] to-[#00B4D8] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-        <div className="absolute top-10 left-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-60 h-60 bg-cyan-400/10 rounded-full blur-3xl" />
-        
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-4">
-              <ClipboardCheck className="w-4 h-4 text-cyan-300" />
-              <span className="text-white/90 font-semibold text-sm">Upsell exclusivo</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-2">
-              Quer acelerar ainda mais
-            </h2>
-            <h3 className="text-3xl md:text-5xl font-bold text-yellow-400 mb-4">
-              sua carreira?
-            </h3>
-            <p className="text-white/80 max-w-2xl mx-auto mb-8">
-              Faça uma análise estratégica personalizada. Nossa equipe entrará em contato para uma consultoria exclusiva.
-            </p>
-            
-            <ArtistAnalysisForm 
-              triggerButton={
-                <Button 
-                  size="lg"
-                  className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-bold px-8 py-6 text-lg shadow-xl shadow-black/20 transition-all duration-200"
-                >
-                  <ClipboardCheck className="w-5 h-5 mr-2" />
-                  Solicitar Consultoria de Carreira
-                </Button>
-              }
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section - WhatsApp */}
+      {/* Contact Section - Only WhatsApp */}
       <section id="contato" className="py-20 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
@@ -916,7 +940,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CTA Final */}
+      {/* CTA Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="bg-gradient-to-br from-[#0066CC] via-[#0077DD] to-[#00B4D8] rounded-3xl p-12 text-center relative overflow-hidden">
@@ -927,17 +951,24 @@ const Landing = () => {
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                Sua carreira merece ser tratada{" "}
-                <span className="text-cyan-300">como empresa.</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                Pronto para profissionalizar
               </h2>
+              <h3 className="text-3xl md:text-4xl font-bold text-cyan-300 mb-6">
+                sua carreira?
+              </h3>
+              
+              <p className="text-white/80 max-w-xl mx-auto mb-8">
+                Junte-se a milhares de artistas que já estão crescendo com o Backstage Pro. 
+                Comece hoje mesmo, é grátis por 3 dias!
+              </p>
 
               <Button 
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="bg-white text-[#0066CC] hover:bg-white/90 font-bold px-8 py-6 text-lg"
+                className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
-                Criar minha conta grátis agora
+                Quero Começar Agora
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
@@ -965,25 +996,11 @@ const Landing = () => {
             </nav>
 
             <p className="text-slate-500 text-sm">
-              © 2025 Backstage Pro. Todos os direitos reservados.
+              © 2024 Backstage Pro. Todos os direitos reservados.
             </p>
           </div>
         </div>
       </footer>
-
-      {/* Mobile Sticky CTA Button */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden p-3 bg-white/95 backdrop-blur-sm border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
-        <Button 
-          onClick={() => navigate('/auth')}
-          className="w-full bg-[#0066CC] hover:bg-[#0055AA] text-white font-bold py-5 text-base shadow-lg"
-        >
-          Começar grátis
-          <ArrowRight className="ml-2 w-5 h-5" />
-        </Button>
-      </div>
-
-      {/* Bottom padding for mobile sticky button */}
-      <div className="h-16 md:hidden" />
     </div>
   );
 };
