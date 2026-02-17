@@ -38,6 +38,7 @@ import {
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 // GiftsAdminPanel temporarily disabled
 import { AnalysesAdminPanel } from "@/components/admin/AnalysesAdminPanel";
+import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
  import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { Progress } from "@/components/ui/progress";
 
@@ -861,12 +862,13 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-         <TabsList className="grid w-full grid-cols-7">
+         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="marco">Marco</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="analyses">Análises</TabsTrigger>
           <TabsTrigger value="referrals">Indicações</TabsTrigger>
            <TabsTrigger value="notifications">Notificações</TabsTrigger>
+          <TabsTrigger value="guide-leads">Ganhou Guia</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
           <TabsTrigger value="trial">Config. Trial</TabsTrigger>
         </TabsList>
@@ -1341,6 +1343,11 @@ export default function Admin() {
               </Card>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Guide Leads Tab */}
+        <TabsContent value="guide-leads" className="space-y-6">
+          <GuideLeadsPanel />
         </TabsContent>
       </Tabs>
     </Layout>
