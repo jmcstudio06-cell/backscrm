@@ -3,13 +3,17 @@ import {
   MessageCircle, FileText, Clock, CheckCircle, FolderOpen, MapPin,
   AlertTriangle, ArrowRight, ChevronDown, Target, Shield, Zap,
   Send, Users, Calendar, DollarSign, Star, ArrowDown, X,
-  Check, AlertCircle, Lightbulb, TrendingUp, Award, Lock
+  Check, AlertCircle, Lightbulb, TrendingUp, Award, Lock, User, Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const steps = [
   { id: 1, title: "O Primeiro Contato", icon: MessageCircle },
@@ -63,6 +67,10 @@ export default function GuiaAtendimento() {
     enrolouFinanceiro: false,
   });
   const [budgetType, setBudgetType] = useState<string | null>(null);
+  const [guideUnlocked, setGuideUnlocked] = useState(false);
+  const [leadName, setLeadName] = useState("");
+  const [leadPhone, setLeadPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,8 +84,28 @@ export default function GuiaAtendimento() {
 
   const checkedCount = Object.values(reflections).filter(Boolean).length;
 
-  const scrollToContent = () => {
-    document.getElementById("intro")?.scrollIntoView({ behavior: "smooth" });
+  const handleGuideSubmit = async () => {
+    if (!leadName.trim() || !leadPhone.trim()) {
+      toast.error("Preencha seu nome e telefone para continuar.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("guide_leads" as any)
+        .insert({ name: leadName.trim(), phone: leadPhone.trim() } as any);
+      if (error) throw error;
+      setGuideUnlocked(true);
+      toast.success("Guia liberado! Boa leitura.");
+      setTimeout(() => {
+        document.getElementById("intro")?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao confirmar. Tente novamente.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -116,23 +144,59 @@ export default function GuiaAtendimento() {
               O que separa quem "faz show" de quem constrói carreira.
             </p>
           </RevealSection>
-          <RevealSection delay={300}>
-            <Button
-              size="xl"
-              variant="gradient"
-              className="rounded-full gap-2 group"
-              onClick={scrollToContent}
-            >
-              Começar leitura
-              <ArrowDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
-            </Button>
-          </RevealSection>
+          {!guideUnlocked ? (
+            <RevealSection delay={300}>
+              <div className="max-w-sm mx-auto p-6 rounded-2xl bg-card/80 backdrop-blur border border-border shadow-card space-y-4">
+                <p className="text-sm text-muted-foreground text-center mb-2">
+                  Confirme seus dados para acessar o guia completo
+                </p>
+                <div className="space-y-3">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Seu nome"
+                      value={leadName}
+                      onChange={(e) => setLeadName(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Seu telefone"
+                      value={leadPhone}
+                      onChange={(e) => setLeadPhone(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <Button
+                  size="xl"
+                  variant="gradient"
+                  className="w-full rounded-full gap-2 group"
+                  onClick={handleGuideSubmit}
+                  disabled={submitting}
+                >
+                  {submitting ? "Confirmando..." : "Continuar para meu guia"}
+                  <ArrowDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                </Button>
+              </div>
+            </RevealSection>
+          ) : (
+            <RevealSection delay={300}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-success/10 border border-success/20 text-success text-sm font-medium">
+                <Check className="w-4 h-4" />
+                Guia liberado — boa leitura!
+              </div>
+            </RevealSection>
+          )}
         </div>
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-float">
           <ChevronDown className="w-6 h-6 text-muted-foreground/40" />
         </div>
       </section>
 
+      {guideUnlocked && (<>
       {/* INTRO */}
       <section id="intro" className="py-20 sm:py-28">
         <div className="max-w-3xl mx-auto px-6">
@@ -699,6 +763,7 @@ export default function GuiaAtendimento() {
           </p>
         </div>
       </footer>
+      </>)}
     </div>
   );
 }

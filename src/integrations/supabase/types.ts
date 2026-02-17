@@ -693,6 +693,27 @@ export type Database = {
         }
         Relationships: []
       }
+      guide_leads: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       landing_page_visits: {
         Row: {
           converted: boolean | null
