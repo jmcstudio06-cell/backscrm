@@ -56,6 +56,7 @@ const plans = [
     name: "Starter",
     subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
     price: "R$ 19,90",
+    oldPrice: "R$ 24,90",
     period: "/mês",
     buttonText: "Começar no Starter",
     url: STARTER_URL,
@@ -95,13 +96,88 @@ const plans = [
   },
 ] as const;
 
+function UrgencyBanner() {
+  return (
+    <div className="max-w-5xl mx-auto mb-8">
+      <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl border border-red-400/30">
+        <div className="flex items-center gap-3 justify-center">
+          <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
+            <AlertTriangle className="w-6 h-6 text-white" />
+          </div>
+          <div className="text-center">
+            <p className="text-white font-bold text-lg">Oferta por tempo limitado</p>
+            <p className="text-white/90 text-sm font-medium">Os valores podem voltar ao normal sem aviso prévio.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TestimonialsSection() {
+  return (
+    <div className="max-w-6xl mx-auto mt-14">
+      <div className="text-center mb-8">
+        <h3 className="text-xl font-bold">Quem usa, sente a diferença</h3>
+        <p className="text-sm text-muted-foreground mt-1 font-medium">Feedback real de artistas e produtores</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {testimonials.map((t) => (
+          <div key={t.name} className="bg-muted/40 rounded-2xl p-6 border border-border shadow-sm">
+            <Quote className="w-5 h-5 text-primary/60 mb-3" />
+            <p className="text-sm italic mb-4 font-medium">"{t.text}"</p>
+            <div>
+              <p className="text-sm font-semibold">{t.name}</p>
+              <p className="text-xs text-muted-foreground font-medium">{t.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReassurancesBar() {
+  return (
+    <div className="max-w-6xl mx-auto mt-14 mb-6">
+      <div className="flex flex-wrap justify-center gap-6 rounded-2xl border border-border bg-muted/30 p-4">
+        {reassurances.map((item) => (
+          <div key={item.text} className="flex items-center gap-2 font-medium">
+            <item.icon className="w-4 h-4" />
+            <span className="text-sm">{item.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InfoStrip() {
+  return (
+    <div className="max-w-6xl mx-auto mt-10 mb-12">
+      <div className="rounded-2xl border border-border bg-gradient-to-r from-muted/40 to-muted/10 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <p className="font-semibold">Comece no Starter e evolua quando quiser.</p>
+          <p className="text-sm text-muted-foreground font-medium">
+            A troca de plano é simples. Você pode subir de nível conforme sua carreira cresce.
+          </p>
+        </div>
+        <div className="text-sm text-muted-foreground font-medium">
+          <span className="font-semibold text-foreground">Dica:</span> O Profissional é o mais escolhido.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
 
   return (
     <Layout title="" subtitle="">
       <div className="pt-8 pb-16">
-        {/* TOGGLE */}
+        <UrgencyBanner />
+
         <div className="flex justify-center mb-10">
           <div className="flex bg-muted p-1 rounded-full border">
             <button
@@ -128,15 +204,24 @@ export default function Planos() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {plans.map((p) => {
-              const monthlyPrice = p.id === "starter" ? 19.9 : p.id === "pro" ? 34.9 : 49.99;
+              const monthly = p.id === "starter" ? 19.9 : p.id === "pro" ? 34.9 : 49.99;
 
-              const yearlyPrice = p.id === "starter" ? 199.9 : p.id === "pro" ? 298.8 : 418.8;
+              const yearly = p.id === "starter" ? 199.9 : p.id === "pro" ? 298.8 : 418.8;
 
-              const fullMonthlyYear = monthlyPrice * 12;
+              const yearlyFromMonthly = (monthly * 12).toFixed(2).replace(".", ",");
 
-              const finalPrice = isYearly
-                ? `R$ ${yearlyPrice.toFixed(2).replace(".", ",")}`
-                : `R$ ${monthlyPrice.toFixed(2).replace(".", ",")}`;
+              const finalPrice =
+                p.id === "starter"
+                  ? isYearly
+                    ? "R$ 199,90"
+                    : "R$ 19,90"
+                  : p.id === "pro"
+                    ? isYearly
+                      ? "R$ 298,80"
+                      : "R$ 34,90"
+                    : isYearly
+                      ? "R$ 418,80"
+                      : "R$ 49,99";
 
               const finalUrl =
                 p.id === "starter"
@@ -154,14 +239,17 @@ export default function Planos() {
               const finalPeriod = isYearly ? "/ano" : "/mês";
 
               return (
-                <Card key={p.id} className="rounded-3xl border shadow-xl flex flex-col">
+                <Card
+                  key={p.id}
+                  className="relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col"
+                >
                   <CardContent className="p-8 flex flex-col h-full">
                     <h3 className="text-xl font-bold mb-4">{p.name}</h3>
 
                     <div className="mb-6">
                       {isYearly && (
-                        <p className="text-sm text-red-600 line-through font-semibold">
-                          De: R$ {fullMonthlyYear.toFixed(2).replace(".", ",")}
+                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">
+                          De: R$ {yearlyFromMonthly}
                         </p>
                       )}
 
@@ -170,17 +258,24 @@ export default function Planos() {
                           {isYearly && "Por: "}
                           {finalPrice}
                         </span>
-                        <span className="text-sm text-muted-foreground mb-1">{finalPeriod}</span>
+                        <span className="text-sm text-muted-foreground mb-1 font-medium">{finalPeriod}</span>
                       </div>
+
+                      <p className="text-xs text-muted-foreground mt-1 font-medium">
+                        {isYearly ? "Cobrança anual pré-paga." : "Cobrança mensal pré-paga. Cancele quando quiser."}
+                      </p>
                     </div>
 
                     <div className="mt-auto">
                       <Button
                         size="lg"
-                        className="w-full rounded-2xl text-white font-semibold"
+                        className="w-full rounded-2xl text-white font-semibold shadow-md"
                         onClick={() => window.open(finalUrl, "_blank")}
                       >
-                        {p.buttonText}
+                        <span className="flex items-center justify-center gap-2">
+                          {p.buttonText}
+                          <ArrowRight className="w-4 h-4" />
+                        </span>
                       </Button>
                     </div>
                   </CardContent>
@@ -189,6 +284,10 @@ export default function Planos() {
             })}
           </div>
         </div>
+
+        <InfoStrip />
+        <TestimonialsSection />
+        <ReassurancesBar />
       </div>
     </Layout>
   );
