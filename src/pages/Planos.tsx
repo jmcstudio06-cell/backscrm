@@ -169,47 +169,29 @@ function InfoStrip() {
 }
 
 export default function Planos() {
-  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const [fullYearly, setFullYearly] = useState(false);
 
   return (
     <Layout title="" subtitle="">
       <div className="pt-8 pb-16">
         <UrgencyBanner />
 
-        {/* TOGGLE */}
-        <div className="flex justify-center mb-10">
-          <div className="bg-muted p-1 rounded-2xl flex gap-1">
-            <button
-              onClick={() => setBilling("monthly")}
-              className={cn(
-                "px-6 py-2 rounded-xl text-sm font-semibold transition-all",
-                billing === "monthly" ? "bg-white shadow-md" : "text-muted-foreground",
-              )}
-            >
-              Mensal
-            </button>
-
-            <button
-              onClick={() => setBilling("yearly")}
-              className={cn(
-                "px-6 py-2 rounded-xl text-sm font-semibold transition-all",
-                billing === "yearly" ? "bg-white shadow-md" : "text-muted-foreground",
-              )}
-            >
-              Anual 🔥
-            </button>
+        <div className="text-center max-w-4xl mx-auto mb-14">
+          <div className="flex justify-center mb-6">
+            <AppLogo size="lg" collapsed />
           </div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Organize sua carreira como uma empresa</h1>
+          <p className="text-muted-foreground text-lg font-medium">
+            Menos improviso. Mais controle. Escolha um plano e comece hoje.
+          </p>
         </div>
 
-        {/* PLANOS */}
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {plans.map((p) => {
               const isFull = p.id === "full";
-              const isYearly = isFull && billing === "yearly";
-
-              const finalPrice = isYearly ? "R$ 34,90" : p.price;
-              const finalUrl = isYearly ? FULL_YEARLY_URL : p.url;
+              const finalPrice = isFull && fullYearly ? "R$ 34,90" : p.price;
+              const finalUrl = isFull && fullYearly ? FULL_YEARLY_URL : p.url;
 
               return (
                 <Card
@@ -232,6 +214,27 @@ export default function Planos() {
                   )}
 
                   <CardContent className="p-8 flex flex-col h-full">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                        <AppLogo size="sm" collapsed />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{p.name}</h3>
+                        <p className="text-sm text-muted-foreground font-medium">{p.subtitle}</p>
+                      </div>
+                    </div>
+
+                    {isFull && (
+                      <div className="flex justify-center mb-4">
+                        <button
+                          onClick={() => setFullYearly(!fullYearly)}
+                          className="text-xs font-semibold bg-white border rounded-full px-4 py-1 shadow-sm"
+                        >
+                          {fullYearly ? "Modo Anual 🔥" : "Ativar Anual"}
+                        </button>
+                      </div>
+                    )}
+
                     <div className="mb-6">
                       {p.id === "starter" && (
                         <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
@@ -239,12 +242,32 @@ export default function Planos() {
 
                       <div className="flex items-end gap-2">
                         <span className="text-4xl font-bold">{finalPrice}</span>
-                        <span className="text-sm text-muted-foreground mb-1 font-medium">/mês</span>
+                        <span className="text-sm text-muted-foreground mb-1 font-medium">{p.period}</span>
                       </div>
 
                       <p className="text-xs text-muted-foreground mt-1 font-medium">
-                        {isYearly ? "Cobrança anual de R$ 418,80." : "Cobrança mensal pré-paga. Cancele quando quiser."}
+                        {isFull && fullYearly
+                          ? "Cobrança anual de R$ 418,80. Economize R$ 180 por ano."
+                          : "Cobrança mensal pré-paga. Cancele quando quiser."}
                       </p>
+                    </div>
+
+                    <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-white/20 to-white/40 mb-6">
+                      <div className="rounded-2xl bg-background/80 backdrop-blur-md border border-white/20 shadow-inner p-6 flex-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
+                          O que inclui
+                        </p>
+                        <ul className="space-y-3">
+                          {p.features.map((f, i) => (
+                            <li key={i} className="flex items-start gap-3 text-sm font-medium">
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
 
                     <div className="mt-auto">
