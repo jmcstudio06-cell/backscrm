@@ -3,7 +3,8 @@ import {
   MessageCircle, FileText, Clock, CheckCircle, FolderOpen, MapPin,
   AlertTriangle, ArrowRight, ChevronDown, Target, Shield, Zap,
   Calendar, DollarSign, TrendingUp, Award, User, Phone,
-  Check, AlertCircle, Lightbulb, X, Play, Star, Layers
+  Check, AlertCircle, Lightbulb, X, Play, Star, Layers,
+  Timer, Ban, Send, HandshakeIcon, ClipboardX, Brain, EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -411,6 +412,13 @@ export default function GuiaAtendimento() {
                     <span>Etapa {step.id}</span>
                   </a>
                 ))}
+                <a href="#erros-invisíveis"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive/8 border border-destructive/20 hover:border-destructive/40 hover:shadow-card transition-all group whitespace-nowrap snap-start shrink-0 text-sm font-medium text-destructive/80 hover:text-destructive">
+                  <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-destructive/20 shrink-0">
+                    <Ban className="w-3.5 h-3.5 text-destructive" />
+                  </div>
+                  <span>Erros Invisíveis</span>
+                </a>
               </div>
             </div>
           </div>
@@ -583,6 +591,312 @@ export default function GuiaAtendimento() {
               </ProBlock>
             </Reveal>
           </StepSection>
+
+          {/* ── ERROS INVISÍVEIS ───────────────────────── */}
+          <section id="erros-invisíveis" className="py-24 sm:py-32 relative overflow-hidden">
+            {/* Background */}
+            <div className="absolute inset-0 bg-[hsl(10,40%,6%)]" />
+            <div className="absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: "repeating-linear-gradient(0deg, white 0px, white 1px, transparent 1px, transparent 60px), repeating-linear-gradient(90deg, white 0px, white 1px, transparent 1px, transparent 60px)"
+              }} />
+            <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full blur-3xl opacity-8"
+              style={{ background: "radial-gradient(circle, hsl(10,60%,30%) 0%, transparent 70%)" }} />
+
+            <div className="relative z-10 max-w-2xl mx-auto px-6">
+              {/* Header */}
+              <Reveal>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/30 text-[hsl(10,80%,70%)] text-xs font-bold uppercase tracking-widest mb-8">
+                  <Ban className="w-3.5 h-3.5" />
+                  Erros invisíveis
+                </div>
+                <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
+                  Erros que te tiram
+                  <br />
+                  <span style={{ color: "hsl(10,80%,65%)" }}>automaticamente</span>
+                  <br />
+                  da venda.
+                </h2>
+                <p className="text-white/50 text-lg mb-14 leading-relaxed">
+                  Nenhum deles aparece no palco. Todos aparecem na conta bancária.
+                </p>
+              </Reveal>
+
+              <div className="space-y-6">
+                {/* Erro 1 */}
+                <Reveal delay={60}>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8 bg-white/4">
+                      <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center shrink-0">
+                        <Timer className="w-3.5 h-3.5 text-destructive" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 block">Erro 1</span>
+                        <span className="font-bold text-white text-sm">Esperar o cliente puxar a conversa</span>
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-3">
+                      <div className="flex gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/15">
+                        <X className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                        <p className="text-white/70 text-sm">Você envia a proposta e espera o cliente responder.</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-white/4 border border-white/8">
+                        <p className="text-white/50 text-xs mb-1 uppercase tracking-wider font-bold">O que o cliente interpreta</p>
+                        <p className="text-white/80 text-sm">Falta de prioridade. Falta de controle. Falta de processo.</p>
+                      </div>
+                      <div className="flex gap-2 p-3 rounded-xl bg-white/6 border border-white/10">
+                        <Check className="w-4 h-4 text-[hsl(150,60%,55%)] shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-white/50 text-xs mb-1 uppercase tracking-wider font-bold">Forma correta</p>
+                          <p className="text-white/90 text-sm font-semibold mb-2">Sempre faça follow-up.</p>
+                          <div className="pl-3 border-l-2 border-white/15 italic text-white/60 text-sm leading-relaxed">
+                            "Passando pra confirmar se conseguiu analisar a proposta. A data está com outras consultas e queria entender como podemos avançar."
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-center font-black text-white/90 text-sm pt-1">
+                        Quem conduz, fecha. Quem espera, assiste.
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Erro 2 */}
+                <Reveal delay={100}>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8 bg-white/4">
+                      <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center shrink-0">
+                        <Clock className="w-3.5 h-3.5 text-destructive" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 block">Erro 2</span>
+                        <span className="font-bold text-white text-sm">Demorar para responder</span>
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-3">
+                      <div className="flex gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/15">
+                        <X className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                        <p className="text-white/70 text-sm">Responder horas depois. Ou no dia seguinte.</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-white/4 border border-white/8">
+                        <p className="text-white/50 text-xs mb-2 uppercase tracking-wider font-bold">O que o cliente pensa</p>
+                        <p className="text-white/70 text-sm italic">"Se demora pra responder agora, vai demorar no evento?"</p>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/6 border border-white/10">
+                        <Zap className="w-4 h-4 text-[hsl(150,60%,55%)] shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-white/50 text-xs mb-1 uppercase tracking-wider font-bold">Regra prática</p>
+                          <p className="text-white/90 text-sm font-semibold">Responda o mais rápido possível.</p>
+                          <p className="text-white/50 text-xs mt-1">Velocidade transmite profissionalismo.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Erro 3 */}
+                <Reveal delay={140}>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8 bg-white/4">
+                      <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center shrink-0">
+                        <DollarSign className="w-3.5 h-3.5 text-destructive" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 block">Erro 3</span>
+                        <span className="font-bold text-white text-sm">Mandar apenas o preço</span>
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-3">
+                      <div className="text-center p-5 rounded-xl bg-destructive/10 border border-destructive/15">
+                        <p className="text-4xl font-black text-white/90 mb-2">R$ 2.500</p>
+                        <p className="text-destructive text-sm font-medium">Você virou número.</p>
+                        <p className="text-white/40 text-xs mt-1">Número vira comparação. Comparação vira perda de valor.</p>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/6 border border-white/10">
+                        <FileText className="w-4 h-4 text-[hsl(150,60%,55%)] shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-white/50 text-xs mb-1 uppercase tracking-wider font-bold">Forma profissional</p>
+                          <p className="text-white/90 text-sm font-semibold">Sempre envie proposta estruturada.</p>
+                          <p className="text-white/50 text-xs mt-1">Estrutura aumenta percepção de valor.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Erro 4 */}
+                <Reveal delay={180}>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8 bg-white/4">
+                      <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center shrink-0">
+                        <MessageCircle className="w-3.5 h-3.5 text-destructive" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 block">Erro 4</span>
+                        <span className="font-bold text-white text-sm">Não assumir controle da negociação</span>
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-3">
+                      <div className="flex gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/15">
+                        <X className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                        <p className="text-white/70 text-sm">Ficar apenas respondendo perguntas.</p>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/6 border border-white/10">
+                        <ArrowRight className="w-4 h-4 text-[hsl(150,60%,55%)] shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-white/50 text-xs mb-1 uppercase tracking-wider font-bold">Forma profissional</p>
+                          <p className="text-white/90 text-sm font-semibold mb-2">Conduzir o processo.</p>
+                          <div className="pl-3 border-l-2 border-white/15 italic text-white/60 text-sm">
+                            "Vou preparar a proposta completa e já te envio."
+                          </div>
+                          <p className="text-white/40 text-xs mt-2">Você lidera. O cliente segue.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Erro 5 */}
+                <Reveal delay={220}>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8 bg-white/4">
+                      <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center shrink-0">
+                        <ClipboardX className="w-3.5 h-3.5 text-destructive" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 block">Erro 5</span>
+                        <span className="font-bold text-white text-sm">Não formalizar rapidamente</span>
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-3">
+                      <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/15 space-y-1">
+                        <p className="text-white/70 text-sm">Cliente diz <strong className="text-white">"Fechado"</strong> — e você não envia contrato imediatamente.</p>
+                        <p className="text-destructive text-xs font-semibold mt-2">Outro artista pode assumir sua data.</p>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/6 border border-white/10">
+                        <Shield className="w-4 h-4 text-[hsl(150,60%,55%)] shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-white/50 text-xs mb-1 uppercase tracking-wider font-bold">Forma profissional</p>
+                          <p className="text-white/90 text-sm font-semibold">Formalize imediatamente.</p>
+                          <p className="text-white/50 text-xs mt-1">Contrato reserva a data. Não a conversa.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Erro 6 */}
+                <Reveal delay={260}>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8 bg-white/4">
+                      <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center shrink-0">
+                        <Brain className="w-3.5 h-3.5 text-destructive" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 block">Erro 6</span>
+                        <span className="font-bold text-white text-sm">Confiar na memória</span>
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-3">
+                      <div className="flex gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/15">
+                        <X className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                        <p className="text-white/70 text-sm">Guardar informações na cabeça ou no WhatsApp.</p>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {["Datas perdidas", "Clientes esquecidos", "Dinheiro não registrado"].map(item => (
+                          <div key={item} className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/4 border border-white/8 text-center">
+                            <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
+                            <span className="text-white/60 text-xs font-medium">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-center text-white/90 font-black text-sm pt-1">
+                        Memória falha. Sistema não.
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Erro 7 */}
+                <Reveal delay={300}>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8 bg-white/4">
+                      <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center shrink-0">
+                        <EyeOff className="w-3.5 h-3.5 text-destructive" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 block">Erro 7</span>
+                        <span className="font-bold text-white text-sm">Parecer amador sem perceber</span>
+                      </div>
+                    </div>
+                    <div className="p-5 space-y-3">
+                      <p className="text-white/50 text-xs uppercase tracking-wider font-bold mb-1">Pequenos sinais que reduzem sua taxa de fechamento:</p>
+                      <div className="space-y-2">
+                        {[
+                          "Responder sem estrutura",
+                          "Não ter proposta organizada",
+                          "Não ter contrato",
+                          "Não ter processo claro",
+                        ].map(item => (
+                          <div key={item} className="flex items-center gap-2 p-2.5 rounded-lg bg-destructive/8 border border-destructive/12">
+                            <X className="w-3.5 h-3.5 text-destructive shrink-0" />
+                            <span className="text-white/70 text-sm">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 p-4 rounded-xl border border-white/10 bg-white/6 text-center">
+                        <p className="text-white/60 text-sm">O cliente não compra apenas o show.</p>
+                        <p className="text-white font-black text-base mt-1">Ele compra segurança.</p>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
+
+              {/* Frase isolada de impacto */}
+              <Reveal delay={360} className="mt-16">
+                <div className="relative rounded-3xl overflow-hidden border border-white/10 p-10 text-center"
+                  style={{ background: "linear-gradient(135deg, hsl(10,40%,8%) 0%, hsl(222,35%,10%) 100%)" }}>
+                  <div className="absolute inset-0 opacity-30"
+                    style={{ background: "radial-gradient(circle at 50% 0%, hsl(10,60%,25%) 0%, transparent 70%)" }} />
+                  <div className="relative z-10">
+                    <p className="text-white/40 text-sm uppercase tracking-widest font-bold mb-6">A verdade que muda tudo</p>
+                    <p className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                      Contratantes não fecham com o artista
+                      <br />
+                      mais <span style={{ color: "hsl(10,80%,65%)" }}>talentoso.</span>
+                    </p>
+                    <p className="text-2xl sm:text-3xl font-black text-white mt-2 leading-tight">
+                      Fecham com o artista que transmite
+                      <br />
+                      mais <span style={{ color: "hsl(150,60%,60%)" }}>segurança.</span>
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Regra profissional simples */}
+              <Reveal delay={420} className="mt-6">
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-6">
+                  <p className="text-white/40 text-xs uppercase tracking-widest font-bold mb-5 text-center">Regra profissional simples</p>
+                  <div className="space-y-3">
+                    {[
+                      { icon: Timer, text: "Quem responde primeiro, fecha mais." },
+                      { icon: ArrowRight, text: "Quem conduz, fecha mais." },
+                      { icon: Zap, text: "Quem tem sistema, cresce mais." },
+                    ].map(({ icon: Icon, text }) => (
+                      <div key={text} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/8">
+                        <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                          <Icon className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="font-bold text-white/90 text-sm">{text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </section>
 
           {/* ── ETAPA 4 ────────────────────────────────── */}
           <StepSection id="step-4" step={STEPS[3]}>
