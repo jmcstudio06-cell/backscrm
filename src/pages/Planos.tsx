@@ -23,6 +23,30 @@ const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
 const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
 const FULL_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/CZrFywU7b";
 
+const testimonials = [
+  {
+    name: "Paula Seven",
+    role: "Cantora, São Paulo",
+    text: "Parei de perder orçamentos e fechei 3x mais shows no primeiro mês.",
+  },
+  {
+    name: "Japa Produções",
+    role: "Produtor Musical, Rio de Janeiro",
+    text: "Finalmente tenho controle real da minha carreira. É como ter um empresário digital.",
+  },
+  {
+    name: "Banda Trago",
+    role: "Banda de Rock, Belo Horizonte",
+    text: "A gente achava que era organizado. Depois do Backstage, vimos que não era.",
+  },
+];
+
+const reassurances = [
+  { icon: Shield, text: "Pagamento 100% seguro" },
+  { icon: XCircle, text: "Cancele quando quiser" },
+  { icon: HeadphonesIcon, text: "Suporte humano real" },
+];
+
 export default function Planos() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
@@ -32,10 +56,13 @@ export default function Planos() {
       name: "Starter",
       subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
       price: "R$ 19,90",
+      oldPrice: "R$ 24,90",
       period: "/mês",
       buttonText: "Começar no Starter",
       url: STARTER_URL,
+      highlight: false,
       badgeText: "",
+      icon: Sparkles,
       socialProof: "19 Artistas estão nesse plano!",
       features: ["Dashboard", "Agenda", "Clientes", "Financeiro", "Repertório", "Tutoriais", "Configurações"],
     },
@@ -47,7 +74,9 @@ export default function Planos() {
       period: "/mês",
       buttonText: "Escolher Profissional",
       url: PRO_URL,
+      highlight: true,
       badgeText: "MAIS POPULAR",
+      icon: Briefcase,
       socialProof: "47 artistas estão nesse plano!",
       features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Bonûs", "Checklist", "Avanços", "Precificação"],
     },
@@ -59,7 +88,9 @@ export default function Planos() {
       period: "/mês",
       buttonText: "Escolher Completo",
       url: FULL_URL,
+      highlight: false,
       badgeText: "TUDO LIBERADO",
+      icon: Crown,
       socialProof: "21 artistas estão nesse plano!",
       features: ["Tudo do Profissional+", "Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
     },
@@ -68,7 +99,6 @@ export default function Planos() {
   return (
     <Layout title="" subtitle="">
       <div className="pt-8 pb-16">
-        {/* TOGGLE MENSAL / ANUAL */}
         <div className="flex justify-center mb-12">
           <div className="bg-muted p-1 rounded-2xl flex gap-1">
             <button
@@ -80,7 +110,6 @@ export default function Planos() {
             >
               Mensal
             </button>
-
             <button
               onClick={() => setBilling("yearly")}
               className={cn(
@@ -107,10 +136,12 @@ export default function Planos() {
                 <Card
                   key={p.id}
                   className={cn(
-                    "relative rounded-3xl border shadow-xl transition-all duration-300 h-full flex flex-col",
-                    isYearly
-                      ? "border-amber-500 bg-gradient-to-br from-amber-50 via-white to-orange-50"
-                      : "border-border bg-white",
+                    "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
+                    p.highlight
+                      ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+                      : p.id === "full"
+                        ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
+                        : "border-border bg-gradient-to-br from-white to-muted/20",
                   )}
                 >
                   {p.badgeText && (
@@ -123,6 +154,10 @@ export default function Planos() {
 
                   <CardContent className="p-8 flex flex-col h-full">
                     <div className="mb-6">
+                      {p.id === "starter" && (
+                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
+                      )}
+
                       <div className="flex items-end gap-2">
                         <span className="text-4xl font-bold">{finalPrice}</span>
                         <span className="text-sm text-muted-foreground mb-1 font-medium">{finalPeriod}</span>
@@ -138,7 +173,12 @@ export default function Planos() {
                     <div className="mt-auto">
                       <Button
                         size="lg"
-                        className="w-full rounded-2xl text-white font-semibold shadow-md bg-gradient-to-r from-primary to-blue-600"
+                        className={cn(
+                          "w-full rounded-2xl text-white font-semibold shadow-md",
+                          p.highlight
+                            ? "bg-gradient-to-r from-blue-600 to-cyan-500"
+                            : "bg-gradient-to-r from-primary to-blue-600",
+                        )}
                         onClick={() => window.open(finalUrl, "_blank")}
                       >
                         <span className="flex items-center justify-center gap-2">
