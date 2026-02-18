@@ -204,11 +204,9 @@ export default function Planos() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {plans.map((p) => {
-              const monthly = p.id === "starter" ? 19.9 : p.id === "pro" ? 34.9 : 49.99;
+              const monthlyValue = p.id === "starter" ? 19.9 : p.id === "pro" ? 34.9 : 49.99;
 
-              const yearly = p.id === "starter" ? 199.9 : p.id === "pro" ? 298.8 : 418.8;
-
-              const yearlyFromMonthly = (monthly * 12).toFixed(2).replace(".", ",");
+              const yearlyFromMonthly = (monthlyValue * 12).toFixed(2).replace(".", ",");
 
               const finalPrice =
                 p.id === "starter"
@@ -241,10 +239,33 @@ export default function Planos() {
               return (
                 <Card
                   key={p.id}
-                  className="relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col"
+                  className={cn(
+                    "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
+                    p.highlight
+                      ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+                      : p.id === "full"
+                        ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
+                        : "border-border bg-gradient-to-br from-white to-muted/20",
+                  )}
                 >
+                  {p.badgeText && (
+                    <div className="absolute top-5 right-5">
+                      <Badge className="bg-blue-600 text-white rounded-full px-3 py-1 text-xs font-semibold">
+                        {p.badgeText}
+                      </Badge>
+                    </div>
+                  )}
+
                   <CardContent className="p-8 flex flex-col h-full">
-                    <h3 className="text-xl font-bold mb-4">{p.name}</h3>
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                        <AppLogo size="sm" collapsed />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{p.name}</h3>
+                        <p className="text-sm text-muted-foreground font-medium">{p.subtitle}</p>
+                      </div>
+                    </div>
 
                     <div className="mb-6">
                       {isYearly && (
@@ -253,11 +274,12 @@ export default function Planos() {
                         </p>
                       )}
 
+                      {p.id === "starter" && !isYearly && (
+                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
+                      )}
+
                       <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold">
-                          {isYearly && "Por: "}
-                          {finalPrice}
-                        </span>
+                        <span className="text-4xl font-bold">{finalPrice}</span>
                         <span className="text-sm text-muted-foreground mb-1 font-medium">{finalPeriod}</span>
                       </div>
 
@@ -266,10 +288,33 @@ export default function Planos() {
                       </p>
                     </div>
 
+                    <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-white/20 to-white/40 mb-6">
+                      <div className="rounded-2xl bg-background/80 backdrop-blur-md border border-white/20 shadow-inner p-6 flex-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
+                          O que inclui
+                        </p>
+                        <ul className="space-y-3">
+                          {p.features.map((f, i) => (
+                            <li key={i} className="flex items-start gap-3 text-sm font-medium">
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
                     <div className="mt-auto">
                       <Button
                         size="lg"
-                        className="w-full rounded-2xl text-white font-semibold shadow-md"
+                        className={cn(
+                          "w-full rounded-2xl text-white font-semibold shadow-md",
+                          p.highlight
+                            ? "bg-gradient-to-r from-blue-600 to-cyan-500"
+                            : "bg-gradient-to-r from-primary to-blue-600",
+                        )}
                         onClick={() => window.open(finalUrl, "_blank")}
                       >
                         <span className="flex items-center justify-center gap-2">
@@ -277,6 +322,7 @@ export default function Planos() {
                           <ArrowRight className="w-4 h-4" />
                         </span>
                       </Button>
+                      <p className="text-xs text-center text-muted-foreground mt-3 font-medium">{p.socialProof}</p>
                     </div>
                   </CardContent>
                 </Card>
