@@ -527,6 +527,63 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Section */}
+      {/* Quem Somos Section - CEO */}
+      <section id="quem-somos" className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Nossa Equipe</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
+              Quem Somos Nós
+            </h2>
+            <p className="text-slate-500 max-w-2xl mx-auto">
+              Conheça as pessoas por trás do Backstage Pro — profissionais apaixonados por ajudar artistas a crescer
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200 overflow-hidden">
+              <CardContent className="p-0">
+                <div className="grid lg:grid-cols-2 gap-8 items-center">
+                  <div className="relative h-80 lg:h-[450px]">
+                    <img 
+                      src={joseMarioImg} 
+                      alt="José Mario Campos - CEO" 
+                      className="w-full h-full object-cover object-top"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent lg:hidden" />
+                  </div>
+                  <div className="p-8 lg:pr-12">
+                    <div className="inline-flex items-center gap-2 bg-[#0066CC]/10 rounded-full px-4 py-2 mb-4">
+                      <Sparkles className="w-4 h-4 text-[#0066CC]" />
+                      <span className="text-[#0066CC] text-sm font-medium">Fundador & CEO</span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
+                      José Mario Campos
+                    </h3>
+                    <p className="text-[#00B4D8] font-medium mb-4">
+                      Também conhecido artisticamente como Mario Oliveira
+                    </p>
+                    
+                    <div className="relative">
+                      <Quote className="w-8 h-8 text-[#0066CC]/20 absolute -left-2 -top-2" />
+                      <p className="text-slate-600 leading-relaxed pl-6">
+                        É cantor e viveu na pele os desafios de quem tenta profissionalizar a carreira usando apenas planilhas. Durante anos, organizou shows, contatos e ideias no Excel — até perceber que, mesmo trabalhando muito, não conseguia enxergar seus próprios resultados.
+                      </p>
+                      <p className="text-slate-600 leading-relaxed pl-6 mt-4">
+                        Faltava clareza, visão de evolução e, principalmente, uma ferramenta que entendesse a realidade de quem vive de palco.
+                      </p>
+                      <p className="text-slate-700 font-medium leading-relaxed pl-6 mt-4">
+                        Foi dessa frustração real que nasceu a <span className="text-[#0066CC]">Backstage Pro</span>: uma plataforma criada por um artista, para artistas, pensada para transformar esforço em progresso visível e carreira em negócio profissional.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       <section id="depoimentos" className="py-20 bg-gradient-to-b from-[#0066CC] to-[#0088DD]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
