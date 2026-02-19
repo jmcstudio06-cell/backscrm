@@ -799,13 +799,13 @@ const Landing = () => {
           <div className="text-center mb-14">
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Planos</span>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
-              Organize sua carreira
+              Escolha o plano ideal
             </h2>
             <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
-              como uma empresa
+              para sua carreira
             </h3>
             <p className="text-slate-500">
-              Menos improviso. Mais controle. Escolha um plano e comece hoje.
+              Menos improviso. Mais controle. Comece hoje.
             </p>
           </div>
 
