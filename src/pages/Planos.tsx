@@ -14,6 +14,8 @@ import {
   Briefcase,
   Crown,
   ArrowRight,
+  CalendarDays,
+  CalendarRange,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
@@ -178,25 +180,32 @@ export default function Planos() {
       <div className="pt-8 pb-16">
         <UrgencyBanner />
 
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold">Escolha o plano ideal para sua carreira</h2>
+          <p className="text-sm text-muted-foreground mt-2 font-medium">Menos improviso. Mais controle. Comece hoje.</p>
+        </div>
+
         <div className="flex justify-center mb-10">
           <div className="flex bg-muted p-1 rounded-full border">
             <button
               onClick={() => setIsYearly(false)}
               className={cn(
-                "px-6 py-2 rounded-full text-sm font-semibold transition-all",
+                "px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2",
                 !isYearly ? "bg-white shadow text-foreground" : "text-muted-foreground",
               )}
             >
+              <CalendarDays className="w-4 h-4" />
               Mensal
             </button>
             <button
               onClick={() => setIsYearly(true)}
               className={cn(
-                "px-6 py-2 rounded-full text-sm font-semibold transition-all",
+                "px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2",
                 isYearly ? "bg-white shadow text-foreground" : "text-muted-foreground",
               )}
             >
-              Anual 🔥
+              <CalendarRange className="w-4 h-4" />
+              Anual
             </button>
           </div>
         </div>
