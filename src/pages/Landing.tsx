@@ -8,7 +8,8 @@ import {
   Calendar, 
   DollarSign, 
   Users, 
-  CalendarDays, 
+  CalendarDays,
+  CalendarRange,
   Heart,
   TrendingUp,
   Check,
@@ -49,6 +50,10 @@ import { AppLogo } from "@/components/layout/AppLogo";
 const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
 const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
 const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
+
+const STARTER_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/jHWwPyTRH";
+const PRO_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/62KukbQ1H";
+const FULL_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/CZrFywU7b";
 
 const plans = [
   {
@@ -97,6 +102,7 @@ const plans = [
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [isYearly, setIsYearly] = useState(false);
 
   // Track landing page visit
   useEffect(() => {
@@ -707,12 +713,46 @@ const Landing = () => {
             </p>
           </div>
 
-
-
+          <div className="flex justify-center mb-10">
+            <div className="flex bg-slate-100 p-1 rounded-full border border-slate-200">
+              <button
+                onClick={() => setIsYearly(false)}
+                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
+                  !isYearly ? "bg-white shadow text-slate-800" : "text-slate-400"
+                }`}
+              >
+                <CalendarDays className="w-4 h-4" />
+                Mensal
+              </button>
+              <button
+                onClick={() => setIsYearly(true)}
+                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
+                  isYearly ? "bg-white shadow text-slate-800" : "text-slate-400"
+                }`}
+              >
+                <CalendarRange className="w-4 h-4" />
+                Anual
+              </button>
+            </div>
+          </div>
 
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-              {plans.map((p) => (
+              {plans.map((p) => {
+                const monthlyValue = p.id === "starter" ? 19.9 : p.id === "pro" ? 34.9 : 49.99;
+                const yearlyFromMonthly = (monthlyValue * 12).toFixed(2).replace(".", ",");
+                const finalPrice = p.id === "starter"
+                  ? isYearly ? "R$ 199,90" : "R$ 19,90"
+                  : p.id === "pro"
+                    ? isYearly ? "R$ 298,80" : "R$ 34,90"
+                    : isYearly ? "R$ 418,80" : "R$ 49,99";
+                const finalUrl = p.id === "starter"
+                  ? isYearly ? STARTER_YEARLY_URL : STARTER_URL
+                  : p.id === "pro"
+                    ? isYearly ? PRO_YEARLY_URL : PRO_URL
+                    : isYearly ? FULL_YEARLY_URL : FULL_URL;
+                const finalPeriod = isYearly ? "/ano" : "/mês";
+                return (
                 <div
                   key={p.id}
                   className={`relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col ${
@@ -743,15 +783,20 @@ const Landing = () => {
                     </div>
 
                     <div className="mb-6">
-                      {p.id === "starter" && (
+                      {isYearly && (
+                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">
+                          De: R$ {yearlyFromMonthly}
+                        </p>
+                      )}
+                      {p.id === "starter" && !isYearly && (
                         <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
                       )}
                       <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold text-slate-800">{p.price}</span>
-                        <span className="text-sm text-slate-500 mb-1 font-medium">{p.period}</span>
+                        <span className="text-4xl font-bold text-slate-800">{finalPrice}</span>
+                        <span className="text-sm text-slate-500 mb-1 font-medium">{finalPeriod}</span>
                       </div>
                       <p className="text-xs text-slate-400 mt-1 font-medium">
-                        Cobrança mensal pré-paga. Cancele quando quiser.
+                        {isYearly ? "Cobrança anual pré-paga." : "Cobrança mensal pré-paga. Cancele quando quiser."}
                       </p>
                     </div>
 
@@ -779,7 +824,7 @@ const Landing = () => {
                             ? "bg-gradient-to-r from-[#0066CC] to-[#00B4D8]"
                             : "bg-gradient-to-r from-[#0066CC] to-[#0088DD]"
                         }`}
-                        onClick={() => window.open(p.url, "_blank")}
+                        onClick={() => window.open(finalUrl, "_blank")}
                       >
                         <span className="flex items-center justify-center gap-2">
                           {p.buttonText}
@@ -790,7 +835,8 @@ const Landing = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           </div>
 
