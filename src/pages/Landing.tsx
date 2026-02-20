@@ -23,7 +23,13 @@ import {
   X,
   Clock,
   Zap,
-  ClipboardCheck
+  ClipboardCheck,
+  FileText,
+  Music,
+  MapPin,
+  BarChart3,
+  Receipt,
+  Target
 } from "lucide-react";
 
 // Team images
@@ -120,33 +126,51 @@ const Landing = () => {
     },
     {
       icon: DollarSign,
-      title: "Financeiro Completo",
-      description: "Saiba exatamente quanto entra e quanto sai. Chega de planilha bagunçada e dinheiro perdido.",
+      title: "Financeiro Integrado",
+      description: "Integrado a todo o app. Sem lançamentos manuais — tudo se conecta automaticamente.",
       color: "bg-emerald-500"
     },
     {
-      icon: TrendingUp,
-      title: "CRM de Vendas",
-      description: "Pare de perder shows por falta de follow-up. Acompanhe cada lead até fechar o contrato.",
+      icon: FileText,
+      title: "Orçamentos e Contratos",
+      description: "Gere orçamentos e contratos profissionais em menos de 1 minuto, direto pelo app.",
+      color: "bg-orange-500"
+    },
+    {
+      icon: Receipt,
+      title: "Borderô de Shows",
+      description: "Controle individualmente a despesa de cada show e tenha mais controle da sua rentabilidade.",
       color: "bg-pink-500"
+    },
+    {
+      icon: BarChart3,
+      title: "Balanço Mensal",
+      description: "Um poderoso relatório de fechamento mensal que facilita a gestão do artista.",
+      color: "bg-purple-500"
+    },
+    {
+      icon: Target,
+      title: "Auxílio de Vendas",
+      description: "Funil de vendas, gestão de clientes e dicas exclusivas para você vender mais shows.",
+      color: "bg-cyan-500"
+    },
+    {
+      icon: Music,
+      title: "Repertório Express",
+      description: "Monte e baixe seu repertório completo em menos de 1 minuto. Prático e profissional.",
+      color: "bg-indigo-500"
+    },
+    {
+      icon: MapPin,
+      title: "Mapeamento de Palco",
+      description: "Crie riders técnicos profissionais com posição de cada músico e equipamento no palco.",
+      color: "bg-amber-500"
     },
     {
       icon: Users,
       title: "Gestão de Músicos",
-      description: "Acabou a confusão de quem tocou onde e quanto recebeu. Controle pagamentos da banda em segundos.",
-      color: "bg-purple-500"
-    },
-    {
-      icon: CalendarDays,
-      title: "Contratos Automáticos",
-      description: "Sem mais contratos feitos na correria. Gere, envie e proteja seu cachê em poucos cliques.",
-      color: "bg-orange-500"
-    },
-    {
-      icon: Heart,
-      title: "Suporte Personalizado",
-      description: "Você não está sozinho. Acompanhamento contínuo pra você crescer com segurança.",
-      color: "bg-cyan-500"
+      description: "Acabou a confusão de quem tocou onde e quanto recebeu. Controle pagamentos da banda.",
+      color: "bg-rose-500"
     }
   ];
 
@@ -159,13 +183,7 @@ const Landing = () => {
     artist4Img
   ];
 
-  const benefitsList = [
-    "Agenda inteligente com lembretes",
-    "Dashboard completo de métricas",
-    "Contratos digitais prontos",
-    "Gestão de repertório",
-    "Relatórios financeiros automáticos"
-  ];
+  const benefitsList: string[] = [];
 
   const mainVideoUrl = "https://www.youtube.com/watch?v=I_5o-hmDuRI";
 
@@ -424,15 +442,15 @@ const Landing = () => {
       <section id="recursos" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Recursos Poderosos</span>
+            <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Funcionalidades</span>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mt-4 mb-2">
-              Tudo que você precisa para
+              Achou tudo isso incrível?
             </h2>
             <h3 className="text-3xl md:text-5xl font-bold text-[#0066CC] mb-4">
-              brilhar no palco e nos negócios
+              Calma, que tem muito mais!
             </h3>
             <p className="text-slate-500">
-              Funcionalidades pensadas por quem entende a rotina de um artista
+              Cada recurso foi pensado por quem vive a rotina de um artista
             </p>
           </div>
 
@@ -460,75 +478,6 @@ const Landing = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Section */}
-      <section className="py-20 bg-slate-50">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Demonstração</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mt-4 mb-2">
-                Crie uma rotina inteligente e
-              </h2>
-              <h3 className="text-3xl md:text-4xl font-bold text-[#00B4D8] mb-6">
-                aumente seus resultados
-              </h3>
-              
-              <p className="text-slate-500 mb-8">
-                Com o Backstage Pro, você tem controle total da sua carreira na palma da mão. Interface intuitiva, dados organizados e insights poderosos para você focar no que realmente importa: sua música.
-              </p>
-
-              <div className="space-y-4 mb-8">
-                {benefitsList.map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#00B4D8]/20 flex items-center justify-center">
-                      <Check className="w-4 h-4 text-[#00B4D8]" />
-                    </div>
-                    <span className="text-slate-700">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-6 text-slate-500">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="w-5 h-5" />
-                  <span>iOS & Android</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Monitor className="w-5 h-5" />
-                  <span>Web Dashboard</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl p-8 shadow-2xl">
-                <div className="bg-white rounded-2xl p-4 shadow-lg">
-                  <div className="text-lg font-bold text-slate-800 mb-4">Dashboard</div>
-                  <div className="grid grid-cols-4 gap-3">
-                    <div className="bg-blue-500 rounded-lg p-3 text-white text-center">
-                      <div className="text-xs opacity-80">Leads</div>
-                      <div className="font-bold">5</div>
-                    </div>
-                    <div className="bg-emerald-500 rounded-lg p-3 text-white text-center">
-                      <div className="text-xs opacity-80">Shows</div>
-                      <div className="font-bold">0</div>
-                    </div>
-                    <div className="bg-purple-500 rounded-lg p-3 text-white text-center">
-                      <div className="text-xs opacity-80">Vendas</div>
-                      <div className="font-bold">R$ 24.451</div>
-                    </div>
-                    <div className="bg-pink-500 rounded-lg p-3 text-white text-center">
-                      <div className="text-xs opacity-80">Receita</div>
-                      <div className="font-bold">R$ 24.451</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
