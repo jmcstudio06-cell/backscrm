@@ -201,7 +201,7 @@ const Landing = () => {
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
                 <Sparkles className="w-4 h-4 text-cyan-300" />
-                <span className="text-white/90 text-sm font-medium">O sistema que artistas usam pra ganhar mais</span>
+                <span className="text-white/90 text-sm font-medium">A plataforma que artistas usam para profissionalizar a carreira</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
