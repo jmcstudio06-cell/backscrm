@@ -113,7 +113,7 @@ const Landing = () => {
     {
       icon: Calendar,
       title: "Agenda de Shows",
-      description: "Gerencie todos os seus eventos e apresentações. Do contato ao pagamento, tudo em um só lugar.",
+      description: "Nunca mais esqueça data, horário ou valor combinado. Tudo registrado e organizado.",
       color: "bg-blue-500",
       highlighted: true,
       badge: "Mais usado"
@@ -121,31 +121,31 @@ const Landing = () => {
     {
       icon: DollarSign,
       title: "Financeiro Completo",
-      description: "Controle cachês, despesas e comissões automaticamente. Relatórios claros sem planilhas.",
+      description: "Saiba exatamente quanto entra e quanto sai. Chega de planilha bagunçada e dinheiro perdido.",
       color: "bg-emerald-500"
     },
     {
       icon: TrendingUp,
       title: "CRM de Vendas",
-      description: "Pipeline visual para converter leads em shows. Nunca perca uma oportunidade de negócio.",
+      description: "Pare de perder shows por falta de follow-up. Acompanhe cada lead até fechar o contrato.",
       color: "bg-pink-500"
     },
     {
       icon: Users,
       title: "Gestão de Músicos",
-      description: "Organize sua banda, freelancers e pagamentos de forma simples e profissional.",
+      description: "Acabou a confusão de quem tocou onde e quanto recebeu. Controle pagamentos da banda em segundos.",
       color: "bg-purple-500"
     },
     {
       icon: CalendarDays,
       title: "Contratos Automáticos",
-      description: "Gere contratos prontos com seus dados. Envie para o cliente em segundos.",
+      description: "Sem mais contratos feitos na correria. Gere, envie e proteja seu cachê em poucos cliques.",
       color: "bg-orange-500"
     },
     {
       icon: Heart,
       title: "Suporte Personalizado",
-      description: "Acompanhamento contínuo para ajudar você a crescer na carreira musical.",
+      description: "Você não está sozinho. Acompanhamento contínuo pra você crescer com segurança.",
       color: "bg-cyan-500"
     }
   ];
@@ -201,21 +201,21 @@ const Landing = () => {
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
                 <Sparkles className="w-4 h-4 text-cyan-300" />
-                <span className="text-white/90 text-sm font-medium">Gestão completa para artistas</span>
+                <span className="text-white/90 text-sm font-medium">O sistema que artistas usam pra ganhar mais</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
-                Transforme sua
+                Seu talento é no palco.
               </h1>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-cyan-300 mb-6">
-                carreira musical
+                A organização deixa com a gente.
               </h2>
 
               <p className="text-white/90 text-lg md:text-xl max-w-xl mb-4">
-                Do primeiro contato ao pagamento do cachê, sem planilhas.
+                Shows, contratos, cachês e finanças em um só lugar.
               </p>
               <p className="text-white/70 text-base max-w-xl mb-8">
-                Gerencie shows, contratos e finanças em um só lugar.
+                Pare de perder oportunidades por falta de controle.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mb-6">
