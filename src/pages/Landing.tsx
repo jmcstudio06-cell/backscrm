@@ -401,20 +401,42 @@ const Landing = () => {
             Veja como o app funciona e depoimentos de quem já usa
           </p>
 
-          <div className="max-w-4xl mx-auto">
-            <Card className="overflow-hidden shadow-2xl bg-white border-slate-200">
-              <CardContent className="p-0">
-                <div className="aspect-video">
-                  <iframe
-                    src={getYouTubeEmbedUrl(mainVideoUrl)?.replace('?autoplay=1', '') || ''}
-                    title="Conheça o Backstage Pro"
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              </CardContent>
-            </Card>
+          <div className="max-w-5xl mx-auto grid md:grid-cols-[2fr_1fr] gap-6 items-start">
+            {/* Vídeo principal */}
+            <div>
+              <Card className="overflow-hidden shadow-2xl bg-white border-slate-200">
+                <CardContent className="p-0">
+                  <div className="aspect-video">
+                    <iframe
+                      src={getYouTubeEmbedUrl(mainVideoUrl)?.replace('?autoplay=1', '') || ''}
+                      title="Conheça o Backstage Pro"
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+              <p className="text-slate-400 text-sm mt-3">Conheça a plataforma e quem está por trás</p>
+            </div>
+
+            {/* Vídeo demo (Shorts) */}
+            <div>
+              <Card className="overflow-hidden shadow-2xl bg-white border-slate-200">
+                <CardContent className="p-0">
+                  <div className="aspect-[9/16]">
+                    <iframe
+                      src={getYouTubeEmbedUrl("https://www.youtube.com/shorts/RITl3r37h0I")?.replace('?autoplay=1', '') || ''}
+                      title="Veja o app na prática"
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+              <p className="text-slate-400 text-sm mt-3">Veja o app funcionando na prática</p>
+            </div>
           </div>
         </div>
       </section>
