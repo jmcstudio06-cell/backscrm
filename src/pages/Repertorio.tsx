@@ -92,6 +92,8 @@ export default function Repertorio() {
     reorderBlocks,
     addSong,
     updateSong,
+    editSongDetails,
+    reorderSongs,
     setMainSong,
     deleteSong,
   } = useRepertoire();
@@ -99,8 +101,10 @@ export default function Repertorio() {
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showSongModal, setShowSongModal] = useState(false);
+  const [showEditSongModal, setShowEditSongModal] = useState(false);
   const [editingBlock, setEditingBlock] = useState<Block | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [editingSongId, setEditingSongId] = useState<string | null>(null);
 
   // Form states
   const [blockName, setBlockName] = useState("");
@@ -203,6 +207,35 @@ export default function Repertorio() {
 
   const handleDeleteSong = async (blockId: string, songId: string) => {
     await deleteSong(blockId, songId);
+  };
+
+  const openEditSongModal = (blockId: string, songId: string) => {
+    const block = blocks.find((b) => b.id === blockId);
+    const song = block?.songs.find((s) => s.id === songId);
+    if (!song) return;
+    setSelectedBlockId(blockId);
+    setEditingSongId(songId);
+    setSongTitle(song.title);
+    setSongArtist(song.artist);
+    setSongKey(song.key);
+    setSongDuration(song.duration);
+    setShowEditSongModal(true);
+  };
+
+  const handleEditSong = async () => {
+    if (!songTitle.trim() || !selectedBlockId || !editingSongId) return;
+    await editSongDetails(selectedBlockId, editingSongId, songTitle, songArtist, songKey, songDuration);
+    setShowEditSongModal(false);
+  };
+
+  const moveSong = (blockId: string, songIndex: number, direction: "up" | "down") => {
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    const newIndex = direction === "up" ? songIndex - 1 : songIndex + 1;
+    if (newIndex < 0 || newIndex >= block.songs.length) return;
+    const newSongs = [...block.songs];
+    [newSongs[songIndex], newSongs[newIndex]] = [newSongs[newIndex], newSongs[songIndex]];
+    reorderSongs(blockId, newSongs);
   };
 
   const moveBlock = (index: number, direction: "up" | "down") => {
@@ -601,16 +634,37 @@ export default function Repertorio() {
                       {/* Block Songs */}
                       <CollapsibleContent>
                         <div className="px-4 pb-4 space-y-2">
-                          {block.songs.map((song) => (
+                          {block.songs.map((song, songIndex) => (
                             <div
                               key={song.id}
                               className={cn(
-                                "flex items-center gap-3 p-3 rounded-lg transition-all",
+                                "flex items-center gap-2 sm:gap-3 p-3 rounded-lg transition-all",
                                 song.isMain
                                   ? "bg-primary/10 border border-primary/20"
                                   : "bg-secondary/50 hover:bg-secondary"
                               )}
                             >
+                              <div className="flex flex-col gap-0.5">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-5 w-5"
+                                  onClick={() => moveSong(block.id, songIndex, "up")}
+                                  disabled={songIndex === 0}
+                                >
+                                  <ChevronUp className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-5 w-5"
+                                  onClick={() => moveSong(block.id, songIndex, "down")}
+                                  disabled={songIndex === block.songs.length - 1}
+                                >
+                                  <ChevronDown className="w-3 h-3" />
+                                </Button>
+                              </div>
+
                               <Button
                                 variant={song.isMain ? "default" : "ghost"}
                                 size="icon"
@@ -631,13 +685,13 @@ export default function Repertorio() {
                                 <p className="text-xs text-muted-foreground">{song.artist}</p>
                               </div>
 
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
+                              <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground shrink-0">
                                 <span>Tom: {song.key}</span>
                                 <span>•</span>
                                 <span>{song.duration}</span>
                               </div>
 
-                              <div className="flex items-center gap-3 shrink-0">
+                              <div className="hidden sm:flex items-center gap-3 shrink-0">
                                 <div className="flex items-center gap-1">
                                   <Checkbox
                                     id={`${song.id}-checked`}
@@ -675,6 +729,16 @@ export default function Repertorio() {
                                   </Label>
                                 </div>
                               </div>
+
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => openEditSongModal(block.id, song.id)}
+                                title="Editar música"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
 
                               <Button
                                 variant="ghost"
@@ -836,6 +900,56 @@ export default function Repertorio() {
               Cancelar
             </Button>
             <Button onClick={handleSaveSong}>Adicionar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Editar Música */}
+      <Dialog open={showEditSongModal} onOpenChange={setShowEditSongModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Música</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Título</Label>
+              <Input
+                placeholder="Nome da música"
+                value={songTitle}
+                onChange={(e) => setSongTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Artista</Label>
+              <Input
+                placeholder="Nome do artista"
+                value={songArtist}
+                onChange={(e) => setSongArtist(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Tom</Label>
+                <Input
+                  placeholder="Ex: C, G, Am..."
+                  value={songKey}
+                  onChange={(e) => setSongKey(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Duração</Label>
+                <Input
+                  placeholder="Ex: 3:45"
+                  value={songDuration}
+                  onChange={(e) => setSongDuration(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditSongModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleEditSong}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

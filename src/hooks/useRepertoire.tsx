@@ -306,6 +306,62 @@ export function useRepertoire() {
     }
   };
 
+  const editSongDetails = async (
+    blockId: string,
+    songId: string,
+    title: string,
+    artist: string,
+    key: string,
+    duration: string
+  ) => {
+    try {
+      const { error } = await supabase
+        .from("repertoire_songs")
+        .update({ title, artist, song_key: key, duration })
+        .eq("id", songId);
+
+      if (error) throw error;
+
+      setBlocks(
+        blocks.map((b) =>
+          b.id === blockId
+            ? {
+                ...b,
+                songs: b.songs.map((s) =>
+                  s.id === songId ? { ...s, title, artist, key, duration } : s
+                ),
+              }
+            : b
+        )
+      );
+      toast.success("Música atualizada!");
+    } catch (error) {
+      console.error("Error editing song:", error);
+      toast.error("Erro ao editar música");
+    }
+  };
+
+  const reorderSongs = async (blockId: string, newSongs: Song[]) => {
+    try {
+      setBlocks(
+        blocks.map((b) =>
+          b.id === blockId ? { ...b, songs: newSongs } : b
+        )
+      );
+
+      for (let i = 0; i < newSongs.length; i++) {
+        await supabase
+          .from("repertoire_songs")
+          .update({ sort_order: i })
+          .eq("id", newSongs[i].id);
+      }
+    } catch (error) {
+      console.error("Error reordering songs:", error);
+      toast.error("Erro ao reordenar músicas");
+      fetchBlocks();
+    }
+  };
+
   const setMainSong = async (blockId: string, songId: string) => {
     try {
       const block = blocks.find((b) => b.id === blockId);
@@ -378,6 +434,8 @@ export function useRepertoire() {
     reorderBlocks,
     addSong,
     updateSong,
+    editSongDetails,
+    reorderSongs,
     setMainSong,
     deleteSong,
     refetch: fetchBlocks,
