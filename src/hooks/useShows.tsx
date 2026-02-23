@@ -43,14 +43,55 @@ export function useShowsData() {
     if (!user) return;
     
     try {
-      // First, auto-complete past shows directly in the database
+      // First, find past shows that need auto-completion
       const today = new Date().toISOString().split("T")[0];
       
-      await supabase
+      const { data: showsToComplete } = await supabase
         .from("shows")
-        .update({ status: "completed", updated_at: new Date().toISOString() })
+        .select("*")
         .lt("date", today)
         .in("status", ["scheduled", "confirmed", "pending", "negotiation"]);
+
+      if (showsToComplete && showsToComplete.length > 0) {
+        // Auto-complete them
+        await supabase
+          .from("shows")
+          .update({ status: "completed", updated_at: new Date().toISOString() })
+          .lt("date", today)
+          .in("status", ["scheduled", "confirmed", "pending", "negotiation"]);
+
+        // Create financial transactions for each auto-completed show
+        for (const show of showsToComplete) {
+          const completedShow = { ...show, status: "completed" } as Show;
+          
+          // Fetch musicians
+          const { data: savedMusicians } = await supabase
+            .from("show_musicians")
+            .select("musician_id, fee, musicians(name)")
+            .eq("show_id", show.id);
+
+          const musicians: ShowMusician[] = (savedMusicians || []).map((m: any) => ({
+            musicianId: m.musician_id,
+            name: m.musicians?.name || "Músico",
+            fee: m.fee,
+          }));
+
+          // Fetch expenses
+          const { data: savedExpenses } = await supabase
+            .from("show_expenses")
+            .select("*")
+            .eq("show_id", show.id);
+
+          const expenses: ShowExpense[] = (savedExpenses || []).map((e: any) => ({
+            id: e.id,
+            description: e.description || "",
+            category: e.category,
+            value: e.amount,
+          }));
+
+          await createShowTransactions(completedShow, musicians, expenses);
+        }
+      }
       
       // Then fetch all shows
       const { data, error } = await supabase

@@ -14,6 +14,7 @@ import {
   XCircle,
   List,
   CalendarDays,
+  CheckCircle2,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -125,6 +126,12 @@ export default function Agenda() {
     const showToCancel = shows.find(s => s.id === showId);
     cancelShow(showId);
     toast.success(`Show "${showToCancel?.title}" cancelado!`);
+  };
+
+  const handleConfirmShow = (showId: string) => {
+    const show = shows.find(s => s.id === showId);
+    updateShow(showId, { status: "confirmed" });
+    toast.success(`Show "${show?.title}" confirmado!`);
   };
 
   const handleEditShow = (show: Show) => {
@@ -394,6 +401,17 @@ export default function Agenda() {
                         <Edit className="w-2.5 h-2.5 mr-1" />
                         Editar
                       </Button>
+                      {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-6 w-6 text-green-500 hover:text-green-600 hover:bg-green-500/10"
+                          onClick={() => handleConfirmShow(show.id)}
+                          title="Confirmar show"
+                        >
+                          <CheckCircle2 className="w-2.5 h-2.5" />
+                        </Button>
+                      )}
                       {show.status !== "cancelled" && (
                         <Button 
                           variant="outline" 
@@ -540,6 +558,17 @@ export default function Agenda() {
                       >
                         <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
+                      {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 sm:h-8 sm:w-8 text-green-500 hover:text-green-600"
+                          onClick={() => handleConfirmShow(show.id)}
+                          title="Confirmar show"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </Button>
+                      )}
                       {show.status !== "cancelled" && (
                         <Button 
                           variant="ghost" 
