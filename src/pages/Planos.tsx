@@ -20,11 +20,9 @@ import {
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
 const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
 const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
 
-const STARTER_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/jHWwPyTRH";
 const PRO_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/62KukbQ1H";
 const FULL_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/CZrFywU7b";
 
@@ -52,21 +50,37 @@ const reassurances = [
   { icon: HeadphonesIcon, text: "Suporte humano real" },
 ];
 
-const plans = [
+interface PlanDef {
+  id: string;
+  name: string;
+  subtitle: string;
+  price: string;
+  period: string;
+  buttonText: string;
+  url: string;
+  highlight: boolean;
+  badgeText: string;
+  icon: React.ElementType;
+  socialProof: string;
+  features: string[];
+  isFree?: boolean;
+}
+
+const plans: PlanDef[] = [
   {
-    id: "starter",
-    name: "Starter",
-    subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
-    price: "R$ 19,90",
-    oldPrice: "R$ 24,90",
+    id: "free",
+    name: "Free",
+    subtitle: "Comece a se organizar sem pagar nada.",
+    price: "R$ 0,00",
     period: "/mês",
-    buttonText: "Começar no Starter",
-    url: STARTER_URL,
+    buttonText: "",
+    url: "",
     highlight: false,
-    badgeText: "",
+    badgeText: "GRATUITO",
     icon: Sparkles,
-    socialProof: "19 Artistas estão nesse plano!",
-    features: ["Dashboard", "Agenda", "Clientes", "Financeiro", "Repertório", "Tutoriais", "Configurações"],
+    socialProof: "",
+    features: ["Dashboard", "Agenda (até 4 datas/mês)", "Tutoriais", "Configurações"],
+    isFree: true,
   },
   {
     id: "pro",
@@ -80,13 +94,24 @@ const plans = [
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
-    features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Bonûs", "Checklist", "Avanços", "Precificação"],
+    features: [
+      "Dashboard",
+      "Agenda ilimitada",
+      "Clientes",
+      "Resumo Financeiro",
+      "Repertório",
+      "Funil de Vendas",
+      "Orçamentos Automáticos",
+      "Checklist de Show",
+      "Precificação",
+      "Avanços",
+    ],
   },
   {
     id: "full",
     name: "Completo",
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
-    price: "R$ 49,99",
+    price: "R$ 49,90",
     period: "/mês",
     buttonText: "Escolher Completo",
     url: FULL_URL,
@@ -94,9 +119,17 @@ const plans = [
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
-    features: ["Tudo do Profissional+", "Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
+    features: [
+      "Tudo do Profissional +",
+      "Contratos",
+      "Histórico Financeiro",
+      "Mapeamento de Palco",
+      "Metas",
+      "Equipe & Freelancers",
+      "Bônus",
+    ],
   },
-] as const;
+];
 
 function UrgencyBanner() {
   return (
@@ -159,7 +192,7 @@ function InfoStrip() {
     <div className="max-w-6xl mx-auto mt-10 mb-12">
       <div className="rounded-2xl border border-border bg-gradient-to-r from-muted/40 to-muted/10 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <p className="font-semibold">Comece no Starter e evolua quando quiser.</p>
+          <p className="font-semibold">Comece de graça e evolua quando quiser.</p>
           <p className="text-sm text-muted-foreground font-medium">
             A troca de plano é simples. Você pode subir de nível conforme sua carreira cresce.
           </p>
@@ -213,36 +246,79 @@ export default function Planos() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {plans.map((p) => {
-              const monthlyValue = p.id === "starter" ? 19.9 : p.id === "pro" ? 34.9 : 49.99;
+              // Free plan: no annual option
+              if (p.isFree) {
+                return (
+                  <Card
+                    key={p.id}
+                    className="relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col border-green-400 bg-gradient-to-br from-green-50 via-white to-emerald-50"
+                  >
+                    <div className="absolute top-5 right-5">
+                      <Badge className="bg-green-600 text-white rounded-full px-3 py-1 text-xs font-semibold">
+                        {p.badgeText}
+                      </Badge>
+                    </div>
 
-              const yearlyFromMonthly = (monthlyValue * 12).toFixed(2).replace(".", ",");
+                    <CardContent className="p-8 flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                          <AppLogo size="sm" collapsed />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold">{p.name}</h3>
+                          <p className="text-sm text-muted-foreground font-medium">{p.subtitle}</p>
+                        </div>
+                      </div>
 
-              const finalPrice =
-                p.id === "starter"
-                  ? isYearly
-                    ? "R$ 199,90"
-                    : "R$ 19,90"
-                  : p.id === "pro"
-                    ? isYearly
-                      ? "R$ 298,80"
-                      : "R$ 34,90"
-                    : isYearly
-                      ? "R$ 418,80"
-                      : "R$ 49,99";
+                      <div className="mb-6">
+                        <div className="flex items-end gap-2">
+                          <span className="text-4xl font-bold">R$ 0,00</span>
+                          <span className="text-sm text-muted-foreground mb-1 font-medium">/mês</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 font-medium">
+                          Sem cobrança. Acesso básico gratuito.
+                        </p>
+                      </div>
 
-              const finalUrl =
-                p.id === "starter"
-                  ? isYearly
-                    ? STARTER_YEARLY_URL
-                    : STARTER_URL
-                  : p.id === "pro"
-                    ? isYearly
-                      ? PRO_YEARLY_URL
-                      : PRO_URL
-                    : isYearly
-                      ? FULL_YEARLY_URL
-                      : FULL_URL;
+                      <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-white/20 to-white/40 mb-6">
+                        <div className="rounded-2xl bg-background/80 backdrop-blur-md border border-white/20 shadow-inner p-6 flex-1">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
+                            O que inclui
+                          </p>
+                          <ul className="space-y-3">
+                            {p.features.map((f, i) => (
+                              <li key={i} className="flex items-start gap-3 text-sm font-medium">
+                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Check className="w-3 h-3 text-white" />
+                                </div>
+                                <span>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
 
+                      <div className="mt-auto">
+                        <p className="text-xs text-center text-muted-foreground mt-3 font-medium">
+                          Você já está no plano gratuito!
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+
+              // Paid plans
+              const isPro = p.id === "pro";
+              const monthlyValue = isPro ? 34.9 : 49.9;
+              const yearlyOldPrice = isPro ? "349,90" : "499,90";
+              const yearlyNewPrice = isPro ? "249,90" : "299,90";
+              const yearlyInstallment = isPro ? "20,83" : "24,99";
+
+              const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
+              const finalUrl = isPro
+                ? isYearly ? PRO_YEARLY_URL : PRO_URL
+                : isYearly ? FULL_YEARLY_URL : FULL_URL;
               const finalPeriod = isYearly ? "/ano" : "/mês";
 
               return (
@@ -252,9 +328,7 @@ export default function Planos() {
                     "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
                     p.highlight
                       ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-                      : p.id === "full"
-                        ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
-                        : "border-border bg-gradient-to-br from-white to-muted/20",
+                      : "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50",
                   )}
                 >
                   {p.badgeText && (
@@ -279,18 +353,20 @@ export default function Planos() {
                     <div className="mb-6">
                       {isYearly && (
                         <p className="text-sm text-red-600 line-through mb-1 font-semibold">
-                          De: R$ {yearlyFromMonthly}
+                          De: R$ {yearlyOldPrice}
                         </p>
-                      )}
-
-                      {p.id === "starter" && !isYearly && (
-                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
                       )}
 
                       <div className="flex items-end gap-2">
                         <span className="text-4xl font-bold">{finalPrice}</span>
                         <span className="text-sm text-muted-foreground mb-1 font-medium">{finalPeriod}</span>
                       </div>
+
+                      {isYearly && (
+                        <p className="text-sm text-emerald-600 font-bold mt-1">
+                          ou 12x de R$ {yearlyInstallment}
+                        </p>
+                      )}
 
                       <p className="text-xs text-muted-foreground mt-1 font-medium">
                         {isYearly ? "Cobrança anual pré-paga." : "Cobrança mensal pré-paga. Cancele quando quiser."}
