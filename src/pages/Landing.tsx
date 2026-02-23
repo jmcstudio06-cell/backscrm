@@ -53,28 +53,27 @@ import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
 import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
 const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
 const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
 
-const STARTER_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/jHWwPyTRH";
 const PRO_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/62KukbQ1H";
 const FULL_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/CZrFywU7b";
 
 const plans = [
   {
-    id: "starter",
-    name: "Starter",
-    subtitle: "O plano ideal para começar, se organizar e ter controle da carreira artística.",
-    price: "R$ 19,90",
+    id: "free",
+    name: "Free",
+    subtitle: "Comece a se organizar sem pagar nada.",
+    price: "R$ 0,00",
     period: "/mês",
-    buttonText: "Começar no Starter",
-    url: STARTER_URL,
+    buttonText: "",
+    url: "",
     highlight: false,
-    badgeText: "",
+    badgeText: "GRATUITO",
     icon: Sparkles,
-    socialProof: "19 Artistas estão nesse plano!",
-    features: ["Dashboard", "Agenda", "Clientes", "Financeiro", "Repertório", "Tutoriais", "Configurações"],
+    socialProof: "",
+    features: ["Dashboard", "Agenda (até 4 datas/mês)", "Tutoriais", "Configurações"],
+    isFree: true,
   },
   {
     id: "pro",
@@ -88,13 +87,13 @@ const plans = [
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
-    features: ["Tudo do Starter+", "Funil de Vendas", "Orçamentos", "Bônus", "Checklist", "Avanços", "Precificação"],
+    features: ["Dashboard", "Agenda ilimitada", "Clientes", "Resumo Financeiro", "Repertório", "Funil de Vendas", "Orçamentos Automáticos", "Checklist de Show", "Precificação", "Avanços"],
   },
   {
     id: "full",
     name: "Completo",
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
-    price: "R$ 49,99",
+    price: "R$ 49,90",
     period: "/mês",
     buttonText: "Escolher Completo",
     url: FULL_URL,
@@ -102,9 +101,9 @@ const plans = [
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
-    features: ["Tudo do Profissional+", "Contratos", "Histórico", "Mapeamento de Palco", "Metas", "Equipe"],
+    features: ["Tudo do Profissional +", "Contratos", "Histórico Financeiro", "Mapeamento de Palco", "Metas", "Equipe & Freelancers", "Bônus"],
   },
-] as const;
+];
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -689,28 +688,76 @@ const Landing = () => {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
               {plans.map((p) => {
-                const monthlyValue = p.id === "starter" ? 19.9 : p.id === "pro" ? 34.9 : 49.99;
-                const yearlyFromMonthly = (monthlyValue * 12).toFixed(2).replace(".", ",");
-                const finalPrice = p.id === "starter"
-                  ? isYearly ? "R$ 199,90" : "R$ 19,90"
-                  : p.id === "pro"
-                    ? isYearly ? "R$ 298,80" : "R$ 34,90"
-                    : isYearly ? "R$ 418,80" : "R$ 49,99";
-                const finalUrl = p.id === "starter"
-                  ? isYearly ? STARTER_YEARLY_URL : STARTER_URL
-                  : p.id === "pro"
-                    ? isYearly ? PRO_YEARLY_URL : PRO_URL
-                    : isYearly ? FULL_YEARLY_URL : FULL_URL;
+                // Free plan - no CTA, no annual
+                if (p.isFree) {
+                  return (
+                    <div
+                      key={p.id}
+                      className="relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col border-green-400 bg-gradient-to-br from-green-50 via-white to-emerald-50"
+                    >
+                      <div className="absolute top-5 right-5">
+                        <span className="bg-green-600 text-white rounded-full px-3 py-1 text-xs font-semibold">
+                          {p.badgeText}
+                        </span>
+                      </div>
+                      <div className="p-8 flex flex-col h-full">
+                        <div className="flex items-center gap-4 mb-6">
+                          <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                            <AppLogo size="sm" collapsed />
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-bold text-slate-800">{p.name}</h4>
+                            <p className="text-sm text-slate-500 font-medium">{p.subtitle}</p>
+                          </div>
+                        </div>
+                        <div className="mb-6">
+                          <div className="flex items-end gap-2">
+                            <span className="text-4xl font-bold text-slate-800">R$ 0,00</span>
+                            <span className="text-sm text-slate-500 mb-1 font-medium">/mês</span>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1 font-medium">Sem cobrança. Acesso básico gratuito.</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-6 flex-1 mb-6">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-4">O que inclui</p>
+                          <ul className="space-y-3">
+                            {p.features.map((f, i) => (
+                              <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-700">
+                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Check className="w-3 h-3 text-white" />
+                                </div>
+                                <span>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="mt-auto">
+                          <p className="text-xs text-center text-slate-400 mt-3 font-medium">Você já está no plano gratuito!</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Paid plans
+                const isPro = p.id === "pro";
+                const monthlyValue = isPro ? 34.9 : 49.9;
+                const yearlyOldPrice = isPro ? "349,90" : "499,90";
+                const yearlyNewPrice = isPro ? "249,90" : "299,90";
+                const yearlyInstallment = isPro ? "20,83" : "24,99";
+
+                const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
+                const finalUrl = isPro
+                  ? isYearly ? PRO_YEARLY_URL : PRO_URL
+                  : isYearly ? FULL_YEARLY_URL : FULL_URL;
                 const finalPeriod = isYearly ? "/ano" : "/mês";
+
                 return (
                 <div
                   key={p.id}
                   className={`relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col ${
                     p.highlight
                       ? "border-[#0066CC] bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-                      : p.id === "full"
-                        ? "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
-                        : "border-slate-200 bg-white"
+                      : "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50"
                   }`}
                 >
                   {p.badgeText && (
@@ -735,16 +782,18 @@ const Landing = () => {
                     <div className="mb-6">
                       {isYearly && (
                         <p className="text-sm text-red-600 line-through mb-1 font-semibold">
-                          De: R$ {yearlyFromMonthly}
+                          De: R$ {yearlyOldPrice}
                         </p>
-                      )}
-                      {p.id === "starter" && !isYearly && (
-                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">R$ 24,90</p>
                       )}
                       <div className="flex items-end gap-2">
                         <span className="text-4xl font-bold text-slate-800">{finalPrice}</span>
                         <span className="text-sm text-slate-500 mb-1 font-medium">{finalPeriod}</span>
                       </div>
+                      {isYearly && (
+                        <p className="text-sm text-emerald-600 font-bold mt-1">
+                          ou 12x de R$ {yearlyInstallment}
+                        </p>
+                      )}
                       <p className="text-xs text-slate-400 mt-1 font-medium">
                         {isYearly ? "Cobrança anual pré-paga." : "Cobrança mensal pré-paga. Cancele quando quiser."}
                       </p>

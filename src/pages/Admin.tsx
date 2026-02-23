@@ -33,6 +33,7 @@ import {
   Gift,
   PartyPopper,
    Bell,
+   Sparkles,
 } from "lucide-react";
 // AdminInsights temporarily disabled
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
@@ -97,12 +98,13 @@ const FEATURES = [
 
 const PLAN_FILTERS = [
   { value: "all", label: "TODOS" },
-  { value: "trial", label: "TRIAL" },
-  { value: "base", label: "PLANO BASE" },
-  { value: "mensal", label: "PLANO MENSAL" },
-  { value: "essencial", label: "PLANO PROFISSIONAL 3 MESES" },
-  { value: "completo", label: "PLANO PROFISSIONAL 6 MESES" },
-  { value: "anual", label: "PLANO ANUAL" },
+  { value: "free", label: "FREE" },
+  { value: "trial", label: "TRIAL (legado)" },
+  { value: "base", label: "PLANO BASE (legado)" },
+  { value: "mensal", label: "MENSAL (legado)" },
+  { value: "essencial", label: "PROFISSIONAL" },
+  { value: "completo", label: "COMPLETO" },
+  { value: "anual", label: "ANUAL" },
   { value: "expirado", label: "EXPIRADOS" },
 ];
 
@@ -110,6 +112,7 @@ const PLAN_FILTERS = [
 
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
+  free: 99999,
   trial: 3,
   base: 30,
   mensal: 30,
@@ -706,6 +709,7 @@ export default function Admin() {
 
   // Plan stats state
   const [planStats, setPlanStats] = useState<Record<string, number>>({
+    free: 0,
     trial: 0,
     base: 0,
     mensal: 0,
@@ -726,6 +730,7 @@ export default function Admin() {
       
       if (data && !error) {
         const stats: Record<string, number> = {
+          free: 0,
           trial: 0,
           base: 0,
           mensal: 0,
@@ -808,46 +813,53 @@ export default function Admin() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-7 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-8 gap-4 mb-6">
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="p-4 text-center">
+            <Sparkles className="h-6 w-6 text-green-500 mx-auto mb-2" />
+            <p className="text-sm text-green-600">Free</p>
+            <p className="text-2xl font-bold text-green-700">{planStats.free}</p>
+          </CardContent>
+        </Card>
         <Card className="border-orange-200 bg-orange-50">
           <CardContent className="p-4 text-center">
             <Calendar className="h-6 w-6 text-orange-500 mx-auto mb-2" />
-            <p className="text-sm text-orange-600">Trial (3 dias)</p>
+            <p className="text-sm text-orange-600">Trial (legado)</p>
             <p className="text-2xl font-bold text-orange-700">{planStats.trial}</p>
           </CardContent>
         </Card>
         <Card className="border-cyan-200 bg-cyan-50">
           <CardContent className="p-4 text-center">
             <Shield className="h-6 w-6 text-cyan-500 mx-auto mb-2" />
-            <p className="text-sm text-cyan-600">Base (1 mês)</p>
+            <p className="text-sm text-cyan-600">Base (legado)</p>
             <p className="text-2xl font-bold text-cyan-700">{planStats.base}</p>
           </CardContent>
         </Card>
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">
             <Zap className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-sm text-blue-600">Mensal (1 mês)</p>
+            <p className="text-sm text-blue-600">Mensal (legado)</p>
             <p className="text-2xl font-bold text-blue-700">{planStats.mensal}</p>
           </CardContent>
         </Card>
         <Card className="border-green-200 bg-green-50">
           <CardContent className="p-4 text-center">
             <UsersIcon className="h-6 w-6 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-green-600">Prof. (3 meses)</p>
+            <p className="text-sm text-green-600">Profissional</p>
             <p className="text-2xl font-bold text-green-700">{planStats.essencial}</p>
           </CardContent>
         </Card>
         <Card className="border-purple-200 bg-purple-50">
           <CardContent className="p-4 text-center">
             <Heart className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-            <p className="text-sm text-purple-600">Prof. (6 meses)</p>
+            <p className="text-sm text-purple-600">Completo</p>
             <p className="text-2xl font-bold text-purple-700">{planStats.completo}</p>
           </CardContent>
         </Card>
         <Card className="border-amber-200 bg-amber-50">
           <CardContent className="p-4 text-center">
             <Trophy className="h-6 w-6 text-amber-500 mx-auto mb-2" />
-            <p className="text-sm text-amber-600">Anual (12 meses)</p>
+            <p className="text-sm text-amber-600">Anual</p>
             <p className="text-2xl font-bold text-amber-700">{planStats.anual}</p>
           </CardContent>
         </Card>
@@ -1048,12 +1060,13 @@ export default function Admin() {
                           onChange={(e) => updateUserPlan(userProfile.user_id, e.target.value)}
                           className="w-full mt-1 px-3 py-2 border rounded-md bg-yellow-50 border-yellow-200"
                           >
-                            <option value="trial">Trial (3 dias)</option>
-                            <option value="base">Plano Base (1 mês)</option>
-                            <option value="mensal">Plano Mensal (1 mês)</option>
-                            <option value="essencial">Plano Profissional 3 meses</option>
-                            <option value="completo">Plano Profissional 6 meses</option>
-                            <option value="anual">Plano Anual (12 meses)</option>
+                            <option value="free">Free (Gratuito)</option>
+                            <option value="trial">Trial - legado (3 dias)</option>
+                            <option value="base">Plano Base - legado (1 mês)</option>
+                            <option value="mensal">Mensal - legado (1 mês)</option>
+                            <option value="essencial">Profissional</option>
+                            <option value="completo">Completo</option>
+                            <option value="anual">Anual (12 meses)</option>
                             <option value="expirado">Expirado</option>
                           </select>
                       </div>

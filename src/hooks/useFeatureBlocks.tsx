@@ -7,44 +7,22 @@ interface FeatureBlocks {
   [key: string]: boolean;
 }
 
-// Default feature blocks para trial
+// Default feature blocks para plano Free (gratuito)
 const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   dashboard: false,
-  agenda: false,
-  crm: false,
-  clientes: false,
-  orcamentos: true,
-  contratos: true,
-  financeiro: false,
-  historico: false,
-  precificacao: true,
-  checklist: true,
-  "mapeamento-palco": true,
-  equipe: false,
-  metas: false,
-  repertorio: false,
-  aulas: false,
-  avancos: false,
-  tutoriais: false,
-  configuracoes: false,
-};
-
-// Default feature blocks para Plano Base (novo modelo)
-export const BASE_PLAN_FEATURE_BLOCKS: FeatureBlocks = {
-  dashboard: false,
-  agenda: false,
+  agenda: false, // limitada a 4 datas/mês no plano free
   crm: true,
-  clientes: false,
+  clientes: true,
   orcamentos: true,
   contratos: true,
-  financeiro: false,
+  financeiro: true,
   historico: true,
   precificacao: true,
   checklist: true,
   "mapeamento-palco": true,
   equipe: true,
   metas: true,
-  repertorio: false,
+  repertorio: true,
   aulas: true,
   avancos: true,
   tutoriais: false,
@@ -53,20 +31,20 @@ export const BASE_PLAN_FEATURE_BLOCKS: FeatureBlocks = {
 
 // Módulos e quais features eles desbloqueiam
 export const PLAN_MODULES = {
-  starter: {
-    name: "Starter",
-    features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "tutoriais", "configuracoes"],
-    price: "R$ 19,90/mês",
+  free: {
+    name: "Free",
+    features: ["dashboard", "agenda", "tutoriais", "configuracoes"],
+    price: "R$ 0,00/mês",
   },
   profissional: {
     name: "Profissional",
-    features: ["crm", "orcamentos", "aulas", "checklist", "avancos", "precificacao"],
+    features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "crm", "orcamentos", "checklist", "precificacao", "avancos", "tutoriais", "configuracoes"],
     price: "R$ 34,90/mês",
   },
   completo: {
     name: "Completo",
-    features: ["contratos", "historico", "mapeamento-palco", "metas", "equipe"],
-    price: "R$ 49,99/mês",
+    features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "crm", "orcamentos", "checklist", "precificacao", "avancos", "contratos", "historico", "mapeamento-palco", "metas", "equipe", "aulas", "tutoriais", "configuracoes"],
+    price: "R$ 49,90/mês",
   },
 };
 
