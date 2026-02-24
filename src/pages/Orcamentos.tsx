@@ -8,6 +8,7 @@ import { Plus, Search, FileText, CheckCircle2, XCircle, Clock, Send, Eye, Downlo
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useBudgets } from "@/hooks/useBudgets";
+import { formatDateBR } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { BudgetModal } from "@/components/orcamentos/BudgetModal";
 import { BudgetPreview } from "@/components/orcamentos/BudgetPreview";
@@ -170,7 +171,7 @@ export default function Orcamentos() {
                     </TableCell>
                     <TableCell className="text-muted-foreground">{budget.client_name}</TableCell>
                     <TableCell><span className="font-semibold text-success">R$ {budget.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span></TableCell>
-                    <TableCell className="text-muted-foreground">{budget.valid_until ? new Date(budget.valid_until).toLocaleDateString("pt-BR") : "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{budget.valid_until ? formatDateBR(budget.valid_until) : "-"}</TableCell>
                     <TableCell><Badge variant="outline" className={status.color}><StatusIcon className="w-3 h-3 mr-1" />{status.label}</Badge></TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
