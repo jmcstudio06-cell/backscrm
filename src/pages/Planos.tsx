@@ -357,15 +357,20 @@ export default function Planos() {
                         </p>
                       )}
 
-                      <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold">{finalPrice}</span>
-                        <span className="text-sm text-muted-foreground mb-1 font-medium">{finalPeriod}</span>
-                      </div>
-
-                      {isYearly && (
-                        <p className="text-sm text-emerald-600 font-bold mt-1">
-                          ou 12x de R$ {yearlyInstallment}
-                        </p>
+                      {isYearly ? (
+                        <>
+                          <div className="flex items-end gap-2">
+                            <span className="text-4xl font-bold">12x de R$ {yearlyInstallment}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-medium mt-1">
+                            ou R$ {yearlyNewPrice} à vista /ano
+                          </p>
+                        </>
+                      ) : (
+                        <div className="flex items-end gap-2">
+                          <span className="text-4xl font-bold">{finalPrice}</span>
+                          <span className="text-sm text-muted-foreground mb-1 font-medium">{finalPeriod}</span>
+                        </div>
                       )}
 
                       <p className="text-xs text-muted-foreground mt-1 font-medium">
