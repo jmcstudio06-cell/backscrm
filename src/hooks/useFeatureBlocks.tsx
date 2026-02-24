@@ -39,12 +39,12 @@ export const PLAN_MODULES = {
   profissional: {
     name: "Profissional",
     features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "crm", "orcamentos", "checklist", "precificacao", "avancos", "tutoriais", "configuracoes"],
-    price: "R$ 34,90/mês",
+    price: "R$ 24,90/mês",
   },
   completo: {
     name: "Completo",
     features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "crm", "orcamentos", "checklist", "precificacao", "avancos", "contratos", "historico", "mapeamento-palco", "metas", "equipe", "aulas", "tutoriais", "configuracoes"],
-    price: "R$ 49,90/mês",
+    price: "R$ 39,90/mês",
   },
 };
 
