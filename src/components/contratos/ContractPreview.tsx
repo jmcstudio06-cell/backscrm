@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Download, Send, MessageCircle, X } from "lucide-react";
 import { Contract } from "@/hooks/useContracts";
+import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 
@@ -82,7 +83,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
   const handleWhatsApp = () => {
     const message = encodeURIComponent(
       `Olá ${contract.client_name}!\n\nSegue o contrato ${contract.contract_number} referente ao evento do dia ${
-        contract.event_date ? new Date(contract.event_date).toLocaleDateString("pt-BR") : "a definir"
+        contract.event_date ? formatDateBR(contract.event_date) : "a definir"
       }.\n\nPor favor, confira e entre em contato.`
     );
     let phone = contract.client_phone?.replace(/\D/g, "") || "";
@@ -96,7 +97,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
     const subject = encodeURIComponent(`Contrato ${contract.contract_number} - ${contract.title}`);
     const body = encodeURIComponent(
       `Olá ${contract.client_name},\n\nSegue em anexo o contrato de prestação de serviços.\n\nContrato: ${contract.contract_number}\nEvento: ${
-        contract.event_date ? new Date(contract.event_date).toLocaleDateString("pt-BR") : "A definir"
+        contract.event_date ? formatDateBR(contract.event_date) : "A definir"
       }\nValor: R$ ${contract.total_value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}\n\nAtenciosamente.`
     );
     window.open(`mailto:${contract.client_email}?subject=${subject}&body=${body}`, "_blank");
@@ -214,7 +215,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 {/* Event details after OBJETO clause */}
                 {clause.title.toUpperCase() === "OBJETO" && contract.event_date && (
                   <ul style={{ margin: "10px 0 10px 30px", listStyleType: "disc" }}>
-                    <li><strong>Data do evento:</strong> {new Date(contract.event_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}</li>
+                    <li><strong>Data do evento:</strong> {formatDateBR(contract.event_date, { day: "2-digit", month: "long", year: "numeric" })}</li>
                     {contract.event_time && <li><strong>Horário:</strong> das {contract.event_time}</li>}
                     {contract.event_duration && <li><strong>Duração aproximada:</strong> {contract.event_duration}</li>}
                     {contract.event_type && <li><strong>Projeto:</strong> {contract.event_type}</li>}

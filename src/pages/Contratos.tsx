@@ -8,6 +8,7 @@ import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, E
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useContracts, Contract } from "@/hooks/useContracts";
+import { formatDateBR } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { ContractModal } from "@/components/contratos/ContractModal";
 import { ContractPreview } from "@/components/contratos/ContractPreview";
@@ -129,7 +130,7 @@ export default function Contratos() {
                         </TableCell>
                         <TableCell className="text-muted-foreground">{contract.client_name}</TableCell>
                         <TableCell><span className="font-semibold text-success">R$ {contract.total_value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span></TableCell>
-                        <TableCell className="text-muted-foreground">{contract.event_date ? new Date(contract.event_date).toLocaleDateString("pt-BR") : "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{contract.event_date ? formatDateBR(contract.event_date) : "-"}</TableCell>
                         <TableCell><Badge variant="outline" className={status.color}><StatusIcon className="w-3 h-3 mr-1" />{status.label}</Badge></TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">

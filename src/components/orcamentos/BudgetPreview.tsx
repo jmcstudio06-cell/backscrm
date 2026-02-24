@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Download, Send, MessageCircle, X } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
+import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 
@@ -423,7 +424,7 @@ export function BudgetPreview({
                 </div>
                 {budget.valid_until && (
                   <div style={{ fontSize: 13, color: "#666" }}>
-                    Válido até: {new Date(budget.valid_until).toLocaleDateString("pt-BR")}
+                    Válido até: {formatDateBR(budget.valid_until)}
                   </div>
                 )}
               </div>
