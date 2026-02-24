@@ -81,7 +81,7 @@ const plans = [
     subtitle: "Organize sua área comercial e feche mais shows com processos profissionais.",
     price: "R$ 24,90",
     period: "/mês",
-    buttonText: "Escolher Profissional",
+    buttonText: "Começar Profissional",
     url: PRO_URL,
     highlight: true,
     badgeText: "MAIS POPULAR",
@@ -95,7 +95,7 @@ const plans = [
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
     price: "R$ 39,90",
     period: "/mês",
-    buttonText: "Escolher Completo",
+    buttonText: "Começar Completo",
     url: FULL_URL,
     highlight: false,
     badgeText: "TUDO LIBERADO",
@@ -731,7 +731,16 @@ const Landing = () => {
                           </ul>
                         </div>
                         <div className="mt-auto">
-                          <p className="text-xs text-center text-slate-400 mt-3 font-medium">Você já está no plano gratuito!</p>
+                          <Button
+                            size="lg"
+                            className="w-full rounded-2xl text-white font-semibold shadow-md bg-gradient-to-r from-emerald-500 to-emerald-600"
+                            onClick={() => window.open("/auth", "_self")}
+                          >
+                            <span className="flex items-center justify-center gap-2">
+                              Começar Free
+                              <ArrowRight className="w-4 h-4" />
+                            </span>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -785,14 +794,20 @@ const Landing = () => {
                           De: R$ {yearlyOldPrice}
                         </p>
                       )}
-                      <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold text-slate-800">{finalPrice}</span>
-                        <span className="text-sm text-slate-500 mb-1 font-medium">{finalPeriod}</span>
-                      </div>
-                      {isYearly && (
-                        <p className="text-sm text-emerald-600 font-bold mt-1">
-                          ou 12x de R$ {yearlyInstallment}
-                        </p>
+                      {isYearly ? (
+                        <>
+                          <div className="flex items-end gap-2">
+                            <span className="text-4xl font-bold text-slate-800">12x de R$ {yearlyInstallment}</span>
+                          </div>
+                          <p className="text-sm text-slate-500 font-medium mt-1">
+                            ou R$ {yearlyNewPrice} à vista /ano
+                          </p>
+                        </>
+                      ) : (
+                        <div className="flex items-end gap-2">
+                          <span className="text-4xl font-bold text-slate-800">{finalPrice}</span>
+                          <span className="text-sm text-slate-500 mb-1 font-medium">{finalPeriod}</span>
+                        </div>
                       )}
                       <p className="text-xs text-slate-400 mt-1 font-medium">
                         {isYearly ? "Cobrança anual pré-paga." : "Cobrança mensal pré-paga. Cancele quando quiser."}
