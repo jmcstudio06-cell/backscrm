@@ -86,7 +86,7 @@ const plans: PlanDef[] = [
     id: "pro",
     name: "Profissional",
     subtitle: "Organize sua área comercial e feche mais shows com processos profissionais.",
-    price: "R$ 34,90",
+    price: "R$ 24,90",
     period: "/mês",
     buttonText: "Escolher Profissional",
     url: PRO_URL,
@@ -111,7 +111,7 @@ const plans: PlanDef[] = [
     id: "full",
     name: "Completo",
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
-    price: "R$ 49,90",
+    price: "R$ 39,90",
     period: "/mês",
     buttonText: "Escolher Completo",
     url: FULL_URL,
@@ -310,10 +310,10 @@ export default function Planos() {
 
               // Paid plans
               const isPro = p.id === "pro";
-              const monthlyValue = isPro ? 34.9 : 49.9;
-              const yearlyOldPrice = isPro ? "349,90" : "499,90";
-              const yearlyNewPrice = isPro ? "249,90" : "299,90";
-              const yearlyInstallment = isPro ? "20,83" : "24,99";
+              const monthlyValue = isPro ? 24.9 : 39.9;
+              const yearlyOldPrice = isPro ? "298,80" : "478,80";
+              const yearlyNewPrice = isPro ? "199,90" : "299,90";
+              const yearlyInstallment = isPro ? "16,66" : "24,99";
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
               const finalUrl = isPro
