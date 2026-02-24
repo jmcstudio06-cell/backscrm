@@ -13,16 +13,30 @@ interface AppSettingsContextType {
   refreshSettings: () => Promise<void>;
 }
 
-const defaultSettings: AppSettings = {
-  logo_url: null,
-  app_name: "Backstage Pro",
-  trial_duration_days: 3,
-};
+const STORAGE_KEY = "app_settings_cache";
+
+function getCachedSettings(): AppSettings {
+  try {
+    const cached = localStorage.getItem(STORAGE_KEY);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+  return {
+    logo_url: null,
+    app_name: "Backstage Pro",
+    trial_duration_days: 3,
+  };
+}
+
+function setCachedSettings(settings: AppSettings) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  } catch {}
+}
 
 const AppSettingsContext = createContext<AppSettingsContextType | undefined>(undefined);
 
 export function AppSettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
+  const [settings, setSettings] = useState<AppSettings>(getCachedSettings);
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
@@ -36,7 +50,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const newSettings = { ...defaultSettings };
+      const newSettings = { ...getCachedSettings() };
       
       data?.forEach(setting => {
         if (setting.setting_key === "logo_url") {
@@ -49,6 +63,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       });
 
       setSettings(newSettings);
+      setCachedSettings(newSettings);
     } catch (err) {
       console.error("Error fetching app settings:", err);
     } finally {
