@@ -730,7 +730,7 @@ const Landing = () => {
                             ))}
                           </ul>
                         </div>
-                        <div className="mt-auto">
+                        <div className="mt-auto pt-2">
                           <Button
                             size="lg"
                             className="w-full rounded-2xl text-white font-semibold shadow-md bg-gradient-to-r from-emerald-500 to-emerald-600"
