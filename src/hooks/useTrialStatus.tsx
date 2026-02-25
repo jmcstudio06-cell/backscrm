@@ -14,7 +14,7 @@ interface TrialStatus {
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
-  // "inicial" virou "mensal" (mantemos por compatibilidade)
+  starter: 30, // Plano Starter
   mensal: 30, // 1 month
   inicial: 30, // legacy
   essencial: 90, // 3 months
