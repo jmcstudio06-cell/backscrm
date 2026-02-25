@@ -7,10 +7,10 @@ interface FeatureBlocks {
   [key: string]: boolean;
 }
 
-// Default feature blocks para plano Free (gratuito)
+// Default feature blocks para novos usuários (tudo bloqueado exceto básico)
 const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
-  dashboard: false,
-  agenda: false, // limitada a 4 datas/mês no plano free
+  dashboard: true,
+  agenda: true,
   crm: true,
   clientes: true,
   orcamentos: true,
@@ -25,25 +25,25 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   repertorio: true,
   aulas: true,
   avancos: true,
-  tutoriais: false,
-  configuracoes: false,
+  tutoriais: true,
+  configuracoes: true,
 };
 
 // Módulos e quais features eles desbloqueiam
 export const PLAN_MODULES = {
-  free: {
-    name: "Free",
-    features: ["dashboard", "agenda", "tutoriais", "configuracoes"],
-    price: "R$ 0,00/mês",
+  starter: {
+    name: "Starter",
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "tutoriais", "configuracoes"],
+    price: "R$ 19,90/mês",
   },
   profissional: {
     name: "Profissional",
-    features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "crm", "orcamentos", "checklist", "precificacao", "avancos", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "checklist", "equipe", "tutoriais", "configuracoes"],
     price: "R$ 24,90/mês",
   },
   completo: {
     name: "Completo",
-    features: ["dashboard", "agenda", "clientes", "financeiro", "repertorio", "crm", "orcamentos", "checklist", "precificacao", "avancos", "contratos", "historico", "mapeamento-palco", "metas", "equipe", "aulas", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
   },
 };
