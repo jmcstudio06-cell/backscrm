@@ -33,6 +33,7 @@ export interface Profile {
   accepted_payment: string | null;
   payment_deadline: string | null;
   late_fee_percentage: number | null;
+  slug: string | null;
 }
 
 export function useProfile() {

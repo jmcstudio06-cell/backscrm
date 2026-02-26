@@ -36,6 +36,8 @@ import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
 import ResetPassword from "./pages/ResetPassword";
 import GuiaAtendimento from "./pages/GuiaAtendimento";
+import Booking from "./pages/Booking";
+import Solicitacoes from "./pages/Solicitacoes";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
@@ -85,6 +87,8 @@ const App = () => (
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/guia-atendimento" element={<GuiaAtendimento />} />
+                <Route path="/solicitacoes" element={<Solicitacoes />} />
+                <Route path="/booking/:slug" element={<Booking />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ShowsProvider>

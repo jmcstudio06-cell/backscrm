@@ -269,6 +269,62 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_requests: {
+        Row: {
+          artist_id: string
+          client_name: string
+          client_phone: string
+          created_at: string
+          event_city: string | null
+          event_date: string
+          event_location: string | null
+          id: string
+          observations: string | null
+          product_id: string | null
+          product_name: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          artist_id: string
+          client_name: string
+          client_phone: string
+          created_at?: string
+          event_city?: string | null
+          event_date: string
+          event_location?: string | null
+          id?: string
+          observations?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          artist_id?: string
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          event_city?: string | null
+          event_date?: string
+          event_location?: string | null
+          id?: string
+          observations?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "performance_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_items: {
         Row: {
           budget_id: string
@@ -1007,6 +1063,7 @@ export type Database = {
           project_type: string | null
           requires_food: boolean | null
           show_duration: string | null
+          slug: string | null
           start_time_limit: string | null
           trial_days: number | null
           trial_start: string | null
@@ -1039,6 +1096,7 @@ export type Database = {
           project_type?: string | null
           requires_food?: boolean | null
           show_duration?: string | null
+          slug?: string | null
           start_time_limit?: string | null
           trial_days?: number | null
           trial_start?: string | null
@@ -1071,6 +1129,7 @@ export type Database = {
           project_type?: string | null
           requires_food?: boolean | null
           show_duration?: string | null
+          slug?: string | null
           start_time_limit?: string | null
           trial_days?: number | null
           trial_start?: string | null
