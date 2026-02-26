@@ -20,8 +20,8 @@ import {
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/starter";
-const STARTER_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/starter-yearly";
+const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
+const STARTER_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/jHWwPyTRH";
 const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
 const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
 
@@ -240,7 +240,7 @@ export default function Planos() {
         </div>
 
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((p) => {
               const isStarter = p.id === "starter";
               const isPro = p.id === "pro";
