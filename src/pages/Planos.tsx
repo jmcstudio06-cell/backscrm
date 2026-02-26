@@ -316,8 +316,8 @@ export default function Planos() {
                       </p>
                     </div>
 
-                    <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-white/20 to-white/40 mb-6">
-                      <div className="rounded-2xl bg-background/80 backdrop-blur-md border border-white/20 shadow-inner p-6 flex-1">
+                    <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-white/20 to-white/40 mb-6 flex-1">
+                      <div className="rounded-2xl bg-background/80 backdrop-blur-md border border-white/20 shadow-inner p-6 h-full">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
                           O que inclui
                         </p>
