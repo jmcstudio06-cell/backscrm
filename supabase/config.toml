@@ -1,11 +1,11 @@
 project_id = "nwewheihdqfwsobompnp"
 
-[functions.send-push-notification]
-verify_jwt = false
-
-[functions.get-vapid-key]
-verify_jwt = false
-
-[functions.admin-update-password]
-verify_jwt = false
-
+[functions]
+  [functions.admin-update-password]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.get-vapid-key]
+    verify_jwt = false
+  [functions.send-push-notification]
+    verify_jwt = false
