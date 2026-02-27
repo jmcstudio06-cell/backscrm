@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const TRIAL_DURATION_MINUTES = 20;
+const TRIAL_DURATION_MINUTES = 60;
 const TRIAL_DURATION_MS = TRIAL_DURATION_MINUTES * 60 * 1000;
 
 interface QuickTrialStatus {

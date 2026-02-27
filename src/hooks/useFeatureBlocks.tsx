@@ -93,6 +93,18 @@ export function useFeatureBlocks() {
 
         setPlanExpired(false);
 
+        // Trial plan: liberar apenas features específicas
+        if (profile?.plan === "trial") {
+          const trialAllowed = ["dashboard", "agenda", "clientes", "crm", "tutoriais", "precificacao", "repertorio", "configuracoes"];
+          const trialBlocks: FeatureBlocks = {};
+          for (const key of Object.keys(DEFAULT_FEATURE_BLOCKS)) {
+            trialBlocks[key] = !trialAllowed.includes(key);
+          }
+          setFeatureBlocks(trialBlocks);
+          setLoading(false);
+          return;
+        }
+
         // Usar feature_blocks do perfil (novo formato JSON)
         if (profile?.feature_blocks && typeof profile.feature_blocks === 'object') {
           setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
