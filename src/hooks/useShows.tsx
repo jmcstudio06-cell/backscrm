@@ -264,27 +264,6 @@ export function useShowsData() {
   ) => {
     if (!user) return;
 
-    // Verificar limite de 4 shows/mês para plano free/trial
-    if (!userPlan || userPlan === "free" || userPlan === "trial") {
-      const now = new Date();
-      const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-      const nextMonth = now.getMonth() === 11
-        ? `${now.getFullYear() + 1}-01-01`
-        : `${now.getFullYear()}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
-
-      const { count } = await supabase
-        .from("shows")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .gte("date", monthStart)
-        .lt("date", nextMonth);
-
-      if ((count || 0) >= 4) {
-        toast.error("Limite de 4 datas por mês atingido! Faça upgrade para agenda ilimitada.");
-        return;
-      }
-    }
-
     try {
       const { data, error } = await supabase
         .from("shows")
