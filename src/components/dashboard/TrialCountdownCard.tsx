@@ -1,155 +1,117 @@
-import { Clock, AlertTriangle, Sparkles, ArrowRight, Timer } from "lucide-react";
+import { Timer, AlertTriangle, Sparkles, ArrowRight, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useTrialStatus } from "@/hooks/useTrialStatus";
-import { useState, useEffect } from "react";
+import { useQuickTrial } from "@/hooks/useQuickTrial";
+import { Button } from "@/components/ui/button";
 
 export function TrialCountdownCard() {
   const navigate = useNavigate();
-  const { plan, daysRemaining, isTrial, isExpired, loading } = useTrialStatus();
-  const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
+  const { isActive, isExpired, minutesLeft, secondsLeft, loading } = useQuickTrial();
 
-  // Countdown timer effect
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999);
-      
-      const diff = endOfDay.getTime() - now.getTime();
-      
-      if (diff > 0) {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeLeft({ hours, minutes, seconds });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Don't show if not on trial or loading
-  if (loading || (!isTrial && plan !== "expirado")) {
+  if (loading || (!isActive && !isExpired)) {
     return null;
   }
 
-  const isUrgent = daysRemaining <= 1;
-  const isWarning = daysRemaining <= 2;
+  const formatTime = (num: number) => num.toString().padStart(2, "0");
+  const isUrgent = minutesLeft < 10;
 
-  const formatTime = (num: number) => num.toString().padStart(2, '0');
+  if (isExpired) {
+    return (
+      <div className="relative overflow-hidden rounded-xl border-2 border-destructive/50 bg-gradient-to-r from-destructive/10 to-destructive/5 p-5 animate-fade-in">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="w-14 h-14 rounded-xl bg-destructive/20 flex items-center justify-center shrink-0 animate-pulse">
+            <Lock className="w-7 h-7 text-destructive" />
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h3 className="text-lg font-bold text-destructive flex items-center gap-2 justify-center sm:justify-start">
+              <AlertTriangle className="w-5 h-5" />
+              Seu tempo de teste acabou!
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Escolha um plano para continuar usando o Backstage Pro
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/planos")}
+            className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-bold gap-2 shrink-0"
+          >
+            <Sparkles className="w-5 h-5" />
+            Ver Planos
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+        </div>
+        <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-gradient-to-br from-destructive/10 to-transparent blur-2xl" />
+      </div>
+    );
+  }
 
   return (
-    <div 
+    <div
       className={`
-        relative overflow-hidden rounded-xl p-5 mb-6 border-2 animate-fade-in
-        ${isExpired 
-          ? "bg-gradient-to-r from-red-500/10 to-red-600/10 border-red-300" 
-          : isUrgent 
-            ? "bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-300" 
-            : isWarning 
-              ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-300" 
-              : "bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30"
+        relative overflow-hidden rounded-xl border-2 p-5 animate-fade-in transition-colors duration-300
+        ${isUrgent
+          ? "bg-gradient-to-r from-destructive/10 to-orange-500/10 border-destructive/40"
+          : "bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30"
         }
       `}
     >
-      <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-4">
-          <div 
-            className={`
-              w-14 h-14 rounded-xl flex items-center justify-center shrink-0 animate-pulse
-              ${isExpired 
-                ? "bg-red-100 text-red-600" 
-                : isUrgent 
-                  ? "bg-orange-100 text-orange-600" 
-                  : isWarning 
-                    ? "bg-amber-100 text-amber-600" 
-                    : "bg-primary/20 text-primary"
-              }
-            `}
-          >
-            {isExpired ? (
-              <AlertTriangle className="w-7 h-7" />
-            ) : (
-              <Clock className="w-7 h-7" />
-            )}
-          </div>
-          
-          <div className="flex-1">
-            {isExpired ? (
-              <>
-                <h3 className="text-lg font-bold text-red-700">
-                  Seu período de teste expirou!
-                </h3>
-                <p className="text-sm text-red-600 mt-1">
-                  Assine um plano agora para continuar usando o Backstage Pro
-                </p>
-              </>
-            ) : (
-              <>
-                <h3 className={`text-lg font-bold ${isUrgent ? "text-orange-700" : isWarning ? "text-amber-700" : "text-foreground"}`}>
-                  {daysRemaining === 1 
-                    ? "⚠️ Último dia de teste!" 
-                    : `Você tem mais ${daysRemaining} dias de teste`
-                  }
-                </h3>
-                <p className={`text-sm mt-1 ${isUrgent ? "text-orange-600" : isWarning ? "text-amber-600" : "text-muted-foreground"}`}>
-                  Aproveite e conheça todos os recursos do Backstage Pro!
-                </p>
-              </>
-            )}
-          </div>
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        {/* Timer icon */}
+        <div
+          className={`
+            w-14 h-14 rounded-xl flex items-center justify-center shrink-0
+            ${isUrgent ? "bg-destructive/20 animate-pulse" : "bg-primary/20"}
+          `}
+        >
+          <Timer className={`w-7 h-7 ${isUrgent ? "text-destructive" : "text-primary"}`} />
         </div>
 
-        {/* Urgency Countdown Timer */}
-        <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-lg p-3">
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Timer className="w-5 h-5 text-white animate-pulse" />
-              <span className="text-white font-bold text-sm">
-                🔥 OFERTA EXPIRA EM:
-              </span>
-            </div>
+        {/* Info */}
+        <div className="flex-1 text-center sm:text-left">
+          <p className="text-xs uppercase tracking-wide font-medium text-muted-foreground">
+            {isUrgent ? "⚠️ TEMPO ACABANDO!" : "🧪 MODO TESTE GRATUITO"}
+          </p>
+          <div className="flex items-center gap-2 justify-center sm:justify-start mt-1">
+            <span className="text-sm font-semibold text-foreground">Tempo restante:</span>
             <div className="flex items-center gap-1">
-              <div className="bg-white/20 backdrop-blur rounded px-2 py-1">
-                <span className="text-white font-mono font-bold text-lg">{formatTime(timeLeft.hours)}</span>
+              <div className="bg-foreground/10 backdrop-blur rounded px-2 py-0.5">
+                <span className="font-mono font-bold text-xl text-foreground">
+                  {formatTime(minutesLeft)}
+                </span>
               </div>
-              <span className="text-white font-bold">:</span>
-              <div className="bg-white/20 backdrop-blur rounded px-2 py-1">
-                <span className="text-white font-mono font-bold text-lg">{formatTime(timeLeft.minutes)}</span>
-              </div>
-              <span className="text-white font-bold">:</span>
-              <div className="bg-white/20 backdrop-blur rounded px-2 py-1">
-                <span className="text-white font-mono font-bold text-lg">{formatTime(timeLeft.seconds)}</span>
+              <span className="font-bold text-foreground animate-pulse">:</span>
+              <div className="bg-foreground/10 backdrop-blur rounded px-2 py-0.5">
+                <span className="font-mono font-bold text-xl text-foreground">
+                  {formatTime(secondsLeft)}
+                </span>
               </div>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isUrgent
+              ? "🔥 Aproveite os últimos minutos para explorar!"
+              : "Explore as funcionalidades liberadas agora!"}
+          </p>
         </div>
+
+        {/* CTA */}
+        <Button
+          onClick={() => navigate("/planos")}
+          size="sm"
+          className={`
+            font-bold gap-2 shrink-0
+            ${isUrgent
+              ? "bg-gradient-to-r from-destructive to-orange-500 hover:opacity-90 text-white"
+              : "bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground"
+            }
+          `}
+        >
+          <Sparkles className="w-4 h-4" />
+          {isUrgent ? "Assinar Agora" : "Ver Planos"}
+          <ArrowRight className="w-4 h-4" />
+        </Button>
       </div>
 
-      {/* Compact CTA Button */}
-      <button 
-        onClick={() => navigate("/planos")}
-        className="mt-3 w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-lg px-4 py-2.5 cursor-pointer transition-all duration-300 group flex items-center justify-between"
-      >
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-yellow-200" />
-          <div className="text-left">
-            <span className="text-white font-semibold text-sm block">
-              Conferir valor promocional
-            </span>
-            <span className="text-white/80 text-xs">
-              Preços especiais que você só encontra agora.
-            </span>
-          </div>
-        </div>
-        <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform shrink-0" />
-      </button>
-
-      {/* Decorative elements */}
       <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-2xl" />
-      <div className="absolute -left-4 -top-4 w-24 h-24 rounded-full bg-gradient-to-br from-amber-500/10 to-transparent blur-xl" />
     </div>
   );
 }

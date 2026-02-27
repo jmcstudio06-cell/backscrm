@@ -1,8 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
-import { QuickTrialBanner } from "@/components/trial/QuickTrialBanner";
- import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
+import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 
 interface LayoutProps {
   children: ReactNode;
@@ -24,9 +23,6 @@ export function Layout({ children, title, subtitle }: LayoutProps) {
 
         <main className="p-3 sm:p-4 md:p-6 pb-28 md:pb-24">{children}</main>
       </div>
-
-      {/* Quick Trial Banner - Fixed at bottom */}
-      <QuickTrialBanner />
 
        {/* Notification Permission Prompt */}
        <NotificationPrompt />

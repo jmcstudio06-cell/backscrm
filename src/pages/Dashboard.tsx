@@ -275,8 +275,8 @@ const Dashboard = () => {
         {/* Gift Claim Card - shows when user has available gift */}
         <GiftClaimCard />
 
-        {/* Trial Countdown Card - temporarily disabled */}
-        {/* <TrialCountdownCard /> */}
+        {/* Trial Countdown Card */}
+        <TrialCountdownCard />
 
         {/* Welcome Section - More dramatic */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
