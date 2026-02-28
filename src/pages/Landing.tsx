@@ -693,8 +693,8 @@ const Landing = () => {
                 const isPro = p.id === "pro";
                 const monthlyValue = isStarter ? 19.9 : isPro ? 24.9 : 39.9;
                 const yearlyOldPrice = isStarter ? "238,80" : isPro ? "298,80" : "478,80";
-                const yearlyNewPrice = isStarter ? "149,90" : isPro ? "203,88" : "298,80";
-                const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,99" : "24,90";
+                const yearlyNewPrice = isStarter ? "149,90" : isPro ? "199,90" : "298,80";
+                const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,66" : "24,90";
 
                 const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
                 const finalUrl = isStarter
