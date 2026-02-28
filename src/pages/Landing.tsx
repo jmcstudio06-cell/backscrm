@@ -53,13 +53,13 @@ import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
 import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-const STARTER_URL = "https://invoice.infinitepay.io/plans/backstagegroup/7HAAjraSOn";
-const STARTER_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/jHWwPyTRH";
-const PRO_URL = "https://invoice.infinitepay.io/plans/backstagegroup/o81tUzQqP";
-const FULL_URL = "https://invoice.infinitepay.io/plans/backstagegroup/j7EFHeAeZ";
+const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
+const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
+const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB";
+const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
 
-const PRO_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/62KukbQ1H";
-const FULL_YEARLY_URL = "https://invoice.infinitepay.io/plans/backstagegroup/CZrFywU7b";
+const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP";
+const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
 
 const plans = [
   {
