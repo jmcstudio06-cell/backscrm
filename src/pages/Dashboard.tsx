@@ -5,6 +5,8 @@ import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
 import { ArtistJourneyCard } from "@/components/dashboard/ArtistJourneyCard";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
+import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
+import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
@@ -25,7 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Dashboard = () => {
   const { leads, loading: leadsLoading } = useLeads();
   const { transactions, loading: transactionsLoading } = useTransactions();
-  const { goals, loading: goalsLoading } = useGoals();
+  const { goals, loading: goalsLoading, addGoal } = useGoals();
   const { shows, loading: showsLoading } = useShows();
   const { profile, loading: profileLoading } = useProfile();
   const { contracts, loading: contractsLoading } = useContracts();
@@ -34,9 +36,38 @@ const Dashboard = () => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [checklistsUsed, setChecklistsUsed] = useState(false);
+  const [showGoalModal, setShowGoalModal] = useState(false);
 
   // Unified loading state - only show content when main data is ready
-  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || contractsLoading || clientsLoading;
+  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || contractsLoading || clientsLoading || goalsLoading;
+
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const currentMonthName = format(now, "MMMM", { locale: ptBR });
+  const currentMonthStart = startOfMonth(now);
+  const currentMonthEnd = endOfMonth(now);
+  const lastMonthStart = startOfMonth(subMonths(now, 1));
+  const lastMonthEnd = endOfMonth(subMonths(now, 1));
+
+  // Find current month's show goal
+  const currentShowGoal = useMemo(() => {
+    return goals.find(
+      (g) => g.type === "shows" && g.month === currentMonth && g.year === currentYear
+    );
+  }, [goals, currentMonth, currentYear]);
+
+  // Count completed shows this month
+  const completedShowsThisMonth = useMemo(() => {
+    return shows.filter((show) => {
+      const showDate = new Date(show.date + "T12:00:00");
+      return (
+        show.status === "completed" &&
+        showDate >= currentMonthStart &&
+        showDate <= currentMonthEnd
+      );
+    }).length;
+  }, [shows, currentMonthStart, currentMonthEnd]);
 
   // Check if user should see onboarding and if user has used checklists
   useEffect(() => {
@@ -76,11 +107,24 @@ const Dashboard = () => {
     checkData();
   }, []);
 
-  const now = new Date();
-  const currentMonthStart = startOfMonth(now);
-  const currentMonthEnd = endOfMonth(now);
-  const lastMonthStart = startOfMonth(subMonths(now, 1));
-  const lastMonthEnd = endOfMonth(subMonths(now, 1));
+  // Show monthly goal modal if no goal set for this month (after loading)
+  useEffect(() => {
+    if (!isLoading && !showWelcome && !currentShowGoal) {
+      setShowGoalModal(true);
+    }
+  }, [isLoading, showWelcome, currentShowGoal]);
+
+  const handleGoalSet = async (target: number) => {
+    await addGoal({
+      title: `Meta de Shows - ${format(now, "MMMM yyyy", { locale: ptBR })}`,
+      type: "shows",
+      target_value: target,
+      current_value: 0,
+      month: currentMonth,
+      year: currentYear,
+    });
+    setShowGoalModal(false);
+  };
 
   // Calculate leads this month vs last month
   const leadsThisMonth = useMemo(() => {
@@ -153,14 +197,12 @@ const Dashboard = () => {
   // Calculate pending cachets (shows confirmed/scheduled but not completed)
   const pendingCachetData = useMemo(() => {
     const validStatuses = ["confirmed", "scheduled", "pending", "negotiation"];
-    // Use start of today for comparison to include shows happening today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     const pendingShows = shows
       .filter((show) => {
         const showDate = parseISO(show.date);
-        // Include shows from today onwards with valid statuses (not completed or cancelled)
         return validStatuses.includes(show.status) && showDate >= today;
       })
       .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
@@ -174,7 +216,6 @@ const Dashboard = () => {
 
     const totalPending = pendingShows.reduce((sum, show) => sum + show.cachet, 0);
     
-    // Total received from completed shows this month
     const totalReceived = transactions
       .filter((t) => {
         const transactionDate = new Date(t.date);
@@ -195,9 +236,7 @@ const Dashboard = () => {
       .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
       .slice(0, 3)
       .map((show) => {
-        // Find client phone
         const client = clients.find(c => c.id === show.client_id);
-        // Check if has contract
         const hasContract = contracts.some(c => c.show_id === show.id);
         
         return {
@@ -228,28 +267,19 @@ const Dashboard = () => {
     return (
       <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
         <div className="space-y-6">
-          {/* Trial Card skeleton */}
           <Skeleton className="h-16 w-full rounded-xl" />
-          
-          {/* Welcome Section skeleton */}
           <div className="flex flex-col gap-2">
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-5 w-48" />
           </div>
-
-          {/* Main Status Cards Row skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Skeleton className="h-64 w-full rounded-xl" />
             <Skeleton className="h-64 w-full rounded-xl" />
           </div>
-
-          {/* Financial & Shows Row skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Skeleton className="h-72 w-full rounded-xl" />
             <Skeleton className="h-72 w-full rounded-xl" />
           </div>
-
-          {/* Artist Journey skeleton */}
           <Skeleton className="h-48 w-full rounded-xl" />
         </div>
       </Layout>
@@ -258,6 +288,13 @@ const Dashboard = () => {
 
   return (
     <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
+      {/* Monthly Show Goal Modal */}
+      <MonthlyShowGoalModal
+        open={showGoalModal}
+        onClose={handleGoalSet}
+        monthName={currentMonthName}
+      />
+
       {/* Welcome/Onboarding Modal (first-time users) */}
       <WelcomeModal 
         open={showWelcome} 
@@ -278,7 +315,7 @@ const Dashboard = () => {
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
 
-        {/* Welcome Section - More dramatic */}
+        {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
           <div className="relative">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
@@ -292,6 +329,17 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
+
+        {/* Monthly Show Goal Progress */}
+        {currentShowGoal && (
+          <div className="animate-fade-in">
+            <MonthlyShowGoalProgress
+              current={completedShowsThisMonth}
+              target={currentShowGoal.target_value}
+              monthName={currentMonthName}
+            />
+          </div>
+        )}
 
         {/* Main Status Cards Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
