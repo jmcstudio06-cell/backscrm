@@ -38,7 +38,7 @@ import {
 // AdminInsights temporarily disabled
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 // GiftsAdminPanel temporarily disabled
-import { AnalysesAdminPanel } from "@/components/admin/AnalysesAdminPanel";
+import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
  import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { Progress } from "@/components/ui/progress";
@@ -874,15 +874,14 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-         <TabsList className="grid w-full grid-cols-8">
+         <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="marco">Marco</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
-          <TabsTrigger value="analyses">Análises</TabsTrigger>
           <TabsTrigger value="referrals">Indicações</TabsTrigger>
-           <TabsTrigger value="notifications">Notificações</TabsTrigger>
+          <TabsTrigger value="notifications">Notificações</TabsTrigger>
           <TabsTrigger value="guide-leads">Ganhou Guia</TabsTrigger>
           <TabsTrigger value="personalization">Personalização</TabsTrigger>
-          <TabsTrigger value="trial">Config. Trial</TabsTrigger>
+          <TabsTrigger value="improvements">Melhorias</TabsTrigger>
         </TabsList>
 
         {/* Marco Tab - Celebration Counter */}
@@ -951,11 +950,6 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Analyses Tab */}
-        <TabsContent value="analyses">
-          <AnalysesAdminPanel />
         </TabsContent>
 
         {/* Users Tab */}
@@ -1309,58 +1303,14 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
-        {/* Trial Config Tab */}
-        <TabsContent value="trial">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Configuração do Período Trial
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-base font-semibold">Duração do Trial (em dias)</Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Defina quantos dias os usuários terão de acesso gratuito ao trial
-                </p>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    value={trialDays}
-                    onChange={(e) => setTrialDays(e.target.value)}
-                    className="max-w-[200px]"
-                  />
-                  <Button onClick={saveTrialDays}>Salvar</Button>
-                </div>
-              </div>
-
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-2">
-                    <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-blue-900">Como funciona:</p>
-                      <ul className="text-sm text-blue-800 list-disc list-inside mt-1 space-y-1">
-                        <li><strong>TRIAL:</strong> Dura {trialDays} dias, depois expira automaticamente</li>
-                        <li><strong>PLANO BASE:</strong> Dura 1 mês (30 dias) — novo modelo modular</li>
-                        <li><strong>PLANO MENSAL:</strong> Dura 1 mês (30 dias)</li>
-                        <li><strong>PLANO PROFISSIONAL 3 MESES:</strong> Dura 3 meses (90 dias)</li>
-                        <li><strong>PLANO PROFISSIONAL 6 MESES:</strong> Dura 6 meses (180 dias)</li>
-                        <li><strong>PLANO ANUAL:</strong> Dura 12 meses (365 dias)</li>
-                        <li>Após expirar, o usuário precisa renovar o plano</li>
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         {/* Guide Leads Tab */}
         <TabsContent value="guide-leads" className="space-y-6">
           <GuideLeadsPanel />
+        </TabsContent>
+
+        {/* Improvements Tab */}
+        <TabsContent value="improvements" className="space-y-6">
+          <ImprovementsPanel />
         </TabsContent>
       </Tabs>
     </Layout>
