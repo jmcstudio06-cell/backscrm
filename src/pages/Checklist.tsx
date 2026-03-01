@@ -52,6 +52,31 @@ export default function Checklist() {
   const wizardShow = confirmedShows.find(s => s.id === wizardShowId);
 
   useEffect(() => {
+    const DEFAULT_CHECKLIST = [
+      // 🎙️ Voz & Equipamento Pessoal
+      "Microfone pessoal (se usar o seu)",
+      "Microfone reserva (se possível)",
+      "Cabo XLR próprio",
+      "In-ear (se usar)",
+      "Fone reserva",
+      "Pilhas / bateria carregada (se for sem fio)",
+      "Tablet / celular com repertório",
+      "Power bank",
+      "Carregadores",
+      // 🔌 Energia Elétrica
+      "Confirmou se o local é 110V ou 220V?",
+      "Seu equipamento é bivolt?",
+      "Precisa de transformador?",
+      "Tem tomada perto do palco?",
+      "Extensão (mínimo 10m)",
+      "Filtro de linha",
+      "Adaptador de tomada",
+      "Benjamim (T)",
+      // 📋 Antes de Sair de Casa
+      "Salvou a localização no GPS?",
+      "Divulgou o show?",
+    ];
+
     const fetchChecklistItems = async () => {
       if (confirmedShows.length === 0) return;
       
@@ -71,6 +96,27 @@ export default function Checklist() {
         if (!grouped[item.show_id]) grouped[item.show_id] = [];
         grouped[item.show_id].push(item);
       });
+
+      // Auto-apply default checklist to shows that have no items
+      const showsWithoutChecklist = confirmedShows.filter(s => !grouped[s.id] || grouped[s.id].length === 0);
+      
+      for (const show of showsWithoutChecklist) {
+        const itemsToInsert = DEFAULT_CHECKLIST.map(item => ({
+          show_id: show.id,
+          item,
+          completed: false,
+        }));
+
+        const { data: insertedData, error: insertError } = await supabase
+          .from("show_checklist")
+          .insert(itemsToInsert)
+          .select();
+
+        if (!insertError && insertedData) {
+          grouped[show.id] = insertedData;
+        }
+      }
+
       setChecklistItems(grouped);
     };
 
