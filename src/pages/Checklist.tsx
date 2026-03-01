@@ -218,16 +218,20 @@ export default function Checklist() {
           </div>
 
           {/* Start Wizard Button */}
-          {tasks.length > 0 && (
-            <Button
-              className="mt-4 w-full"
-              size="lg"
-              onClick={() => setWizardShowId(selectedShow.id)}
-            >
-              <ClipboardList className="w-5 h-5 mr-2" />
-              Fazer Checklist do Show
-            </Button>
-          )}
+          <Button
+            className="mt-4 w-full"
+            size="lg"
+            onClick={() => {
+              if (tasks.length === 0) {
+                toast.error("Adicione tarefas ao checklist primeiro!");
+                return;
+              }
+              setWizardShowId(selectedShow.id);
+            }}
+          >
+            <ClipboardList className="w-5 h-5 mr-2" />
+            Fazer Checklist do Show
+          </Button>
         </div>
 
         {/* Tasks management */}
@@ -388,8 +392,34 @@ export default function Checklist() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-3">
-                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                {/* Action buttons */}
+                <div className="flex gap-2 mt-3">
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (tasks.length === 0) {
+                        setSelectedShowId(show.id);
+                        toast.error("Adicione tarefas ao checklist primeiro!");
+                        return;
+                      }
+                      setWizardShowId(show.id);
+                    }}
+                  >
+                    <ClipboardList className="w-4 h-4 mr-1" />
+                    Fazer Checklist
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedShowId(show.id);
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
                 </div>
               </button>
             );
