@@ -189,8 +189,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       if (!ctx) return null;
 
       ctx.imageSmoothingEnabled = true;
-      // @ts-expect-error - alguns browsers suportam
-      ctx.imageSmoothingQuality = "high";
+      // ✅ evita TS2578 (sem @ts-expect-error)
+      (ctx as any).imageSmoothingQuality = "high";
 
       ctx.clearRect(0, 0, targetW, targetH);
       ctx.drawImage(canvas, 0, 0, targetW, targetH);
