@@ -483,13 +483,14 @@ export default function Agenda() {
             {(() => {
               const monthShows = shows
                 .filter((show) => {
-                  const showDate = new Date(show.date);
+                  // Parse YYYY-MM-DD as local date to avoid UTC shift
+                  const [y, m] = show.date.split("-").map(Number);
                   return (
-                    showDate.getMonth() === currentMonth.getMonth() &&
-                    showDate.getFullYear() === currentMonth.getFullYear()
+                    m - 1 === currentMonth.getMonth() &&
+                    y === currentMonth.getFullYear()
                   );
                 })
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                .sort((a, b) => a.date.localeCompare(b.date));
 
               if (monthShows.length === 0) {
                 return (

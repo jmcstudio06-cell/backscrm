@@ -33,7 +33,8 @@ import {
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useShowsData } from "@/hooks/useShows";
-import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval, subMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval, subMonths } from "date-fns";
+import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
@@ -50,13 +51,13 @@ export default function Historico() {
   // Filter transactions by date range
   const filteredTransactions = transactions.filter(t => {
     if (!dateRange?.from || !dateRange?.to) return true;
-    const transactionDate = parseISO(t.date);
+    const transactionDate = parseLocalDate(t.date);
     return isWithinInterval(transactionDate, { start: dateRange.from, end: dateRange.to });
   });
 
   const filteredShows = shows.filter(s => {
     if (!dateRange?.from || !dateRange?.to) return true;
-    const showDate = parseISO(s.date);
+    const showDate = parseLocalDate(s.date);
     return isWithinInterval(showDate, { start: dateRange.from, end: dateRange.to });
   });
 
@@ -77,12 +78,12 @@ export default function Historico() {
       const monthName = format(monthDate, "MMM/yy", { locale: ptBR });
 
       const monthTransactions = transactions.filter(t => {
-        const transactionDate = parseISO(t.date);
+        const transactionDate = parseLocalDate(t.date);
         return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
       });
 
       const monthShows = shows.filter(s => {
-        const showDate = parseISO(s.date);
+        const showDate = parseLocalDate(s.date);
         return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && s.status === "completed";
       });
 
