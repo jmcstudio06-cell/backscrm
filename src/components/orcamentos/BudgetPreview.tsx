@@ -30,7 +30,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
   /**
    * ✅ Export sem distorção
-   * - phone: 1080x1920 (celular/story) — SEM BORDA, com auto-escala + render 2x + downscale (nitidez alta)
+   * - phone: IMAGEM A4 (mesmo visual do PDF), otimizada pro WhatsApp (1080px de largura, altura proporcional A4)
    * - print: A4 retrato (1 página)
    */
   const createExportStage = (preset: ExportPreset) => {
@@ -45,6 +45,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     stage.style.margin = "0";
     stage.style.padding = "0";
     stage.style.boxSizing = "border-box";
+    stage.style.background = "#ffffff";
 
     // clone do conteúdo (não mexe na UI)
     const clone = source.cloneNode(true) as HTMLDivElement;
@@ -53,95 +54,42 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     clone.style.background = "#ffffff";
 
     if (preset === "phone") {
-      // ✅ Frame 9:16 padrão celular
-      stage.style.width = "1080px";
-      stage.style.height = "1920px";
-      stage.style.display = "flex";
-      stage.style.alignItems = "center";
-      stage.style.justifyContent = "center";
-      stage.style.background = "#ffffff"; // sem moldura
-
-      // base consistente do orçamento (sem distorcer)
-      clone.style.width = "920px";
-      clone.style.minWidth = "920px";
-      clone.style.maxWidth = "920px";
-      clone.style.padding = "24px";
-
-      // “respiro” premium (mas sem virar moldura feia)
-      const pad = 56;
-
-      const viewport = document.createElement("div");
-      viewport.style.width = "1080px";
-      viewport.style.height = "1920px";
-      viewport.style.display = "flex";
-      viewport.style.alignItems = "center";
-      viewport.style.justifyContent = "center";
-      viewport.style.padding = `${pad}px`;
-      viewport.style.margin = "0";
-      viewport.style.boxSizing = "border-box";
-      viewport.style.background = "#ffffff";
-      viewport.style.overflow = "hidden";
-
-      // wrapper define o tamanho REAL após escala para centralizar perfeito
-      const wrapper = document.createElement("div");
-      wrapper.style.display = "flex";
-      wrapper.style.alignItems = "center";
-      wrapper.style.justifyContent = "center";
-      wrapper.style.boxSizing = "border-box";
-
-      // scaler aplica transform sem distorcer
-      const scaler = document.createElement("div");
-      scaler.style.transformOrigin = "top left";
-      scaler.style.display = "inline-block";
-      scaler.style.boxSizing = "border-box";
-
-      scaler.appendChild(clone);
-      wrapper.appendChild(scaler);
-      viewport.appendChild(wrapper);
-      stage.appendChild(viewport);
-
-      document.body.appendChild(stage);
-
-      // ✅ AUTO-ESCALA (precisa estar no DOM)
-      const availableW = 1080 - pad * 2;
-      const availableH = 1920 - pad * 2;
-
-      const rect = clone.getBoundingClientRect();
-      const contentW = Math.max(clone.scrollWidth || 0, rect.width || 0, 920);
-      const contentH = Math.max(clone.scrollHeight || 0, rect.height || 0, 1200);
-
-      const scale = Math.min(availableW / contentW, availableH / contentH);
-
-      // define tamanhos para centralização perfeita
-      wrapper.style.width = `${Math.round(contentW * scale)}px`;
-      wrapper.style.height = `${Math.round(contentH * scale)}px`;
-
-      scaler.style.width = `${Math.round(contentW)}px`;
-      scaler.style.height = `${Math.round(contentH)}px`;
-      scaler.style.transform = `scale(${scale})`;
-
-      return stage;
-    } else {
       /**
-       * ✅ PRINT (A4 RETRATO):
-       * - largura menor (cabendo em A4)
-       * - padding menor
-       * - stage branco sem sombra
+       * ✅ WHATSAPP (A4-LIKE):
+       * - mesmo layout do print (760px)
+       * - sem moldura
+       * - depois a gente exporta em PNG com largura 1080 e proporção A4
        */
       stage.style.width = "760px";
-      stage.style.background = "#ffffff";
       stage.style.display = "block";
 
       clone.style.width = "760px";
       clone.style.minWidth = "760px";
       clone.style.maxWidth = "760px";
-      clone.style.padding = "22px"; // menor pra caber 1 página
+      clone.style.padding = "22px";
 
       stage.appendChild(clone);
-
       document.body.appendChild(stage);
       return stage;
     }
+
+    /**
+     * ✅ PRINT (A4 RETRATO):
+     * - largura menor (cabendo em A4)
+     * - padding menor
+     * - stage branco sem sombra
+     */
+    stage.style.width = "760px";
+    stage.style.display = "block";
+
+    clone.style.width = "760px";
+    clone.style.minWidth = "760px";
+    clone.style.maxWidth = "760px";
+    clone.style.padding = "22px";
+
+    stage.appendChild(clone);
+    document.body.appendChild(stage);
+    return stage;
   };
 
   const renderToCanvas = async (preset: ExportPreset) => {
@@ -151,9 +99,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     try {
       const html2canvas = (await import("html2canvas")).default;
 
-      // ✅ phone: renderiza em 2x para ficar MUITO nítido, depois a gente reduz para 1080x1920
-      // ✅ print: scale 2 já estava bom
-      const scale = 2;
+      // ✅ mais nitidez no WhatsApp
+      const scale = preset === "phone" ? 3 : 2;
 
       const canvas = await html2canvas(stage, {
         scale,
@@ -176,10 +123,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     const canvas = await renderToCanvas(preset);
     if (!canvas) return null;
 
-    // ✅ PHONE: downscale para 1080x1920 com smoothing high (texto fica bem melhor no WhatsApp)
+    // ✅ WHATSAPP: exporta em A4 (igual PDF), largura 1080px, altura proporcional A4
     if (preset === "phone") {
       const targetW = 1080;
-      const targetH = 1920;
+      // proporção A4 retrato = √2 ≈ 1.4142
+      const targetH = Math.round(targetW * 1.41421356237); // ~1528
 
       const out = document.createElement("canvas");
       out.width = targetW;
@@ -189,11 +137,23 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       if (!ctx) return null;
 
       ctx.imageSmoothingEnabled = true;
-      // ✅ evita TS2578 (sem @ts-expect-error)
       (ctx as any).imageSmoothingQuality = "high";
 
-      ctx.clearRect(0, 0, targetW, targetH);
-      ctx.drawImage(canvas, 0, 0, targetW, targetH);
+      // fundo branco
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, targetW, targetH);
+
+      // desenha "contain" e centraliza (igual PDF, sem cortar)
+      const srcW = canvas.width;
+      const srcH = canvas.height;
+
+      const scale = Math.min(targetW / srcW, targetH / srcH);
+      const drawW = Math.round(srcW * scale);
+      const drawH = Math.round(srcH * scale);
+      const dx = Math.round((targetW - drawW) / 2);
+      const dy = Math.round((targetH - drawH) / 2);
+
+      ctx.drawImage(canvas, dx, dy, drawW, drawH);
 
       return new Promise((resolve) => {
         out.toBlob((blob) => resolve(blob), "image/png", 1);
@@ -243,13 +203,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               background: #fff !important;
             }
 
-            /* ✅ FORÇA A4 EM PÉ */
             @page {
               size: A4 portrait;
               margin: 10mm;
             }
 
-            /* ✅ Container */
             .page {
               width: 100%;
               height: 100vh;
@@ -259,12 +217,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               box-sizing: border-box;
             }
 
-            /* ✅ Faz caber em 1 página */
             img {
               display: block;
               width: 100% !important;
               height: auto !important;
-              max-height: calc(297mm - 20mm); /* A4 height - margins */
+              max-height: calc(297mm - 20mm);
               object-fit: contain;
             }
 
@@ -293,10 +250,10 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   };
 
   /**
-   * ✅ WhatsApp: imagem 1080x1920 (9:16) com qualidade alta
+   * ✅ WhatsApp: imagem A4 (igual PDF) com qualidade alta
    */
   const handleWhatsApp = async () => {
-    toast.loading("Gerando imagem (tamanho de celular)...", { id: "whatsapp" });
+    toast.loading("Gerando imagem (formato A4 para WhatsApp)...", { id: "whatsapp" });
 
     const blob = await generateImage("phone");
     if (!blob) {
@@ -345,7 +302,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     const message = encodeURIComponent(
       `Olá ${budget.client_name}!\n\nSegue o orçamento ${budget.budget_number} no valor de ${formatCurrency(
         budget.total,
-      )}.\n\n✅ A imagem foi gerada no tamanho padrão de celular (alta qualidade). É só anexar no WhatsApp.`,
+      )}.\n\n✅ A imagem foi gerada em formato A4 (igual ao PDF). É só anexar no WhatsApp.`,
     );
 
     toast.success("Imagem pronta! Anexe no WhatsApp.", { id: "whatsapp" });
