@@ -41,15 +41,28 @@ export function BudgetPreview({
     if (!printContent) return null;
 
     try {
+      // Force a fixed width so the capture always looks good regardless of screen size
+      const originalStyle = printContent.style.cssText;
+      printContent.style.width = "900px";
+      printContent.style.minWidth = "900px";
+      printContent.style.maxWidth = "900px";
+      printContent.style.overflow = "visible";
+
       const html2canvas = (await import("html2canvas")).default;
       const canvas = await html2canvas(printContent, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: "#f8f9fc",
+        backgroundColor: "#ffffff",
+        width: 900,
+        windowWidth: 900,
       });
+
+      // Restore original style
+      printContent.style.cssText = originalStyle;
+
       return new Promise((resolve) => {
-        canvas.toBlob((blob) => resolve(blob), "image/png", 0.95);
+        canvas.toBlob((blob) => resolve(blob), "image/png", 1);
       });
     } catch (error) {
       console.error("Erro ao gerar imagem:", error);
@@ -147,52 +160,51 @@ export function BudgetPreview({
           </div>
         </DialogHeader>
 
-        <div className="p-8 bg-[#f8f9fc]" ref={printRef}>
-          <div className="invoice-container" style={{ 
+        <div ref={printRef} style={{ background: "#ffffff", padding: 40, width: "100%", boxSizing: "border-box" }}>
+          <div style={{ 
             maxWidth: 800, 
             margin: "0 auto", 
-            background: "#fff", 
-            padding: 50, 
-            borderRadius: 8,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)"
+            fontFamily: "'Segoe UI', Arial, sans-serif",
+            color: "#333",
+            lineHeight: 1.5,
           }}>
             {/* Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 40 }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32, paddingBottom: 24, borderBottom: "3px solid #6366f1" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ 
-                  width: 60, 
-                  height: 60, 
-                  background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-                  borderRadius: 12,
+                  width: 70, 
+                  height: 70, 
+                  background: "#6366f1",
+                  borderRadius: 14,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  overflow: "hidden"
+                  overflow: "hidden",
+                  flexShrink: 0,
                 }}>
-                {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="Logo" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 12, aspectRatio: "1/1" }} />
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Logo" style={{ width: 70, height: 70, objectFit: "cover", display: "block" }} crossOrigin="anonymous" />
                   ) : (
-                    <span style={{ color: "white", fontSize: 24, fontWeight: 700 }}>
+                    <span style={{ color: "white", fontSize: 28, fontWeight: 700 }}>
                       {artistName.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
                 <div>
-                  <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>
-                    {artistName.split(" ")[0]}
-                    <span style={{ color: "#6366f1" }}>{artistName.split(" ").slice(1).join(" ") ? ` ${artistName.split(" ").slice(1).join(" ")}` : ""}</span>
-                  </h1>
-                  <div style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginTop: 8 }}>
-                    {artistPhone && <div>{artistPhone}</div>}
-                    {artistEmail && <div>{artistEmail}</div>}
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#1a1a2e", marginBottom: 2 }}>
+                    {artistName}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#888", lineHeight: 1.5 }}>
+                    {artistPhone && <span>{artistPhone}<br /></span>}
+                    {artistEmail && <span>{artistEmail}</span>}
                   </div>
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 32, fontWeight: 700, color: "#6366f1", letterSpacing: 2 }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#6366f1", letterSpacing: 1 }}>
                   ORÇAMENTO
                 </div>
-                <div style={{ fontSize: 14, color: "#666", marginTop: 8 }}>
+                <div style={{ fontSize: 13, color: "#888", marginTop: 6 }}>
                   {new Date(budget.created_at).toLocaleDateString("pt-BR", { 
                     day: "2-digit",
                     month: "long",
@@ -202,29 +214,29 @@ export function BudgetPreview({
               </div>
             </div>
 
-            {/* Parties */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 40 }}>
-              <div style={{ width: "48%" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", marginBottom: 8 }}>
+            {/* Client & Budget Info */}
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
                   Para:
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e", marginBottom: 4 }}>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e" }}>
                   {budget.client_name}
                 </div>
-                <div style={{ fontSize: 13, color: "#666", lineHeight: 1.6 }}>
-                  {budget.client_address && <div>{budget.client_address}</div>}
-                  {budget.client_company && <div>{budget.client_company}</div>}
+                <div style={{ fontSize: 12, color: "#888", lineHeight: 1.5, marginTop: 2 }}>
+                  {budget.client_address && <span>{budget.client_address}<br /></span>}
+                  {budget.client_company && <span>{budget.client_company}</span>}
                 </div>
               </div>
-              <div style={{ width: "48%", textAlign: "right" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", marginBottom: 8 }}>
-                  Nº do Orçamento:
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
+                  Nº do Orçamento
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e", marginBottom: 4 }}>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e" }}>
                   {budget.budget_number}
                 </div>
                 {budget.valid_until && (
-                  <div style={{ fontSize: 13, color: "#666" }}>
+                  <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>
                     Válido até: {formatDateBR(budget.valid_until)}
                   </div>
                 )}
@@ -232,39 +244,39 @@ export function BudgetPreview({
             </div>
 
             {/* Items Table */}
-            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 30 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24 }}>
               <thead>
-                <tr style={{ background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)" }}>
-                  <th style={{ color: "white", padding: "14px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, borderRadius: "6px 0 0 6px" }}>
+                <tr style={{ backgroundColor: "#6366f1" }}>
+                  <th style={{ color: "#fff", padding: "12px 14px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, borderRadius: "6px 0 0 6px", width: "50%" }}>
                     Descrição
                   </th>
-                  <th style={{ color: "white", padding: "14px 16px", textAlign: "center", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                  <th style={{ color: "#fff", padding: "12px 14px", textAlign: "right", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, width: "20%" }}>
                     Preço Unit.
                   </th>
-                  <th style={{ color: "white", padding: "14px 16px", textAlign: "center", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                  <th style={{ color: "#fff", padding: "12px 14px", textAlign: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, width: "10%" }}>
                     Qtd
                   </th>
-                  <th style={{ color: "white", padding: "14px 16px", textAlign: "right", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, borderRadius: "0 6px 6px 0" }}>
+                  <th style={{ color: "#fff", padding: "12px 14px", textAlign: "right", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, borderRadius: "0 6px 6px 0", width: "20%" }}>
                     Total
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => (
-                  <tr key={item.id} style={{ borderBottom: index < items.length - 1 ? "1px solid #eef0f4" : "none" }}>
-                    <td style={{ padding: 16, fontSize: 14 }}>
+                  <tr key={item.id} style={{ borderBottom: "1px solid #eee", backgroundColor: index % 2 === 0 ? "#fafafa" : "#fff" }}>
+                    <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "top" }}>
                       <div style={{ fontWeight: 500, color: "#333" }}>{item.description}</div>
                       {item.details && (
-                        <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>{item.details}</div>
+                        <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{item.details}</div>
                       )}
                     </td>
-                    <td style={{ padding: 16, fontSize: 14, textAlign: "center", color: "#333" }}>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", color: "#555", whiteSpace: "nowrap" }}>
                       {formatCurrency(item.unit_price)}
                     </td>
-                    <td style={{ padding: 16, fontSize: 14, textAlign: "center", color: "#333" }}>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: "#555" }}>
                       {item.quantity}
                     </td>
-                    <td style={{ padding: 16, fontSize: 14, textAlign: "right", fontWeight: 500, color: "#333" }}>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", fontWeight: 600, color: "#333", whiteSpace: "nowrap" }}>
                       {formatCurrency(item.total)}
                     </td>
                   </tr>
@@ -272,61 +284,46 @@ export function BudgetPreview({
               </tbody>
             </table>
 
-            {/* Bottom Section */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 30 }}>
-              {/* Notes */}
-              <div style={{ width: "55%" }}>
-                {budget.notes && (
-                  <>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#6366f1", marginBottom: 8 }}>
-                      Observações:
-                    </div>
-                    <div style={{ fontSize: 12, color: "#666", lineHeight: 1.6 }}>
-                      {budget.notes}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Totals */}
-              <div style={{ width: "40%" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14, color: "#666" }}>
-                  <span>Subtotal:</span>
+            {/* Totals */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 32 }}>
+              <div style={{ width: 280 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 13, color: "#888" }}>
+                  <span>Subtotal</span>
                   <span>{formatCurrency(budget.subtotal)}</span>
                 </div>
                 {budget.tax > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14, color: "#666" }}>
-                    <span>Taxa ({budget.tax}%):</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 13, color: "#888" }}>
+                    <span>Taxa ({budget.tax}%)</span>
                     <span>{formatCurrency(taxAmount)}</span>
                   </div>
                 )}
                 {budget.discount > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 14, color: "#666" }}>
-                    <span>Desconto:</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 13, color: "#888" }}>
+                    <span>Desconto</span>
                     <span>- {formatCurrency(budget.discount)}</span>
                   </div>
                 )}
                 <div style={{ 
                   display: "flex", 
                   justifyContent: "space-between", 
-                  background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)",
-                  color: "white",
-                  padding: "14px 16px",
+                  backgroundColor: "#6366f1",
+                  color: "#fff",
+                  padding: "12px 16px",
                   borderRadius: 6,
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: 700,
-                  marginTop: 12
+                  marginTop: 8
                 }}>
-                  <span>TOTAL:</span>
+                  <span>TOTAL</span>
                   <span>{formatCurrency(budget.total)}</span>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 50, paddingTop: 30, borderTop: "1px solid #eef0f4" }}>
-              <div style={{ width: "30%" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", marginBottom: 8 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 20, borderTop: "1px solid #eee", gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#1a1a2e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
                   Contato
                 </div>
                 <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
@@ -334,16 +331,16 @@ export function BudgetPreview({
                   {artistPhone && <div>Tel: {artistPhone}</div>}
                 </div>
               </div>
-              <div style={{ width: "30%" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", marginBottom: 8 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#1a1a2e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
                   Pagamento
                 </div>
                 <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
                   {budget.payment_conditions || "A combinar"}
                 </div>
               </div>
-              <div style={{ width: "30%" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", marginBottom: 8 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#1a1a2e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
                   Termos e Condições
                 </div>
                 <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
@@ -354,13 +351,14 @@ export function BudgetPreview({
 
             {/* Thanks */}
             <div style={{ 
-              marginTop: 40, 
-              padding: 20, 
-              background: "linear-gradient(135deg, #f8f9fc 0%, #eef0f4 100%)",
+              marginTop: 28, 
+              padding: "14px 20px", 
+              backgroundColor: "#f0f0ff",
               borderRadius: 8,
-              textAlign: "center"
+              textAlign: "center",
+              border: "1px solid #e0e0ff"
             }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: "#6366f1" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#6366f1" }}>
                 Obrigado pela preferência!
               </div>
             </div>
