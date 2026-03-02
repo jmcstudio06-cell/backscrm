@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Send, MessageCircle, X } from "lucide-react";
+import { Download, MessageCircle, X } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
@@ -36,284 +36,89 @@ export function BudgetPreview({
 
   const taxAmount = budget.subtotal * (budget.tax / 100);
 
-  const handlePrint = () => {
+  const generateImage = async (): Promise<Blob | null> => {
     const printContent = printRef.current;
-    if (!printContent) return;
+    if (!printContent) return null;
 
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      toast.error("Não foi possível abrir a janela de impressão");
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(printContent, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#f8f9fc",
+      });
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), "image/png", 0.95);
+      });
+    } catch (error) {
+      console.error("Erro ao gerar imagem:", error);
+      return null;
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    toast.loading("Gerando PDF...", { id: "pdf" });
+    const blob = await generateImage();
+    if (!blob) {
+      toast.error("Erro ao gerar o orçamento. Tente novamente.", { id: "pdf" });
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orcamento-${budget.budget_number}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Orçamento baixado com sucesso!", { id: "pdf" });
+  };
+
+  const handleWhatsApp = async () => {
+    toast.loading("Gerando orçamento para enviar...", { id: "whatsapp" });
+    const blob = await generateImage();
+    if (!blob) {
+      toast.error("Erro ao gerar o orçamento.", { id: "whatsapp" });
       return;
     }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Orçamento ${budget.budget_number}</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-              font-family: 'Inter', sans-serif; 
-              padding: 40px; 
-              background: #f8f9fc; 
-              color: #333;
-              min-height: 100vh;
-            }
-            .invoice-container {
-              max-width: 800px;
-              margin: 0 auto;
-              background: #fff;
-              padding: 50px;
-              border-radius: 8px;
-              box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            }
-            .header {
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              margin-bottom: 40px;
-            }
-            .company-section {
-              display: flex;
-              align-items: flex-start;
-              gap: 16px;
-            }
-            .company-logo {
-              width: 60px;
-              height: 60px;
-              background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-              border-radius: 12px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              overflow: hidden;
-            }
-            .company-logo img {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-            }
-            .company-logo-placeholder {
-              color: white;
-              font-size: 24px;
-              font-weight: 700;
-            }
-            .company-info h1 {
-              font-size: 24px;
-              font-weight: 700;
-              color: #1a1a2e;
-              margin-bottom: 4px;
-            }
-            .company-info h1 span {
-              color: #6366f1;
-            }
-            .company-address {
-              font-size: 13px;
-              color: #666;
-              line-height: 1.6;
-              margin-top: 8px;
-            }
-            .invoice-title-section {
-              text-align: right;
-            }
-            .invoice-label {
-              font-size: 32px;
-              font-weight: 700;
-              color: #6366f1;
-              letter-spacing: 2px;
-            }
-            .invoice-date {
-              font-size: 14px;
-              color: #666;
-              margin-top: 8px;
-            }
-            .parties-section {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 40px;
-            }
-            .party-box {
-              width: 48%;
-            }
-            .party-label {
-              font-size: 12px;
-              font-weight: 600;
-              color: #6366f1;
-              margin-bottom: 8px;
-            }
-            .party-name {
-              font-size: 16px;
-              font-weight: 600;
-              color: #1a1a2e;
-              margin-bottom: 4px;
-            }
-            .party-details {
-              font-size: 13px;
-              color: #666;
-              line-height: 1.6;
-            }
-            .items-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 30px;
-            }
-            .items-table thead tr {
-              background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
-            }
-            .items-table th {
-              color: white;
-              padding: 14px 16px;
-              text-align: left;
-              font-size: 12px;
-              font-weight: 600;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-            }
-            .items-table th:first-child { border-radius: 6px 0 0 6px; }
-            .items-table th:last-child { border-radius: 0 6px 6px 0; text-align: right; }
-            .items-table th.center { text-align: center; }
-            .items-table tbody tr {
-              border-bottom: 1px solid #eef0f4;
-            }
-            .items-table tbody tr:last-child {
-              border-bottom: none;
-            }
-            .items-table td {
-              padding: 16px;
-              font-size: 14px;
-              color: #333;
-            }
-            .items-table td:last-child { text-align: right; }
-            .items-table td.center { text-align: center; }
-            .item-description {
-              font-weight: 500;
-            }
-            .item-details {
-              font-size: 12px;
-              color: #888;
-              margin-top: 4px;
-            }
-            .bottom-section {
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              margin-top: 30px;
-            }
-            .notes-section {
-              width: 55%;
-            }
-            .notes-title {
-              font-size: 12px;
-              font-weight: 600;
-              color: #6366f1;
-              margin-bottom: 8px;
-            }
-            .notes-content {
-              font-size: 12px;
-              color: #666;
-              line-height: 1.6;
-            }
-            .totals-section {
-              width: 40%;
-            }
-            .totals-row {
-              display: flex;
-              justify-content: space-between;
-              padding: 8px 0;
-              font-size: 14px;
-              color: #666;
-            }
-            .totals-row.highlight {
-              background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
-              color: white;
-              padding: 14px 16px;
-              border-radius: 6px;
-              font-size: 16px;
-              font-weight: 700;
-              margin-top: 12px;
-            }
-            .footer-section {
-              display: flex;
-              justify-content: space-between;
-              margin-top: 50px;
-              padding-top: 30px;
-              border-top: 1px solid #eef0f4;
-            }
-            .footer-column {
-              width: 30%;
-            }
-            .footer-title {
-              font-size: 12px;
-              font-weight: 600;
-              color: #1a1a2e;
-              margin-bottom: 8px;
-            }
-            .footer-content {
-              font-size: 11px;
-              color: #888;
-              line-height: 1.6;
-            }
-            .thanks-section {
-              margin-top: 40px;
-              padding: 20px;
-              background: linear-gradient(135deg, #f8f9fc 0%, #eef0f4 100%);
-              border-radius: 8px;
-              text-align: center;
-            }
-            .thanks-text {
-              font-size: 16px;
-              font-weight: 600;
-              color: #6366f1;
-            }
-            @media print { 
-              body { padding: 0; background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; } 
-              .invoice-container { box-shadow: none; padding: 30px; }
-              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-              .items-table thead tr { background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%) !important; }
-              .items-table th { color: white !important; background: #6366f1 !important; }
-              .totals-row.highlight { background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%) !important; color: white !important; }
-            }
-          </style>
-        </head>
-        <body>
-          ${printContent.innerHTML}
-        </body>
-      </html>
-    `);
+    // Try Web Share API (works on Android)
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], `orcamento-${budget.budget_number}.png`, { type: "image/png" });
+      const shareData = { files: [file], title: `Orçamento ${budget.budget_number}`, text: `Orçamento ${budget.budget_number} - ${formatCurrency(budget.total)}` };
+      if (navigator.canShare(shareData)) {
+        try {
+          toast.dismiss("whatsapp");
+          await navigator.share(shareData);
+          return;
+        } catch (e) {
+          // User cancelled or error, fallback below
+        }
+      }
+    }
 
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
-  };
+    // Fallback: download the image then open WhatsApp
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orcamento-${budget.budget_number}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
-  const handleWhatsApp = () => {
-    const message = encodeURIComponent(
-      `Olá ${budget.client_name}!\n\n` +
-      `Segue o orçamento ${budget.budget_number} no valor de ${formatCurrency(budget.total)}.\n\n` +
-      `Por favor, entre em contato para mais detalhes.`
-    );
     let phone = budget.client_phone?.replace(/\D/g, "") || "";
     if (phone && !phone.startsWith("55")) {
       phone = "55" + phone;
     }
-    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
-  };
-
-  const handleEmail = () => {
-    const subject = encodeURIComponent(`Orçamento ${budget.budget_number}`);
-    const body = encodeURIComponent(
-      `Olá ${budget.client_name},\n\n` +
-      `Segue o orçamento ${budget.budget_number} no valor de ${formatCurrency(budget.total)}.\n\n` +
-      `Itens:\n` +
-      items.map((item, i) => `${i + 1}. ${item.description} - ${formatCurrency(item.total)}`).join("\n") +
-      `\n\nAtenciosamente,\n${profile?.name || "Sua Empresa"}`
+    const message = encodeURIComponent(
+      `Olá ${budget.client_name}!\n\nSegue o orçamento ${budget.budget_number} no valor de ${formatCurrency(budget.total)}.\n\nAnexe a imagem que foi baixada.`
     );
-    window.open(`mailto:${budget.client_email}?subject=${subject}&body=${body}`, "_blank");
+    toast.success("Imagem baixada! Anexe no WhatsApp.", { id: "whatsapp" });
+    setTimeout(() => {
+      window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+    }, 500);
   };
 
   const artistName = profile?.name || "Sua Empresa";
@@ -331,11 +136,7 @@ export function BudgetPreview({
                 <MessageCircle className="w-4 h-4 mr-2" />
                 WhatsApp
               </Button>
-              <Button variant="outline" size="sm" onClick={handleEmail}>
-                <Send className="w-4 h-4 mr-2" />
-                Email
-              </Button>
-              <Button variant="gradient" size="sm" onClick={handlePrint}>
+              <Button variant="gradient" size="sm" onClick={handleDownloadPDF}>
                 <Download className="w-4 h-4 mr-2" />
                 PDF
               </Button>
@@ -368,8 +169,8 @@ export function BudgetPreview({
                   justifyContent: "center",
                   overflow: "hidden"
                 }}>
-                  {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Logo" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 12, aspectRatio: "1/1" }} />
                   ) : (
                     <span style={{ color: "white", fontSize: 24, fontWeight: 700 }}>
                       {artistName.charAt(0).toUpperCase()}
