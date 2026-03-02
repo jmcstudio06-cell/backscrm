@@ -29,9 +29,9 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   const taxAmount = budget.subtotal * (budget.tax / 100);
 
   /**
-   * ✅ Cria palco offscreen SEM distorção:
-   * - phone: 1080x1920 (padrão celular/story)
-   * - print: captura "justinha" pra imprimir em A4 (sem ficar minúsculo)
+   * ✅ Export sem distorção
+   * - phone: 1080x1920 (celular/story)
+   * - print: A4 retrato (1 página)
    */
   const createExportStage = (preset: ExportPreset) => {
     const source = printRef.current;
@@ -50,12 +50,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     const clone = source.cloneNode(true) as HTMLDivElement;
     clone.style.margin = "0";
     clone.style.boxSizing = "border-box";
-
-    // deixa o clone consistente
-    clone.style.width = "900px";
-    clone.style.minWidth = "900px";
-    clone.style.maxWidth = "900px";
-    clone.style.padding = "40px";
     clone.style.background = "#ffffff";
 
     if (preset === "phone") {
@@ -66,6 +60,12 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       stage.style.alignItems = "center";
       stage.style.justifyContent = "center";
       stage.style.background = "#f6f7fb";
+
+      // deixa o orçamento com largura confortável pra celular
+      clone.style.width = "900px";
+      clone.style.minWidth = "900px";
+      clone.style.maxWidth = "900px";
+      clone.style.padding = "40px";
 
       const safe = document.createElement("div");
       safe.style.width = "980px";
@@ -88,13 +88,21 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       safe.appendChild(card);
       stage.appendChild(safe);
     } else {
-      // ✅ PRINT: captura "justinha" (sem padding gigante no stage)
-      stage.style.width = "900px";
+      /**
+       * ✅ PRINT (A4 RETRATO):
+       * Aqui é o pulo do gato:
+       * - largura menor (cabendo em A4)
+       * - padding menor
+       * - stage branco sem sombra
+       */
+      stage.style.width = "760px";
       stage.style.background = "#ffffff";
       stage.style.display = "block";
 
-      // sem sombras/margens extras pra impressão
-      clone.style.padding = "28px";
+      clone.style.width = "760px";
+      clone.style.minWidth = "760px";
+      clone.style.maxWidth = "760px";
+      clone.style.padding = "22px"; // menor pra caber 1 página
 
       stage.appendChild(clone);
     }
@@ -110,8 +118,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     try {
       const html2canvas = (await import("html2canvas")).default;
 
-      // phone: 1080x1920 já está perfeito em scale 1
-      // print: scale 2 deixa bem nítido
+      // phone: 1080x1920 já ok em scale 1
+      // print: scale 2 fica nítido e ainda leve
       const scale = preset === "phone" ? 1 : 2;
 
       const canvas = await html2canvas(stage, {
@@ -141,9 +149,9 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   };
 
   /**
-   * ✅ PDF (Imprimir) via navegador:
-   * - captura no preset "print" (sem área vazia)
-   * - abre janela com CSS @page e imagem 100% largura
+   * ✅ PDF (Imprimir) A4 em pé e 1 página
+   * - força @page A4 portrait
+   * - coloca a imagem pra caber na altura da folha (max-height)
    */
   const handlePrintPDF = async () => {
     toast.loading("Preparando para imprimir...", { id: "pdf" });
@@ -162,9 +170,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       return;
     }
 
-    // define orientação baseada no canvas
-    const orientation = canvas.width > canvas.height ? "landscape" : "portrait";
-
     win.document.open();
     win.document.write(`
       <!doctype html>
@@ -180,21 +185,29 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               background: #fff !important;
             }
 
-            /* ISSO aqui é o que resolve o "minúsculo" */
+            /* ✅ FORÇA A4 EM PÉ */
             @page {
-              size: A4 ${orientation};
+              size: A4 portrait;
               margin: 10mm;
             }
 
+            /* ✅ Container */
             .page {
               width: 100%;
+              height: 100vh;
+              display: flex;
+              align-items: flex-start;
+              justify-content: center;
               box-sizing: border-box;
             }
 
+            /* ✅ Faz caber em 1 página */
             img {
               display: block;
               width: 100% !important;
               height: auto !important;
+              max-height: calc(297mm - 20mm); /* A4 height - margins */
+              object-fit: contain;
             }
 
             * {
@@ -218,11 +231,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     `);
     win.document.close();
 
-    toast.success("Abrindo impressão (Salvar como PDF)...", { id: "pdf" });
+    toast.success("Abrindo impressão (A4 em pé)...", { id: "pdf" });
   };
 
   /**
-   * ✅ WhatsApp: imagem 1080x1920 (9:16), padrão celular/story
+   * ✅ WhatsApp: imagem 1080x1920 (9:16)
    */
   const handleWhatsApp = async () => {
     toast.loading("Gerando imagem (tamanho de celular)...", { id: "whatsapp" });
@@ -233,7 +246,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       return;
     }
 
-    // Web Share API (Android)
     const navAny = navigator as any;
     const hasShare = typeof navAny?.share === "function";
 
@@ -302,7 +314,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               </Button>
               <Button variant="gradient" size="sm" onClick={handlePrintPDF}>
                 <Download className="w-4 h-4 mr-2" />
-                PDF (Imprimir)
+                PDF (A4 em pé)
               </Button>
               <Button variant="ghost" size="icon" onClick={onClose}>
                 <X className="w-4 h-4" />
@@ -386,6 +398,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   </div>
                 </div>
               </div>
+
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 28, fontWeight: 800, color: "#6366f1", letterSpacing: 1 }}>ORÇAMENTO</div>
                 <div style={{ fontSize: 13, color: "#888", marginTop: 6 }}>
@@ -424,6 +437,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   {budget.client_company && <span>{budget.client_company}</span>}
                 </div>
               </div>
+
               <div style={{ textAlign: "right" }}>
                 <div
                   style={{
@@ -566,6 +580,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   <span>Subtotal</span>
                   <span>{formatCurrency(budget.subtotal)}</span>
                 </div>
+
                 {budget.tax > 0 && (
                   <div
                     style={{
@@ -580,6 +595,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     <span>{formatCurrency(taxAmount)}</span>
                   </div>
                 )}
+
                 {budget.discount > 0 && (
                   <div
                     style={{
@@ -594,6 +610,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     <span>- {formatCurrency(budget.discount)}</span>
                   </div>
                 )}
+
                 <div
                   style={{
                     display: "flex",
@@ -641,6 +658,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   {artistPhone && <div>Tel: {artistPhone}</div>}
                 </div>
               </div>
+
               <div style={{ flex: 1 }}>
                 <div
                   style={{
@@ -658,6 +676,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   {budget.payment_conditions || "A combinar"}
                 </div>
               </div>
+
               <div style={{ flex: 1 }}>
                 <div
                   style={{
