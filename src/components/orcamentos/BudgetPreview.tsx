@@ -30,7 +30,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
   /**
    * ✅ Export sem distorção
-   * - phone: 1080x1920 (celular/story)
+   * - phone: 1080x1920 (celular/story) — SEM BORDA (preenche melhor)
    * - print: A4 retrato (1 página)
    */
   const createExportStage = (preset: ExportPreset) => {
@@ -59,61 +59,51 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       stage.style.display = "flex";
       stage.style.alignItems = "center";
       stage.style.justifyContent = "center";
-      stage.style.background = "#f6f7fb";
+      stage.style.background = "#ffffff"; // ✅ sem moldura/fundo cinza
 
       // mantém o layout base do orçamento consistente (NÃO distorce)
-      clone.style.width = "900px";
-      clone.style.minWidth = "900px";
-      clone.style.maxWidth = "900px";
-      clone.style.padding = "40px";
+      // um pouco maior pra ocupar mais a tela
+      clone.style.width = "1000px";
+      clone.style.minWidth = "1000px";
+      clone.style.maxWidth = "1000px";
+      clone.style.padding = "28px";
 
-      const safe = document.createElement("div");
-      safe.style.width = "980px";
-      safe.style.height = "1840px";
-      safe.style.display = "flex";
-      safe.style.alignItems = "center";
-      safe.style.justifyContent = "center";
-      safe.style.padding = "24px";
-      safe.style.boxSizing = "border-box";
-
-      const card = document.createElement("div");
-      card.style.width = "100%";
-      card.style.height = "100%"; // ✅ importante pra ter uma “área útil” grande pra escalar
-      card.style.borderRadius = "18px";
-      card.style.background = "#ffffff";
-      card.style.boxShadow = "0 14px 45px rgba(0,0,0,0.12)";
-      card.style.overflow = "hidden";
-      card.style.boxSizing = "border-box";
-      card.style.display = "flex";
-      card.style.alignItems = "center";
-      card.style.justifyContent = "center";
+      // ✅ SEM BORDA: área útil é a tela inteira
+      const viewport = document.createElement("div");
+      viewport.style.width = "1080px";
+      viewport.style.height = "1920px";
+      viewport.style.display = "flex";
+      viewport.style.alignItems = "center";
+      viewport.style.justifyContent = "center";
+      viewport.style.padding = "0";
+      viewport.style.margin = "0";
+      viewport.style.boxSizing = "border-box";
+      viewport.style.background = "#ffffff";
+      viewport.style.overflow = "hidden";
 
       // ✅ wrapper que será escalado (sem distorcer)
       const scaler = document.createElement("div");
       scaler.style.transformOrigin = "top left";
       scaler.style.display = "inline-block";
 
-      // coloca clone dentro do scaler
       scaler.appendChild(clone);
-      card.appendChild(scaler);
-      safe.appendChild(card);
-      stage.appendChild(safe);
+      viewport.appendChild(scaler);
+      stage.appendChild(viewport);
 
       document.body.appendChild(stage);
 
-      // ✅ AUTO-ESCALA: faz o orçamento preencher o celular (sem cortar, sem distorcer)
+      // ✅ AUTO-ESCALA: faz o orçamento preencher o 1080x1920 (sem cortar, sem distorcer)
       // Mede depois de estar no DOM
-      const cardW = card.clientWidth;
-      const cardH = card.clientHeight;
+      const vpW = viewport.clientWidth;
+      const vpH = viewport.clientHeight;
 
-      // dimensões reais do conteúdo
-      const contentW = clone.scrollWidth || clone.getBoundingClientRect().width || 900;
-      const contentH = clone.scrollHeight || clone.getBoundingClientRect().height || 1200;
+      const rect = clone.getBoundingClientRect();
+      const contentW = clone.scrollWidth || rect.width || 1000;
+      const contentH = clone.scrollHeight || rect.height || 1400;
 
-      // escala pra caber no card (sem ultrapassar)
-      const scale = Math.min(cardW / contentW, cardH / contentH);
+      // escala pra caber (sem ultrapassar)
+      const scale = Math.min(vpW / contentW, vpH / contentH);
 
-      // aplica escala (e mantém o “tamanho original” pra cálculo ficar certo)
       scaler.style.width = `${contentW}px`;
       scaler.style.height = `${contentH}px`;
       scaler.style.transform = `scale(${scale})`;
@@ -122,7 +112,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     } else {
       /**
        * ✅ PRINT (A4 RETRATO):
-       * Aqui é o pulo do gato:
        * - largura menor (cabendo em A4)
        * - padding menor
        * - stage branco sem sombra
@@ -158,7 +147,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
         scale,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: preset === "phone" ? "#f6f7fb" : "#ffffff",
+        backgroundColor: preset === "phone" ? "#ffffff" : "#ffffff",
         logging: false,
       });
 
