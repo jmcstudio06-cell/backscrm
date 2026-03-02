@@ -30,7 +30,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
   /**
    * ✅ Export sem distorção
-   * - phone: 1080x1920 (celular/story) — SEM BORDA (preenche melhor)
+   * - phone: 1080x1920 (celular/story) — SEM BORDA, com escala + downscale (texto fica MUITO mais nítido)
    * - print: A4 retrato (1 página)
    */
   const createExportStage = (preset: ExportPreset) => {
@@ -59,62 +59,71 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       stage.style.display = "flex";
       stage.style.alignItems = "center";
       stage.style.justifyContent = "center";
-      stage.style.background = "#ffffff"; // ✅ sem moldura/fundo cinza
+      stage.style.background = "#ffffff"; // ✅ sem borda/moldura
 
-      // mantém o layout base do orçamento consistente (NÃO distorce)
-      // um pouco maior pra ocupar mais a tela
-      clone.style.width = "1000px";
-      clone.style.minWidth = "1000px";
-      clone.style.maxWidth = "1000px";
-      clone.style.padding = "28px";
+      // base consistente do orçamento (sem distorcer)
+      clone.style.width = "920px";
+      clone.style.minWidth = "920px";
+      clone.style.maxWidth = "920px";
+      clone.style.padding = "24px";
 
-      // ✅ SEM BORDA: área útil é a tela inteira
+      const pad = 64; // “respiro” na imagem final (fica mais premium no WhatsApp)
       const viewport = document.createElement("div");
       viewport.style.width = "1080px";
       viewport.style.height = "1920px";
       viewport.style.display = "flex";
       viewport.style.alignItems = "center";
       viewport.style.justifyContent = "center";
-      viewport.style.padding = "0";
+      viewport.style.padding = `${pad}px`;
       viewport.style.margin = "0";
       viewport.style.boxSizing = "border-box";
       viewport.style.background = "#ffffff";
       viewport.style.overflow = "hidden";
 
-      // ✅ wrapper que será escalado (sem distorcer)
+      // wrapper define o tamanho REAL (escalado) para o flex centralizar direito
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.alignItems = "center";
+      wrapper.style.justifyContent = "center";
+      wrapper.style.boxSizing = "border-box";
+
+      // scaler aplica transform sem distorcer
       const scaler = document.createElement("div");
       scaler.style.transformOrigin = "top left";
       scaler.style.display = "inline-block";
+      scaler.style.boxSizing = "border-box";
 
       scaler.appendChild(clone);
-      viewport.appendChild(scaler);
+      wrapper.appendChild(scaler);
+      viewport.appendChild(wrapper);
       stage.appendChild(viewport);
 
       document.body.appendChild(stage);
 
-      // ✅ AUTO-ESCALA: faz o orçamento preencher o 1080x1920 (sem cortar, sem distorcer)
-      // Mede depois de estar no DOM
-      const vpW = viewport.clientWidth;
-      const vpH = viewport.clientHeight;
+      // ✅ AUTO-ESCALA (depois de estar no DOM)
+      const availableW = 1080 - pad * 2;
+      const availableH = 1920 - pad * 2;
 
-      const rect = clone.getBoundingClientRect();
-      const contentW = clone.scrollWidth || rect.width || 1000;
-      const contentH = clone.scrollHeight || rect.height || 1400;
+      // mede o conteúdo real
+      const contentRect = clone.getBoundingClientRect();
+      const contentW = Math.max(clone.scrollWidth || 0, contentRect.width || 0, 920);
+      const contentH = Math.max(clone.scrollHeight || 0, contentRect.height || 0, 1200);
 
-      // escala pra caber (sem ultrapassar)
-      const scale = Math.min(vpW / contentW, vpH / contentH);
+      // escala para CABER (sem cortar)
+      const scale = Math.min(availableW / contentW, availableH / contentH);
 
-      scaler.style.width = `${contentW}px`;
-      scaler.style.height = `${contentH}px`;
+      // define tamanhos para centralização perfeita
+      wrapper.style.width = `${Math.round(contentW * scale)}px`;
+      wrapper.style.height = `${Math.round(contentH * scale)}px`;
+
+      scaler.style.width = `${Math.round(contentW)}px`;
+      scaler.style.height = `${Math.round(contentH)}px`;
       scaler.style.transform = `scale(${scale})`;
 
       return stage;
     } else {
       /**
-       * ✅ PRINT (A4 RETRATO):
-       * - largura menor (cabendo em A4)
-       * - padding menor
-       * - stage branco sem sombra
+       * ✅ PRINT (A4 RETRATO)
        */
       stage.style.width = "760px";
       stage.style.background = "#ffffff";
@@ -123,7 +132,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       clone.style.width = "760px";
       clone.style.minWidth = "760px";
       clone.style.maxWidth = "760px";
-      clone.style.padding = "22px"; // menor pra caber 1 página
+      clone.style.padding = "22px";
 
       stage.appendChild(clone);
 
@@ -139,15 +148,18 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     try {
       const html2canvas = (await import("html2canvas")).default;
 
-      // phone: 1080x1920 já ok em scale 1
-      // print: scale 2 fica nítido e ainda leve
-      const scale = preset === "phone" ? 1 : 2;
+      /**
+       * ✅ O segredo da qualidade no WhatsApp:
+       * - renderiza o phone em 2x (fica super nítido)
+       * - depois a gente reduz para 1080x1920 com smoothing HIGH
+       */
+      const scale = preset === "phone" ? 2 : 2;
 
       const canvas = await html2canvas(stage, {
         scale,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: preset === "phone" ? "#ffffff" : "#ffffff",
+        backgroundColor: "#ffffff",
         logging: false,
       });
 
@@ -164,6 +176,34 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     const canvas = await renderToCanvas(preset);
     if (!canvas) return null;
 
+    // ✅ PHONE: downscale para 1080x1920 mantendo ALTÍSSIMA nitidez
+    if (preset === "phone") {
+      const targetW = 1080;
+      const targetH = 1920;
+
+      const out = document.createElement("canvas");
+      out.width = targetW;
+      out.height = targetH;
+
+      const ctx = out.getContext("2d");
+      if (!ctx) return null;
+
+      // melhora bastante o texto/linhas na redução
+      ctx.imageSmoothingEnabled = true;
+      // @ts-expect-error - alguns browsers suportam
+      ctx.imageSmoothingQuality = "high";
+
+      ctx.clearRect(0, 0, targetW, targetH);
+
+      // canvas original deve estar na proporção do stage (2x)
+      ctx.drawImage(canvas, 0, 0, targetW, targetH);
+
+      return new Promise((resolve) => {
+        out.toBlob((blob) => resolve(blob), "image/png", 1);
+      });
+    }
+
+    // ✅ PRINT: mantém como está
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), "image/png", 0.98);
     });
@@ -171,8 +211,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
   /**
    * ✅ PDF (Imprimir) A4 em pé e 1 página
-   * - força @page A4 portrait
-   * - coloca a imagem pra caber na altura da folha (max-height)
    */
   const handlePrintPDF = async () => {
     toast.loading("Preparando para imprimir...", { id: "pdf" });
@@ -206,13 +244,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               background: #fff !important;
             }
 
-            /* ✅ FORÇA A4 EM PÉ */
             @page {
               size: A4 portrait;
               margin: 10mm;
             }
 
-            /* ✅ Container */
             .page {
               width: 100%;
               height: 100vh;
@@ -222,12 +258,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               box-sizing: border-box;
             }
 
-            /* ✅ Faz caber em 1 página */
             img {
               display: block;
               width: 100% !important;
               height: auto !important;
-              max-height: calc(297mm - 20mm); /* A4 height - margins */
+              max-height: calc(297mm - 20mm);
               object-fit: contain;
             }
 
@@ -256,7 +291,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   };
 
   /**
-   * ✅ WhatsApp: imagem 1080x1920 (9:16)
+   * ✅ WhatsApp: imagem 1080x1920 (9:16) com qualidade alta
    */
   const handleWhatsApp = async () => {
     toast.loading("Gerando imagem (tamanho de celular)...", { id: "whatsapp" });
@@ -308,7 +343,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     const message = encodeURIComponent(
       `Olá ${budget.client_name}!\n\nSegue o orçamento ${budget.budget_number} no valor de ${formatCurrency(
         budget.total,
-      )}.\n\n✅ A imagem foi gerada no tamanho padrão de celular. É só anexar no WhatsApp.`,
+      )}.\n\n✅ A imagem foi gerada no tamanho padrão de celular (alta qualidade). É só anexar no WhatsApp.`,
     );
 
     toast.success("Imagem pronta! Anexe no WhatsApp.", { id: "whatsapp" });
