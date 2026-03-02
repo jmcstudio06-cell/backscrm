@@ -61,7 +61,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       stage.style.justifyContent = "center";
       stage.style.background = "#f6f7fb";
 
-      // deixa o orçamento com largura confortável pra celular
+      // mantém o layout base do orçamento consistente (NÃO distorce)
       clone.style.width = "900px";
       clone.style.minWidth = "900px";
       clone.style.maxWidth = "900px";
@@ -78,15 +78,47 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
       const card = document.createElement("div");
       card.style.width = "100%";
+      card.style.height = "100%"; // ✅ importante pra ter uma “área útil” grande pra escalar
       card.style.borderRadius = "18px";
       card.style.background = "#ffffff";
       card.style.boxShadow = "0 14px 45px rgba(0,0,0,0.12)";
       card.style.overflow = "hidden";
       card.style.boxSizing = "border-box";
+      card.style.display = "flex";
+      card.style.alignItems = "center";
+      card.style.justifyContent = "center";
 
-      card.appendChild(clone);
+      // ✅ wrapper que será escalado (sem distorcer)
+      const scaler = document.createElement("div");
+      scaler.style.transformOrigin = "top left";
+      scaler.style.display = "inline-block";
+
+      // coloca clone dentro do scaler
+      scaler.appendChild(clone);
+      card.appendChild(scaler);
       safe.appendChild(card);
       stage.appendChild(safe);
+
+      document.body.appendChild(stage);
+
+      // ✅ AUTO-ESCALA: faz o orçamento preencher o celular (sem cortar, sem distorcer)
+      // Mede depois de estar no DOM
+      const cardW = card.clientWidth;
+      const cardH = card.clientHeight;
+
+      // dimensões reais do conteúdo
+      const contentW = clone.scrollWidth || clone.getBoundingClientRect().width || 900;
+      const contentH = clone.scrollHeight || clone.getBoundingClientRect().height || 1200;
+
+      // escala pra caber no card (sem ultrapassar)
+      const scale = Math.min(cardW / contentW, cardH / contentH);
+
+      // aplica escala (e mantém o “tamanho original” pra cálculo ficar certo)
+      scaler.style.width = `${contentW}px`;
+      scaler.style.height = `${contentH}px`;
+      scaler.style.transform = `scale(${scale})`;
+
+      return stage;
     } else {
       /**
        * ✅ PRINT (A4 RETRATO):
@@ -105,10 +137,10 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       clone.style.padding = "22px"; // menor pra caber 1 página
 
       stage.appendChild(clone);
-    }
 
-    document.body.appendChild(stage);
-    return stage;
+      document.body.appendChild(stage);
+      return stage;
+    }
   };
 
   const renderToCanvas = async (preset: ExportPreset) => {
