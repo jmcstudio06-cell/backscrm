@@ -28,11 +28,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
   const taxAmount = budget.subtotal * (budget.tax / 100);
 
-  /**
-   * Cria um "palco" offscreen para exportação.
-   * - preset "desktop": exporta do jeito que está na tela
-   * - preset "phone": exporta em formato 9:16 (1080x1920), perfeito pro WhatsApp
-   */
   const createExportStage = (preset: ExportPreset) => {
     const source = printRef.current;
     if (!source) return null;
@@ -47,22 +42,17 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     stage.style.margin = "0";
     stage.style.boxSizing = "border-box";
 
-    // Conteúdo clonado (não mexe na tela real)
     const clone = source.cloneNode(true) as HTMLDivElement;
-
-    // Remove o padding externo do container clonado para não “comer” espaço no preset phone
     clone.style.padding = "0";
     clone.style.background = "transparent";
 
     if (preset === "phone") {
-      // Frame 9:16
       stage.style.width = "1080px";
       stage.style.height = "1920px";
       stage.style.display = "flex";
       stage.style.alignItems = "center";
       stage.style.justifyContent = "center";
 
-      // Coloca uma margem “de celular” bonita
       const phoneSafeArea = document.createElement("div");
       phoneSafeArea.style.width = "980px";
       phoneSafeArea.style.maxHeight = "1800px";
@@ -72,8 +62,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       phoneSafeArea.style.alignItems = "center";
       phoneSafeArea.style.justifyContent = "center";
 
-      // Ajuste do invoice dentro do clone
       const invoice = clone.querySelector(".invoice-container") as HTMLDivElement | null;
+
       if (invoice) {
         invoice.style.maxWidth = "980px";
         invoice.style.width = "980px";
@@ -85,7 +75,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       phoneSafeArea.appendChild(clone);
       stage.appendChild(phoneSafeArea);
     } else {
-      // Desktop: só clona e exporta normal
       stage.style.width = "1200px";
       stage.style.padding = "24px";
       stage.appendChild(clone);
@@ -101,8 +90,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
     try {
       const html2canvas = (await import("html2canvas")).default;
-
-      // No preset phone, você já está em 1080x1920, então escala 1 já fica perfeito
       const scale = preset === "phone" ? 1 : 2;
 
       const canvas = await html2canvas(stage, {
@@ -132,27 +119,29 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   };
 
   const generatePDFBlob = async (): Promise<Blob | null> => {
-    // PDF baseado no layout desktop (fica “profissional” pra imprimir)
     const canvas = await renderToCanvas("desktop");
     if (!canvas) return null;
 
     try {
-      // jsPDF (import dinâmico pra não pesar o bundle)
-      const { jsPDF } = await import("jspdf");
+      const mod = await import("jspdf");
+      const jsPDF = mod.jsPDF;
 
-      // Cria PDF no tamanho exato da imagem do canvas (em px)
+      // 👇 jsPDF em "pt" (pontos) evita dor de cabeça de tipagem
+      const pxToPt = (px: number) => px * 0.75; // aproximação boa p/ print
+      const w = pxToPt(canvas.width);
+      const h = pxToPt(canvas.height);
+
       const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "px",
-        format: [canvas.width, canvas.height],
+        orientation: h >= w ? "portrait" : "landscape",
+        unit: "pt",
+        format: [w, h] as any, // <- evita erro de tipagem em algumas versões
         compress: true,
       });
 
       const imgData = canvas.toDataURL("image/png", 1.0);
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height, undefined, "FAST");
+      pdf.addImage(imgData, "PNG", 0, 0, w, h, undefined, "FAST");
 
-      const blob = pdf.output("blob");
-      return blob;
+      return pdf.output("blob");
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       return null;
@@ -169,72 +158,61 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     }
 
     const url = URL.createObjectURL(pdfBlob);
-
-    // Abre em nova aba e tenta chamar imprimir automaticamente
     const win = window.open(url, "_blank");
+
     toast.success("Abrindo PDF para impressão...", { id: "pdf" });
 
-    // Alguns navegadores bloqueiam o print automático — mas a aba abre e o usuário imprime/salva.
     if (win) {
       const tryPrint = () => {
         try {
           win.focus();
           win.print();
-        } catch {
-          // se falhar, ok — usuário imprime manualmente
-        }
+        } catch {}
       };
 
-      // tenta após carregar
-      const interval = setInterval(() => {
-        if (win.document?.readyState === "complete") {
-          clearInterval(interval);
-          setTimeout(tryPrint, 250);
-        }
-      }, 200);
-
-      // fallback
-      setTimeout(() => {
-        clearInterval(interval);
-        tryPrint();
-      }, 2000);
+      // tenta imprimir depois de um tempinho
+      setTimeout(tryPrint, 700);
+      setTimeout(tryPrint, 2000);
     }
   };
 
   const handleWhatsApp = async () => {
-    toast.loading("Gerando imagem no formato do celular...", { id: "whatsapp" });
+    toast.loading("Gerando imagem no formato do celular...", {
+      id: "whatsapp",
+    });
 
-    // AQUI: preset phone (1080x1920)
     const blob = await generateImage("phone");
     if (!blob) {
       toast.error("Erro ao gerar a imagem.", { id: "whatsapp" });
       return;
     }
 
-    // Web Share API (Android geralmente funciona bem)
-    if (navigator.share && navigator.canShare) {
-      const file = new File([blob], `orcamento-${budget.budget_number}.png`, {
-        type: "image/png",
-      });
+    // ✅ Tipagem safe (sem brigar com TS)
+    const navAny = navigator as any;
+    const canShare = typeof navAny?.canShare === "function";
+    const share = typeof navAny?.share === "function";
 
-      const shareData = {
-        files: [file],
-        title: `Orçamento ${budget.budget_number}`,
-        text: `Orçamento ${budget.budget_number} - ${formatCurrency(budget.total)}`,
-      };
+    if (share) {
+      try {
+        const file = new File([blob], `orcamento-${budget.budget_number}.png`, { type: "image/png" });
 
-      if (navigator.canShare(shareData)) {
-        try {
+        const shareData = {
+          files: [file],
+          title: `Orçamento ${budget.budget_number}`,
+          text: `Orçamento ${budget.budget_number} - ${formatCurrency(budget.total)}`,
+        };
+
+        if (!canShare || navAny.canShare(shareData)) {
           toast.dismiss("whatsapp");
-          await navigator.share(shareData);
+          await navAny.share(shareData);
           return;
-        } catch {
-          // cancelado ou falhou -> fallback abaixo
         }
+      } catch {
+        // segue pro fallback
       }
     }
 
-    // Fallback: baixa a imagem e abre WhatsApp com texto
+    // Fallback: baixa + abre WhatsApp
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -245,17 +223,16 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     URL.revokeObjectURL(url);
 
     let phone = budget.client_phone?.replace(/\D/g, "") || "";
-    if (phone && !phone.startsWith("55")) {
-      phone = "55" + phone;
-    }
+    if (phone && !phone.startsWith("55")) phone = "55" + phone;
 
     const message = encodeURIComponent(
       `Olá ${budget.client_name}!\n\nSegue o orçamento ${budget.budget_number} no valor de ${formatCurrency(
         budget.total,
-      )}.\n\n✅ A imagem foi baixada no formato de celular (pronta pra enviar). É só anexar no WhatsApp.`,
+      )}.\n\n✅ A imagem foi baixada no formato de celular. É só anexar no WhatsApp.`,
     );
 
     toast.success("Imagem pronta! Anexe no WhatsApp.", { id: "whatsapp" });
+
     setTimeout(() => {
       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
     }, 500);
@@ -287,7 +264,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
           </div>
         </DialogHeader>
 
-        {/* AREA QUE VAI PARA EXPORTAÇÃO */}
         <div className="p-8 bg-[#f6f7fb]" ref={printRef}>
           <div
             className="invoice-container"
@@ -311,7 +287,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 marginBottom: 34,
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 14,
+                }}
+              >
                 <div
                   style={{
                     width: 64,
@@ -338,7 +320,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                       }}
                     />
                   ) : (
-                    <span style={{ color: "white", fontSize: 26, fontWeight: 800 }}>
+                    <span
+                      style={{
+                        color: "white",
+                        fontSize: 26,
+                        fontWeight: 800,
+                      }}
+                    >
                       {artistName.charAt(0).toUpperCase()}
                     </span>
                   )}
@@ -357,7 +345,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     {artistName}
                   </h1>
 
-                  <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#64748b",
+                      lineHeight: 1.6,
+                    }}
+                  >
                     {artistPhone && <div>{artistPhone}</div>}
                     {artistEmail && <div>{artistEmail}</div>}
                   </div>
@@ -423,7 +417,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   padding: 16,
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#4f46e5" }}>Para</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: "#4f46e5",
+                  }}
+                >
+                  Para
+                </div>
                 <div
                   style={{
                     fontSize: 16,
@@ -434,7 +436,14 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 >
                   {budget.client_name}
                 </div>
-                <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6, marginTop: 8 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "#64748b",
+                    lineHeight: 1.6,
+                    marginTop: 8,
+                  }}
+                >
                   {budget.client_company && <div>{budget.client_company}</div>}
                   {budget.client_address && <div>{budget.client_address}</div>}
                 </div>
@@ -450,7 +459,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   textAlign: "right",
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#4f46e5" }}>Informações</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: "#4f46e5",
+                  }}
+                >
+                  Informações
+                </div>
 
                 {budget.valid_until && (
                   <div style={{ fontSize: 13, color: "#64748b", marginTop: 10 }}>
@@ -475,7 +492,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             >
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)" }}>
+                  <tr
+                    style={{
+                      background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)",
+                    }}
+                  >
                     <th
                       style={{
                         color: "white",
@@ -546,19 +567,51 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                       <td style={{ padding: 16, fontSize: 14 }}>
                         <div style={{ fontWeight: 700, color: "#0f172a" }}>{item.description}</div>
                         {item.details && (
-                          <div style={{ fontSize: 12, color: "#64748b", marginTop: 5 }}>{item.details}</div>
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: "#64748b",
+                              marginTop: 5,
+                            }}
+                          >
+                            {item.details}
+                          </div>
                         )}
                       </td>
 
-                      <td style={{ padding: 16, fontSize: 14, textAlign: "center", color: "#0f172a", fontWeight: 600 }}>
+                      <td
+                        style={{
+                          padding: 16,
+                          fontSize: 14,
+                          textAlign: "center",
+                          color: "#0f172a",
+                          fontWeight: 600,
+                        }}
+                      >
                         {formatCurrency(item.unit_price)}
                       </td>
 
-                      <td style={{ padding: 16, fontSize: 14, textAlign: "center", color: "#0f172a", fontWeight: 700 }}>
+                      <td
+                        style={{
+                          padding: 16,
+                          fontSize: 14,
+                          textAlign: "center",
+                          color: "#0f172a",
+                          fontWeight: 700,
+                        }}
+                      >
                         {item.quantity}
                       </td>
 
-                      <td style={{ padding: 16, fontSize: 14, textAlign: "right", fontWeight: 800, color: "#0f172a" }}>
+                      <td
+                        style={{
+                          padding: 16,
+                          fontSize: 14,
+                          textAlign: "right",
+                          fontWeight: 800,
+                          color: "#0f172a",
+                        }}
+                      >
                         {formatCurrency(item.total)}
                       </td>
                     </tr>
@@ -568,8 +621,14 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             </div>
 
             {/* Bottom Section */}
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 20, marginTop: 18 }}>
-              {/* Notes */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 20,
+                marginTop: 18,
+              }}
+            >
               <div style={{ width: "56%" }}>
                 {budget.notes ? (
                   <div
@@ -580,8 +639,25 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                       padding: 16,
                     }}
                   >
-                    <div style={{ fontSize: 12, fontWeight: 900, color: "#4f46e5" }}>Observações</div>
-                    <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.65, marginTop: 8 }}>{budget.notes}</div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 900,
+                        color: "#4f46e5",
+                      }}
+                    >
+                      Observações
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "#475569",
+                        lineHeight: 1.65,
+                        marginTop: 8,
+                      }}
+                    >
+                      {budget.notes}
+                    </div>
                   </div>
                 ) : (
                   <div
@@ -599,7 +675,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 )}
               </div>
 
-              {/* Totals */}
               <div style={{ width: "44%" }}>
                 <div
                   style={{
@@ -674,10 +749,31 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             </div>
 
             {/* Footer */}
-            <div style={{ marginTop: 26, paddingTop: 18, borderTop: "1px solid #eef0f4" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+            <div
+              style={{
+                marginTop: 26,
+                paddingTop: 18,
+                borderTop: "1px solid #eef0f4",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 16,
+                }}
+              >
                 <div style={{ width: "33%" }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: "#0f172a", marginBottom: 8 }}>Contato</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 900,
+                      color: "#0f172a",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Contato
+                  </div>
                   <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.7 }}>
                     {artistEmail && <div>Email: {artistEmail}</div>}
                     {artistPhone && <div>Tel: {artistPhone}</div>}
@@ -685,14 +781,32 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 </div>
 
                 <div style={{ width: "33%" }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: "#0f172a", marginBottom: 8 }}>Termos</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 900,
+                      color: "#0f172a",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Termos
+                  </div>
                   <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.7 }}>
                     {budget.terms_conditions || "Sujeito a disponibilidade."}
                   </div>
                 </div>
 
                 <div style={{ width: "33%" }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: "#0f172a", marginBottom: 8 }}>Status</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 900,
+                      color: "#0f172a",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Status
+                  </div>
                   <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.7 }}>
                     {budget.valid_until ? (
                       <div>Válido até {formatDateBR(budget.valid_until)}</div>
