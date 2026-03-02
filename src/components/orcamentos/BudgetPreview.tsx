@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, MessageCircle, X } from "lucide-react";
@@ -14,8 +14,6 @@ interface BudgetPreviewProps {
   items: BudgetItem[];
 }
 
-type ExportPreset = "desktop" | "phone";
-
 export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
   const { profile } = useProfile();
@@ -28,191 +26,86 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
   const taxAmount = budget.subtotal * (budget.tax / 100);
 
-  const createExportStage = (preset: ExportPreset) => {
-    const source = printRef.current;
-    if (!source) return null;
-
-    const stage = document.createElement("div");
-    stage.style.position = "fixed";
-    stage.style.left = "-99999px";
-    stage.style.top = "0";
-    stage.style.zIndex = "999999";
-    stage.style.background = "#f6f7fb";
-    stage.style.padding = "0";
-    stage.style.margin = "0";
-    stage.style.boxSizing = "border-box";
-
-    const clone = source.cloneNode(true) as HTMLDivElement;
-    clone.style.padding = "0";
-    clone.style.background = "transparent";
-
-    if (preset === "phone") {
-      stage.style.width = "1080px";
-      stage.style.height = "1920px";
-      stage.style.display = "flex";
-      stage.style.alignItems = "center";
-      stage.style.justifyContent = "center";
-
-      const phoneSafeArea = document.createElement("div");
-      phoneSafeArea.style.width = "980px";
-      phoneSafeArea.style.maxHeight = "1800px";
-      phoneSafeArea.style.padding = "32px";
-      phoneSafeArea.style.boxSizing = "border-box";
-      phoneSafeArea.style.display = "flex";
-      phoneSafeArea.style.alignItems = "center";
-      phoneSafeArea.style.justifyContent = "center";
-
-      const invoice = clone.querySelector(".invoice-container") as HTMLDivElement | null;
-
-      if (invoice) {
-        invoice.style.maxWidth = "980px";
-        invoice.style.width = "980px";
-        invoice.style.padding = "44px";
-        invoice.style.borderRadius = "18px";
-        invoice.style.boxShadow = "0 10px 40px rgba(0,0,0,0.10)";
-      }
-
-      phoneSafeArea.appendChild(clone);
-      stage.appendChild(phoneSafeArea);
-    } else {
-      stage.style.width = "1200px";
-      stage.style.padding = "24px";
-      stage.appendChild(clone);
-    }
-
-    document.body.appendChild(stage);
-    return stage;
-  };
-
-  const renderToCanvas = async (preset: ExportPreset) => {
-    const stage = createExportStage(preset);
-    if (!stage) return null;
+  const generateImage = async (): Promise<Blob | null> => {
+    const printContent = printRef.current;
+    if (!printContent) return null;
 
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const scale = preset === "phone" ? 1 : 2;
+      // Force a fixed width so the capture always looks good regardless of screen size
+      const originalStyle = printContent.style.cssText;
+      printContent.style.width = "900px";
+      printContent.style.minWidth = "900px";
+      printContent.style.maxWidth = "900px";
+      printContent.style.overflow = "visible";
 
-      const canvas = await html2canvas(stage, {
-        scale,
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(printContent, {
+        scale: 3,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: "#f6f7fb",
-        logging: false,
+        backgroundColor: "#ffffff",
+        width: 900,
+        windowWidth: 900,
       });
 
-      return canvas;
-    } catch (error) {
-      console.error("Erro ao renderizar canvas:", error);
-      return null;
-    } finally {
-      stage.remove();
-    }
-  };
+      // Restore original style
+      printContent.style.cssText = originalStyle;
 
-  const generateImage = async (preset: ExportPreset): Promise<Blob | null> => {
-    const canvas = await renderToCanvas(preset);
-    if (!canvas) return null;
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/png", 0.95);
-    });
-  };
-
-  const generatePDFBlob = async (): Promise<Blob | null> => {
-    const canvas = await renderToCanvas("desktop");
-    if (!canvas) return null;
-
-    try {
-      const mod = await import("jspdf");
-      const jsPDF = mod.jsPDF;
-
-      // 👇 jsPDF em "pt" (pontos) evita dor de cabeça de tipagem
-      const pxToPt = (px: number) => px * 0.75; // aproximação boa p/ print
-      const w = pxToPt(canvas.width);
-      const h = pxToPt(canvas.height);
-
-      const pdf = new jsPDF({
-        orientation: h >= w ? "portrait" : "landscape",
-        unit: "pt",
-        format: [w, h] as any, // <- evita erro de tipagem em algumas versões
-        compress: true,
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), "image/png", 1);
       });
-
-      const imgData = canvas.toDataURL("image/png", 1.0);
-      pdf.addImage(imgData, "PNG", 0, 0, w, h, undefined, "FAST");
-
-      return pdf.output("blob");
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
+      console.error("Erro ao gerar imagem:", error);
       return null;
     }
   };
 
   const handleDownloadPDF = async () => {
-    toast.loading("Gerando PDF para impressão...", { id: "pdf" });
-
-    const pdfBlob = await generatePDFBlob();
-    if (!pdfBlob) {
-      toast.error("Erro ao gerar o PDF. Tente novamente.", { id: "pdf" });
+    toast.loading("Gerando PDF...", { id: "pdf" });
+    const blob = await generateImage();
+    if (!blob) {
+      toast.error("Erro ao gerar o orçamento. Tente novamente.", { id: "pdf" });
       return;
     }
-
-    const url = URL.createObjectURL(pdfBlob);
-    const win = window.open(url, "_blank");
-
-    toast.success("Abrindo PDF para impressão...", { id: "pdf" });
-
-    if (win) {
-      const tryPrint = () => {
-        try {
-          win.focus();
-          win.print();
-        } catch {}
-      };
-
-      // tenta imprimir depois de um tempinho
-      setTimeout(tryPrint, 700);
-      setTimeout(tryPrint, 2000);
-    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orcamento-${budget.budget_number}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Orçamento baixado com sucesso!", { id: "pdf" });
   };
 
   const handleWhatsApp = async () => {
-    toast.loading("Gerando imagem no formato do celular...", {
-      id: "whatsapp",
-    });
-
-    const blob = await generateImage("phone");
+    toast.loading("Gerando orçamento para enviar...", { id: "whatsapp" });
+    const blob = await generateImage();
     if (!blob) {
-      toast.error("Erro ao gerar a imagem.", { id: "whatsapp" });
+      toast.error("Erro ao gerar o orçamento.", { id: "whatsapp" });
       return;
     }
 
-    // ✅ Tipagem safe (sem brigar com TS)
-    const navAny = navigator as any;
-    const canShare = typeof navAny?.canShare === "function";
-    const share = typeof navAny?.share === "function";
-
-    if (share) {
-      try {
-        const file = new File([blob], `orcamento-${budget.budget_number}.png`, { type: "image/png" });
-
-        const shareData = {
-          files: [file],
-          title: `Orçamento ${budget.budget_number}`,
-          text: `Orçamento ${budget.budget_number} - ${formatCurrency(budget.total)}`,
-        };
-
-        if (!canShare || navAny.canShare(shareData)) {
+    // Try Web Share API (works on Android)
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], `orcamento-${budget.budget_number}.png`, { type: "image/png" });
+      const shareData = {
+        files: [file],
+        title: `Orçamento ${budget.budget_number}`,
+        text: `Orçamento ${budget.budget_number} - ${formatCurrency(budget.total)}`,
+      };
+      if (navigator.canShare(shareData)) {
+        try {
           toast.dismiss("whatsapp");
-          await navAny.share(shareData);
+          await navigator.share(shareData);
           return;
+        } catch (e) {
+          // User cancelled or error, fallback below
         }
-      } catch {
-        // segue pro fallback
       }
     }
 
-    // Fallback: baixa + abre WhatsApp
+    // Fallback: download the image then open WhatsApp
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -223,16 +116,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     URL.revokeObjectURL(url);
 
     let phone = budget.client_phone?.replace(/\D/g, "") || "";
-    if (phone && !phone.startsWith("55")) phone = "55" + phone;
-
+    if (phone && !phone.startsWith("55")) {
+      phone = "55" + phone;
+    }
     const message = encodeURIComponent(
-      `Olá ${budget.client_name}!\n\nSegue o orçamento ${budget.budget_number} no valor de ${formatCurrency(
-        budget.total,
-      )}.\n\n✅ A imagem foi baixada no formato de celular. É só anexar no WhatsApp.`,
+      `Olá ${budget.client_name}!\n\nSegue o orçamento ${budget.budget_number} no valor de ${formatCurrency(budget.total)}.\n\nAnexe a imagem que foi baixada.`,
     );
-
-    toast.success("Imagem pronta! Anexe no WhatsApp.", { id: "whatsapp" });
-
+    toast.success("Imagem baixada! Anexe no WhatsApp.", { id: "whatsapp" });
     setTimeout(() => {
       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
     }, 500);
@@ -255,7 +145,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               </Button>
               <Button variant="gradient" size="sm" onClick={handleDownloadPDF}>
                 <Download className="w-4 h-4 mr-2" />
-                PDF (Imprimir)
+                PDF
               </Button>
               <Button variant="ghost" size="icon" onClick={onClose}>
                 <X className="w-4 h-4" />
@@ -264,17 +154,14 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
           </div>
         </DialogHeader>
 
-        <div className="p-8 bg-[#f6f7fb]" ref={printRef}>
+        <div ref={printRef} style={{ background: "#ffffff", padding: 40, width: "100%", boxSizing: "border-box" }}>
           <div
-            className="invoice-container"
             style={{
-              maxWidth: 860,
+              maxWidth: 800,
               margin: "0 auto",
-              background: "#fff",
-              padding: 44,
-              borderRadius: 16,
-              boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-              border: "1px solid #eef0f4",
+              fontFamily: "'Segoe UI', Arial, sans-serif",
+              color: "#333",
+              lineHeight: 1.5,
             }}
           >
             {/* Header */}
@@ -283,23 +170,18 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                gap: 20,
-                marginBottom: 34,
+                marginBottom: 32,
+                paddingBottom: 24,
+                borderBottom: "3px solid #6366f1",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 14,
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <div
                   style={{
-                    width: 64,
-                    height: 64,
-                    background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-                    borderRadius: 16,
+                    width: 70,
+                    height: 70,
+                    background: "#6366f1",
+                    borderRadius: 14,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -311,439 +193,251 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     <img
                       src={profile.avatar_url}
                       alt="Logo"
-                      style={{
-                        width: 64,
-                        height: 64,
-                        objectFit: "cover",
-                        borderRadius: 16,
-                        aspectRatio: "1/1",
-                      }}
+                      style={{ width: 70, height: 70, objectFit: "cover", display: "block" }}
+                      crossOrigin="anonymous"
                     />
                   ) : (
-                    <span
-                      style={{
-                        color: "white",
-                        fontSize: 26,
-                        fontWeight: 800,
-                      }}
-                    >
+                    <span style={{ color: "white", fontSize: 28, fontWeight: 700 }}>
                       {artistName.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
-
                 <div>
-                  <h1
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 800,
-                      color: "#0f172a",
-                      marginBottom: 6,
-                      letterSpacing: -0.3,
-                    }}
-                  >
-                    {artistName}
-                  </h1>
-
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "#64748b",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {artistPhone && <div>{artistPhone}</div>}
-                    {artistEmail && <div>{artistEmail}</div>}
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#1a1a2e", marginBottom: 2 }}>{artistName}</div>
+                  <div style={{ fontSize: 12, color: "#888", lineHeight: 1.5 }}>
+                    {artistPhone && (
+                      <span>
+                        {artistPhone}
+                        <br />
+                      </span>
+                    )}
+                    {artistEmail && <span>{artistEmail}</span>}
                   </div>
                 </div>
               </div>
-
               <div style={{ textAlign: "right" }}>
-                <div
-                  style={{
-                    fontSize: 30,
-                    fontWeight: 900,
-                    color: "#4f46e5",
-                    letterSpacing: 2,
-                    lineHeight: 1,
-                  }}
-                >
-                  ORÇAMENTO
-                </div>
-
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 10 }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#6366f1", letterSpacing: 1 }}>ORÇAMENTO</div>
+                <div style={{ fontSize: 13, color: "#888", marginTop: 6 }}>
                   {new Date(budget.created_at).toLocaleDateString("pt-BR", {
                     day: "2-digit",
                     month: "long",
                     year: "numeric",
                   })}
                 </div>
-
-                <div
-                  style={{
-                    marginTop: 12,
-                    display: "inline-flex",
-                    gap: 8,
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    borderRadius: 999,
-                    border: "1px solid #e2e8f0",
-                    background: "#f8fafc",
-                    color: "#0f172a",
-                    fontSize: 12,
-                    fontWeight: 700,
-                  }}
-                >
-                  Nº {budget.budget_number}
-                </div>
               </div>
             </div>
 
-            {/* Parties */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 20,
-                marginBottom: 28,
-              }}
-            >
-              <div
-                style={{
-                  width: "50%",
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 14,
-                  padding: 16,
-                }}
-              >
+            {/* Client & Budget Info */}
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
+              <div>
                 <div
                   style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    color: "#4f46e5",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#6366f1",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    marginBottom: 6,
                   }}
                 >
-                  Para
+                  Para:
                 </div>
-                <div
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 800,
-                    color: "#0f172a",
-                    marginTop: 6,
-                  }}
-                >
-                  {budget.client_name}
-                </div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: "#64748b",
-                    lineHeight: 1.6,
-                    marginTop: 8,
-                  }}
-                >
-                  {budget.client_company && <div>{budget.client_company}</div>}
-                  {budget.client_address && <div>{budget.client_address}</div>}
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e" }}>{budget.client_name}</div>
+                <div style={{ fontSize: 12, color: "#888", lineHeight: 1.5, marginTop: 2 }}>
+                  {budget.client_address && (
+                    <span>
+                      {budget.client_address}
+                      <br />
+                    </span>
+                  )}
+                  {budget.client_company && <span>{budget.client_company}</span>}
                 </div>
               </div>
-
-              <div
-                style={{
-                  width: "50%",
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 14,
-                  padding: 16,
-                  textAlign: "right",
-                }}
-              >
+              <div style={{ textAlign: "right" }}>
                 <div
                   style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    color: "#4f46e5",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#6366f1",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    marginBottom: 6,
                   }}
                 >
-                  Informações
+                  Nº do Orçamento
                 </div>
-
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e" }}>{budget.budget_number}</div>
                 {budget.valid_until && (
-                  <div style={{ fontSize: 13, color: "#64748b", marginTop: 10 }}>
-                    Válido até: <strong style={{ color: "#0f172a" }}>{formatDateBR(budget.valid_until)}</strong>
+                  <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>
+                    Válido até: {formatDateBR(budget.valid_until)}
                   </div>
                 )}
-
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 10 }}>
-                  Pagamento: <strong style={{ color: "#0f172a" }}>{budget.payment_conditions || "A combinar"}</strong>
-                </div>
               </div>
             </div>
 
             {/* Items Table */}
-            <div
-              style={{
-                border: "1px solid #e2e8f0",
-                borderRadius: 14,
-                overflow: "hidden",
-                marginBottom: 22,
-              }}
-            >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
+            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24 }}>
+              <thead>
+                <tr style={{ backgroundColor: "#6366f1" }}>
+                  <th
+                    style={{
+                      color: "#fff",
+                      padding: "12px 14px",
+                      textAlign: "left",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.8,
+                      borderRadius: "6px 0 0 6px",
+                      width: "50%",
+                    }}
+                  >
+                    Descrição
+                  </th>
+                  <th
+                    style={{
+                      color: "#fff",
+                      padding: "12px 14px",
+                      textAlign: "right",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.8,
+                      width: "20%",
+                    }}
+                  >
+                    Preço Unit.
+                  </th>
+                  <th
+                    style={{
+                      color: "#fff",
+                      padding: "12px 14px",
+                      textAlign: "center",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.8,
+                      width: "10%",
+                    }}
+                  >
+                    Qtd
+                  </th>
+                  <th
+                    style={{
+                      color: "#fff",
+                      padding: "12px 14px",
+                      textAlign: "right",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.8,
+                      borderRadius: "0 6px 6px 0",
+                      width: "20%",
+                    }}
+                  >
+                    Total
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, index) => (
                   <tr
-                    style={{
-                      background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)",
-                    }}
+                    key={item.id}
+                    style={{ borderBottom: "1px solid #eee", backgroundColor: index % 2 === 0 ? "#fafafa" : "#fff" }}
                   >
-                    <th
+                    <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "top" }}>
+                      <div style={{ fontWeight: 500, color: "#333" }}>{item.description}</div>
+                      {item.details && <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{item.details}</div>}
+                    </td>
+                    <td
                       style={{
-                        color: "white",
-                        padding: "14px 16px",
-                        textAlign: "left",
-                        fontSize: 12,
-                        fontWeight: 800,
-                        textTransform: "uppercase",
-                        letterSpacing: 0.6,
-                      }}
-                    >
-                      Descrição
-                    </th>
-                    <th
-                      style={{
-                        color: "white",
-                        padding: "14px 16px",
-                        textAlign: "center",
-                        fontSize: 12,
-                        fontWeight: 800,
-                        textTransform: "uppercase",
-                        letterSpacing: 0.6,
-                        width: 140,
-                      }}
-                    >
-                      Unit.
-                    </th>
-                    <th
-                      style={{
-                        color: "white",
-                        padding: "14px 16px",
-                        textAlign: "center",
-                        fontSize: 12,
-                        fontWeight: 800,
-                        textTransform: "uppercase",
-                        letterSpacing: 0.6,
-                        width: 80,
-                      }}
-                    >
-                      Qtd
-                    </th>
-                    <th
-                      style={{
-                        color: "white",
-                        padding: "14px 16px",
-                        textAlign: "right",
-                        fontSize: 12,
-                        fontWeight: 800,
-                        textTransform: "uppercase",
-                        letterSpacing: 0.6,
-                        width: 160,
-                      }}
-                    >
-                      Total
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {items.map((item, index) => (
-                    <tr
-                      key={item.id}
-                      style={{
-                        borderBottom: index < items.length - 1 ? "1px solid #eef0f4" : "none",
-                        background: index % 2 === 0 ? "#ffffff" : "#fbfdff",
-                      }}
-                    >
-                      <td style={{ padding: 16, fontSize: 14 }}>
-                        <div style={{ fontWeight: 700, color: "#0f172a" }}>{item.description}</div>
-                        {item.details && (
-                          <div
-                            style={{
-                              fontSize: 12,
-                              color: "#64748b",
-                              marginTop: 5,
-                            }}
-                          >
-                            {item.details}
-                          </div>
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          padding: 16,
-                          fontSize: 14,
-                          textAlign: "center",
-                          color: "#0f172a",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {formatCurrency(item.unit_price)}
-                      </td>
-
-                      <td
-                        style={{
-                          padding: 16,
-                          fontSize: 14,
-                          textAlign: "center",
-                          color: "#0f172a",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {item.quantity}
-                      </td>
-
-                      <td
-                        style={{
-                          padding: 16,
-                          fontSize: 14,
-                          textAlign: "right",
-                          fontWeight: 800,
-                          color: "#0f172a",
-                        }}
-                      >
-                        {formatCurrency(item.total)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Bottom Section */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 20,
-                marginTop: 18,
-              }}
-            >
-              <div style={{ width: "56%" }}>
-                {budget.notes ? (
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 14,
-                      padding: 16,
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 900,
-                        color: "#4f46e5",
-                      }}
-                    >
-                      Observações
-                    </div>
-                    <div
-                      style={{
+                        padding: "12px 14px",
                         fontSize: 13,
-                        color: "#475569",
-                        lineHeight: 1.65,
-                        marginTop: 8,
+                        textAlign: "right",
+                        color: "#555",
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      {budget.notes}
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      border: "1px dashed #cbd5e1",
-                      borderRadius: 14,
-                      padding: 16,
-                      color: "#64748b",
-                      fontSize: 13,
-                    }}
-                  >
-                    Sem observações.
-                  </div>
-                )}
-              </div>
+                      {formatCurrency(item.unit_price)}
+                    </td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: "#555" }}>
+                      {item.quantity}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px 14px",
+                        fontSize: 13,
+                        textAlign: "right",
+                        fontWeight: 600,
+                        color: "#333",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {formatCurrency(item.total)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-              <div style={{ width: "44%" }}>
+            {/* Totals */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 32 }}>
+              <div style={{ width: 280 }}>
                 <div
                   style={{
-                    background: "#ffffff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: 14,
-                    padding: 16,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "6px 0",
+                    fontSize: 13,
+                    color: "#888",
                   }}
                 >
+                  <span>Subtotal</span>
+                  <span>{formatCurrency(budget.subtotal)}</span>
+                </div>
+                {budget.tax > 0 && (
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
                       padding: "6px 0",
-                      fontSize: 14,
-                      color: "#475569",
+                      fontSize: 13,
+                      color: "#888",
                     }}
                   >
-                    <span>Subtotal</span>
-                    <strong style={{ color: "#0f172a" }}>{formatCurrency(budget.subtotal)}</strong>
+                    <span>Taxa ({budget.tax}%)</span>
+                    <span>{formatCurrency(taxAmount)}</span>
                   </div>
-
-                  {budget.tax > 0 && (
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        padding: "6px 0",
-                        fontSize: 14,
-                        color: "#475569",
-                      }}
-                    >
-                      <span>Taxa ({budget.tax}%)</span>
-                      <strong style={{ color: "#0f172a" }}>{formatCurrency(taxAmount)}</strong>
-                    </div>
-                  )}
-
-                  {budget.discount > 0 && (
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        padding: "6px 0",
-                        fontSize: 14,
-                        color: "#475569",
-                      }}
-                    >
-                      <span>Desconto</span>
-                      <strong style={{ color: "#0f172a" }}>- {formatCurrency(budget.discount)}</strong>
-                    </div>
-                  )}
-
+                )}
+                {budget.discount > 0 && (
                   <div
                     style={{
-                      marginTop: 12,
                       display: "flex",
                       justifyContent: "space-between",
-                      background: "linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)",
-                      color: "white",
-                      padding: "14px 14px",
-                      borderRadius: 12,
-                      fontSize: 16,
-                      fontWeight: 900,
-                      letterSpacing: 0.3,
+                      padding: "6px 0",
+                      fontSize: 13,
+                      color: "#888",
                     }}
                   >
-                    <span>TOTAL</span>
-                    <span>{formatCurrency(budget.total)}</span>
+                    <span>Desconto</span>
+                    <span>- {formatCurrency(budget.discount)}</span>
                   </div>
+                )}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    backgroundColor: "#6366f1",
+                    color: "#fff",
+                    padding: "12px 16px",
+                    borderRadius: 6,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    marginTop: 8,
+                  }}
+                >
+                  <span>TOTAL</span>
+                  <span>{formatCurrency(budget.total)}</span>
                 </div>
               </div>
             </div>
@@ -751,87 +445,79 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             {/* Footer */}
             <div
               style={{
-                marginTop: 26,
-                paddingTop: 18,
-                borderTop: "1px solid #eef0f4",
+                display: "flex",
+                justifyContent: "space-between",
+                paddingTop: 20,
+                borderTop: "1px solid #eee",
+                gap: 16,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 16,
-                }}
-              >
-                <div style={{ width: "33%" }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 900,
-                      color: "#0f172a",
-                      marginBottom: 8,
-                    }}
-                  >
-                    Contato
-                  </div>
-                  <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.7 }}>
-                    {artistEmail && <div>Email: {artistEmail}</div>}
-                    {artistPhone && <div>Tel: {artistPhone}</div>}
-                  </div>
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#1a1a2e",
+                    marginBottom: 4,
+                    textTransform: "uppercase",
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  Contato
                 </div>
-
-                <div style={{ width: "33%" }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 900,
-                      color: "#0f172a",
-                      marginBottom: 8,
-                    }}
-                  >
-                    Termos
-                  </div>
-                  <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.7 }}>
-                    {budget.terms_conditions || "Sujeito a disponibilidade."}
-                  </div>
-                </div>
-
-                <div style={{ width: "33%" }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 900,
-                      color: "#0f172a",
-                      marginBottom: 8,
-                    }}
-                  >
-                    Status
-                  </div>
-                  <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.7 }}>
-                    {budget.valid_until ? (
-                      <div>Válido até {formatDateBR(budget.valid_until)}</div>
-                    ) : (
-                      <div>Validade: a combinar</div>
-                    )}
-                  </div>
+                <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
+                  {artistEmail && <div>Email: {artistEmail}</div>}
+                  {artistPhone && <div>Tel: {artistPhone}</div>}
                 </div>
               </div>
-
-              <div
-                style={{
-                  marginTop: 18,
-                  padding: 14,
-                  background: "linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 14,
-                  textAlign: "center",
-                }}
-              >
-                <div style={{ fontSize: 15, fontWeight: 900, color: "#4f46e5" }}>Obrigado pela preferência!</div>
-                <div style={{ marginTop: 6, fontSize: 12, color: "#64748b" }}>
-                  Se quiser ajustar algo no orçamento, é só chamar.
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#1a1a2e",
+                    marginBottom: 4,
+                    textTransform: "uppercase",
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  Pagamento
+                </div>
+                <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
+                  {budget.payment_conditions || "A combinar"}
                 </div>
               </div>
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#1a1a2e",
+                    marginBottom: 4,
+                    textTransform: "uppercase",
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  Termos e Condições
+                </div>
+                <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
+                  {budget.terms_conditions || "Sujeito a disponibilidade."}
+                </div>
+              </div>
+            </div>
+
+            {/* Thanks */}
+            <div
+              style={{
+                marginTop: 28,
+                padding: "14px 20px",
+                backgroundColor: "#f0f0ff",
+                borderRadius: 8,
+                textAlign: "center",
+                border: "1px solid #e0e0ff",
+              }}
+            >
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#6366f1" }}>Obrigado pela preferência!</div>
             </div>
           </div>
         </div>
