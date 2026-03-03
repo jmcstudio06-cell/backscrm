@@ -253,7 +253,9 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
    * ✅ WhatsApp: imagem A4 (igual PDF) com qualidade alta
    */
   const handleWhatsApp = async () => {
-    toast.loading("Gerando imagem (formato A4 para WhatsApp)...", { id: "whatsapp" });
+    toast.loading("Gerando imagem (formato A4 para WhatsApp)...", {
+      id: "whatsapp",
+    });
 
     const blob = await generateImage("phone");
     if (!blob) {
@@ -315,6 +317,28 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   const artistName = profile?.name || "Sua Empresa";
   const artistEmail = profile?.email || "";
   const artistPhone = profile?.phone || "";
+
+  // ✅ Helpers de alinhamento (pra ficar centralizado no roxo)
+  const thBase: React.CSSProperties = {
+    color: "#fff",
+    padding: 0, // a gente controla no wrapper
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    verticalAlign: "middle",
+    height: 44, // altura fixa do header roxo
+  };
+
+  const thInner = (align: "left" | "right" | "center"): React.CSSProperties => ({
+    display: "flex",
+    alignItems: "center", // ✅ centraliza verticalmente
+    justifyContent: align === "left" ? "flex-start" : align === "right" ? "flex-end" : "center",
+    height: 44,
+    padding: "0 14px", // ✅ padding consistente sem “descer” o texto
+    lineHeight: 1,
+    whiteSpace: "nowrap",
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -401,7 +425,16 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   )}
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "#1a1a2e", marginBottom: 2 }}>{artistName}</div>
+                  <div
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 700,
+                      color: "#1a1a2e",
+                      marginBottom: 2,
+                    }}
+                  >
+                    {artistName}
+                  </div>
                   <div style={{ fontSize: 12, color: "#888", lineHeight: 1.5 }}>
                     {artistPhone && (
                       <span>
@@ -415,7 +448,16 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               </div>
 
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: "#6366f1", letterSpacing: 1 }}>ORÇAMENTO</div>
+                <div
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 800,
+                    color: "#6366f1",
+                    letterSpacing: 1,
+                  }}
+                >
+                  ORÇAMENTO
+                </div>
                 <div style={{ fontSize: 13, color: "#888", marginTop: 6 }}>
                   {new Date(budget.created_at).toLocaleDateString("pt-BR", {
                     day: "2-digit",
@@ -427,7 +469,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             </div>
 
             {/* Client & Budget Info */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 32,
+              }}
+            >
               <div>
                 <div
                   style={{
@@ -442,7 +490,14 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   Para:
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a2e" }}>{budget.client_name}</div>
-                <div style={{ fontSize: 12, color: "#888", lineHeight: 1.5, marginTop: 2 }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#888",
+                    lineHeight: 1.5,
+                    marginTop: 2,
+                  }}
+                >
                   {budget.client_address && (
                     <span>
                       {budget.client_address}
@@ -476,79 +531,89 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             </div>
 
             {/* Items Table */}
-            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24 }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                marginBottom: 24,
+              }}
+            >
               <thead>
                 <tr style={{ backgroundColor: "#6366f1" }}>
                   <th
                     style={{
-                      color: "#fff",
-                      padding: "12px 14px",
-                      textAlign: "left",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.8,
+                      ...thBase,
                       borderRadius: "6px 0 0 6px",
                       width: "50%",
+                      textAlign: "left",
                     }}
                   >
-                    Descrição
+                    <div style={thInner("left")}>Descrição</div>
                   </th>
+
                   <th
                     style={{
-                      color: "#fff",
-                      padding: "12px 14px",
-                      textAlign: "right",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.8,
+                      ...thBase,
                       width: "20%",
-                    }}
-                  >
-                    Preço Unit.
-                  </th>
-                  <th
-                    style={{
-                      color: "#fff",
-                      padding: "12px 14px",
-                      textAlign: "center",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.8,
-                      width: "10%",
-                    }}
-                  >
-                    Qtd
-                  </th>
-                  <th
-                    style={{
-                      color: "#fff",
-                      padding: "12px 14px",
                       textAlign: "right",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.8,
+                    }}
+                  >
+                    <div style={thInner("right")}>Preço Unit.</div>
+                  </th>
+
+                  <th
+                    style={{
+                      ...thBase,
+                      width: "10%",
+                      textAlign: "center",
+                    }}
+                  >
+                    <div style={thInner("center")}>Qtd</div>
+                  </th>
+
+                  <th
+                    style={{
+                      ...thBase,
                       borderRadius: "0 6px 6px 0",
                       width: "20%",
+                      textAlign: "right",
                     }}
                   >
-                    Total
+                    <div style={thInner("right")}>Total</div>
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 {items.map((item, index) => (
                   <tr
                     key={item.id}
-                    style={{ borderBottom: "1px solid #eee", backgroundColor: index % 2 === 0 ? "#fafafa" : "#fff" }}
+                    style={{
+                      borderBottom: "1px solid #eee",
+                      backgroundColor: index % 2 === 0 ? "#fafafa" : "#fff",
+                    }}
                   >
-                    <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "top" }}>
+                    <td
+                      style={{
+                        padding: "12px 14px",
+                        fontSize: 13,
+                        verticalAlign: "top",
+                      }}
+                    >
                       <div style={{ fontWeight: 500, color: "#333" }}>{item.description}</div>
-                      {item.details && <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{item.details}</div>}
+                      {item.details && (
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "#999",
+                            marginTop: 2,
+                          }}
+                        >
+                          {item.details}
+                        </div>
+                      )}
                     </td>
+
                     <td
                       style={{
                         padding: "12px 14px",
@@ -560,9 +625,18 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     >
                       {formatCurrency(item.unit_price)}
                     </td>
-                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: "#555" }}>
+
+                    <td
+                      style={{
+                        padding: "12px 14px",
+                        fontSize: 13,
+                        textAlign: "center",
+                        color: "#555",
+                      }}
+                    >
                       {item.quantity}
                     </td>
+
                     <td
                       style={{
                         padding: "12px 14px",
@@ -581,7 +655,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             </table>
 
             {/* Totals */}
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 32 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: 32,
+              }}
+            >
               <div style={{ width: 280 }}>
                 <div
                   style={{
@@ -626,9 +706,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   </div>
                 )}
 
+                {/* ✅ roxo com alinhamento perfeito */}
                 <div
                   style={{
                     display: "flex",
+                    alignItems: "center", // ✅ centraliza verticalmente
                     justifyContent: "space-between",
                     backgroundColor: "#6366f1",
                     color: "#fff",
@@ -637,10 +719,12 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     fontSize: 15,
                     fontWeight: 700,
                     marginTop: 8,
+                    minHeight: 46, // ✅ garante “meio” certinho
+                    lineHeight: 1,
                   }}
                 >
-                  <span>TOTAL</span>
-                  <span>{formatCurrency(budget.total)}</span>
+                  <span style={{ display: "flex", alignItems: "center" }}>TOTAL</span>
+                  <span style={{ display: "flex", alignItems: "center" }}>{formatCurrency(budget.total)}</span>
                 </div>
               </div>
             </div>
@@ -703,7 +787,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     letterSpacing: 0.5,
                   }}
                 >
-                  Termos e Condições
+                  Observações
                 </div>
                 <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6 }}>
                   {budget.terms_conditions || "Sujeito a disponibilidade."}
