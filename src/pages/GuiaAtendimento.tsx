@@ -242,7 +242,7 @@ export default function GuiaAtendimento() {
   // Animated checklist reveal
   useEffect(() => {
     if (!unlocked) return;
-    const benefits = [
+    const benefitsLocal = [
       "Responde mais rápido",
       "Fecha mais contratos",
       "Não perde data",
@@ -255,7 +255,7 @@ export default function GuiaAtendimento() {
     const id = setInterval(() => {
       i++;
       setVisibleChecks(i);
-      if (i >= benefits.length) clearInterval(id);
+      if (i >= benefitsLocal.length) clearInterval(id);
     }, 120);
     return () => clearInterval(id);
   }, [unlocked]);
@@ -1191,7 +1191,6 @@ export default function GuiaAtendimento() {
                   "Perfeito! Vou gerar o contrato e já te envio para formalizarmos. Assim a data fica oficialmente
                   reservada pra você."
                 </Quote>
-
                 <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border">
                   <Shield className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <div>
@@ -1348,7 +1347,6 @@ export default function GuiaAtendimento() {
                 </p>
               </Reveal>
 
-              {/* Animated checklist */}
               <div className="space-y-3">
                 {benefits.map((item, i) => (
                   <div
@@ -1410,7 +1408,6 @@ export default function GuiaAtendimento() {
                 </div>
               </Reveal>
 
-              {/* Flow diagram */}
               <Reveal delay={100}>
                 <div className="mb-12">
                   <div className="flex flex-wrap items-center justify-center gap-3">
@@ -1438,7 +1435,6 @@ export default function GuiaAtendimento() {
                 </div>
               </Reveal>
 
-              {/* 1-minute highlight */}
               <Reveal delay={200}>
                 <div className="rounded-3xl border border-border bg-card shadow-elevated overflow-hidden">
                   <div
@@ -1559,7 +1555,7 @@ export default function GuiaAtendimento() {
                   size="xl"
                   variant="gradient"
                   className="rounded-2xl gap-3 text-base px-10 py-6 h-auto shadow-float group font-bold"
-                  onClick={() => (window.location.href = "/planos")}
+                  onClick={() => (window.location.href = "https://backstagepro.online/landing")}
                 >
                   Quero profissionalizar minha carreira agora
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
