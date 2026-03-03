@@ -190,6 +190,13 @@ function calculateOccurrences(config: RecurringConfig): number {
 export function generateRecurringDates(config: RecurringConfig): string[] {
   if (!config.enabled || !config.startDate || !config.endDate) return [];
 
+  const formatDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const dates: string[] = [];
   const start = new Date(config.startDate + "T12:00:00");
   const end = new Date(config.endDate + "T12:00:00");
@@ -202,7 +209,7 @@ export function generateRecurringDates(config: RecurringConfig): string[] {
 
   // Generate all dates
   while (current <= end) {
-    dates.push(current.toISOString().split("T")[0]);
+    dates.push(formatDateString(current));
     current.setDate(current.getDate() + 7);
   }
 
