@@ -57,7 +57,7 @@ export function useShowsData() {
         .from("shows")
         .select("*")
         .lt("date", today)
-        .in("status", ["scheduled", "confirmed", "pending", "negotiation"]);
+        .eq("status", "confirmed");
 
       if (showsToComplete && showsToComplete.length > 0) {
         // Auto-complete them
@@ -65,7 +65,7 @@ export function useShowsData() {
           .from("shows")
           .update({ status: "completed", updated_at: new Date().toISOString() })
           .lt("date", today)
-          .in("status", ["scheduled", "confirmed", "pending", "negotiation"]);
+          .eq("status", "confirmed");
 
         // Create financial transactions for each auto-completed show
         for (const show of showsToComplete) {
@@ -121,6 +121,9 @@ export function useShowsData() {
     if (!user) return;
 
     try {
+      // Idempotência: garante que não haverá duplicação para o mesmo show
+      await supabase.from("transactions").delete().eq("show_id", show.id);
+
       const transactionsToInsert = [];
 
       // Add income from cachet
