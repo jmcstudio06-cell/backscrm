@@ -44,8 +44,9 @@ import {
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
 import { TransactionModal } from "@/components/financeiro/TransactionModal";
-import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval, parseISO } from "date-fns";
+import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatDateBR, parseLocalDate } from "@/lib/utils";
 
 export default function Financeiro() {
   const { transactions, loading, deleteTransaction, addTransaction } = useTransactions();
@@ -84,7 +85,7 @@ export default function Financeiro() {
   const currentMonthEnd = endOfMonth(now);
 
   const currentMonthTransactions = transactions.filter(t => {
-    const transactionDate = parseISO(t.date);
+    const transactionDate = parseLocalDate(t.date);
     return isWithinInterval(transactionDate, { start: currentMonthStart, end: currentMonthEnd });
   });
 
@@ -146,7 +147,7 @@ export default function Financeiro() {
     const monthName = format(monthDate, "MMM", { locale: ptBR });
 
     const monthTransactions = transactions.filter(t => {
-      const transactionDate = parseISO(t.date);
+      const transactionDate = parseLocalDate(t.date);
       return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
     });
 
@@ -480,7 +481,7 @@ export default function Financeiro() {
                           {transaction.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(transaction.date).toLocaleDateString("pt-BR")}
+                          {formatDateBR(transaction.date)}
                         </p>
                       </div>
                       <Button
@@ -542,7 +543,7 @@ export default function Financeiro() {
                           <Badge variant="outline">{expense.category}</Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {new Date(expense.date).toLocaleDateString("pt-BR")}
+                          {formatDateBR(expense.date)}
                         </TableCell>
                         <TableCell className="text-destructive font-semibold">
                           - R$ {expense.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -608,7 +609,7 @@ export default function Financeiro() {
                           <Badge variant="outline">{income.category}</Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {new Date(income.date).toLocaleDateString("pt-BR")}
+                          {formatDateBR(income.date)}
                         </TableCell>
                         <TableCell className="text-success font-semibold">
                           + R$ {income.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}

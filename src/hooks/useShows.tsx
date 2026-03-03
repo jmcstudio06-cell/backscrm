@@ -39,12 +39,19 @@ export function useShowsData() {
   const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const formatDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const fetchShows = async () => {
     if (!user) return;
     
     try {
       // First, find past shows that need auto-completion
-      const today = new Date().toISOString().split("T")[0];
+      const today = formatDateString(new Date());
       
       const { data: showsToComplete } = await supabase
         .from("shows")
@@ -269,7 +276,7 @@ export function useShowsData() {
         .from("shows")
         .insert([{
           title: showData.title || "",
-          date: showData.date || new Date().toISOString().split("T")[0],
+          date: showData.date || formatDateString(new Date()),
           start_time: showData.start_time || null,
           end_time: showData.end_time || null,
           venue: showData.venue,
