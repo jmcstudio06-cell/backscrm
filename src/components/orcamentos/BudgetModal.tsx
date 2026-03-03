@@ -462,27 +462,15 @@ export function BudgetModal({
             </div>
           </div>
 
-          {/* Terms */}
-          <div className="space-y-2">
-            <Label>Termos e Condições</Label>
-            <Textarea
-              value={termsConditions}
-              onChange={(e) => setTermsConditions(e.target.value)}
-              placeholder="Termos e condições do orçamento"
-              className="bg-secondary"
-              rows={3}
-            />
-          </div>
-
-          {/* Notes */}
+          {/* Observações */}
           <div className="space-y-2">
             <Label>Observações</Label>
             <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Observações adicionais"
+              value={termsConditions}
+              onChange={(e) => setTermsConditions(e.target.value)}
+              placeholder="Observações do orçamento"
               className="bg-secondary"
-              rows={2}
+              rows={3}
             />
           </div>
 
