@@ -67,11 +67,6 @@ export default function Configuracoes() {
   const [lateFeePercentage, setLateFeePercentage] = useState("2");
   const [savingFinancial, setSavingFinancial] = useState(false);
 
-  // Segurança
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [changingPassword, setChangingPassword] = useState(false);
-
   // Avatar
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -144,25 +139,6 @@ export default function Configuracoes() {
     setSavingFinancial(false);
   };
 
-  const handleChangePassword = async () => {
-    if (!newPassword || !confirmPassword) return toast.error("Preencha todos os campos de senha");
-    if (newPassword !== confirmPassword) return toast.error("As senhas não coincidem");
-    if (newPassword.length < 6) return toast.error("A senha deve ter pelo menos 6 caracteres");
-
-    setChangingPassword(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      toast.success("Senha alterada com sucesso!");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error.message || "Erro ao alterar senha");
-    } finally {
-      setChangingPassword(false);
-    }
-  };
 
   const handleLogoutAll = async () => {
     try {
@@ -540,39 +516,6 @@ export default function Configuracoes() {
           <ChartCard title="Segurança da Conta" subtitle="Gerencie a segurança da sua conta">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  Alterar Senha
-                </h3>
-                <div className="mt-4 space-y-4">
-                  <div>
-                    <Label>Nova Senha</Label>
-                    <Input
-                      type="password"
-                      className="mt-1 bg-secondary"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="••••••••"
-                    />
-                  </div>
-                  <div>
-                    <Label>Confirmar Nova Senha</Label>
-                    <Input
-                      type="password"
-                      className="mt-1 bg-secondary"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                    />
-                  </div>
-                  <Button onClick={handleChangePassword} disabled={changingPassword}>
-                    {changingPassword && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Alterar Senha
-                  </Button>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-border">
                 <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                   <LogOut className="w-5 h-5" />
                   Sessões Ativas
