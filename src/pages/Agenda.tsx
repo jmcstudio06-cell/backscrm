@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  Calendar,
   MapPin,
   Plus,
   ChevronLeft,
@@ -14,9 +15,6 @@ import {
   List,
   CalendarDays,
   CheckCircle2,
-  Star,
-  Clock,
-  Calendar,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -42,8 +40,40 @@ const statusLabels = {
   cancelled: "Cancelado",
 };
 
-function isValidISODate(d?: string | null) {
-  return typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d);
+// ✅ Garante que SEMPRE salvamos date como "YYYY-MM-DD"
+function normalizeISODate(input: unknown): string | null {
+  if (!input) return null;
+
+  // Date object (muito comum em datepickers)
+  if (input instanceof Date && !isNaN(input.getTime())) {
+    const y = input.getFullYear();
+    const m = String(input.getMonth() + 1).padStart(2, "0");
+    const d = String(input.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  // String
+  if (typeof input === "string") {
+    const s = input.trim();
+    if (!s) return null;
+
+    // com hora: "2026-03-04T00:00:00.000Z"
+    if (s.includes("T")) return s.slice(0, 10);
+
+    // "YYYY-M-D" -> "YYYY-MM-DD"
+    const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m) {
+      const y = m[1];
+      const mm = String(Number(m[2])).padStart(2, "0");
+      const dd = String(Number(m[3])).padStart(2, "0");
+      return `${y}-${mm}-${dd}`;
+    }
+
+    // já ok
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  }
+
+  return null;
 }
 
 export default function Agenda() {
@@ -58,17 +88,26 @@ export default function Agenda() {
   // Handle show param from URL to open specific show
   useEffect(() => {
     const showId = searchParams.get("show");
-    if (showId && Array.isArray(shows) && shows.length > 0) {
+    if (showId && shows.length > 0) {
       const showToOpen = shows.find((s) => s.id === showId);
       if (showToOpen) {
         setEditingShow(showToOpen);
         setIsModalOpen(true);
+        // Clear the URL param after opening
         setSearchParams({});
       }
     }
   }, [searchParams, shows, setSearchParams]);
 
   const handleShowCreated = (newShow: ShowData) => {
+    // ✅ NORMALIZA E VALIDA A DATA ANTES DE SALVAR
+    const safeDate = normalizeISODate(newShow.date);
+    if (!safeDate) {
+      toast.error("Data inválida. Selecione uma data válida para salvar o show.");
+      return;
+    }
+
+    // Map musicians and expenses to the format expected by useShows
     const musicians =
       newShow.selectedMusicians?.map((m) => ({
         musicianId: m.musicianId,
@@ -89,7 +128,7 @@ export default function Agenda() {
         editingShow.id,
         {
           title: newShow.name,
-          date: newShow.date,
+          date: safeDate, // ✅ SEMPRE "YYYY-MM-DD"
           start_time: newShow.time || null,
           venue: newShow.venue || null,
           address: newShow.address || null,
@@ -106,7 +145,7 @@ export default function Agenda() {
       addShow(
         {
           title: newShow.name,
-          date: newShow.date,
+          date: safeDate, // ✅ SEMPRE "YYYY-MM-DD"
           start_time: newShow.time || null,
           venue: newShow.venue || null,
           address: newShow.address || null,
@@ -163,12 +202,16 @@ export default function Agenda() {
   const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
 
   const getShowsForDate = (day: number) => {
-    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(
+      day,
+    ).padStart(2, "0")}`;
     return shows.filter((show) => show.date === dateStr);
   };
 
   const getSelectedDayShows = () => {
-    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(
+      selectedDate.getDate(),
+    ).padStart(2, "0")}`;
     return shows.filter((show) => show.date === dateStr);
   };
 
@@ -285,6 +328,7 @@ export default function Agenda() {
 
             {/* Calendar Grid - Compact square cells */}
             <div className="grid grid-cols-7 gap-0.5">
+              {/* Empty cells for days before the 1st */}
               {Array.from({ length: startingDay }).map((_, i) => (
                 <div
                   key={`empty-start-${i}`}
@@ -296,6 +340,7 @@ export default function Agenda() {
                 </div>
               ))}
 
+              {/* Actual days */}
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const day = i + 1;
                 const dayShows = getShowsForDate(day);
@@ -339,6 +384,7 @@ export default function Agenda() {
                 );
               })}
 
+              {/* Empty cells for days after the last day */}
               {Array.from({ length: (7 - ((startingDay + daysInMonth) % 7)) % 7 }).map((_, i) => (
                 <div
                   key={`empty-end-${i}`}
@@ -368,6 +414,7 @@ export default function Agenda() {
                         : "bg-muted/50 border-border",
                     )}
                   >
+                    {/* Header with title and status badge */}
                     <div className="flex items-center justify-between mb-1.5">
                       <h4
                         className={cn(
@@ -391,6 +438,7 @@ export default function Agenda() {
                       </Badge>
                     </div>
 
+                    {/* Show Details - compact */}
                     <div className="space-y-0.5 text-[11px] text-muted-foreground">
                       {show.event_type && <p>Tipo: {show.event_type}</p>}
                       <div className="flex items-center gap-1">
@@ -398,13 +446,14 @@ export default function Agenda() {
                         <span>{show.venue || "Local não definido"}</span>
                       </div>
                       {show.start_time && <p>Horário: {show.start_time}</p>}
-                      {!!show.cachet && show.cachet > 0 && (
+                      {show.cachet > 0 && (
                         <p className="font-medium text-primary">
                           Cachê: R${show.cachet.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </p>
                       )}
                     </div>
 
+                    {/* Actions */}
                     <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-border/50">
                       <Button
                         variant="outline"
@@ -415,7 +464,6 @@ export default function Agenda() {
                         <Edit className="w-2.5 h-2.5 mr-1" />
                         Editar
                       </Button>
-
                       {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
                         <Button
                           variant="outline"
@@ -427,7 +475,6 @@ export default function Agenda() {
                           <CheckCircle2 className="w-2.5 h-2.5" />
                         </Button>
                       )}
-
                       {show.status !== "cancelled" && (
                         <Button
                           variant="outline"
@@ -439,7 +486,6 @@ export default function Agenda() {
                           <XCircle className="w-2.5 h-2.5" />
                         </Button>
                       )}
-
                       <Button
                         variant="outline"
                         size="icon"
@@ -461,6 +507,7 @@ export default function Agenda() {
       ) : (
         /* List View */
         <div className="bg-card rounded-xl border border-border">
+          {/* Month Navigation for List */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-base font-bold text-foreground capitalize">
               {monthNames[currentMonth.getMonth()]} de {currentMonth.getFullYear()}
@@ -478,15 +525,16 @@ export default function Agenda() {
             </div>
           </div>
 
+          {/* List Content */}
           <div className="divide-y divide-border">
             {(() => {
               const monthShows = shows
                 .filter((show) => {
-                  if (!isValidISODate(show.date)) return false; // ✅ evita split() quebrar
+                  // Parse YYYY-MM-DD as local date to avoid UTC shift
                   const [y, m] = show.date.split("-").map(Number);
                   return m - 1 === currentMonth.getMonth() && y === currentMonth.getFullYear();
                 })
-                .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+                .sort((a, b) => a.date.localeCompare(b.date));
 
               if (monthShows.length === 0) {
                 return (
@@ -497,9 +545,8 @@ export default function Agenda() {
               }
 
               return monthShows.map((show) => {
-                const showDate = isValidISODate(show.date) ? new Date(show.date + "T12:00:00") : new Date();
-                const dayIdx = showDate.getDay();
-                const dayOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][dayIdx] || "—";
+                const showDate = new Date(show.date + "T12:00:00");
+                const dayOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][showDate.getDay()];
 
                 return (
                   <div
@@ -509,11 +556,13 @@ export default function Agenda() {
                       show.status === "cancelled" && "opacity-60",
                     )}
                   >
+                    {/* Date Column */}
                     <div className="flex-shrink-0 text-center w-10 sm:w-14">
                       <div className="text-xl sm:text-2xl font-bold text-foreground">{showDate.getDate()}</div>
                       <div className="text-[10px] sm:text-xs text-muted-foreground uppercase">{dayOfWeek}</div>
                     </div>
 
+                    {/* Show Info - takes remaining space */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
                         <h4
@@ -538,7 +587,6 @@ export default function Agenda() {
                           {statusLabels[show.status as keyof typeof statusLabels] || show.status}
                         </Badge>
                       </div>
-
                       <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                         {show.start_time && <span>{show.start_time}</span>}
                         {show.venue && (
@@ -550,8 +598,9 @@ export default function Agenda() {
                       </div>
                     </div>
 
+                    {/* Cachet - fixed width for alignment */}
                     <div className="flex-shrink-0 w-16 sm:w-20 text-right">
-                      {!!show.cachet && show.cachet > 0 ? (
+                      {show.cachet > 0 ? (
                         <div className="text-xs sm:text-sm font-semibold text-primary">
                           R$ {show.cachet.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </div>
@@ -560,6 +609,7 @@ export default function Agenda() {
                       )}
                     </div>
 
+                    {/* Actions - compact on mobile */}
                     <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
                       <Button
                         variant="ghost"
@@ -569,7 +619,6 @@ export default function Agenda() {
                       >
                         <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
-
                       {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
                         <Button
                           variant="ghost"
@@ -581,7 +630,6 @@ export default function Agenda() {
                           <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </Button>
                       )}
-
                       {show.status !== "cancelled" && (
                         <Button
                           variant="ghost"
@@ -592,7 +640,6 @@ export default function Agenda() {
                           <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </Button>
                       )}
-
                       <Button
                         variant="ghost"
                         size="icon"
