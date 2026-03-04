@@ -16,7 +16,7 @@ import {
   FolderOpen,
   ClipboardList
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatDateBR } from "@/lib/utils";
 import { useShows } from "@/contexts/shows/ShowsContext";
 import { AddTaskModal } from "@/components/checklist/AddTaskModal";
 import { ChecklistTemplatesModal } from "@/components/checklist/ChecklistTemplatesModal";
@@ -234,7 +234,7 @@ export default function Checklist() {
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
-              <span>{new Date(selectedShow.date).toLocaleDateString("pt-BR")}</span>
+              <span>{formatDateBR(selectedShow.date)}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
@@ -405,7 +405,7 @@ export default function Checklist() {
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="w-4 h-4" />
-                    <span>{new Date(show.date).toLocaleDateString("pt-BR")}</span>
+                    <span>{formatDateBR(show.date)}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="w-4 h-4" />
