@@ -21,6 +21,7 @@ import { useStageMappings } from "@/hooks/useStageMappings";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
+import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -150,7 +151,7 @@ const Dashboard = () => {
   // Calculate shows this month vs last month (all statuses except cancelled)
   const showsThisMonth = useMemo(() => {
     return shows.filter((show) => {
-      const showDate = new Date(show.date);
+      const showDate = parseLocalDate(show.date);
       return show.status !== "cancelled" && 
              showDate >= currentMonthStart && 
              showDate <= currentMonthEnd;
@@ -159,7 +160,7 @@ const Dashboard = () => {
 
   const showsLastMonth = useMemo(() => {
     return shows.filter((show) => {
-      const showDate = new Date(show.date);
+      const showDate = parseLocalDate(show.date);
       return show.status !== "cancelled" && 
              showDate >= lastMonthStart && 
              showDate <= lastMonthEnd;
@@ -170,7 +171,7 @@ const Dashboard = () => {
   const revenueThisMonth = useMemo(() => {
     return transactions
       .filter((t) => {
-        const transactionDate = new Date(t.date);
+      const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
                transactionDate >= currentMonthStart && 
                transactionDate <= currentMonthEnd;
@@ -181,7 +182,7 @@ const Dashboard = () => {
   const revenueLastMonth = useMemo(() => {
     return transactions
       .filter((t) => {
-        const transactionDate = new Date(t.date);
+        const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
                transactionDate >= lastMonthStart && 
                transactionDate <= lastMonthEnd;
@@ -218,7 +219,7 @@ const Dashboard = () => {
     
     const totalReceived = transactions
       .filter((t) => {
-        const transactionDate = new Date(t.date);
+        const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
                t.show_id !== null &&
                transactionDate >= currentMonthStart && 
