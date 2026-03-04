@@ -15,10 +15,13 @@ import {
   Check,
   Globe,
   ArrowDown,
-  Hand
+  Hand,
+  Bell
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAppSettings } from "@/hooks/useAppSettings";
+import { subscribeToWebPush } from "@/lib/webPush";
 import Confetti from "react-confetti";
 
 interface WelcomeModalProps {
@@ -79,7 +82,7 @@ const installSteps = [
 ];
 
 // Phone mockup component for visual tutorial
-const PhoneMockup = ({ platform }: { platform: string }) => {
+const PhoneMockup = ({ platform, logoUrl }: { platform: string; logoUrl?: string }) => {
   if (platform === "browser") {
     return (
       <div className="relative w-48 h-72 mx-auto">
@@ -101,8 +104,12 @@ const PhoneMockup = ({ platform }: { platform: string }) => {
             {/* Content */}
             <div className="p-3 bg-gradient-to-b from-[#0066CC] to-[#00B4D8] h-full">
               <div className="text-center">
-                <div className="w-12 h-12 bg-white rounded-xl mx-auto mb-2 flex items-center justify-center">
-                  <span className="text-2xl">🎸</span>
+                <div className="w-12 h-12 bg-white rounded-xl mx-auto mb-2 flex items-center justify-center overflow-hidden">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <Sparkles className="w-6 h-6 text-primary" />
+                  )}
                 </div>
                 <div className="text-white text-[10px] font-bold">Backstage Pro</div>
                 <div className="text-white/70 text-[8px] mt-1">Gestão Musical</div>
@@ -211,6 +218,7 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
   const [isInstalled, setIsInstalled] = useState(false);
   const [canAutoInstall, setCanAutoInstall] = useState(false);
   const { toast } = useToast();
+  const { settings } = useAppSettings();
 
   // Check if already installed or can auto-install
   useEffect(() => {
@@ -294,6 +302,18 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
         description: "Você não verá mais este tutorial ao entrar.",
       });
       onClose();
+
+      // After closing welcome modal, request notification permission
+      // Small delay to let the modal close first
+      setTimeout(async () => {
+        try {
+          if ("Notification" in window && Notification.permission === "default") {
+            await subscribeToWebPush();
+          }
+        } catch (e) {
+          console.log("[WelcomeModal] Notification request skipped:", e);
+        }
+      }, 800);
     } catch (error) {
       console.error("Error updating onboarding status:", error);
       onClose();
@@ -331,11 +351,17 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
         <Dialog open={open} onOpenChange={onClose}>
           <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0 bg-gradient-to-b from-primary via-primary/90 to-accent">
             <div className="p-8 text-center">
-              <div className="flex justify-center gap-2 mb-6">
-                <PartyPopper className="w-12 h-12 text-yellow-400 animate-bounce" />
-                <Check className="w-10 h-10 text-green-400 animate-pulse" />
-                <Star className="w-12 h-12 text-yellow-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
-              </div>
+              {settings.logo_url ? (
+                <div className="w-20 h-20 rounded-2xl mx-auto mb-6 overflow-hidden shadow-lg">
+                  <img src={settings.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex justify-center gap-2 mb-6">
+                  <PartyPopper className="w-12 h-12 text-yellow-400 animate-bounce" />
+                  <Check className="w-10 h-10 text-green-400 animate-pulse" />
+                  <Star className="w-12 h-12 text-yellow-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
+              )}
 
               <h2 className="text-3xl font-bold text-white mb-2">
                 Tudo pronto, {userName || "Artista"}! 🎉
@@ -379,11 +405,17 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
         <Dialog open={open} onOpenChange={onClose}>
           <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0 bg-gradient-to-b from-primary via-primary/90 to-accent">
             <div className="p-8 text-center">
-              <div className="flex justify-center gap-2 mb-6">
-                <PartyPopper className="w-12 h-12 text-yellow-400 animate-bounce" />
-                <Sparkles className="w-10 h-10 text-cyan-300 animate-pulse" />
-                <Star className="w-12 h-12 text-yellow-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
-              </div>
+              {settings.logo_url ? (
+                <div className="w-20 h-20 rounded-2xl mx-auto mb-6 overflow-hidden shadow-lg">
+                  <img src={settings.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex justify-center gap-2 mb-6">
+                  <PartyPopper className="w-12 h-12 text-yellow-400 animate-bounce" />
+                  <Sparkles className="w-10 h-10 text-cyan-300 animate-pulse" />
+                  <Star className="w-12 h-12 text-yellow-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
+              )}
 
               <h2 className="text-3xl font-bold text-white mb-2">
                 Parabéns, {userName || "Artista"}! 🎉
@@ -504,7 +536,7 @@ export function WelcomeModal({ open, onClose, userName }: WelcomeModalProps) {
 
             {/* Phone Mockup Illustration */}
             <div className="mb-6">
-              <PhoneMockup platform={currentInstall.illustration} />
+              <PhoneMockup platform={currentInstall.illustration} logoUrl={settings.logo_url} />
             </div>
 
             {/* Steps list */}
