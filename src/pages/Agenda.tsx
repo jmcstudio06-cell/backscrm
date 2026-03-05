@@ -17,7 +17,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { cn, parseLocalDate } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
 import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
