@@ -60,7 +60,7 @@ export function useShowsData() {
           : 0;
 
     return {
-      id: typeof row.id === "string" ? row.id : crypto.randomUUID(),
+      id: typeof row.id === "string" && row.id.trim() ? row.id : `fallback-${Date.now()}-${Math.random()}`,
       title: typeof row.title === "string" && row.title.trim() ? row.title : "Show sem título",
       date,
       start_time: typeof row.start_time === "string" ? row.start_time : null,
