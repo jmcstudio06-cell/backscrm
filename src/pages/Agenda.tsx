@@ -17,7 +17,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { cn, parseLocalDate } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
 import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
@@ -548,7 +548,7 @@ export default function Agenda() {
               }
 
               return monthShows.map((show) => {
-                const showDate = new Date(show.date + "T12:00:00");
+                const showDate = parseLocalDate(show.date);
                 const dayOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][showDate.getDay()];
 
                 return (
