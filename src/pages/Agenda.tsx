@@ -548,7 +548,7 @@ export default function Agenda() {
               }
 
               return monthShows.map((show) => {
-                const showDate = new Date(show.date + "T12:00:00");
+                const showDate = parseLocalDate(show.date);
                 const dayOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][showDate.getDay()];
 
                 return (
