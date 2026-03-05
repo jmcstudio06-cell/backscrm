@@ -46,6 +46,38 @@ export function useShowsData() {
     return `${year}-${month}-${day}`;
   };
 
+  const normalizeShowRow = (row: any): Show | null => {
+    if (!row || typeof row !== "object") return null;
+
+    const date = typeof row.date === "string" ? row.date.trim() : "";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+
+    const cachetValue =
+      typeof row.cachet === "number"
+        ? row.cachet
+        : typeof row.cachet === "string"
+          ? Number(row.cachet)
+          : 0;
+
+    return {
+      id: typeof row.id === "string" ? row.id : crypto.randomUUID(),
+      title: typeof row.title === "string" && row.title.trim() ? row.title : "Show sem título",
+      date,
+      start_time: typeof row.start_time === "string" ? row.start_time : null,
+      end_time: typeof row.end_time === "string" ? row.end_time : null,
+      venue: typeof row.venue === "string" ? row.venue : null,
+      address: typeof row.address === "string" ? row.address : null,
+      cachet: Number.isFinite(cachetValue) ? cachetValue : 0,
+      status: typeof row.status === "string" && row.status.trim() ? row.status : "scheduled",
+      client_id: typeof row.client_id === "string" ? row.client_id : null,
+      lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
+      event_type: typeof row.event_type === "string" ? row.event_type : null,
+      notes: typeof row.notes === "string" ? row.notes : null,
+      created_at: typeof row.created_at === "string" ? row.created_at : new Date().toISOString(),
+      updated_at: typeof row.updated_at === "string" ? row.updated_at : new Date().toISOString(),
+    };
+  };
+
   const fetchShows = async () => {
     if (!user) return;
     
