@@ -107,7 +107,11 @@ export function useShowsData() {
         .order("date", { ascending: true });
 
       if (error) throw error;
-      setShows(data || []);
+      // Filter out shows with invalid/missing dates to prevent rendering crashes
+      const validShows = (data || []).filter(
+        (s) => s.date && typeof s.date === "string" && /^\d{4}-\d{2}-\d{2}/.test(s.date)
+      );
+      setShows(validShows);
     } catch (error) {
       console.error("Error fetching shows:", error);
       toast.error("Erro ao carregar shows");

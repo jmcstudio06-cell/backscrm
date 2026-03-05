@@ -63,34 +63,34 @@ const App = () => (
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/agenda" element={<Agenda />} />
-                <Route path="/bonus" element={<Bonus />} />
-                <Route path="/tutoriais" element={<Tutoriais />} />
-                <Route path="/crm" element={<CRM />} />
-                <Route path="/clientes" element={<Clientes />} />
-                <Route path="/financeiro" element={<Financeiro />} />
-                <Route path="/historico" element={<Historico />} />
-                <Route path="/checklist" element={<Checklist />} />
-                <Route path="/mapeamento-palco" element={<MapeamentoPalco />} />
-                <Route path="/precificacao" element={<Precificacao />} />
-                <Route path="/avancos" element={<Avancos />} />
-                <Route path="/indicacoes" element={<Indicacoes />} />
-                <Route path="/equipe" element={<Equipe />} />
-                <Route path="/metas" element={<Metas />} />
-                <Route path="/metas/anual" element={<MetasAnuais />} />
-                <Route path="/planos" element={<Planos />} />
-                <Route path="/configuracoes" element={<Configuracoes />} />
-                <Route path="/orcamentos" element={<Orcamentos />} />
-                <Route path="/contratos" element={<Contratos />} />
-                <Route path="/repertorio" element={<Repertorio />} />
-                <Route path="/admin" element={<Admin />} />
+                <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+                <Route path="/agenda" element={<ErrorBoundary><Agenda /></ErrorBoundary>} />
+                <Route path="/bonus" element={<ErrorBoundary><Bonus /></ErrorBoundary>} />
+                <Route path="/tutoriais" element={<ErrorBoundary><Tutoriais /></ErrorBoundary>} />
+                <Route path="/crm" element={<ErrorBoundary><CRM /></ErrorBoundary>} />
+                <Route path="/clientes" element={<ErrorBoundary><Clientes /></ErrorBoundary>} />
+                <Route path="/financeiro" element={<ErrorBoundary><Financeiro /></ErrorBoundary>} />
+                <Route path="/historico" element={<ErrorBoundary><Historico /></ErrorBoundary>} />
+                <Route path="/checklist" element={<ErrorBoundary><Checklist /></ErrorBoundary>} />
+                <Route path="/mapeamento-palco" element={<ErrorBoundary><MapeamentoPalco /></ErrorBoundary>} />
+                <Route path="/precificacao" element={<ErrorBoundary><Precificacao /></ErrorBoundary>} />
+                <Route path="/avancos" element={<ErrorBoundary><Avancos /></ErrorBoundary>} />
+                <Route path="/indicacoes" element={<ErrorBoundary><Indicacoes /></ErrorBoundary>} />
+                <Route path="/equipe" element={<ErrorBoundary><Equipe /></ErrorBoundary>} />
+                <Route path="/metas" element={<ErrorBoundary><Metas /></ErrorBoundary>} />
+                <Route path="/metas/anual" element={<ErrorBoundary><MetasAnuais /></ErrorBoundary>} />
+                <Route path="/planos" element={<ErrorBoundary><Planos /></ErrorBoundary>} />
+                <Route path="/configuracoes" element={<ErrorBoundary><Configuracoes /></ErrorBoundary>} />
+                <Route path="/orcamentos" element={<ErrorBoundary><Orcamentos /></ErrorBoundary>} />
+                <Route path="/contratos" element={<ErrorBoundary><Contratos /></ErrorBoundary>} />
+                <Route path="/repertorio" element={<ErrorBoundary><Repertorio /></ErrorBoundary>} />
+                <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/guia-atendimento" element={<GuiaAtendimento />} />
-                <Route path="/solicitacoes" element={<Solicitacoes />} />
-                <Route path="/booking/:slug" element={<Booking />} />
+                <Route path="/guia-atendimento" element={<ErrorBoundary><GuiaAtendimento /></ErrorBoundary>} />
+                <Route path="/solicitacoes" element={<ErrorBoundary><Solicitacoes /></ErrorBoundary>} />
+                <Route path="/booking/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ShowsProvider>
