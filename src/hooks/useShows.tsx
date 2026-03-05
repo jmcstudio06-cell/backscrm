@@ -139,11 +139,11 @@ export function useShowsData() {
         .order("date", { ascending: true });
 
       if (error) throw error;
-      // Filter out shows with invalid/missing dates to prevent rendering crashes
-      const validShows = (data || []).filter(
-        (s) => s.date && typeof s.date === "string" && /^\d{4}-\d{2}-\d{2}/.test(s.date)
-      );
-      setShows(validShows);
+      const normalizedShows = (data || [])
+        .map(normalizeShowRow)
+        .filter((s): s is Show => s !== null);
+
+      setShows(normalizedShows);
     } catch (error) {
       console.error("Error fetching shows:", error);
       toast.error("Erro ao carregar shows");
