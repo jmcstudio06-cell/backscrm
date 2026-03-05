@@ -205,7 +205,7 @@ export default function Agenda() {
     const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(
       day,
     ).padStart(2, "0")}`;
-    return shows.filter((show) => show.date === dateStr);
+    return shows.filter((show) => show.date && show.date === dateStr);
   };
 
   const getSelectedDayShows = () => {
@@ -446,9 +446,9 @@ export default function Agenda() {
                         <span>{show.venue || "Local não definido"}</span>
                       </div>
                       {show.start_time && <p>Horário: {show.start_time}</p>}
-                      {show.cachet > 0 && (
+                      {(show.cachet ?? 0) > 0 && (
                         <p className="font-medium text-primary">
-                          Cachê: R${show.cachet.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          Cachê: R${(show.cachet ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </p>
                       )}
                     </div>
@@ -530,11 +530,14 @@ export default function Agenda() {
             {(() => {
               const monthShows = shows
                 .filter((show) => {
+                  if (!show.date || typeof show.date !== "string") return false;
                   // Parse YYYY-MM-DD as local date to avoid UTC shift
-                  const [y, m] = show.date.split("-").map(Number);
+                  const parts = show.date.split("-");
+                  if (parts.length < 2) return false;
+                  const [y, m] = parts.map(Number);
                   return m - 1 === currentMonth.getMonth() && y === currentMonth.getFullYear();
                 })
-                .sort((a, b) => a.date.localeCompare(b.date));
+                .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
 
               if (monthShows.length === 0) {
                 return (
@@ -600,9 +603,9 @@ export default function Agenda() {
 
                     {/* Cachet - fixed width for alignment */}
                     <div className="flex-shrink-0 w-16 sm:w-20 text-right">
-                      {show.cachet > 0 ? (
+                      {(show.cachet ?? 0) > 0 ? (
                         <div className="text-xs sm:text-sm font-semibold text-primary">
-                          R$ {show.cachet.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          R$ {(show.cachet ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </div>
                       ) : (
                         <div className="text-xs text-muted-foreground">-</div>
