@@ -84,7 +84,7 @@ const menuItems: MenuItem[] = [
       { icon: Target, label: "Avanços", path: "/avancos", featureKey: "checklist" },
       { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },
       { icon: Users2, label: "Equipe & Freelancer", path: "/equipe", featureKey: "equipe" },
-      { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "checklist" },
+      { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "mapeamento-palco" },
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
       { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
     ],
