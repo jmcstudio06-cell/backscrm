@@ -93,12 +93,12 @@ export function useFeatureBlocks() {
 
         setPlanExpired(false);
 
-        // Trial plan: liberar apenas features específicas
+        // Trial plan: liberar tudo EXCETO mapeamento-palco, contratos e orcamentos
         if (profile?.plan === "trial") {
-          const trialAllowed = ["dashboard", "agenda", "clientes", "crm", "tutoriais", "precificacao", "repertorio", "configuracoes"];
+          const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos"];
           const trialBlocks: FeatureBlocks = {};
           for (const key of Object.keys(DEFAULT_FEATURE_BLOCKS)) {
-            trialBlocks[key] = !trialAllowed.includes(key);
+            trialBlocks[key] = trialBlocked.includes(key);
           }
           setFeatureBlocks(trialBlocks);
           setLoading(false);
