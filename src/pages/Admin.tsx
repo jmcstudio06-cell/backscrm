@@ -121,13 +121,11 @@ const PLAN_DURATIONS: Record<string, number> = {
   anual: 365,
 };
 
-// Features blocked for trial users
+// Features blocked for trial users (only these 3)
 const TRIAL_BLOCKED_FEATURES = [
-  "orcamentos",
-  "contratos", 
-  "precificacao",
-  "checklist",
   "mapeamento-palco",
+  "contratos",
+  "orcamentos",
 ];
 
 // Cache para evitar refetch ao navegar entre abas

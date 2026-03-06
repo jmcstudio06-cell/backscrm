@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, Clock, DollarSign, FileText, ExternalLink } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, Clock, DollarSign, FileText, ExternalLink, CalendarDays, ArrowUpCircle } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,26 +17,41 @@ import { toast } from "sonner";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
 
 const planLabels: Record<string, string> = {
-  trial: "Trial",
+  trial: "Teste Rápido (1 hora)",
+  starter: "Plano Starter",
   mensal: "Plano Mensal",
   inicial: "Plano Mensal",
-  essencial: "Plano Profissional 3 Meses",
-  completo: "Plano Profissional 6 Meses",
+  essencial: "Plano Profissional",
+  completo: "Plano Completo",
+  anual: "Plano Anual",
   expirado: "Expirado",
 };
 
 const planColors: Record<string, string> = {
   trial: "bg-orange-500",
+  starter: "bg-blue-500",
   mensal: "bg-blue-500",
   inicial: "bg-blue-500",
   essencial: "bg-green-500",
   completo: "bg-purple-500",
+  anual: "bg-emerald-600",
   expirado: "bg-destructive",
+};
+
+const PLAN_DURATIONS: Record<string, number> = {
+  trial: 0, // 1 hour, handled separately
+  starter: 30,
+  mensal: 30,
+  inicial: 30,
+  essencial: 90,
+  completo: 180,
+  anual: 365,
 };
 
 export default function Configuracoes() {
   const { profile, loading, updateProfile } = useProfile();
-  const { plan, daysRemaining } = useTrialStatus();
+  const { plan, daysRemaining, trialStart } = useTrialStatus();
+  const navigate = useNavigate();
   
   // Dados Pessoais
   const [name, setName] = useState("");
@@ -229,15 +245,82 @@ export default function Configuracoes() {
         {/* Profile */}
         <TabsContent value="profile" className="space-y-6">
           <ChartCard title="Seu Plano" subtitle="Status da sua assinatura">
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl ${planColors[plan] || "bg-muted"} flex items-center justify-center`}>
-                <Crown className="w-6 h-6 text-white" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-xl ${planColors[plan] || "bg-muted"} flex items-center justify-center`}>
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-lg font-bold text-foreground">{planLabels[plan] || "Trial"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {plan === "expirado" 
+                      ? "Plano expirado — renove para continuar usando" 
+                      : plan === "trial"
+                        ? "Teste gratuito de 1 hora"
+                        : `${daysRemaining} dias restantes`
+                    }
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-lg font-bold text-foreground">{planLabels[plan] || "Trial"}</p>
-                <p className="text-sm text-muted-foreground">
-                  {plan === "expirado" ? "Plano expirado" : `${daysRemaining} dias restantes`}
-                </p>
+
+              {/* Info de data e duração para planos pagos */}
+              {plan !== "trial" && plan !== "expirado" && trialStart && (
+                <div className="bg-secondary rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2 text-muted-foreground">
+                      <CalendarDays className="w-4 h-4" />
+                      Início do plano
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {(() => {
+                        const [y, m, d] = (trialStart.split("T")[0] || "").split("-");
+                        return d && m && y ? `${d}/${m}/${y}` : trialStart;
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Duração do plano</span>
+                    <span className="font-medium text-foreground">
+                      {PLAN_DURATIONS[plan] ? `${PLAN_DURATIONS[plan]} dias` : "—"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Dias restantes</span>
+                    <span className={`font-bold ${daysRemaining <= 7 ? "text-destructive" : "text-primary"}`}>
+                      {daysRemaining} dias
+                    </span>
+                  </div>
+                  {PLAN_DURATIONS[plan] > 0 && (
+                    <Progress 
+                      value={Math.max(0, (daysRemaining / PLAN_DURATIONS[plan]) * 100)} 
+                      className="h-2"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* Botões de ação */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                {plan !== "anual" && plan !== "expirado" && (
+                  <Button 
+                    variant="gradient"
+                    className="flex-1"
+                    onClick={() => navigate("/planos")}
+                  >
+                    <ArrowUpCircle className="w-4 h-4 mr-2" />
+                    {plan === "trial" ? "Escolher um Plano" : "Fazer Upgrade para Anual"}
+                  </Button>
+                )}
+                {plan === "expirado" && (
+                  <Button 
+                    variant="gradient"
+                    className="flex-1"
+                    onClick={() => navigate("/planos")}
+                  >
+                    <Crown className="w-4 h-4 mr-2" />
+                    Renovar Plano
+                  </Button>
+                )}
               </div>
             </div>
           </ChartCard>
