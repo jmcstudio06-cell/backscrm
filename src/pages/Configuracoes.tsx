@@ -245,15 +245,82 @@ export default function Configuracoes() {
         {/* Profile */}
         <TabsContent value="profile" className="space-y-6">
           <ChartCard title="Seu Plano" subtitle="Status da sua assinatura">
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl ${planColors[plan] || "bg-muted"} flex items-center justify-center`}>
-                <Crown className="w-6 h-6 text-white" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-xl ${planColors[plan] || "bg-muted"} flex items-center justify-center`}>
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-lg font-bold text-foreground">{planLabels[plan] || "Trial"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {plan === "expirado" 
+                      ? "Plano expirado — renove para continuar usando" 
+                      : plan === "trial"
+                        ? "Teste gratuito de 1 hora"
+                        : `${daysRemaining} dias restantes`
+                    }
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-lg font-bold text-foreground">{planLabels[plan] || "Trial"}</p>
-                <p className="text-sm text-muted-foreground">
-                  {plan === "expirado" ? "Plano expirado" : `${daysRemaining} dias restantes`}
-                </p>
+
+              {/* Info de data e duração para planos pagos */}
+              {plan !== "trial" && plan !== "expirado" && trialStart && (
+                <div className="bg-secondary rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2 text-muted-foreground">
+                      <CalendarDays className="w-4 h-4" />
+                      Início do plano
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {(() => {
+                        const [y, m, d] = (trialStart.split("T")[0] || "").split("-");
+                        return d && m && y ? `${d}/${m}/${y}` : trialStart;
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Duração do plano</span>
+                    <span className="font-medium text-foreground">
+                      {PLAN_DURATIONS[plan] ? `${PLAN_DURATIONS[plan]} dias` : "—"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Dias restantes</span>
+                    <span className={`font-bold ${daysRemaining <= 7 ? "text-destructive" : "text-primary"}`}>
+                      {daysRemaining} dias
+                    </span>
+                  </div>
+                  {PLAN_DURATIONS[plan] > 0 && (
+                    <Progress 
+                      value={Math.max(0, (daysRemaining / PLAN_DURATIONS[plan]) * 100)} 
+                      className="h-2"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* Botões de ação */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                {plan !== "anual" && plan !== "expirado" && (
+                  <Button 
+                    variant="gradient"
+                    className="flex-1"
+                    onClick={() => navigate("/planos")}
+                  >
+                    <ArrowUpCircle className="w-4 h-4 mr-2" />
+                    {plan === "trial" ? "Escolher um Plano" : "Fazer Upgrade para Anual"}
+                  </Button>
+                )}
+                {plan === "expirado" && (
+                  <Button 
+                    variant="gradient"
+                    className="flex-1"
+                    onClick={() => navigate("/planos")}
+                  >
+                    <Crown className="w-4 h-4 mr-2" />
+                    Renovar Plano
+                  </Button>
+                )}
               </div>
             </div>
           </ChartCard>
