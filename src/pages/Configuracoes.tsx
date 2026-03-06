@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, Clock, DollarSign, FileText, ExternalLink } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, Clock, DollarSign, FileText, ExternalLink, CalendarDays, ArrowUpCircle } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,21 +17,35 @@ import { toast } from "sonner";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
 
 const planLabels: Record<string, string> = {
-  trial: "Trial",
+  trial: "Teste Rápido (1 hora)",
+  starter: "Plano Starter",
   mensal: "Plano Mensal",
   inicial: "Plano Mensal",
-  essencial: "Plano Profissional 3 Meses",
-  completo: "Plano Profissional 6 Meses",
+  essencial: "Plano Profissional",
+  completo: "Plano Completo",
+  anual: "Plano Anual",
   expirado: "Expirado",
 };
 
 const planColors: Record<string, string> = {
   trial: "bg-orange-500",
+  starter: "bg-blue-500",
   mensal: "bg-blue-500",
   inicial: "bg-blue-500",
   essencial: "bg-green-500",
   completo: "bg-purple-500",
+  anual: "bg-emerald-600",
   expirado: "bg-destructive",
+};
+
+const PLAN_DURATIONS: Record<string, number> = {
+  trial: 0, // 1 hour, handled separately
+  starter: 30,
+  mensal: 30,
+  inicial: 30,
+  essencial: 90,
+  completo: 180,
+  anual: 365,
 };
 
 export default function Configuracoes() {
