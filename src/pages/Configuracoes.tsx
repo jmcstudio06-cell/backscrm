@@ -50,7 +50,8 @@ const PLAN_DURATIONS: Record<string, number> = {
 
 export default function Configuracoes() {
   const { profile, loading, updateProfile } = useProfile();
-  const { plan, daysRemaining } = useTrialStatus();
+  const { plan, daysRemaining, trialStart } = useTrialStatus();
+  const navigate = useNavigate();
   
   // Dados Pessoais
   const [name, setName] = useState("");
