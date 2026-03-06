@@ -100,7 +100,7 @@ const PLAN_FILTERS = [
   { value: "all", label: "TODOS" },
   { value: "free", label: "FREE" },
   { value: "trial", label: "TRIAL (legado)" },
-  { value: "base", label: "PLANO BASE (legado)" },
+  { value: "base", label: "Assinatura Mensal" },
   { value: "mensal", label: "MENSAL (legado)" },
   { value: "essencial", label: "PROFISSIONAL" },
   { value: "completo", label: "COMPLETO" },
@@ -829,7 +829,7 @@ export default function Admin() {
         <Card className="border-cyan-200 bg-cyan-50">
           <CardContent className="p-4 text-center">
             <Shield className="h-6 w-6 text-cyan-500 mx-auto mb-2" />
-            <p className="text-sm text-cyan-600">Base (legado)</p>
+            <p className="text-sm text-cyan-600">Assinatura Mensal</p>
             <p className="text-2xl font-bold text-cyan-700">{planStats.base}</p>
           </CardContent>
         </Card>
@@ -1054,7 +1054,7 @@ export default function Admin() {
                           >
                             <option value="free">Free (Gratuito)</option>
                             <option value="trial">Trial - legado (3 dias)</option>
-                            <option value="base">Plano Base - legado (1 mês)</option>
+                            <option value="base">Assinatura Mensal (1 mês)</option>
                             <option value="mensal">Mensal - legado (1 mês)</option>
                             <option value="essencial">Profissional</option>
                             <option value="completo">Completo</option>
