@@ -9,12 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, Clock, DollarSign, FileText, ExternalLink, CalendarDays, ArrowUpCircle } from "lucide-react";
+import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, Circle, Square, Type, Monitor, Smartphone } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
+import { useCustomization, COLOR_PRESETS } from "@/hooks/useCustomization";
 
 const planLabels: Record<string, string> = {
   trial: "Teste Rápido (1 hora)",
@@ -39,7 +40,7 @@ const planColors: Record<string, string> = {
 };
 
 const PLAN_DURATIONS: Record<string, number> = {
-  trial: 0, // 1 hour, handled separately
+  trial: 0,
   starter: 30,
   mensal: 30,
   inicial: 30,
@@ -48,9 +49,20 @@ const PLAN_DURATIONS: Record<string, number> = {
   anual: 365,
 };
 
+const COLOR_LABELS: Record<string, string> = {
+  "220": "Azul",
+  "160": "Verde",
+  "280": "Roxo",
+  "340": "Rosa",
+  "30": "Laranja",
+  "0": "Vermelho",
+  "190": "Ciano",
+};
+
 export default function Configuracoes() {
   const { profile, loading, updateProfile } = useProfile();
   const { plan, daysRemaining, trialStart } = useTrialStatus();
+  const { settings: customization, updateSettings, resetSettings } = useCustomization();
   const navigate = useNavigate();
   
   // Dados Pessoais
@@ -68,49 +80,21 @@ export default function Configuracoes() {
   const [actionRadius, setActionRadius] = useState("100");
   const [savingArtist, setSavingArtist] = useState(false);
 
-  // Regras de Show
-  const [showDuration, setShowDuration] = useState("2 horas");
-  const [delayTolerance, setDelayTolerance] = useState("30 minutos");
-  const [hasInterval, setHasInterval] = useState(false);
-  const [requiresFood, setRequiresFood] = useState(false);
-  const [savingShow, setSavingShow] = useState(false);
-
-  // Regras Financeiras
-  const [minFee, setMinFee] = useState("");
-  const [depositPercentage, setDepositPercentage] = useState("50");
-  const [acceptedPayment, setAcceptedPayment] = useState("Pix, Transferência");
-  const [paymentDeadline, setPaymentDeadline] = useState("No dia do show");
-  const [lateFeePercentage, setLateFeePercentage] = useState("2");
-  const [savingFinancial, setSavingFinancial] = useState(false);
-
   // Avatar
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
-      // Dados Pessoais
       setName(profile.name || "");
       setEmail(profile.email || "");
       setPhone(profile.phone || "");
       setCity(profile.city || "");
-      // Perfil Artístico
       setArtistName(profile.artist_name || "");
       setProjectType(profile.project_type || "solo");
       setMusicStyle(profile.music_style || "");
       setBaseCity(profile.base_city || "");
       setActionRadius(String(profile.action_radius || 100));
-      // Regras de Show
-      setShowDuration(profile.show_duration || "2 horas");
-      setDelayTolerance(profile.delay_tolerance || "30 minutos");
-      setHasInterval(profile.has_interval || false);
-      setRequiresFood(profile.requires_food || false);
-      // Regras Financeiras
-      setMinFee(String(profile.min_fee || ""));
-      setDepositPercentage(String(profile.deposit_percentage || 50));
-      setAcceptedPayment(profile.accepted_payment || "Pix, Transferência");
-      setPaymentDeadline(profile.payment_deadline || "No dia do show");
-      setLateFeePercentage(String(profile.late_fee_percentage || 2));
     }
   }, [profile]);
 
@@ -131,30 +115,6 @@ export default function Configuracoes() {
     });
     setSavingArtist(false);
   };
-
-  const handleSaveShow = async () => {
-    setSavingShow(true);
-    await updateProfile({
-      show_duration: showDuration,
-      delay_tolerance: delayTolerance,
-      has_interval: hasInterval,
-      requires_food: requiresFood,
-    });
-    setSavingShow(false);
-  };
-
-  const handleSaveFinancial = async () => {
-    setSavingFinancial(true);
-    await updateProfile({
-      min_fee: parseFloat(minFee) || 0,
-      deposit_percentage: parseInt(depositPercentage) || 50,
-      accepted_payment: acceptedPayment,
-      payment_deadline: paymentDeadline,
-      late_fee_percentage: parseFloat(lateFeePercentage) || 2,
-    });
-    setSavingFinancial(false);
-  };
-
 
   const handleLogoutAll = async () => {
     try {
@@ -211,8 +171,13 @@ export default function Configuracoes() {
     }
   };
 
+  const handleResetCustomization = () => {
+    resetSettings();
+    toast.success("Personalização restaurada ao padrão!");
+  };
+
   return (
-    <Layout title="Configurações" subtitle="Gerencie suas preferências e regras de trabalho">
+    <Layout title="Configurações" subtitle="Gerencie suas preferências e personalize seu app">
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="bg-secondary flex-wrap h-auto gap-1 p-1 w-full">
           <TabsTrigger value="profile" className="gap-1.5 flex-1 min-w-fit">
@@ -225,15 +190,10 @@ export default function Configuracoes() {
             <span className="hidden sm:inline">Perfil Artístico</span>
             <span className="sm:hidden">Artístico</span>
           </TabsTrigger>
-          <TabsTrigger value="show-rules" className="gap-1.5 flex-1 min-w-fit">
-            <Clock className="w-4 h-4" />
-            <span className="hidden sm:inline">Regras de Show</span>
-            <span className="sm:hidden">Show</span>
-          </TabsTrigger>
-          <TabsTrigger value="financial" className="gap-1.5 flex-1 min-w-fit">
-            <DollarSign className="w-4 h-4" />
-            <span className="hidden sm:inline">Regras Financeiras</span>
-            <span className="sm:hidden">Financeiro</span>
+          <TabsTrigger value="customization" className="gap-1.5 flex-1 min-w-fit">
+            <Palette className="w-4 h-4" />
+            <span className="hidden sm:inline">Personalização</span>
+            <span className="sm:hidden">Visual</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="gap-1.5 flex-1 min-w-fit">
             <Shield className="w-4 h-4" />
@@ -263,7 +223,6 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              {/* Info de data e duração para planos pagos */}
               {plan !== "trial" && plan !== "expirado" && trialStart && (
                 <div className="bg-secondary rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between text-sm">
@@ -299,7 +258,6 @@ export default function Configuracoes() {
                 </div>
               )}
 
-              {/* Botões de ação */}
               <div className="flex flex-col sm:flex-row gap-2">
                 {plan !== "anual" && plan !== "expirado" && (
                   <Button 
@@ -444,154 +402,153 @@ export default function Configuracoes() {
           </ChartCard>
         </TabsContent>
 
-        {/* Regras de Show */}
-        <TabsContent value="show-rules" className="space-y-6">
+        {/* Personalização */}
+        <TabsContent value="customization" className="space-y-6">
+          {/* Cor Principal */}
           <ChartCard 
-            title="Regras de Show" 
-            subtitle="Defina como você trabalha — será padrão automático nos contratos"
+            title="Cor Principal" 
+            subtitle="Escolha a cor que combina com a sua identidade — tudo se adapta automaticamente"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label>Duração Padrão do Show</Label>
-                <Select value={showDuration} onValueChange={setShowDuration}>
-                  <SelectTrigger className="mt-1 bg-secondary">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1 hora">1 hora</SelectItem>
-                    <SelectItem value="1h30">1h30</SelectItem>
-                    <SelectItem value="2 horas">2 horas</SelectItem>
-                    <SelectItem value="2h30">2h30</SelectItem>
-                    <SelectItem value="3 horas">3 horas</SelectItem>
-                    <SelectItem value="4 horas">4 horas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Tolerância de Atraso</Label>
-                <Select value={delayTolerance} onValueChange={setDelayTolerance}>
-                  <SelectTrigger className="mt-1 bg-secondary">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="15 minutos">15 minutos</SelectItem>
-                    <SelectItem value="30 minutos">30 minutos</SelectItem>
-                    <SelectItem value="45 minutos">45 minutos</SelectItem>
-                    <SelectItem value="1 hora">1 hora</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <Label>Intervalo no Show</Label>
-                  <p className="text-sm text-muted-foreground">Incluir intervalo na apresentação</p>
-                </div>
-                <Switch checked={hasInterval} onCheckedChange={setHasInterval} />
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg md:col-span-2">
-                <div>
-                  <Label>Alimentação Obrigatória</Label>
-                  <p className="text-sm text-muted-foreground">Exigir refeição para a equipe</p>
-                </div>
-                <Switch checked={requiresFood} onCheckedChange={setRequiresFood} />
-              </div>
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+              {Object.entries(COLOR_LABELS).map(([hue, label]) => {
+                const isSelected = customization.primaryColor === hue;
+                return (
+                  <button
+                    key={hue}
+                    onClick={() => updateSettings({ primaryColor: hue })}
+                    className={`group flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
+                      isSelected 
+                        ? "border-foreground shadow-elevated scale-105" 
+                        : "border-transparent hover:border-border hover:scale-102"
+                    }`}
+                  >
+                    <div 
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md flex items-center justify-center transition-transform group-hover:scale-110"
+                      style={{ background: `hsl(${hue}, 90%, 56%)` }}
+                    >
+                      {isSelected && <Check className="w-5 h-5 text-white" />}
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">{label}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="mt-6 flex justify-end">
-              <Button variant="gradient" onClick={handleSaveShow} disabled={savingShow}>
-                {savingShow ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                Salvar Regras de Show
-              </Button>
+            {/* Preview */}
+            <div className="mt-6 p-4 rounded-xl bg-secondary space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pré-visualização</p>
+              <div className="flex flex-wrap gap-3">
+                <Button variant="gradient" size="sm">Botão Primário</Button>
+                <Button variant="outline" size="sm">Botão Secundário</Button>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-primary" />
+                  <span className="text-sm text-primary font-semibold">Texto destaque</span>
+                </div>
+              </div>
             </div>
           </ChartCard>
-        </TabsContent>
 
-        {/* Regras Financeiras */}
-        <TabsContent value="financial" className="space-y-6">
+          {/* Estilo de Ícones */}
           <ChartCard 
-            title="Regras Financeiras" 
-            subtitle="Defina suas políticas de pagamento — evite conversas desconfortáveis"
+            title="Estilo dos Ícones" 
+            subtitle="Escolha como os ícones aparecem no seu app"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label>Cachê Mínimo Aceitável (R$)</Label>
-                <Input 
-                  className="mt-1 bg-secondary" 
-                  type="number"
-                  value={minFee} 
-                  onChange={(e) => setMinFee(e.target.value)}
-                  placeholder="0"
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                onClick={() => updateSettings({ iconStyle: "outline" })}
+                className={`flex items-center gap-4 p-5 rounded-xl border-2 transition-all ${
+                  customization.iconStyle === "outline" 
+                    ? "border-primary bg-primary/5 shadow-glow" 
+                    : "border-border hover:border-muted-foreground"
+                }`}
+              >
+                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center">
+                  <Circle className="w-7 h-7 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-foreground">Vazado (Outline)</p>
+                  <p className="text-sm text-muted-foreground">Ícones com contorno, leve e moderno</p>
+                </div>
+                {customization.iconStyle === "outline" && <Check className="w-5 h-5 text-primary ml-auto" />}
+              </button>
 
-              <div>
-                <Label>Percentual de Sinal (%)</Label>
-                <Select value={depositPercentage} onValueChange={setDepositPercentage}>
-                  <SelectTrigger className="mt-1 bg-secondary">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">Sem sinal</SelectItem>
-                    <SelectItem value="30">30%</SelectItem>
-                    <SelectItem value="50">50%</SelectItem>
-                    <SelectItem value="70">70%</SelectItem>
-                    <SelectItem value="100">100% antecipado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Formas de Pagamento Aceitas</Label>
-                <Input 
-                  className="mt-1 bg-secondary" 
-                  value={acceptedPayment} 
-                  onChange={(e) => setAcceptedPayment(e.target.value)}
-                  placeholder="Pix, Transferência, Dinheiro"
-                />
-              </div>
-
-              <div>
-                <Label>Prazo para Pagamento</Label>
-                <Select value={paymentDeadline} onValueChange={setPaymentDeadline}>
-                  <SelectTrigger className="mt-1 bg-secondary">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Antecipado">100% Antecipado</SelectItem>
-                    <SelectItem value="Até o dia anterior">Até o dia anterior</SelectItem>
-                    <SelectItem value="No dia do show">No dia do show</SelectItem>
-                    <SelectItem value="Até 7 dias após">Até 7 dias após</SelectItem>
-                    <SelectItem value="Até 15 dias após">Até 15 dias após</SelectItem>
-                    <SelectItem value="Até 30 dias após">Até 30 dias após</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="md:col-span-2">
-                <Label>Multa por Atraso (%)</Label>
-                <Input 
-                  className="mt-1 bg-secondary" 
-                  type="number"
-                  value={lateFeePercentage} 
-                  onChange={(e) => setLateFeePercentage(e.target.value)}
-                  placeholder="2"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Percentual cobrado sobre o valor total em caso de atraso no pagamento
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <Button variant="gradient" onClick={handleSaveFinancial} disabled={savingFinancial}>
-                {savingFinancial ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                Salvar Regras Financeiras
-              </Button>
+              <button
+                onClick={() => updateSettings({ iconStyle: "filled" })}
+                className={`flex items-center gap-4 p-5 rounded-xl border-2 transition-all ${
+                  customization.iconStyle === "filled" 
+                    ? "border-primary bg-primary/5 shadow-glow" 
+                    : "border-border hover:border-muted-foreground"
+                }`}
+              >
+                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center">
+                  <Square className="w-7 h-7 text-primary fill-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-foreground">Preenchido (Filled)</p>
+                  <p className="text-sm text-muted-foreground">Ícones sólidos, forte e impactante</p>
+                </div>
+                {customization.iconStyle === "filled" && <Check className="w-5 h-5 text-primary ml-auto" />}
+              </button>
             </div>
           </ChartCard>
+
+          {/* Tamanho da Fonte */}
+          <ChartCard 
+            title="Tamanho do Texto" 
+            subtitle="Ajuste o tamanho da fonte para o seu conforto"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {([
+                { value: "small" as const, label: "Pequeno", desc: "Compacto, mais informação visível", icon: Smartphone },
+                { value: "medium" as const, label: "Médio", desc: "Equilíbrio entre conforto e espaço", icon: Monitor },
+                { value: "large" as const, label: "Grande", desc: "Maior legibilidade e conforto", icon: Type },
+              ]).map(({ value, label, desc, icon: Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => updateSettings({ fontSize: value })}
+                  className={`flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all ${
+                    customization.fontSize === value 
+                      ? "border-primary bg-primary/5 shadow-glow" 
+                      : "border-border hover:border-muted-foreground"
+                  }`}
+                >
+                  <Icon className={`text-primary ${value === "small" ? "w-5 h-5" : value === "medium" ? "w-7 h-7" : "w-9 h-9"}`} />
+                  <div className="text-center">
+                    <p className="font-semibold text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground">{desc}</p>
+                  </div>
+                  {customization.fontSize === value && <Check className="w-4 h-4 text-primary" />}
+                </button>
+              ))}
+            </div>
+          </ChartCard>
+
+          {/* Modo Compacto */}
+          <ChartCard 
+            title="Preferências de Layout" 
+            subtitle="Ajuste como o conteúdo é exibido"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-secondary rounded-xl">
+                <div>
+                  <Label className="text-base font-semibold">Modo Compacto</Label>
+                  <p className="text-sm text-muted-foreground">Reduz espaçamento para ver mais conteúdo na tela</p>
+                </div>
+                <Switch 
+                  checked={customization.compactMode} 
+                  onCheckedChange={(checked) => updateSettings({ compactMode: checked })} 
+                />
+              </div>
+            </div>
+          </ChartCard>
+
+          {/* Reset */}
+          <div className="flex justify-center">
+            <Button variant="outline" onClick={handleResetCustomization} className="gap-2">
+              <RotateCcw className="w-4 h-4" />
+              Restaurar Padrão
+            </Button>
+          </div>
         </TabsContent>
 
         {/* Security */}

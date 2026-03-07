@@ -8,6 +8,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ShowsProvider } from "@/contexts/shows/ShowsProvider";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
+import { CustomizationProvider } from "@/hooks/useCustomization";
 
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
