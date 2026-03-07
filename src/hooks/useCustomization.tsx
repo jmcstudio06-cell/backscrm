@@ -1,11 +1,14 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from "react";
 
+export type BudgetTemplate = "classico" | "minimalista" | "elegante";
+
 export interface CustomizationSettings {
   primaryColor: string; // HSL hue value
   iconStyle: "outline" | "filled";
   fontSize: "small" | "medium" | "large";
   sidebarPosition: "left" | "right";
   compactMode: boolean;
+  budgetTemplate: BudgetTemplate;
 }
 
 const DEFAULT_SETTINGS: CustomizationSettings = {
@@ -14,6 +17,7 @@ const DEFAULT_SETTINGS: CustomizationSettings = {
   fontSize: "medium",
   sidebarPosition: "left",
   compactMode: false,
+  budgetTemplate: "classico",
 };
 
 const STORAGE_KEY = "user_customization";
