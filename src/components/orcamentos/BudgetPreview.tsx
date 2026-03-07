@@ -5,6 +5,7 @@ import { Download, MessageCircle, X } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
+import { useCustomization, type BudgetTemplate } from "@/hooks/useCustomization";
 import { toast } from "sonner";
 
 interface BudgetPreviewProps {
