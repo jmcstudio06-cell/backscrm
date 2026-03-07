@@ -20,6 +20,7 @@ type ExportPreset = "print" | "phone";
 export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
   const { profile } = useProfile();
+  const { settings } = useCustomization();
 
   if (!budget) return null;
 
