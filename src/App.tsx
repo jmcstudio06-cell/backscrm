@@ -57,6 +57,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <AppSettingsProvider>
+            <CustomizationProvider>
             <ShowsProvider>
               <NotificationPrompt />
               <PushSubscriptionRefresher />
