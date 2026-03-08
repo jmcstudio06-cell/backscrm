@@ -40,6 +40,7 @@ import ResetPassword from "./pages/ResetPassword";
 import GuiaAtendimento from "./pages/GuiaAtendimento";
 import Booking from "./pages/Booking";
 import Solicitacoes from "./pages/Solicitacoes";
+import ServicosProdutos from "./pages/ServicosProdutos";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
@@ -84,6 +85,7 @@ const App = () => (
                 <Route path="/planos" element={<ErrorBoundary><Planos /></ErrorBoundary>} />
                 <Route path="/configuracoes" element={<ErrorBoundary><Configuracoes /></ErrorBoundary>} />
                 <Route path="/orcamentos" element={<ErrorBoundary><Orcamentos /></ErrorBoundary>} />
+                <Route path="/servicos" element={<ErrorBoundary><ServicosProdutos /></ErrorBoundary>} />
                 <Route path="/contratos" element={<ErrorBoundary><Contratos /></ErrorBoundary>} />
                 <Route path="/repertorio" element={<ErrorBoundary><Repertorio /></ErrorBoundary>} />
                 <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />

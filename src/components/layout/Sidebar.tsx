@@ -33,6 +33,7 @@ import {
   Music,
   Gift,
   Inbox,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -65,6 +66,7 @@ const menuItems: MenuItem[] = [
     children: [
       { icon: TrendingUp, label: "Funil de Vendas", path: "/crm", featureKey: "crm" },
       { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
+      { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
       { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
       { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
     ],
