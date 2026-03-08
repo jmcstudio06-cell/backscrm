@@ -463,46 +463,47 @@ export default function Admin() {
             <div className="space-y-3">
               {users.map(userProfile => (
                 <Card key={userProfile.id} className={`overflow-hidden transition-all duration-200 ${expandedUser === userProfile.user_id ? "ring-2 ring-primary/30 shadow-lg" : "hover:shadow-md"}`}>
-                <div
-                    className="p-4 cursor-pointer"
+                  <div
+                    className="flex items-center gap-3 p-3 cursor-pointer"
                     onClick={() => setExpandedUser(expandedUser === userProfile.user_id ? null : userProfile.user_id)}
                   >
-                    {/* Top row: avatar + name + badge + expand */}
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <span className="text-sm font-bold text-primary">
-                          {(userProfile.name || "?").charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-sm truncate">{userProfile.name || "Sem nome"}</p>
-                          {getPlanBadge(userProfile.plan)}
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
-                      </div>
-                      <Eye className={`h-4 w-4 shrink-0 transition-transform ${expandedUser === userProfile.user_id ? "text-primary rotate-180" : "text-muted-foreground"}`} />
+                    {/* Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="text-xs font-bold text-primary">{(userProfile.name || "?").charAt(0).toUpperCase()}</span>
                     </div>
 
-                    {/* Quick info row - always visible */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 ml-12">
-                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
-                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Telefone</p>
-                        <p className="text-xs font-semibold truncate">{userProfile.phone || "—"}</p>
+                    {/* Name + email */}
+                    <div className="min-w-0 w-36 shrink-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-semibold text-sm truncate">{userProfile.name || "Sem nome"}</p>
                       </div>
-                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
-                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Último acesso</p>
-                        <p className="text-xs font-semibold">{getRelativeTime(userProfile.last_seen)}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{userProfile.email}</p>
+                    </div>
+
+                    {/* Plan badge */}
+                    <div className="shrink-0">{getPlanBadge(userProfile.plan)}</div>
+
+                    {/* Inline info - visible on sm+ */}
+                    <div className="hidden sm:flex items-center gap-4 flex-1 min-w-0 text-[11px]">
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground">📱 </span>
+                        <span className="font-medium">{userProfile.phone || "—"}</span>
                       </div>
-                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
-                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Criado em</p>
-                        <p className="text-xs font-semibold">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</p>
+                      <div>
+                        <span className="text-muted-foreground">Visto: </span>
+                        <span className="font-medium">{getRelativeTime(userProfile.last_seen)}</span>
                       </div>
-                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
-                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Início do plano</p>
-                        <p className="text-xs font-semibold">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</p>
+                      <div>
+                        <span className="text-muted-foreground">Desde: </span>
+                        <span className="font-medium">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Plano: </span>
+                        <span className="font-medium">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</span>
                       </div>
                     </div>
+
+                    <Eye className={`h-4 w-4 shrink-0 ml-auto transition-transform ${expandedUser === userProfile.user_id ? "text-primary rotate-180" : "text-muted-foreground"}`} />
                   </div>
 
                   {expandedUser === userProfile.user_id && (
