@@ -88,7 +88,7 @@ const plans = [
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
-    features: ["Tudo do Starter +", "Clientes", "Repertório", "Funil de Vendas", "Orçamentos Automáticos", "Checklist de Show", "Equipe & Freelancers"],
+    features: ["Tudo do Starter +", "Clientes", "Repertório", "Radar de Shows", "Orçamentos Automáticos", "Checklist de Show", "Equipe & Freelancers"],
   },
   {
     id: "full",
@@ -151,7 +151,7 @@ const Landing = () => {
     {
       icon: Target,
       title: "Auxílio de Vendas",
-      description: "Funil de vendas, gestão de clientes e dicas exclusivas para você vender mais shows.",
+      description: "Radar de shows, gestão de clientes e dicas exclusivas para você vender mais shows.",
       color: "bg-cyan-500"
     },
     {

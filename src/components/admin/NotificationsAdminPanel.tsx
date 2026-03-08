@@ -126,7 +126,7 @@ const AUTOMATION_CONFIG = [
    { value: "/agenda", label: "Agenda de Shows" },
    { value: "/financeiro", label: "Financeiro" },
    { value: "/metas", label: "Metas" },
-   { value: "/crm", label: "Funil de Vendas" },
+   { value: "/crm", label: "Radar de Shows" },
    { value: "/checklist", label: "Checklist" },
  ];
  

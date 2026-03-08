@@ -98,7 +98,7 @@ const plans: PlanDef[] = [
       "Tudo do Starter +",
       "Clientes",
       "Repertório",
-      "Funil de Vendas",
+      "Radar de Shows",
       "Orçamentos Automáticos",
       "Checklist de Show",
       "Equipe & Freelancers",
