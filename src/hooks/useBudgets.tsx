@@ -111,6 +111,8 @@ export function useBudgets() {
           name: typeData.name || "",
           description: typeData.description,
           price: typeData.price || 0,
+          icon: (typeData as any).icon || "music",
+          musician_ids: (typeData as any).musician_ids || [],
           user_id: user.id,
         }])
         .select()
@@ -128,9 +130,10 @@ export function useBudgets() {
 
   const updatePerformanceType = async (id: string, updates: Partial<PerformanceType>) => {
     try {
+      const updatePayload: any = { ...updates };
       const { data, error } = await supabase
         .from("performance_types")
-        .update(updates)
+        .update(updatePayload)
         .eq("id", id)
         .select()
         .single();
