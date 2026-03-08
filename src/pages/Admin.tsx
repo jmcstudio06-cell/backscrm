@@ -78,7 +78,7 @@ const FEATURES: { key: string; label: string }[] = [
   { key: "checklist", label: "Avanços" },
   { key: "precificacao", label: "Precificação" },
   { key: "crm", label: "Radar de Shows" },
-  { key: "orcamentos", label: "Serviços e Produtos" },
+  { key: "servicos", label: "Serviços e Produtos" },
   { key: "orcamentos", label: "Orçamento Automático" },
   { key: "contratos", label: "Contrato Automático" },
   { key: "clientes", label: "Clientes" },
