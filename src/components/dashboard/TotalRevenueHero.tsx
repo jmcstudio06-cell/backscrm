@@ -109,7 +109,7 @@ export function TotalRevenueHero({
             />
             <MiniStat
               icon={<BarChart3 className="w-3.5 h-3.5" />}
-              value={`R$ ${fmt(averageFee)}`}
+              value={showValues ? `R$ ${fmt(averageFee)}` : `R$ ${hidden}`}
               label="Cachê médio"
               gradient="from-primary to-accent"
             />
