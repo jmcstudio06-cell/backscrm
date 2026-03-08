@@ -9,12 +9,10 @@ import {
   Clock, 
   CheckCircle2,
   AlertCircle,
-  ClipboardList,
-  FolderOpen
+  ClipboardList
 } from "lucide-react";
 import { cn, formatDateBR } from "@/lib/utils";
 import { useShows } from "@/contexts/shows/ShowsContext";
-import { ChecklistTemplatesModal } from "@/components/checklist/ChecklistTemplatesModal";
 import { ChecklistWizard } from "@/components/checklist/ChecklistWizard";
 
 interface ChecklistItem {
@@ -38,7 +36,7 @@ export default function Checklist() {
   const { getConfirmedShows } = useShows();
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [checklistItems, setChecklistItems] = useState<Record<string, ChecklistItem[]>>({});
-  const [templatesModalOpen, setTemplatesModalOpen] = useState(false);
+  
 
   const confirmedShows = getConfirmedShows();
   const selectedShow = confirmedShows.find(s => s.id === selectedShowId);
@@ -147,14 +145,10 @@ export default function Checklist() {
   // Shows list
   return (
     <Layout title="Checklist de Show" subtitle="Organize tudo antes do evento">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+      <div className="mb-6">
         <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
           Apenas shows confirmados
         </Badge>
-        <Button onClick={() => setTemplatesModalOpen(true)}>
-          <FolderOpen className="w-4 h-4 mr-2" />
-          Modelos de Checklist
-        </Button>
       </div>
 
       {confirmedShows.length === 0 ? (
@@ -248,11 +242,6 @@ export default function Checklist() {
         </div>
       )}
 
-      <ChecklistTemplatesModal
-        open={templatesModalOpen}
-        onOpenChange={setTemplatesModalOpen}
-        showApplyButton={false}
-      />
     </Layout>
   );
 }
