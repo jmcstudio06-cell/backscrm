@@ -179,7 +179,7 @@ function MiniStat({
       )}>
         {value}
       </p>
-      <p className="text-[10px] text-muted-foreground leading-tight">{label}</p>
+      <p className="text-[10px] text-muted-foreground leading-tight font-semibold">{label}</p>
     </div>
   );
 }
