@@ -47,15 +47,15 @@ export function TotalRevenueHero({
 
             {/* Annual projection inline */}
             {annualProjection > 0 && (
-              <div className="hidden sm:flex items-center gap-2.5 bg-primary/10 border border-primary/20 rounded-xl px-3.5 py-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-accent shrink-0">
-                  <Target className="w-3.5 h-3.5 text-white" />
+              <div className="hidden sm:flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-xl px-4 py-3">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-accent shrink-0">
+                  <Target className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-primary/80 font-bold leading-none mb-0.5">
+                  <p className="text-xs uppercase tracking-wider text-primary/80 font-bold leading-none mb-1">
                     Previsão {new Date().getFullYear()}
                   </p>
-                  <p className="text-sm font-extrabold text-primary tracking-tight leading-none">
+                  <p className="text-lg font-extrabold text-primary tracking-tight leading-none">
                     R$ {fmt(annualProjection)}
                   </p>
                 </div>
