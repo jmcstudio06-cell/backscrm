@@ -213,61 +213,57 @@ export default function Metas() {
       <div className="space-y-6">
         {/* Header with stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                  <Users className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-bold text-foreground">{totals.leadsActual}/{totals.leadsTarget}</p>
-                  <p className="text-xs text-muted-foreground">Leads no Ano</p>
-                </div>
+          <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
+            <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
+            <div className="relative flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-primary/10">
+                <Users className="w-5 h-5 text-primary" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{totals.leadsActual}/{totals.leadsTarget}</p>
+                <p className="text-xs text-muted-foreground">Leads no Ano</p>
+              </div>
+            </div>
+          </div>
 
-          <Card className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 border-violet-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-lg">
-                  <Mic2 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-bold text-foreground">{totals.showsActual}/{totals.showsTarget}</p>
-                  <p className="text-xs text-muted-foreground">Shows no Ano</p>
-                </div>
+          <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
+            <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
+            <div className="relative flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-primary/10">
+                <Mic2 className="w-5 h-5 text-primary" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{totals.showsActual}/{totals.showsTarget}</p>
+                <p className="text-xs text-muted-foreground">Shows no Ano</p>
+              </div>
+            </div>
+          </div>
 
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
-                  <DollarSign className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm sm:text-lg font-bold text-foreground">{formatCurrency(totals.revenueActual)}</p>
-                  <p className="text-xs text-muted-foreground">Faturado no Ano</p>
-                </div>
+          <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
+            <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
+            <div className="relative flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-primary/10">
+                <DollarSign className="w-5 h-5 text-primary" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-sm sm:text-lg font-bold text-foreground">{formatCurrency(totals.revenueActual)}</p>
+                <p className="text-xs text-muted-foreground">Faturado no Ano</p>
+              </div>
+            </div>
+          </div>
 
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
-                  <Target className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm sm:text-lg font-bold text-foreground">{formatCurrency(totals.revenueTarget)}</p>
-                  <p className="text-xs text-muted-foreground">Meta Anual</p>
-                </div>
+          <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
+            <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
+            <div className="relative flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-primary/10">
+                <Target className="w-5 h-5 text-primary" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-sm sm:text-lg font-bold text-foreground">{formatCurrency(totals.revenueTarget)}</p>
+                <p className="text-xs text-muted-foreground">Meta Anual</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Action buttons */}
@@ -291,25 +287,25 @@ export default function Metas() {
         </div>
 
         {/* Main table */}
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-zinc-800 to-zinc-700 text-white py-3">
+        <Card className="overflow-hidden border-border/50">
+          <CardHeader className="bg-gradient-to-r from-foreground/90 to-foreground/80 text-background py-3">
             <CardTitle className="text-center text-sm sm:text-base">Controle de Metas Comerciais 2026</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gradient-to-r from-emerald-700 to-emerald-600">
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">MÊS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META LEADS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">LEADS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META SHOWS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">REALIZADOS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META FATURAMENTO</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
-                    <TableHead className="text-white font-bold text-center text-xs sm:text-sm whitespace-nowrap">FATURADO</TableHead>
+                  <TableRow className="bg-primary">
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">MÊS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">META LEADS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">LEADS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">META SHOWS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">REALIZADOS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">META FATURAMENTO</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center text-xs sm:text-sm whitespace-nowrap">FATURADO</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -323,8 +319,8 @@ export default function Metas() {
                     const revenuePercent = calculatePercentage(actuals.revenue, monthTargets.revenue);
 
                     return (
-                      <TableRow key={month} className={index % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}>
-                        <TableCell className="font-bold text-center border-r bg-zinc-100 text-xs sm:text-sm whitespace-nowrap">{monthName.toUpperCase()}</TableCell>
+                      <TableRow key={month} className={index % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
+                        <TableCell className="font-bold text-center border-r bg-muted/50 text-xs sm:text-sm whitespace-nowrap">{monthName.toUpperCase()}</TableCell>
                         
                         {/* Leads */}
                         <TableCell className="text-center border-r p-1 sm:p-2">
@@ -388,7 +384,7 @@ export default function Metas() {
                             {monthTargets.revenue > 0 ? `${revenuePercent}%` : '-'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-center font-semibold text-emerald-700 text-xs sm:text-sm whitespace-nowrap">
+                        <TableCell className="text-center font-semibold text-primary text-xs sm:text-sm whitespace-nowrap">
                           {formatCurrency(actuals.revenue)}
                         </TableCell>
                       </TableRow>
@@ -396,17 +392,17 @@ export default function Metas() {
                   })}
 
                   {/* Totals row */}
-                  <TableRow className="bg-gradient-to-r from-zinc-800 to-zinc-700 text-white font-bold">
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">TOTAL</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.leadsTarget}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.leadsActual}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.showsTarget}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.showsActual}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueTarget)}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
-                    <TableCell className="text-center text-emerald-400 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueActual)}</TableCell>
+                  <TableRow className="bg-gradient-to-r from-foreground/90 to-foreground/80 font-bold">
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">TOTAL</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.leadsTarget}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.leadsActual}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.showsTarget}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.showsActual}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueTarget)}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center text-primary-foreground text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueActual)}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
