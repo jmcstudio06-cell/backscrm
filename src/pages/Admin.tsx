@@ -297,7 +297,6 @@ export default function Admin() {
     
     ALL_FEATURE_KEYS.forEach(key => {
       if (plan === "expirado") newFeatureBlocks[key] = true;
-      else if (plan === "free") newFeatureBlocks[key] = false;
       else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
       else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
       else newFeatureBlocks[key] = false;
