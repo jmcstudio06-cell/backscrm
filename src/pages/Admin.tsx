@@ -575,7 +575,7 @@ export default function Admin() {
                           }}
                           className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
                         >
-                          <option value="free">Free (Gratuito)</option>
+                          <option value="trial">Trial (3 dias)</option>
                           <option value="trial">Trial (3 dias)</option>
                           <option value="base">Mensal (30 dias)</option>
                           <option value="essencial">Profissional (90 dias)</option>
