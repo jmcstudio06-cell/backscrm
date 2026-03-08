@@ -484,22 +484,22 @@ export default function Admin() {
                     <div className="shrink-0">{getPlanBadge(userProfile.plan)}</div>
 
                     {/* Inline info - visible on sm+ */}
-                    <div className="hidden sm:flex items-center gap-4 flex-1 min-w-0 text-[11px]">
+                    <div className="hidden sm:flex items-center gap-5 flex-1 min-w-0 text-sm">
                       <div className="min-w-0">
                         <span className="text-muted-foreground">📱 </span>
-                        <span className="font-medium">{userProfile.phone || "—"}</span>
+                        <span className="font-bold">{userProfile.phone || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Visto: </span>
-                        <span className="font-medium">{getRelativeTime(userProfile.last_seen)}</span>
+                        <span className="text-muted-foreground font-medium">Visto: </span>
+                        <span className="font-bold">{getRelativeTime(userProfile.last_seen)}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Desde: </span>
-                        <span className="font-medium">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</span>
+                        <span className="text-muted-foreground font-medium">Desde: </span>
+                        <span className="font-bold">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Plano: </span>
-                        <span className="font-medium">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</span>
+                        <span className="text-muted-foreground font-medium">Plano: </span>
+                        <span className="font-bold">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</span>
                       </div>
                     </div>
 
