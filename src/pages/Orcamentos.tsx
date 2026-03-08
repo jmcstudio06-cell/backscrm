@@ -122,12 +122,6 @@ export default function Orcamentos() {
         </div>
       </div>
 
-      <Alert variant="destructive" className="border-warning/50 bg-warning/10 text-warning">
-        <AlertTriangle className="h-4 w-4 !text-warning" />
-        <AlertDescription className="text-sm text-foreground">
-          Apenas os <strong>5 orçamentos mais recentes</strong> são armazenados. Orçamentos mais antigos são excluídos automaticamente. Salve seus orçamentos finalizados em PDF!
-        </AlertDescription>
-      </Alert>
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
@@ -202,6 +196,11 @@ export default function Orcamentos() {
           </Table>
         )}
       </ChartCard>
+
+      <p className="text-xs text-muted-foreground flex items-center gap-1.5 px-1 mt-2">
+        <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+        Apenas os 5 orçamentos mais recentes são armazenados. Os mais antigos são excluídos automaticamente. Salve em PDF!
+      </p>
 
       <BudgetModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedBudget(null); }} onSave={handleSave} clients={clients} performanceTypes={performanceTypes} budget={selectedBudget} />
       <BudgetPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} budget={selectedBudget} items={previewItems} />
