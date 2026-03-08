@@ -135,12 +135,23 @@ export async function processImage(file: File): Promise<ImageValidationResult> {
   
   try {
     // Sempre comprimir para garantir tamanho otimizado
-    const compressedFile = await compressImage(file);
+    // Tentar comprimir progressivamente se ainda grande
+    let compressedFile = await compressImage(file);
     
-    if (compressedFile.size > MAX_FILE_SIZE) {
+    if (compressedFile.size > MAX_COMPRESSED_SIZE) {
+      // Segunda tentativa com qualidade menor
+      compressedFile = await compressImage(file, 400);
+    }
+    
+    if (compressedFile.size > MAX_COMPRESSED_SIZE) {
+      // Terceira tentativa mais agressiva
+      compressedFile = await compressImage(file, 300);
+    }
+    
+    if (compressedFile.size > MAX_COMPRESSED_SIZE) {
       return {
         valid: false,
-        error: `Imagem ainda muito grande após compressão (${Math.round(compressedFile.size / 1024)}KB). Tente uma imagem menor.`
+        error: `Imagem ainda muito grande após compressão (${formatFileSize(compressedFile.size)}). Tente uma imagem menor.`
       };
     }
     
