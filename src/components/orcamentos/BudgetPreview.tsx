@@ -552,16 +552,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 )}
                 <div style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
-                  backgroundColor: template === "minimalista" ? "transparent" : c.primary,
-                  color: template === "minimalista" ? c.heading : template === "elegante" ? "#1a1a2e" : "#fff",
+                  backgroundColor: template === "minimalista" ? "transparent" : template === "elegante" ? "#1a1a2e" : c.primary,
+                  color: template === "minimalista" ? c.heading : "#fff",
                   padding: template === "minimalista" ? "12px 0" : "12px 16px",
                   borderRadius: template === "minimalista" ? 0 : 6,
                   borderTop: template === "minimalista" ? "2px solid #333" : "none",
                   fontSize: 15, fontWeight: 700, marginTop: 8, minHeight: 46, lineHeight: 1,
-                  ...(template === "elegante" ? { background: `linear-gradient(135deg, #c9a84c, #daa520)` } : {}),
                 }}>
                   <span style={{ display: "flex", alignItems: "center" }}>TOTAL</span>
-                  <span style={{ display: "flex", alignItems: "center" }}>{formatCurrency(budget!.total)}</span>
+                  <span style={{ display: "flex", alignItems: "center", ...(template === "elegante" ? { color: "#c9a84c" } : {}) }}>{formatCurrency(budget!.total)}</span>
                 </div>
               </div>
             </div>
