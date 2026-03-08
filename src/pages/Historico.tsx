@@ -51,6 +51,7 @@ export default function Historico() {
     return format(d, "yyyy-MM-dd");
   });
   const [endDate, setEndDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
+  const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
 
   const fromDate = parseLocalDate(startDate);
   const toDate = parseLocalDate(endDate);
