@@ -77,17 +77,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
     /**
      * ✅ PRINT (A4 RETRATO):
-     * - largura menor (cabendo em A4)
-     * - padding menor
-     * - stage branco sem sombra
+     * Renderiza em 900px (proporcional a A4) com padding generoso
      */
-    stage.style.width = "760px";
+    stage.style.width = "900px";
     stage.style.display = "block";
 
-    clone.style.width = "760px";
-    clone.style.minWidth = "760px";
-    clone.style.maxWidth = "760px";
-    clone.style.padding = "22px";
+    clone.style.width = "900px";
+    clone.style.minWidth = "900px";
+    clone.style.maxWidth = "900px";
+    clone.style.padding = "48px 56px";
 
     stage.appendChild(clone);
     document.body.appendChild(stage);
