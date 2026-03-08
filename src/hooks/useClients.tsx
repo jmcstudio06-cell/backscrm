@@ -32,21 +32,31 @@ export function useClients() {
 
       if (error) throw error;
 
-      const clientsWithTotals = await Promise.all(
-        (data || []).map(async (client) => {
-          const { data: showsData, error: showsError } = await supabase
-            .from("shows")
-            .select("cachet")
-            .eq("client_id", client.id);
+      // Single query to get all shows with client_id (instead of N queries)
+      const clientIds = (data || []).map(c => c.id);
+      let showsMap: Record<string, { count: number; total: number }> = {};
 
-          if (showsError) return client;
+      if (clientIds.length > 0) {
+        const { data: allShows } = await supabase
+          .from("shows")
+          .select("client_id, cachet")
+          .in("client_id", clientIds);
 
-          const totalSpent = showsData.reduce((sum, s) => sum + (s.cachet || 0), 0);
-          const showsCount = showsData.length;
+        if (allShows) {
+          for (const show of allShows) {
+            if (!show.client_id) continue;
+            if (!showsMap[show.client_id]) showsMap[show.client_id] = { count: 0, total: 0 };
+            showsMap[show.client_id].count++;
+            showsMap[show.client_id].total += show.cachet || 0;
+          }
+        }
+      }
 
-          return { ...client, total_spent: totalSpent, shows_count: showsCount };
-        }),
-      );
+      const clientsWithTotals = (data || []).map(client => ({
+        ...client,
+        total_spent: showsMap[client.id]?.total || 0,
+        shows_count: showsMap[client.id]?.count || 0,
+      }));
 
       // Sort alphabetically by name
       clientsWithTotals.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
