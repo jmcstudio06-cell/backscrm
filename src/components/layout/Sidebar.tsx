@@ -65,8 +65,6 @@ const menuItems: MenuItem[] = [
     label: "Área Comercial",
     children: [
       { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
-      { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
-      { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
       { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
       { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
     ],
@@ -77,6 +75,7 @@ const menuItems: MenuItem[] = [
     children: [
       { icon: DollarSign, label: "Resumo Geral", path: "/financeiro", featureKey: "financeiro" },
       { icon: History, label: "Histórico Mensal", path: "/historico", featureKey: "historico" },
+      { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
     ],
   },
   {
@@ -89,6 +88,7 @@ const menuItems: MenuItem[] = [
       { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "mapeamento-palco" },
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
       { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
+      { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
     ],
   },
   {
