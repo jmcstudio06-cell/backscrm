@@ -524,16 +524,6 @@ export default function Configuracoes() {
             </div>
           </ChartCard>
 
-          {/* Layout do Orçamento */}
-          <ChartCard 
-            title="Layout do Orçamento" 
-            subtitle="Escolha o modelo visual usado para gerar e exportar seus orçamentos"
-          >
-            <BudgetTemplatePreview 
-              selected={customization.budgetTemplate} 
-              onSelect={(t) => updateSettings({ budgetTemplate: t })} 
-            />
-          </ChartCard>
 
           {/* Modo Compacto */}
           <ChartCard 
