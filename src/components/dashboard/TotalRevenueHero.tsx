@@ -34,7 +34,7 @@ export function TotalRevenueHero({
         <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full blur-3xl opacity-20 bg-gradient-to-br from-primary to-accent group-hover:opacity-40 transition-opacity duration-500" />
 
         <div className="relative">
-          {/* Header */}
+          {/* Header row with projection on the right */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-primary to-accent">
@@ -44,12 +44,46 @@ export function TotalRevenueHero({
                 Total gerado pela sua música
               </span>
             </div>
+
+            {/* Annual projection inline */}
+            {annualProjection > 0 && (
+              <div className="hidden sm:flex items-center gap-2.5 bg-primary/10 border border-primary/20 rounded-xl px-3.5 py-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-accent shrink-0">
+                  <Target className="w-3.5 h-3.5 text-white" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-primary/80 font-bold leading-none mb-0.5">
+                    Previsão {new Date().getFullYear()}
+                  </p>
+                  <p className="text-sm font-extrabold text-primary tracking-tight leading-none">
+                    R$ {fmt(annualProjection)}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Main value */}
           <p className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none mb-5">
             R$ {fmt(totalRevenue)}
           </p>
+
+          {/* Mobile-only projection */}
+          {annualProjection > 0 && (
+            <div className="flex sm:hidden items-center gap-2.5 bg-primary/10 border border-primary/20 rounded-xl px-3.5 py-2.5 mb-5">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-accent shrink-0">
+                <Target className="w-3.5 h-3.5 text-white" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wider text-primary/80 font-bold leading-none mb-0.5">
+                  Previsão até o final de {new Date().getFullYear()}
+                </p>
+                <p className="text-base font-extrabold text-primary tracking-tight leading-none">
+                  R$ {fmt(annualProjection)}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3 sm:gap-5">
@@ -79,26 +113,6 @@ export function TotalRevenueHero({
           </div>
         </div>
       </div>
-
-      {/* Annual projection card */}
-      {annualProjection > 0 && (
-        <div className="relative overflow-hidden rounded-2xl border border-primary/20 p-4 sm:p-5 shadow-card hover:shadow-elevated transition-all duration-500 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/5">
-          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-30 bg-gradient-to-br from-primary to-accent" />
-          <div className="relative flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-primary to-accent shrink-0">
-              <Target className="w-4.5 h-4.5 text-white" />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-primary/80 font-bold">
-                Previsão até o final de {new Date().getFullYear()} no ritmo atual
-              </p>
-              <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
-                R$ {fmt(annualProjection)}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Best fee & Best month cards row */}
       {(bestFee || bestMonth) && (
