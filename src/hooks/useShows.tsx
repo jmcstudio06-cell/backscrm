@@ -99,36 +99,51 @@ export function useShowsData() {
           .lt("date", today)
           .eq("status", "confirmed");
 
-        // Create financial transactions for each auto-completed show
-        for (const show of showsToComplete) {
-          const completedShow = { ...show, status: "completed" } as Show;
-          
-          // Fetch musicians
-          const { data: savedMusicians } = await supabase
-            .from("show_musicians")
-            .select("musician_id, fee, musicians(name)")
-            .eq("show_id", show.id);
+        // Batch fetch all musicians and expenses for all shows at once (instead of N+1)
+        const showIds = showsToComplete.map(s => s.id);
 
-          const musicians: ShowMusician[] = (savedMusicians || []).map((m: any) => ({
+        const [musiciansResult, expensesResult] = await Promise.all([
+          supabase
+            .from("show_musicians")
+            .select("show_id, musician_id, fee, musicians(name)")
+            .in("show_id", showIds),
+          supabase
+            .from("show_expenses")
+            .select("*")
+            .in("show_id", showIds),
+        ]);
+
+        // Group by show_id
+        const musiciansByShow: Record<string, ShowMusician[]> = {};
+        const expensesByShow: Record<string, ShowExpense[]> = {};
+
+        (musiciansResult.data || []).forEach((m: any) => {
+          if (!musiciansByShow[m.show_id]) musiciansByShow[m.show_id] = [];
+          musiciansByShow[m.show_id].push({
             musicianId: m.musician_id,
             name: m.musicians?.name || "Músico",
             fee: m.fee,
-          }));
+          });
+        });
 
-          // Fetch expenses
-          const { data: savedExpenses } = await supabase
-            .from("show_expenses")
-            .select("*")
-            .eq("show_id", show.id);
-
-          const expenses: ShowExpense[] = (savedExpenses || []).map((e: any) => ({
+        (expensesResult.data || []).forEach((e: any) => {
+          if (!expensesByShow[e.show_id]) expensesByShow[e.show_id] = [];
+          expensesByShow[e.show_id].push({
             id: e.id,
             description: e.description || "",
             category: e.category,
             value: e.amount,
-          }));
+          });
+        });
 
-          await createShowTransactions(completedShow, musicians, expenses);
+        // Create transactions for each show using pre-fetched data
+        for (const show of showsToComplete) {
+          const completedShow = { ...show, status: "completed" } as Show;
+          await createShowTransactions(
+            completedShow,
+            musiciansByShow[show.id] || [],
+            expensesByShow[show.id] || []
+          );
         }
       }
       

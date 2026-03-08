@@ -264,22 +264,26 @@ export default function Admin() {
           .from("shows")
           .select("user_id, created_at")
           .in("user_id", userIds)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(100),
         supabase
           .from("transactions")
           .select("user_id, created_at")
           .in("user_id", userIds)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(100),
         supabase
           .from("leads")
           .select("user_id, created_at")
           .in("user_id", userIds)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(100),
         supabase
           .from("clients")
           .select("user_id, created_at")
           .in("user_id", userIds)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(100),
       ]);
 
       const activityMap: Record<string, { date: Date | null; type: string | null }> = {};
