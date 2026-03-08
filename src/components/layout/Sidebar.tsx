@@ -274,12 +274,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
           {/* Tutoriais */}
           <RouterNavLink
             to="/tutoriais"
-            className={({ isActive }) => cn(
-              "flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200",
-              isActive
-                ? "bg-gradient-to-r from-purple-500 to-violet-500 text-white"
-                : "bg-gradient-to-r from-purple-500 to-violet-500 text-white"
-            )}
+            className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-primary-foreground"
+            style={{ background: "var(--gradient-primary)" }}
           >
             <BookOpen className="w-5 h-5" />
             <span>Tutoriais</span>
@@ -288,12 +284,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
           {/* Indique e Ganhe */}
           <RouterNavLink
             to="/indicacoes"
-            className={({ isActive }) => cn(
-              "flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200",
-              isActive
-                ? "bg-gradient-to-r from-purple-500 to-violet-500 text-white"
-                : "bg-gradient-to-r from-purple-500 to-violet-500 text-white"
-            )}
+            className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-primary-foreground"
+            style={{ background: "var(--gradient-primary)" }}
           >
             <Gift className="w-5 h-5" />
             <span>Indique e Ganhe</span>
@@ -301,7 +293,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
           <Button
             onClick={() => navigate("/planos")}
-            className="w-full justify-start bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0"
+            className="w-full justify-start text-primary-foreground border-0"
+            style={{ background: "var(--gradient-blue)" }}
           >
             <Crown className="w-5 h-5 mr-2" />
             Garantir acesso
