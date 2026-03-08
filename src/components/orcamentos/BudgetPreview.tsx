@@ -491,31 +491,33 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
           <div style={{ maxWidth: 800, margin: "0 auto", fontFamily: "'Segoe UI', Arial, sans-serif", color: c.text, lineHeight: 1.5 }}>
             {renderHeader()}
 
-            {/* Client & Budget Info */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32, ...(template === "elegante" ? { borderLeft: `3px solid ${c.primary}`, paddingLeft: 16 } : {}) }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: c.primary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Para:</div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: c.heading }}>{budget!.client_name}</div>
-                <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.5, marginTop: 2 }}>
-                  {budget!.client_address && <span>{budget!.client_address}<br /></span>}
-                  {budget!.client_company && <span>{budget!.client_company}</span>}
+            {/* Client & Budget Info — skip for minimalista (already in header) */}
+            {template !== "minimalista" && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32, ...(template === "elegante" ? { borderLeft: `3px solid ${c.primary}`, paddingLeft: 16 } : {}) }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: c.primary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Para:</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: c.heading }}>{budget!.client_name}</div>
+                  <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.5, marginTop: 2 }}>
+                    {budget!.client_address && <span>{budget!.client_address}<br /></span>}
+                    {budget!.client_company && <span>{budget!.client_company}</span>}
+                  </div>
                 </div>
+                {template === "classico" && (
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: c.primary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Nº do Orçamento</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: c.heading }}>{budget!.budget_number}</div>
+                    {budget!.valid_until && (
+                      <div style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
+                    )}
+                  </div>
+                )}
+                {template === "elegante" && budget!.valid_until && (
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 12, color: c.muted }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
+                  </div>
+                )}
               </div>
-              {template !== "elegante" && (
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: c.primary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Nº do Orçamento</div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: c.heading }}>{budget!.budget_number}</div>
-                  {budget!.valid_until && (
-                    <div style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
-                  )}
-                </div>
-              )}
-              {template === "elegante" && budget!.valid_until && (
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 12, color: c.muted }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Items Table */}
             <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24 }}>
