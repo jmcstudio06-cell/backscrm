@@ -108,6 +108,7 @@ const menuItems: MenuItem[] = [
 
 export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [manualClosed, setManualClosed] = useState<Set<string>>(new Set());
   const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
   const [blockedFeatureName, setBlockedFeatureName] = useState("");
   const location = useLocation();
