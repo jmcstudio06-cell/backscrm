@@ -3,9 +3,10 @@
  * Inclui validação de tamanho e compressão otimizada
  */
 
-const MAX_FILE_SIZE = 300 * 1024; // 300 KB (reduzido para economizar storage)
-const AVATAR_MAX_DIMENSION = 300; // pixels (otimizado para avatares)
-const COMPRESSION_QUALITY = 0.7; // 70% qualidade (boa relação tamanho/qualidade)
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5 MB — limite de upload
+const MAX_COMPRESSED_SIZE = 1 * 1024 * 1024; // 1 MB — tamanho final após compressão
+const AVATAR_MAX_DIMENSION = 600; // pixels (boa qualidade para perfil)
+const COMPRESSION_QUALITY = 0.8; // 80% qualidade inicial
 
 export interface ImageValidationResult {
   valid: boolean;
@@ -26,10 +27,10 @@ export function validateImageSize(file: File): ImageValidationResult {
     };
   }
 
-  if (file.size > MAX_FILE_SIZE * 4) {
+  if (file.size > MAX_UPLOAD_SIZE) {
     return {
       valid: false,
-      error: 'Imagem muito grande. Máximo permitido: 1.2MB antes da compressão.'
+      error: `Imagem muito grande (${formatFileSize(file.size)}). Máximo permitido: 5 MB.`
     };
   }
 
@@ -50,7 +51,7 @@ function supportsWebP(): boolean {
  * Comprime uma imagem para o tamanho máximo permitido
  * Otimizado para avatares: 300x300 max, WebP quando suportado, 70% qualidade
  */
-export async function compressImage(file: File, maxDimension: number = AVATAR_MAX_DIMENSION): Promise<File> {
+export async function compressImage(file: File, maxDimension: number = AVATAR_MAX_DIMENSION, quality: number = COMPRESSION_QUALITY): Promise<File> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
@@ -109,7 +110,7 @@ export async function compressImage(file: File, maxDimension: number = AVATAR_MA
             resolve(compressedFile);
           },
           mimeType,
-          COMPRESSION_QUALITY
+          quality
         );
       };
       
@@ -134,12 +135,21 @@ export async function processImage(file: File): Promise<ImageValidationResult> {
   
   try {
     // Sempre comprimir para garantir tamanho otimizado
-    const compressedFile = await compressImage(file);
+    // Tentar comprimir progressivamente se ainda grande
+    let compressedFile = await compressImage(file, AVATAR_MAX_DIMENSION, 0.8);
     
-    if (compressedFile.size > MAX_FILE_SIZE) {
+    if (compressedFile.size > MAX_COMPRESSED_SIZE) {
+      compressedFile = await compressImage(file, 400, 0.6);
+    }
+    
+    if (compressedFile.size > MAX_COMPRESSED_SIZE) {
+      compressedFile = await compressImage(file, 300, 0.5);
+    }
+    
+    if (compressedFile.size > MAX_COMPRESSED_SIZE) {
       return {
         valid: false,
-        error: `Imagem ainda muito grande após compressão (${Math.round(compressedFile.size / 1024)}KB). Tente uma imagem menor.`
+        error: `Imagem ainda muito grande após compressão (${formatFileSize(compressedFile.size)}). Tente uma imagem menor.`
       };
     }
     
