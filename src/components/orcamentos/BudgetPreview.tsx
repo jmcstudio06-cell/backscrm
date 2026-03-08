@@ -217,14 +217,16 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               align-items: flex-start;
               justify-content: center;
               box-sizing: border-box;
+              padding: 0;
             }
 
             img {
               display: block;
-              width: 100% !important;
-              height: auto !important;
+              max-width: 100%;
+              height: auto;
               max-height: calc(297mm - 20mm);
               object-fit: contain;
+              margin: 0 auto;
             }
 
             * {
