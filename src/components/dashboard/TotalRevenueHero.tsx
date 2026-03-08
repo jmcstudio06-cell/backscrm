@@ -35,7 +35,7 @@ export function TotalRevenueHero({
 
         <div className="relative">
           {/* Header row with projection on the right */}
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-primary to-accent">
                 <Music className="w-4.5 h-4.5 text-white" />
