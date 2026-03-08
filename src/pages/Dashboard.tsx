@@ -70,22 +70,15 @@ const Dashboard = () => {
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
-  // Check if user should see onboarding and if user has used checklists
+  // Check if user should see onboarding, checklists, and fetch lightweight counts
   useEffect(() => {
     const checkData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Check onboarding (first-time welcome)
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("user_id", user.id)
-          .single();
-
-        if (profileData && !profileData.onboarding_completed) {
+        // Check onboarding using already-loaded profile (no extra query)
+        if (profile && !profile.onboarding_completed) {
           setShowWelcome(true);
-        } else {
-          // For returning users: show install prompt if app is NOT installed as PWA
+        } else if (profile) {
           const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
             (window.navigator as any).standalone === true;
           
@@ -97,16 +90,31 @@ const Dashboard = () => {
           }
         }
 
-        // Check if user has used checklists
-        const { count } = await supabase
-          .from("show_checklist")
-          .select("*", { count: "exact", head: true });
+        // Batch lightweight count queries (instead of loading full useContracts + useStageMappings hooks)
+        const [checklistResult, contractsResult, mappingsResult] = await Promise.all([
+          supabase
+            .from("show_checklist")
+            .select("*", { count: "exact", head: true }),
+          supabase
+            .from("contracts")
+            .select("id, show_id")
+            .order("created_at", { ascending: false })
+            .limit(5),
+          supabase
+            .from("stage_mappings")
+            .select("*", { count: "exact", head: true }),
+        ]);
         
-        setChecklistsUsed((count || 0) > 0);
+        setChecklistsUsed((checklistResult.count || 0) > 0);
+        setContractsCount(contractsResult.data?.length || 0);
+        setContractShowIds((contractsResult.data || []).map(c => c.show_id).filter(Boolean) as string[]);
+        setStageMappingsCount(mappingsResult.count || 0);
       }
     };
-    checkData();
-  }, []);
+    if (!profileLoading) {
+      checkData();
+    }
+  }, [profile, profileLoading]);
 
   // Show monthly goal modal if no goal set for this month (after loading)
   useEffect(() => {
