@@ -30,7 +30,6 @@ export function TotalRevenueHero({
     <div className="space-y-4 animate-fade-in">
       {/* Main revenue card */}
       <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 sm:p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
-        {/* Background glow */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 opacity-50" />
         <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full blur-3xl opacity-20 bg-gradient-to-br from-primary to-accent group-hover:opacity-40 transition-opacity duration-500" />
 
@@ -41,7 +40,7 @@ export function TotalRevenueHero({
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-primary to-accent">
                 <Music className="w-4.5 h-4.5 text-white" />
               </div>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Total gerado pela sua música
               </span>
             </div>
@@ -90,7 +89,7 @@ export function TotalRevenueHero({
               <Target className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-primary/70 font-bold">
+              <p className="text-xs uppercase tracking-wider text-primary/80 font-bold">
                 Previsão até o final de {new Date().getFullYear()} no ritmo atual
               </p>
               <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
@@ -112,13 +111,13 @@ export function TotalRevenueHero({
                   <Diamond className="w-4 h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
                     Seu maior cachê até hoje
                   </p>
                   <p className="text-base font-bold text-foreground leading-snug">
                     R$ {fmt(bestFee.value)}
                   </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
+                  <p className="text-xs text-muted-foreground truncate">
                     {bestFee.showTitle}
                   </p>
                 </div>
@@ -133,13 +132,13 @@ export function TotalRevenueHero({
                   <Trophy className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
                     Melhor mês da carreira
                   </p>
                   <p className="text-base font-bold text-foreground leading-snug capitalize">
                     {bestMonth.month}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     R$ {fmt(bestMonth.value)}
                   </p>
                 </div>
@@ -179,7 +178,7 @@ function MiniStat({
       )}>
         {value}
       </p>
-      <p className="text-[10px] text-muted-foreground leading-tight font-semibold">{label}</p>
+      <p className="text-xs text-muted-foreground leading-tight font-semibold">{label}</p>
     </div>
   );
 }
