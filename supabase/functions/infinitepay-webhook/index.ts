@@ -76,8 +76,10 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    // Find the oldest pending payment matching this amount
-    const { data: pendingPayment, error: pendingError } = await supabase
+    // Find a pending payment matching this amount; fallback to plan key when using test checkout values
+    let pendingPayment: Record<string, any> | null = null;
+
+    const { data: paymentByAmount, error: pendingByAmountError } = await supabase
       .from("pending_payments")
       .select("*")
       .eq("amount_cents", amountCents)
@@ -86,8 +88,32 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    if (pendingError) {
-      console.error("❌ Error querying pending_payments:", pendingError);
+    if (pendingByAmountError) {
+      console.error("❌ Error querying pending_payments by amount:", pendingByAmountError);
+    }
+
+    pendingPayment = paymentByAmount as Record<string, any> | null;
+
+    const resolved = resolvePlan(amountCents);
+
+    if (!pendingPayment && resolved?.plan) {
+      const { data: paymentByPlan, error: pendingByPlanError } = await supabase
+        .from("pending_payments")
+        .select("*")
+        .eq("plan_key", resolved.plan)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (pendingByPlanError) {
+        console.error("❌ Error querying pending_payments by plan:", pendingByPlanError);
+      }
+
+      if (paymentByPlan) {
+        pendingPayment = paymentByPlan as Record<string, any>;
+        console.log(`ℹ️ Fallback match by plan_key=${resolved.plan} for test/alternate checkout amount`);
+      }
     }
 
     if (!pendingPayment) {
@@ -98,7 +124,6 @@ serve(async (req) => {
       });
     }
 
-    const resolved = resolvePlan(amountCents);
     // Use the plan from PLAN_MAP or fallback to the pending payment's plan_key
     const planName = resolved?.plan || pendingPayment.plan_key;
     const planDays = resolved?.days || 30;
