@@ -64,6 +64,8 @@ const App = () => (
           <AppSettingsProvider>
             <CustomizationProvider>
             <ShowsProvider>
+              <NotificationPrompt />
+              <PushSubscriptionRefresher />
               <PlanActivatedCelebration />
               <Routes>
                 <Route path="/" element={<Auth />} />
