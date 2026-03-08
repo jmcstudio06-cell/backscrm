@@ -242,7 +242,7 @@ export default function Checklist() {
                     Fazer Checklist
                   </Button>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
