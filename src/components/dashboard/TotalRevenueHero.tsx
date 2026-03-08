@@ -1,4 +1,4 @@
-import { Music, TrendingUp, Award, BarChart3, Diamond, Trophy } from "lucide-react";
+import { Music, TrendingUp, Award, BarChart3, Diamond, Trophy, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TotalRevenueHeroProps {
@@ -7,6 +7,7 @@ interface TotalRevenueHeroProps {
   growthPercentage: number;
   bestFee: { value: number; showTitle: string } | null;
   bestMonth: { month: string; value: number } | null;
+  annualProjection: number;
 }
 
 export function TotalRevenueHero({
@@ -15,6 +16,7 @@ export function TotalRevenueHero({
   growthPercentage,
   bestFee,
   bestMonth,
+  annualProjection,
 }: TotalRevenueHeroProps) {
   const averageFee = completedShowsCount > 0 ? totalRevenue / completedShowsCount : 0;
 
@@ -77,6 +79,29 @@ export function TotalRevenueHero({
             truncateLabel
           />
         </div>
+
+        {/* Annual projection highlight */}
+        {annualProjection > 0 && (
+          <>
+            <div className="h-px bg-border my-5" />
+            <div className="relative overflow-hidden rounded-xl bg-primary/10 border border-primary/20 p-4">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="relative flex items-center gap-3">
+                <div className="p-2.5 bg-primary/15 rounded-xl">
+                  <Target className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-primary/70 font-medium">
+                    Projeção anual no ritmo atual
+                  </p>
+                  <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
+                    R$ {fmt(annualProjection)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Best month highlight */}
         {bestMonth && (

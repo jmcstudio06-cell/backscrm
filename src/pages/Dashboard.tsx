@@ -400,6 +400,7 @@ const Dashboard = () => {
           growthPercentage={revenueGrowth}
           bestFee={bestFeeShow}
           bestMonth={bestMonth}
+          annualProjection={annualProjection}
         />
 
         {/* Main Status Cards Row */}
