@@ -90,7 +90,7 @@ export function TotalRevenueHero({
               <Target className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-primary/70 font-medium">
+              <p className="text-[10px] uppercase tracking-wider text-primary/70 font-bold">
                 Projeção anual no ritmo atual
               </p>
               <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
