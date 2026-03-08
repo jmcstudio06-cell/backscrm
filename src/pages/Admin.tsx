@@ -73,7 +73,9 @@ interface UserGoal {
 const FEATURES = [
   { key: "dashboard", label: "Dashboard" },
   { key: "agenda", label: "Agenda de Shows" },
-  { key: "checklist", label: "Ideias de Post / Checklist / Avanços" },
+  { key: "checklist", label: "Ideias de Post" },
+  { key: "checklist", label: "Checklist de Show", duplicateOf: "checklist" },
+  { key: "checklist", label: "Avanços", duplicateOf: "checklist" },
   { key: "precificacao", label: "Precificação" },
   { key: "crm", label: "Radar de Shows" },
   { key: "orcamentos", label: "Orçamentos" },
