@@ -254,12 +254,13 @@ export default function Admin() {
     toast.success(newBlocks[featureKey] ? "Bloqueado" : "Desbloqueado");
   };
 
-  const updateUserPlan = async (userId: string, plan: string) => {
+  const updateUserPlan = async (userId: string, plan: string, customStartDate?: string) => {
     const normalizedPlan = plan === "inicial" ? "mensal" : plan;
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan: normalizedPlan };
     
     if (normalizedPlan !== "expirado") {
-      updates.trial_start = new Date().toISOString();
+      const startDate = customStartDate || new Date().toISOString().split("T")[0];
+      updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
       updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
     }
 
@@ -280,6 +281,37 @@ export default function Admin() {
         : u
     ));
     toast.success(`Plano atualizado para ${plan.toUpperCase()}`);
+  };
+
+  const updatePlanStartDate = async (userId: string, dateStr: string) => {
+    setUserPlanDates(prev => ({ ...prev, [userId]: dateStr }));
+    const userProfile = users.find(u => u.user_id === userId);
+    if (!userProfile || !userProfile.plan || userProfile.plan === "expirado") return;
+    
+    const startDate = new Date(dateStr + "T00:00:00").toISOString();
+    const { error } = await supabase.from("profiles").update({ trial_start: startDate }).eq("user_id", userId);
+    if (error) { toast.error("Erro ao atualizar data"); return; }
+    setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, trial_start: startDate } : u));
+    toast.success("Data de início atualizada!");
+  };
+
+  const getRemainingDays = (userProfile: UserProfile): number => {
+    const plan = userProfile.plan || "trial";
+    const duration = PLAN_DURATIONS[plan];
+    if (!duration || !userProfile.trial_start) return 0;
+    const start = new Date(userProfile.trial_start);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, duration - diffDays);
+  };
+
+  const getPlanEndDate = (userProfile: UserProfile): string => {
+    const plan = userProfile.plan || "trial";
+    const duration = PLAN_DURATIONS[plan];
+    if (!duration || !userProfile.trial_start) return "—";
+    const start = new Date(userProfile.trial_start);
+    const end = new Date(start.getTime() + duration * 24 * 60 * 60 * 1000);
+    return end.toLocaleDateString("pt-BR");
   };
 
   const updateUserGoal = async (userId: string, goalType: string, targetValue: number) => {
