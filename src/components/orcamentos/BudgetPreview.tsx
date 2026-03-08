@@ -167,15 +167,10 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
    * ✅ PDF A4 real (sem depender do print do navegador)
    */
   const handlePrintPDF = async () => {
+    const source = printRef.current;
+    if (!source) return;
+
     toast.loading("Preparando impressão...", { id: "pdf" });
-
-    const canvas = await renderToCanvas("print");
-    if (!canvas) {
-      toast.error("Erro ao preparar. Tente novamente.", { id: "pdf" });
-      return;
-    }
-
-    const dataUrl = canvas.toDataURL("image/png", 1.0);
 
     const win = window.open("", "_blank");
     if (!win) {
@@ -183,8 +178,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       return;
     }
 
+    // Clone the actual HTML instead of using html2canvas (preserves flexbox alignment perfectly)
+    const clonedHtml = source.outerHTML;
+
     win.document.open();
-    win.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Orçamento ${budget.budget_number}</title><style>*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 portrait;margin:0}body{width:210mm;height:297mm;display:flex;justify-content:center;align-items:flex-start;padding:8mm}img{width:100%;height:auto;max-height:281mm;object-fit:contain}</style></head><body><img src="${dataUrl}"/><script>window.onload=()=>setTimeout(()=>window.print(),400)<\/script></body></html>`);
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Orçamento ${budget.budget_number}</title><style>*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 portrait;margin:8mm}html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:#fff}#root{max-width:800px;margin:0 auto;padding:20px 0}table{border-collapse:collapse;width:100%}img{max-width:100%}</style></head><body><div id="root">${clonedHtml}</div><script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script></body></html>`);
     win.document.close();
 
     toast.success("Abrindo impressão...", { id: "pdf" });
