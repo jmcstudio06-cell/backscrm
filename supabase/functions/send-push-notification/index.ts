@@ -300,8 +300,8 @@ serve(async (req) => {
     const payload = JSON.stringify({
       title,
       body,
-      icon: "/favicon.ico",
-      badge: "/favicon.ico",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/mono-192.png",
       url: url || "/dashboard",
     });
 
