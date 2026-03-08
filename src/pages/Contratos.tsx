@@ -62,33 +62,6 @@ export default function Contratos() {
 
   return (
     <Layout title="Contratos" subtitle="Gerencie seus contratos e documentos">
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileText className="w-5 h-5 text-primary" /></div>
-            <div><p className="text-2xl font-bold text-foreground">{contracts.length}</p><p className="text-xs text-muted-foreground">Total de Contratos</p></div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center"><CheckCircle2 className="w-5 h-5 text-success" /></div>
-            <div><p className="text-2xl font-bold text-foreground">{contracts.filter(c => c.status === "signed").length}</p><p className="text-xs text-muted-foreground">Assinados</p></div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center"><Send className="w-5 h-5 text-accent" /></div>
-            <div><p className="text-2xl font-bold text-foreground">{contracts.filter(c => c.status === "sent").length}</p><p className="text-xs text-muted-foreground">Enviados</p></div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center"><Clock className="w-5 h-5 text-warning" /></div>
-            <div><p className="text-2xl font-bold text-foreground">{contracts.filter(c => c.status === "pending" || c.status === "draft").length}</p><p className="text-xs text-muted-foreground">Aguardando</p></div>
-          </div>
-        </div>
-      </div>
 
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
