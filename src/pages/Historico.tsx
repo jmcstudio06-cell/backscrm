@@ -115,37 +115,31 @@ export default function Historico() {
   return (
     <Layout title="Histórico Mensal" subtitle="Acompanhe sua evolução ao longo do ano">
       {/* Date Range Filter */}
-      <div className="flex justify-end mb-6">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Filter className="w-4 h-4" />
-              <CalendarIcon className="w-4 h-4" />
-              {dateRange?.from ? (
-                dateRange.to ? (
-                  <>
-                    {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
-                  </>
-                ) : (
-                  format(dateRange.from, "dd/MM/yyyy")
-                )
-              ) : (
-                "Selecionar período"
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <Calendar
-              initialFocus
-              mode="range"
-              defaultMonth={dateRange?.from}
-              selected={dateRange}
-              onSelect={setDateRange}
-              numberOfMonths={2}
-              className={cn("p-3 pointer-events-auto")}
+      <div className="flex flex-wrap items-end gap-4 mb-6">
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-muted-foreground">Início</Label>
+          <div className="relative">
+            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="date"
+              value={startDate}
+              onChange={e => setStartDate(e.target.value)}
+              className="pl-9 w-44 bg-secondary"
             />
-          </PopoverContent>
-        </Popover>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-muted-foreground">Fim</Label>
+          <div className="relative">
+            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="date"
+              value={endDate}
+              onChange={e => setEndDate(e.target.value)}
+              className="pl-9 w-44 bg-secondary"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Year Stats */}
