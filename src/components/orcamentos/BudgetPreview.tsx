@@ -167,90 +167,63 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   };
 
   /**
-   * ✅ PDF (Imprimir) A4 em pé e 1 página
-   * - força @page A4 portrait
-   * - coloca a imagem pra caber na altura da folha (max-height)
+   * ✅ PDF A4 real (sem depender do print do navegador)
    */
   const handlePrintPDF = async () => {
-    toast.loading("Preparando para imprimir...", { id: "pdf" });
+    toast.loading("Gerando PDF...", { id: "pdf" });
 
     const canvas = await renderToCanvas("print");
     if (!canvas) {
-      toast.error("Erro ao preparar impressão. Tente novamente.", { id: "pdf" });
+      toast.error("Erro ao gerar PDF. Tente novamente.", { id: "pdf" });
       return;
     }
 
-    const dataUrl = canvas.toDataURL("image/png", 1.0);
+    try {
+      const { jsPDF } = await import("jspdf");
 
-    const win = window.open("", "_blank");
-    if (!win) {
-      toast.error("Seu navegador bloqueou o pop-up. Permita pop-ups e tente novamente.", { id: "pdf" });
-      return;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 10;
+      const printableWidth = pageWidth - margin * 2;
+      const printableHeight = pageHeight - margin * 2;
+
+      const imgData = canvas.toDataURL("image/png", 1.0);
+
+      const imgWidth = printableWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Centraliza horizontalmente e começa no topo da área útil
+      const x = (pageWidth - imgWidth) / 2;
+      let y = margin;
+
+      if (imgHeight <= printableHeight) {
+        // Centralização vertical quando couber em 1 página
+        y = margin + (printableHeight - imgHeight) / 2;
+        pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight, undefined, "FAST");
+      } else {
+        // Múltiplas páginas com recorte consistente
+        let heightLeft = imgHeight;
+        let position = margin;
+
+        pdf.addImage(imgData, "PNG", x, position, imgWidth, imgHeight, undefined, "FAST");
+        heightLeft -= printableHeight;
+
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight + margin;
+          pdf.addPage();
+          pdf.addImage(imgData, "PNG", x, position, imgWidth, imgHeight, undefined, "FAST");
+          heightLeft -= printableHeight;
+        }
+      }
+
+      pdf.save(`orcamento-${budget.budget_number}.pdf`);
+      toast.success("PDF gerado com sucesso!", { id: "pdf" });
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar PDF. Tente novamente.", { id: "pdf" });
     }
-
-    win.document.open();
-    win.document.write(`
-      <!doctype html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>Orçamento ${budget.budget_number}</title>
-          <style>
-            html, body {
-              margin: 0 !important;
-              padding: 0 !important;
-              background: #fff !important;
-            }
-
-            @page {
-              size: A4 portrait;
-              margin: 10mm;
-            }
-
-            body {
-              display: flex;
-              justify-content: center;
-              align-items: flex-start;
-            }
-
-            .page {
-              width: 100%;
-              display: flex;
-              justify-content: center;
-            }
-
-            img {
-              display: block;
-              width: 190mm;
-              max-width: 100%;
-              height: auto;
-              object-fit: contain;
-              margin: 0 auto;
-            }
-
-            * {
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="page">
-            <img src="${dataUrl}" alt="Orçamento" />
-          </div>
-
-          <script>
-            window.onload = () => {
-              setTimeout(() => window.print(), 300);
-            };
-          </script>
-        </body>
-      </html>
-    `);
-    win.document.close();
-
-    toast.success("Abrindo impressão (A4 em pé)...", { id: "pdf" });
   };
 
   /**
