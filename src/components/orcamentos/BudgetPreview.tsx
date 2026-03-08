@@ -403,9 +403,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   };
 
   const theadBg = template === "minimalista" ? c.accent : template === "elegante" ? "#1a1a2e" : c.primary;
-  const theadStyle: React.CSSProperties = template === "minimalista" 
-    ? { backgroundColor: theadBg, borderBottom: `1px solid ${c.accentBorder}` } 
-    : { backgroundColor: theadBg };
+  const theadStyle: React.CSSProperties = template === "minimalista"
+    ? { backgroundColor: theadBg, borderBottom: `1px solid ${c.accentBorder}` }
+    : template === "elegante"
+      ? { backgroundColor: theadBg, borderBottom: "1px solid rgba(255,255,255,0.22)" }
+      : { backgroundColor: theadBg };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -466,13 +468,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   <th style={{ ...thBase, borderRadius: template === "classico" ? "6px 0 0 6px" : template === "elegante" ? "6px 0 0 6px" : 0, width: "50%", textAlign: "left" }}>
                     <div style={thInner("left")}>Descrição</div>
                   </th>
-                  <th style={{ ...thBase, width: "20%", textAlign: "right" }}>
+                  <th style={{ ...thBase, width: "20%", textAlign: "right", ...(template === "elegante" ? { borderLeft: "1px solid rgba(255,255,255,0.22)" } : {}) }}>
                     <div style={thInner("right")}>Preço Unit.</div>
                   </th>
-                  <th style={{ ...thBase, width: "10%", textAlign: "center" }}>
+                  <th style={{ ...thBase, width: "10%", textAlign: "center", ...(template === "elegante" ? { borderLeft: "1px solid rgba(255,255,255,0.22)" } : {}) }}>
                     <div style={thInner("center")}>Qtd</div>
                   </th>
-                  <th style={{ ...thBase, borderRadius: template === "classico" ? "0 6px 6px 0" : template === "elegante" ? "0 6px 6px 0" : 0, width: "20%", textAlign: "right" }}>
+                  <th style={{ ...thBase, borderRadius: template === "classico" ? "0 6px 6px 0" : template === "elegante" ? "0 6px 6px 0" : 0, width: "20%", textAlign: "right", ...(template === "elegante" ? { borderLeft: "1px solid rgba(255,255,255,0.22)" } : {}) }}>
                     <div style={thInner("right")}>Total</div>
                   </th>
                 </tr>
@@ -480,18 +482,18 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               <tbody>
                 {items.map((item, index) => (
                   <tr key={item.id} style={{ borderBottom: template === "minimalista" ? "1px solid #eee" : `1px solid ${template === "elegante" ? "#e5e5e5" : "#eee"}`, backgroundColor: index % 2 === 0 ? c.row : "#fff" }}>
-                    <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "top" }}>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        {template === "elegante" && <span style={{ color: c.primary, fontWeight: 700, fontSize: 12, minWidth: 20 }}>{String(index + 1).padStart(2, "0")}</span>}
-                        <div>
-                          <div style={{ fontWeight: 500, color: c.text }}>{item.description}</div>
-                          {item.details && <div style={{ fontSize: 11, color: c.muted, marginTop: 2 }}>{item.details}</div>}
+                    <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "middle" }}>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", minHeight: 36 }}>
+                        {template === "elegante" && <span style={{ color: c.primary, fontWeight: 700, fontSize: 12, minWidth: 20, display: "inline-flex", alignItems: "center", lineHeight: 1 }}>{String(index + 1).padStart(2, "0")}</span>}
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                          <div style={{ fontWeight: 500, color: c.text, lineHeight: 1.25 }}>{item.description}</div>
+                          {item.details && <div style={{ fontSize: 11, color: c.muted, marginTop: 2, lineHeight: 1.25 }}>{item.details}</div>}
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", color: c.muted, whiteSpace: "nowrap" }}>{formatCurrency(item.unit_price)}</td>
-                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: c.muted }}>{item.quantity}</td>
-                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", fontWeight: 600, color: c.text, whiteSpace: "nowrap" }}>{formatCurrency(item.total)}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", color: c.muted, whiteSpace: "nowrap", verticalAlign: "middle", lineHeight: 1.25 }}>{formatCurrency(item.unit_price)}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: c.muted, verticalAlign: "middle", lineHeight: 1.25 }}>{item.quantity}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", fontWeight: 600, color: c.text, whiteSpace: "nowrap", verticalAlign: "middle", lineHeight: 1.25 }}>{formatCurrency(item.total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -527,8 +529,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   }),
                   fontSize: 15, fontWeight: 700, marginTop: 8, minHeight: 46, lineHeight: 1,
                 }}>
-                  <span style={{ display: "flex", alignItems: "center" }}>TOTAL</span>
-                  <span style={{ display: "flex", alignItems: "center", ...(template === "elegante" ? { color: "#c9a84c" } : {}) }}>{formatCurrency(budget!.total)}</span>
+                  <span style={{ display: "flex", alignItems: "center", lineHeight: 1 }}>TOTAL</span>
+                  <span style={{ display: "flex", alignItems: "center", lineHeight: 1, ...(template === "elegante" ? { color: "#c9a84c" } : {}) }}>{formatCurrency(budget!.total)}</span>
                 </div>
               </div>
             </div>
@@ -566,9 +568,9 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: 24, padding: "14px 20px", backgroundColor: "#1a1a2e", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: c.primary }}>Obrigado pela preferência!</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{artistPhone || artistEmail}</div>
+                <div style={{ marginTop: 24, padding: "14px 20px", backgroundColor: "#1a1a2e", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: 48 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: c.primary, display: "flex", alignItems: "center", lineHeight: 1 }}>Obrigado pela preferência!</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", lineHeight: 1 }}>{artistPhone || artistEmail}</div>
                 </div>
               </>
             ) : (
