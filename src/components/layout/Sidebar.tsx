@@ -65,11 +65,11 @@ const menuItems: MenuItem[] = [
     icon: Briefcase,
     label: "Área Comercial",
     children: [
-      { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
+      { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
       { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
-      { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
       { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
+      { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
     ],
   },
   {
