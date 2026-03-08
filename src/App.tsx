@@ -46,6 +46,7 @@ import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
+import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 
 const queryClient = new QueryClient();
 
