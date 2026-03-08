@@ -112,7 +112,7 @@ export function TotalRevenueHero({
                   <Diamond className="w-4 h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                     Seu maior cachê até hoje
                   </p>
                   <p className="text-base font-bold text-foreground leading-snug">
