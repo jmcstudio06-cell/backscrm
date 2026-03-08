@@ -40,7 +40,7 @@ export const PLAN_MODULES = {
     price: "R$ 24,90/mês",
   },
   completo: {
-    name: "Completo",
+    name: "Empresarial",
     features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
   },

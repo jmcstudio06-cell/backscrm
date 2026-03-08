@@ -23,12 +23,12 @@ import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/3i5HbvIdfL";
-const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
-const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB";
-const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
-const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP";
-const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
+const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/7QCYJywp45";
+const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCb9OZCnx";
+const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/7QCXhRFxpN";
+const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3i6HnCnhEF";
+const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/2TOs3baPMb";
+const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCdAuUpaT";
 
 const PLAN_AMOUNTS: Record<string, number> = {
   "mensal_starter": 1990,
@@ -126,11 +126,11 @@ const plans: PlanDef[] = [
   },
   {
     id: "full",
-    name: "Completo",
+    name: "Empresarial",
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
     price: "R$ 39,90",
     period: "/mês",
-    buttonText: "Escolher Completo",
+    buttonText: "Escolher Empresarial",
     highlight: false,
     badgeText: "TUDO LIBERADO",
     icon: Crown,
