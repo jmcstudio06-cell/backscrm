@@ -459,10 +459,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     );
   };
 
-  const theadBg = template === "minimalista" ? "transparent" : template === "elegante" ? "#1a1a2e" : c.primary;
-  const theadStyle: React.CSSProperties = template === "minimalista" 
-    ? { borderBottom: "2px solid #333" } 
-    : { backgroundColor: theadBg };
+  const theadBg = template === "minimalista" ? c.heading : template === "elegante" ? "#1a1a2e" : c.primary;
+  const theadStyle: React.CSSProperties = { backgroundColor: theadBg };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
