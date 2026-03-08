@@ -180,7 +180,33 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       return;
     }
 
-    const dataUrl = canvas.toDataURL("image/png", 1.0);
+    // Normaliza em A4 e centraliza antes da impressão
+    const targetW = 1240;
+    const targetH = Math.round(targetW * 1.41421356237);
+    const out = document.createElement("canvas");
+    out.width = targetW;
+    out.height = targetH;
+
+    const ctx = out.getContext("2d");
+    if (!ctx) {
+      toast.error("Erro ao preparar impressão. Tente novamente.", { id: "pdf" });
+      return;
+    }
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, targetW, targetH);
+
+    const srcW = canvas.width;
+    const srcH = canvas.height;
+    const fitScale = Math.min(targetW / srcW, targetH / srcH);
+    const drawW = Math.round(srcW * fitScale);
+    const drawH = Math.round(srcH * fitScale);
+    const dx = Math.round((targetW - drawW) / 2);
+    const dy = Math.round((targetH - drawH) / 2);
+
+    ctx.drawImage(canvas, dx, dy, drawW, drawH);
+
+    const dataUrl = out.toDataURL("image/png", 1.0);
 
     const win = window.open("", "_blank");
     if (!win) {
