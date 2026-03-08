@@ -91,8 +91,10 @@ export default function Historico() {
         return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && s.status === "completed";
       });
 
-      const receita = monthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-      const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+      const incomeTransactions = monthTransactions.filter(t => t.type === "income");
+      const expenseTransactions = monthTransactions.filter(t => t.type === "expense");
+      const receita = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const despesa = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
 
       return {
         month: monthName,
@@ -100,6 +102,8 @@ export default function Historico() {
         despesa,
         shows: monthShows.length,
         lucro: receita - despesa,
+        incomeTransactions,
+        expenseTransactions,
       };
     });
   };
