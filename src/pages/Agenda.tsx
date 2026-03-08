@@ -666,18 +666,13 @@ export default function Agenda() {
                       <div className="text-[10px] sm:text-xs text-muted-foreground uppercase">{dayOfWeek}</div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
-                        <h4 className={cn(
-                          "font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none",
-                          show.status === "cancelled" ? "text-destructive line-through" : "text-foreground",
-                        )}>
-                          {show.title}
-                        </h4>
-                        <Badge variant="outline" className={cn("text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 flex-shrink-0", statusBadgeStyles[show.status] || "")}>
-                          {statusLabels[show.status] || show.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
+                      <h4 className={cn(
+                        "font-medium text-xs sm:text-sm truncate",
+                        show.status === "cancelled" ? "text-destructive line-through" : "text-foreground",
+                      )}>
+                        {show.title}
+                      </h4>
+                      <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                         {show.start_time && <span>{show.start_time}</span>}
                         {show.venue && (
                           <span className="flex items-center gap-1 truncate max-w-[80px] sm:max-w-none">
@@ -687,6 +682,9 @@ export default function Agenda() {
                         )}
                       </div>
                     </div>
+                    <Badge variant="outline" className={cn("text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 flex-shrink-0", statusBadgeStyles[show.status] || "")}>
+                      {statusLabels[show.status] || show.status}
+                    </Badge>
                     <div className="flex-shrink-0 w-16 sm:w-20 text-right">
                       {(show.cachet ?? 0) > 0 ? (
                         <div className="text-xs sm:text-sm font-semibold text-primary">R$ {fmt(show.cachet ?? 0)}</div>
