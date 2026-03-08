@@ -353,21 +353,45 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   const renderHeader = () => {
     if (template === "minimalista") {
       return (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32, paddingBottom: 24, borderBottom: "2px solid #e5e5e5" }}>
-          <div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: c.heading, letterSpacing: -0.5 }}>{artistName}</div>
-            <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.5, marginTop: 4 }}>
-              {artistPhone && <span>{artistPhone}<br /></span>}
-              {artistEmail && <span>{artistEmail}</span>}
+        <>
+          {/* Side accent bar via left border on wrapper */}
+          <div style={{ display: "flex", gap: 0, marginBottom: 28 }}>
+            <div style={{ width: 5, background: c.heading, borderRadius: "3px 0 0 3px", flexShrink: 0 }} />
+            <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "16px 0 16px 20px" }}>
+              <div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: c.heading, letterSpacing: -0.5 }}>{artistName}</div>
+                <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.5, marginTop: 4 }}>
+                  {artistPhone && <span>{artistPhone}<br /></span>}
+                  {artistEmail && <span>{artistEmail}</span>}
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 28, fontWeight: 900, color: c.heading, letterSpacing: 2, lineHeight: 1 }}>ORÇAMENTO</div>
+                <div style={{ fontSize: 12, color: c.muted, marginTop: 6 }}>
+                  {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+                </div>
+              </div>
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 24, fontWeight: 300, color: c.heading, letterSpacing: 4, textTransform: "uppercase" }}>Orçamento</div>
-            <div style={{ fontSize: 13, color: c.muted, marginTop: 6 }}>
-              {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+          {/* Centered client block */}
+          <div style={{ textAlign: "center", marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid #e5e5e5" }}>
+            <div style={{ fontSize: 11, color: c.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Para</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: c.heading }}>{budget!.client_name}</div>
+            <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.5, marginTop: 2 }}>
+              {budget!.client_company && <span>{budget!.client_company}<br /></span>}
+              {budget!.client_address && <span>{budget!.client_address}</span>}
             </div>
           </div>
-        </div>
+          {/* Budget number & validity row */}
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
+            <div style={{ fontSize: 12, color: c.muted }}>
+              <span style={{ fontWeight: 700, color: c.heading }}>Nº </span>{budget!.budget_number}
+            </div>
+            {budget!.valid_until && (
+              <div style={{ fontSize: 12, color: c.muted }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
+            )}
+          </div>
+        </>
       );
     }
     if (template === "elegante") {
