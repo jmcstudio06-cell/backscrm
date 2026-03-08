@@ -98,17 +98,21 @@ const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
   { value: "free", label: "Free" },
   { value: "trial", label: "Trial" },
-  { value: "base", label: "Mensal" },
-  { value: "mensal", label: "Mensal (leg.)" },
-  { value: "essencial", label: "Profissional" },
-  { value: "completo", label: "Completo" },
-  { value: "anual", label: "Anual" },
+  { value: "mensal_starter", label: "Mensal Starter" },
+  { value: "mensal_profissional", label: "Mensal Prof." },
+  { value: "mensal_completo", label: "Mensal Completo" },
+  { value: "anual_starter", label: "Anual Starter" },
+  { value: "anual_profissional", label: "Anual Prof." },
+  { value: "anual_completo", label: "Anual Completo" },
   { value: "expirado", label: "Expirados" },
 ];
 
 const PLAN_DURATIONS: Record<string, number> = {
-  free: 99999, trial: 3, base: 30, mensal: 30,
-  essencial: 90, completo: 180, anual: 365,
+  free: 99999, trial: 3,
+  mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30,
+  anual_starter: 365, anual_profissional: 365, anual_completo: 365,
+  // Legacy support
+  base: 30, mensal: 30, essencial: 90, completo: 180, anual: 365,
 };
 
 const ALL_FEATURE_KEYS = [
