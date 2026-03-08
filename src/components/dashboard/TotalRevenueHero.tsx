@@ -52,7 +52,7 @@ export function TotalRevenueHero({
                   <Target className="w-3.5 h-3.5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-primary/80 font-bold leading-none mb-0.5">
+                  <p className="text-xs uppercase tracking-wider text-primary/80 font-bold leading-none mb-1">
                     Previsão {new Date().getFullYear()}
                   </p>
                   <p className="text-sm font-extrabold text-primary tracking-tight leading-none">
