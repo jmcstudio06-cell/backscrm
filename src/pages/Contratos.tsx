@@ -4,7 +4,8 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature } from "lucide-react";
+import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useContracts, Contract } from "@/hooks/useContracts";
@@ -88,6 +89,13 @@ export default function Contratos() {
           </div>
         </div>
       </div>
+
+      <Alert variant="destructive" className="border-warning/50 bg-warning/10 text-warning">
+        <AlertTriangle className="h-4 w-4 !text-warning" />
+        <AlertDescription className="text-sm text-foreground">
+          Apenas os <strong>5 contratos mais recentes</strong> são armazenados. Contratos mais antigos são excluídos automaticamente. Salve seus contratos finalizados em PDF!
+        </AlertDescription>
+      </Alert>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">

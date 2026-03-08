@@ -4,7 +4,8 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, XCircle, Clock, Send, Eye, Download, MoreVertical, Calculator, DollarSign, Settings } from "lucide-react";
+import { Plus, Search, FileText, CheckCircle2, XCircle, Clock, Send, Eye, Download, MoreVertical, Calculator, DollarSign, Settings, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useBudgets } from "@/hooks/useBudgets";
@@ -120,6 +121,13 @@ export default function Orcamentos() {
           </div>
         </div>
       </div>
+
+      <Alert variant="destructive" className="border-warning/50 bg-warning/10 text-warning">
+        <AlertTriangle className="h-4 w-4 !text-warning" />
+        <AlertDescription className="text-sm text-foreground">
+          Apenas os <strong>5 orçamentos mais recentes</strong> são armazenados. Orçamentos mais antigos são excluídos automaticamente. Salve seus orçamentos finalizados em PDF!
+        </AlertDescription>
+      </Alert>
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
