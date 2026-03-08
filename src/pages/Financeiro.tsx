@@ -163,7 +163,7 @@ export default function Financeiro() {
 
   if (loading) {
     return (
-      <Layout title="Financeiro" subtitle="Gerencie suas finanças e relatórios">
+      <Layout title="Resumo Mensal" subtitle="Gerencie suas finanças e relatórios">
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Carregando...</p>
         </div>

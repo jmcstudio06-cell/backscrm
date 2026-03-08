@@ -123,7 +123,7 @@ export default function Historico() {
   }
 
   return (
-    <Layout title="Histórico Mensal" subtitle="Acompanhe sua evolução ao longo do ano">
+    <Layout title="Histórico Completo" subtitle="Acompanhe sua evolução ao longo do ano">
       {/* Date Range Filter */}
       <div className="flex flex-wrap items-end gap-4 mb-6">
         <div className="space-y-1.5">
