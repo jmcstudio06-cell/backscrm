@@ -71,15 +71,22 @@ export function useContracts() {
 
       if (error) throw error;
       
-      // Parse clauses JSON
-      const parsedData = (data || []).map(contract => ({
+      const allContracts = (data || []).map(contract => ({
         ...contract,
         clauses: typeof contract.clauses === 'string' 
           ? JSON.parse(contract.clauses) 
           : contract.clauses || []
       }));
+
+      // Auto-delete contracts beyond the 5 most recent
+      if (allContracts.length > 5) {
+        const toDelete = allContracts.slice(5);
+        for (const c of toDelete) {
+          await supabase.from("contracts").delete().eq("id", c.id);
+        }
+      }
       
-      setContracts(parsedData);
+      setContracts(allContracts.slice(0, 5));
     } catch (error) {
       console.error("Error fetching contracts:", error);
       toast.error("Erro ao carregar contratos");

@@ -64,7 +64,19 @@ export function useBudgets() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setBudgets(data || []);
+      
+      const allBudgets = data || [];
+
+      // Auto-delete budgets beyond the 5 most recent
+      if (allBudgets.length > 5) {
+        const toDelete = allBudgets.slice(5);
+        for (const b of toDelete) {
+          await supabase.from("budget_items").delete().eq("budget_id", b.id);
+          await supabase.from("budgets").delete().eq("id", b.id);
+        }
+      }
+
+      setBudgets(allBudgets.slice(0, 5));
     } catch (error) {
       console.error("Error fetching budgets:", error);
       toast.error("Erro ao carregar orçamentos");
