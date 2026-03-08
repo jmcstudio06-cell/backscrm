@@ -123,59 +123,77 @@ function MiniPreview({ template }: { template: BudgetTemplate }) {
     );
   }
 
-  // Elegante
+  // Elegante — layout diferenciado inspirado em invoice moderna
   return (
-    <div className="w-full aspect-[3/4] bg-[#1a1a2e] rounded-md p-2 flex flex-col gap-1.5 text-[6px] font-sans border border-[#c9a84c]/30 overflow-hidden">
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 rounded-full border border-[#c9a84c] flex items-center justify-center">
-            <div className="w-2 h-0.5 bg-[#c9a84c] rounded" />
-          </div>
-          <div className="space-y-0.5">
-            <div className="w-10 h-1 bg-white/80 rounded" />
-            <div className="w-6 h-0.5 bg-white/30 rounded" />
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="font-bold text-[#c9a84c] text-[7px] tracking-widest">ORÇAMENTO</div>
-          <div className="w-8 h-0.5 bg-white/20 rounded ml-auto mt-0.5" />
-        </div>
-      </div>
-      <div className="h-px bg-gradient-to-r from-transparent via-[#c9a84c]/50 to-transparent" />
-      <div className="flex justify-between">
-        <div className="space-y-0.5">
-          <div className="w-4 h-0.5 bg-[#c9a84c]/60 rounded" />
-          <div className="w-8 h-0.5 bg-white/30 rounded" />
-        </div>
-        <div className="space-y-0.5 text-right">
-          <div className="w-6 h-0.5 bg-[#c9a84c]/60 rounded ml-auto" />
-          <div className="w-8 h-0.5 bg-white/30 rounded" />
-        </div>
-      </div>
-      <div className="flex-1 space-y-0.5">
-        <div className="bg-[#c9a84c]/20 rounded-sm h-2 flex items-center px-1 border border-[#c9a84c]/20">
-          <div className="w-full flex justify-between">
-            <div className="w-6 h-0.5 bg-[#c9a84c]/80 rounded" />
-            <div className="w-3 h-0.5 bg-[#c9a84c]/80 rounded" />
-          </div>
-        </div>
-        {[0, 1, 2].map(i => (
-          <div key={i} className={`h-2 flex items-center px-1 rounded-sm ${i % 2 === 0 ? "bg-white/5" : ""}`}>
-            <div className="w-full flex justify-between">
-              <div className="w-8 h-0.5 bg-white/20 rounded" />
-              <div className="w-3 h-0.5 bg-white/20 rounded" />
+    <div className="w-full aspect-[3/4] bg-white rounded-md flex flex-col text-[6px] font-sans border border-border overflow-hidden">
+      {/* Top accent bar */}
+      <div className="h-1.5 bg-gradient-to-r from-[#1a1a2e] via-[#c9a84c] to-[#1a1a2e]" />
+      <div className="flex-1 flex flex-col gap-1 p-2">
+        {/* Header: logo left, ORÇAMENTO right */}
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded bg-[#1a1a2e] flex items-center justify-center">
+              <div className="w-2 h-0.5 bg-[#c9a84c] rounded" />
+            </div>
+            <div className="space-y-0.5">
+              <div className="w-10 h-1 bg-[#1a1a2e] rounded" />
+              <div className="w-6 h-0.5 bg-muted-foreground/40 rounded" />
             </div>
           </div>
-        ))}
-      </div>
-      <div className="flex justify-end">
-        <div className="bg-gradient-to-r from-[#c9a84c] to-[#daa520] rounded-sm px-1.5 py-0.5 flex justify-between w-12">
-          <span className="text-[#1a1a2e] font-bold text-[5px]">TOTAL</span>
-          <span className="text-[#1a1a2e] font-bold text-[5px]">R$</span>
+          <div className="text-right">
+            <div className="font-black text-[#1a1a2e] text-[8px] tracking-wider">ORÇAMENTO</div>
+            <div className="w-8 h-0.5 bg-[#c9a84c] rounded ml-auto mt-0.5" />
+          </div>
+        </div>
+
+        {/* Client info row with gold accent */}
+        <div className="flex justify-between border-l-2 border-[#c9a84c] pl-1 mt-0.5">
+          <div className="space-y-0.5">
+            <div className="w-3 h-0.5 bg-[#c9a84c] rounded" />
+            <div className="w-8 h-0.5 bg-foreground/40 rounded" />
+          </div>
+          <div className="space-y-0.5 text-right">
+            <div className="w-6 h-0.5 bg-muted-foreground/30 rounded ml-auto" />
+            <div className="w-8 h-0.5 bg-muted-foreground/30 rounded" />
+          </div>
+        </div>
+
+        {/* Table with numbered rows */}
+        <div className="flex-1 space-y-0.5 mt-0.5">
+          <div className="bg-[#1a1a2e] rounded-sm h-2 flex items-center px-1">
+            <div className="w-full flex justify-between">
+              <div className="flex gap-1">
+                <div className="w-2 h-0.5 bg-[#c9a84c] rounded" />
+                <div className="w-5 h-0.5 bg-white/80 rounded" />
+              </div>
+              <div className="w-3 h-0.5 bg-white/80 rounded" />
+            </div>
+          </div>
+          {[0, 1, 2].map(i => (
+            <div key={i} className={`h-2 flex items-center px-1 rounded-sm ${i % 2 === 0 ? "bg-muted/30" : ""}`}>
+              <div className="w-full flex justify-between">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-0.5 bg-[#c9a84c]/40 rounded" />
+                  <div className="w-7 h-0.5 bg-foreground/25 rounded" />
+                </div>
+                <div className="w-3 h-0.5 bg-foreground/25 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Totals aligned right */}
+        <div className="flex justify-end">
+          <div className="bg-[#1a1a2e] rounded-sm px-1.5 py-0.5 flex justify-between w-12">
+            <span className="text-[#c9a84c] font-bold text-[5px]">TOTAL</span>
+            <span className="text-white font-bold text-[5px]">R$</span>
+          </div>
         </div>
       </div>
-      <div className="bg-[#c9a84c]/10 rounded-sm py-0.5 text-center border border-[#c9a84c]/10">
-        <div className="text-[#c9a84c] font-bold text-[5px]">Obrigado!</div>
+      {/* Bottom accent bar */}
+      <div className="bg-[#1a1a2e] px-2 py-1 flex justify-between items-center">
+        <div className="w-8 h-0.5 bg-white/30 rounded" />
+        <div className="w-6 h-0.5 bg-[#c9a84c]/60 rounded" />
       </div>
     </div>
   );

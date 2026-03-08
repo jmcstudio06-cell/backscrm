@@ -325,7 +325,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   const colors = {
     classico: { primary: "#6366f1", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#fafafa", accent: "#f0f0ff", accentBorder: "#e0e0ff" },
     minimalista: { primary: "#333333", bg: "#ffffff", text: "#444", heading: "#111", muted: "#999", row: "#fafafa", accent: "#f5f5f5", accentBorder: "#eee" },
-    elegante: { primary: "#c9a84c", bg: "#1a1a2e", text: "#d4d4d8", heading: "#ffffff", muted: "#9ca3af", row: "rgba(255,255,255,0.03)", accent: "rgba(201,168,76,0.1)", accentBorder: "rgba(201,168,76,0.2)" },
+    elegante: { primary: "#c9a84c", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#f8f8f8", accent: "#1a1a2e", accentBorder: "#c9a84c" },
   };
   const c = colors[template];
 
