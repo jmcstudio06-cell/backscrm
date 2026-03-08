@@ -325,6 +325,82 @@ async function handlePendingPayment(supabase: any, _config: any, text: string, v
   return sendToUsers(supabase, userIds as string[], "💰 Cachê Pendente", message.trim(), "/financeiro", vapidPub, vapidPriv, vapidSub, "pending_payment");
 }
 
+async function handleChecklistReminder(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
+  // Find shows happening in the next 48 hours that have incomplete checklist items
+  const now = new Date();
+  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const todayStr = now.toISOString().split("T")[0];
+  const targetStr = in48h.toISOString().split("T")[0];
+
+  const { data: upcomingShows } = await supabase
+    .from("shows")
+    .select("id, title, user_id, date")
+    .in("status", ["confirmado", "pendente"])
+    .gte("date", todayStr)
+    .lte("date", targetStr);
+
+  if (!upcomingShows || upcomingShows.length === 0) return 0;
+
+  // Check which shows have incomplete checklist items
+  const showIds = upcomingShows.map((s: any) => s.id);
+  const { data: incompleteItems } = await supabase
+    .from("show_checklist")
+    .select("show_id")
+    .in("show_id", showIds)
+    .eq("completed", false);
+
+  if (!incompleteItems || incompleteItems.length === 0) return 0;
+
+  const showsWithPending = new Set(incompleteItems.map((i: any) => i.show_id));
+  const usersToNotify = new Map<string, string>();
+
+  for (const show of upcomingShows) {
+    if (showsWithPending.has(show.id) && !usersToNotify.has(show.user_id)) {
+      usersToNotify.set(show.user_id, show.title);
+    }
+  }
+
+  if (usersToNotify.size === 0) return 0;
+
+  let totalSent = 0;
+  for (const [userId, showTitle] of usersToNotify) {
+    const message = text
+      ? text.replace(/{show_title}/g, showTitle)
+      : `📋 Seu checklist para "${showTitle}" tem itens pendentes! Confira antes do show.`;
+
+    const sent = await sendToUsers(supabase, [userId], "📋 Checklist Pendente!", message.trim(), "/checklist", vapidPub, vapidPriv, vapidSub, "checklist_reminder");
+    totalSent += sent;
+  }
+
+  console.log(`[ChecklistReminder] Notified ${usersToNotify.size} users, sent ${totalSent}`);
+  return totalSent;
+}
+
+async function handleWeeklyMotivation(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
+  // Send a motivational message to all active users (last_seen within 14 days)
+  const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: activeUsers } = await supabase
+    .from("profiles")
+    .select("user_id")
+    .gte("last_seen", cutoff);
+
+  if (!activeUsers || activeUsers.length === 0) return 0;
+
+  const userIds = activeUsers.map((u: any) => u.user_id);
+  const messages = [
+    "🚀 Continue evoluindo! Cada show é um passo a mais na sua carreira.",
+    "💪 Você está no caminho certo! Mantenha o foco e os resultados virão.",
+    "🎵 A consistência é a chave do sucesso. Bora manter o ritmo!",
+    "⭐ Artistas de sucesso não param. Continue organizando sua carreira!",
+    "🔥 Sua dedicação faz a diferença. Continue usando o Backstage Pro!",
+  ];
+  const message = text || messages[Math.floor(Math.random() * messages.length)];
+
+  console.log(`[WeeklyMotivation] Sending to ${userIds.length} active users`);
+  return sendToUsers(supabase, userIds, "💡 Dica da Semana", message.trim(), "/dashboard", vapidPub, vapidPriv, vapidSub, "weekly_motivation");
+}
+
 async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -445,6 +521,12 @@ serve(async (req) => {
             break;
           case "monthly_goal":
             sent = await handleMonthlyGoal(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
+            break;
+          case "checklist_reminder":
+            sent = await handleChecklistReminder(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
+            break;
+          case "weekly_motivation":
+            sent = await handleWeeklyMotivation(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
             break;
           default:
             console.log(`[Automations] Unknown key: ${setting.setting_key}`);

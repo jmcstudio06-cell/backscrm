@@ -27,6 +27,8 @@ import {
   TrendingDown,
   CalendarCheck,
   Play,
+  ClipboardList,
+  Sparkles,
 } from "lucide-react";
  import { format } from "date-fns";
  import { ptBR } from "date-fns/locale";
@@ -114,6 +116,26 @@ const AUTOMATION_CONFIG = [
     icon: TrendingDown,
     title: "Desempenho Baixo",
     description: "Notificar usuários que não agendaram shows nos últimos 30 dias",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
+  {
+    key: "checklist_reminder",
+    icon: ClipboardList,
+    title: "Lembrete de Checklist",
+    description: "Notificar quando houver checklist pendente para shows nas próximas 48h",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
+  {
+    key: "weekly_motivation",
+    icon: Sparkles,
+    title: "Motivação Semanal",
+    description: "Enviar mensagem motivacional semanal para usuários ativos",
     configField: null,
     configLabel: null,
     configType: null,
