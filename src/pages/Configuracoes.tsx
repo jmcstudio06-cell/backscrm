@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,14 +8,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, Circle, Square, Type, Monitor, Smartphone } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { 
+  User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, 
+  ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, 
+  Circle, Square, Type, Monitor, Smartphone, MapPin, Radio, Disc3, 
+  Guitar, Zap, Lock, Eye, Sparkles
+} from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
 import { useCustomization, COLOR_PRESETS } from "@/hooks/useCustomization";
-
 
 const planLabels: Record<string, string> = {
   trial: "Teste Rápido (1 hora)",
@@ -27,17 +31,6 @@ const planLabels: Record<string, string> = {
   completo: "Plano Completo",
   anual: "Plano Anual",
   expirado: "Expirado",
-};
-
-const planColors: Record<string, string> = {
-  trial: "bg-orange-500",
-  starter: "bg-blue-500",
-  mensal: "bg-blue-500",
-  inicial: "bg-blue-500",
-  essencial: "bg-green-500",
-  completo: "bg-purple-500",
-  anual: "bg-emerald-600",
-  expirado: "bg-destructive",
 };
 
 const PLAN_DURATIONS: Record<string, number> = {
@@ -66,14 +59,12 @@ export default function Configuracoes() {
   const { settings: customization, updateSettings, resetSettings } = useCustomization();
   const navigate = useNavigate();
   
-  // Dados Pessoais
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Perfil Artístico
   const [artistName, setArtistName] = useState("");
   const [projectType, setProjectType] = useState("solo");
   const [musicStyle, setMusicStyle] = useState("");
@@ -81,7 +72,6 @@ export default function Configuracoes() {
   const [actionRadius, setActionRadius] = useState("100");
   const [savingArtist, setSavingArtist] = useState(false);
 
-  // Avatar
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -136,7 +126,6 @@ export default function Configuracoes() {
 
     try {
       const result = await processImage(file);
-      
       if (!result.valid || !result.file) {
         toast.error(result.error || "Erro ao processar imagem");
         setUploading(false);
@@ -146,19 +135,16 @@ export default function Configuracoes() {
       const processedFile = result.file;
       const originalSize = formatFileSize(file.size);
       const newSize = formatFileSize(processedFile.size);
-
       const extension = processedFile.type === 'image/webp' ? 'webp' : 'jpg';
       const fileName = `${profile.id}_${Date.now()}.${extension}`;
-      const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, processedFile, { upsert: true });
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, processedFile, { upsert: true });
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
       if (!data.publicUrl) throw new Error("Não foi possível gerar a URL da imagem");
 
       await updateProfile({ avatar_url: data.publicUrl });
-      
       if (file.size !== processedFile.size) {
         toast.success(`Foto otimizada: ${originalSize} → ${newSize}`);
       } else {
@@ -177,78 +163,92 @@ export default function Configuracoes() {
     toast.success("Personalização restaurada ao padrão!");
   };
 
+  const planGradient = plan === "expirado" 
+    ? "from-destructive/20 to-destructive/5" 
+    : plan === "trial" 
+      ? "from-warning/20 to-warning/5"
+      : "from-primary/20 to-accent/10";
+
+  const planIcon = plan === "expirado" ? "text-destructive" : plan === "trial" ? "text-warning" : "text-primary";
+
   return (
     <Layout title="Configurações" subtitle="Gerencie suas preferências e personalize seu app">
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-secondary flex-wrap h-auto gap-1 p-1 w-full">
-          <TabsTrigger value="profile" className="gap-1.5 flex-1 min-w-fit">
+        <TabsList className="bg-card border border-border/50 flex-wrap h-auto gap-1 p-1.5 w-full shadow-card rounded-xl">
+          <TabsTrigger value="profile" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
             <User className="w-4 h-4" />
             <span className="hidden sm:inline">Meu Perfil</span>
             <span className="sm:hidden">Perfil</span>
           </TabsTrigger>
-          <TabsTrigger value="artist" className="gap-1.5 flex-1 min-w-fit">
+          <TabsTrigger value="artist" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
             <Music className="w-4 h-4" />
             <span className="hidden sm:inline">Perfil Artístico</span>
             <span className="sm:hidden">Artístico</span>
           </TabsTrigger>
-          <TabsTrigger value="customization" className="gap-1.5 flex-1 min-w-fit">
+          <TabsTrigger value="customization" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
             <Palette className="w-4 h-4" />
             <span className="hidden sm:inline">Personalização</span>
             <span className="sm:hidden">Visual</span>
           </TabsTrigger>
-          <TabsTrigger value="security" className="gap-1.5 flex-1 min-w-fit">
+          <TabsTrigger value="security" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
             <Shield className="w-4 h-4" />
             <span className="hidden sm:inline">Segurança</span>
             <span className="sm:hidden">Segurança</span>
           </TabsTrigger>
         </TabsList>
 
-        {/* Profile */}
-        <TabsContent value="profile" className="space-y-6">
-          <ChartCard title="Seu Plano" subtitle="Status da sua assinatura">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl ${planColors[plan] || "bg-muted"} flex items-center justify-center`}>
-                  <Crown className="w-6 h-6 text-white" />
+        {/* ════════ MEU PERFIL ════════ */}
+        <TabsContent value="profile" className="space-y-6 animate-in fade-in-50 duration-300">
+          
+          {/* Plan Card - Hero Style */}
+          <div className={`relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br ${planGradient}`}>
+            <div className="absolute inset-0 bg-card/80 backdrop-blur-sm" />
+            <div className="relative p-6">
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                    <Crown className="w-7 h-7 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">{planLabels[plan] || "Trial"}</h2>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {plan === "expirado" 
+                        ? "Plano expirado — renove para continuar" 
+                        : plan === "trial"
+                          ? "Teste gratuito de 1 hora"
+                          : `${daysRemaining} dias restantes`
+                      }
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-lg font-bold text-foreground">{planLabels[plan] || "Trial"}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {plan === "expirado" 
-                      ? "Plano expirado — renove para continuar usando" 
-                      : plan === "trial"
-                        ? "Teste gratuito de 1 hora"
-                        : `${daysRemaining} dias restantes`
-                    }
-                  </p>
-                </div>
+                {plan !== "trial" && plan !== "expirado" && (
+                  <span className={`text-2xl font-black ${daysRemaining <= 7 ? "text-destructive" : "text-primary"}`}>
+                    {daysRemaining}d
+                  </span>
+                )}
               </div>
 
               {plan !== "trial" && plan !== "expirado" && trialStart && (
-                <div className="bg-secondary rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <CalendarDays className="w-4 h-4" />
-                      Início do plano
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {(() => {
-                        const [y, m, d] = (trialStart.split("T")[0] || "").split("-");
-                        return d && m && y ? `${d}/${m}/${y}` : trialStart;
-                      })()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Duração do plano</span>
-                    <span className="font-medium text-foreground">
-                      {PLAN_DURATIONS[plan] ? `${PLAN_DURATIONS[plan]} dias` : "—"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Dias restantes</span>
-                    <span className={`font-bold ${daysRemaining <= 7 ? "text-destructive" : "text-primary"}`}>
-                      {daysRemaining} dias
-                    </span>
+                <div className="space-y-3 mb-5">
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { 
+                        label: "Início", 
+                        value: (() => {
+                          const [y, m, d] = (trialStart.split("T")[0] || "").split("-");
+                          return d && m && y ? `${d}/${m}/${y}` : trialStart;
+                        })()
+                      },
+                      { label: "Duração", value: PLAN_DURATIONS[plan] ? `${PLAN_DURATIONS[plan]}d` : "—" },
+                      { label: "Restantes", value: `${daysRemaining}d`, highlight: daysRemaining <= 7 },
+                    ].map((item, i) => (
+                      <div key={i} className="bg-card/60 backdrop-blur-sm rounded-xl p-3 text-center border border-border/30">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{item.label}</p>
+                        <p className={`text-sm font-bold ${(item as any).highlight ? "text-destructive" : "text-foreground"}`}>
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                   {PLAN_DURATIONS[plan] > 0 && (
                     <Progress 
@@ -259,282 +259,312 @@ export default function Configuracoes() {
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-2">
-                {plan !== "anual" && plan !== "expirado" && (
-                  <Button 
-                    variant="gradient"
-                    className="flex-1"
-                    onClick={() => navigate("/planos")}
-                  >
-                    <ArrowUpCircle className="w-4 h-4 mr-2" />
-                    {plan === "trial" ? "Escolher um Plano" : "Fazer Upgrade para Anual"}
-                  </Button>
-                )}
-                {plan === "expirado" && (
-                  <Button 
-                    variant="gradient"
-                    className="flex-1"
-                    onClick={() => navigate("/planos")}
-                  >
-                    <Crown className="w-4 h-4 mr-2" />
-                    Renovar Plano
-                  </Button>
-                )}
-              </div>
-            </div>
-          </ChartCard>
-
-          <ChartCard title="Informações Pessoais" subtitle="Seus dados de conta">
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className="flex flex-col items-center">
-                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 overflow-hidden">
-                  {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              {(plan !== "anual") && (
+                <Button 
+                  variant="gradient"
+                  className="w-full h-12 text-base font-semibold shadow-lg"
+                  onClick={() => navigate("/planos")}
+                >
+                  {plan === "expirado" ? (
+                    <><Crown className="w-5 h-5 mr-2" /> Renovar Plano</>
+                  ) : plan === "trial" ? (
+                    <><Zap className="w-5 h-5 mr-2" /> Escolher um Plano</>
                   ) : (
-                    <User className="w-16 h-16 text-primary-foreground" />
+                    <><ArrowUpCircle className="w-5 h-5 mr-2" /> Fazer Upgrade para Anual</>
                   )}
-                </div>
-                <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
-                <Button variant="outline" size="sm" onClick={handleSelectFile} disabled={uploading}>
-                  <Camera className="w-4 h-4 mr-2" />
-                  {uploading ? "Enviando..." : "Alterar Foto"}
                 </Button>
-              </div>
+              )}
+            </div>
+          </div>
 
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <Label>Nome</Label>
-                  <Input className="mt-1 bg-secondary" value={name} onChange={(e) => setName(e.target.value)} />
+          {/* Personal Info */}
+          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            <div className="p-6 pb-0">
+              <h3 className="text-lg font-bold text-foreground">Informações Pessoais</h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">Seus dados de conta</p>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row gap-8">
+                {/* Avatar Section */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="relative group">
+                    <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden ring-4 ring-background shadow-elevated">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-12 h-12 text-primary-foreground" />
+                      )}
+                    </div>
+                    <button 
+                      onClick={handleSelectFile}
+                      disabled={uploading}
+                      className="absolute -bottom-1 -right-1 w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                    >
+                      <Camera className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
+                  <span className="text-xs text-muted-foreground">
+                    {uploading ? "Enviando..." : "Clique no ícone"}
+                  </span>
                 </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input className="mt-1 bg-secondary" value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
-                <div>
-                  <Label>Telefone</Label>
-                  <Input className="mt-1 bg-secondary" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </div>
-                <div className="md:col-span-2">
-                  <Label>Cidade</Label>
-                  <Input className="mt-1 bg-secondary" value={city} onChange={(e) => setCity(e.target.value)} />
+
+                {/* Form Fields */}
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nome</Label>
+                    <Input className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card" value={name} onChange={(e) => setName(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</Label>
+                      <Input className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Telefone</Label>
+                      <Input className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cidade</Label>
+                    <Input className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card" value={city} onChange={(e) => setCity(e.target.value)} />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
-              <Button variant="gradient" onClick={handleSave} disabled={saving}>
+
+            <div className="px-6 py-4 bg-secondary/30 border-t border-border/30 flex justify-end">
+              <Button variant="gradient" onClick={handleSave} disabled={saving} className="h-10 px-6">
                 {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Salvar Alterações
               </Button>
             </div>
-          </ChartCard>
+          </div>
         </TabsContent>
 
-        {/* Perfil Artístico */}
-        <TabsContent value="artist" className="space-y-6">
-          <ChartCard 
-            title="Perfil Artístico" 
-            subtitle="Defina sua identidade profissional — será usado em orçamentos e contratos"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <Label>Nome Artístico</Label>
+        {/* ════════ PERFIL ARTÍSTICO ════════ */}
+        <TabsContent value="artist" className="space-y-6 animate-in fade-in-50 duration-300">
+          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            {/* Header com gradiente */}
+            <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-r from-primary/10 via-accent/5 to-transparent">
+              <div className="relative flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md">
+                  <Disc3 className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Perfil Artístico</h3>
+                  <p className="text-xs text-muted-foreground">Usado em orçamentos, contratos e página de booking</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> Nome Artístico
+                </Label>
                 <Input 
-                  className="mt-1 bg-secondary" 
+                  className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card text-base font-medium" 
                   value={artistName} 
                   onChange={(e) => setArtistName(e.target.value)}
                   placeholder="Como você quer ser chamado"
                 />
               </div>
               
-              <div>
-                <Label>Tipo de Projeto</Label>
-                <Select value={projectType} onValueChange={setProjectType}>
-                  <SelectTrigger className="mt-1 bg-secondary">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="solo">Solo</SelectItem>
-                    <SelectItem value="dupla">Dupla</SelectItem>
-                    <SelectItem value="trio">Trio</SelectItem>
-                    <SelectItem value="banda">Banda</SelectItem>
-                    <SelectItem value="orquestra">Orquestra/Grupo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Guitar className="w-3.5 h-3.5" /> Tipo de Projeto
+                  </Label>
+                  <Select value={projectType} onValueChange={setProjectType}>
+                    <SelectTrigger className="mt-1.5 h-11 bg-secondary/50 border-border/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="solo">Solo</SelectItem>
+                      <SelectItem value="dupla">Dupla</SelectItem>
+                      <SelectItem value="trio">Trio</SelectItem>
+                      <SelectItem value="banda">Banda</SelectItem>
+                      <SelectItem value="orquestra">Orquestra/Grupo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div>
-                <Label>Estilo Musical Principal</Label>
-                <Input 
-                  className="mt-1 bg-secondary" 
-                  value={musicStyle} 
-                  onChange={(e) => setMusicStyle(e.target.value)}
-                  placeholder="Ex: MPB, Sertanejo, Jazz"
-                />
-              </div>
+                <div>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Music className="w-3.5 h-3.5" /> Estilo Musical
+                  </Label>
+                  <Input 
+                    className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card" 
+                    value={musicStyle} 
+                    onChange={(e) => setMusicStyle(e.target.value)}
+                    placeholder="Ex: MPB, Sertanejo, Jazz"
+                  />
+                </div>
 
-              <div>
-                <Label>Cidade Base</Label>
-                <Input 
-                  className="mt-1 bg-secondary" 
-                  value={baseCity} 
-                  onChange={(e) => setBaseCity(e.target.value)}
-                  placeholder="Cidade onde você atua"
-                />
-              </div>
+                <div>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5" /> Cidade Base
+                  </Label>
+                  <Input 
+                    className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card" 
+                    value={baseCity} 
+                    onChange={(e) => setBaseCity(e.target.value)}
+                    placeholder="Cidade onde você atua"
+                  />
+                </div>
 
-              <div>
-                <Label>Raio de Atuação (km)</Label>
-                <Input 
-                  className="mt-1 bg-secondary" 
-                  type="number"
-                  value={actionRadius} 
-                  onChange={(e) => setActionRadius(e.target.value)}
-                  placeholder="100"
-                />
+                <div>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Radio className="w-3.5 h-3.5" /> Raio de Atuação (km)
+                  </Label>
+                  <Input 
+                    className="mt-1.5 h-11 bg-secondary/50 border-border/50 focus:bg-card" 
+                    type="number"
+                    value={actionRadius} 
+                    onChange={(e) => setActionRadius(e.target.value)}
+                    placeholder="100"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
-              <Button variant="gradient" onClick={handleSaveArtist} disabled={savingArtist}>
+            <div className="px-6 py-4 bg-secondary/30 border-t border-border/30 flex justify-end">
+              <Button variant="gradient" onClick={handleSaveArtist} disabled={savingArtist} className="h-10 px-6">
                 {savingArtist ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Salvar Perfil Artístico
               </Button>
             </div>
-          </ChartCard>
+          </div>
         </TabsContent>
 
-        {/* Personalização */}
-        <TabsContent value="customization" className="space-y-6">
+        {/* ════════ PERSONALIZAÇÃO ════════ */}
+        <TabsContent value="customization" className="space-y-6 animate-in fade-in-50 duration-300">
+          
           {/* Cor Principal */}
-          <ChartCard 
-            title="Cor Principal" 
-            subtitle="Escolha a cor que combina com a sua identidade — tudo se adapta automaticamente"
-          >
-            <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
-              {Object.entries(COLOR_LABELS).map(([hue, label]) => {
-                const isSelected = customization.primaryColor === hue;
-                return (
-                  <button
-                    key={hue}
-                    onClick={() => updateSettings({ primaryColor: hue })}
-                    className={`group flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
-                      isSelected 
-                        ? "border-foreground shadow-elevated scale-105" 
-                        : "border-transparent hover:border-border hover:scale-102"
-                    }`}
-                  >
-                    <div 
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md flex items-center justify-center transition-transform group-hover:scale-110"
-                      style={{ background: `hsl(${hue}, 90%, 56%)` }}
-                    >
-                      {isSelected && <Check className="w-5 h-5 text-white" />}
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground">{label}</span>
-                  </button>
-                );
-              })}
+          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            <div className="p-6 pb-0">
+              <h3 className="text-lg font-bold text-foreground">Cor Principal</h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">Escolha a cor da sua identidade</p>
             </div>
+            <div className="p-6">
+              <div className="grid grid-cols-7 gap-2 sm:gap-4">
+                {Object.entries(COLOR_LABELS).map(([hue, label]) => {
+                  const isSelected = customization.primaryColor === hue;
+                  return (
+                    <button
+                      key={hue}
+                      onClick={() => updateSettings({ primaryColor: hue })}
+                      className="group flex flex-col items-center gap-1.5 transition-all duration-200"
+                    >
+                      <div 
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md flex items-center justify-center transition-all duration-200 group-hover:scale-110 ${
+                          isSelected ? "ring-3 ring-foreground ring-offset-2 ring-offset-card scale-110" : ""
+                        }`}
+                        style={{ background: `hsl(${hue}, 90%, 56%)` }}
+                      >
+                        {isSelected && <Check className="w-5 h-5 text-white drop-shadow" />}
+                      </div>
+                      <span className={`text-[10px] font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-            {/* Preview */}
-            <div className="mt-6 p-4 rounded-xl bg-secondary space-y-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pré-visualização</p>
-              <div className="flex flex-wrap gap-3">
-                <Button variant="gradient" size="sm">Botão Primário</Button>
-                <Button variant="outline" size="sm">Botão Secundário</Button>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-primary" />
-                  <span className="text-sm text-primary font-semibold">Texto destaque</span>
+              {/* Preview inline */}
+              <div className="mt-5 p-4 rounded-xl bg-secondary/50 border border-border/30">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Pré-visualização</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button variant="gradient" size="sm">Botão Primário</Button>
+                  <Button variant="outline" size="sm">Secundário</Button>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                    <span className="text-sm text-primary font-semibold">Destaque</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </ChartCard>
+          </div>
 
-          {/* Estilo de Ícones */}
-          <ChartCard 
-            title="Estilo dos Ícones" 
-            subtitle="Escolha como os ícones aparecem no seu app"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button
-                onClick={() => updateSettings({ iconStyle: "outline" })}
-                className={`flex items-center gap-4 p-5 rounded-xl border-2 transition-all ${
-                  customization.iconStyle === "outline" 
-                    ? "border-primary bg-primary/5 shadow-glow" 
-                    : "border-border hover:border-muted-foreground"
-                }`}
-              >
-                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center">
-                  <Circle className="w-7 h-7 text-primary" />
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-foreground">Vazado (Outline)</p>
-                  <p className="text-sm text-muted-foreground">Ícones com contorno, leve e moderno</p>
-                </div>
-                {customization.iconStyle === "outline" && <Check className="w-5 h-5 text-primary ml-auto" />}
-              </button>
-
-              <button
-                onClick={() => updateSettings({ iconStyle: "filled" })}
-                className={`flex items-center gap-4 p-5 rounded-xl border-2 transition-all ${
-                  customization.iconStyle === "filled" 
-                    ? "border-primary bg-primary/5 shadow-glow" 
-                    : "border-border hover:border-muted-foreground"
-                }`}
-              >
-                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center">
-                  <Square className="w-7 h-7 text-primary fill-primary" />
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-foreground">Preenchido (Filled)</p>
-                  <p className="text-sm text-muted-foreground">Ícones sólidos, forte e impactante</p>
-                </div>
-                {customization.iconStyle === "filled" && <Check className="w-5 h-5 text-primary ml-auto" />}
-              </button>
+          {/* Ícones */}
+          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            <div className="p-6 pb-0">
+              <h3 className="text-lg font-bold text-foreground">Estilo dos Ícones</h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">Como os ícones aparecem no app</p>
             </div>
-          </ChartCard>
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: "outline" as const, label: "Vazado", desc: "Leve e moderno", icon: <Circle className="w-7 h-7 text-primary" /> },
+                  { value: "filled" as const, label: "Preenchido", desc: "Forte e impactante", icon: <Square className="w-7 h-7 text-primary fill-primary" /> },
+                ].map(({ value, label, desc, icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => updateSettings({ iconStyle: value })}
+                    className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                      customization.iconStyle === value 
+                        ? "border-primary bg-primary/5 shadow-md" 
+                        : "border-border/50 hover:border-primary/30"
+                    }`}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                      {icon}
+                    </div>
+                    <div className="text-left flex-1 min-w-0">
+                      <p className="font-semibold text-foreground text-sm">{label}</p>
+                      <p className="text-xs text-muted-foreground">{desc}</p>
+                    </div>
+                    {customization.iconStyle === value && <Check className="w-4 h-4 text-primary shrink-0" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
-          {/* Tamanho da Fonte */}
-          <ChartCard 
-            title="Tamanho do Texto" 
-            subtitle="Ajuste o tamanho da fonte para o seu conforto"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {([
-                { value: "small" as const, label: "Pequeno", desc: "Compacto, mais informação visível", icon: Smartphone },
-                { value: "medium" as const, label: "Médio", desc: "Equilíbrio entre conforto e espaço", icon: Monitor },
-                { value: "large" as const, label: "Grande", desc: "Maior legibilidade e conforto", icon: Type },
-              ]).map(({ value, label, desc, icon: Icon }) => (
-                <button
-                  key={value}
-                  onClick={() => updateSettings({ fontSize: value })}
-                  className={`flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all ${
-                    customization.fontSize === value 
-                      ? "border-primary bg-primary/5 shadow-glow" 
-                      : "border-border hover:border-muted-foreground"
-                  }`}
-                >
-                  <Icon className={`text-primary ${value === "small" ? "w-5 h-5" : value === "medium" ? "w-7 h-7" : "w-9 h-9"}`} />
-                  <div className="text-center">
-                    <p className="font-semibold text-foreground">{label}</p>
-                    <p className="text-xs text-muted-foreground">{desc}</p>
+          {/* Fonte */}
+          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            <div className="p-6 pb-0">
+              <h3 className="text-lg font-bold text-foreground">Tamanho do Texto</h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">Ajuste para seu conforto</p>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-3 gap-3">
+                {([
+                  { value: "small" as const, label: "Pequeno", icon: Smartphone, size: "w-5 h-5" },
+                  { value: "medium" as const, label: "Médio", icon: Monitor, size: "w-6 h-6" },
+                  { value: "large" as const, label: "Grande", icon: Type, size: "w-8 h-8" },
+                ]).map(({ value, label, icon: Icon, size }) => (
+                  <button
+                    key={value}
+                    onClick={() => updateSettings({ fontSize: value })}
+                    className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all ${
+                      customization.fontSize === value 
+                        ? "border-primary bg-primary/5 shadow-md" 
+                        : "border-border/50 hover:border-primary/30"
+                    }`}
+                  >
+                    <Icon className={`text-primary ${size}`} />
+                    <span className="font-semibold text-foreground text-sm">{label}</span>
+                    {customization.fontSize === value && <Check className="w-4 h-4 text-primary" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Layout */}
+          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-primary" />
                   </div>
-                  {customization.fontSize === value && <Check className="w-4 h-4 text-primary" />}
-                </button>
-              ))}
-            </div>
-          </ChartCard>
-
-
-          {/* Modo Compacto */}
-          <ChartCard 
-            title="Preferências de Layout" 
-            subtitle="Ajuste como o conteúdo é exibido"
-          >
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-xl">
-                <div>
-                  <Label className="text-base font-semibold">Modo Compacto</Label>
-                  <p className="text-sm text-muted-foreground">Reduz espaçamento para ver mais conteúdo na tela</p>
+                  <div>
+                    <h3 className="font-bold text-foreground">Modo Compacto</h3>
+                    <p className="text-xs text-muted-foreground">Menos espaçamento, mais conteúdo visível</p>
+                  </div>
                 </div>
                 <Switch 
                   checked={customization.compactMode} 
@@ -542,61 +572,76 @@ export default function Configuracoes() {
                 />
               </div>
             </div>
-          </ChartCard>
+          </div>
 
           {/* Reset */}
-          <div className="flex justify-center">
-            <Button variant="outline" onClick={handleResetCustomization} className="gap-2">
-              <RotateCcw className="w-4 h-4" />
+          <div className="flex justify-center pt-2">
+            <Button variant="outline" size="sm" onClick={handleResetCustomization} className="gap-2 text-muted-foreground hover:text-foreground">
+              <RotateCcw className="w-3.5 h-3.5" />
               Restaurar Padrão
             </Button>
           </div>
         </TabsContent>
 
-        {/* Security */}
-        <TabsContent value="security" className="space-y-6">
-          <ChartCard title="Segurança da Conta" subtitle="Gerencie a segurança da sua conta">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <LogOut className="w-5 h-5" />
-                  Sessões Ativas
-                </h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Encerre todas as sessões ativas em outros dispositivos.
-                </p>
-                <Button variant="destructive" className="mt-4" onClick={handleLogoutAll}>
-                  Encerrar Todas as Sessões
-                </Button>
+        {/* ════════ SEGURANÇA ════════ */}
+        <TabsContent value="security" className="space-y-6 animate-in fade-in-50 duration-300">
+          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-r from-destructive/5 via-transparent to-transparent">
+              <div className="relative flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-foreground to-foreground/80 flex items-center justify-center shadow-md">
+                  <Lock className="w-6 h-6 text-background" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Segurança da Conta</h3>
+                  <p className="text-xs text-muted-foreground">Gerencie sessões e documentos legais</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Sessions */}
+              <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
+                <div className="flex items-start gap-3">
+                  <LogOut className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-foreground">Sessões Ativas</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Encerre todas as sessões ativas em outros dispositivos para proteger sua conta.
+                    </p>
+                    <Button variant="destructive" size="sm" className="mt-3" onClick={handleLogoutAll}>
+                      Encerrar Todas as Sessões
+                    </Button>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-6 border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+              <Separator />
+
+              {/* Legal */}
+              <div>
+                <h4 className="font-semibold text-foreground flex items-center gap-2 mb-3">
+                  <FileText className="w-4 h-4" />
                   Documentos Legais
-                </h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Consulte nossa política de privacidade e termos de uso.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <Button variant="outline" asChild>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Button variant="outline" asChild className="h-12 justify-start">
                     <Link to="/privacidade">
-                      <FileText className="w-4 h-4 mr-2" />
+                      <FileText className="w-4 h-4 mr-2 text-primary" />
                       Política de Privacidade
-                      <ExternalLink className="w-3 h-3 ml-2" />
+                      <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
                     </Link>
                   </Button>
-                  <Button variant="outline" asChild>
+                  <Button variant="outline" asChild className="h-12 justify-start">
                     <Link to="/termos">
-                      <FileText className="w-4 h-4 mr-2" />
+                      <FileText className="w-4 h-4 mr-2 text-primary" />
                       Termos de Uso
-                      <ExternalLink className="w-3 h-3 ml-2" />
+                      <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
                     </Link>
                   </Button>
                 </div>
               </div>
             </div>
-          </ChartCard>
+          </div>
         </TabsContent>
       </Tabs>
     </Layout>
