@@ -233,14 +233,14 @@ export default function Historico() {
                 <Legend 
                   formatter={(value) => value === "receita" ? "Receita" : value === "despesa" ? "Despesa" : "Lucro"}
                 />
-                <Bar dataKey="receita" fill="hsl(160, 84%, 39%)" opacity={0.85} radius={[4, 4, 0, 0]} name="receita" />
-                <Bar dataKey="despesa" fill="hsl(0, 84%, 60%)" opacity={0.85} radius={[4, 4, 0, 0]} name="despesa" />
+                <Bar dataKey="receita" fill="#22c55e" radius={[4, 4, 0, 0]} name="receita" />
+                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" />
                 <Line
                   type="monotone"
                   dataKey="lucro"
-                  stroke="hsl(220, 90%, 56%)"
+                  stroke="#3b82f6"
                   strokeWidth={3}
-                  dot={{ fill: "hsl(220, 90%, 56%)", strokeWidth: 2, r: 5 }}
+                  dot={{ fill: "#3b82f6", strokeWidth: 2, r: 5 }}
                   activeDot={{ r: 7, strokeWidth: 2 }}
                   name="lucro"
                 />
