@@ -68,7 +68,7 @@ const menuItems: MenuItem[] = [
     children: [
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
       { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
-      { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
+      { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "servicos" },
       { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
       { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
     ],

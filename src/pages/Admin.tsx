@@ -78,7 +78,7 @@ const FEATURES: { key: string; label: string }[] = [
   { key: "checklist", label: "Avanços" },
   { key: "precificacao", label: "Precificação" },
   { key: "crm", label: "Radar de Shows" },
-  { key: "orcamentos", label: "Serviços e Produtos" },
+  { key: "servicos", label: "Serviços e Produtos" },
   { key: "orcamentos", label: "Orçamento Automático" },
   { key: "contratos", label: "Contrato Automático" },
   { key: "clientes", label: "Clientes" },
@@ -111,7 +111,7 @@ const PLAN_DURATIONS: Record<string, number> = {
   essencial: 90, completo: 180, anual: 365,
 };
 
-const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos"];
+const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos"];
 
 const USERS_PER_PAGE = 10;
 

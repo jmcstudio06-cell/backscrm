@@ -12,6 +12,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   crm: true,
   clientes: true,
   orcamentos: true,
+  servicos: true,
   contratos: true,
   financeiro: true,
   historico: true,
@@ -30,17 +31,17 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
 export const PLAN_MODULES = {
   starter: {
     name: "Starter",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
     price: "R$ 19,90/mês",
   },
   profissional: {
     name: "Profissional",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "checklist", "equipe", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "tutoriais", "configuracoes"],
     price: "R$ 24,90/mês",
   },
   completo: {
     name: "Completo",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
   },
 };
