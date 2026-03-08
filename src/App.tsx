@@ -41,6 +41,7 @@ import GuiaAtendimento from "./pages/GuiaAtendimento";
 import Booking from "./pages/Booking";
 import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
+import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
