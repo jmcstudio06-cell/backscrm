@@ -46,6 +46,7 @@ import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
+import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
             <ShowsProvider>
               <NotificationPrompt />
               <PushSubscriptionRefresher />
+              <PlanActivatedCelebration />
               <Routes>
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
