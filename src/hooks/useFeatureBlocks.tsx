@@ -41,7 +41,7 @@ export const PLAN_MODULES = {
   },
   completo: {
     name: "Completo",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
   },
 };
