@@ -197,6 +197,11 @@ export default function Orcamentos() {
         )}
       </ChartCard>
 
+      <p className="text-xs text-muted-foreground flex items-center gap-1.5 px-1 mt-2">
+        <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+        Apenas os 5 orçamentos mais recentes são armazenados. Os mais antigos são excluídos automaticamente. Salve em PDF!
+      </p>
+
       <BudgetModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedBudget(null); }} onSave={handleSave} clients={clients} performanceTypes={performanceTypes} budget={selectedBudget} />
       <BudgetPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} budget={selectedBudget} items={previewItems} />
       <PerformanceTypesModal isOpen={isTypesModalOpen} onClose={() => setIsTypesModalOpen(false)} performanceTypes={performanceTypes} onAdd={addPerformanceType} onUpdate={updatePerformanceType} onDelete={deletePerformanceType} />
