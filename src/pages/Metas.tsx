@@ -295,17 +295,17 @@ export default function Metas() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gradient-to-r from-emerald-700 to-emerald-600">
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">MÊS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META LEADS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">LEADS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META SHOWS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">REALIZADOS</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm whitespace-nowrap">META FATURAMENTO</TableHead>
-                    <TableHead className="text-white font-bold text-center border-r border-emerald-500 text-xs sm:text-sm">%</TableHead>
-                    <TableHead className="text-white font-bold text-center text-xs sm:text-sm whitespace-nowrap">FATURADO</TableHead>
+                  <TableRow className="bg-primary">
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">MÊS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">META LEADS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">LEADS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">META SHOWS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">REALIZADOS</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm whitespace-nowrap">META FATURAMENTO</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center border-r border-primary/60 text-xs sm:text-sm">%</TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-center text-xs sm:text-sm whitespace-nowrap">FATURADO</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
