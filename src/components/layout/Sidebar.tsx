@@ -290,7 +290,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
               "flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200",
               isActive
                 ? "bg-gradient-to-r from-purple-500 to-violet-500 text-white"
-                : "bg-gradient-to-r from-purple-500/10 to-violet-500/10 text-purple-400 hover:from-purple-500/20 hover:to-violet-500/20 border border-purple-500/30"
+                : "bg-gradient-to-r from-purple-500 to-violet-500 text-white"
             )}
           >
             <Gift className="w-5 h-5" />
