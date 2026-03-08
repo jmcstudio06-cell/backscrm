@@ -90,6 +90,7 @@ const menuItems: MenuItem[] = [
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
       { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
       { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
+      { icon: Sparkles, label: "Planejamento de Conteúdo", path: "/planejamento-conteudo", featureKey: "checklist" },
     ],
   },
   {

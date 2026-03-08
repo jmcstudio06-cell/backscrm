@@ -87,6 +87,7 @@ const App = () => (
                 <Route path="/configuracoes" element={<ErrorBoundary><Configuracoes /></ErrorBoundary>} />
                 <Route path="/orcamentos" element={<ErrorBoundary><Orcamentos /></ErrorBoundary>} />
                 <Route path="/servicos" element={<ErrorBoundary><ServicosProdutos /></ErrorBoundary>} />
+                <Route path="/planejamento-conteudo" element={<ErrorBoundary><PlanejamentoConteudo /></ErrorBoundary>} />
                 <Route path="/contratos" element={<ErrorBoundary><Contratos /></ErrorBoundary>} />
                 <Route path="/repertorio" element={<ErrorBoundary><Repertorio /></ErrorBoundary>} />
                 <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
