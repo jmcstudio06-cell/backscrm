@@ -384,7 +384,7 @@ export default function Metas() {
                             {monthTargets.revenue > 0 ? `${revenuePercent}%` : '-'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-center font-semibold text-emerald-700 text-xs sm:text-sm whitespace-nowrap">
+                        <TableCell className="text-center font-semibold text-primary text-xs sm:text-sm whitespace-nowrap">
                           {formatCurrency(actuals.revenue)}
                         </TableCell>
                       </TableRow>
