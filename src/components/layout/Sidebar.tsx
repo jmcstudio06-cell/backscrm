@@ -64,7 +64,7 @@ const menuItems: MenuItem[] = [
     icon: Briefcase,
     label: "Área Comercial",
     children: [
-      { icon: TrendingUp, label: "Funil de Vendas", path: "/crm", featureKey: "crm" },
+      { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
       { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
       { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
       { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },

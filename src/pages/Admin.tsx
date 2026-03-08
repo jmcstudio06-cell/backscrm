@@ -78,7 +78,7 @@ interface UserGoal {
 const FEATURES = [
   { key: "dashboard", label: "Dashboard" },
   { key: "agenda", label: "Agenda" },
-  { key: "crm", label: "Funil de Vendas" },
+  { key: "crm", label: "Radar de Shows" },
   { key: "clientes", label: "Clientes" },
   { key: "orcamentos", label: "Orçamentos" },
   { key: "contratos", label: "Contratos" },
