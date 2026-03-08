@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, MessageCircle, X } from "lucide-react";
+import { Download, MessageCircle } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
@@ -483,9 +483,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               <Button variant="gradient" size="sm" onClick={handlePrintPDF}>
                 <Download className="w-4 h-4 mr-2" />
                 PDF (A4 em pé)
-              </Button>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="w-4 h-4" />
               </Button>
             </div>
           </div>
