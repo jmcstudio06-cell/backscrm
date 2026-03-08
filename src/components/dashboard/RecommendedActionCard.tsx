@@ -78,8 +78,8 @@ export function RecommendedActionCard({
     if (!hasLeads) {
       actions.push({
         id: "leads",
-        title: "Cadastre seu primeiro lead",
-        description: "Adicione contatos interessados nos seus shows e comece a vender",
+        title: "Cadastre oportunidades no radar de shows!",
+        description: "Organize seus contatos e oportunidades comerciais para vender mais",
         link: "/crm",
         icon: UserPlus,
         gradient: "from-primary to-primary/80",
