@@ -217,8 +217,8 @@ export default function Historico() {
             <ResponsiveContainer width="100%" height={350}>
               <ComposedChart data={monthlyHistory}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="month" stroke="#64748b" tick={{ fill: "#374151" }} fontSize={12} />
+                <YAxis stroke="#64748b" tick={{ fill: "#374151" }} fontSize={12} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
