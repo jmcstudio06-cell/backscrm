@@ -127,8 +127,15 @@ const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "
 const USERS_PER_PAGE = 10;
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
-  free:      { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Sparkles className="h-5 w-5" /> },
-  trial:     { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
+  free:                  { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Sparkles className="h-5 w-5" /> },
+  trial:                 { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
+  mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
+  mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
+  mensal_completo:       { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
+  anual_starter:         { bg: "bg-teal-500/10", text: "text-teal-600", border: "border-teal-500/20", icon: <Shield className="h-5 w-5" /> },
+  anual_profissional:    { bg: "bg-indigo-500/10", text: "text-indigo-600", border: "border-indigo-500/20", icon: <Zap className="h-5 w-5" /> },
+  anual_completo:        { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
+  // Legacy
   base:      { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal:    { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
   essencial: { bg: "bg-green-500/10", text: "text-green-600", border: "border-green-500/20", icon: <UsersIcon className="h-5 w-5" /> },
