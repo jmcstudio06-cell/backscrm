@@ -148,6 +148,7 @@ export default function Admin() {
     free: 0, trial: 0, base: 0, mensal: 0,
     essencial: 0, completo: 0, anual: 0, expirado: 0,
   });
+  const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
 
   // Check admin
   useEffect(() => {
@@ -253,12 +254,13 @@ export default function Admin() {
     toast.success(newBlocks[featureKey] ? "Bloqueado" : "Desbloqueado");
   };
 
-  const updateUserPlan = async (userId: string, plan: string) => {
+  const updateUserPlan = async (userId: string, plan: string, customStartDate?: string) => {
     const normalizedPlan = plan === "inicial" ? "mensal" : plan;
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan: normalizedPlan };
     
     if (normalizedPlan !== "expirado") {
-      updates.trial_start = new Date().toISOString();
+      const startDate = customStartDate || new Date().toISOString().split("T")[0];
+      updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
       updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
     }
 
@@ -279,6 +281,37 @@ export default function Admin() {
         : u
     ));
     toast.success(`Plano atualizado para ${plan.toUpperCase()}`);
+  };
+
+  const updatePlanStartDate = async (userId: string, dateStr: string) => {
+    setUserPlanDates(prev => ({ ...prev, [userId]: dateStr }));
+    const userProfile = users.find(u => u.user_id === userId);
+    if (!userProfile || !userProfile.plan || userProfile.plan === "expirado") return;
+    
+    const startDate = new Date(dateStr + "T00:00:00").toISOString();
+    const { error } = await supabase.from("profiles").update({ trial_start: startDate }).eq("user_id", userId);
+    if (error) { toast.error("Erro ao atualizar data"); return; }
+    setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, trial_start: startDate } : u));
+    toast.success("Data de início atualizada!");
+  };
+
+  const getRemainingDays = (userProfile: UserProfile): number => {
+    const plan = userProfile.plan || "trial";
+    const duration = PLAN_DURATIONS[plan];
+    if (!duration || !userProfile.trial_start) return 0;
+    const start = new Date(userProfile.trial_start);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, duration - diffDays);
+  };
+
+  const getPlanEndDate = (userProfile: UserProfile): string => {
+    const plan = userProfile.plan || "trial";
+    const duration = PLAN_DURATIONS[plan];
+    if (!duration || !userProfile.trial_start) return "—";
+    const start = new Date(userProfile.trial_start);
+    const end = new Date(start.getTime() + duration * 24 * 60 * 60 * 1000);
+    return end.toLocaleDateString("pt-BR");
   };
 
   const updateUserGoal = async (userId: string, goalType: string, targetValue: number) => {
@@ -512,24 +545,60 @@ export default function Admin() {
                   {expandedUser === userProfile.user_id && (
                     <CardContent className="border-t bg-muted/20 pt-4 space-y-6">
 
+                      {/* Plan Start Date */}
+                      <div>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground">Dia de Início do Plano</Label>
+                        <Input
+                          type="date"
+                          value={userPlanDates[userProfile.user_id] || (userProfile.trial_start ? userProfile.trial_start.split("T")[0] : "")}
+                          onChange={e => updatePlanStartDate(userProfile.user_id, e.target.value)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
                       {/* Plan Selection */}
                       <div>
-                        <Label className="text-xs font-bold uppercase text-muted-foreground">Alterar Plano</Label>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground">Selecionar Plano</Label>
                         <select
                           value={userProfile.plan || "trial"}
-                          onChange={e => updateUserPlan(userProfile.user_id, e.target.value)}
+                          onChange={e => {
+                            const selectedPlan = e.target.value;
+                            const startDate = userPlanDates[userProfile.user_id] || (userProfile.trial_start ? userProfile.trial_start.split("T")[0] : undefined);
+                            updateUserPlan(userProfile.user_id, selectedPlan, startDate);
+                          }}
                           className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
                         >
                           <option value="free">Free (Gratuito)</option>
                           <option value="trial">Trial (3 dias)</option>
-                          <option value="base">Assinatura Mensal</option>
-                          <option value="mensal">Mensal (legado)</option>
-                          <option value="essencial">Profissional</option>
-                          <option value="completo">Completo</option>
-                          <option value="anual">Anual</option>
+                          <option value="base">Mensal (30 dias)</option>
+                          <option value="essencial">Profissional (90 dias)</option>
+                          <option value="completo">Completo (180 dias)</option>
+                          <option value="anual">Anual (365 dias)</option>
                           <option value="expirado">Expirado</option>
                         </select>
                       </div>
+
+                      {/* Plan Summary */}
+                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "free" && userProfile.trial_start && (
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Início</p>
+                            <p className="text-sm font-bold text-foreground">
+                              {new Date(userProfile.trial_start).toLocaleDateString("pt-BR")}
+                            </p>
+                          </div>
+                          <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Vencimento</p>
+                            <p className="text-sm font-bold text-foreground">{getPlanEndDate(userProfile)}</p>
+                          </div>
+                          <div className={`rounded-xl p-3 text-center border ${getRemainingDays(userProfile) <= 7 ? "bg-destructive/10 border-destructive/30" : "bg-emerald-500/10 border-emerald-500/30"}`}>
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Restantes</p>
+                            <p className={`text-sm font-bold ${getRemainingDays(userProfile) <= 7 ? "text-destructive" : "text-emerald-600"}`}>
+                              {getRemainingDays(userProfile)} dias
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Module Management */}
                       <div>
