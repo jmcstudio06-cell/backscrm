@@ -117,6 +117,28 @@ export default function Configuracoes() {
     }
   };
 
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const handleResetPassword = async () => {
+    const userEmail = profile?.email || email;
+    if (!userEmail) {
+      toast.error("Nenhum email encontrado no perfil");
+      return;
+    }
+    setResettingPassword(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Email de redefinição enviado! Verifique sua caixa de entrada.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao enviar email de redefinição");
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
   const handleSelectFile = () => fileInputRef.current?.click();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
