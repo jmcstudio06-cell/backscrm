@@ -591,7 +591,25 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             </div>
 
             {/* Footer */}
-            {template === "elegante" ? (
+            {template === "minimalista" ? (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 20, gap: 24, marginBottom: 0 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: c.heading, marginBottom: 6 }}>Pagamento</div>
+                    <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.6 }}>{budget!.payment_conditions || "A combinar"}</div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: c.heading, marginBottom: 6 }}>Observações</div>
+                    <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.6 }}>{budget!.terms_conditions || "Sujeito a disponibilidade."}</div>
+                  </div>
+                </div>
+                {/* Clean bottom bar */}
+                <div style={{ marginTop: 24, padding: "12px 20px", backgroundColor: "#f5f5f5", borderRadius: 6, display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "2px solid #e5e5e5" }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: c.heading }}>Obrigado pela preferência!</div>
+                  <div style={{ fontSize: 11, color: c.muted }}>{artistPhone || artistEmail}</div>
+                </div>
+              </>
+            ) : template === "elegante" ? (
               <>
                 <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 20, borderTop: "1px solid #e5e5e5", gap: 16, marginBottom: 0 }}>
                   {[
@@ -605,7 +623,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     </div>
                   ))}
                 </div>
-                {/* Dark bottom bar */}
                 <div style={{ marginTop: 24, padding: "14px 20px", backgroundColor: "#1a1a2e", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: c.primary }}>Obrigado pela preferência!</div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{artistPhone || artistEmail}</div>
@@ -625,10 +642,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     </div>
                   ))}
                 </div>
-                {/* Thanks */}
-                <div style={{ marginTop: 28, padding: "14px 20px", backgroundColor: c.accent, borderRadius: 8, textAlign: "center", border: `1px solid ${c.accentBorder}` }}>
+                <div style={{ marginTop: 28, padding: "14px 20px", backgroundColor: "#f0f0ff", borderRadius: 8, textAlign: "center", border: "1px solid #e0e0ff" }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: c.primary }}>Obrigado pela preferência!</div>
                 </div>
+              </>
+            )}
               </>
             )}
           </div>
