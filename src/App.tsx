@@ -43,7 +43,10 @@ import Booking from "./pages/Booking";
 import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
 import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
+import Notificacoes from "./pages/Notificacoes";
 import NotFound from "./pages/NotFound";
+import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
+import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 
 const queryClient = new QueryClient();
@@ -61,6 +64,8 @@ const App = () => (
           <AppSettingsProvider>
             <CustomizationProvider>
             <ShowsProvider>
+              <NotificationPrompt />
+              <PushSubscriptionRefresher />
               <PlanActivatedCelebration />
               <Routes>
                 <Route path="/" element={<Auth />} />
@@ -95,6 +100,7 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/guia-atendimento" element={<RequireAuth><ErrorBoundary><GuiaAtendimento /></ErrorBoundary></RequireAuth>} />
                 <Route path="/solicitacoes" element={<RequireAuth><ErrorBoundary><Solicitacoes /></ErrorBoundary></RequireAuth>} />
+                <Route path="/notificacoes" element={<RequireAuth><ErrorBoundary><Notificacoes /></ErrorBoundary></RequireAuth>} />
                 
                 <Route path="/booking/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
