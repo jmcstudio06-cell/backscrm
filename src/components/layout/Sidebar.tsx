@@ -61,6 +61,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", featureKey: "dashboard" },
   { icon: Calendar, label: "Agenda de Shows", path: "/agenda", featureKey: "agenda" },
+  { icon: Sparkles, label: "Ideias de Post", path: "/planejamento-conteudo", featureKey: "checklist" },
   {
     icon: Briefcase,
     label: "Área Comercial",
@@ -100,7 +101,6 @@ const menuItems: MenuItem[] = [
       { icon: Target, label: "Meta Anual 2026", path: "/metas/anual", featureKey: "metas" },
     ],
   },
-  { icon: Sparkles, label: "Ideia de Post", path: "/planejamento-conteudo", featureKey: "checklist" },
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
   
   { icon: Inbox, label: "Solicitações", path: "/solicitacoes", featureKey: "agenda" },
