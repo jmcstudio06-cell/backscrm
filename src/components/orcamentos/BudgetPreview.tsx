@@ -324,20 +324,20 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   // ✅ Color schemes per template
   const colors = {
     classico: { primary: "#6366f1", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#fafafa", accent: "#f0f0ff", accentBorder: "#e0e0ff" },
-    minimalista: { primary: "#555", bg: "#ffffff", text: "#555", heading: "#222", muted: "#aaa", row: "transparent", accent: "#f7f7f7", accentBorder: "#e8e8e8" },
+    minimalista: { primary: "#8b7355", bg: "#faf9f7", text: "#4a4540", heading: "#2c2825", muted: "#9e9790", row: "#f5f3f0", accent: "#f0ede8", accentBorder: "#e5e0d8" },
     elegante: { primary: "#c9a84c", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#f8f8f8", accent: "#1a1a2e", accentBorder: "#c9a84c" },
   };
   const c = colors[template];
 
   const thBase: React.CSSProperties = {
-    color: template === "minimalista" ? c.heading : template === "elegante" ? "#ffffff" : "#fff",
+    color: template === "minimalista" ? c.primary : template === "elegante" ? "#ffffff" : "#fff",
     padding: 0,
     fontSize: 11,
-    fontWeight: template === "minimalista" ? 600 : 700,
+    fontWeight: 600,
     textTransform: "uppercase",
-    letterSpacing: template === "minimalista" ? 1.5 : 0.8,
+    letterSpacing: template === "minimalista" ? 1.2 : 0.8,
     verticalAlign: "middle",
-    height: template === "minimalista" ? 36 : 44,
+    height: 44,
   };
 
   const thInner = (align: "left" | "right" | "center"): React.CSSProperties => ({
@@ -354,27 +354,47 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     if (template === "minimalista") {
       return (
         <>
-          {/* Ultra-clean header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 40, paddingBottom: 16, borderBottom: "1px solid #e0e0e0" }}>
-            <div>
-              <div style={{ fontSize: 11, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>Orçamento</div>
-              <div style={{ fontSize: 22, fontWeight: 300, color: c.heading, letterSpacing: -0.3 }}>{artistName}</div>
+          {/* Warm refined header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 36 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: c.accent, border: `1px solid ${c.accentBorder}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Logo" style={{ width: 56, height: 56, objectFit: "cover", display: "block" }} crossOrigin="anonymous" />
+                ) : (
+                  <span style={{ color: c.primary, fontSize: 22, fontWeight: 600 }}>{artistName.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: c.heading }}>{artistName}</div>
+                <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.5, marginTop: 2 }}>
+                  {artistPhone && <span>{artistPhone}</span>}
+                  {artistPhone && artistEmail && <span> · </span>}
+                  {artistEmail && <span>{artistEmail}</span>}
+                </div>
+              </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 11, color: c.muted }}>{budget!.budget_number}</div>
-              <div style={{ fontSize: 11, color: c.muted, marginTop: 2 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.5 }}>Orçamento</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: c.heading, marginTop: 2 }}>{budget!.budget_number}</div>
+              <div style={{ fontSize: 11, color: c.muted, marginTop: 4 }}>
                 {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
               </div>
             </div>
           </div>
-          {/* Client info — left aligned, simple */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Para</div>
-            <div style={{ fontSize: 15, fontWeight: 500, color: c.heading }}>{budget!.client_name}</div>
+          {/* Warm divider */}
+          <div style={{ height: 1, background: `linear-gradient(90deg, ${c.accentBorder}, ${c.primary}40, ${c.accentBorder})`, marginBottom: 28 }} />
+          {/* Client card */}
+          <div style={{ background: c.accent, borderRadius: 10, padding: "16px 20px", marginBottom: 28, border: `1px solid ${c.accentBorder}` }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Para</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: c.heading }}>{budget!.client_name}</div>
             <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.6, marginTop: 2 }}>
-              {budget!.client_company && <span>{budget!.client_company}<br /></span>}
+              {budget!.client_company && <span>{budget!.client_company}</span>}
+              {budget!.client_company && budget!.client_address && <span> · </span>}
               {budget!.client_address && <span>{budget!.client_address}</span>}
             </div>
+            {budget!.valid_until && (
+              <div style={{ fontSize: 11, color: c.muted, marginTop: 6 }}>Válido até {formatDateBR(budget!.valid_until)}</div>
+            )}
           </div>
         </>
       );
@@ -444,8 +464,10 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     );
   };
 
-  const theadBg = template === "minimalista" ? "transparent" : template === "elegante" ? "#1a1a2e" : c.primary;
-  const theadStyle: React.CSSProperties = template === "minimalista" ? { borderBottom: "2px solid #ddd" } : { backgroundColor: theadBg };
+  const theadBg = template === "minimalista" ? c.accent : template === "elegante" ? "#1a1a2e" : c.primary;
+  const theadStyle: React.CSSProperties = template === "minimalista" 
+    ? { backgroundColor: theadBg, borderBottom: `1px solid ${c.accentBorder}` } 
+    : { backgroundColor: theadBg };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -562,8 +584,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 <div style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   ...(template === "minimalista" ? {
-                    backgroundColor: "transparent", color: c.heading,
-                    padding: "12px 0", borderRadius: 0, borderTop: "2px solid #ddd",
+                    backgroundColor: c.primary, color: "#fff",
+                    padding: "12px 16px", borderRadius: 8,
                   } : {
                     backgroundColor: template === "classico" ? c.primary : "#1a1a2e",
                     color: "#fff", padding: "12px 16px", borderRadius: 6,
@@ -579,18 +601,19 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             {/* Footer */}
             {template === "minimalista" ? (
               <>
-                <div style={{ borderTop: "1px solid #e8e8e8", paddingTop: 24, display: "flex", justifyContent: "space-between", gap: 32 }}>
+                <div style={{ background: c.accent, borderRadius: 10, padding: "18px 20px", border: `1px solid ${c.accentBorder}`, display: "flex", gap: 24 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Pagamento</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Pagamento</div>
                     <div style={{ fontSize: 11, color: c.text, lineHeight: 1.6 }}>{budget!.payment_conditions || "A combinar"}</div>
                   </div>
+                  <div style={{ width: 1, background: c.accentBorder }} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Observações</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Observações</div>
                     <div style={{ fontSize: 11, color: c.text, lineHeight: 1.6 }}>{budget!.terms_conditions || "Sujeito a disponibilidade."}</div>
                   </div>
                 </div>
-                <div style={{ marginTop: 32, textAlign: "center" }}>
-                  <div style={{ fontSize: 12, color: c.muted, fontStyle: "italic" }}>Obrigado pela preferência</div>
+                <div style={{ marginTop: 24, textAlign: "center" }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: c.heading }}>Obrigado pela preferência!</div>
                   <div style={{ fontSize: 11, color: c.muted, marginTop: 4 }}>{artistEmail}{artistPhone && artistEmail ? " · " : ""}{artistPhone}</div>
                 </div>
               </>
