@@ -111,7 +111,7 @@ const PLAN_DURATIONS: Record<string, number> = {
   essencial: 90, completo: 180, anual: 365,
 };
 
-const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos"];
+const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos"];
 
 const USERS_PER_PAGE = 10;
 
