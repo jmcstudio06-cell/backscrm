@@ -266,46 +266,58 @@ export default function Agenda() {
       {viewMode === "calendar" ? (
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(520px,640px)_minmax(320px,1fr)] gap-4 items-start">
           {/* Calendar */}
-          <div className="w-full lg:justify-self-start lg:max-w-[640px] bg-card rounded-2xl border border-border/50 p-3 shadow-card">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-base font-bold text-foreground capitalize">
-                {monthNames[currentMonth.getMonth()]} de {currentMonth.getFullYear()}
+          <div className="w-full lg:justify-self-start lg:max-w-[640px] relative overflow-hidden rounded-2xl bg-card border border-border/40 shadow-elevated">
+            {/* Decorative background */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/8 to-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+
+            {/* Month Header */}
+            <div className="relative flex items-center justify-between px-5 pt-5 pb-3">
+              <h2 className="text-xl font-extrabold text-foreground tracking-tight">
+                {monthNames[currentMonth.getMonth()]} <span className="text-muted-foreground font-semibold">{currentMonth.getFullYear()}</span>
               </h2>
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth}>
-                  <ChevronLeft className="w-3 h-3" />
+              <div className="flex items-center gap-1.5">
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-muted/80" onClick={prevMonth}>
+                  <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={goToToday}>
+                <Button variant="outline" size="sm" className="h-8 text-xs px-3 rounded-xl font-semibold border-primary/20 text-primary hover:bg-primary/10" onClick={goToToday}>
                   Hoje
                 </Button>
-                <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextMonth}>
-                  <ChevronRight className="w-3 h-3" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-muted/80" onClick={nextMonth}>
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="grid grid-cols-7 mb-0.5">
-              {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-                <div key={day} className="text-center text-[10px] font-medium text-muted-foreground py-0.5">
+            {/* Weekday Headers */}
+            <div className="grid grid-cols-7 px-4 pb-1">
+              {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day, i) => (
+                <div key={day} className={cn(
+                  "text-center text-xs font-semibold py-2",
+                  i === 0 || i === 6 ? "text-muted-foreground/60" : "text-muted-foreground"
+                )}>
                   {day}
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-0.5">
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-1 px-4 pb-5">
+              {/* Empty cells before month */}
               {Array.from({ length: startingDay }).map((_, i) => (
-                <div key={`empty-start-${i}`} className="aspect-square rounded border border-border/50 bg-muted/20 flex items-center justify-center">
-                  <span className="text-muted-foreground/50 text-[10px]">
+                <div key={`empty-start-${i}`} className="aspect-square rounded-xl flex items-center justify-center">
+                  <span className="text-muted-foreground/30 text-xs font-medium">
                     {new Date(currentMonth.getFullYear(), currentMonth.getMonth(), -startingDay + i + 1).getDate()}
                   </span>
                 </div>
               ))}
 
+              {/* Actual days */}
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const day = i + 1;
                 const dayShows = getShowsForDate(day);
                 const hasShow = dayShows.length > 0;
                 const hasCancelled = dayShows.some((s) => s.status === "cancelled");
+                const hasConfirmed = dayShows.some((s) => s.status === "confirmed");
                 const selected = isSelected(day);
                 const today = isToday(day);
 
@@ -314,25 +326,35 @@ export default function Agenda() {
                     key={day}
                     onClick={() => setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
                     className={cn(
-                      "aspect-square rounded border flex flex-col items-center justify-center text-[11px] font-medium transition-all relative",
+                      "aspect-square rounded-xl flex flex-col items-center justify-center text-sm font-semibold transition-all duration-200 relative group",
                       selected
-                        ? "bg-primary text-primary-foreground border-primary shadow-md"
-                        : hasCancelled
-                          ? "bg-destructive/10 border-destructive/30 text-foreground hover:bg-destructive/20"
-                          : hasShow
-                            ? "bg-primary/10 border-primary/30 text-foreground hover:bg-primary/20"
-                            : "border-border bg-card hover:bg-muted/50 text-foreground",
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-105 ring-2 ring-primary/20"
+                        : today
+                          ? "bg-primary/15 text-primary border-2 border-primary/30 font-bold"
+                          : hasCancelled
+                            ? "bg-destructive/8 text-foreground hover:bg-destructive/15 border border-destructive/20"
+                            : hasShow
+                              ? "bg-primary/8 text-foreground hover:bg-primary/15 border border-primary/20"
+                              : "text-foreground hover:bg-muted/60 border border-transparent hover:border-border/50",
                     )}
                   >
-                    <span className={cn(today && !selected && "text-primary font-bold")}>{day}</span>
+                    <span className="relative z-10">{day}</span>
                     {hasShow && (
-                      <div className="absolute bottom-0.5 flex gap-0.5">
+                      <div className="absolute bottom-1 sm:bottom-1.5 flex gap-0.5">
                         {dayShows.slice(0, 3).map((show, idx) => (
                           <span
                             key={idx}
                             className={cn(
-                              "w-1 h-1 rounded-full",
-                              selected ? "bg-primary-foreground" : statusColors[show.status] || "bg-muted-foreground",
+                              "w-1.5 h-1.5 rounded-full transition-transform group-hover:scale-125",
+                              selected
+                                ? "bg-primary-foreground"
+                                : show.status === "confirmed"
+                                  ? "bg-primary"
+                                  : show.status === "completed"
+                                    ? "bg-green-500"
+                                    : show.status === "cancelled"
+                                      ? "bg-destructive"
+                                      : "bg-warning",
                             )}
                           />
                         ))}
@@ -342,9 +364,10 @@ export default function Agenda() {
                 );
               })}
 
+              {/* Empty cells after month */}
               {Array.from({ length: (7 - ((startingDay + daysInMonth) % 7)) % 7 }).map((_, i) => (
-                <div key={`empty-end-${i}`} className="aspect-square rounded border border-border/50 bg-muted/20 flex items-center justify-center">
-                  <span className="text-muted-foreground/50 text-[10px]">{i + 1}</span>
+                <div key={`empty-end-${i}`} className="aspect-square rounded-xl flex items-center justify-center">
+                  <span className="text-muted-foreground/30 text-xs font-medium">{i + 1}</span>
                 </div>
               ))}
             </div>
