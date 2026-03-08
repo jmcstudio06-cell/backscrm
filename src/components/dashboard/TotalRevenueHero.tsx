@@ -52,7 +52,7 @@ export function TotalRevenueHero({
         <div className="h-px bg-border my-5" />
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-3 gap-4 sm:gap-6">
           <Stat
             icon={<Award className="w-4 h-4" />}
             value={String(completedShowsCount)}
@@ -71,12 +71,6 @@ export function TotalRevenueHero({
                 : "—"
             }
             label="Crescimento mensal"
-          />
-          <Stat
-            icon={<Diamond className="w-4 h-4" />}
-            value={bestFee ? `R$ ${fmt(bestFee.value)}` : "—"}
-            label={bestFee ? bestFee.showTitle : "Maior cachê"}
-            truncateLabel
           />
         </div>
 
