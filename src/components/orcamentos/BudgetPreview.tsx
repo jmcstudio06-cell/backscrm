@@ -77,15 +77,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
     /**
      * ✅ PRINT (A4 RETRATO):
-     * Renderiza em 900px (proporcional a A4) com padding generoso
+     * Mantém a base original e centraliza depois em canvas A4
      */
-    stage.style.width = "900px";
+    stage.style.width = "760px";
     stage.style.display = "block";
 
-    clone.style.width = "900px";
-    clone.style.minWidth = "900px";
-    clone.style.maxWidth = "900px";
-    clone.style.padding = "48px 56px";
+    clone.style.width = "760px";
+    clone.style.minWidth = "760px";
+    clone.style.maxWidth = "760px";
+    clone.style.padding = "22px";
 
     stage.appendChild(clone);
     document.body.appendChild(stage);
@@ -180,7 +180,33 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       return;
     }
 
-    const dataUrl = canvas.toDataURL("image/png", 1.0);
+    // Normaliza em A4 e centraliza antes da impressão
+    const targetW = 1240;
+    const targetH = Math.round(targetW * 1.41421356237);
+    const out = document.createElement("canvas");
+    out.width = targetW;
+    out.height = targetH;
+
+    const ctx = out.getContext("2d");
+    if (!ctx) {
+      toast.error("Erro ao preparar impressão. Tente novamente.", { id: "pdf" });
+      return;
+    }
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, targetW, targetH);
+
+    const srcW = canvas.width;
+    const srcH = canvas.height;
+    const fitScale = Math.min(targetW / srcW, targetH / srcH);
+    const drawW = Math.round(srcW * fitScale);
+    const drawH = Math.round(srcH * fitScale);
+    const dx = Math.round((targetW - drawW) / 2);
+    const dy = Math.round((targetH - drawH) / 2);
+
+    ctx.drawImage(canvas, dx, dy, drawW, drawH);
+
+    const dataUrl = out.toDataURL("image/png", 1.0);
 
     const win = window.open("", "_blank");
     if (!win) {
@@ -207,25 +233,25 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
             @page {
               size: A4 portrait;
-              margin: 12mm 15mm;
-            }
-
-            @media print {
-              html, body {
-                width: 100%;
-              }
+              margin: 0;
             }
 
             .page {
-              width: 100%;
+              width: 210mm;
+              height: 297mm;
+              margin: 0 auto;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               box-sizing: border-box;
+              overflow: hidden;
             }
 
             img {
               display: block;
-              width: 100%;
-              height: auto;
-              max-width: 100%;
+              width: 210mm;
+              height: 297mm;
+              object-fit: contain;
             }
 
             * {
