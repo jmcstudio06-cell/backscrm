@@ -167,7 +167,7 @@ export function TotalRevenueHero({
                     {bestMonth.month}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    R$ {fmt(bestMonth.value)}
+                    {showValues ? `R$ ${fmt(bestMonth.value)}` : `R$ ${hidden}`}
                   </p>
                 </div>
               </div>
