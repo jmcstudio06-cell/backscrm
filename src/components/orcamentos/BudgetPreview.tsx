@@ -324,7 +324,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   // ✅ Color schemes per template
   const colors = {
     classico: { primary: "#6366f1", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#fafafa", accent: "#f0f0ff", accentBorder: "#e0e0ff" },
-    minimalista: { primary: "#555", bg: "#ffffff", text: "#555", heading: "#222", muted: "#aaa", row: "transparent", accent: "#f7f7f7", accentBorder: "#e8e8e8" },
+    minimalista: { primary: "#8b7355", bg: "#faf9f7", text: "#4a4540", heading: "#2c2825", muted: "#9e9790", row: "#f5f3f0", accent: "#f0ede8", accentBorder: "#e5e0d8" },
     elegante: { primary: "#c9a84c", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#f8f8f8", accent: "#1a1a2e", accentBorder: "#c9a84c" },
   };
   const c = colors[template];
