@@ -653,6 +653,25 @@ export default function Configuracoes() {
 
               <Separator />
 
+              {/* Reset Password */}
+              <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
+                <div className="flex items-start gap-3">
+                  <KeyRound className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-foreground">Redefinir Senha</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Enviaremos um link para seu email para criar uma nova senha.
+                    </p>
+                    <Button variant="outline" size="sm" className="mt-3" onClick={handleResetPassword} disabled={resettingPassword}>
+                      {resettingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <KeyRound className="w-4 h-4 mr-2" />}
+                      Enviar Link de Redefinição
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
               {/* Legal */}
               <div>
                 <h4 className="font-semibold text-foreground flex items-center gap-2 mb-3">
