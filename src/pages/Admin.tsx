@@ -463,58 +463,50 @@ export default function Admin() {
             <div className="space-y-3">
               {users.map(userProfile => (
                 <Card key={userProfile.id} className={`overflow-hidden transition-all duration-200 ${expandedUser === userProfile.user_id ? "ring-2 ring-primary/30 shadow-lg" : "hover:shadow-md"}`}>
-                  <div
-                    className="flex items-center gap-3 p-4 cursor-pointer"
+                <div
+                    className="p-4 cursor-pointer"
                     onClick={() => setExpandedUser(expandedUser === userProfile.user_id ? null : userProfile.user_id)}
                   >
-                    {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="text-sm font-bold text-primary">
-                        {(userProfile.name || "?").charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-sm truncate">{userProfile.name || "Sem nome"}</p>
-                        {getPlanBadge(userProfile.plan)}
+                    {/* Top row: avatar + name + badge + expand */}
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <span className="text-sm font-bold text-primary">
+                          {(userProfile.name || "?").charAt(0).toUpperCase()}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-sm truncate">{userProfile.name || "Sem nome"}</p>
+                          {getPlanBadge(userProfile.plan)}
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
+                      </div>
+                      <Eye className={`h-4 w-4 shrink-0 transition-transform ${expandedUser === userProfile.user_id ? "text-primary rotate-180" : "text-muted-foreground"}`} />
                     </div>
 
-                    {/* Meta */}
-                    <div className="hidden sm:flex flex-col items-end gap-0.5 shrink-0">
-                      <p className="text-[10px] text-muted-foreground">Visto: {getRelativeTime(userProfile.last_seen)}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        Desde: {new Date(userProfile.created_at).toLocaleDateString("pt-BR")}
-                      </p>
+                    {/* Quick info row - always visible */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 ml-12">
+                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Telefone</p>
+                        <p className="text-xs font-semibold truncate">{userProfile.phone || "—"}</p>
+                      </div>
+                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Último acesso</p>
+                        <p className="text-xs font-semibold">{getRelativeTime(userProfile.last_seen)}</p>
+                      </div>
+                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Criado em</p>
+                        <p className="text-xs font-semibold">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</p>
+                      </div>
+                      <div className="bg-muted/40 rounded-lg px-2.5 py-1.5">
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Início do plano</p>
+                        <p className="text-xs font-semibold">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</p>
+                      </div>
                     </div>
-
-                    <Eye className={`h-4 w-4 shrink-0 transition-transform ${expandedUser === userProfile.user_id ? "text-primary rotate-180" : "text-muted-foreground"}`} />
                   </div>
 
                   {expandedUser === userProfile.user_id && (
                     <CardContent className="border-t bg-muted/20 pt-4 space-y-6">
-                      {/* User details */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Telefone</p>
-                          <p className="text-sm font-medium">{userProfile.phone || "—"}</p>
-                        </div>
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Último acesso</p>
-                          <p className="text-sm font-medium">{getRelativeTime(userProfile.last_seen)}</p>
-                        </div>
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Criado em</p>
-                          <p className="text-sm font-medium">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</p>
-                        </div>
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Início do plano</p>
-                          <p className="text-sm font-medium">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</p>
-                        </div>
-                      </div>
 
                       {/* Plan Selection */}
                       <div>
