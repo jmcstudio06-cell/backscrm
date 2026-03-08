@@ -80,10 +80,10 @@ export function AppNotificationsAdminPanel() {
   const fetchRecent = async () => {
     setLoadingHistory(true);
     const { data } = await supabase
-      .from("user_notifications" as any)
+      .from("user_notifications")
       .select("id, title, message, notification_type, created_at")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(20) as any;
     if (data) {
       // Deduplicate by title+created_at (since we insert per user)
       const seen = new Set<string>();
