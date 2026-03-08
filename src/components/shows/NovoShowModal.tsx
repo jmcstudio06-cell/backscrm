@@ -802,57 +802,6 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
                 </Select>
               </div>
 
-              {/* Checklist Template Selector */}
-              <div className="space-y-2 relative">
-                <Label htmlFor="checklist">Modelo de Checklist</Label>
-                {isBlocked("checklist") ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      toast.error("Recurso exclusivo do Plano Profissional", {
-                        description: "Assine o plano Profissional para usar modelos de checklist.",
-                        action: { label: "Ver Planos", onClick: () => navigate("/planos") },
-                      });
-                    }}
-                    className="flex items-center gap-2 w-full px-3 py-2 rounded-md border border-border bg-muted/50 text-muted-foreground text-sm cursor-pointer hover:bg-muted transition-colors"
-                  >
-                    <Lock className="w-4 h-4" />
-                    <span>Selecione um modelo (Plano Profissional)</span>
-                    <Crown className="w-4 h-4 ml-auto text-warning" />
-                  </button>
-                ) : (
-                  <>
-                    <Select
-                      value={selectedChecklistTemplateId}
-                      onValueChange={(v) => setSelectedChecklistTemplateId(v === "none" ? "" : v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={templatesLoading ? "Carregando..." : checklistTemplates.length === 0 ? "Nenhum modelo criado" : "Selecione um modelo (opcional)"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">
-                          <span className="text-muted-foreground">Sem checklist</span>
-                        </SelectItem>
-                        {checklistTemplates.map((template) => (
-                          <SelectItem key={template.id} value={template.id}>
-                            <div className="flex items-center gap-2">
-                              <span>{template.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                ({template.tasks.length} tarefas)
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {checklistTemplates.length === 0 && !templatesLoading && (
-                      <p className="text-xs text-muted-foreground">
-                        Crie modelos de checklist na página de Checklist de Show
-                      </p>
-                    )}
-                  </>
-                )}
-              </div>
             </div>
 
             <div className="space-y-2">
