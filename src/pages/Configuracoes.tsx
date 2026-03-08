@@ -440,16 +440,30 @@ export default function Configuracoes() {
         </TabsContent>
 
         {/* ════════ PERSONALIZAÇÃO ════════ */}
-        <TabsContent value="customization" className="space-y-6 animate-in fade-in-50 duration-300">
+        <TabsContent value="customization" className="space-y-5 animate-in fade-in-50 duration-300">
           
-          {/* Cor Principal */}
-          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
-            <div className="p-6 pb-0">
-              <h3 className="text-lg font-bold text-foreground">Cor Principal</h3>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">Escolha a cor da sua identidade</p>
+          {/* Header */}
+          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-card">
+            <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-r from-primary/10 via-accent/5 to-transparent">
+              <div className="relative flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md">
+                  <Palette className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Personalização</h3>
+                  <p className="text-xs text-muted-foreground">Deixe o app com a sua cara</p>
+                </div>
+              </div>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-7 gap-2 sm:gap-4">
+
+            {/* Cor Principal */}
+            <div className="p-6 space-y-4">
+              <div>
+                <h4 className="font-semibold text-foreground text-sm">Cor Principal</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Escolha a cor da sua identidade visual</p>
+              </div>
+              
+              <div className="flex items-center justify-center gap-3 sm:gap-5 py-2">
                 {Object.entries(COLOR_LABELS).map(([hue, label]) => {
                   const isSelected = customization.primaryColor === hue;
                   return (
@@ -459,110 +473,110 @@ export default function Configuracoes() {
                       className="group flex flex-col items-center gap-1.5 transition-all duration-200"
                     >
                       <div 
-                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md flex items-center justify-center transition-all duration-200 group-hover:scale-110 ${
-                          isSelected ? "ring-3 ring-foreground ring-offset-2 ring-offset-card scale-110" : ""
+                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full shadow-md flex items-center justify-center transition-all duration-200 group-hover:scale-110 ${
+                          isSelected ? "ring-2 ring-foreground/80 ring-offset-2 ring-offset-card scale-110" : "opacity-80 group-hover:opacity-100"
                         }`}
                         style={{ background: `hsl(${hue}, 90%, 56%)` }}
                       >
-                        {isSelected && <Check className="w-5 h-5 text-white drop-shadow" />}
+                        {isSelected && <Check className="w-4 h-4 text-white drop-shadow" />}
                       </div>
-                      <span className={`text-[10px] font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
+                      <span className={`text-[10px] font-medium transition-colors ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
                     </button>
                   );
                 })}
               </div>
 
-              {/* Preview inline */}
-              <div className="mt-5 p-4 rounded-xl bg-secondary/50 border border-border/30">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Pré-visualização</p>
+              {/* Preview */}
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border/30">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2.5">Pré-visualização</p>
                 <div className="flex flex-wrap items-center gap-3">
                   <Button variant="gradient" size="sm">Botão Primário</Button>
                   <Button variant="outline" size="sm">Secundário</Button>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                    <div className="w-2 h-2 rounded-full bg-primary" />
                     <span className="text-sm text-primary font-semibold">Destaque</span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Ícones */}
-          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
-            <div className="p-6 pb-0">
-              <h3 className="text-lg font-bold text-foreground">Estilo dos Ícones</h3>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">Como os ícones aparecem no app</p>
-            </div>
-            <div className="p-6">
+            <Separator className="mx-6" />
+
+            {/* Estilo dos Ícones */}
+            <div className="p-6 space-y-4">
+              <div>
+                <h4 className="font-semibold text-foreground text-sm">Estilo dos Ícones</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Como os ícones aparecem no app</p>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "outline" as const, label: "Vazado", desc: "Leve e moderno", icon: <Circle className="w-7 h-7 text-primary" /> },
-                  { value: "filled" as const, label: "Preenchido", desc: "Forte e impactante", icon: <Square className="w-7 h-7 text-primary fill-primary" /> },
+                  { value: "outline" as const, label: "Vazado", desc: "Leve e moderno", icon: <Circle className="w-6 h-6 text-primary" /> },
+                  { value: "filled" as const, label: "Preenchido", desc: "Forte e impactante", icon: <Square className="w-6 h-6 text-primary fill-primary" /> },
                 ].map(({ value, label, desc, icon }) => (
                   <button
                     key={value}
                     onClick={() => updateSettings({ iconStyle: value })}
-                    className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all ${
                       customization.iconStyle === value 
-                        ? "border-primary bg-primary/5 shadow-md" 
+                        ? "border-primary bg-primary/5 shadow-sm" 
                         : "border-border/50 hover:border-primary/30"
                     }`}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-secondary/80 flex items-center justify-center shrink-0">
                       {icon}
                     </div>
                     <div className="text-left flex-1 min-w-0">
                       <p className="font-semibold text-foreground text-sm">{label}</p>
-                      <p className="text-xs text-muted-foreground">{desc}</p>
+                      <p className="text-[11px] text-muted-foreground">{desc}</p>
                     </div>
                     {customization.iconStyle === value && <Check className="w-4 h-4 text-primary shrink-0" />}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Fonte */}
-          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
-            <div className="p-6 pb-0">
-              <h3 className="text-lg font-bold text-foreground">Tamanho do Texto</h3>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">Ajuste para seu conforto</p>
-            </div>
-            <div className="p-6">
+            <Separator className="mx-6" />
+
+            {/* Tamanho do Texto */}
+            <div className="p-6 space-y-4">
+              <div>
+                <h4 className="font-semibold text-foreground text-sm">Tamanho do Texto</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Ajuste para seu conforto visual</p>
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 {([
                   { value: "small" as const, label: "Pequeno", icon: Smartphone, size: "w-5 h-5" },
                   { value: "medium" as const, label: "Médio", icon: Monitor, size: "w-6 h-6" },
-                  { value: "large" as const, label: "Grande", icon: Type, size: "w-8 h-8" },
+                  { value: "large" as const, label: "Grande", icon: Type, size: "w-7 h-7" },
                 ]).map(({ value, label, icon: Icon, size }) => (
                   <button
                     key={value}
                     onClick={() => updateSettings({ fontSize: value })}
-                    className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all ${
+                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
                       customization.fontSize === value 
-                        ? "border-primary bg-primary/5 shadow-md" 
+                        ? "border-primary bg-primary/5 shadow-sm" 
                         : "border-border/50 hover:border-primary/30"
                     }`}
                   >
                     <Icon className={`text-primary ${size}`} />
-                    <span className="font-semibold text-foreground text-sm">{label}</span>
-                    {customization.fontSize === value && <Check className="w-4 h-4 text-primary" />}
+                    <span className="font-medium text-foreground text-xs">{label}</span>
+                    {customization.fontSize === value && <Check className="w-3.5 h-3.5 text-primary" />}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Layout */}
-          <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
+            <Separator className="mx-6" />
+
+            {/* Modo Compacto */}
             <div className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-secondary/80 flex items-center justify-center">
                     <Eye className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-foreground">Modo Compacto</h3>
+                    <h4 className="font-semibold text-foreground text-sm">Modo Compacto</h4>
                     <p className="text-xs text-muted-foreground">Menos espaçamento, mais conteúdo visível</p>
                   </div>
                 </div>
@@ -572,14 +586,14 @@ export default function Configuracoes() {
                 />
               </div>
             </div>
-          </div>
 
-          {/* Reset */}
-          <div className="flex justify-center pt-2">
-            <Button variant="outline" size="sm" onClick={handleResetCustomization} className="gap-2 text-muted-foreground hover:text-foreground">
-              <RotateCcw className="w-3.5 h-3.5" />
-              Restaurar Padrão
-            </Button>
+            {/* Footer - Reset */}
+            <div className="px-6 py-4 bg-secondary/20 border-t border-border/30 flex justify-center">
+              <Button variant="ghost" size="sm" onClick={handleResetCustomization} className="gap-2 text-muted-foreground hover:text-foreground">
+                <RotateCcw className="w-3.5 h-3.5" />
+                Restaurar Padrão
+              </Button>
+            </div>
           </div>
         </TabsContent>
 
