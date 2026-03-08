@@ -88,8 +88,9 @@ export default function MapeamentoPalco() {
   return (
     <Layout title="Mapeamento de Palco" subtitle="Organize sua estrutura técnica para cada show">
       <div className="space-y-6">
-        <div className="flex justify-end">
-          <Button onClick={handleCreateMapping}>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">{mappings.length}/3 mapeamentos</p>
+          <Button onClick={handleCreateMapping} disabled={mappings.length >= 3}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Mapeamento
           </Button>
