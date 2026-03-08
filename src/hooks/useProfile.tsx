@@ -34,6 +34,7 @@ export interface Profile {
   payment_deadline: string | null;
   late_fee_percentage: number | null;
   slug: string | null;
+  onboarding_completed: boolean | null;
 }
 
 export function useProfile() {

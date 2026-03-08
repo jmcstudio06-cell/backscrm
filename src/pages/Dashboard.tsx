@@ -75,14 +75,8 @@ const Dashboard = () => {
     const checkData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Check onboarding using profile data
-        const { data: onboardingData } = await supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("user_id", user.id)
-          .single();
-
-        if (onboardingData && !onboardingData.onboarding_completed) {
+        // Check onboarding using already-loaded profile (no extra query)
+        if (profile && !profile.onboarding_completed) {
           setShowWelcome(true);
         } else if (profile) {
           const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
