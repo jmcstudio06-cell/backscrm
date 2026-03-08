@@ -91,9 +91,9 @@ serve(async (req) => {
     }
 
     if (!pendingPayment) {
-      console.error(`❌ No pending payment found for amount: ${amountCents} cents`);
-      return new Response(JSON.stringify({ error: "no pending payment found for this amount" }), {
-        status: 404,
+      console.warn(`⚠️ No pending payment found for amount: ${amountCents} cents — acknowledging to stop retries`);
+      return new Response(JSON.stringify({ ok: true, message: "no pending payment found" }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
