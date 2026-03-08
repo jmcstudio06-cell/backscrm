@@ -90,6 +90,13 @@ export default function Contratos() {
         </div>
       </div>
 
+      <Alert variant="destructive" className="border-warning/50 bg-warning/10 text-warning">
+        <AlertTriangle className="h-4 w-4 !text-warning" />
+        <AlertDescription className="text-sm text-foreground">
+          Apenas os <strong>5 contratos mais recentes</strong> são armazenados. Contratos mais antigos são excluídos automaticamente. Salve seus contratos finalizados em PDF!
+        </AlertDescription>
+      </Alert>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
           <div className="flex flex-col md:flex-row justify-between gap-4">
