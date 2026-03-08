@@ -122,6 +122,13 @@ export default function Orcamentos() {
         </div>
       </div>
 
+      <Alert variant="destructive" className="border-warning/50 bg-warning/10 text-warning">
+        <AlertTriangle className="h-4 w-4 !text-warning" />
+        <AlertDescription className="text-sm text-foreground">
+          Apenas os <strong>5 orçamentos mais recentes</strong> são armazenados. Orçamentos mais antigos são excluídos automaticamente. Salve seus orçamentos finalizados em PDF!
+        </AlertDescription>
+      </Alert>
+
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
         <div className="relative">
