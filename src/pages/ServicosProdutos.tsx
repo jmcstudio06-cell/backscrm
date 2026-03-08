@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Plus, Trash2, Edit2, Package, Search,
   Music, Mic, MicVocal, Guitar, Piano, Drum,
@@ -15,6 +21,7 @@ import {
   Users, UserPlus, Briefcase, Award, Crown,
   Disc3, ListMusic, AudioLines, Waves, Zap,
   Church, Building2, Tent, TreePine, Utensils,
+  DollarSign, TrendingUp, Eye,
   type LucideIcon,
 } from "lucide-react";
 import { useBudgets, PerformanceType } from "@/hooks/useBudgets";
@@ -60,9 +67,14 @@ function getIconComponent(iconName: string): LucideIcon {
   return found?.icon || Music;
 }
 
+const fmt = (v: number) =>
+  v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export default function ServicosProdutos() {
   const { performanceTypes, loading, addPerformanceType, updatePerformanceType, deletePerformanceType } = useBudgets();
   const { musicians } = useMusicians();
+
+  const [modalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
@@ -72,6 +84,7 @@ export default function ServicosProdutos() {
   const [search, setSearch] = useState("");
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [musicianPickerOpen, setMusicianPickerOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const filtered = performanceTypes.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -90,23 +103,25 @@ export default function ServicosProdutos() {
 
   const totalWithMusicians = price + selectedMusiciansTotal;
 
-  const handleSave = async () => {
-    if (!name.trim()) return;
-
-    const payload = { name, description, price, icon: selectedIcon, musician_ids: selectedMusicians } as any;
-
-    if (editingId) {
-      await updatePerformanceType(editingId, payload);
-      setEditingId(null);
-    } else {
-      await addPerformanceType(payload);
-    }
-
+  const handleOpenNew = () => {
+    setEditingId(null);
     setName("");
     setDescription("");
     setPrice(0);
     setSelectedIcon("music");
     setSelectedMusicians([]);
+    setModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!name.trim()) return;
+    const payload = { name, description, price, icon: selectedIcon, musician_ids: selectedMusicians } as any;
+    if (editingId) {
+      await updatePerformanceType(editingId, payload);
+    } else {
+      await addPerformanceType(payload);
+    }
+    setModalOpen(false);
   };
 
   const handleEdit = (perf: PerformanceType) => {
@@ -116,307 +131,449 @@ export default function ServicosProdutos() {
     setPrice(perf.price);
     setSelectedIcon((perf as any).icon || "music");
     setSelectedMusicians((perf as any).musician_ids || []);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setModalOpen(true);
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setName("");
-    setDescription("");
-    setPrice(0);
-    setSelectedIcon("music");
-    setSelectedMusicians([]);
-  };
+  // Stats
+  const totalItems = performanceTypes.length;
+  const avgPrice = totalItems > 0 ? performanceTypes.reduce((s, p) => {
+    const mIds: string[] = (p as any).musician_ids || [];
+    const mTotal = mIds.reduce((sum, id) => sum + (musicians.find(mu => mu.id === id)?.rate || 0), 0);
+    return s + p.price + mTotal;
+  }, 0) / totalItems : 0;
+  const maxPerf = performanceTypes.reduce<PerformanceType | null>((best, p) => {
+    const mIds: string[] = (p as any).musician_ids || [];
+    const total = p.price + mIds.reduce((s, id) => s + (musicians.find(mu => mu.id === id)?.rate || 0), 0);
+    const bestIds: string[] = best ? ((best as any).musician_ids || []) : [];
+    const bestTotal = best ? best.price + bestIds.reduce((s, id) => s + (musicians.find(mu => mu.id === id)?.rate || 0), 0) : 0;
+    return total > bestTotal ? p : best;
+  }, null);
 
   const SelectedIconComp = getIconComponent(selectedIcon);
+  const detailPerf = performanceTypes.find(p => p.id === detailId);
 
   if (loading) {
-    return <Layout title="Serviços e Produtos" subtitle="Carregando..."><div className="flex items-center justify-center h-64">Carregando...</div></Layout>;
+    return (
+      <Layout title="Serviços e Produtos" subtitle="Carregando...">
+        <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>
+      </Layout>
+    );
   }
 
   return (
-    <Layout title="Serviços e Produtos" subtitle="Cadastre seus serviços e produtos para usar nos orçamentos">
-      {/* Add/Edit Form */}
-      <ChartCard
-        title={editingId ? "Editar Serviço" : "Novo Serviço ou Produto"}
-        subtitle={editingId ? "Atualize as informações abaixo" : "Preencha para adicionar ao seu catálogo"}
-      >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_1fr] gap-4 items-end">
-            {/* Icon Picker */}
-            <div className="space-y-2">
-              <Label>Ícone</Label>
-              <Popover open={iconPickerOpen} onOpenChange={setIconPickerOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    className="w-12 h-12 rounded-xl bg-primary/10 border-2 border-border hover:border-primary flex items-center justify-center transition-all"
-                    title="Escolher ícone"
-                  >
-                    <SelectedIconComp className="w-6 h-6 text-primary" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-3" align="start">
-                  <p className="text-sm font-semibold text-foreground mb-3">Escolha um ícone</p>
-                  <div className="grid grid-cols-8 gap-1">
-                    {ICON_OPTIONS.map(({ name: iconName, icon: Icon, label }) => (
-                      <button
-                        key={iconName}
-                        onClick={() => { setSelectedIcon(iconName); setIconPickerOpen(false); }}
-                        title={label}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                          selectedIcon === iconName
-                            ? "bg-primary text-primary-foreground scale-110 shadow-glow"
-                            : "hover:bg-secondary text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    ))}
-                  </div>
-                </PopoverContent>
-              </Popover>
+    <Layout title="Serviços e Produtos" subtitle="Seu catálogo profissional de serviços e produtos">
+
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
+          <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-primary/10">
+              <Package className="w-5 h-5 text-primary" />
             </div>
-
-            <div className="space-y-2">
-              <Label>Nome do Serviço / Produto</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Show com Banda Completa"
-                className="bg-secondary"
-              />
+            <div>
+              <p className="text-2xl font-bold text-foreground">{totalItems}</p>
+              <p className="text-xs text-muted-foreground">Serviços cadastrados</p>
             </div>
-            <div className="space-y-2">
-              <Label>Preço Base (R$)</Label>
-              <Input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
-                placeholder="0,00"
-                className="bg-secondary"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Descrição (opcional)</Label>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descreva o que está incluso neste serviço..."
-              className="bg-secondary resize-none"
-              rows={2}
-            />
-          </div>
-
-          {/* Musician Selector */}
-          {musicians.length > 0 && (
-            <div className="space-y-2">
-              <Label>Equipe incluída neste serviço</Label>
-              <Popover open={musicianPickerOpen} onOpenChange={setMusicianPickerOpen}>
-                <PopoverTrigger asChild>
-                  <button className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary bg-secondary text-left transition-all">
-                    <Users className="w-5 h-5 text-primary shrink-0" />
-                    <span className="flex-1 text-sm text-muted-foreground">
-                      {selectedMusicians.length === 0
-                        ? "Selecionar músicos da equipe..."
-                        : `${selectedMusicians.length} músico${selectedMusicians.length > 1 ? "s" : ""} selecionado${selectedMusicians.length > 1 ? "s" : ""}`
-                      }
-                    </span>
-                    {selectedMusicians.length > 0 && (
-                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-                        + R$ {selectedMusiciansTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </span>
-                    )}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-0" align="start">
-                  <div className="p-3 border-b border-border">
-                    <p className="text-sm font-semibold text-foreground">Selecionar da equipe</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">O cachê de cada músico será somado ao preço base</p>
-                  </div>
-                  <div className="max-h-60 overflow-y-auto p-2 space-y-1">
-                    {musicians.map((m) => {
-                      const isSelected = selectedMusicians.includes(m.id);
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => toggleMusician(m.id)}
-                          className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-left transition-all ${
-                            isSelected ? "bg-primary/10 border border-primary/30" : "hover:bg-secondary border border-transparent"
-                          }`}
-                        >
-                          <Checkbox checked={isSelected} className="pointer-events-none" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">{m.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {m.instrument || "Sem instrumento"} · {m.member_type === "freelancer" ? "Freelancer" : "Fixo"}
-                            </p>
-                          </div>
-                          <span className="text-xs font-bold text-primary whitespace-nowrap">
-                            R$ {(m.rate || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {selectedMusicians.length > 0 && (
-                    <div className="p-3 border-t border-border bg-muted/30">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Total equipe:</span>
-                        <span className="font-bold text-primary">
-                          R$ {selectedMusiciansTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
-
-              {/* Selected musicians tags */}
-              {selectedMusicians.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedMusicians.map(id => {
-                    const m = musicians.find(mu => mu.id === id);
-                    if (!m) return null;
-                    return (
-                      <span
-                        key={id}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 text-xs font-medium text-primary"
-                      >
-                        {m.name}
-                        <span className="text-primary/60">R$ {(m.rate || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                        <button onClick={() => toggleMusician(id)} className="ml-0.5 hover:text-destructive transition-colors">×</button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Total summary */}
-              {selectedMusicians.length > 0 && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
-                  <div className="flex-1 text-sm">
-                    <span className="text-muted-foreground">Preço base R$ {price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                    <span className="text-muted-foreground mx-1">+</span>
-                    <span className="text-muted-foreground">Equipe R$ {selectedMusiciansTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  <span className="text-base font-bold text-primary">
-                    = R$ {totalWithMusicians.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <Button variant="gradient" onClick={handleSave} disabled={!name.trim()}>
-              <Plus className="w-4 h-4 mr-2" />
-              {editingId ? "Atualizar" : "Adicionar"}
-            </Button>
-            {editingId && (
-              <Button variant="outline" onClick={handleCancel}>
-                Cancelar
-              </Button>
-            )}
           </div>
         </div>
-      </ChartCard>
+        <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
+          <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-success/5 blur-2xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-success/10">
+              <DollarSign className="w-5 h-5 text-success" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">R$ {fmt(avgPrice)}</p>
+              <p className="text-xs text-muted-foreground">Ticket médio</p>
+            </div>
+          </div>
+        </div>
+        <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
+          <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-accent/5 blur-2xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-accent/10">
+              <TrendingUp className="w-5 h-5 text-accent" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-foreground truncate max-w-[180px]">
+                {maxPerf ? maxPerf.name : "—"}
+              </p>
+              <p className="text-xs text-muted-foreground">Serviço mais caro</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Search */}
-      {performanceTypes.length > 3 && (
-        <div className="relative mt-6">
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar serviço..."
-            className="pl-9 w-64 bg-secondary"
+            placeholder="Buscar serviço ou produto..."
+            className="pl-9 bg-card border-border/50"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
-      )}
+        <Button className="bg-primary hover:bg-primary/90 shadow-lg" onClick={handleOpenNew}>
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Serviço
+        </Button>
+      </div>
 
-      {/* List */}
-      <div className="mt-6">
-        <ChartCard
-          title="Seu Catálogo"
-          subtitle={`${performanceTypes.length} ${performanceTypes.length === 1 ? "item cadastrado" : "itens cadastrados"}`}
-        >
-          {filtered.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Package className="w-8 h-8 text-primary/60" />
-              </div>
-              <p className="text-muted-foreground font-medium">
-                {search ? "Nenhum resultado encontrado" : "Nenhum serviço cadastrado ainda"}
-              </p>
-              <p className="text-sm text-muted-foreground/70 mt-1">
-                {search ? "Tente outro termo de busca" : "Adicione seu primeiro serviço acima para começar a usar nos orçamentos"}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {filtered.map((perf) => {
-                const IconComp = getIconComponent((perf as any).icon || "music");
-                const perfMusicians: string[] = (perf as any).musician_ids || [];
-                const musiciansTotal = perfMusicians.reduce((sum, id) => {
-                  const m = musicians.find(mu => mu.id === id);
-                  return sum + (m?.rate || 0);
-                }, 0);
-                const perfTotal = perf.price + musiciansTotal;
+      {/* Catalog Grid */}
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center mb-5">
+            <Package className="w-9 h-9 text-muted-foreground/50" />
+          </div>
+          <p className="text-lg font-semibold text-foreground mb-1">
+            {search ? "Nenhum resultado encontrado" : "Seu catálogo está vazio"}
+          </p>
+          <p className="text-sm text-muted-foreground max-w-sm">
+            {search ? "Tente outro termo de busca" : "Adicione seus serviços e produtos para usar nos orçamentos e impressionar seus clientes."}
+          </p>
+          {!search && (
+            <Button className="mt-6 bg-primary hover:bg-primary/90" onClick={handleOpenNew}>
+              <Plus className="w-4 h-4 mr-2" />
+              Criar primeiro serviço
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((perf) => {
+            const IconComp = getIconComponent((perf as any).icon || "music");
+            const perfMusicians: string[] = (perf as any).musician_ids || [];
+            const musiciansTotal = perfMusicians.reduce((sum, id) => {
+              const m = musicians.find(mu => mu.id === id);
+              return sum + (m?.rate || 0);
+            }, 0);
+            const perfTotal = perf.price + musiciansTotal;
 
-                return (
-                  <div
-                    key={perf.id}
-                    className="group flex items-start gap-4 p-4 rounded-xl glass hover:shadow-card transition-all"
-                  >
-                    <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <IconComp className="w-5 h-5 text-primary" />
+            return (
+              <div
+                key={perf.id}
+                className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                onClick={() => setDetailId(perf.id)}
+              >
+                {/* Glow */}
+                <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative p-5">
+                  {/* Header */}
+                  <div className="flex items-start gap-3.5 mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <IconComp className="w-5.5 h-5.5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground truncate">{perf.name}</p>
+                      <p className="font-bold text-foreground truncate text-base">{perf.name}</p>
                       {perf.description && (
-                        <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{perf.description}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{perf.description}</p>
                       )}
-                      {perfMusicians.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {perfMusicians.map(id => {
-                            const m = musicians.find(mu => mu.id === id);
-                            if (!m) return null;
-                            return (
-                              <span key={id} className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
-                                {m.name}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-sm font-bold text-primary">
-                          R$ {perfTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </p>
-                        {perfMusicians.length > 0 && (
-                          <span className="text-[10px] text-muted-foreground">
-                            (base {perf.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} + equipe {musiciansTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})
-                          </span>
+                    </div>
+                  </div>
+
+                  {/* Musicians */}
+                  {perfMusicians.length > 0 && (
+                    <div className="flex items-center gap-1.5 mb-4">
+                      <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                      <div className="flex flex-wrap gap-1">
+                        {perfMusicians.slice(0, 3).map(id => {
+                          const m = musicians.find(mu => mu.id === id);
+                          if (!m) return null;
+                          return (
+                            <Badge key={id} variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal">
+                              {m.name.split(" ")[0]}
+                            </Badge>
+                          );
+                        })}
+                        {perfMusicians.length > 3 && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal">
+                            +{perfMusicians.length - 3}
+                          </Badge>
                         )}
                       </div>
                     </div>
+                  )}
+
+                  {/* Price Footer */}
+                  <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                    <div>
+                      <p className="text-xl font-bold text-primary leading-none">
+                        R$ {fmt(perfTotal)}
+                      </p>
+                      {perfMusicians.length > 0 && (
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          base {fmt(perf.price)} + equipe {fmt(musiciansTotal)}
+                        </p>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(perf)}>
-                        <Edit2 className="w-4 h-4" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={(e) => { e.stopPropagation(); handleEdit(perf); }}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deletePerformanceType(perf.id)}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={(e) => { e.stopPropagation(); deletePerformanceType(perf.id); }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ===== CREATE / EDIT MODAL ===== */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Package className="w-4 h-4 text-primary" />
+              </div>
+              {editingId ? "Editar Serviço" : "Novo Serviço ou Produto"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-2">
+            {/* Icon + Name */}
+            <div className="flex items-end gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Ícone</Label>
+                <Popover open={iconPickerOpen} onOpenChange={setIconPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="w-12 h-12 rounded-xl bg-primary/10 border-2 border-border hover:border-primary flex items-center justify-center transition-all">
+                      <SelectedIconComp className="w-6 h-6 text-primary" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-3" align="start">
+                    <p className="text-sm font-semibold text-foreground mb-3">Escolha um ícone</p>
+                    <div className="grid grid-cols-8 gap-1">
+                      {ICON_OPTIONS.map(({ name: iconName, icon: Icon, label }) => (
+                        <button
+                          key={iconName}
+                          onClick={() => { setSelectedIcon(iconName); setIconPickerOpen(false); }}
+                          title={label}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                            selectedIcon === iconName
+                              ? "bg-primary text-primary-foreground scale-110 shadow-glow"
+                              : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex-1 space-y-1.5">
+                <Label className="text-xs">Nome do Serviço / Produto *</Label>
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Show com Banda Completa" />
+              </div>
             </div>
-          )}
-        </ChartCard>
-      </div>
+
+            {/* Price */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Preço Base (R$) *</Label>
+              <Input type="number" value={price} onChange={e => setPrice(parseFloat(e.target.value) || 0)} placeholder="0,00" />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Descrição (opcional)</Label>
+              <Textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Descreva o que está incluso neste serviço..."
+                rows={2}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Musician Selector */}
+            {musicians.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-xs">Equipe incluída neste serviço</Label>
+                <Popover open={musicianPickerOpen} onOpenChange={setMusicianPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary bg-muted/30 text-left transition-all">
+                      <Users className="w-5 h-5 text-primary shrink-0" />
+                      <span className="flex-1 text-sm text-muted-foreground">
+                        {selectedMusicians.length === 0
+                          ? "Selecionar músicos da equipe..."
+                          : `${selectedMusicians.length} músico${selectedMusicians.length > 1 ? "s" : ""} selecionado${selectedMusicians.length > 1 ? "s" : ""}`}
+                      </span>
+                      {selectedMusicians.length > 0 && (
+                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
+                          + R$ {fmt(selectedMusiciansTotal)}
+                        </span>
+                      )}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0" align="start">
+                    <div className="p-3 border-b border-border">
+                      <p className="text-sm font-semibold text-foreground">Selecionar da equipe</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">O cachê será somado ao preço base</p>
+                    </div>
+                    <div className="max-h-60 overflow-y-auto p-2 space-y-1">
+                      {musicians.map(m => {
+                        const isSelected = selectedMusicians.includes(m.id);
+                        return (
+                          <button
+                            key={m.id}
+                            onClick={() => toggleMusician(m.id)}
+                            className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-left transition-all ${
+                              isSelected ? "bg-primary/10 border border-primary/30" : "hover:bg-secondary border border-transparent"
+                            }`}
+                          >
+                            <Checkbox checked={isSelected} className="pointer-events-none" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{m.name}</p>
+                              <p className="text-xs text-muted-foreground">{m.instrument || "Sem instrumento"}</p>
+                            </div>
+                            <span className="text-xs font-bold text-primary whitespace-nowrap">R$ {fmt(m.rate || 0)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {selectedMusicians.length > 0 && (
+                      <div className="p-3 border-t border-border bg-muted/30 flex justify-between text-sm">
+                        <span className="text-muted-foreground">Total equipe:</span>
+                        <span className="font-bold text-primary">R$ {fmt(selectedMusiciansTotal)}</span>
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+
+                {/* Tags */}
+                {selectedMusicians.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {selectedMusicians.map(id => {
+                      const m = musicians.find(mu => mu.id === id);
+                      if (!m) return null;
+                      return (
+                        <span key={id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/10 text-xs font-medium text-primary">
+                          {m.name.split(" ")[0]}
+                          <button onClick={() => toggleMusician(id)} className="ml-0.5 hover:text-destructive transition-colors">×</button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Total */}
+                {selectedMusicians.length > 0 && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20 mt-2">
+                    <span className="text-sm text-muted-foreground">
+                      Base R$ {fmt(price)} + Equipe R$ {fmt(selectedMusiciansTotal)}
+                    </span>
+                    <span className="text-base font-bold text-primary">= R$ {fmt(totalWithMusicians)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setModalOpen(false)}>Cancelar</Button>
+              <Button className="flex-1 bg-primary hover:bg-primary/90" onClick={handleSave} disabled={!name.trim()}>
+                {editingId ? "Atualizar" : "Adicionar"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== DETAIL MODAL ===== */}
+      <Dialog open={!!detailId} onOpenChange={() => setDetailId(null)}>
+        <DialogContent className="sm:max-w-md">
+          {detailPerf && (() => {
+            const IconComp = getIconComponent((detailPerf as any).icon || "music");
+            const perfMusicians: string[] = (detailPerf as any).musician_ids || [];
+            const musiciansTotal = perfMusicians.reduce((sum, id) => sum + (musicians.find(mu => mu.id === id)?.rate || 0), 0);
+            const perfTotal = detailPerf.price + musiciansTotal;
+
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="sr-only">Detalhes do Serviço</DialogTitle>
+                </DialogHeader>
+
+                <div className="flex flex-col items-center text-center pb-4 border-b border-border">
+                  <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center mb-3 shadow-lg">
+                    <IconComp className="w-7 h-7 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">{detailPerf.name}</h2>
+                  {detailPerf.description && (
+                    <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">{detailPerf.description}</p>
+                  )}
+                </div>
+
+                {/* Price breakdown */}
+                <div className="py-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Preço base</span>
+                    <span className="text-sm font-semibold text-foreground">R$ {fmt(detailPerf.price)}</span>
+                  </div>
+                  {perfMusicians.length > 0 && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Equipe ({perfMusicians.length})</span>
+                        <span className="text-sm font-semibold text-foreground">R$ {fmt(musiciansTotal)}</span>
+                      </div>
+                      <div className="space-y-1.5 pl-3 border-l-2 border-primary/20">
+                        {perfMusicians.map(id => {
+                          const m = musicians.find(mu => mu.id === id);
+                          if (!m) return null;
+                          return (
+                            <div key={id} className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">{m.name} · {m.instrument || "—"}</span>
+                              <span className="text-foreground font-medium">R$ {fmt(m.rate || 0)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <span className="text-base font-bold text-foreground">Valor total</span>
+                    <span className="text-xl font-bold text-primary">R$ {fmt(perfTotal)}</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-2">
+                  <Button variant="outline" className="flex-1" onClick={() => { setDetailId(null); handleEdit(detailPerf); }}>
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => { deletePerformanceType(detailPerf.id); setDetailId(null); }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
