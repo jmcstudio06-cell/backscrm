@@ -372,30 +372,38 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     }
     if (template === "elegante") {
       return (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32, paddingBottom: 24, borderBottom: `1px solid ${c.primary}40` }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 70, height: 70, borderRadius: "50%", border: `2px solid ${c.primary}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Logo" style={{ width: 70, height: 70, objectFit: "cover", display: "block" }} crossOrigin="anonymous" />
-              ) : (
-                <span style={{ color: c.primary, fontSize: 28, fontWeight: 700 }}>{artistName.charAt(0).toUpperCase()}</span>
-              )}
+        <>
+          {/* Top accent bar */}
+          <div style={{ height: 6, background: `linear-gradient(90deg, #1a1a2e 0%, ${c.primary} 50%, #1a1a2e 100%)`, marginBottom: 28 }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, paddingBottom: 20, borderBottom: `2px solid ${c.primary}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 60, height: 60, borderRadius: 8, background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Logo" style={{ width: 60, height: 60, objectFit: "cover", display: "block" }} crossOrigin="anonymous" />
+                ) : (
+                  <span style={{ color: c.primary, fontSize: 24, fontWeight: 700 }}>{artistName.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#1a1a2e", marginBottom: 2 }}>{artistName}</div>
+                <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.5 }}>
+                  {artistPhone && <span>{artistPhone}<br /></span>}
+                  {artistEmail && <span>{artistEmail}</span>}
+                </div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: c.heading, marginBottom: 2 }}>{artistName}</div>
-              <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.5 }}>
-                {artistPhone && <span>{artistPhone}<br /></span>}
-                {artistEmail && <span>{artistEmail}</span>}
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: "#1a1a2e", letterSpacing: 3, lineHeight: 1 }}>ORÇAMENTO</div>
+              <div style={{ width: "100%", height: 3, background: c.primary, marginTop: 6, borderRadius: 2 }} />
+              <div style={{ fontSize: 12, color: c.muted, marginTop: 8 }}>
+                Nº {budget!.budget_number}
+              </div>
+              <div style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>
+                {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
               </div>
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: c.primary, letterSpacing: 2 }}>ORÇAMENTO</div>
-            <div style={{ fontSize: 13, color: c.muted, marginTop: 6 }}>
-              {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
-            </div>
-          </div>
-        </div>
+        </>
       );
     }
     // classico
