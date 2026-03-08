@@ -42,14 +42,11 @@ const getStatusConfig = (tasksCompleted: number, totalTasks: number) => {
 export default function Checklist() {
   const { getConfirmedShows } = useShows();
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
-  const [wizardShowId, setWizardShowId] = useState<string | null>(null);
   const [checklistItems, setChecklistItems] = useState<Record<string, ChecklistItem[]>>({});
-  const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
   const [templatesModalOpen, setTemplatesModalOpen] = useState(false);
 
   const confirmedShows = getConfirmedShows();
   const selectedShow = confirmedShows.find(s => s.id === selectedShowId);
-  const wizardShow = confirmedShows.find(s => s.id === wizardShowId);
 
   useEffect(() => {
     const DEFAULT_CHECKLIST = [
