@@ -605,10 +605,16 @@ export default function Admin() {
                         >
                           <option value="free">Free (Gratuito)</option>
                           <option value="trial">Trial (3 dias)</option>
-                          <option value="base">Mensal (30 dias)</option>
-                          <option value="essencial">Profissional (90 dias)</option>
-                          <option value="completo">Completo (180 dias)</option>
-                          <option value="anual">Anual (365 dias)</option>
+                          <optgroup label="Mensal (30 dias)">
+                            <option value="mensal_starter">Mensal Starter</option>
+                            <option value="mensal_profissional">Mensal Profissional</option>
+                            <option value="mensal_completo">Mensal Completo</option>
+                          </optgroup>
+                          <optgroup label="Anual (365 dias)">
+                            <option value="anual_starter">Anual Starter</option>
+                            <option value="anual_profissional">Anual Profissional</option>
+                            <option value="anual_completo">Anual Completo</option>
+                          </optgroup>
                           <option value="expirado">Expirado</option>
                         </select>
                       </div>
