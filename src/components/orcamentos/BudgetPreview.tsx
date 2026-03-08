@@ -482,18 +482,18 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               <tbody>
                 {items.map((item, index) => (
                   <tr key={item.id} style={{ borderBottom: template === "minimalista" ? "1px solid #eee" : `1px solid ${template === "elegante" ? "#e5e5e5" : "#eee"}`, backgroundColor: index % 2 === 0 ? c.row : "#fff" }}>
-                    <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "top" }}>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        {template === "elegante" && <span style={{ color: c.primary, fontWeight: 700, fontSize: 12, minWidth: 20 }}>{String(index + 1).padStart(2, "0")}</span>}
-                        <div>
-                          <div style={{ fontWeight: 500, color: c.text }}>{item.description}</div>
-                          {item.details && <div style={{ fontSize: 11, color: c.muted, marginTop: 2 }}>{item.details}</div>}
+                    <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "middle" }}>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", minHeight: 36 }}>
+                        {template === "elegante" && <span style={{ color: c.primary, fontWeight: 700, fontSize: 12, minWidth: 20, display: "inline-flex", alignItems: "center", lineHeight: 1 }}>{String(index + 1).padStart(2, "0")}</span>}
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                          <div style={{ fontWeight: 500, color: c.text, lineHeight: 1.25 }}>{item.description}</div>
+                          {item.details && <div style={{ fontSize: 11, color: c.muted, marginTop: 2, lineHeight: 1.25 }}>{item.details}</div>}
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", color: c.muted, whiteSpace: "nowrap" }}>{formatCurrency(item.unit_price)}</td>
-                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: c.muted }}>{item.quantity}</td>
-                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", fontWeight: 600, color: c.text, whiteSpace: "nowrap" }}>{formatCurrency(item.total)}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", color: c.muted, whiteSpace: "nowrap", verticalAlign: "middle", lineHeight: 1.25 }}>{formatCurrency(item.unit_price)}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: c.muted, verticalAlign: "middle", lineHeight: 1.25 }}>{item.quantity}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", fontWeight: 600, color: c.text, whiteSpace: "nowrap", verticalAlign: "middle", lineHeight: 1.25 }}>{formatCurrency(item.total)}</td>
                   </tr>
                 ))}
               </tbody>
