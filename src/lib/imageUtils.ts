@@ -136,16 +136,14 @@ export async function processImage(file: File): Promise<ImageValidationResult> {
   try {
     // Sempre comprimir para garantir tamanho otimizado
     // Tentar comprimir progressivamente se ainda grande
-    let compressedFile = await compressImage(file);
+    let compressedFile = await compressImage(file, AVATAR_MAX_DIMENSION, 0.8);
     
     if (compressedFile.size > MAX_COMPRESSED_SIZE) {
-      // Segunda tentativa com qualidade menor
-      compressedFile = await compressImage(file, 400);
+      compressedFile = await compressImage(file, 400, 0.6);
     }
     
     if (compressedFile.size > MAX_COMPRESSED_SIZE) {
-      // Terceira tentativa mais agressiva
-      compressedFile = await compressImage(file, 300);
+      compressedFile = await compressImage(file, 300, 0.5);
     }
     
     if (compressedFile.size > MAX_COMPRESSED_SIZE) {
