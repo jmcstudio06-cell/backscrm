@@ -340,6 +340,13 @@ const Dashboard = () => {
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
 
+        {/* Total Revenue Hero */}
+        <TotalRevenueHero
+          totalRevenue={totalAllTimeRevenue}
+          completedShowsCount={completedShowsAllTime}
+          growthPercentage={revenueGrowth}
+        />
+
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
           <div className="relative">
