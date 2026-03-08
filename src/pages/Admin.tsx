@@ -76,7 +76,7 @@ const FEATURES = [
   { key: "checklist", label: "Ideias de Post / Checklist / Avanços" },
   { key: "precificacao", label: "Precificação" },
   { key: "crm", label: "Radar de Shows" },
-  { key: "orcamentos", label: "Orçamentos / Serviços" },
+  { key: "orcamentos", label: "Orçamentos" },
   { key: "contratos", label: "Contrato Automático" },
   { key: "clientes", label: "Clientes" },
   { key: "financeiro", label: "Resumo Mensal" },
