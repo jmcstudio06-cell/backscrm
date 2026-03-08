@@ -70,13 +70,16 @@ interface UserGoal {
   year: number;
 }
 
-const FEATURES = [
+const FEATURES: { key: string; label: string }[] = [
   { key: "dashboard", label: "Dashboard" },
   { key: "agenda", label: "Agenda de Shows" },
-  { key: "checklist", label: "Ideias de Post / Checklist / Avanços" },
+  { key: "checklist", label: "Ideias de Post" },
+  { key: "checklist", label: "Checklist de Show" },
+  { key: "checklist", label: "Avanços" },
   { key: "precificacao", label: "Precificação" },
   { key: "crm", label: "Radar de Shows" },
-  { key: "orcamentos", label: "Orçamentos / Serviços" },
+  { key: "orcamentos", label: "Serviços e Produtos" },
+  { key: "orcamentos", label: "Orçamento Automático" },
   { key: "contratos", label: "Contrato Automático" },
   { key: "clientes", label: "Clientes" },
   { key: "financeiro", label: "Resumo Mensal" },
@@ -84,8 +87,10 @@ const FEATURES = [
   { key: "repertorio", label: "Repertório" },
   { key: "equipe", label: "Banda & Músicos" },
   { key: "mapeamento-palco", label: "Mapeamento de Palco" },
-  { key: "metas", label: "Metas Comerciais / Anual" },
+  { key: "metas", label: "Metas Comerciais" },
+  { key: "metas", label: "Meta Anual 2026" },
   { key: "aulas", label: "Bônus" },
+  { key: "agenda", label: "Solicitações" },
   { key: "configuracoes", label: "Configurações" },
 ];
 
