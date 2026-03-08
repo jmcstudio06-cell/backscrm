@@ -72,77 +72,55 @@ function MiniPreview({ template }: { template: BudgetTemplate }) {
 
   if (template === "minimalista") {
     return (
-      <div className="w-full aspect-[3/4] bg-white rounded-md flex flex-col text-[6px] font-sans border border-border overflow-hidden">
-        {/* Side accent + header */}
-        <div className="flex">
-          <div className="w-1.5 bg-foreground/80 rounded-bl-none" />
-          <div className="flex-1 p-2 pb-1">
-            <div className="flex justify-between items-start">
-              <div className="space-y-0.5">
-                <div className="w-10 h-1.5 bg-foreground/80 rounded" />
-                <div className="w-6 h-0.5 bg-muted-foreground/30 rounded" />
-              </div>
-              <div className="text-right space-y-0.5">
-                <div className="font-black text-foreground/80 text-[7px] tracking-wider">ORÇAMENTO</div>
-                <div className="w-8 h-0.5 bg-muted-foreground/30 rounded ml-auto" />
-              </div>
-            </div>
+      <div className="w-full aspect-[3/4] bg-white rounded-md p-2.5 flex flex-col text-[6px] font-sans border border-border overflow-hidden">
+        {/* Header: label + name left, number right */}
+        <div className="flex justify-between items-end pb-1.5 border-b border-foreground/10 mb-2">
+          <div className="space-y-0.5">
+            <div className="text-[4px] text-muted-foreground/50 uppercase tracking-widest">Orçamento</div>
+            <div className="w-12 h-1 bg-foreground/60 rounded" />
+          </div>
+          <div className="space-y-0.5 text-right">
+            <div className="w-6 h-0.5 bg-muted-foreground/30 rounded ml-auto" />
+            <div className="w-8 h-0.5 bg-muted-foreground/20 rounded ml-auto" />
           </div>
         </div>
 
-        <div className="px-2 flex-1 flex flex-col gap-1">
-          {/* Centered client */}
-          <div className="text-center py-0.5">
-            <div className="w-8 h-0.5 bg-muted-foreground/30 rounded mx-auto" />
-            <div className="w-12 h-1 bg-foreground/60 rounded mx-auto mt-0.5" />
-            <div className="w-10 h-0.5 bg-muted-foreground/20 rounded mx-auto mt-0.5" />
+        {/* Client */}
+        <div className="mb-2 space-y-0.5">
+          <div className="text-[4px] text-muted-foreground/40 uppercase tracking-widest">Para</div>
+          <div className="w-10 h-0.5 bg-foreground/50 rounded" />
+          <div className="w-7 h-0.5 bg-muted-foreground/20 rounded" />
+        </div>
+
+        {/* Table */}
+        <div className="flex-1 space-y-0.5">
+          <div className="border-b-[1.5px] border-foreground/15 h-2 flex items-center">
+            <div className="w-full flex justify-between">
+              <div className="w-6 h-0.5 bg-foreground/30 rounded" />
+              <div className="w-3 h-0.5 bg-foreground/30 rounded" />
+            </div>
           </div>
-
-          <div className="h-px bg-foreground/10" />
-
-          {/* Table */}
-          <div className="flex-1 space-y-0.5">
-            <div className="border-b-2 border-foreground/60 h-2 flex items-center px-1">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="h-2 flex items-center border-b border-foreground/5">
               <div className="w-full flex justify-between">
-                <div className="flex gap-1">
-                  <div className="w-2 h-0.5 bg-foreground/50 rounded" />
-                  <div className="w-5 h-0.5 bg-foreground/50 rounded" />
-                </div>
-                <div className="w-3 h-0.5 bg-foreground/50 rounded" />
+                <div className="w-8 h-0.5 bg-foreground/15 rounded" />
+                <div className="w-3 h-0.5 bg-foreground/15 rounded" />
               </div>
             </div>
-            {[0, 1, 2].map(i => (
-              <div key={i} className="h-2 flex items-center px-1 border-b border-foreground/5">
-                <div className="w-full flex justify-between">
-                  <div className="flex gap-1">
-                    <div className="w-1.5 h-0.5 bg-foreground/20 rounded" />
-                    <div className="w-7 h-0.5 bg-foreground/20 rounded" />
-                  </div>
-                  <div className="w-3 h-0.5 bg-foreground/20 rounded" />
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* Totals */}
-          <div className="flex justify-end mb-0.5">
-            <div className="space-y-0.5 w-14">
-              <div className="flex justify-between">
-                <div className="w-4 h-0.5 bg-muted-foreground/30 rounded" />
-                <div className="w-3 h-0.5 bg-muted-foreground/30 rounded" />
-              </div>
-              <div className="bg-foreground/80 rounded-sm px-1 py-0.5 flex justify-between">
-                <span className="text-white font-bold text-[5px]">TOTAL</span>
-                <span className="text-white font-bold text-[5px]">R$</span>
-              </div>
-            </div>
+        {/* Total — just a line */}
+        <div className="flex justify-end pt-1">
+          <div className="border-t-[1.5px] border-foreground/15 pt-0.5 w-12 flex justify-between">
+            <span className="text-foreground/50 font-medium text-[5px]">TOTAL</span>
+            <span className="text-foreground/70 font-medium text-[5px]">R$</span>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="bg-foreground/5 px-2 py-1 flex justify-between items-center border-t border-foreground/10">
-          <div className="w-8 h-0.5 bg-foreground/20 rounded" />
-          <div className="w-6 h-0.5 bg-foreground/20 rounded" />
+        {/* Subtle footer */}
+        <div className="mt-1.5 pt-1 border-t border-foreground/5 text-center">
+          <div className="text-muted-foreground/30 text-[4px] italic">Obrigado pela preferência</div>
         </div>
       </div>
     );

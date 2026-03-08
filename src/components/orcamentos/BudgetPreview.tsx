@@ -324,20 +324,20 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   // ✅ Color schemes per template
   const colors = {
     classico: { primary: "#6366f1", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#fafafa", accent: "#f0f0ff", accentBorder: "#e0e0ff" },
-    minimalista: { primary: "#333333", bg: "#ffffff", text: "#444", heading: "#111", muted: "#999", row: "#fafafa", accent: "#333333", accentBorder: "#e5e5e5" },
+    minimalista: { primary: "#555", bg: "#ffffff", text: "#555", heading: "#222", muted: "#aaa", row: "transparent", accent: "#f7f7f7", accentBorder: "#e8e8e8" },
     elegante: { primary: "#c9a84c", bg: "#ffffff", text: "#333", heading: "#1a1a2e", muted: "#888", row: "#f8f8f8", accent: "#1a1a2e", accentBorder: "#c9a84c" },
   };
   const c = colors[template];
 
   const thBase: React.CSSProperties = {
-    color: template === "elegante" ? "#ffffff" : template === "classico" ? "#fff" : c.heading,
+    color: template === "minimalista" ? c.heading : template === "elegante" ? "#ffffff" : "#fff",
     padding: 0,
     fontSize: 11,
-    fontWeight: 700,
+    fontWeight: template === "minimalista" ? 600 : 700,
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: template === "minimalista" ? 1.5 : 0.8,
     verticalAlign: "middle",
-    height: 44,
+    height: template === "minimalista" ? 36 : 44,
   };
 
   const thInner = (align: "left" | "right" | "center"): React.CSSProperties => ({
@@ -354,42 +354,27 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     if (template === "minimalista") {
       return (
         <>
-          {/* Side accent bar via left border on wrapper */}
-          <div style={{ display: "flex", gap: 0, marginBottom: 28 }}>
-            <div style={{ width: 5, background: c.heading, borderRadius: "3px 0 0 3px", flexShrink: 0 }} />
-            <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "16px 0 16px 20px" }}>
-              <div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: c.heading, letterSpacing: -0.5 }}>{artistName}</div>
-                <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.5, marginTop: 4 }}>
-                  {artistPhone && <span>{artistPhone}<br /></span>}
-                  {artistEmail && <span>{artistEmail}</span>}
-                </div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 28, fontWeight: 900, color: c.heading, letterSpacing: 2, lineHeight: 1 }}>ORÇAMENTO</div>
-                <div style={{ fontSize: 12, color: c.muted, marginTop: 6 }}>
-                  {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
-                </div>
+          {/* Ultra-clean header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 40, paddingBottom: 16, borderBottom: "1px solid #e0e0e0" }}>
+            <div>
+              <div style={{ fontSize: 11, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>Orçamento</div>
+              <div style={{ fontSize: 22, fontWeight: 300, color: c.heading, letterSpacing: -0.3 }}>{artistName}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 11, color: c.muted }}>{budget!.budget_number}</div>
+              <div style={{ fontSize: 11, color: c.muted, marginTop: 2 }}>
+                {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
               </div>
             </div>
           </div>
-          {/* Centered client block */}
-          <div style={{ textAlign: "center", marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid #e5e5e5" }}>
-            <div style={{ fontSize: 11, color: c.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Para</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: c.heading }}>{budget!.client_name}</div>
-            <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.5, marginTop: 2 }}>
+          {/* Client info — left aligned, simple */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Para</div>
+            <div style={{ fontSize: 15, fontWeight: 500, color: c.heading }}>{budget!.client_name}</div>
+            <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.6, marginTop: 2 }}>
               {budget!.client_company && <span>{budget!.client_company}<br /></span>}
               {budget!.client_address && <span>{budget!.client_address}</span>}
             </div>
-          </div>
-          {/* Budget number & validity row */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
-            <div style={{ fontSize: 12, color: c.muted }}>
-              <span style={{ fontWeight: 700, color: c.heading }}>Nº </span>{budget!.budget_number}
-            </div>
-            {budget!.valid_until && (
-              <div style={{ fontSize: 12, color: c.muted }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
-            )}
           </div>
         </>
       );
@@ -459,8 +444,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     );
   };
 
-  const theadBg = template === "minimalista" ? c.heading : template === "elegante" ? "#1a1a2e" : c.primary;
-  const theadStyle: React.CSSProperties = { backgroundColor: theadBg };
+  const theadBg = template === "minimalista" ? "transparent" : template === "elegante" ? "#1a1a2e" : c.primary;
+  const theadStyle: React.CSSProperties = template === "minimalista" ? { borderBottom: "2px solid #ddd" } : { backgroundColor: theadBg };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -576,10 +561,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 )}
                 <div style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
-                  backgroundColor: template === "classico" ? c.primary : template === "elegante" ? "#1a1a2e" : c.heading,
-                  color: "#fff",
-                  padding: "12px 16px",
-                  borderRadius: 6,
+                  ...(template === "minimalista" ? {
+                    backgroundColor: "transparent", color: c.heading,
+                    padding: "12px 0", borderRadius: 0, borderTop: "2px solid #ddd",
+                  } : {
+                    backgroundColor: template === "classico" ? c.primary : "#1a1a2e",
+                    color: "#fff", padding: "12px 16px", borderRadius: 6,
+                  }),
                   fontSize: 15, fontWeight: 700, marginTop: 8, minHeight: 46, lineHeight: 1,
                 }}>
                   <span style={{ display: "flex", alignItems: "center" }}>TOTAL</span>
@@ -591,20 +579,19 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             {/* Footer */}
             {template === "minimalista" ? (
               <>
-                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 20, gap: 24, marginBottom: 0 }}>
+                <div style={{ borderTop: "1px solid #e8e8e8", paddingTop: 24, display: "flex", justifyContent: "space-between", gap: 32 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: c.heading, marginBottom: 6 }}>Pagamento</div>
-                    <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.6 }}>{budget!.payment_conditions || "A combinar"}</div>
+                    <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Pagamento</div>
+                    <div style={{ fontSize: 11, color: c.text, lineHeight: 1.6 }}>{budget!.payment_conditions || "A combinar"}</div>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: c.heading, marginBottom: 6 }}>Observações</div>
-                    <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.6 }}>{budget!.terms_conditions || "Sujeito a disponibilidade."}</div>
+                    <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Observações</div>
+                    <div style={{ fontSize: 11, color: c.text, lineHeight: 1.6 }}>{budget!.terms_conditions || "Sujeito a disponibilidade."}</div>
                   </div>
                 </div>
-                {/* Clean bottom bar */}
-                <div style={{ marginTop: 24, padding: "12px 20px", backgroundColor: "#f5f5f5", borderRadius: 6, display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "2px solid #e5e5e5" }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: c.heading }}>Obrigado pela preferência!</div>
-                  <div style={{ fontSize: 11, color: c.muted }}>{artistPhone || artistEmail}</div>
+                <div style={{ marginTop: 32, textAlign: "center" }}>
+                  <div style={{ fontSize: 12, color: c.muted, fontStyle: "italic" }}>Obrigado pela preferência</div>
+                  <div style={{ fontSize: 11, color: c.muted, marginTop: 4 }}>{artistEmail}{artistPhone && artistEmail ? " · " : ""}{artistPhone}</div>
                 </div>
               </>
             ) : template === "elegante" ? (
