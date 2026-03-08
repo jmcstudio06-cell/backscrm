@@ -1,6 +1,4 @@
-import { useMemo } from "react";
 import { Music, TrendingUp, Award, BarChart3 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface TotalRevenueHeroProps {
   totalRevenue: number;
@@ -22,58 +20,48 @@ export function TotalRevenueHero({
   const hasGrowthData = !isNaN(growthPercentage) && isFinite(growthPercentage);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-6 sm:p-8 text-primary-foreground animate-fade-in">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+    <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 animate-fade-in">
+      {/* Title + Value */}
+      <div className="flex items-center gap-3 mb-1">
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <Music className="w-5 h-5 text-primary" />
+        </div>
+        <span className="text-sm font-medium text-muted-foreground">
+          💰 Total gerado pela sua música
+        </span>
+      </div>
+      <p className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight mt-3 mb-5">
+        R$ {formatCurrency(totalRevenue)}
+      </p>
 
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 bg-white/15 rounded-xl backdrop-blur-sm">
-            <Music className="w-6 h-6" />
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="flex items-center gap-2.5">
+          <Award className="w-4 h-4 text-primary shrink-0" />
+          <div>
+            <p className="text-lg font-bold text-foreground leading-tight">{completedShowsCount}</p>
+            <p className="text-[11px] text-muted-foreground leading-tight">Shows realizados</p>
           </div>
-          <span className="text-sm font-medium text-primary-foreground/80 uppercase tracking-wider">
-            💰 Total gerado pela sua música
-          </span>
         </div>
 
-        {/* Main value */}
-        <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-6">
-          R$ {formatCurrency(totalRevenue)}
-        </h2>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-6">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Award className="w-4 h-4 text-primary-foreground/70" />
-              <span className="text-xs text-primary-foreground/70">Shows realizados</span>
-            </div>
-            <p className="text-xl sm:text-2xl font-bold">{completedShowsCount}</p>
+        <div className="flex items-center gap-2.5">
+          <BarChart3 className="w-4 h-4 text-primary shrink-0" />
+          <div>
+            <p className="text-lg font-bold text-foreground leading-tight">R$ {formatCurrency(averageFee)}</p>
+            <p className="text-[11px] text-muted-foreground leading-tight">Cachê médio</p>
           </div>
+        </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <BarChart3 className="w-4 h-4 text-primary-foreground/70" />
-              <span className="text-xs text-primary-foreground/70">Cachê médio</span>
-            </div>
-            <p className="text-xl sm:text-2xl font-bold">
-              R$ {formatCurrency(averageFee)}
-            </p>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4 text-primary-foreground/70" />
-              <span className="text-xs text-primary-foreground/70">Crescimento</span>
-            </div>
-            <p className={cn("text-xl sm:text-2xl font-bold")}>
+        <div className="flex items-center gap-2.5">
+          <TrendingUp className="w-4 h-4 text-primary shrink-0" />
+          <div>
+            <p className="text-lg font-bold text-foreground leading-tight">
               {hasGrowthData
                 ? `${isPositiveGrowth ? "+" : ""}${growthPercentage.toFixed(0)}%`
                 : "—"
               }
             </p>
+            <p className="text-[11px] text-muted-foreground leading-tight">Crescimento</p>
           </div>
         </div>
       </div>
