@@ -68,6 +68,7 @@ const menuItems: MenuItem[] = [
       { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
       { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
       { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
+      { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
     ],
   },
   {
