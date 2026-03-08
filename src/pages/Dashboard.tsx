@@ -380,15 +380,6 @@ const Dashboard = () => {
           <UpcomingShowsCard shows={upcomingShows} />
         </div>
 
-        {/* Artist Journey Timeline */}
-        <ArtistJourneyCard
-          trialStart={profile?.trial_start || null}
-          showsCount={shows.length}
-          totalRevenue={transactions.filter(t => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0)}
-          contractsCount={contractsCount}
-          checklistsUsed={checklistsUsed}
-          stageMappingsCount={stageMappingsCount}
-        />
       </div>
     </Layout>
   );
