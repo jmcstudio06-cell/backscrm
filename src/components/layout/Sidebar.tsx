@@ -228,7 +228,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 );
               }
 
-              const blocked = item.featureKey && isBlocked(item.featureKey);
+              const blocked = !blocksLoading && item.featureKey && isBlocked(item.featureKey);
               const isActive = location.pathname.startsWith(item.path!);
 
               if (blocked) {
