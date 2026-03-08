@@ -88,7 +88,7 @@ const plans = [
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
-    features: ["Tudo do Starter +", "Clientes", "Repertório", "Funil de Vendas", "Orçamentos Automáticos", "Checklist de Show", "Equipe & Freelancers"],
+    features: ["Tudo do Starter +", "Clientes", "Repertório", "Radar de Shows", "Orçamentos Automáticos", "Checklist de Show", "Equipe & Freelancers"],
   },
   {
     id: "full",
