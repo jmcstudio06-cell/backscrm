@@ -4,7 +4,7 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, XCircle, Clock, Send, Eye, MoreVertical, Settings, AlertTriangle, LayoutTemplate } from "lucide-react";
+import { Plus, Search, FileText, CheckCircle2, XCircle, Clock, Send, Eye, MoreVertical, AlertTriangle, LayoutTemplate } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -13,7 +13,7 @@ import { formatDateBR } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { BudgetModal } from "@/components/orcamentos/BudgetModal";
 import { BudgetPreview } from "@/components/orcamentos/BudgetPreview";
-import { PerformanceTypesModal } from "@/components/orcamentos/PerformanceTypesModal";
+
 import { BudgetTemplatePreview } from "@/components/orcamentos/BudgetTemplatePreview";
 import { useCustomization } from "@/hooks/useCustomization";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
@@ -33,7 +33,7 @@ export default function Orcamentos() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isTypesModalOpen, setIsTypesModalOpen] = useState(false);
+  
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
   const [previewItems, setPreviewItems] = useState<BudgetItem[]>([]);
   const [templateOpen, setTemplateOpen] = useState(false);
@@ -82,10 +82,6 @@ export default function Orcamentos() {
           <Input placeholder="Buscar orçamentos..." className="pl-9 w-64 bg-secondary" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsTypesModalOpen(true)}>
-            <Settings className="w-4 h-4 mr-2" />
-            Serviços
-          </Button>
           <Button variant="gradient" onClick={() => { setSelectedBudget(null); setIsModalOpen(true); }}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Orçamento
@@ -196,7 +192,7 @@ export default function Orcamentos() {
 
       <BudgetModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedBudget(null); }} onSave={handleSave} clients={clients} performanceTypes={performanceTypes} budget={selectedBudget} />
       <BudgetPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} budget={selectedBudget} items={previewItems} />
-      <PerformanceTypesModal isOpen={isTypesModalOpen} onClose={() => setIsTypesModalOpen(false)} performanceTypes={performanceTypes} onAdd={addPerformanceType} onUpdate={updatePerformanceType} onDelete={deletePerformanceType} />
+      
     </Layout>
   );
 }
