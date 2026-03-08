@@ -172,7 +172,7 @@ export default function Financeiro() {
   }
 
   return (
-    <Layout title="Financeiro" subtitle={`Resumo de ${currentMonthName}`}>
+    <Layout title="Resumo Mensal" subtitle={`Resumo de ${currentMonthName}`}>
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-secondary">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
