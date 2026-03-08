@@ -482,8 +482,7 @@ export default function Admin() {
             </p>
           </button>
           );
-        })}
-        ))}
+        }
       </div>
 
       {/* Tabs */}
