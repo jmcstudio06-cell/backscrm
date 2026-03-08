@@ -635,30 +635,150 @@ export default function Financeiro() {
         {/* Reports Tab */}
         <TabsContent value="reports" className="space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold text-foreground">Relatórios Financeiros</h3>
+            <h3 className="font-semibold text-foreground">Nota Financeira do Mês</h3>
             <Button variant="gradient" onClick={handleExportPdf}>
               <Download className="w-4 h-4 mr-2" />
               Exportar PDF
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ChartCard title={`Relatório de ${currentMonthName}`}>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 rounded-lg bg-secondary/50">
-                  <span className="text-muted-foreground">Receita Total</span>
-                  <span className="font-bold text-success">R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+          <div className="max-w-2xl mx-auto">
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-6 shadow-sm">
+              {/* Header */}
+              <div className="text-center border-b border-border pb-4">
+                <h2 className="text-lg font-bold text-foreground">
+                  Nota Financeira
+                </h2>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {currentMonthName}
+                </p>
+              </div>
+
+              {/* Ganhos */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-success flex items-center gap-2">
+                  <ArrowUpRight className="w-4 h-4" />
+                  Ganhos do Mês
+                </h3>
+                {currentMonthTransactions.filter(t => t.type === "income").length === 0 ? (
+                  <p className="text-sm text-muted-foreground pl-6">Nenhum ganho registrado</p>
+                ) : (
+                  <div className="space-y-1 pl-6">
+                    {currentMonthTransactions
+                      .filter(t => t.type === "income")
+                      .map(t => (
+                        <div key={t.id} className="flex justify-between items-center py-1.5 border-b border-dashed border-border/50 last:border-0">
+                          <div>
+                            <span className="text-sm text-foreground">{t.description || t.category}</span>
+                            <span className="text-xs text-muted-foreground ml-2">({formatDateBR(t.date)})</span>
+                          </div>
+                          <span className="text-sm font-medium text-success whitespace-nowrap">
+                            + R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      ))}
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <span className="text-sm font-semibold text-foreground">Total de Ganhos</span>
+                      <span className="text-sm font-bold text-success">
+                        R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Gastos */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-destructive flex items-center gap-2">
+                  <ArrowDownRight className="w-4 h-4" />
+                  Gastos do Mês
+                </h3>
+                {currentMonthTransactions.filter(t => t.type === "expense").length === 0 ? (
+                  <p className="text-sm text-muted-foreground pl-6">Nenhum gasto registrado</p>
+                ) : (
+                  <div className="space-y-1 pl-6">
+                    {currentMonthTransactions
+                      .filter(t => t.type === "expense")
+                      .map(t => (
+                        <div key={t.id} className="flex justify-between items-center py-1.5 border-b border-dashed border-border/50 last:border-0">
+                          <div>
+                            <span className="text-sm text-foreground">{t.description || t.category}</span>
+                            <span className="text-xs text-muted-foreground ml-2">({formatDateBR(t.date)})</span>
+                          </div>
+                          <span className="text-sm font-medium text-destructive whitespace-nowrap">
+                            - R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      ))}
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <span className="text-sm font-semibold text-foreground">Total de Gastos</span>
+                      <span className="text-sm font-bold text-destructive">
+                        R$ {totalExpense.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Gastos por Categoria */}
+              {expenseCategories.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                    <Filter className="w-4 h-4" />
+                    Gastos por Categoria
+                  </h3>
+                  <div className="space-y-1 pl-6">
+                    {expenseCategories.map(cat => (
+                      <div key={cat.name} className="flex justify-between items-center py-1.5 border-b border-dashed border-border/50 last:border-0">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
+                          <span className="text-sm text-foreground">{cat.name}</span>
+                        </div>
+                        <span className="text-sm font-medium text-destructive whitespace-nowrap">
+                          - R$ {cat.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex justify-between items-center p-3 rounded-lg bg-secondary/50">
-                  <span className="text-muted-foreground">Despesa Total</span>
-                  <span className="font-bold text-destructive">R$ {totalExpense.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 rounded-lg bg-primary/10">
-                  <span className="text-foreground font-medium">Lucro Líquido</span>
-                  <span className="font-bold text-primary">R$ {profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+              )}
+
+              {/* Resultado / Lucro */}
+              <div className="space-y-3 pt-2 border-t-2 border-border">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Resultado do Mês
+                </h3>
+                <div className="space-y-2 pl-6">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-muted-foreground">Total de Ganhos</span>
+                    <span className="text-sm font-medium text-success">
+                      R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-muted-foreground">(-) Total de Gastos</span>
+                    <span className="text-sm font-medium text-destructive">
+                      R$ {totalExpense.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className={`flex justify-between items-center p-3 rounded-xl ${profit >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                    <span className="text-base font-bold text-foreground">Lucro Líquido</span>
+                    <span className={`text-xl font-bold ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      R$ {profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  {totalIncome > 0 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      Margem de lucro: <span className={`font-bold ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {((profit / totalIncome) * 100).toFixed(1)}%
+                      </span>
+                    </p>
+                  )}
                 </div>
               </div>
-            </ChartCard>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
