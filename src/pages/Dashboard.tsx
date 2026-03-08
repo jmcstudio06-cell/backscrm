@@ -340,13 +340,6 @@ const Dashboard = () => {
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
 
-        {/* Total Revenue Hero */}
-        <TotalRevenueHero
-          totalRevenue={totalAllTimeRevenue}
-          completedShowsCount={completedShowsAllTime}
-          growthPercentage={revenueGrowth}
-        />
-
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
           <div className="relative">
@@ -362,16 +355,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Monthly Show Goal Progress */}
-        {currentShowGoal && (
-          <div className="animate-fade-in">
-            <MonthlyShowGoalProgress
-              current={completedShowsThisMonth}
-              target={currentShowGoal.target_value}
-              monthName={currentMonthName}
-            />
-          </div>
-        )}
+        {/* Total Revenue Hero */}
+        <TotalRevenueHero
+          totalRevenue={totalAllTimeRevenue}
+          completedShowsCount={completedShowsAllTime}
+          growthPercentage={revenueGrowth}
+        />
 
         {/* Main Status Cards Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -402,6 +391,17 @@ const Dashboard = () => {
           />
           <UpcomingShowsCard shows={upcomingShows} />
         </div>
+
+        {/* Monthly Show Goal Progress - at the end */}
+        {currentShowGoal && (
+          <div className="animate-fade-in">
+            <MonthlyShowGoalProgress
+              current={completedShowsThisMonth}
+              target={currentShowGoal.target_value}
+              monthName={currentMonthName}
+            />
+          </div>
+        )}
 
       </div>
     </Layout>
