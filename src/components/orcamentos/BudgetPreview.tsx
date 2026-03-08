@@ -435,7 +435,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     );
   };
 
-  const theadBg = template === "minimalista" ? "transparent" : template === "elegante" ? `${c.primary}30` : c.primary;
+  const theadBg = template === "minimalista" ? "transparent" : template === "elegante" ? "#1a1a2e" : c.primary;
   const theadStyle: React.CSSProperties = template === "minimalista" 
     ? { borderBottom: "2px solid #333" } 
     : { backgroundColor: theadBg };
