@@ -108,6 +108,7 @@ const menuItems: MenuItem[] = [
 
 export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [manualClosed, setManualClosed] = useState<Set<string>>(new Set());
   const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
   const [blockedFeatureName, setBlockedFeatureName] = useState("");
   const location = useLocation();
@@ -156,8 +157,16 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 return (
                   <li key={item.label}>
                     <Collapsible
-                      open={openGroup === item.label || isChildActive(item.children)}
-                      onOpenChange={() => setOpenGroup(openGroup === item.label ? null : item.label)}
+                      open={openGroup === item.label || (isChildActive(item.children) && !manualClosed.has(item.label))}
+                      onOpenChange={(open) => {
+                        if (open) {
+                          setOpenGroup(item.label);
+                          setManualClosed(prev => { const n = new Set(prev); n.delete(item.label); return n; });
+                        } else {
+                          setOpenGroup(openGroup === item.label ? null : openGroup);
+                          setManualClosed(prev => new Set(prev).add(item.label));
+                        }
+                      }}
                     >
                       <CollapsibleTrigger asChild>
                         <button
