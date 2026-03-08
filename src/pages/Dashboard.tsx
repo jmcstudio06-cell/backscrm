@@ -2,7 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { CareerStatusCard } from "@/components/dashboard/CareerStatusCard";
 import { RecommendedActionCard } from "@/components/dashboard/RecommendedActionCard";
 import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
-
+import { TotalRevenueHero } from "@/components/dashboard/TotalRevenueHero";
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
@@ -261,6 +261,22 @@ const Dashboard = () => {
       });
   }, [shows, clients, contractShowIds, now]);
 
+  // Total revenue hero calculations
+  const totalAllTimeRevenue = useMemo(() => {
+    return transactions
+      .filter(t => t.type === "income")
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions]);
+
+  const completedShowsAllTime = useMemo(() => {
+    return shows.filter(s => s.status === "finalizado" || s.status === "completed").length;
+  }, [shows]);
+
+  const revenueGrowth = useMemo(() => {
+    if (revenueLastMonth === 0) return revenueThisMonth > 0 ? 100 : 0;
+    return ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100;
+  }, [revenueThisMonth, revenueLastMonth]);
+
   // Check if user has data for recommended actions
   const hasLeads = leads.length > 0;
   const hasShows = shows.length > 0;
@@ -323,6 +339,13 @@ const Dashboard = () => {
 
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
+
+        {/* Total Revenue Hero */}
+        <TotalRevenueHero
+          totalRevenue={totalAllTimeRevenue}
+          completedShowsCount={completedShowsAllTime}
+          growthPercentage={revenueGrowth}
+        />
 
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
