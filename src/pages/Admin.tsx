@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,38 +10,34 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAppSettings } from "@/hooks/useAppSettings";
-import { useAdminGifts } from "@/hooks/useUserGifts";
-import { 
-  Shield, 
-  Calendar, 
-  Zap, 
-  Users as UsersIcon, 
-  Heart, 
+import {
+  Shield,
+  Calendar,
+  Zap,
+  Users as UsersIcon,
+  Heart,
   AlertCircle,
   Search,
   Eye,
-  Info,
   Upload,
   Image,
-  Target,
-  DollarSign,
-  Mic2,
-  Key,
   Loader2,
   TrendingUp,
   Trophy,
-  Gift,
   PartyPopper,
-   Bell,
-   Sparkles,
+  Bell,
+  Sparkles,
+  BookOpen,
+  Lightbulb,
+  Megaphone,
+  ChevronLeft,
+  ChevronRight,
+  Crown,
 } from "lucide-react";
-// AdminInsights temporarily disabled
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
-// GiftsAdminPanel temporarily disabled
 import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
- import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
-import { Progress } from "@/components/ui/progress";
+import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 
 import type { Json } from "@/integrations/supabase/types";
 import { PLAN_MODULES } from "@/hooks/useFeatureBlocks";
@@ -60,7 +56,6 @@ interface UserProfile {
   feature_blocks?: Json | null;
 }
 
-// Helper para converter Json para Record<string, boolean>
 const parseFeatureBlocks = (blocks: Json | null | undefined): Record<string, boolean> => {
   if (!blocks || typeof blocks !== 'object' || Array.isArray(blocks)) return {};
   return blocks as Record<string, boolean>;
@@ -97,125 +92,75 @@ const FEATURES = [
 ];
 
 const PLAN_FILTERS = [
-  { value: "all", label: "TODOS" },
-  { value: "free", label: "FREE" },
-  { value: "trial", label: "TRIAL (legado)" },
-  { value: "base", label: "Assinatura Mensal" },
-  { value: "mensal", label: "MENSAL (legado)" },
-  { value: "essencial", label: "PROFISSIONAL" },
-  { value: "completo", label: "COMPLETO" },
-  { value: "anual", label: "ANUAL" },
-  { value: "expirado", label: "EXPIRADOS" },
+  { value: "all", label: "Todos" },
+  { value: "free", label: "Free" },
+  { value: "trial", label: "Trial" },
+  { value: "base", label: "Mensal" },
+  { value: "mensal", label: "Mensal (leg.)" },
+  { value: "essencial", label: "Profissional" },
+  { value: "completo", label: "Completo" },
+  { value: "anual", label: "Anual" },
+  { value: "expirado", label: "Expirados" },
 ];
 
-// Removed GIFT_FILTERS - no longer needed
-
-// Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
-  free: 99999,
-  trial: 3,
-  base: 30,
-  mensal: 30,
-  essencial: 90,
-  completo: 180,
-  anual: 365,
+  free: 99999, trial: 3, base: 30, mensal: 30,
+  essencial: 90, completo: 180, anual: 365,
 };
 
-// Features blocked for trial users (only these 3)
-const TRIAL_BLOCKED_FEATURES = [
-  "mapeamento-palco",
-  "contratos",
-  "orcamentos",
-];
-
-// Cache para evitar refetch ao navegar entre abas
-const adminDataCache = {
-  users: null as UserProfile[] | null,
-  totalUsers: 0,
-  userGoals: null as UserGoal[] | null,
-  trialDays: null as string | null,
-  lastFetch: 0,
-  cacheTimeout: 5 * 60 * 1000, // 5 minutos
-};
+const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos"];
 
 const USERS_PER_PAGE = 10;
+
+const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
+  free:      { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Sparkles className="h-5 w-5" /> },
+  trial:     { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
+  base:      { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
+  mensal:    { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
+  essencial: { bg: "bg-green-500/10", text: "text-green-600", border: "border-green-500/20", icon: <UsersIcon className="h-5 w-5" /> },
+  completo:  { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
+  anual:     { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
+  expirado:  { bg: "bg-red-500/10", text: "text-red-600", border: "border-red-500/20", icon: <AlertCircle className="h-5 w-5" /> },
+};
 
 export default function Admin() {
   const { user, loading: authLoading } = useRequireAuth();
   const { settings, refreshSettings } = useAppSettings();
-  const { allGifts, loading: giftsLoading, fetchAllGifts } = useAdminGifts();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [userGoals, setUserGoals] = useState<UserGoal[]>([]);
-  const [userStats, setUserStats] = useState<Record<string, { leads: number; revenue: number; shows: number }>>({});
-  const [userLastActivity, setUserLastActivity] = useState<Record<string, { date: Date | null; type: string | null }>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
-  
-  const [trialDays, setTrialDays] = useState("3");
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [appName, setAppName] = useState("Backstage Pro");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [userNewPasswords, setUserNewPasswords] = useState<Record<string, string>>({});
-  const [changingPasswords, setChangingPasswords] = useState<Record<string, boolean>>({});
   const dataLoaded = useRef(false);
-  
-  // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [planStats, setPlanStats] = useState<Record<string, number>>({
+    free: 0, trial: 0, base: 0, mensal: 0,
+    essencial: 0, completo: 0, anual: 0, expirado: 0,
+  });
 
-  // Helper to get gift status for a user
-  const getUserGiftStatus = (userId: string) => {
-    const gift = allGifts.find(g => g.user_id === userId);
-    if (!gift) return { status: 'no_gift', label: null, color: null };
-    
-    if (gift.is_claimed) {
-      return { status: 'claimed', label: '✅ Resgatou', color: 'bg-green-100 text-green-700 border-green-200' };
-    }
-    
-    if (gift.expires_at && new Date(gift.expires_at) < new Date()) {
-      return { status: 'expired', label: '⏰ Expirou', color: 'bg-red-100 text-red-700 border-red-200' };
-    }
-    
-    if (gift.is_enabled) {
-      return { status: 'has_gift', label: '🎁 Disponível', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
-    }
-    
-    return { status: 'no_gift', label: null, color: null };
-  };
-
-
-  // Check if current user is admin
+  // Check admin
   useEffect(() => {
     async function checkAdmin() {
       if (!user) return;
-      
-      const { data, error } = await supabase
-        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
-      
-      if (error) {
-        console.error("Error checking admin role:", error);
-        setIsAdmin(false);
-      } else {
-        setIsAdmin(data === true);
-      }
+      const { data, error } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      setIsAdmin(!error && data === true);
       setLoading(false);
     }
-    
-    if (!authLoading) {
-      checkAdmin();
-    }
+    if (!authLoading) checkAdmin();
   }, [user, authLoading]);
 
   // Fetch users with pagination
   const fetchUsers = async (page: number, filter: string, search: string) => {
     if (!isAdmin) return;
     setLoadingUsers(true);
-    
     const from = (page - 1) * USERS_PER_PAGE;
     const to = from + USERS_PER_PAGE - 1;
     
@@ -224,539 +169,50 @@ export default function Admin() {
       .select("*, feature_blocks", { count: "exact" })
       .order("created_at", { ascending: false });
     
-    // Apply plan filter
-    if (filter !== "all") {
-      query = query.eq("plan", filter);
-    }
-    
-    // Apply search filter
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
-    }
-    
-    // Apply pagination
+    if (filter !== "all") query = query.eq("plan", filter);
+    if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
     query = query.range(from, to);
     
     const { data, error, count } = await query;
-    
     if (error) {
-      console.error("Error fetching profiles:", error);
       toast.error("Erro ao carregar usuários");
     } else {
       setUsers(data || []);
       setTotalUsers(count || 0);
-      
-      // Fetch last activity for each user
-      if (data && data.length > 0) {
-        const userIds = data.map(u => u.user_id);
-        fetchUsersLastActivity(userIds);
-      }
     }
     setLoadingUsers(false);
   };
 
-  // Fetch last activity for multiple users at once
-  const fetchUsersLastActivity = async (userIds: string[]) => {
-    try {
-      // Fetch most recent records from each table in parallel
-      const [showsResult, transactionsResult, leadsResult, clientsResult] = await Promise.all([
-        supabase
-          .from("shows")
-          .select("user_id, created_at")
-          .in("user_id", userIds)
-          .order("created_at", { ascending: false })
-          .limit(100),
-        supabase
-          .from("transactions")
-          .select("user_id, created_at")
-          .in("user_id", userIds)
-          .order("created_at", { ascending: false })
-          .limit(100),
-        supabase
-          .from("leads")
-          .select("user_id, created_at")
-          .in("user_id", userIds)
-          .order("created_at", { ascending: false })
-          .limit(100),
-        supabase
-          .from("clients")
-          .select("user_id, created_at")
-          .in("user_id", userIds)
-          .order("created_at", { ascending: false })
-          .limit(100),
-      ]);
-
-      const activityMap: Record<string, { date: Date | null; type: string | null }> = {};
-
-      // Initialize all users with null
-      userIds.forEach(userId => {
-        activityMap[userId] = { date: null, type: null };
-      });
-
-      // Process shows
-      showsResult.data?.forEach(item => {
-        const date = new Date(item.created_at);
-        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
-          activityMap[item.user_id] = { date, type: "Show" };
-        }
-      });
-
-      // Process transactions
-      transactionsResult.data?.forEach(item => {
-        const date = new Date(item.created_at);
-        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
-          activityMap[item.user_id] = { date, type: "Transação" };
-        }
-      });
-
-      // Process leads
-      leadsResult.data?.forEach(item => {
-        const date = new Date(item.created_at);
-        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
-          activityMap[item.user_id] = { date, type: "Lead" };
-        }
-      });
-
-      // Process clients
-      clientsResult.data?.forEach(item => {
-        const date = new Date(item.created_at);
-        if (!activityMap[item.user_id].date || date > activityMap[item.user_id].date!) {
-          activityMap[item.user_id] = { date, type: "Cliente" };
-        }
-      });
-
-      setUserLastActivity(prev => ({ ...prev, ...activityMap }));
-    } catch (error) {
-      console.error("Error fetching last activity:", error);
-    }
-  };
-
-  // Fetch initial data and other configs (goals, settings)
+  // Fetch initial data
   useEffect(() => {
     async function fetchInitialData() {
-      if (!isAdmin) return;
+      if (!isAdmin || dataLoaded.current) return;
       
-      const now = Date.now();
-      const cacheValid = adminDataCache.lastFetch > 0 && 
-                         (now - adminDataCache.lastFetch) < adminDataCache.cacheTimeout;
+      const [goalsResult, planResult] = await Promise.all([
+        supabase.from("user_goals").select("*")
+          .eq("month", new Date().getMonth() + 1)
+          .eq("year", new Date().getFullYear()),
+        supabase.from("profiles").select("plan"),
+      ]);
+
+      if (goalsResult.data) setUserGoals(goalsResult.data);
       
-      // Se cache válido, usa cache para dados secundários
-      if (cacheValid && !dataLoaded.current) {
-        setUserGoals(adminDataCache.userGoals || []);
-        setTrialDays(adminDataCache.trialDays || "3");
-        dataLoaded.current = true;
-      } else {
-        // Fetch trial duration setting
-        const { data: settingsData } = await supabase
-          .from("app_settings")
-          .select("*")
-          .eq("setting_key", "trial_duration_days")
-          .single();
-
-        if (settingsData) {
-          setTrialDays(settingsData.setting_value || "3");
-          adminDataCache.trialDays = settingsData.setting_value || "3";
-        }
-
-        // Fetch user goals
-        const currentMonth = new Date().getMonth() + 1;
-        const currentYear = new Date().getFullYear();
-        const { data: goalsData } = await supabase
-          .from("user_goals")
-          .select("*")
-          .eq("month", currentMonth)
-          .eq("year", currentYear);
-
-        if (goalsData) {
-          setUserGoals(goalsData);
-          adminDataCache.userGoals = goalsData;
-        }
-        
-        adminDataCache.lastFetch = now;
-        dataLoaded.current = true;
+      if (planResult.data) {
+        const stats: Record<string, number> = { free: 0, trial: 0, base: 0, mensal: 0, essencial: 0, completo: 0, anual: 0, expirado: 0 };
+        planResult.data.forEach(p => {
+          const plan = p.plan || 'trial';
+          if (stats.hasOwnProperty(plan)) stats[plan]++;
+        });
+        setPlanStats(stats);
       }
       
-      // Sempre busca usuários com paginação
       fetchUsers(1, planFilter, searchTerm);
+      dataLoaded.current = true;
     }
-
     fetchInitialData();
   }, [isAdmin]);
 
-  // Buscar stats de um usuário específico sob demanda (quando expandir)
-  const fetchUserStatsOnDemand = async (userId: string) => {
-    if (userStats[userId]) return; // Já carregado, não refaz
-
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-    const startDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
-    const endDate = currentMonth === 12 
-      ? `${currentYear + 1}-01-01` 
-      : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-
-    // Fazer as 3 queries em paralelo
-    const [leadsResult, showsResult, transactionsResult] = await Promise.all([
-      supabase
-        .from("leads")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .gte("created_at", startDate)
-        .lt("created_at", endDate),
-      supabase
-        .from("shows")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .neq("status", "cancelled")
-        .gte("date", startDate)
-        .lt("date", endDate),
-      supabase
-        .from("transactions")
-        .select("amount")
-        .eq("user_id", userId)
-        .eq("type", "income")
-        .gte("date", startDate)
-        .lt("date", endDate),
-    ]);
-
-    const revenue = transactionsResult.data?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-
-    setUserStats(prev => ({
-      ...prev,
-      [userId]: {
-        leads: leadsResult.count || 0,
-        shows: showsResult.count || 0,
-        revenue,
-      },
-    }));
-  };
-
-  // Quando expandir um usuário, carregar suas stats
-  const handleExpandUser = (userId: string) => {
-    const newExpandedUser = expandedUser === userId ? null : userId;
-    setExpandedUser(newExpandedUser);
-    if (newExpandedUser) {
-      fetchUserStatsOnDemand(newExpandedUser);
-    }
-  };
-
-  // Initialize app settings from context
-  useEffect(() => {
-    setAppName(settings.app_name);
-    setLogoPreview(settings.logo_url);
-  }, [settings]);
-
-  const getFeatureBlocked = (userId: string, featureKey: string): boolean => {
-    const user = users.find(u => u.user_id === userId);
-    const blocks = parseFeatureBlocks(user?.feature_blocks);
-    return blocks[featureKey] === true;
-  };
-
-  const toggleFeatureBlock = async (userId: string, featureKey: string) => {
-    const user = users.find(u => u.user_id === userId);
-    if (!user) return;
-    
-    const currentBlocks = parseFeatureBlocks(user.feature_blocks);
-    const newBlocked = !currentBlocks[featureKey];
-    const newFeatureBlocks = { ...currentBlocks, [featureKey]: newBlocked };
-
-    // Update profile with new feature_blocks JSON
-    const { error } = await supabase
-      .from("profiles")
-      .update({ feature_blocks: newFeatureBlocks })
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("Error updating feature block:", error);
-      toast.error("Erro ao atualizar bloqueio");
-    } else {
-      // Update local state
-      setUsers(prev => prev.map(u => 
-        u.user_id === userId 
-          ? { ...u, feature_blocks: newFeatureBlocks } 
-          : u
-      ));
-      toast.success(newBlocked ? "Página bloqueada para o usuário" : "Página desbloqueada para o usuário");
-    }
-  };
-
-  const updateUserPlan = async (userId: string, plan: string) => {
-    // Backward compatibility: "inicial" virou "mensal"
-    const normalizedPlan = plan === "inicial" ? "mensal" : plan;
-
-    // When changing plan, also set trial_start to now for tracking
-    const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan: normalizedPlan };
-    
-    if (normalizedPlan !== "expirado") {
-      updates.trial_start = new Date().toISOString();
-      updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
-    }
-
-    // Build feature_blocks JSON based on plan
-    const newFeatureBlocks: Record<string, boolean> = {};
-    FEATURES.forEach(feature => {
-      if (plan === "expirado") {
-        // Block all features when expired
-        newFeatureBlocks[feature.key] = true;
-      } else if (plan === "trial") {
-        // Block specific features for trial
-        newFeatureBlocks[feature.key] = TRIAL_BLOCKED_FEATURES.includes(feature.key);
-      } else if (plan === "mensal" || plan === "essencial" || plan === "completo" || plan === "anual" || plan === "base") {
-        // Unblock all features for paid plans
-        newFeatureBlocks[feature.key] = false;
-      }
-    });
-    updates.feature_blocks = newFeatureBlocks;
-
-    const { error } = await supabase
-      .from("profiles")
-      .update(updates)
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("Error updating plan:", error);
-      toast.error("Erro ao atualizar plano");
-      return;
-    }
-
-    setUsers(prev => prev.map(u => 
-      u.user_id === userId 
-        ? { 
-            ...u, 
-            plan, 
-            trial_start: updates.trial_start || u.trial_start, 
-            trial_days: updates.trial_days || u.trial_days,
-            feature_blocks: newFeatureBlocks
-          } 
-        : u
-    ));
-    const planDuration = PLAN_DURATIONS[plan];
-    toast.success(`Plano atualizado para ${plan.toUpperCase()} (${planDuration} dias)`);
-  };
-
-  // User goals management
-  const getUserGoal = (userId: string, goalType: string): number => {
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-    const goal = userGoals.find(
-      g => g.user_id === userId && g.goal_type === goalType && g.month === currentMonth && g.year === currentYear
-    );
-    return goal?.target_value || 0;
-  };
-
-  const updateUserGoal = async (userId: string, goalType: string, targetValue: number) => {
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-
-    const { data, error } = await supabase
-      .from("user_goals")
-      .upsert({
-        user_id: userId,
-        goal_type: goalType,
-        target_value: targetValue,
-        month: currentMonth,
-        year: currentYear,
-      }, { onConflict: 'user_id,goal_type,month,year' })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error updating user goal:", error);
-      toast.error("Erro ao atualizar meta");
-    } else {
-      setUserGoals(prev => {
-        const existing = prev.find(
-          g => g.user_id === userId && g.goal_type === goalType && g.month === currentMonth && g.year === currentYear
-        );
-        if (existing) {
-          return prev.map(g => 
-            g.user_id === userId && g.goal_type === goalType && g.month === currentMonth && g.year === currentYear
-              ? data
-              : g
-          );
-        } else {
-          return [...prev, data];
-        }
-      });
-      toast.success("Meta atualizada!");
-    }
-  };
-
-  const saveTrialDays = async () => {
-    const { error } = await supabase
-      .from("app_settings")
-      .upsert({
-        setting_key: "trial_duration_days",
-        setting_value: trialDays
-      }, { onConflict: 'setting_key' });
-
-    if (error) {
-      console.error("Error saving trial days:", error);
-      toast.error("Erro ao salvar configuração");
-    } else {
-      toast.success("Configuração salva");
-    }
-  };
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const uploadLogo = async () => {
-    if (!logoFile) return;
-    
-    setUploadingLogo(true);
-    
-    try {
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `app-logo.${fileExt}`;
-      
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from("app-assets")
-        .upload(fileName, logoFile, { upsert: true });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("app-assets")
-        .getPublicUrl(fileName);
-
-      // Add cache-busting timestamp to avoid browser caching issues
-      const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-
-      // Save URL to app_settings
-      const { error: settingsError } = await supabase
-        .from("app_settings")
-        .upsert({
-          setting_key: "logo_url",
-          setting_value: logoUrl
-        }, { onConflict: 'setting_key' });
-
-      if (settingsError) {
-        throw settingsError;
-      }
-
-      toast.success("Logo atualizada com sucesso!");
-      refreshSettings();
-    } catch (error) {
-      console.error("Error uploading logo:", error);
-      toast.error("Erro ao fazer upload da logo");
-    } finally {
-      setUploadingLogo(false);
-    }
-  };
-
-  const saveAppName = async () => {
-    const { error } = await supabase
-      .from("app_settings")
-      .upsert({
-        setting_key: "app_name",
-        setting_value: appName
-      }, { onConflict: 'setting_key' });
-
-    if (error) {
-      console.error("Error saving app name:", error);
-      toast.error("Erro ao salvar nome do app");
-    } else {
-      toast.success("Nome do app atualizado!");
-      refreshSettings();
-    }
-  };
-
-  const handleChangeUserPassword = async (userId: string, userEmail: string) => {
-    const newPassword = userNewPasswords[userId];
-    if (!newPassword || newPassword.length < 6) {
-      toast.error("A senha deve ter pelo menos 6 caracteres");
-      return;
-    }
-
-    setChangingPasswords(prev => ({ ...prev, [userId]: true }));
-    
-    try {
-      // Update password via Supabase Auth Admin API
-      // Note: This requires service role access through edge function
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-        body: JSON.stringify({ userId, newPassword }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao alterar senha');
-      }
-
-      toast.success(`Senha do usuário ${userEmail} alterada com sucesso!`);
-      setUserNewPasswords(prev => ({ ...prev, [userId]: "" }));
-    } catch (error: any) {
-      console.error("Error changing password:", error);
-      toast.error("Para alterar senhas de usuários, entre em contato via WhatsApp: (12) 99154-5726");
-    } finally {
-      setChangingPasswords(prev => ({ ...prev, [userId]: false }));
-    }
-  };
-
-  // Plan stats state
-  const [planStats, setPlanStats] = useState<Record<string, number>>({
-    free: 0,
-    trial: 0,
-    base: 0,
-    mensal: 0,
-    essencial: 0,
-    completo: 0,
-    anual: 0,
-    expirado: 0,
-  });
-
-  // Fetch plan stats
-  useEffect(() => {
-    async function fetchPlanStats() {
-      if (!isAdmin) return;
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("plan");
-      
-      if (data && !error) {
-        const stats: Record<string, number> = {
-          free: 0,
-          trial: 0,
-          base: 0,
-          mensal: 0,
-          essencial: 0,
-          completo: 0,
-          anual: 0,
-          expirado: 0,
-        };
-        
-        data.forEach(profile => {
-          const plan = profile.plan || 'trial';
-          if (stats.hasOwnProperty(plan)) {
-            stats[plan]++;
-          }
-        });
-        
-        setPlanStats(stats);
-      }
-    }
-    
-    fetchPlanStats();
-  }, [isAdmin]);
-
-  // Refazer busca quando mudar filtro ou busca (com debounce para busca)
+  // Search/filter debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       setCurrentPage(1);
@@ -765,22 +221,112 @@ export default function Admin() {
     return () => clearTimeout(timer);
   }, [planFilter, searchTerm, isAdmin]);
 
-  // Refazer busca quando mudar página
   useEffect(() => {
-    if (currentPage > 1) {
-      fetchUsers(currentPage, planFilter, searchTerm);
-    }
+    if (currentPage > 1) fetchUsers(currentPage, planFilter, searchTerm);
   }, [currentPage]);
 
+  useEffect(() => {
+    setAppName(settings.app_name);
+    setLogoPreview(settings.logo_url);
+  }, [settings]);
+
   const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+  const totalRegistered = Object.values(planStats).reduce((a, b) => a + b, 0);
 
-  
+  // Feature block helpers
+  const getFeatureBlocked = (userId: string, featureKey: string): boolean => {
+    const u = users.find(u => u.user_id === userId);
+    return parseFeatureBlocks(u?.feature_blocks)[featureKey] === true;
+  };
 
+  const toggleFeatureBlock = async (userId: string, featureKey: string) => {
+    const u = users.find(u => u.user_id === userId);
+    if (!u) return;
+    const currentBlocks = parseFeatureBlocks(u.feature_blocks);
+    const newBlocks = { ...currentBlocks, [featureKey]: !currentBlocks[featureKey] };
+    const { error } = await supabase.from("profiles").update({ feature_blocks: newBlocks }).eq("user_id", userId);
+    if (error) { toast.error("Erro ao atualizar bloqueio"); return; }
+    setUsers(prev => prev.map(p => p.user_id === userId ? { ...p, feature_blocks: newBlocks } : p));
+    toast.success(newBlocks[featureKey] ? "Bloqueado" : "Desbloqueado");
+  };
+
+  const updateUserPlan = async (userId: string, plan: string) => {
+    const normalizedPlan = plan === "inicial" ? "mensal" : plan;
+    const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan: normalizedPlan };
+    
+    if (normalizedPlan !== "expirado") {
+      updates.trial_start = new Date().toISOString();
+      updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
+    }
+
+    const newFeatureBlocks: Record<string, boolean> = {};
+    FEATURES.forEach(f => {
+      if (plan === "expirado") newFeatureBlocks[f.key] = true;
+      else if (plan === "trial") newFeatureBlocks[f.key] = TRIAL_BLOCKED_FEATURES.includes(f.key);
+      else newFeatureBlocks[f.key] = false;
+    });
+    updates.feature_blocks = newFeatureBlocks;
+
+    const { error } = await supabase.from("profiles").update(updates).eq("user_id", userId);
+    if (error) { toast.error("Erro ao atualizar plano"); return; }
+
+    setUsers(prev => prev.map(u => 
+      u.user_id === userId 
+        ? { ...u, plan, trial_start: updates.trial_start || u.trial_start, trial_days: updates.trial_days || u.trial_days, feature_blocks: newFeatureBlocks }
+        : u
+    ));
+    toast.success(`Plano atualizado para ${plan.toUpperCase()}`);
+  };
+
+  const updateUserGoal = async (userId: string, goalType: string, targetValue: number) => {
+    const m = new Date().getMonth() + 1, y = new Date().getFullYear();
+    const { data, error } = await supabase
+      .from("user_goals")
+      .upsert({ user_id: userId, goal_type: goalType, target_value: targetValue, month: m, year: y }, { onConflict: 'user_id,goal_type,month,year' })
+      .select().single();
+    if (error) { toast.error("Erro ao atualizar meta"); return; }
+    setUserGoals(prev => {
+      const exists = prev.find(g => g.user_id === userId && g.goal_type === goalType && g.month === m && g.year === y);
+      return exists ? prev.map(g => (g.user_id === userId && g.goal_type === goalType && g.month === m && g.year === y) ? data : g) : [...prev, data];
+    });
+    toast.success("Meta atualizada!");
+  };
+
+  const getUserGoal = (userId: string, goalType: string): number => {
+    const m = new Date().getMonth() + 1, y = new Date().getFullYear();
+    return userGoals.find(g => g.user_id === userId && g.goal_type === goalType && g.month === m && g.year === y)?.target_value || 0;
+  };
+
+  // Logo & app name
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) { setLogoFile(file); const r = new FileReader(); r.onloadend = () => setLogoPreview(r.result as string); r.readAsDataURL(file); }
+  };
+
+  const uploadLogo = async () => {
+    if (!logoFile) return;
+    setUploadingLogo(true);
+    try {
+      const ext = logoFile.name.split('.').pop();
+      await supabase.storage.from("app-assets").upload(`app-logo.${ext}`, logoFile, { upsert: true });
+      const { data: urlData } = supabase.storage.from("app-assets").getPublicUrl(`app-logo.${ext}`);
+      await supabase.from("app_settings").upsert({ setting_key: "logo_url", setting_value: `${urlData.publicUrl}?t=${Date.now()}` }, { onConflict: 'setting_key' });
+      toast.success("Logo atualizada!"); refreshSettings();
+    } catch { toast.error("Erro ao fazer upload"); }
+    finally { setUploadingLogo(false); }
+  };
+
+  const saveAppName = async () => {
+    const { error } = await supabase.from("app_settings").upsert({ setting_key: "app_name", setting_value: appName }, { onConflict: 'setting_key' });
+    if (error) toast.error("Erro ao salvar"); else { toast.success("Nome atualizado!"); refreshSettings(); }
+  };
+
+  // Loading / access denied states
   if (authLoading || loading) {
     return (
       <Layout title="Admin" subtitle="Carregando...">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -788,516 +334,331 @@ export default function Admin() {
 
   if (!isAdmin) {
     return (
-      <Layout title="Acesso Negado" subtitle="Você não tem permissão para acessar esta página">
+      <Layout title="Acesso Negado">
         <Card className="max-w-md mx-auto mt-8">
           <CardContent className="flex flex-col items-center p-8">
             <Shield className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground text-center">
-              Esta área é restrita a administradores.
-            </p>
+            <p className="text-muted-foreground text-center">Esta área é restrita a administradores.</p>
           </CardContent>
         </Card>
       </Layout>
     );
   }
 
+  const getRelativeTime = (dateStr: string | null) => {
+    if (!dateStr) return "Nunca";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor(diff / 3600000);
+    if (days > 0) return `${days}d atrás`;
+    if (hours > 0) return `${hours}h atrás`;
+    return "Agora";
+  };
+
+  const getPlanBadge = (plan: string | null) => {
+    const p = plan || "trial";
+    const labels: Record<string, string> = { free: "Free", trial: "Trial", base: "Mensal", mensal: "Mensal (leg.)", essencial: "Profissional", completo: "Completo", anual: "Anual", expirado: "Expirado" };
+    const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
+    return (
+      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
+        {labels[p] || p}
+      </span>
+    );
+  };
+
   return (
-    <Layout title="Painel Administrativo" subtitle="Gerencie usuários e personalização">
-      {/* Header with gradient */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 rounded-lg p-6 mb-6 text-primary-foreground">
-        <div className="flex items-center gap-3">
-          <Shield className="h-10 w-10" />
-          <div>
-            <h1 className="text-2xl font-bold">Painel Administrativo</h1>
-            <p className="opacity-90">Gerencie usuários e personalização</p>
+    <Layout title="Painel Admin" subtitle="Controle total da plataforma">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-6 md:p-8 mb-6">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <Crown className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Painel Admin</h1>
+              <p className="text-white/80 text-sm mt-0.5">Gerencie usuários, planos e configurações</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 backdrop-blur rounded-xl px-4 py-2 text-center">
+              <p className="text-3xl font-black text-white">{totalRegistered}</p>
+              <p className="text-xs text-white/80 font-medium">cadastros</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-8 gap-4 mb-6">
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="p-4 text-center">
-            <Sparkles className="h-6 w-6 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-green-600">Free</p>
-            <p className="text-2xl font-bold text-green-700">{planStats.free}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-orange-200 bg-orange-50">
-          <CardContent className="p-4 text-center">
-            <Calendar className="h-6 w-6 text-orange-500 mx-auto mb-2" />
-            <p className="text-sm text-orange-600">Trial (legado)</p>
-            <p className="text-2xl font-bold text-orange-700">{planStats.trial}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-cyan-200 bg-cyan-50">
-          <CardContent className="p-4 text-center">
-            <Shield className="h-6 w-6 text-cyan-500 mx-auto mb-2" />
-            <p className="text-sm text-cyan-600">Assinatura Mensal</p>
-            <p className="text-2xl font-bold text-cyan-700">{planStats.base}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4 text-center">
-            <Zap className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-sm text-blue-600">Mensal (legado)</p>
-            <p className="text-2xl font-bold text-blue-700">{planStats.mensal}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="p-4 text-center">
-            <UsersIcon className="h-6 w-6 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-green-600">Profissional</p>
-            <p className="text-2xl font-bold text-green-700">{planStats.essencial}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-purple-200 bg-purple-50">
-          <CardContent className="p-4 text-center">
-            <Heart className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-            <p className="text-sm text-purple-600">Completo</p>
-            <p className="text-2xl font-bold text-purple-700">{planStats.completo}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="p-4 text-center">
-            <Trophy className="h-6 w-6 text-amber-500 mx-auto mb-2" />
-            <p className="text-sm text-amber-600">Anual</p>
-            <p className="text-2xl font-bold text-amber-700">{planStats.anual}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-4 text-center">
-            <AlertCircle className="h-6 w-6 text-red-500 mx-auto mb-2" />
-            <p className="text-sm text-red-600">Expirados</p>
-            <p className="text-2xl font-bold text-red-700">{planStats.expirado}</p>
-          </CardContent>
-        </Card>
+      {/* Plan Stats Grid */}
+      <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mb-6">
+        {Object.entries(PLAN_COLORS).map(([key, colors]) => (
+          <button
+            key={key}
+            onClick={() => setPlanFilter(planFilter === key ? "all" : key)}
+            className={`relative rounded-xl p-3 text-center transition-all border ${colors.bg} ${colors.border} ${
+              planFilter === key ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
+            }`}
+          >
+            <div className={`mx-auto mb-1 ${colors.text}`}>{colors.icon}</div>
+            <p className={`text-xl md:text-2xl font-black ${colors.text}`}>{planStats[key] || 0}</p>
+            <p className={`text-[10px] font-semibold ${colors.text} opacity-80 truncate`}>
+              {key === "essencial" ? "Prof." : key === "expirado" ? "Expir." : key.charAt(0).toUpperCase() + key.slice(1)}
+            </p>
+          </button>
+        ))}
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-         <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="marco">Marco</TabsTrigger>
-          <TabsTrigger value="users">Usuários</TabsTrigger>
-          <TabsTrigger value="referrals">Indicações</TabsTrigger>
-          <TabsTrigger value="notifications">Notificações</TabsTrigger>
-          <TabsTrigger value="guide-leads">Ganhou Guia</TabsTrigger>
-          <TabsTrigger value="personalization">Personalização</TabsTrigger>
-          <TabsTrigger value="improvements">Melhorias</TabsTrigger>
+        <TabsList className="w-full overflow-x-auto flex whitespace-nowrap bg-muted/50 backdrop-blur rounded-xl p-1 h-auto">
+          <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <UsersIcon className="h-3.5 w-3.5" /> Usuários
+          </TabsTrigger>
+          <TabsTrigger value="referrals" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Megaphone className="h-3.5 w-3.5" /> Indicações
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Bell className="h-3.5 w-3.5" /> Notificações
+          </TabsTrigger>
+          <TabsTrigger value="guide-leads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <BookOpen className="h-3.5 w-3.5" /> Guia
+          </TabsTrigger>
+          <TabsTrigger value="personalization" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Image className="h-3.5 w-3.5" /> Visual
+          </TabsTrigger>
+          <TabsTrigger value="improvements" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Lightbulb className="h-3.5 w-3.5" /> Melhorias
+          </TabsTrigger>
+          <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <PartyPopper className="h-3.5 w-3.5" /> Marco
+          </TabsTrigger>
         </TabsList>
-
-        {/* Marco Tab - Celebration Counter */}
-        <TabsContent value="marco" className="space-y-6">
-          <Card className="overflow-hidden border-0 shadow-xl">
-            <div className="bg-gradient-to-br from-primary via-blue-600 to-purple-600 p-8 text-white text-center relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-4 left-4 animate-bounce">
-                <PartyPopper className="w-8 h-8 text-yellow-300" />
-              </div>
-              <div className="absolute top-4 right-4 animate-bounce delay-100">
-                <Trophy className="w-8 h-8 text-yellow-300" />
-              </div>
-              <div className="absolute bottom-4 left-8 animate-pulse">
-                <span className="text-4xl">🎉</span>
-              </div>
-              <div className="absolute bottom-4 right-8 animate-pulse delay-200">
-                <span className="text-4xl">🚀</span>
-              </div>
-              
-              {/* Main content */}
-              <div className="relative z-10">
-                <h2 className="text-xl md:text-2xl font-medium mb-2 opacity-90">
-                  🎊 Chegamos a
-                </h2>
-                <div className="text-6xl md:text-8xl font-black mb-4 drop-shadow-lg animate-pulse">
-                  {totalUsers}
-                </div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-6">
-                  cadastros no aplicativo! 🎯
-                </h3>
-                <div className="bg-white/20 backdrop-blur rounded-xl p-4 max-w-md mx-auto">
-                  <p className="text-lg font-medium">
-                    Parabéns à toda equipe <span className="font-bold">Backstage Pro</span>! 👏
-                  </p>
-                  <p className="text-sm opacity-90 mt-2">
-                    Cada cadastro representa um artista que confia em nós para profissionalizar sua carreira.
-                  </p>
-                </div>
-              </div>
-
-              {/* Background decoration */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-10 left-1/4 w-32 h-32 bg-white rounded-full blur-3xl" />
-                <div className="absolute bottom-10 right-1/4 w-48 h-48 bg-yellow-300 rounded-full blur-3xl" />
-              </div>
-            </div>
-
-            <CardContent className="p-6 bg-gradient-to-b from-primary/5 to-transparent">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
-                  <TrendingUp className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                  <p className="text-sm text-green-600 font-medium">Crescimento</p>
-                  <p className="text-xl font-bold text-green-700">Constante</p>
-                </div>
-                <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-200">
-                  <UsersIcon className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                  <p className="text-sm text-blue-600 font-medium">Total de Artistas</p>
-                  <p className="text-xl font-bold text-blue-700">{totalUsers}</p>
-                </div>
-                <div className="text-center p-4 bg-purple-50 rounded-xl border border-purple-200">
-                  <Heart className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                  <p className="text-sm text-purple-600 font-medium">Confiança</p>
-                  <p className="text-xl font-bold text-purple-700">100%</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Users Tab */}
         <TabsContent value="users" className="space-y-4">
-          {/* Plan Filters */}
-          <div className="flex flex-wrap gap-2">
-            {PLAN_FILTERS.map(filter => (
-              <Button
-                key={filter.value}
-                variant={planFilter === filter.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => setPlanFilter(filter.value)}
-              >
-                {filter.label}
+          {/* Filters */}
+          <div className="flex flex-wrap gap-1.5">
+            {PLAN_FILTERS.map(f => (
+              <Button key={f.value} variant={planFilter === f.value ? "default" : "outline"} size="sm" className="text-xs h-8" onClick={() => setPlanFilter(f.value)}>
+                {f.label}
               </Button>
             ))}
           </div>
 
-          {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar usuário..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Buscar por nome ou email..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
           </div>
 
-
-          {/* Users List */}
           {loadingUsers ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              <span className="ml-2 text-muted-foreground">Carregando usuários...</span>
+              <span className="ml-2 text-muted-foreground text-sm">Carregando...</span>
             </div>
           ) : (
-          <div className="space-y-4">
-            {users.map(userProfile => (
-              <Card key={userProfile.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      {/* Gift Icon Indicator */}
-                      {(() => {
-                        const giftStatus = getUserGiftStatus(userProfile.user_id);
-                        const hasGift = giftStatus.status === 'claimed' || giftStatus.status === 'has_gift';
-                        return (
-                          <div className={`mt-1 p-1.5 rounded-full ${hasGift ? 'bg-green-100' : 'bg-red-100'}`}>
-                            <Gift className={`h-4 w-4 ${hasGift ? 'text-green-600' : 'text-red-600'}`} />
-                          </div>
-                        );
-                      })()}
-                      <div>
-                        <CardTitle className="text-lg">{userProfile.name || "Sem nome"}</CardTitle>
-                        <CardDescription>{userProfile.email}</CardDescription>
-                        {userProfile.phone && (
-                          <p className="text-xs text-green-600 font-medium mt-1">
-                            📱 {userProfile.phone}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Criado em: {new Date(userProfile.created_at).toLocaleDateString("pt-BR")}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Último acesso: {userProfile.last_seen 
-                            ? (() => {
-                                const lastSeen = new Date(userProfile.last_seen);
-                                const now = new Date();
-                                const diffMs = now.getTime() - lastSeen.getTime();
-                                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                                if (diffDays > 0) return `${diffDays} dia(s) atrás`;
-                                if (diffHours > 0) return `${diffHours} hora(s) atrás`;
-                                return "Agora";
-                              })()
-                            : "Nunca"
-                          }
-                        </p>
-                      </div>
+            <div className="space-y-3">
+              {users.map(userProfile => (
+                <Card key={userProfile.id} className={`overflow-hidden transition-all duration-200 ${expandedUser === userProfile.user_id ? "ring-2 ring-primary/30 shadow-lg" : "hover:shadow-md"}`}>
+                  <div
+                    className="flex items-center gap-3 p-4 cursor-pointer"
+                    onClick={() => setExpandedUser(expandedUser === userProfile.user_id ? null : userProfile.user_id)}
+                  >
+                    {/* Avatar */}
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-primary">
+                        {(userProfile.name || "?").charAt(0).toUpperCase()}
+                      </span>
                     </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="icon"
-                        onClick={() => handleExpandUser(userProfile.user_id)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
 
-                {expandedUser === userProfile.user_id && (
-                  <CardContent className="border-t bg-muted/30 pt-4">
-                    {/* Plan Selection */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-sm truncate">{userProfile.name || "Sem nome"}</p>
+                        {getPlanBadge(userProfile.plan)}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
+                    </div>
+
+                    {/* Meta */}
+                    <div className="hidden sm:flex flex-col items-end gap-0.5 shrink-0">
+                      <p className="text-[10px] text-muted-foreground">Visto: {getRelativeTime(userProfile.last_seen)}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Desde: {new Date(userProfile.created_at).toLocaleDateString("pt-BR")}
+                      </p>
+                    </div>
+
+                    <Eye className={`h-4 w-4 shrink-0 transition-transform ${expandedUser === userProfile.user_id ? "text-primary rotate-180" : "text-muted-foreground"}`} />
+                  </div>
+
+                  {expandedUser === userProfile.user_id && (
+                    <CardContent className="border-t bg-muted/20 pt-4 space-y-6">
+                      {/* User details */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="bg-background rounded-lg p-3 border">
+                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Telefone</p>
+                          <p className="text-sm font-medium">{userProfile.phone || "—"}</p>
+                        </div>
+                        <div className="bg-background rounded-lg p-3 border">
+                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Último acesso</p>
+                          <p className="text-sm font-medium">{getRelativeTime(userProfile.last_seen)}</p>
+                        </div>
+                        <div className="bg-background rounded-lg p-3 border">
+                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Criado em</p>
+                          <p className="text-sm font-medium">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</p>
+                        </div>
+                        <div className="bg-background rounded-lg p-3 border">
+                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Início do plano</p>
+                          <p className="text-sm font-medium">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</p>
+                        </div>
+                      </div>
+
+                      {/* Plan Selection */}
                       <div>
-                        <Label>Plano Ativo</Label>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground">Alterar Plano</Label>
                         <select
                           value={userProfile.plan || "trial"}
-                          onChange={(e) => updateUserPlan(userProfile.user_id, e.target.value)}
-                          className="w-full mt-1 px-3 py-2 border rounded-md bg-yellow-50 border-yellow-200"
-                          >
-                            <option value="free">Free (Gratuito)</option>
-                            <option value="trial">Trial - legado (3 dias)</option>
-                            <option value="base">Assinatura Mensal (1 mês)</option>
-                            <option value="mensal">Mensal - legado (1 mês)</option>
-                            <option value="essencial">Profissional</option>
-                            <option value="completo">Completo</option>
-                            <option value="anual">Anual (12 meses)</option>
-                            <option value="expirado">Expirado</option>
-                          </select>
+                          onChange={e => updateUserPlan(userProfile.user_id, e.target.value)}
+                          className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
+                        >
+                          <option value="free">Free (Gratuito)</option>
+                          <option value="trial">Trial (3 dias)</option>
+                          <option value="base">Assinatura Mensal</option>
+                          <option value="mensal">Mensal (legado)</option>
+                          <option value="essencial">Profissional</option>
+                          <option value="completo">Completo</option>
+                          <option value="anual">Anual</option>
+                          <option value="expirado">Expirado</option>
+                        </select>
                       </div>
+
+                      {/* Module Management */}
                       <div>
-                        <Label>Início do Plano</Label>
-                        <p className="mt-1 px-3 py-2 border rounded-md bg-background text-sm">
-                          {userProfile.trial_start 
-                            ? new Date(userProfile.trial_start).toLocaleString("pt-BR")
-                            : "N/A"
-                          }
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Module Management */}
-                    <div className="mb-6">
-                      <Label className="mb-2 block text-base font-semibold">Módulos do Plano</Label>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        Ative um módulo para desbloquear todas as páginas incluídas nele.
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {Object.entries(PLAN_MODULES).map(([moduleId, mod]) => {
-                          const blocks = parseFeatureBlocks(userProfile.feature_blocks);
-                          const allUnlocked = mod.features.every(f => blocks[f] === false);
-                          return (
-                            <div
-                              key={moduleId}
-                              className={`p-4 border rounded-xl transition-colors ${
-                                allUnlocked
-                                  ? "bg-green-50 border-green-300"
-                                  : "bg-red-50 border-red-200"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between mb-2">
-                                <div>
-                                  <p className="font-bold text-sm">{mod.name}</p>
-                                  <p className="text-xs text-muted-foreground">{mod.price}</p>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground mb-3 block">Módulos do Plano</Label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {Object.entries(PLAN_MODULES).map(([moduleId, mod]) => {
+                            const blocks = parseFeatureBlocks(userProfile.feature_blocks);
+                            const allUnlocked = mod.features.every(f => blocks[f] === false);
+                            return (
+                              <div key={moduleId} className={`p-4 border rounded-xl transition-all ${allUnlocked ? "bg-emerald-500/5 border-emerald-500/30" : "bg-red-500/5 border-red-500/30"}`}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div>
+                                    <p className="font-bold text-sm">{mod.name}</p>
+                                    <p className="text-xs text-muted-foreground">{mod.price}</p>
+                                  </div>
+                                  <Switch
+                                    checked={allUnlocked}
+                                    onCheckedChange={async (checked) => {
+                                      const currentBlocks = parseFeatureBlocks(userProfile.feature_blocks);
+                                      const newBlocks = { ...currentBlocks };
+                                      mod.features.forEach(f => { newBlocks[f] = !checked; });
+                                      const { error } = await supabase.from("profiles").update({ feature_blocks: newBlocks }).eq("user_id", userProfile.user_id);
+                                      if (error) { toast.error("Erro ao atualizar módulo"); return; }
+                                      setUsers(prev => prev.map(u => u.user_id === userProfile.user_id ? { ...u, feature_blocks: newBlocks } : u));
+                                      toast.success(checked ? `${mod.name} desbloqueado!` : `${mod.name} bloqueado!`);
+                                    }}
+                                  />
                                 </div>
-                                <Switch
-                                  checked={allUnlocked}
-                                  onCheckedChange={async (checked) => {
-                                    const currentBlocks = parseFeatureBlocks(userProfile.feature_blocks);
-                                    const newBlocks = { ...currentBlocks };
-                                    mod.features.forEach(f => {
-                                      newBlocks[f] = !checked;
-                                    });
-                                    const { error } = await supabase
-                                      .from("profiles")
-                                      .update({ feature_blocks: newBlocks })
-                                      .eq("user_id", userProfile.user_id);
-                                    if (error) {
-                                      toast.error("Erro ao atualizar módulo");
-                                    } else {
-                                      setUsers(prev => prev.map(u =>
-                                        u.user_id === userProfile.user_id
-                                          ? { ...u, feature_blocks: newBlocks }
-                                          : u
-                                      ));
-                                      toast.success(checked
-                                        ? `${mod.name} desbloqueado!`
-                                        : `${mod.name} bloqueado!`
-                                      );
-                                    }
-                                  }}
-                                />
+                                <div className="flex flex-wrap gap-1">
+                                  {mod.features.map(f => (
+                                    <span key={f} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${blocks[f] === false ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                                      {FEATURES.find(fe => fe.key === f)?.label || f}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
-                              <div className="flex flex-wrap gap-1">
-                                {mod.features.map(f => (
-                                  <span
-                                    key={f}
-                                    className={`text-xs px-2 py-0.5 rounded-full ${
-                                      blocks[f] === false
-                                        ? "bg-green-200 text-green-800"
-                                        : "bg-red-200 text-red-800"
-                                    }`}
-                                  >
-                                    {FEATURES.find(fe => fe.key === f)?.label || f}
-                                  </span>
-                                ))}
-                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Individual Feature Blocks */}
+                      <div>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground mb-3 block">Bloqueios Individuais</Label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {FEATURES.map(feature => (
+                            <div key={feature.key} className={`flex items-center justify-between p-2.5 border rounded-lg text-xs transition-colors ${getFeatureBlocked(userProfile.user_id, feature.key) ? "bg-red-500/5 border-red-500/20" : "bg-background"}`}>
+                              <span className={`font-medium ${getFeatureBlocked(userProfile.user_id, feature.key) ? "text-red-600" : ""}`}>
+                                {feature.label}
+                              </span>
+                              <Switch checked={getFeatureBlocked(userProfile.user_id, feature.key)} onCheckedChange={() => toggleFeatureBlock(userProfile.user_id, feature.key)} />
                             </div>
-                          );
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    </CardContent>
+                  )}
+                </Card>
+              ))}
 
-                    {/* Feature Blocks */}
-                    <div>
-                      <Label className="mb-2 block">Bloqueios de Páginas (Individual)</Label>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        Controle granular — ative para bloquear o acesso à página.
-                      </p>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {FEATURES.map(feature => (
-                          <div 
-                            key={feature.key}
-                            className={`flex items-center justify-between p-3 border rounded-md transition-colors ${
-                              getFeatureBlocked(userProfile.user_id, feature.key) 
-                                ? "bg-red-50 border-red-200" 
-                                : "bg-background"
-                            }`}
-                          >
-                            <span className={`text-sm font-medium ${
-                              getFeatureBlocked(userProfile.user_id, feature.key) 
-                                ? "text-red-700" 
-                                : ""
-                            }`}>
-                              {feature.label}
-                            </span>
-                            <Switch
-                              checked={getFeatureBlocked(userProfile.user_id, feature.key)}
-                              onCheckedChange={() => toggleFeatureBlock(userProfile.user_id, feature.key)}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                                  </CardContent>
-                )}
-              </Card>
-            ))}
-
-            {users.length === 0 && (
-              <Card>
-                <CardContent className="p-8 text-center text-muted-foreground">
-                  Nenhum usuário encontrado
-                </CardContent>
-              </Card>
-            )}
-          </div>
+              {users.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <UsersIcon className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                  <p>Nenhum usuário encontrado</p>
+                </div>
+              )}
+            </div>
           )}
 
-          {/* Paginação */}
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-muted-foreground">
-                Mostrando {((currentPage - 1) * USERS_PER_PAGE) + 1} - {Math.min(currentPage * USERS_PER_PAGE, totalUsers)} de {totalUsers} usuários
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-xs text-muted-foreground">
+                {((currentPage - 1) * USERS_PER_PAGE) + 1}–{Math.min(currentPage * USERS_PER_PAGE, totalUsers)} de {totalUsers}
               </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage === 1 || loadingUsers}
-                  onClick={() => setCurrentPage(prev => prev - 1)}
-                >
-                  Anterior
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" className="h-8 w-8" disabled={currentPage === 1 || loadingUsers} onClick={() => setCurrentPage(p => p - 1)}>
+                  <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="flex items-center px-3 text-sm">
-                  Página {currentPage} de {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage === totalPages || loadingUsers}
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                >
-                  Próxima
+                <span className="text-xs px-2 font-medium">{currentPage}/{totalPages}</span>
+                <Button variant="outline" size="icon" className="h-8 w-8" disabled={currentPage === totalPages || loadingUsers} onClick={() => setCurrentPage(p => p + 1)}>
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           )}
         </TabsContent>
 
-        {/* Gifts Tab - temporarily disabled */}
-
         {/* Referrals Tab */}
-        <TabsContent value="referrals">
-          <ReferralsAdminPanel />
-        </TabsContent>
+        <TabsContent value="referrals"><ReferralsAdminPanel /></TabsContent>
 
-         {/* Notifications Tab */}
-         <TabsContent value="notifications">
-           <NotificationsAdminPanel />
-         </TabsContent>
+        {/* Notifications Tab */}
+        <TabsContent value="notifications"><NotificationsAdminPanel /></TabsContent>
 
-        {/* Insights Tab - temporarily disabled */}
+        {/* Guide Leads Tab */}
+        <TabsContent value="guide-leads"><GuideLeadsPanel /></TabsContent>
 
         {/* Personalization Tab */}
         <TabsContent value="personalization">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Image className="h-5 w-5" />
-                Personalização do App
-              </CardTitle>
-              <CardDescription>
-                Personalize a aparência do aplicativo em todas as páginas
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2"><Image className="h-5 w-5" /> Personalização</CardTitle>
+              <CardDescription>Aparência do aplicativo</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Logo Upload */}
               <div>
-                <Label className="text-base font-semibold">Logo do App</Label>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Esta logo aparecerá no menu de navegação e em todas as páginas
-                </p>
+                <Label className="text-sm font-semibold">Logo do App</Label>
+                <p className="text-xs text-muted-foreground mb-3">Aparecerá no menu de navegação</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center overflow-hidden bg-muted/50">
-                    {logoPreview ? (
-                      <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <Upload className="w-8 h-8 text-muted-foreground/50" />
-                    )}
+                  <div className="w-16 h-16 rounded-xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center overflow-hidden bg-muted/30">
+                    {logoPreview ? <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" /> : <Upload className="w-6 h-6 text-muted-foreground/40" />}
                   </div>
                   <div className="flex-1 space-y-2">
-                    <Input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleLogoChange}
-                      className="cursor-pointer"
-                    />
-                    <Button 
-                      onClick={uploadLogo} 
-                      disabled={!logoFile || uploadingLogo}
-                      className="w-full"
-                    >
+                    <Input type="file" accept="image/*" onChange={handleLogoChange} className="cursor-pointer" />
+                    <Button onClick={uploadLogo} disabled={!logoFile || uploadingLogo} size="sm" className="w-full">
                       {uploadingLogo ? "Enviando..." : "Salvar Logo"}
                     </Button>
                   </div>
                 </div>
               </div>
-
-              {/* App Name */}
               <div>
-                <Label className="text-base font-semibold">Nome do App</Label>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Nome que aparecerá no menu de navegação
-                </p>
+                <Label className="text-sm font-semibold">Nome do App</Label>
+                <p className="text-xs text-muted-foreground mb-3">Nome exibido no menu</p>
                 <div className="flex gap-2">
-                  <Input 
-                    value={appName}
-                    onChange={(e) => setAppName(e.target.value)}
-                    placeholder="Nome do aplicativo"
-                  />
+                  <Input value={appName} onChange={e => setAppName(e.target.value)} placeholder="Nome do aplicativo" />
                   <Button onClick={saveAppName}>Salvar</Button>
                 </div>
               </div>
@@ -1305,14 +666,51 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
-        {/* Guide Leads Tab */}
-        <TabsContent value="guide-leads" className="space-y-6">
-          <GuideLeadsPanel />
-        </TabsContent>
-
         {/* Improvements Tab */}
-        <TabsContent value="improvements" className="space-y-6">
-          <ImprovementsPanel />
+        <TabsContent value="improvements"><ImprovementsPanel /></TabsContent>
+
+        {/* Marco Tab */}
+        <TabsContent value="marco">
+          <Card className="overflow-hidden border-0 shadow-xl">
+            <div className="bg-gradient-to-br from-primary via-blue-600 to-purple-600 p-8 md:p-12 text-white text-center relative overflow-hidden">
+              <div className="absolute top-4 left-4 animate-bounce"><PartyPopper className="w-8 h-8 text-yellow-300" /></div>
+              <div className="absolute top-4 right-4 animate-bounce delay-100"><Trophy className="w-8 h-8 text-yellow-300" /></div>
+              <div className="absolute bottom-4 left-8 animate-pulse"><span className="text-4xl">🎉</span></div>
+              <div className="absolute bottom-4 right-8 animate-pulse delay-200"><span className="text-4xl">🚀</span></div>
+              <div className="relative z-10">
+                <h2 className="text-xl font-medium mb-2 opacity-90">🎊 Chegamos a</h2>
+                <div className="text-7xl md:text-9xl font-black mb-4 drop-shadow-lg">{totalRegistered}</div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-6">cadastros no aplicativo! 🎯</h3>
+                <div className="bg-white/20 backdrop-blur rounded-xl p-4 max-w-md mx-auto">
+                  <p className="text-lg font-medium">Parabéns à toda equipe <span className="font-bold">Backstage Pro</span>! 👏</p>
+                  <p className="text-sm opacity-90 mt-2">Cada cadastro representa um artista que confia em nós.</p>
+                </div>
+              </div>
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-10 left-1/4 w-32 h-32 bg-white rounded-full blur-3xl" />
+                <div className="absolute bottom-10 right-1/4 w-48 h-48 bg-yellow-300 rounded-full blur-3xl" />
+              </div>
+            </div>
+            <CardContent className="p-6 bg-gradient-to-b from-primary/5 to-transparent">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                  <TrendingUp className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
+                  <p className="text-sm text-emerald-600 font-medium">Crescimento</p>
+                  <p className="text-xl font-bold text-emerald-700">Constante</p>
+                </div>
+                <div className="text-center p-4 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                  <UsersIcon className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                  <p className="text-sm text-blue-600 font-medium">Total</p>
+                  <p className="text-xl font-bold text-blue-700">{totalRegistered}</p>
+                </div>
+                <div className="text-center p-4 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                  <Heart className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+                  <p className="text-sm text-purple-600 font-medium">Confiança</p>
+                  <p className="text-xl font-bold text-purple-700">100%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </Layout>
