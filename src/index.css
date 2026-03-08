@@ -73,8 +73,24 @@
     --sidebar-ring: 220 90% 56%;
   }
 }
+  /* Icon filled mode - applies fill to all Lucide icons */
+  .icon-filled svg,
+  .icon-filled .lucide {
+    fill: currentColor;
+    fill-opacity: 0.15;
+  }
 
-@layer base {
+  .icon-filled svg *[fill="none"],
+  .icon-filled .lucide *[fill="none"] {
+    fill: currentColor;
+    fill-opacity: 0.15;
+  }
+
+  .icon-filled .lucide {
+    stroke-width: 2.2;
+  }
+
+
   * {
     @apply border-border;
   }
