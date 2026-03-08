@@ -601,18 +601,19 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             {/* Footer */}
             {template === "minimalista" ? (
               <>
-                <div style={{ borderTop: "1px solid #e8e8e8", paddingTop: 24, display: "flex", justifyContent: "space-between", gap: 32 }}>
+                <div style={{ background: c.accent, borderRadius: 10, padding: "18px 20px", border: `1px solid ${c.accentBorder}`, display: "flex", gap: 24 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Pagamento</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Pagamento</div>
                     <div style={{ fontSize: 11, color: c.text, lineHeight: 1.6 }}>{budget!.payment_conditions || "A combinar"}</div>
                   </div>
+                  <div style={{ width: 1, background: c.accentBorder }} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Observações</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Observações</div>
                     <div style={{ fontSize: 11, color: c.text, lineHeight: 1.6 }}>{budget!.terms_conditions || "Sujeito a disponibilidade."}</div>
                   </div>
                 </div>
-                <div style={{ marginTop: 32, textAlign: "center" }}>
-                  <div style={{ fontSize: 12, color: c.muted, fontStyle: "italic" }}>Obrigado pela preferência</div>
+                <div style={{ marginTop: 24, textAlign: "center" }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: c.heading }}>Obrigado pela preferência!</div>
                   <div style={{ fontSize: 11, color: c.muted, marginTop: 4 }}>{artistEmail}{artistPhone && artistEmail ? " · " : ""}{artistPhone}</div>
                 </div>
               </>
