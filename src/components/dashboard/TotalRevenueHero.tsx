@@ -41,7 +41,7 @@ export function TotalRevenueHero({
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-primary to-accent">
                 <Music className="w-4.5 h-4.5 text-white" />
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 Total gerado pela sua música
               </span>
             </div>
@@ -90,7 +90,7 @@ export function TotalRevenueHero({
               <Target className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-primary/70 font-medium">
+              <p className="text-[10px] uppercase tracking-wider text-primary/70 font-bold">
                 Projeção anual no ritmo atual
               </p>
               <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
@@ -112,7 +112,7 @@ export function TotalRevenueHero({
                   <Diamond className="w-4 h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                     Seu maior cachê até hoje
                   </p>
                   <p className="text-base font-bold text-foreground leading-snug">
@@ -133,7 +133,7 @@ export function TotalRevenueHero({
                   <Trophy className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                     Melhor mês da carreira
                   </p>
                   <p className="text-base font-bold text-foreground leading-snug capitalize">
@@ -179,7 +179,7 @@ function MiniStat({
       )}>
         {value}
       </p>
-      <p className="text-[10px] text-muted-foreground leading-tight">{label}</p>
+      <p className="text-[10px] text-muted-foreground leading-tight font-semibold">{label}</p>
     </div>
   );
 }
