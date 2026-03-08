@@ -68,10 +68,19 @@ export function TotalRevenueHero({
             )}
           </div>
 
-          {/* Main value */}
-          <p className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none mb-5">
-            R$ {fmt(totalRevenue)}
-          </p>
+          {/* Main value with eye toggle */}
+          <div className="flex items-center gap-3 mb-5">
+            <p className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none">
+              {showValues ? `R$ ${fmt(totalRevenue)}` : `R$ ${hidden}`}
+            </p>
+            <button
+              onClick={() => setShowValues(!showValues)}
+              className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              aria-label={showValues ? "Ocultar valores" : "Mostrar valores"}
+            >
+              {showValues ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+            </button>
+          </div>
 
           {/* Mobile-only projection */}
           {annualProjection > 0 && (
