@@ -31,7 +31,7 @@ const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzh
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
 
 // Test R$1,00 link
-const TEST_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
+const TEST_URL = "https://checkout.infinitepay.io/backstagegroup/7QBUcoXcYN";
 
 const PLAN_AMOUNTS: Record<string, number> = {
   "mensal_starter": 1990,
