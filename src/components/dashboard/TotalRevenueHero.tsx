@@ -1,4 +1,5 @@
-import { Music, TrendingUp, Award, BarChart3, Diamond, Trophy, Target } from "lucide-react";
+import { useState } from "react";
+import { Music, TrendingUp, Award, BarChart3, Diamond, Trophy, Target, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TotalRevenueHeroProps {
