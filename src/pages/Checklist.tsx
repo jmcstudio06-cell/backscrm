@@ -2,23 +2,18 @@ import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calendar, 
   MapPin, 
   Clock, 
-  ChevronRight,
   CheckCircle2,
   AlertCircle,
-  Plus,
-  Trash2,
-  FolderOpen,
-  ClipboardList
+  ClipboardList,
+  FolderOpen
 } from "lucide-react";
 import { cn, formatDateBR } from "@/lib/utils";
 import { useShows } from "@/contexts/shows/ShowsContext";
-import { AddTaskModal } from "@/components/checklist/AddTaskModal";
 import { ChecklistTemplatesModal } from "@/components/checklist/ChecklistTemplatesModal";
 import { ChecklistWizard } from "@/components/checklist/ChecklistWizard";
 
@@ -115,54 +110,9 @@ export default function Checklist() {
 
   const getShowTasks = (showId: string) => checklistItems[showId] || [];
 
-  const handleAddTask = async (showId: string, taskText: string) => {
-    const { data, error } = await supabase
-      .from("show_checklist")
-      .insert([{ show_id: showId, item: taskText, completed: false }])
-      .select()
-      .single();
-
-    if (error) {
-      toast.error("Erro ao adicionar tarefa");
-      return;
-    }
-
-    setChecklistItems(prev => ({
-      ...prev,
-      [showId]: [...(prev[showId] || []), data]
-    }));
-    toast.success("Tarefa adicionada!");
-  };
-
-  const handleApplyTemplate = async (tasks: string[]) => {
-    if (!selectedShow) return;
-    for (const task of tasks) {
-      await handleAddTask(selectedShow.id, task);
-    }
-  };
-
-  const handleDeleteTask = async (showId: string, taskId: string) => {
-    const { error } = await supabase
-      .from("show_checklist")
-      .delete()
-      .eq("id", taskId);
-
-    if (error) {
-      toast.error("Erro ao remover tarefa");
-      return;
-    }
-
-    setChecklistItems(prev => ({
-      ...prev,
-      [showId]: prev[showId].filter(t => t.id !== taskId)
-    }));
-    toast.success("Tarefa removida!");
-  };
-
   const handleWizardComplete = async (answers: Record<string, boolean | null>) => {
-    if (!wizardShowId) return;
+    if (!selectedShowId) return;
 
-    // Update all items in DB based on answers
     for (const [itemId, answer] of Object.entries(answers)) {
       await supabase
         .from("show_checklist")
@@ -170,35 +120,16 @@ export default function Checklist() {
         .eq("id", itemId);
     }
 
-    // Update local state
     setChecklistItems(prev => ({
       ...prev,
-      [wizardShowId]: (prev[wizardShowId] || []).map(item => ({
+      [selectedShowId]: (prev[selectedShowId] || []).map(item => ({
         ...item,
         completed: answers[item.id] === true,
       })),
     }));
   };
 
-  // Wizard mode
-  if (wizardShow) {
-    const tasks = getShowTasks(wizardShow.id);
-    return (
-      <Layout title="Checklist de Show" subtitle={wizardShow.title}>
-        <ChecklistWizard
-          items={tasks}
-          showTitle={wizardShow.title}
-          onComplete={handleWizardComplete}
-          onBack={() => {
-            setWizardShowId(null);
-            setSelectedShowId(wizardShow.id);
-          }}
-        />
-      </Layout>
-    );
-  }
-
-  // Show detail view — go straight to wizard
+  // Wizard view — go straight to toggle checklist
   if (selectedShow) {
     const tasks = getShowTasks(selectedShow.id);
     return (
@@ -298,33 +229,17 @@ export default function Checklist() {
                   </div>
                 </div>
 
-                {/* Action buttons */}
-                <div className="flex gap-2 mt-3">
+                <div className="mt-3">
                   <Button
                     size="sm"
-                    className="flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (tasks.length === 0) {
-                        setSelectedShowId(show.id);
-                        toast.error("Adicione tarefas ao checklist primeiro!");
-                        return;
-                      }
-                      setWizardShowId(show.id);
-                    }}
-                  >
-                    <ClipboardList className="w-4 h-4 mr-1" />
-                    Fazer Checklist
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
+                    className="w-full"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedShowId(show.id);
                     }}
                   >
-                    <Plus className="w-4 h-4" />
+                    <ClipboardList className="w-4 h-4 mr-1" />
+                    Fazer Checklist
                   </Button>
                 </div>
               </button>
