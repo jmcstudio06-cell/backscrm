@@ -47,17 +47,18 @@ export default function Historico() {
   });
   const [endDate, setEndDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
 
+  const fromDate = parseLocalDate(startDate);
+  const toDate = parseLocalDate(endDate);
+
   // Filter transactions by date range
   const filteredTransactions = transactions.filter(t => {
-    if (!dateRange?.from || !dateRange?.to) return true;
     const transactionDate = parseLocalDate(t.date);
-    return isWithinInterval(transactionDate, { start: dateRange.from, end: dateRange.to });
+    return isWithinInterval(transactionDate, { start: fromDate, end: toDate });
   });
 
   const filteredShows = shows.filter(s => {
-    if (!dateRange?.from || !dateRange?.to) return true;
     const showDate = parseLocalDate(s.date);
-    return isWithinInterval(showDate, { start: dateRange.from, end: dateRange.to });
+    return isWithinInterval(showDate, { start: fromDate, end: toDate });
   });
 
   const totalReceita = filteredTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
