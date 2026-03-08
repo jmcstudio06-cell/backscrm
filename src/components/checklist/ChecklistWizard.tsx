@@ -209,16 +209,24 @@ export function ChecklistWizard({ items, showTitle, onComplete, onBack }: Checkl
                   {item.item}
                 </span>
               </div>
-              <Switch
-                checked={isChecked}
-                onCheckedChange={() => handleToggle(item.id)}
-                className={cn(
-                  "shrink-0",
-                  isChecked
-                    ? "data-[state=checked]:bg-green-500"
-                    : "data-[state=unchecked]:bg-red-400"
-                )}
-              />
+              <div className="flex items-center gap-2 shrink-0">
+                <span className={cn(
+                  "text-xs font-bold min-w-[32px] text-center",
+                  isChecked ? "text-green-600" : "text-red-500"
+                )}>
+                  {isChecked ? "SIM" : "NÃO"}
+                </span>
+                <Switch
+                  checked={isChecked}
+                  onCheckedChange={() => handleToggle(item.id)}
+                  className={cn(
+                    "shrink-0",
+                    isChecked
+                      ? "data-[state=checked]:bg-green-500"
+                      : "data-[state=unchecked]:bg-red-400"
+                  )}
+                />
+              </div>
             </div>
           );
         })}
