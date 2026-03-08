@@ -9,7 +9,6 @@ const corsHeaders = {
 
 // Map payment amounts (in cents) to plan names and durations (days)
 const PLAN_MAP: Record<number, { plan: string; days: number }> = {
-  100: { plan: "mensal_starter", days: 30 }, // Teste R$1,00
   1990: { plan: "mensal_starter", days: 30 },
   2490: { plan: "mensal_profissional", days: 30 },
   3990: { plan: "mensal_completo", days: 30 },
