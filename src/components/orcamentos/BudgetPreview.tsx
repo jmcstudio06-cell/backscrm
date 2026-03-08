@@ -207,26 +207,23 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
             @page {
               size: A4 portrait;
-              margin: 10mm;
+              margin: 0;
             }
 
             .page {
-              width: 100%;
-              height: 100vh;
+              width: 210mm;
+              min-height: 297mm;
               display: flex;
               align-items: flex-start;
               justify-content: center;
               box-sizing: border-box;
-              padding: 0;
+              padding: 10mm;
             }
 
             img {
               display: block;
-              max-width: 100%;
+              width: 100%;
               height: auto;
-              max-height: calc(297mm - 20mm);
-              object-fit: contain;
-              margin: 0 auto;
             }
 
             * {
