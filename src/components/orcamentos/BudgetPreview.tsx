@@ -77,15 +77,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
     /**
      * ✅ PRINT (A4 RETRATO):
-     * Mantém a base original e centraliza depois em canvas A4
+     * Base mais larga para melhor preenchimento da página
      */
-    stage.style.width = "760px";
+    stage.style.width = "900px";
     stage.style.display = "block";
 
-    clone.style.width = "760px";
-    clone.style.minWidth = "760px";
-    clone.style.maxWidth = "760px";
-    clone.style.padding = "22px";
+    clone.style.width = "900px";
+    clone.style.minWidth = "900px";
+    clone.style.maxWidth = "900px";
+    clone.style.padding = "28px";
 
     stage.appendChild(clone);
     document.body.appendChild(stage);
