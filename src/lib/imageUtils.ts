@@ -3,9 +3,10 @@
  * Inclui validação de tamanho e compressão otimizada
  */
 
-const MAX_FILE_SIZE = 300 * 1024; // 300 KB (reduzido para economizar storage)
-const AVATAR_MAX_DIMENSION = 300; // pixels (otimizado para avatares)
-const COMPRESSION_QUALITY = 0.7; // 70% qualidade (boa relação tamanho/qualidade)
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5 MB — limite de upload
+const MAX_COMPRESSED_SIZE = 1 * 1024 * 1024; // 1 MB — tamanho final após compressão
+const AVATAR_MAX_DIMENSION = 600; // pixels (boa qualidade para perfil)
+const COMPRESSION_QUALITY = 0.8; // 80% qualidade inicial
 
 export interface ImageValidationResult {
   valid: boolean;
