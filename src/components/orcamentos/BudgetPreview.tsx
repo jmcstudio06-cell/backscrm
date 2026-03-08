@@ -468,13 +468,13 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   <th style={{ ...thBase, borderRadius: template === "classico" ? "6px 0 0 6px" : template === "elegante" ? "6px 0 0 6px" : 0, width: "50%", textAlign: "left" }}>
                     <div style={thInner("left")}>Descrição</div>
                   </th>
-                  <th style={{ ...thBase, width: "20%", textAlign: "right" }}>
+                  <th style={{ ...thBase, width: "20%", textAlign: "right", ...(template === "elegante" ? { borderLeft: "1px solid rgba(255,255,255,0.22)" } : {}) }}>
                     <div style={thInner("right")}>Preço Unit.</div>
                   </th>
-                  <th style={{ ...thBase, width: "10%", textAlign: "center" }}>
+                  <th style={{ ...thBase, width: "10%", textAlign: "center", ...(template === "elegante" ? { borderLeft: "1px solid rgba(255,255,255,0.22)" } : {}) }}>
                     <div style={thInner("center")}>Qtd</div>
                   </th>
-                  <th style={{ ...thBase, borderRadius: template === "classico" ? "0 6px 6px 0" : template === "elegante" ? "0 6px 6px 0" : 0, width: "20%", textAlign: "right" }}>
+                  <th style={{ ...thBase, borderRadius: template === "classico" ? "0 6px 6px 0" : template === "elegante" ? "0 6px 6px 0" : 0, width: "20%", textAlign: "right", ...(template === "elegante" ? { borderLeft: "1px solid rgba(255,255,255,0.22)" } : {}) }}>
                     <div style={thInner("right")}>Total</div>
                   </th>
                 </tr>
