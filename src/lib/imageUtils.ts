@@ -110,7 +110,7 @@ export async function compressImage(file: File, maxDimension: number = AVATAR_MA
             resolve(compressedFile);
           },
           mimeType,
-          COMPRESSION_QUALITY
+          quality
         );
       };
       
