@@ -1045,6 +1045,7 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string
+          musician_ids: Json | null
           name: string
           price: number
           updated_at: string
@@ -1055,6 +1056,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          musician_ids?: Json | null
           name: string
           price?: number
           updated_at?: string
@@ -1065,6 +1067,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          musician_ids?: Json | null
           name?: string
           price?: number
           updated_at?: string
