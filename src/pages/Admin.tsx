@@ -545,24 +545,60 @@ export default function Admin() {
                   {expandedUser === userProfile.user_id && (
                     <CardContent className="border-t bg-muted/20 pt-4 space-y-6">
 
+                      {/* Plan Start Date */}
+                      <div>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground">Dia de Início do Plano</Label>
+                        <Input
+                          type="date"
+                          value={userPlanDates[userProfile.user_id] || (userProfile.trial_start ? userProfile.trial_start.split("T")[0] : "")}
+                          onChange={e => updatePlanStartDate(userProfile.user_id, e.target.value)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
                       {/* Plan Selection */}
                       <div>
-                        <Label className="text-xs font-bold uppercase text-muted-foreground">Alterar Plano</Label>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground">Selecionar Plano</Label>
                         <select
                           value={userProfile.plan || "trial"}
-                          onChange={e => updateUserPlan(userProfile.user_id, e.target.value)}
+                          onChange={e => {
+                            const selectedPlan = e.target.value;
+                            const startDate = userPlanDates[userProfile.user_id] || (userProfile.trial_start ? userProfile.trial_start.split("T")[0] : undefined);
+                            updateUserPlan(userProfile.user_id, selectedPlan, startDate);
+                          }}
                           className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
                         >
                           <option value="free">Free (Gratuito)</option>
                           <option value="trial">Trial (3 dias)</option>
-                          <option value="base">Assinatura Mensal</option>
-                          <option value="mensal">Mensal (legado)</option>
-                          <option value="essencial">Profissional</option>
-                          <option value="completo">Completo</option>
-                          <option value="anual">Anual</option>
+                          <option value="base">Mensal (30 dias)</option>
+                          <option value="essencial">Profissional (90 dias)</option>
+                          <option value="completo">Completo (180 dias)</option>
+                          <option value="anual">Anual (365 dias)</option>
                           <option value="expirado">Expirado</option>
                         </select>
                       </div>
+
+                      {/* Plan Summary */}
+                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "free" && userProfile.trial_start && (
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Início</p>
+                            <p className="text-sm font-bold text-foreground">
+                              {new Date(userProfile.trial_start).toLocaleDateString("pt-BR")}
+                            </p>
+                          </div>
+                          <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Vencimento</p>
+                            <p className="text-sm font-bold text-foreground">{getPlanEndDate(userProfile)}</p>
+                          </div>
+                          <div className={`rounded-xl p-3 text-center border ${getRemainingDays(userProfile) <= 7 ? "bg-destructive/10 border-destructive/30" : "bg-emerald-500/10 border-emerald-500/30"}`}>
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Restantes</p>
+                            <p className={`text-sm font-bold ${getRemainingDays(userProfile) <= 7 ? "text-destructive" : "text-emerald-600"}`}>
+                              {getRemainingDays(userProfile)} dias
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Module Management */}
                       <div>
