@@ -43,7 +43,7 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
           </Button>
           
           {/* Profile */}
-          <Button variant="ghost" size="icon" className="rounded-xl overflow-hidden shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:ring-2 hover:ring-primary/20 transition-all">
+          <Button variant="ghost" size="icon" className="rounded-xl overflow-hidden shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => navigate("/configuracoes")}>
             {profile?.avatar_url ? (
               <img 
                 src={profile.avatar_url} 
