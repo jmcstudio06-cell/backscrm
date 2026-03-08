@@ -403,9 +403,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   };
 
   const theadBg = template === "minimalista" ? c.accent : template === "elegante" ? "#1a1a2e" : c.primary;
-  const theadStyle: React.CSSProperties = template === "minimalista" 
-    ? { backgroundColor: theadBg, borderBottom: `1px solid ${c.accentBorder}` } 
-    : { backgroundColor: theadBg };
+  const theadStyle: React.CSSProperties = template === "minimalista"
+    ? { backgroundColor: theadBg, borderBottom: `1px solid ${c.accentBorder}` }
+    : template === "elegante"
+      ? { backgroundColor: theadBg, borderBottom: "1px solid rgba(255,255,255,0.22)" }
+      : { backgroundColor: theadBg };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
