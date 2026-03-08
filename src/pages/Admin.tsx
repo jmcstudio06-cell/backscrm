@@ -96,8 +96,7 @@ const FEATURES: { key: string; label: string }[] = [
 
 const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
-  { value: "free", label: "Free" },
-  { value: "trial", label: "Trial" },
+  { value: "trial", label: "Trial (1h)" },
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Prof." },
   { value: "mensal_completo", label: "Mensal Completo" },
@@ -108,7 +107,7 @@ const PLAN_FILTERS = [
 ];
 
 const PLAN_DURATIONS: Record<string, number> = {
-  free: 99999, trial: 3,
+  trial: 3,
   mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30,
   anual_starter: 365, anual_profissional: 365, anual_completo: 365,
   // Legacy support
