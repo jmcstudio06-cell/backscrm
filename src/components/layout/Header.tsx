@@ -13,6 +13,7 @@ interface HeaderProps {
 export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
 
   return (
     <header className="sticky top-0 z-30 bg-background/70 backdrop-blur-2xl border-b border-border/50 pt-[env(safe-area-inset-top)]">
