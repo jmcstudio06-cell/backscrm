@@ -122,11 +122,6 @@ export default function Orcamentos() {
         </div>
       </div>
 
-      <p className="text-xs text-muted-foreground flex items-center gap-1.5 px-1 mb-2">
-        <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
-        Apenas os 5 orçamentos mais recentes são armazenados. Os mais antigos são excluídos automaticamente. Salve em PDF!
-      </p>
-
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
