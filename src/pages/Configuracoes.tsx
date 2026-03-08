@@ -24,23 +24,34 @@ import { useCustomization, COLOR_PRESETS } from "@/hooks/useCustomization";
 
 const planLabels: Record<string, string> = {
   trial: "Teste Rápido (1 hora)",
+  mensal_starter: "Mensal Starter",
+  mensal_profissional: "Mensal Profissional",
+  mensal_completo: "Mensal Completo",
+  anual_starter: "Anual Starter",
+  anual_profissional: "Anual Profissional",
+  anual_completo: "Anual Completo",
+  // Legacy
   starter: "Plano Starter",
   mensal: "Plano Mensal",
   inicial: "Plano Mensal",
   essencial: "Plano Profissional",
   completo: "Plano Completo",
   anual: "Plano Anual",
+  base: "Plano Mensal",
   expirado: "Expirado",
 };
 
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 0,
-  starter: 30,
-  mensal: 30,
-  inicial: 30,
-  essencial: 90,
-  completo: 180,
-  anual: 365,
+  mensal_starter: 30,
+  mensal_profissional: 30,
+  mensal_completo: 30,
+  anual_starter: 365,
+  anual_profissional: 365,
+  anual_completo: 365,
+  // Legacy
+  starter: 30, mensal: 30, inicial: 30, base: 30,
+  essencial: 90, completo: 180, anual: 365,
 };
 
 const COLOR_LABELS: Record<string, string> = {

@@ -14,13 +14,15 @@ interface TrialStatus {
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
-  starter: 30, // Plano Starter
-  mensal: 30, // 1 month
-  inicial: 30, // legacy
-  essencial: 90, // 3 months
-  completo: 180, // 6 months
-  anual: 365, // 1 year
-  base: 30, // Plano Base (novo modelo)
+  mensal_starter: 30,
+  mensal_profissional: 30,
+  mensal_completo: 30,
+  anual_starter: 365,
+  anual_profissional: 365,
+  anual_completo: 365,
+  // Legacy
+  starter: 30, mensal: 30, inicial: 30, base: 30,
+  essencial: 90, completo: 180, anual: 365,
 };
 
 export function useTrialStatus() {

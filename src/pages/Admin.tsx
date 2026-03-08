@@ -98,17 +98,21 @@ const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
   { value: "free", label: "Free" },
   { value: "trial", label: "Trial" },
-  { value: "base", label: "Mensal" },
-  { value: "mensal", label: "Mensal (leg.)" },
-  { value: "essencial", label: "Profissional" },
-  { value: "completo", label: "Completo" },
-  { value: "anual", label: "Anual" },
+  { value: "mensal_starter", label: "Mensal Starter" },
+  { value: "mensal_profissional", label: "Mensal Prof." },
+  { value: "mensal_completo", label: "Mensal Completo" },
+  { value: "anual_starter", label: "Anual Starter" },
+  { value: "anual_profissional", label: "Anual Prof." },
+  { value: "anual_completo", label: "Anual Completo" },
   { value: "expirado", label: "Expirados" },
 ];
 
 const PLAN_DURATIONS: Record<string, number> = {
-  free: 99999, trial: 3, base: 30, mensal: 30,
-  essencial: 90, completo: 180, anual: 365,
+  free: 99999, trial: 3,
+  mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30,
+  anual_starter: 365, anual_profissional: 365, anual_completo: 365,
+  // Legacy support
+  base: 30, mensal: 30, essencial: 90, completo: 180, anual: 365,
 };
 
 const ALL_FEATURE_KEYS = [
@@ -123,8 +127,15 @@ const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "
 const USERS_PER_PAGE = 10;
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
-  free:      { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Sparkles className="h-5 w-5" /> },
-  trial:     { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
+  free:                  { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Sparkles className="h-5 w-5" /> },
+  trial:                 { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
+  mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
+  mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
+  mensal_completo:       { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
+  anual_starter:         { bg: "bg-teal-500/10", text: "text-teal-600", border: "border-teal-500/20", icon: <Shield className="h-5 w-5" /> },
+  anual_profissional:    { bg: "bg-indigo-500/10", text: "text-indigo-600", border: "border-indigo-500/20", icon: <Zap className="h-5 w-5" /> },
+  anual_completo:        { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
+  // Legacy
   base:      { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal:    { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
   essencial: { bg: "bg-green-500/10", text: "text-green-600", border: "border-green-500/20", icon: <UsersIcon className="h-5 w-5" /> },
@@ -261,20 +272,36 @@ export default function Admin() {
     toast.success(newBlocks[featureKey] ? "Bloqueado" : "Desbloqueado");
   };
 
+  // Map plan to its tier for feature blocking
+  const getPlanTier = (plan: string): string => {
+    if (plan.includes("starter")) return "starter";
+    if (plan.includes("profissional")) return "profissional";
+    if (plan.includes("completo")) return "completo";
+    // Legacy mapping
+    if (plan === "base" || plan === "mensal") return "starter";
+    if (plan === "essencial") return "profissional";
+    if (plan === "anual") return "completo";
+    return plan;
+  };
+
   const updateUserPlan = async (userId: string, plan: string, customStartDate?: string) => {
-    const normalizedPlan = plan === "inicial" ? "mensal" : plan;
-    const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan: normalizedPlan };
+    const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
     
-    if (normalizedPlan !== "expirado") {
+    if (plan !== "expirado") {
       const startDate = customStartDate || new Date().toISOString().split("T")[0];
       updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
-      updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
+      updates.trial_days = PLAN_DURATIONS[plan] || 3;
     }
 
     const newFeatureBlocks: Record<string, boolean> = {};
+    const tier = getPlanTier(plan);
+    const tierModule = PLAN_MODULES[tier as keyof typeof PLAN_MODULES];
+    
     ALL_FEATURE_KEYS.forEach(key => {
       if (plan === "expirado") newFeatureBlocks[key] = true;
+      else if (plan === "free") newFeatureBlocks[key] = false;
       else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
+      else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
       else newFeatureBlocks[key] = false;
     });
     updates.feature_blocks = newFeatureBlocks;
@@ -400,7 +427,7 @@ export default function Admin() {
 
   const getPlanBadge = (plan: string | null) => {
     const p = plan || "trial";
-    const labels: Record<string, string> = { free: "Free", trial: "Trial", base: "Mensal", mensal: "Mensal (leg.)", essencial: "Profissional", completo: "Completo", anual: "Anual", expirado: "Expirado" };
+    const labels: Record<string, string> = { free: "Free", trial: "Trial", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado" };
     const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
     return (
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
@@ -437,22 +464,25 @@ export default function Admin() {
       </div>
 
       {/* Plan Stats Grid */}
-      <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mb-6">
-        {Object.entries(PLAN_COLORS).map(([key, colors]) => (
+      <div className="grid grid-cols-4 md:grid-cols-5 gap-2 mb-6">
+        {Object.entries(PLAN_FILTERS).filter(([_, f]) => f.value !== "all").map(([_, filter]) => {
+          const colors = PLAN_COLORS[filter.value] || PLAN_COLORS.trial;
+          return (
           <button
-            key={key}
-            onClick={() => setPlanFilter(planFilter === key ? "all" : key)}
+            key={filter.value}
+            onClick={() => setPlanFilter(planFilter === filter.value ? "all" : filter.value)}
             className={`relative rounded-xl p-3 text-center transition-all border ${colors.bg} ${colors.border} ${
-              planFilter === key ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
+              planFilter === filter.value ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
             }`}
           >
             <div className={`mx-auto mb-1 ${colors.text}`}>{colors.icon}</div>
-            <p className={`text-xl md:text-2xl font-black ${colors.text}`}>{planStats[key] || 0}</p>
+            <p className={`text-xl md:text-2xl font-black ${colors.text}`}>{planStats[filter.value] || 0}</p>
             <p className={`text-[10px] font-semibold ${colors.text} opacity-80 truncate`}>
-              {key === "essencial" ? "Prof." : key === "expirado" ? "Expir." : key.charAt(0).toUpperCase() + key.slice(1)}
+              {filter.label}
             </p>
           </button>
-        ))}
+          );
+        })}
       </div>
 
       {/* Tabs */}
@@ -578,10 +608,16 @@ export default function Admin() {
                         >
                           <option value="free">Free (Gratuito)</option>
                           <option value="trial">Trial (3 dias)</option>
-                          <option value="base">Mensal (30 dias)</option>
-                          <option value="essencial">Profissional (90 dias)</option>
-                          <option value="completo">Completo (180 dias)</option>
-                          <option value="anual">Anual (365 dias)</option>
+                          <optgroup label="Mensal (30 dias)">
+                            <option value="mensal_starter">Mensal Starter</option>
+                            <option value="mensal_profissional">Mensal Profissional</option>
+                            <option value="mensal_completo">Mensal Completo</option>
+                          </optgroup>
+                          <optgroup label="Anual (365 dias)">
+                            <option value="anual_starter">Anual Starter</option>
+                            <option value="anual_profissional">Anual Profissional</option>
+                            <option value="anual_completo">Anual Completo</option>
+                          </optgroup>
                           <option value="expirado">Expirado</option>
                         </select>
                       </div>
