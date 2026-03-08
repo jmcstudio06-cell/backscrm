@@ -647,8 +647,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 </div>
               </>
             )}
-              </>
-            )}
           </div>
         </div>
       </DialogContent>
