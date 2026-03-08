@@ -269,6 +269,20 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
         {/* Footer */}
         <div className="px-3 pb-2 space-y-2">
+          {/* Tutoriais */}
+          <RouterNavLink
+            to="/tutoriais"
+            className={({ isActive }) => cn(
+              "flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200",
+              isActive
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-sidebar-foreground hover:bg-sidebar-border"
+            )}
+          >
+            <BookOpen className="w-5 h-5" />
+            <span>Tutoriais</span>
+          </RouterNavLink>
+
           {/* Indique e Ganhe - Special Button */}
           <RouterNavLink
             to="/indicacoes"
