@@ -148,8 +148,9 @@ export function useShowsData() {
             expensesByShow[show.id] || []
           );
         }
+        }
       }
-      
+
       // Then fetch all shows
       const { data, error } = await supabase
         .from("shows")
