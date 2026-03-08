@@ -111,6 +111,13 @@ const PLAN_DURATIONS: Record<string, number> = {
   essencial: 90, completo: 180, anual: 365,
 };
 
+const ALL_FEATURE_KEYS = [
+  "dashboard", "agenda", "crm", "clientes", "orcamentos", "servicos",
+  "contratos", "financeiro", "historico", "precificacao", "checklist",
+  "mapeamento-palco", "equipe", "metas", "repertorio", "aulas",
+  "avancos", "tutoriais", "configuracoes",
+];
+
 const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos"];
 
 const USERS_PER_PAGE = 10;
@@ -265,10 +272,10 @@ export default function Admin() {
     }
 
     const newFeatureBlocks: Record<string, boolean> = {};
-    FEATURES.forEach(f => {
-      if (plan === "expirado") newFeatureBlocks[f.key] = true;
-      else if (plan === "trial") newFeatureBlocks[f.key] = TRIAL_BLOCKED_FEATURES.includes(f.key);
-      else newFeatureBlocks[f.key] = false;
+    ALL_FEATURE_KEYS.forEach(key => {
+      if (plan === "expirado") newFeatureBlocks[key] = true;
+      else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
+      else newFeatureBlocks[key] = false;
     });
     updates.feature_blocks = newFeatureBlocks;
 
