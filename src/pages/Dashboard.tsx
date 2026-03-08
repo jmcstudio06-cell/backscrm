@@ -252,7 +252,7 @@ const Dashboard = () => {
       .slice(0, 3)
       .map((show) => {
         const client = clients.find(c => c.id === show.client_id);
-        const hasContract = contracts.some(c => c.show_id === show.id);
+        const hasContract = contractShowIds.includes(show.id);
         
         return {
           id: show.id,
@@ -265,12 +265,12 @@ const Dashboard = () => {
           hasContract,
         };
       });
-  }, [shows, clients, contracts, now]);
+  }, [shows, clients, contractShowIds, now]);
 
   // Check if user has data for recommended actions
   const hasLeads = leads.length > 0;
   const hasShows = shows.length > 0;
-  const hasContracts = contracts.length > 0;
+  const hasContracts = contractsCount > 0;
   const hasGoals = goals.length > 0;
 
   const formatCurrency = (value: number) => {
@@ -391,9 +391,9 @@ const Dashboard = () => {
           trialStart={profile?.trial_start || null}
           showsCount={shows.length}
           totalRevenue={transactions.filter(t => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0)}
-          contractsCount={contracts.length}
+          contractsCount={contractsCount}
           checklistsUsed={checklistsUsed}
-          stageMappingsCount={stageMappings.length}
+          stageMappingsCount={stageMappingsCount}
         />
       </div>
     </Layout>
