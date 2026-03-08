@@ -2,6 +2,7 @@ import { Menu, User, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface HeaderProps {
   title: string;
@@ -12,6 +13,7 @@ interface HeaderProps {
 export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
 
   return (
     <header className="sticky top-0 z-30 bg-background/70 backdrop-blur-2xl border-b border-border/50 pt-[env(safe-area-inset-top)]">
@@ -37,9 +39,19 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
 
         {/* Profile area */}
         <div className="flex items-center gap-2">
-          {/* Notification bell (decorative) */}
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-secondary/50 hidden sm:flex">
+          {/* Notification bell */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-xl hover:bg-secondary/50 relative"
+            onClick={() => navigate("/notificacoes")}
+          >
             <Bell className="w-4 h-4 text-muted-foreground" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </Button>
           
           {/* Profile */}
