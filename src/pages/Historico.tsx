@@ -114,7 +114,7 @@ export default function Historico() {
 
   if (loading) {
     return (
-      <Layout title="Histórico Mensal" subtitle="Acompanhe sua evolução ao longo do ano">
+      <Layout title="Histórico Completo" subtitle="Acompanhe sua evolução ao longo do ano">
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Carregando...</p>
         </div>
@@ -123,7 +123,7 @@ export default function Historico() {
   }
 
   return (
-    <Layout title="Histórico Mensal" subtitle="Acompanhe sua evolução ao longo do ano">
+    <Layout title="Histórico Completo" subtitle="Acompanhe sua evolução ao longo do ano">
       {/* Date Range Filter */}
       <div className="flex flex-wrap items-end gap-4 mb-6">
         <div className="space-y-1.5">
