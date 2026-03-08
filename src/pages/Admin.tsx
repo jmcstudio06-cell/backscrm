@@ -96,8 +96,7 @@ const FEATURES: { key: string; label: string }[] = [
 
 const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
-  { value: "free", label: "Free" },
-  { value: "trial", label: "Trial" },
+  { value: "trial", label: "Trial (1h)" },
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Prof." },
   { value: "mensal_completo", label: "Mensal Completo" },
@@ -108,7 +107,7 @@ const PLAN_FILTERS = [
 ];
 
 const PLAN_DURATIONS: Record<string, number> = {
-  free: 99999, trial: 3,
+  trial: 3,
   mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30,
   anual_starter: 365, anual_profissional: 365, anual_completo: 365,
   // Legacy support
@@ -127,7 +126,6 @@ const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "
 const USERS_PER_PAGE = 10;
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
-  free:                  { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Sparkles className="h-5 w-5" /> },
   trial:                 { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
   mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
@@ -299,7 +297,6 @@ export default function Admin() {
     
     ALL_FEATURE_KEYS.forEach(key => {
       if (plan === "expirado") newFeatureBlocks[key] = true;
-      else if (plan === "free") newFeatureBlocks[key] = false;
       else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
       else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
       else newFeatureBlocks[key] = false;
@@ -427,7 +424,7 @@ export default function Admin() {
 
   const getPlanBadge = (plan: string | null) => {
     const p = plan || "trial";
-    const labels: Record<string, string> = { free: "Free", trial: "Trial", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado" };
+    const labels: Record<string, string> = { trial: "Trial (1h)", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado" };
     const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
     return (
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
@@ -606,8 +603,7 @@ export default function Admin() {
                           }}
                           className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
                         >
-                          <option value="free">Free (Gratuito)</option>
-                          <option value="trial">Trial (3 dias)</option>
+                          <option value="trial">Trial (1 hora)</option>
                           <optgroup label="Mensal (30 dias)">
                             <option value="mensal_starter">Mensal Starter</option>
                             <option value="mensal_profissional">Mensal Profissional</option>
@@ -623,7 +619,7 @@ export default function Admin() {
                       </div>
 
                       {/* Plan Summary */}
-                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "free" && userProfile.trial_start && (
+                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "trial" && userProfile.trial_start && (
                         <div className="grid grid-cols-3 gap-3">
                           <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Início</p>
