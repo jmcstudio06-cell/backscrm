@@ -483,10 +483,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               <Button variant="gradient" size="sm" onClick={handlePrintPDF}>
                 <Download className="w-4 h-4 mr-2" />
                 PDF (A4 em pé)
-              </Button>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="w-4 h-4" />
-              </Button>
+            </div>
             </div>
           </div>
         </DialogHeader>
