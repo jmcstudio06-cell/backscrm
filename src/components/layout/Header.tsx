@@ -39,6 +39,21 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
 
         {/* Profile area */}
         <div className="flex items-center gap-2">
+          {/* Notification bell */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-xl hover:bg-secondary/50 relative"
+            onClick={() => navigate("/notificacoes")}
+          >
+            <Bell className="w-4 h-4 text-muted-foreground" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </Button>
+          
           {/* Profile */}
           <Button variant="ghost" size="icon" className="rounded-xl overflow-hidden shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => navigate("/configuracoes")}>
             {profile?.avatar_url ? (
