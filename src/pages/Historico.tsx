@@ -3,14 +3,13 @@ import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   DollarSign,
   TrendingUp,
   Mic2,
   CalendarIcon,
-  Filter,
 } from "lucide-react";
 import {
   ComposedChart,
