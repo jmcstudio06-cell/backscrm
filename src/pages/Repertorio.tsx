@@ -333,56 +333,6 @@ export default function Repertorio() {
 
   return (
     <Layout title="Repertório" subtitle="Planejamento de blocos para o show">
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <ListMusic className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{mainBlocks}</p>
-              <p className="text-xs text-muted-foreground">Blocos</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-              <Music className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{totalSongs}</p>
-              <p className="text-xs text-muted-foreground">Músicas</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-success" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{totalDuration}min</p>
-              <p className="text-xs text-muted-foreground">Duração Total</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Check className="w-5 h-5 text-warning" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">
-                {checkedSongs}/{totalSongs}
-              </p>
-              <p className="text-xs text-muted-foreground">Conferidas</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar - Resumo do Show */}
         <div className="space-y-6">
