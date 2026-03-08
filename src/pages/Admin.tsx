@@ -503,7 +503,10 @@ export default function Admin() {
             <Megaphone className="h-3.5 w-3.5" /> Indicações
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Bell className="h-3.5 w-3.5" /> Notificações
+            <Bell className="h-3.5 w-3.5" /> Push
+          </TabsTrigger>
+          <TabsTrigger value="app-notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Bell className="h-3.5 w-3.5" /> In-App
           </TabsTrigger>
           <TabsTrigger value="guide-leads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <BookOpen className="h-3.5 w-3.5" /> Guia
