@@ -566,23 +566,46 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             </div>
 
             {/* Footer */}
-            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 20, borderTop: `1px solid ${template === "elegante" ? "rgba(255,255,255,0.1)" : "#eee"}`, gap: 16 }}>
-              {[
-                { title: "Contato", content: <>{artistEmail && <div>Email: {artistEmail}</div>}{artistPhone && <div>Tel: {artistPhone}</div>}</> },
-                { title: "Pagamento", content: <>{budget!.payment_conditions || "A combinar"}</> },
-                { title: "Observações", content: <>{budget!.terms_conditions || "Sujeito a disponibilidade."}</> },
-              ].map(({ title, content }) => (
-                <div key={title} style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: c.heading, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>{title}</div>
-                  <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.6 }}>{content}</div>
+            {template === "elegante" ? (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 20, borderTop: "1px solid #e5e5e5", gap: 16, marginBottom: 0 }}>
+                  {[
+                    { title: "Contato", content: <>{artistEmail && <div>Email: {artistEmail}</div>}{artistPhone && <div>Tel: {artistPhone}</div>}</> },
+                    { title: "Pagamento", content: <>{budget!.payment_conditions || "A combinar"}</> },
+                    { title: "Observações", content: <>{budget!.terms_conditions || "Sujeito a disponibilidade."}</> },
+                  ].map(({ title, content }) => (
+                    <div key={title} style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#1a1a2e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>{title}</div>
+                      <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.6 }}>{content}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            {/* Thanks */}
-            <div style={{ marginTop: 28, padding: "14px 20px", backgroundColor: c.accent, borderRadius: 8, textAlign: "center", border: `1px solid ${c.accentBorder}` }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: c.primary }}>Obrigado pela preferência!</div>
-            </div>
+                {/* Dark bottom bar */}
+                <div style={{ marginTop: 24, padding: "14px 20px", backgroundColor: "#1a1a2e", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: c.primary }}>Obrigado pela preferência!</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{artistPhone || artistEmail}</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 20, borderTop: "1px solid #eee", gap: 16 }}>
+                  {[
+                    { title: "Contato", content: <>{artistEmail && <div>Email: {artistEmail}</div>}{artistPhone && <div>Tel: {artistPhone}</div>}</> },
+                    { title: "Pagamento", content: <>{budget!.payment_conditions || "A combinar"}</> },
+                    { title: "Observações", content: <>{budget!.terms_conditions || "Sujeito a disponibilidade."}</> },
+                  ].map(({ title, content }) => (
+                    <div key={title} style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: c.heading, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>{title}</div>
+                      <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.6 }}>{content}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Thanks */}
+                <div style={{ marginTop: 28, padding: "14px 20px", backgroundColor: c.accent, borderRadius: 8, textAlign: "center", border: `1px solid ${c.accentBorder}` }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: c.primary }}>Obrigado pela preferência!</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </DialogContent>
