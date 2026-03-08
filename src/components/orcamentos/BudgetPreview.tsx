@@ -57,10 +57,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
     if (preset === "phone") {
       /**
-       * ✅ WHATSAPP (A4-LIKE):
-       * - mesmo layout do print (760px)
-       * - sem moldura
-       * - depois a gente exporta em PNG com largura 1080 e proporção A4
+       * ✅ WHATSAPP (A4-LIKE)
        */
       stage.style.width = "760px";
       stage.style.display = "block";
@@ -76,16 +73,16 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     }
 
     /**
-     * ✅ PRINT (A4 RETRATO):
-     * Base mais larga para melhor preenchimento da página
+     * ✅ PRINT (A4 RETRATO)
+     * Captura exatamente o visual da prévia (sem reflow manual)
      */
-    stage.style.width = "900px";
+    const sourceWidth = Math.max(source.clientWidth, 760);
+    stage.style.width = `${sourceWidth}px`;
     stage.style.display = "block";
 
-    clone.style.width = "900px";
-    clone.style.minWidth = "900px";
-    clone.style.maxWidth = "900px";
-    clone.style.padding = "28px";
+    clone.style.width = `${sourceWidth}px`;
+    clone.style.minWidth = `${sourceWidth}px`;
+    clone.style.maxWidth = `${sourceWidth}px`;
 
     stage.appendChild(clone);
     document.body.appendChild(stage);
@@ -99,8 +96,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     try {
       const html2canvas = (await import("html2canvas")).default;
 
-      // ✅ mais nitidez no WhatsApp
-      const scale = preset === "phone" ? 3 : 2;
+      // maior fidelidade no PDF para evitar layout "quebrado"
+      const scale = preset === "phone" ? 3 : 3;
 
       const canvas = await html2canvas(stage, {
         scale,
