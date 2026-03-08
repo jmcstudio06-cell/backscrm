@@ -529,8 +529,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   }),
                   fontSize: 15, fontWeight: 700, marginTop: 8, minHeight: 46, lineHeight: 1,
                 }}>
-                  <span style={{ display: "flex", alignItems: "center" }}>TOTAL</span>
-                  <span style={{ display: "flex", alignItems: "center", ...(template === "elegante" ? { color: "#c9a84c" } : {}) }}>{formatCurrency(budget!.total)}</span>
+                  <span style={{ display: "flex", alignItems: "center", lineHeight: 1 }}>TOTAL</span>
+                  <span style={{ display: "flex", alignItems: "center", lineHeight: 1, ...(template === "elegante" ? { color: "#c9a84c" } : {}) }}>{formatCurrency(budget!.total)}</span>
                 </div>
               </div>
             </div>
