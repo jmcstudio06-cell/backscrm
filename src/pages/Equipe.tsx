@@ -101,7 +101,7 @@ export default function Equipe() {
   }
 
   return (
-    <Layout title="Equipe & Freelancer" subtitle="Gerencie sua banda e colaboradores">
+    <Layout title="Banda & Músicos" subtitle="Gerencie sua banda e colaboradores">
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
