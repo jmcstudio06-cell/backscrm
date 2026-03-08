@@ -107,9 +107,7 @@ export function BudgetModal({
     setTax(0);
     setPaymentConditions("");
     setNotes("");
-    setTermsConditions(
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-    );
+    setTermsConditions("");
     setValidUntil("");
   };
 
