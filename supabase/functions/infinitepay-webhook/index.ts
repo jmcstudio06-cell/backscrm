@@ -97,22 +97,24 @@ serve(async (req) => {
     const resolved = resolvePlan(amountCents);
 
     if (!pendingPayment && resolved?.plan) {
-      const { data: paymentByPlan, error: pendingByPlanError } = await supabase
+      const { data: recentPlanMatches, error: pendingByPlanError } = await supabase
         .from("pending_payments")
         .select("*")
         .eq("plan_key", resolved.plan)
         .eq("status", "pending")
+        .gte("created_at", new Date(Date.now() - 20 * 60 * 1000).toISOString())
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(5);
 
       if (pendingByPlanError) {
         console.error("❌ Error querying pending_payments by plan:", pendingByPlanError);
       }
 
-      if (paymentByPlan) {
-        pendingPayment = paymentByPlan as Record<string, any>;
-        console.log(`ℹ️ Fallback match by plan_key=${resolved.plan} for test/alternate checkout amount`);
+      if (recentPlanMatches && recentPlanMatches.length === 1) {
+        pendingPayment = recentPlanMatches[0] as Record<string, any>;
+        console.log(`ℹ️ Safe fallback match by plan_key=${resolved.plan} (single recent pending payment)`);
+      } else if (recentPlanMatches && recentPlanMatches.length > 1) {
+        console.warn(`⚠️ Multiple recent pending payments for plan_key=${resolved.plan}; skipping fallback to avoid wrong activation`);
       }
     }
 
