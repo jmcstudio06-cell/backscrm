@@ -156,7 +156,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 return (
                   <li key={item.label}>
                     <Collapsible
-                      open={openGroup === item.label}
+                      open={openGroup === item.label || isChildActive(item.children)}
                       onOpenChange={() => setOpenGroup(openGroup === item.label ? null : item.label)}
                     >
                       <CollapsibleTrigger asChild>
