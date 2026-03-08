@@ -201,27 +201,31 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               margin: 0 !important;
               padding: 0 !important;
               background: #fff !important;
+              width: 100%;
+              height: 100%;
             }
 
             @page {
               size: A4 portrait;
-              margin: 0;
+              margin: 12mm 15mm;
+            }
+
+            @media print {
+              html, body {
+                width: 100%;
+              }
             }
 
             .page {
-              width: 210mm;
-              min-height: 297mm;
-              display: flex;
-              align-items: flex-start;
-              justify-content: center;
+              width: 100%;
               box-sizing: border-box;
-              padding: 10mm;
             }
 
             img {
               display: block;
               width: 100%;
               height: auto;
+              max-width: 100%;
             }
 
             * {
