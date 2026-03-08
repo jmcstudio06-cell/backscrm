@@ -513,10 +513,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               </thead>
               <tbody>
                 {items.map((item, index) => (
-                  <tr key={item.id} style={{ borderBottom: template === "minimalista" ? "1px solid #eee" : `1px solid ${template === "elegante" ? "rgba(255,255,255,0.05)" : "#eee"}`, backgroundColor: index % 2 === 0 ? c.row : template === "elegante" ? "transparent" : "#fff" }}>
+                  <tr key={item.id} style={{ borderBottom: template === "minimalista" ? "1px solid #eee" : `1px solid ${template === "elegante" ? "#e5e5e5" : "#eee"}`, backgroundColor: index % 2 === 0 ? c.row : "#fff" }}>
                     <td style={{ padding: "12px 14px", fontSize: 13, verticalAlign: "top" }}>
-                      <div style={{ fontWeight: 500, color: c.text }}>{item.description}</div>
-                      {item.details && <div style={{ fontSize: 11, color: c.muted, marginTop: 2 }}>{item.details}</div>}
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {template === "elegante" && <span style={{ color: c.primary, fontWeight: 700, fontSize: 12, minWidth: 20 }}>{String(index + 1).padStart(2, "0")}</span>}
+                        <div>
+                          <div style={{ fontWeight: 500, color: c.text }}>{item.description}</div>
+                          {item.details && <div style={{ fontSize: 11, color: c.muted, marginTop: 2 }}>{item.details}</div>}
+                        </div>
+                      </div>
                     </td>
                     <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "right", color: c.muted, whiteSpace: "nowrap" }}>{formatCurrency(item.unit_price)}</td>
                     <td style={{ padding: "12px 14px", fontSize: 13, textAlign: "center", color: c.muted }}>{item.quantity}</td>
