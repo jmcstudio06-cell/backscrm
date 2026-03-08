@@ -196,7 +196,11 @@ export function ChecklistWizard({ items, showTitle, onComplete, onBack }: Checkl
                   ? "bg-green-50/50 dark:bg-green-950/20"
                   : "bg-red-50/30 dark:bg-red-950/10"
               )}
-              onClick={() => handleToggle(item.id)}
+              onClick={(e) => {
+                // Avoid double-toggle when clicking the Switch itself
+                if ((e.target as HTMLElement).closest('button[role="switch"]')) return;
+                handleToggle(item.id);
+              }}
             >
               <div className="flex items-center gap-3 min-w-0">
                 <span className="text-xs font-mono text-muted-foreground w-6 shrink-0 text-right">

@@ -175,10 +175,10 @@ export default function Checklist() {
             const StatusIcon = statusConfig.icon;
 
             return (
-              <button
+              <div
                 key={show.id}
                 onClick={() => setSelectedShowId(show.id)}
-                className="bg-card rounded-xl border border-border p-4 text-left transition-all hover:shadow-md group"
+                className="bg-card rounded-xl border border-border p-4 text-left transition-all hover:shadow-md group cursor-pointer"
               >
                 <div className={cn(
                   "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs mb-3",
@@ -242,7 +242,7 @@ export default function Checklist() {
                     Fazer Checklist
                   </Button>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
