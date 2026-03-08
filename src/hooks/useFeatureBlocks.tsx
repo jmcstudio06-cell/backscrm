@@ -31,7 +31,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
 export const PLAN_MODULES = {
   starter: {
     name: "Starter",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
     price: "R$ 19,90/mês",
   },
   profissional: {
