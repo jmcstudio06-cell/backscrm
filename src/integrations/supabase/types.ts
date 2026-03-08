@@ -527,6 +527,39 @@ export type Database = {
         }
         Relationships: []
       }
+      content_plan_entries: {
+        Row: {
+          created_at: string
+          day: number
+          id: string
+          month: number
+          status: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          id?: string
+          month: number
+          status?: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          id?: string
+          month?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       contents: {
         Row: {
           category: string
