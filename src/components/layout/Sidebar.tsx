@@ -114,7 +114,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin } = useAdmin();
-  const { isBlocked } = useFeatureBlocks();
+  const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
   const { pendingCount } = usePendingChecklist();
 
