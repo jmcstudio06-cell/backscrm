@@ -15,9 +15,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
 import { useShows } from "@/contexts/shows/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
-import { useContracts } from "@/hooks/useContracts";
 import { useClients } from "@/hooks/useClients";
-import { useStageMappings } from "@/hooks/useStageMappings";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
@@ -31,16 +29,18 @@ const Dashboard = () => {
   const { goals, loading: goalsLoading, addGoal } = useGoals();
   const { shows, loading: showsLoading } = useShows();
   const { profile, loading: profileLoading } = useProfile();
-  const { contracts, loading: contractsLoading } = useContracts();
   const { clients, loading: clientsLoading } = useClients();
-  const { mappings: stageMappings, loading: stageMappingsLoading } = useStageMappings();
   const [showWelcome, setShowWelcome] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [checklistsUsed, setChecklistsUsed] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
+  // Lightweight counts instead of full data hooks
+  const [contractsCount, setContractsCount] = useState(0);
+  const [contractShowIds, setContractShowIds] = useState<string[]>([]);
+  const [stageMappingsCount, setStageMappingsCount] = useState(0);
 
   // Unified loading state - only show content when main data is ready
-  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || contractsLoading || clientsLoading || goalsLoading;
+  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || clientsLoading || goalsLoading;
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
