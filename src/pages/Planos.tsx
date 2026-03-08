@@ -23,7 +23,7 @@ import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/7QBUcoXcYN";
+const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/3i5HbvIdfL";
 const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
 const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB";
 const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
@@ -31,7 +31,7 @@ const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzh
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
 
 const PLAN_AMOUNTS: Record<string, number> = {
-  "mensal_starter": 100,
+  "mensal_starter": 1990,
   "mensal_profissional": 2490,
   "mensal_completo": 3990,
   "anual_starter": 14990,
