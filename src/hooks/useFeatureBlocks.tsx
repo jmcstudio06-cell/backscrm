@@ -12,6 +12,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   crm: true,
   clientes: true,
   orcamentos: true,
+  servicos: true,
   contratos: true,
   financeiro: true,
   historico: true,
