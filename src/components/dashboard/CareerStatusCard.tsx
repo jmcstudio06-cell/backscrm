@@ -51,9 +51,9 @@ export function CareerStatusCard({
       label: "Em Crescimento",
       sublabel: "Sua carreira está evoluindo!",
       icon: TrendingUp,
-      gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+      gradient: "from-success via-success/80 to-success/60",
       bgGlow: "bg-gradient-to-br from-success/20 via-success/10 to-transparent",
-      iconBg: "bg-gradient-to-br from-success to-teal-500",
+      iconBg: "bg-gradient-to-br from-success to-success/80",
       textColor: "text-success",
       badgeBg: "bg-success/10",
       badgeBorder: "border-success/30",
@@ -62,18 +62,18 @@ export function CareerStatusCard({
       label: "Atenção",
       sublabel: "Hora de acelerar as ações",
       icon: AlertTriangle,
-      gradient: "from-amber-500 via-orange-500 to-rose-500",
-      bgGlow: "bg-gradient-to-br from-warning/20 via-warning/10 to-transparent",
-      iconBg: "bg-gradient-to-br from-warning to-orange-500",
-      textColor: "text-warning",
-      badgeBg: "bg-warning/10",
-      badgeBorder: "border-warning/30",
+      gradient: "from-destructive via-destructive/80 to-destructive/60",
+      bgGlow: "bg-gradient-to-br from-destructive/15 via-destructive/5 to-transparent",
+      iconBg: "bg-gradient-to-br from-destructive to-destructive/80",
+      textColor: "text-destructive",
+      badgeBg: "bg-destructive/10",
+      badgeBorder: "border-destructive/30",
     },
     stalled: {
       label: "Parado",
       sublabel: "Vamos retomar o ritmo!",
       icon: Pause,
-      gradient: "from-slate-400 via-slate-500 to-slate-600",
+      gradient: "from-muted-foreground via-muted-foreground/80 to-muted-foreground/60",
       bgGlow: "bg-gradient-to-br from-muted/30 via-muted/20 to-transparent",
       iconBg: "bg-gradient-to-br from-muted-foreground/50 to-muted-foreground",
       textColor: "text-muted-foreground",
@@ -135,7 +135,7 @@ export function CareerStatusCard({
         {/* Sublabel */}
         <p className="text-muted-foreground text-sm mb-6">{config.sublabel}</p>
 
-        {/* Metrics Grid - Modern bento style */}
+        {/* Metrics Grid */}
         <div className="grid grid-cols-3 gap-3">
           <MetricItem
             label="Leads"

@@ -20,15 +20,6 @@ interface UpcomingShowsCardProps {
 export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
   const navigate = useNavigate();
 
-  const getGradient = (index: number) => {
-    const gradients = [
-      "from-primary to-primary/80",
-      "from-violet-500 to-purple-600",
-      "from-rose-500 to-pink-600",
-    ];
-    return gradients[index % gradients.length];
-  };
-
   const handleShowClick = (showId: string) => {
     navigate(`/agenda?show=${showId}`);
   };
@@ -81,7 +72,7 @@ export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
     <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-60" />
-      <div className="absolute -top-20 -left-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-violet-500/10 rounded-full blur-3xl group-hover:opacity-70 opacity-40 transition-opacity duration-700" />
+      <div className="absolute -top-20 -left-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl group-hover:opacity-70 opacity-40 transition-opacity duration-700" />
 
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
@@ -120,13 +111,8 @@ export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
                   <div className="flex flex-col">
                     {/* Main row */}
                     <div className="flex items-stretch">
-                      {/* Date pill */}
-                      <div
-                        className={cn(
-                          "flex flex-col items-center justify-center px-4 py-4 text-white min-w-[72px] bg-gradient-to-br",
-                          getGradient(index)
-                        )}
-                      >
+                      {/* Date pill - always uses primary theme color */}
+                      <div className="flex flex-col items-center justify-center px-4 py-4 text-white min-w-[72px] bg-gradient-to-br from-primary to-accent">
                         <span className="text-2xl font-bold leading-none">{day}</span>
                         <span className="text-[10px] uppercase tracking-wider opacity-90 mt-0.5">{month}</span>
                       </div>
@@ -148,7 +134,7 @@ export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
                           {/* Value badge */}
                           <div className="flex-shrink-0">
                             <div className="px-3 py-1.5 rounded-xl bg-success/10 border border-success/20 inline-block">
-                              <span className="text-sm font-bold bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">{show.value}</span>
+                              <span className="text-sm font-bold text-success">{show.value}</span>
                             </div>
                           </div>
                         </div>

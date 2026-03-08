@@ -1,7 +1,5 @@
 import { Target, Flame, Sparkles, TrendingUp, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 interface MonthlyShowGoalProgressProps {
   current: number;
@@ -16,21 +14,21 @@ export function MonthlyShowGoalProgress({ current, target, monthName }: MonthlyS
   const isBehind = progress < 50 && progress > 0;
 
   const getStatus = () => {
-    if (isCompleted) return { text: "Meta batida! Parabéns!", icon: Flame, color: "text-orange-400", bg: "bg-orange-500/20" };
-    if (isOnTrack) return { text: "Você está no ritmo certo!", icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-500/20" };
-    if (isBehind) return { text: "Atenção: abaixo da meta", icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/20" };
-    return { text: "Bora começar o mês!", icon: Target, color: "text-slate-400", bg: "bg-slate-500/20" };
+    if (isCompleted) return { text: "Meta batida! Parabéns!", icon: Flame, color: "text-success", bg: "bg-success/20" };
+    if (isOnTrack) return { text: "Você está no ritmo certo!", icon: TrendingUp, color: "text-success", bg: "bg-success/20" };
+    if (isBehind) return { text: "Atenção: abaixo da meta", icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/20" };
+    return { text: "Bora começar o mês!", icon: Target, color: "text-muted-foreground", bg: "bg-muted" };
   };
 
   const status = getStatus();
   const StatusIcon = status.icon;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-5 sm:p-6 shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 sm:p-6 shadow-card">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       {isCompleted && (
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-success/5 to-success/3" />
       )}
 
       <div className="relative">
@@ -40,8 +38,8 @@ export function MonthlyShowGoalProgress({ current, target, monthName }: MonthlyS
             <div className={cn(
               "p-2.5 rounded-xl shadow-lg",
               isCompleted
-                ? "bg-gradient-to-br from-orange-500 to-amber-600 shadow-orange-500/30"
-                : "bg-gradient-to-br from-primary to-primary/80 shadow-primary/30"
+                ? "bg-gradient-to-br from-success to-success/80 shadow-success/30"
+                : "bg-gradient-to-br from-primary to-accent shadow-primary/30"
             )}>
               {isCompleted ? (
                 <Flame className="w-5 h-5 text-white" />
@@ -50,30 +48,30 @@ export function MonthlyShowGoalProgress({ current, target, monthName }: MonthlyS
               )}
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-white">Meta de Shows</h3>
-              <p className="text-xs text-slate-400 capitalize">{monthName}</p>
+              <h3 className="text-base sm:text-lg font-bold text-foreground">Meta de Shows</h3>
+              <p className="text-xs text-muted-foreground capitalize">{monthName}</p>
             </div>
           </div>
 
           {/* Counter */}
           <div className="text-right">
-            <div className="text-2xl sm:text-3xl font-black text-white">
-              {current}<span className="text-slate-500 text-lg sm:text-xl font-semibold">/{target}</span>
+            <div className="text-2xl sm:text-3xl font-black text-foreground">
+              {current}<span className="text-muted-foreground text-lg sm:text-xl font-semibold">/{target}</span>
             </div>
-            <p className="text-xs text-slate-400">shows realizados</p>
+            <p className="text-xs text-muted-foreground">shows realizados</p>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="relative h-4 bg-slate-700/50 rounded-full overflow-hidden mb-3">
+        <div className="relative h-4 bg-secondary rounded-full overflow-hidden mb-3">
           <div
             className={cn(
               "absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out",
               isCompleted
-                ? "bg-gradient-to-r from-orange-500 to-amber-500"
+                ? "bg-gradient-to-r from-success to-success/80"
                 : isOnTrack
-                ? "bg-gradient-to-r from-emerald-500 to-teal-500"
-                : "bg-gradient-to-r from-violet-500 to-purple-500"
+                ? "bg-gradient-to-r from-primary to-accent"
+                : "bg-gradient-to-r from-primary to-primary/80"
             )}
             style={{ width: `${progress}%` }}
           />
@@ -91,7 +89,7 @@ export function MonthlyShowGoalProgress({ current, target, monthName }: MonthlyS
 
         {/* Status */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-400">{progress}% concluído</span>
+          <span className="text-xs font-medium text-muted-foreground">{progress}% concluído</span>
           <div className={cn("flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full", status.bg, status.color)}>
             <StatusIcon className="w-3.5 h-3.5" />
             {status.text}
