@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { cn, formatDateBR } from "@/lib/utils";
 import { useShows } from "@/contexts/shows/ShowsContext";
-import { ChecklistTemplatesModal } from "@/components/checklist/ChecklistTemplatesModal";
 import { ChecklistWizard } from "@/components/checklist/ChecklistWizard";
 
 interface ChecklistItem {
