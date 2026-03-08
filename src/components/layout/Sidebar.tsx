@@ -92,7 +92,6 @@ const menuItems: MenuItem[] = [
       { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
     ],
   },
-  { icon: Sparkles, label: "Ideia de Post", path: "/planejamento-conteudo", featureKey: "checklist" },
   {
     icon: Target,
     label: "Controle de Metas",
@@ -101,6 +100,7 @@ const menuItems: MenuItem[] = [
       { icon: Target, label: "Meta Anual 2026", path: "/metas/anual", featureKey: "metas" },
     ],
   },
+  { icon: Sparkles, label: "Ideia de Post", path: "/planejamento-conteudo", featureKey: "checklist" },
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
   { icon: Inbox, label: "Solicitações", path: "/solicitacoes", featureKey: "agenda" },
