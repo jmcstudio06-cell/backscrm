@@ -38,6 +38,7 @@ export function useShowsData() {
   const { user } = useAuth();
   const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
+  const [autoCompleteRan, setAutoCompleteRan] = useState(false);
 
   const formatDateString = (date: Date) => {
     const year = date.getFullYear();
@@ -82,22 +83,24 @@ export function useShowsData() {
     if (!user) return;
     
     try {
-      // First, find past shows that need auto-completion
-      const today = formatDateString(new Date());
-      
-      const { data: showsToComplete } = await supabase
-        .from("shows")
-        .select("*")
-        .lt("date", today)
-        .eq("status", "confirmed");
-
-      if (showsToComplete && showsToComplete.length > 0) {
-        // Auto-complete them
-        await supabase
+      // First, find past shows that need auto-completion (only once per session)
+      if (!autoCompleteRan) {
+        setAutoCompleteRan(true);
+        const today = formatDateString(new Date());
+        
+        const { data: showsToComplete } = await supabase
           .from("shows")
-          .update({ status: "completed", updated_at: new Date().toISOString() })
+          .select("*")
           .lt("date", today)
           .eq("status", "confirmed");
+
+        if (showsToComplete && showsToComplete.length > 0) {
+          // Auto-complete them
+          await supabase
+            .from("shows")
+            .update({ status: "completed", updated_at: new Date().toISOString() })
+            .lt("date", today)
+            .eq("status", "confirmed");
 
         // Batch fetch all musicians and expenses for all shows at once (instead of N+1)
         const showIds = showsToComplete.map(s => s.id);
@@ -145,8 +148,9 @@ export function useShowsData() {
             expensesByShow[show.id] || []
           );
         }
+        }
       }
-      
+
       // Then fetch all shows
       const { data, error } = await supabase
         .from("shows")
