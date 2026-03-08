@@ -23,7 +23,7 @@ import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
+const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/3i5HbvIdfL";
 const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
 const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB";
 const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
