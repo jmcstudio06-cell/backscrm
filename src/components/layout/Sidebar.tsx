@@ -281,6 +281,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
           >
             <BookOpen className="w-5 h-5" />
             <span>Tutoriais</span>
+            <span className="ml-auto text-xs bg-white/20 px-1.5 py-0.5 rounded-full">📚</span>
           </RouterNavLink>
 
           {/* Indique e Ganhe - Special Button */}
