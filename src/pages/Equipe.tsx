@@ -191,7 +191,7 @@ export default function Equipe() {
                     <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
                       <DollarSign className="w-3.5 h-3.5 text-success mb-1" />
                       <span className="text-sm font-bold text-foreground">
-                        {stats.totalEarned > 0 ? `${(stats.totalEarned / 1000).toFixed(1)}k` : "0"}
+                        {stats.totalEarned > 0 ? `R$ ${stats.totalEarned.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "R$ 0,00"}
                       </span>
                       <span className="text-[9px] text-muted-foreground leading-tight">Pago</span>
                     </div>
