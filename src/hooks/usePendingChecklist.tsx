@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -6,6 +6,7 @@ export function usePendingChecklist() {
   const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const lastFetch = useRef(0);
 
   useEffect(() => {
     if (!user) {
@@ -15,6 +16,11 @@ export function usePendingChecklist() {
     }
 
     const fetchPendingCount = async () => {
+      // Debounce: skip if fetched less than 5s ago
+      const now = Date.now();
+      if (now - lastFetch.current < 5000) return;
+      lastFetch.current = now;
+
       try {
         // Busca shows confirmados do usuário
         const { data: shows } = await supabase
@@ -48,21 +54,8 @@ export function usePendingChecklist() {
 
     fetchPendingCount();
 
-    // Subscribe to realtime changes
-    const channel = supabase
-      .channel("checklist-changes")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "show_checklist" },
-        () => {
-          fetchPendingCount();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // No realtime subscription - it triggered re-fetches for ALL users' changes
+    // The count refreshes on page navigation which is sufficient
   }, [user]);
 
   return { pendingCount, loading };
