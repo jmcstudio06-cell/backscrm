@@ -76,9 +76,9 @@ const menuItems: MenuItem[] = [
     icon: DollarSign,
     label: "Financeiro",
     children: [
+      { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
       { icon: DollarSign, label: "Resumo Geral", path: "/financeiro", featureKey: "financeiro" },
       { icon: History, label: "Histórico Mensal", path: "/historico", featureKey: "historico" },
-      { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
     ],
   },
   {
