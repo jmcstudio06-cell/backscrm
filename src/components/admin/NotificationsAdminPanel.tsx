@@ -625,66 +625,6 @@ const AUTOMATION_CONFIG = [
          </CardContent>
        </Card>
  
-       {/* History Section */}
-       <Card>
-         <CardHeader>
-           <CardTitle className="flex items-center gap-2">
-             <History className="h-5 w-5" />
-             Histórico de Notificações
-           </CardTitle>
-            <CardDescription>
-              Histórico das últimas 48 horas (limpo automaticamente)
-            </CardDescription>
-         </CardHeader>
-         <CardContent>
-           {history.length === 0 ? (
-             <div className="text-center py-8 text-muted-foreground">
-               <Bell className="h-12 w-12 mx-auto mb-3 opacity-50" />
-               <p>Nenhuma notificação enviada ainda</p>
-             </div>
-           ) : (
-             <div className="overflow-x-auto">
-               <Table>
-                 <TableHeader>
-                   <TableRow>
-                     <TableHead>Data</TableHead>
-                     <TableHead>Tipo</TableHead>
-                     <TableHead>Título</TableHead>
-                     <TableHead className="hidden md:table-cell">Mensagem</TableHead>
-                     <TableHead>Público</TableHead>
-                     <TableHead className="text-right">Alcance</TableHead>
-                   </TableRow>
-                 </TableHeader>
-                 <TableBody>
-                   {history.map((notification) => (
-                     <TableRow key={notification.id}>
-                       <TableCell className="whitespace-nowrap">
-                         {format(new Date(notification.sent_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                       </TableCell>
-                       <TableCell>{getNotificationTypeBadge(notification.notification_type)}</TableCell>
-                       <TableCell className="font-medium">
-                         {notification.title}
-                         {notification.action_url && (
-                           <ExternalLink className="inline h-3 w-3 ml-1 text-muted-foreground" />
-                         )}
-                       </TableCell>
-                       <TableCell className="hidden md:table-cell max-w-[200px] truncate">
-                         {notification.message}
-                       </TableCell>
-                       <TableCell>
-                         <Badge variant="outline">{getAudienceLabel(notification.target_audience)}</Badge>
-                       </TableCell>
-                       <TableCell className="text-right font-medium">
-                         {notification.users_reached}
-                       </TableCell>
-                     </TableRow>
-                   ))}
-                 </TableBody>
-               </Table>
-             </div>
-           )}
-         </CardContent>
-       </Card>
      </div>
    );
  }
