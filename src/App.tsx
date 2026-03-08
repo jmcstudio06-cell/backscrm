@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import { AuthProvider } from "@/hooks/useAuth";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 import { ShowsProvider } from "@/contexts/shows/ShowsProvider";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { CustomizationProvider } from "@/hooks/useCustomization";
@@ -67,35 +68,35 @@ const App = () => (
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-                <Route path="/agenda" element={<ErrorBoundary><Agenda /></ErrorBoundary>} />
-                <Route path="/bonus" element={<ErrorBoundary><Bonus /></ErrorBoundary>} />
-                <Route path="/tutoriais" element={<ErrorBoundary><Tutoriais /></ErrorBoundary>} />
-                <Route path="/crm" element={<ErrorBoundary><CRM /></ErrorBoundary>} />
-                <Route path="/clientes" element={<ErrorBoundary><Clientes /></ErrorBoundary>} />
-                <Route path="/financeiro" element={<ErrorBoundary><Financeiro /></ErrorBoundary>} />
-                <Route path="/historico" element={<ErrorBoundary><Historico /></ErrorBoundary>} />
-                <Route path="/checklist" element={<ErrorBoundary><Checklist /></ErrorBoundary>} />
-                <Route path="/mapeamento-palco" element={<ErrorBoundary><MapeamentoPalco /></ErrorBoundary>} />
-                <Route path="/precificacao" element={<ErrorBoundary><Precificacao /></ErrorBoundary>} />
-                <Route path="/avancos" element={<ErrorBoundary><Avancos /></ErrorBoundary>} />
-                <Route path="/indicacoes" element={<ErrorBoundary><Indicacoes /></ErrorBoundary>} />
-                <Route path="/equipe" element={<ErrorBoundary><Equipe /></ErrorBoundary>} />
-                <Route path="/metas" element={<ErrorBoundary><Metas /></ErrorBoundary>} />
-                <Route path="/metas/anual" element={<ErrorBoundary><MetasAnuais /></ErrorBoundary>} />
-                <Route path="/planos" element={<ErrorBoundary><Planos /></ErrorBoundary>} />
-                <Route path="/configuracoes" element={<ErrorBoundary><Configuracoes /></ErrorBoundary>} />
-                <Route path="/orcamentos" element={<ErrorBoundary><Orcamentos /></ErrorBoundary>} />
-                <Route path="/servicos" element={<ErrorBoundary><ServicosProdutos /></ErrorBoundary>} />
-                <Route path="/planejamento-conteudo" element={<ErrorBoundary><PlanejamentoConteudo /></ErrorBoundary>} />
-                <Route path="/contratos" element={<ErrorBoundary><Contratos /></ErrorBoundary>} />
-                <Route path="/repertorio" element={<ErrorBoundary><Repertorio /></ErrorBoundary>} />
-                <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
+                <Route path="/dashboard" element={<RequireAuth><ErrorBoundary><Dashboard /></ErrorBoundary></RequireAuth>} />
+                <Route path="/agenda" element={<RequireAuth><ErrorBoundary><Agenda /></ErrorBoundary></RequireAuth>} />
+                <Route path="/bonus" element={<RequireAuth><ErrorBoundary><Bonus /></ErrorBoundary></RequireAuth>} />
+                <Route path="/tutoriais" element={<RequireAuth><ErrorBoundary><Tutoriais /></ErrorBoundary></RequireAuth>} />
+                <Route path="/crm" element={<RequireAuth><ErrorBoundary><CRM /></ErrorBoundary></RequireAuth>} />
+                <Route path="/clientes" element={<RequireAuth><ErrorBoundary><Clientes /></ErrorBoundary></RequireAuth>} />
+                <Route path="/financeiro" element={<RequireAuth><ErrorBoundary><Financeiro /></ErrorBoundary></RequireAuth>} />
+                <Route path="/historico" element={<RequireAuth><ErrorBoundary><Historico /></ErrorBoundary></RequireAuth>} />
+                <Route path="/checklist" element={<RequireAuth><ErrorBoundary><Checklist /></ErrorBoundary></RequireAuth>} />
+                <Route path="/mapeamento-palco" element={<RequireAuth><ErrorBoundary><MapeamentoPalco /></ErrorBoundary></RequireAuth>} />
+                <Route path="/precificacao" element={<RequireAuth><ErrorBoundary><Precificacao /></ErrorBoundary></RequireAuth>} />
+                <Route path="/avancos" element={<RequireAuth><ErrorBoundary><Avancos /></ErrorBoundary></RequireAuth>} />
+                <Route path="/indicacoes" element={<RequireAuth><ErrorBoundary><Indicacoes /></ErrorBoundary></RequireAuth>} />
+                <Route path="/equipe" element={<RequireAuth><ErrorBoundary><Equipe /></ErrorBoundary></RequireAuth>} />
+                <Route path="/metas" element={<RequireAuth><ErrorBoundary><Metas /></ErrorBoundary></RequireAuth>} />
+                <Route path="/metas/anual" element={<RequireAuth><ErrorBoundary><MetasAnuais /></ErrorBoundary></RequireAuth>} />
+                <Route path="/planos" element={<RequireAuth><ErrorBoundary><Planos /></ErrorBoundary></RequireAuth>} />
+                <Route path="/configuracoes" element={<RequireAuth><ErrorBoundary><Configuracoes /></ErrorBoundary></RequireAuth>} />
+                <Route path="/orcamentos" element={<RequireAuth><ErrorBoundary><Orcamentos /></ErrorBoundary></RequireAuth>} />
+                <Route path="/servicos" element={<RequireAuth><ErrorBoundary><ServicosProdutos /></ErrorBoundary></RequireAuth>} />
+                <Route path="/planejamento-conteudo" element={<RequireAuth><ErrorBoundary><PlanejamentoConteudo /></ErrorBoundary></RequireAuth>} />
+                <Route path="/contratos" element={<RequireAuth><ErrorBoundary><Contratos /></ErrorBoundary></RequireAuth>} />
+                <Route path="/repertorio" element={<RequireAuth><ErrorBoundary><Repertorio /></ErrorBoundary></RequireAuth>} />
+                <Route path="/admin" element={<RequireAuth><ErrorBoundary><Admin /></ErrorBoundary></RequireAuth>} />
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/guia-atendimento" element={<ErrorBoundary><GuiaAtendimento /></ErrorBoundary>} />
-                <Route path="/solicitacoes" element={<ErrorBoundary><Solicitacoes /></ErrorBoundary>} />
+                <Route path="/guia-atendimento" element={<RequireAuth><ErrorBoundary><GuiaAtendimento /></ErrorBoundary></RequireAuth>} />
+                <Route path="/solicitacoes" element={<RequireAuth><ErrorBoundary><Solicitacoes /></ErrorBoundary></RequireAuth>} />
                 <Route path="/booking/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
