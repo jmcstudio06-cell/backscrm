@@ -233,25 +233,25 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
             @page {
               size: A4 portrait;
-              margin: 12mm 15mm;
-            }
-
-            @media print {
-              html, body {
-                width: 100%;
-              }
+              margin: 0;
             }
 
             .page {
-              width: 100%;
+              width: 210mm;
+              height: 297mm;
+              margin: 0 auto;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               box-sizing: border-box;
+              overflow: hidden;
             }
 
             img {
               display: block;
-              width: 100%;
-              height: auto;
-              max-width: 100%;
+              width: 210mm;
+              height: 297mm;
+              object-fit: contain;
             }
 
             * {
