@@ -126,11 +126,11 @@ const plans: PlanDef[] = [
   },
   {
     id: "full",
-    name: "Completo",
+    name: "Empresarial",
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
     price: "R$ 39,90",
     period: "/mês",
-    buttonText: "Escolher Completo",
+    buttonText: "Escolher Empresarial",
     highlight: false,
     badgeText: "TUDO LIBERADO",
     icon: Crown,
