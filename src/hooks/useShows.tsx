@@ -38,6 +38,7 @@ export function useShowsData() {
   const { user } = useAuth();
   const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
+  const [autoCompleteRan, setAutoCompleteRan] = useState(false);
 
   const formatDateString = (date: Date) => {
     const year = date.getFullYear();
