@@ -58,9 +58,7 @@ export function BudgetModal({
   const [tax, setTax] = useState(0);
   const [paymentConditions, setPaymentConditions] = useState("");
   const [notes, setNotes] = useState("");
-  const [termsConditions, setTermsConditions] = useState(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-  );
+  const [termsConditions, setTermsConditions] = useState("");
   const [validUntil, setValidUntil] = useState("");
 
   useEffect(() => {
