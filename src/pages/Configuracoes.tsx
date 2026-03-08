@@ -118,19 +118,26 @@ export default function Configuracoes() {
   };
 
   const [resettingPassword, setResettingPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSent, setResetSent] = useState(false);
+
+  useEffect(() => {
+    if (profile?.email) setResetEmail(profile.email);
+  }, [profile]);
+
   const handleResetPassword = async () => {
-    const userEmail = profile?.email || email;
-    if (!userEmail) {
-      toast.error("Nenhum email encontrado no perfil");
+    if (!resetEmail.trim()) {
+      toast.error("Digite seu email");
       return;
     }
     setResettingPassword(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast.success("Email de redefinição enviado! Verifique sua caixa de entrada.");
+      setResetSent(true);
+      toast.success("Email enviado! Verifique sua caixa de entrada.");
     } catch (error) {
       console.error(error);
       toast.error("Erro ao enviar email de redefinição");
