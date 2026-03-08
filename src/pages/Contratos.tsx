@@ -90,12 +90,6 @@ export default function Contratos() {
         </div>
       </div>
 
-      <Alert variant="destructive" className="border-warning/50 bg-warning/10 text-warning">
-        <AlertTriangle className="h-4 w-4 !text-warning" />
-        <AlertDescription className="text-sm text-foreground">
-          Apenas os <strong>5 contratos mais recentes</strong> são armazenados. Contratos mais antigos são excluídos automaticamente. Salve seus contratos finalizados em PDF!
-        </AlertDescription>
-      </Alert>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
@@ -161,6 +155,11 @@ export default function Contratos() {
               </Table>
             )}
           </ChartCard>
+
+          <p className="text-xs text-muted-foreground flex items-center gap-1.5 px-1">
+            <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+            Apenas os 5 contratos mais recentes são armazenados. Os mais antigos são excluídos automaticamente. Salve em PDF!
+          </p>
         </div>
 
         <div className="space-y-6">
