@@ -90,7 +90,6 @@ const menuItems: MenuItem[] = [
       { icon: Users2, label: "Banda & Músicos", path: "/equipe", featureKey: "equipe" },
       { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "mapeamento-palco" },
       { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
-      { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "orcamentos" },
     ],
   },
   { icon: Sparkles, label: "Ideia de Post", path: "/planejamento-conteudo", featureKey: "checklist" },
