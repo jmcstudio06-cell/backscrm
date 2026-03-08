@@ -65,6 +65,7 @@ const App = () => (
             <ShowsProvider>
               <NotificationPrompt />
               <PushSubscriptionRefresher />
+              <PlanActivatedCelebration />
               <Routes>
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
