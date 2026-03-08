@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, MessageCircle } from "lucide-react";
+import { MessageCircle, Printer } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
@@ -167,60 +167,27 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
    * ✅ PDF A4 real (sem depender do print do navegador)
    */
   const handlePrintPDF = async () => {
-    toast.loading("Gerando PDF...", { id: "pdf" });
+    toast.loading("Preparando impressão...", { id: "pdf" });
 
     const canvas = await renderToCanvas("print");
     if (!canvas) {
-      toast.error("Erro ao gerar PDF. Tente novamente.", { id: "pdf" });
+      toast.error("Erro ao preparar. Tente novamente.", { id: "pdf" });
       return;
     }
 
-    try {
-      const { jsPDF } = await import("jspdf");
+    const dataUrl = canvas.toDataURL("image/png", 1.0);
 
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const margin = 10;
-      const printableWidth = pageWidth - margin * 2;
-      const printableHeight = pageHeight - margin * 2;
-
-      const imgData = canvas.toDataURL("image/png", 1.0);
-
-      const imgWidth = printableWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      // Centraliza horizontalmente e começa no topo da área útil
-      const x = (pageWidth - imgWidth) / 2;
-      let y = margin;
-
-      if (imgHeight <= printableHeight) {
-        // Centralização vertical quando couber em 1 página
-        y = margin + (printableHeight - imgHeight) / 2;
-        pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight, undefined, "FAST");
-      } else {
-        // Múltiplas páginas com recorte consistente
-        let heightLeft = imgHeight;
-        let position = margin;
-
-        pdf.addImage(imgData, "PNG", x, position, imgWidth, imgHeight, undefined, "FAST");
-        heightLeft -= printableHeight;
-
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight + margin;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", x, position, imgWidth, imgHeight, undefined, "FAST");
-          heightLeft -= printableHeight;
-        }
-      }
-
-      pdf.save(`orcamento-${budget.budget_number}.pdf`);
-      toast.success("PDF gerado com sucesso!", { id: "pdf" });
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar PDF. Tente novamente.", { id: "pdf" });
+    const win = window.open("", "_blank");
+    if (!win) {
+      toast.error("Permita pop-ups e tente novamente.", { id: "pdf" });
+      return;
     }
+
+    win.document.open();
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Orçamento ${budget.budget_number}</title><style>*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 portrait;margin:0}body{width:210mm;height:297mm;display:flex;justify-content:center;align-items:flex-start;padding:8mm}img{width:100%;height:auto;max-height:281mm;object-fit:contain}</style></head><body><img src="${dataUrl}"/><script>window.onload=()=>setTimeout(()=>window.print(),400)<\/script></body></html>`);
+    win.document.close();
+
+    toast.success("Abrindo impressão...", { id: "pdf" });
   };
 
   /**
@@ -453,8 +420,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 WhatsApp
               </Button>
               <Button variant="gradient" size="sm" onClick={handlePrintPDF}>
-                <Download className="w-4 h-4 mr-2" />
-                PDF (A4 em pé)
+                <Printer className="w-4 h-4 mr-2" />
+                Imprimir
               </Button>
             </div>
           </div>
