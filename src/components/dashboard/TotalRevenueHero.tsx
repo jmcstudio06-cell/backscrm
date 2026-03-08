@@ -1,4 +1,5 @@
-import { Music, TrendingUp, Award, BarChart3, Diamond, Trophy, Target } from "lucide-react";
+import { useState } from "react";
+import { Music, TrendingUp, Award, BarChart3, Diamond, Trophy, Target, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TotalRevenueHeroProps {
@@ -18,7 +19,10 @@ export function TotalRevenueHero({
   bestMonth,
   annualProjection,
 }: TotalRevenueHeroProps) {
+  const [showValues, setShowValues] = useState(true);
   const averageFee = completedShowsCount > 0 ? totalRevenue / completedShowsCount : 0;
+
+  const hidden = "••••••";
 
   const fmt = (value: number) =>
     value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -57,17 +61,26 @@ export function TotalRevenueHero({
                     Previsão {new Date().getFullYear()}
                   </p>
                   <p className="text-sm font-extrabold text-primary tracking-tight leading-none">
-                    R$ {fmt(annualProjection)}
+                    {showValues ? `R$ ${fmt(annualProjection)}` : `R$ ${hidden}`}
                   </p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Main value */}
-          <p className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none mb-5">
-            R$ {fmt(totalRevenue)}
-          </p>
+          {/* Main value with eye toggle */}
+          <div className="flex items-center gap-3 mb-5">
+            <p className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none">
+              {showValues ? `R$ ${fmt(totalRevenue)}` : `R$ ${hidden}`}
+            </p>
+            <button
+              onClick={() => setShowValues(!showValues)}
+              className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              aria-label={showValues ? "Ocultar valores" : "Mostrar valores"}
+            >
+              {showValues ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+            </button>
+          </div>
 
           {/* Mobile-only projection */}
           {annualProjection > 0 && (
@@ -80,7 +93,7 @@ export function TotalRevenueHero({
                   Previsão até o final de {new Date().getFullYear()}
                 </p>
                 <p className="text-base font-extrabold text-primary tracking-tight leading-none">
-                  R$ {fmt(annualProjection)}
+                  {showValues ? `R$ ${fmt(annualProjection)}` : `R$ ${hidden}`}
                 </p>
               </div>
             </div>
@@ -96,7 +109,7 @@ export function TotalRevenueHero({
             />
             <MiniStat
               icon={<BarChart3 className="w-3.5 h-3.5" />}
-              value={`R$ ${fmt(averageFee)}`}
+              value={showValues ? `R$ ${fmt(averageFee)}` : `R$ ${hidden}`}
               label="Cachê médio"
               gradient="from-primary to-accent"
             />
@@ -130,7 +143,7 @@ export function TotalRevenueHero({
                     Seu maior cachê até hoje
                   </p>
                   <p className="text-base font-bold text-foreground leading-snug">
-                    R$ {fmt(bestFee.value)}
+                    {showValues ? `R$ ${fmt(bestFee.value)}` : `R$ ${hidden}`}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {bestFee.showTitle}
@@ -154,7 +167,7 @@ export function TotalRevenueHero({
                     {bestMonth.month}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    R$ {fmt(bestMonth.value)}
+                    {showValues ? `R$ ${fmt(bestMonth.value)}` : `R$ ${hidden}`}
                   </p>
                 </div>
               </div>
