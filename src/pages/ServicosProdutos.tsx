@@ -163,48 +163,6 @@ export default function ServicosProdutos() {
   return (
     <Layout title="Serviços e Produtos" subtitle="Seu catálogo profissional de serviços e produtos">
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
-          <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
-          <div className="relative flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-primary/10">
-              <Package className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{totalItems}</p>
-              <p className="text-xs text-muted-foreground">Serviços cadastrados</p>
-            </div>
-          </div>
-        </div>
-        <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
-          <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-success/5 blur-2xl" />
-          <div className="relative flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-success/10">
-              <DollarSign className="w-5 h-5 text-success" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">R$ {fmt(avgPrice)}</p>
-              <p className="text-xs text-muted-foreground">Ticket médio</p>
-            </div>
-          </div>
-        </div>
-        <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card">
-          <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-accent/5 blur-2xl" />
-          <div className="relative flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-accent/10">
-              <TrendingUp className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-foreground truncate max-w-[180px]">
-                {maxPerf ? maxPerf.name : "—"}
-              </p>
-              <p className="text-xs text-muted-foreground">Serviço mais caro</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="relative w-full sm:w-72">
