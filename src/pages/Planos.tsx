@@ -16,17 +16,31 @@ import {
   ArrowRight,
   CalendarDays,
   CalendarRange,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
 const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
 const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB";
 const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
-
 const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP";
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
+
+// Test R$1,00 link
+const TEST_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
+
+const PLAN_AMOUNTS: Record<string, number> = {
+  "mensal_starter": 1990,
+  "mensal_profissional": 2490,
+  "mensal_completo": 3990,
+  "anual_starter": 14990,
+  "anual_profissional": 19990,
+  "anual_completo": 29880,
+};
 
 const testimonials = [
   {
@@ -59,12 +73,15 @@ interface PlanDef {
   price: string;
   period: string;
   buttonText: string;
-  url: string;
   highlight: boolean;
   badgeText: string;
   icon: React.ElementType;
   socialProof: string;
   features: string[];
+  planKeyMonthly: string;
+  planKeyYearly: string;
+  urlMonthly: string;
+  urlYearly: string;
 }
 
 const plans: PlanDef[] = [
@@ -75,11 +92,14 @@ const plans: PlanDef[] = [
     price: "R$ 19,90",
     period: "/mês",
     buttonText: "Escolher Starter",
-    url: STARTER_URL,
     highlight: false,
     badgeText: "ESSENCIAL",
     icon: Sparkles,
     socialProof: "",
+    planKeyMonthly: "mensal_starter",
+    planKeyYearly: "anual_starter",
+    urlMonthly: STARTER_URL,
+    urlYearly: STARTER_YEARLY_URL,
     features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Avanços", "Tutoriais", "Configurações"],
   },
   {
@@ -89,11 +109,14 @@ const plans: PlanDef[] = [
     price: "R$ 24,90",
     period: "/mês",
     buttonText: "Escolher Profissional",
-    url: PRO_URL,
     highlight: true,
     badgeText: "MAIS POPULAR",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
+    planKeyMonthly: "mensal_profissional",
+    planKeyYearly: "anual_profissional",
+    urlMonthly: PRO_URL,
+    urlYearly: PRO_YEARLY_URL,
     features: [
       "Tudo do Starter +",
       "Clientes",
@@ -111,11 +134,14 @@ const plans: PlanDef[] = [
     price: "R$ 39,90",
     period: "/mês",
     buttonText: "Escolher Completo",
-    url: FULL_URL,
     highlight: false,
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
+    planKeyMonthly: "mensal_completo",
+    planKeyYearly: "anual_completo",
+    urlMonthly: FULL_URL,
+    urlYearly: FULL_YEARLY_URL,
     features: [
       "Tudo do Profissional +",
       "Contratos Automáticos",
@@ -203,6 +229,51 @@ function InfoStrip() {
 
 export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = async (planKey: string, amountCents: number, checkoutUrl: string) => {
+    setLoadingPlan(planKey);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Você precisa estar logado para assinar um plano.");
+        setLoadingPlan(null);
+        return;
+      }
+
+      // Cancel any previous pending payments for this user with same amount
+      await supabase
+        .from("pending_payments")
+        .update({ status: "cancelled" } as any)
+        .eq("user_id", user.id)
+        .eq("status", "pending");
+
+      // Create pending payment record
+      const { error } = await supabase
+        .from("pending_payments")
+        .insert({
+          user_id: user.id,
+          plan_key: planKey,
+          amount_cents: amountCents,
+        } as any);
+
+      if (error) {
+        console.error("Error creating pending payment:", error);
+        toast.error("Erro ao processar. Tente novamente.");
+        setLoadingPlan(null);
+        return;
+      }
+
+      // Open checkout in new tab
+      window.open(checkoutUrl, "_blank");
+      toast.success("Link de pagamento aberto! Após o pagamento, seu plano será ativado automaticamente.");
+    } catch (err) {
+      console.error("Subscribe error:", err);
+      toast.error("Erro inesperado. Tente novamente.");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   return (
     <Layout title="" subtitle="">
@@ -250,12 +321,11 @@ export default function Planos() {
               const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,66" : "24,90";
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
-              const finalUrl = isStarter
-                ? isYearly ? STARTER_YEARLY_URL : STARTER_URL
-                : isPro
-                ? isYearly ? PRO_YEARLY_URL : PRO_URL
-                : isYearly ? FULL_YEARLY_URL : FULL_URL;
+              const finalUrl = isYearly ? p.urlYearly : p.urlMonthly;
+              const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
+              const finalAmountCents = PLAN_AMOUNTS[finalPlanKey] || 0;
               const finalPeriod = isYearly ? "/ano" : "/mês";
+              const isLoading = loadingPlan === finalPlanKey;
 
               return (
                 <Card
@@ -337,17 +407,27 @@ export default function Planos() {
                     <div className="mt-auto">
                       <Button
                         size="lg"
+                        disabled={isLoading}
                         className={cn(
                           "w-full rounded-2xl text-white font-semibold shadow-md",
                           p.highlight
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
-                        onClick={() => window.open(finalUrl, "_blank")}
+                        onClick={() => handleSubscribe(finalPlanKey, finalAmountCents, finalUrl)}
                       >
                         <span className="flex items-center justify-center gap-2">
-                          {p.buttonText}
-                          <ArrowRight className="w-4 h-4" />
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Processando...
+                            </>
+                          ) : (
+                            <>
+                              {p.buttonText}
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
                         </span>
                       </Button>
                       <p className="text-xs text-center text-muted-foreground mt-3 font-medium">{p.socialProof}</p>

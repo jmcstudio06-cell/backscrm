@@ -1072,6 +1072,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_payments: {
+        Row: {
+          activated_at: string | null
+          amount_cents: number
+          created_at: string
+          id: string
+          plan_key: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          amount_cents: number
+          created_at?: string
+          id?: string
+          plan_key: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          plan_key?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       performance_types: {
         Row: {
           created_at: string
