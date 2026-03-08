@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Plus,
   Search,
@@ -14,14 +14,20 @@ import {
   Phone,
   Calendar,
   DollarSign,
-  Star,
   Eye,
   TrendingUp,
   Crown,
   MessageCircle,
-  ArrowUpRight,
   Users,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +63,6 @@ export default function Clientes() {
   const totalClients = clients.length;
   const totalRevenue = clients.reduce((sum, c) => sum + (c.total_spent || 0), 0);
   const totalEvents = clients.reduce((sum, c) => sum + (c.shows_count || 0), 0);
-  const avgTicket = totalEvents > 0 ? totalRevenue / totalEvents : 0;
   const topClient = [...clients].sort((a, b) => (b.total_spent || 0) - (a.total_spent || 0))[0];
 
   const handleAddClient = () => { setSelectedClient(null); setModalOpen(true); };
@@ -90,7 +95,7 @@ export default function Clientes() {
   return (
     <Layout title="Clientes" subtitle="Gerencie sua base de clientes">
       <div className="space-y-6">
-        {/* Hero Stats */}
+        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
             <CardContent className="p-4">
@@ -114,7 +119,7 @@ export default function Clientes() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    R$ {totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    R$ {(totalRevenue / 1000).toFixed(0)}k
                   </p>
                   <p className="text-xs text-muted-foreground">Faturamento Total</p>
                 </div>
@@ -140,55 +145,20 @@ export default function Clientes() {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-2xl bg-primary/10">
-                  <TrendingUp className="w-5 h-5 text-primary" />
+                  <Crown className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    R$ {avgTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  <p className="text-lg font-bold text-foreground truncate">
+                    {topClient?.name || "-"}
                   </p>
-                  <p className="text-xs text-muted-foreground">Ticket Médio</p>
+                  <p className="text-xs text-muted-foreground">Melhor Cliente</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Top Client Highlight */}
-        {topClient && (topClient.total_spent || 0) > 0 && (
-          <Card className="border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent overflow-hidden">
-            <CardContent className="p-4 md:p-5">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
-                  <Crown className="w-6 h-6 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Melhor Cliente</span>
-                  </div>
-                  <p className="font-bold text-foreground text-lg truncate">{topClient.name}</p>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                    <span>{topClient.shows_count || 0} eventos</span>
-                    <span>•</span>
-                    <span className="font-semibold text-primary">
-                      R$ {(topClient.total_spent || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="shrink-0 border-primary/30 text-primary hover:bg-primary/10"
-                  onClick={() => handleViewProfile(topClient)}
-                >
-                  <Eye className="w-4 h-4 mr-1" />
-                  Ver
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Search & Actions */}
+        {/* Actions Bar */}
         <div className="flex flex-col sm:flex-row justify-between gap-3">
           <div className="flex items-center gap-3 flex-1">
             <div className="relative flex-1 max-w-sm">
@@ -220,12 +190,12 @@ export default function Clientes() {
           </Button>
         </div>
 
-        {/* Client Cards */}
-        {clients.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                <Users className="w-8 h-8 text-primary" />
+        {/* Clients Table */}
+        <ChartCard title="Lista de Clientes" subtitle={`${filteredClients.length} clientes`}>
+          {clients.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                <Users className="w-7 h-7 text-primary" />
               </div>
               <p className="font-semibold text-foreground mb-1">Nenhum cliente cadastrado</p>
               <p className="text-sm text-muted-foreground mb-4">Adicione seu primeiro cliente para começar</p>
@@ -233,124 +203,100 @@ export default function Clientes() {
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Cliente
               </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between px-1">
-              <p className="text-sm text-muted-foreground">
-                {filteredClients.length} {filteredClients.length === 1 ? "cliente" : "clientes"}
-                {searchTerm && ` encontrado${filteredClients.length !== 1 ? "s" : ""}`}
-              </p>
             </div>
-
-            <div className="grid gap-2.5">
-              {filteredClients.map((client) => {
-                const revenuePercent = totalRevenue > 0 ? ((client.total_spent || 0) / totalRevenue) * 100 : 0;
-
-                return (
-                  <Card
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-primary">
+                  <TableHead className="text-primary-foreground font-bold">Cliente</TableHead>
+                  <TableHead className="text-primary-foreground font-bold">Contato</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-center">Eventos</TableHead>
+                  <TableHead className="text-primary-foreground font-bold">Total Gasto</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-center">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.map((client, idx) => (
+                  <TableRow
                     key={client.id}
-                    className="cursor-pointer hover:border-primary/30 transition-all duration-200 hover:shadow-md group"
+                    className={`cursor-pointer transition-colors hover:bg-primary/5 ${idx % 2 === 0 ? "bg-muted/30" : ""}`}
                     onClick={() => handleViewProfile(client)}
                   >
-                    <CardContent className="p-4">
+                    <TableCell>
                       <div className="flex items-center gap-3">
-                        {/* Avatar */}
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 shadow-sm">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0">
                           <span className="text-sm font-bold text-primary-foreground">
                             {client.name?.charAt(0)?.toUpperCase() || "?"}
                           </span>
                         </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
+                        <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold text-foreground truncate">{client.name}</p>
+                            <span className="font-medium text-foreground">{client.name}</span>
                             {(client.shows_count || 0) >= 5 && (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary shrink-0">
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
                                 VIP
                               </Badge>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 mt-0.5">
-                            {client.phone && (
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Phone className="w-3 h-3" />
-                                {client.phone}
-                              </span>
-                            )}
-                            {client.email && (
-                              <span className="text-xs text-muted-foreground flex items-center gap-1 hidden sm:flex">
-                                <Mail className="w-3 h-3" />
-                                <span className="truncate max-w-[150px]">{client.email}</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="hidden md:flex items-center gap-6 shrink-0">
-                          <div className="text-center">
-                            <p className="text-sm font-bold text-foreground">{client.shows_count || 0}</p>
-                            <p className="text-[10px] text-muted-foreground">eventos</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm font-bold text-primary">
-                              R$ {(client.total_spent || 0).toLocaleString("pt-BR")}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground">total</p>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-                          {client.phone && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="w-8 h-8 rounded-xl text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
-                              onClick={(e) => handleWhatsApp(client, e)}
-                            >
-                              <MessageCircle className="w-4 h-4" />
-                            </Button>
+                          {client.company && (
+                            <span className="text-xs text-muted-foreground">{client.company}</span>
                           )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {client.phone && (
+                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <Phone className="w-3 h-3" />
+                            {client.phone}
+                          </div>
+                        )}
+                        {client.email && (
+                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <Mail className="w-3 h-3" />
+                            <span className="truncate max-w-[180px]">{client.email}</span>
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="font-semibold text-foreground">{client.shows_count || 0}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-semibold text-primary">
+                        R$ {(client.total_spent || 0).toLocaleString("pt-BR")}
+                      </span>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-center gap-1">
+                        {client.phone && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="w-8 h-8 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10"
-                            onClick={() => handleViewProfile(client)}
+                            className="w-8 h-8 rounded-xl text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
+                            onClick={(e) => handleWhatsApp(client, e)}
                           >
-                            <ArrowUpRight className="w-4 h-4" />
+                            <MessageCircle className="w-4 h-4" />
                           </Button>
-                        </div>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => handleViewProfile(client)}
+                        >
+                          <Eye className="w-3.5 h-3.5 mr-1.5" />
+                          Ver perfil
+                        </Button>
                       </div>
-
-                      {/* Mobile stats */}
-                      <div className="flex items-center gap-4 mt-3 md:hidden">
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          <span>{client.shows_count || 0} eventos</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                          <DollarSign className="w-3 h-3" />
-                          <span>R$ {(client.total_spent || 0).toLocaleString("pt-BR")}</span>
-                        </div>
-                      </div>
-
-                      {/* Revenue share bar */}
-                      {revenuePercent > 0 && (
-                        <div className="mt-2.5">
-                          <Progress value={revenuePercent} className="h-1" />
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </ChartCard>
       </div>
 
       <ClientModal
