@@ -461,20 +461,20 @@ export default function Admin() {
       </div>
 
       {/* Plan Stats Grid */}
-      <div className="grid grid-cols-4 md:grid-cols-5 gap-2 mb-6">
+      <div className="grid grid-cols-4 md:grid-cols-8 gap-1.5 mb-6">
         {Object.entries(PLAN_FILTERS).filter(([_, f]) => f.value !== "all").map(([_, filter]) => {
           const colors = PLAN_COLORS[filter.value] || PLAN_COLORS.trial;
           return (
           <button
             key={filter.value}
             onClick={() => setPlanFilter(planFilter === filter.value ? "all" : filter.value)}
-            className={`relative rounded-xl p-3 text-center transition-all border ${colors.bg} ${colors.border} ${
+            className={`relative rounded-lg p-2 text-center transition-all border aspect-square flex flex-col items-center justify-center ${colors.bg} ${colors.border} ${
               planFilter === filter.value ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
             }`}
           >
-            <div className={`mx-auto mb-1 ${colors.text}`}>{colors.icon}</div>
-            <p className={`text-xl md:text-2xl font-black ${colors.text}`}>{planStats[filter.value] || 0}</p>
-            <p className={`text-[10px] font-semibold ${colors.text} opacity-80 truncate`}>
+            <div className={`mb-0.5 ${colors.text}`}>{colors.icon}</div>
+            <p className={`text-lg font-black leading-tight ${colors.text}`}>{planStats[filter.value] || 0}</p>
+            <p className={`text-[8px] md:text-[9px] font-semibold ${colors.text} opacity-80 truncate w-full`}>
               {filter.label}
             </p>
           </button>
