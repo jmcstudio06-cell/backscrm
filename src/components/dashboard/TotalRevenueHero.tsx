@@ -166,7 +166,7 @@ function MiniStat({
   highlight?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-xl bg-muted/30 border border-border/30 p-3 space-y-1.5">
+    <div className="relative overflow-hidden rounded-xl bg-muted/30 border border-border/30 p-3 flex flex-col items-center justify-center text-center space-y-1.5">
       <div className={cn(
         "w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br shadow-sm",
         gradient
