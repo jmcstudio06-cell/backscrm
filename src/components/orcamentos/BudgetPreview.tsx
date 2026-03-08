@@ -568,9 +568,9 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: 24, padding: "14px 20px", backgroundColor: "#1a1a2e", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: c.primary }}>Obrigado pela preferência!</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{artistPhone || artistEmail}</div>
+                <div style={{ marginTop: 24, padding: "14px 20px", backgroundColor: "#1a1a2e", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: 48 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: c.primary, display: "flex", alignItems: "center", lineHeight: 1 }}>Obrigado pela preferência!</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", lineHeight: 1 }}>{artistPhone || artistEmail}</div>
                 </div>
               </>
             ) : (
