@@ -102,7 +102,7 @@ const menuItems: MenuItem[] = [
   },
   { icon: Sparkles, label: "Ideia de Post", path: "/planejamento-conteudo", featureKey: "checklist" },
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
-  { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
+  
   { icon: Inbox, label: "Solicitações", path: "/solicitacoes", featureKey: "agenda" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
