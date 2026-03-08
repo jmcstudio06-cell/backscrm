@@ -41,10 +41,11 @@ export default function Historico() {
   const { transactions, loading: loadingTransactions } = useTransactions();
   const { shows, loading: loadingShows } = useShowsData();
 
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subMonths(new Date(), 11),
-    to: new Date(),
+  const [startDate, setStartDate] = useState(() => {
+    const d = subMonths(new Date(), 11);
+    return format(d, "yyyy-MM-dd");
   });
+  const [endDate, setEndDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
 
   // Filter transactions by date range
   const filteredTransactions = transactions.filter(t => {
