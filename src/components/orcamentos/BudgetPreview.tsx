@@ -354,27 +354,47 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     if (template === "minimalista") {
       return (
         <>
-          {/* Ultra-clean header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 40, paddingBottom: 16, borderBottom: "1px solid #e0e0e0" }}>
-            <div>
-              <div style={{ fontSize: 11, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>Orçamento</div>
-              <div style={{ fontSize: 22, fontWeight: 300, color: c.heading, letterSpacing: -0.3 }}>{artistName}</div>
+          {/* Warm refined header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 36 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: c.accent, border: `1px solid ${c.accentBorder}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Logo" style={{ width: 56, height: 56, objectFit: "cover", display: "block" }} crossOrigin="anonymous" />
+                ) : (
+                  <span style={{ color: c.primary, fontSize: 22, fontWeight: 600 }}>{artistName.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: c.heading }}>{artistName}</div>
+                <div style={{ fontSize: 11, color: c.muted, lineHeight: 1.5, marginTop: 2 }}>
+                  {artistPhone && <span>{artistPhone}</span>}
+                  {artistPhone && artistEmail && <span> · </span>}
+                  {artistEmail && <span>{artistEmail}</span>}
+                </div>
+              </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 11, color: c.muted }}>{budget!.budget_number}</div>
-              <div style={{ fontSize: 11, color: c.muted, marginTop: 2 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.5 }}>Orçamento</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: c.heading, marginTop: 2 }}>{budget!.budget_number}</div>
+              <div style={{ fontSize: 11, color: c.muted, marginTop: 4 }}>
                 {new Date(budget!.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
               </div>
             </div>
           </div>
-          {/* Client info — left aligned, simple */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ fontSize: 10, color: c.muted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>Para</div>
-            <div style={{ fontSize: 15, fontWeight: 500, color: c.heading }}>{budget!.client_name}</div>
+          {/* Warm divider */}
+          <div style={{ height: 1, background: `linear-gradient(90deg, ${c.accentBorder}, ${c.primary}40, ${c.accentBorder})`, marginBottom: 28 }} />
+          {/* Client card */}
+          <div style={{ background: c.accent, borderRadius: 10, padding: "16px 20px", marginBottom: 28, border: `1px solid ${c.accentBorder}` }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: c.primary, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Para</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: c.heading }}>{budget!.client_name}</div>
             <div style={{ fontSize: 12, color: c.muted, lineHeight: 1.6, marginTop: 2 }}>
-              {budget!.client_company && <span>{budget!.client_company}<br /></span>}
+              {budget!.client_company && <span>{budget!.client_company}</span>}
+              {budget!.client_company && budget!.client_address && <span> · </span>}
               {budget!.client_address && <span>{budget!.client_address}</span>}
             </div>
+            {budget!.valid_until && (
+              <div style={{ fontSize: 11, color: c.muted, marginTop: 6 }}>Válido até {formatDateBR(budget!.valid_until)}</div>
+            )}
           </div>
         </>
       );
