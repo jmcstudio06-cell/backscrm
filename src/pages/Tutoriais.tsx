@@ -73,7 +73,6 @@ export default function Tutoriais() {
     setVideoPlayerOpen(true);
   };
 
-
   const filteredTutorials = selectedCategory === "all" 
     ? tutorials 
     : tutorials.filter(t => t.category === selectedCategory);
@@ -94,8 +93,8 @@ export default function Tutoriais() {
 
   return (
     <Layout title="" subtitle="">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-6 md:mb-8 bg-gradient-to-r from-purple-600 via-violet-500 to-indigo-500 p-4 md:p-8">
+      {/* Hero Banner - uses theme primary color */}
+      <div className="relative rounded-2xl overflow-hidden mb-6 md:mb-8 p-4 md:p-8" style={{ background: "var(--gradient-primary)" }}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3 md:gap-4">
             <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
@@ -109,7 +108,7 @@ export default function Tutoriais() {
           {isAdmin && (
             <Button 
               variant="outline" 
-              className="bg-white text-purple-600 hover:bg-white/90 border-none w-full md:w-auto"
+              className="bg-white text-primary hover:bg-white/90 border-none w-full md:w-auto"
               onClick={() => setModalOpen(true)}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -130,7 +129,7 @@ export default function Tutoriais() {
             className={cn(
               "shrink-0 text-xs md:text-sm",
               selectedCategory === cat.id 
-                ? "bg-purple-600 text-white hover:bg-purple-700" 
+                ? "" 
                 : "bg-card hover:bg-muted"
             )}
           >
@@ -151,7 +150,7 @@ export default function Tutoriais() {
             }
           </p>
           {isAdmin && (
-            <Button onClick={() => setModalOpen(true)} className="bg-purple-600 hover:bg-purple-700">
+            <Button onClick={() => setModalOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Adicionar Tutorial
             </Button>
@@ -163,7 +162,7 @@ export default function Tutoriais() {
       {featuredTutorials.length > 0 && (
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
-            <Star className="w-5 h-5 text-yellow-500" />
+            <Star className="w-5 h-5 text-warning" />
             <h2 className="text-lg font-semibold text-foreground">Em Destaque</h2>
           </div>
 
@@ -175,7 +174,7 @@ export default function Tutoriais() {
                 key={item.id}
                 className="bg-card rounded-xl border border-border overflow-hidden mb-4"
               >
-                <div className="bg-purple-600 text-white px-4 py-2 text-sm font-medium flex items-center gap-2">
+                <div className="text-primary-foreground px-4 py-2 text-sm font-medium flex items-center gap-2" style={{ background: "var(--gradient-primary)" }}>
                   <Star className="w-4 h-4" />
                   EM DESTAQUE
                 </div>
@@ -196,7 +195,7 @@ export default function Tutoriais() {
                         }
                       />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
                           <Play className="w-6 h-6 text-white ml-0.5" />
                         </div>
                       </div>
@@ -214,13 +213,13 @@ export default function Tutoriais() {
                       <div
                         className={cn(
                           "w-10 h-10 rounded-lg flex items-center justify-center",
-                          item.type === "video" ? "bg-red-100" : "bg-purple-100"
+                          item.type === "video" ? "bg-destructive/10" : "bg-primary/10"
                         )}
                       >
                         {item.type === "video" ? (
-                          <Play className="w-5 h-5 text-red-500" />
+                          <Play className="w-5 h-5 text-destructive" />
                         ) : (
-                          <ExternalLink className="w-5 h-5 text-purple-600" />
+                          <ExternalLink className="w-5 h-5 text-primary" />
                         )}
                       </div>
                       <div>
@@ -258,8 +257,8 @@ export default function Tutoriais() {
             >
               <div className="flex items-start justify-between mb-2 md:mb-3">
                 <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
-                    <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <ExternalLink className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-foreground text-xs md:text-sm truncate">{item.title}</h3>
@@ -319,7 +318,7 @@ export default function Tutoriais() {
                     }
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
                       <Play className="w-8 h-8 text-white ml-1" />
                     </div>
                   </div>

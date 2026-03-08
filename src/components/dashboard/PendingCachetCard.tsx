@@ -24,14 +24,14 @@ export function PendingCachetCard({ pendingShows, totalPending, totalReceived }:
   return (
     <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-warning/5 opacity-60" />
-      <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full blur-3xl opacity-20 bg-gradient-to-br from-success to-emerald-400 group-hover:opacity-40 transition-opacity duration-700" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-60" />
+      <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full blur-3xl opacity-20 bg-gradient-to-br from-primary to-accent group-hover:opacity-40 transition-opacity duration-700" />
 
       <div className="relative">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-success to-teal-500 shadow-lg">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
               <Wallet className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -48,9 +48,9 @@ export function PendingCachetCard({ pendingShows, totalPending, totalReceived }:
           </Link>
         </div>
 
-        {/* Main stats - Modern glass cards */}
+        {/* Main stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="relative p-4 rounded-2xl bg-gradient-to-br from-warning/10 to-orange-500/5 border border-warning/20 backdrop-blur-sm overflow-hidden group/stat">
+          <div className="relative p-4 rounded-2xl bg-warning/10 border border-warning/20 backdrop-blur-sm overflow-hidden group/stat">
             <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full bg-warning/10 blur-2xl group-hover/stat:bg-warning/20 transition-colors" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
@@ -64,7 +64,7 @@ export function PendingCachetCard({ pendingShows, totalPending, totalReceived }:
               </p>
             </div>
           </div>
-          <div className="relative p-4 rounded-2xl bg-gradient-to-br from-success/10 to-emerald-500/5 border border-success/20 backdrop-blur-sm overflow-hidden group/stat">
+          <div className="relative p-4 rounded-2xl bg-success/10 border border-success/20 backdrop-blur-sm overflow-hidden group/stat">
             <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full bg-success/10 blur-2xl group-hover/stat:bg-success/20 transition-colors" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
@@ -95,7 +95,7 @@ export function PendingCachetCard({ pendingShows, totalPending, totalReceived }:
                     <div className={cn(
                       "w-10 h-10 rounded-xl flex flex-col items-center justify-center text-xs font-bold",
                       index === 0 
-                        ? "bg-gradient-to-br from-warning to-orange-500 text-white" 
+                        ? "bg-gradient-to-br from-primary to-accent text-white" 
                         : "bg-muted text-muted-foreground"
                     )}>
                       <span className="text-sm leading-none">{show.date.split(" ")[0]}</span>
@@ -109,7 +109,7 @@ export function PendingCachetCard({ pendingShows, totalPending, totalReceived }:
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold bg-gradient-to-r from-success to-emerald-500 bg-clip-text text-transparent">
+                    <p className="text-sm font-bold text-success">
                       R$ {formatCurrency(show.cachet)}
                     </p>
                   </div>

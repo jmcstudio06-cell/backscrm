@@ -43,7 +43,6 @@ export function RecommendedActionCard({
   const navigate = useNavigate();
   const { isBlocked } = useFeatureBlocks();
 
-  // Map routes to feature keys
   const routeToFeatureKey: Record<string, string> = {
     "/metas": "metas",
     "/crm": "crm",
@@ -61,11 +60,9 @@ export function RecommendedActionCard({
     }
   };
 
-  // Determine recommended actions based on user state
   const getRecommendedActions = (): Action[] => {
     const actions: Action[] = [];
 
-    // Priority 1: No goals set
     if (!hasGoals) {
       actions.push({
         id: "goals",
@@ -73,12 +70,11 @@ export function RecommendedActionCard({
         description: "Configure metas de shows, leads e faturamento para acompanhar seu progresso",
         link: "/metas",
         icon: Target,
-        gradient: "from-violet-500 to-purple-600",
+        gradient: "from-primary to-accent",
         priority: 1,
       });
     }
 
-    // Priority 2: No leads
     if (!hasLeads) {
       actions.push({
         id: "leads",
@@ -91,7 +87,6 @@ export function RecommendedActionCard({
       });
     }
 
-    // Priority 3: Has leads but no shows
     if (hasLeads && !hasShows) {
       actions.push({
         id: "shows",
@@ -99,12 +94,11 @@ export function RecommendedActionCard({
         description: "Transforme seus leads em shows confirmados",
         link: "/agenda",
         icon: Calendar,
-        gradient: "from-success to-success/80",
+        gradient: "from-primary to-accent",
         priority: 3,
       });
     }
 
-    // Priority 4: Has shows but no contracts
     if (hasShows && !hasContracts) {
       actions.push({
         id: "contracts",
@@ -112,12 +106,11 @@ export function RecommendedActionCard({
         description: "Formalize seus shows com contratos profissionais",
         link: "/contratos",
         icon: FileText,
-        gradient: "from-warning to-warning/80",
+        gradient: "from-primary to-accent",
         priority: 4,
       });
     }
 
-    // Priority 5: Has pending cachet
     if (pendingCachet > 0) {
       actions.push({
         id: "cachet",
@@ -125,12 +118,11 @@ export function RecommendedActionCard({
         description: `Você tem R$ ${pendingCachet.toLocaleString("pt-BR")} em cachês pendentes`,
         link: "/financeiro",
         icon: Wallet,
-        gradient: "from-rose-500 to-pink-600",
+        gradient: "from-primary to-accent",
         priority: 5,
       });
     }
 
-    // Priority 6: Active user - suggest reviewing upcoming shows
     if (upcomingShowsCount > 0) {
       actions.push({
         id: "upcoming",
@@ -138,12 +130,11 @@ export function RecommendedActionCard({
         description: `Você tem ${upcomingShowsCount} show${upcomingShowsCount > 1 ? "s" : ""} chegando. Revise os detalhes!`,
         link: "/agenda",
         icon: Calendar,
-        gradient: "from-primary to-primary/80",
+        gradient: "from-primary to-accent",
         priority: 6,
       });
     }
 
-    // Default action if nothing else
     if (actions.length === 0) {
       actions.push({
         id: "default",
@@ -175,7 +166,7 @@ export function RecommendedActionCard({
       <div className="relative">
         {/* Header */}
         <div className="flex items-center gap-2.5 mb-5">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-warning to-orange-500 shadow-lg">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -247,7 +238,7 @@ export function RecommendedActionCard({
                   >
                     <div className={cn(
                       "p-2.5 rounded-xl bg-gradient-to-br shadow-sm",
-                      actionIsBlocked ? "from-muted to-muted-foreground/50" : action.gradient
+                      actionIsBlocked ? "from-muted to-muted-foreground/50" : "from-primary to-accent"
                     )}>
                       {actionIsBlocked ? (
                         <Lock className="w-4 h-4 text-white" />
