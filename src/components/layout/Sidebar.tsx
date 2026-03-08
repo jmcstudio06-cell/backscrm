@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { usePendingChecklist } from "@/hooks/usePendingChecklist";
+import { useNotifications } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { AppLogo } from "@/components/layout/AppLogo";
