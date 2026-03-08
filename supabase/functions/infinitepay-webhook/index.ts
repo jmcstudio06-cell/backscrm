@@ -173,13 +173,16 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
 
     console.log(`✅ Matched pending payment: user_id=${pendingPayment.user_id}, plan=${planName}, days=${planDays}`);
 
-    // Update user profile with plan
+    const featureBlocks = buildFeatureBlocks(planName);
+
+    // Update user profile with plan + feature access map
     const { error: updateError } = await supabase
       .from("profiles")
       .update({
         plan: planName,
         trial_start: new Date().toISOString(),
         trial_days: planDays,
+        feature_blocks: featureBlocks,
       })
       .eq("user_id", pendingPayment.user_id);
 
