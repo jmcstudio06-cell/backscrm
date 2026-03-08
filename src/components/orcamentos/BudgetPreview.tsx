@@ -468,7 +468,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             {renderHeader()}
 
             {/* Client & Budget Info */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32, ...(template === "elegante" ? { borderLeft: `3px solid ${c.primary}`, paddingLeft: 16 } : {}) }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: c.primary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Para:</div>
                 <div style={{ fontSize: 16, fontWeight: 600, color: c.heading }}>{budget!.client_name}</div>
@@ -477,13 +477,20 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                   {budget!.client_company && <span>{budget!.client_company}</span>}
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: c.primary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Nº do Orçamento</div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: c.heading }}>{budget!.budget_number}</div>
-                {budget!.valid_until && (
-                  <div style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
-                )}
-              </div>
+              {template !== "elegante" && (
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: c.primary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Nº do Orçamento</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: c.heading }}>{budget!.budget_number}</div>
+                  {budget!.valid_until && (
+                    <div style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
+                  )}
+                </div>
+              )}
+              {template === "elegante" && budget!.valid_until && (
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 12, color: c.muted }}>Válido até: {formatDateBR(budget!.valid_until)}</div>
+                </div>
+              )}
             </div>
 
             {/* Items Table */}
