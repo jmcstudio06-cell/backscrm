@@ -68,9 +68,7 @@ export default function Historico() {
 
   // Generate monthly history from transactions
   const generateMonthlyHistory = () => {
-    if (!dateRange?.from || !dateRange?.to) return [];
-
-    const months = eachMonthOfInterval({ start: dateRange.from, end: dateRange.to });
+    const months = eachMonthOfInterval({ start: fromDate, end: toDate });
 
     return months.map(monthDate => {
       const monthStart = startOfMonth(monthDate);
