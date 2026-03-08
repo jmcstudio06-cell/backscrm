@@ -19,7 +19,10 @@ export function TotalRevenueHero({
   bestMonth,
   annualProjection,
 }: TotalRevenueHeroProps) {
+  const [showValues, setShowValues] = useState(true);
   const averageFee = completedShowsCount > 0 ? totalRevenue / completedShowsCount : 0;
+
+  const hidden = "••••••";
 
   const fmt = (value: number) =>
     value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
