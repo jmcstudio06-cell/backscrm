@@ -1919,6 +1919,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          notification_type: string
+          read_at: string | null
+          sent_by: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          notification_type?: string
+          read_at?: string | null
+          sent_by?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          notification_type?: string
+          read_at?: string | null
+          sent_by?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_push_subscriptions: {
         Row: {
           auth: string

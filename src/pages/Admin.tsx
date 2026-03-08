@@ -38,6 +38,7 @@ import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
+import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
 
 import type { Json } from "@/integrations/supabase/types";
 import { PLAN_MODULES } from "@/hooks/useFeatureBlocks";
@@ -502,7 +503,10 @@ export default function Admin() {
             <Megaphone className="h-3.5 w-3.5" /> Indicações
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Bell className="h-3.5 w-3.5" /> Notificações
+            <Bell className="h-3.5 w-3.5" /> Push
+          </TabsTrigger>
+          <TabsTrigger value="app-notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Bell className="h-3.5 w-3.5" /> In-App
           </TabsTrigger>
           <TabsTrigger value="guide-leads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <BookOpen className="h-3.5 w-3.5" /> Guia
@@ -740,8 +744,11 @@ export default function Admin() {
         {/* Referrals Tab */}
         <TabsContent value="referrals"><ReferralsAdminPanel /></TabsContent>
 
-        {/* Notifications Tab */}
+        {/* Push Notifications Tab */}
         <TabsContent value="notifications"><NotificationsAdminPanel /></TabsContent>
+
+        {/* In-App Notifications Tab */}
+        <TabsContent value="app-notifications"><AppNotificationsAdminPanel /></TabsContent>
 
         {/* Guide Leads Tab */}
         <TabsContent value="guide-leads"><GuideLeadsPanel /></TabsContent>
