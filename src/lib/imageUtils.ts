@@ -27,10 +27,10 @@ export function validateImageSize(file: File): ImageValidationResult {
     };
   }
 
-  if (file.size > MAX_FILE_SIZE * 4) {
+  if (file.size > MAX_UPLOAD_SIZE) {
     return {
       valid: false,
-      error: 'Imagem muito grande. Máximo permitido: 1.2MB antes da compressão.'
+      error: `Imagem muito grande (${formatFileSize(file.size)}). Máximo permitido: 5 MB.`
     };
   }
 
