@@ -61,7 +61,7 @@ export function TotalRevenueHero({
                     Previsão {new Date().getFullYear()}
                   </p>
                   <p className="text-sm font-extrabold text-primary tracking-tight leading-none">
-                    R$ {fmt(annualProjection)}
+                    {showValues ? `R$ ${fmt(annualProjection)}` : `R$ ${hidden}`}
                   </p>
                 </div>
               </div>
