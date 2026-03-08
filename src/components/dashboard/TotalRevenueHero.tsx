@@ -143,7 +143,7 @@ export function TotalRevenueHero({
                     Seu maior cachê até hoje
                   </p>
                   <p className="text-base font-bold text-foreground leading-snug">
-                    R$ {fmt(bestFee.value)}
+                    {showValues ? `R$ ${fmt(bestFee.value)}` : `R$ ${hidden}`}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {bestFee.showTitle}
