@@ -47,7 +47,48 @@ function resolvePlan(rawAmount: number): { plan: string; days: number } | null {
   return null;
 }
 
-serve(async (req) => {
+
+function buildFeatureBlocks(plan: string): Record<string, boolean> {
+  const allFeatures = [
+    "dashboard",
+    "agenda",
+    "crm",
+    "clientes",
+    "orcamentos",
+    "servicos",
+    "contratos",
+    "financeiro",
+    "historico",
+    "precificacao",
+    "checklist",
+    "mapeamento-palco",
+    "equipe",
+    "metas",
+    "repertorio",
+    "aulas",
+    "avancos",
+    "tutoriais",
+    "configuracoes",
+  ];
+
+  const planFeatures: Record<string, string[]> = {
+    mensal_starter: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
+    anual_starter: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
+    mensal_profissional: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "tutoriais", "configuracoes"],
+    anual_profissional: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "tutoriais", "configuracoes"],
+    mensal_completo: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
+    anual_completo: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
+  };
+
+  const enabled = new Set(planFeatures[plan] ?? []);
+  const blocks: Record<string, boolean> = {};
+
+  for (const feature of allFeatures) {
+    blocks[feature] = !enabled.has(feature);
+  }
+
+  return blocks;
+}
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
