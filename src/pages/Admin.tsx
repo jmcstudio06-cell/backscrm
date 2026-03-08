@@ -272,20 +272,36 @@ export default function Admin() {
     toast.success(newBlocks[featureKey] ? "Bloqueado" : "Desbloqueado");
   };
 
+  // Map plan to its tier for feature blocking
+  const getPlanTier = (plan: string): string => {
+    if (plan.includes("starter")) return "starter";
+    if (plan.includes("profissional")) return "profissional";
+    if (plan.includes("completo")) return "completo";
+    // Legacy mapping
+    if (plan === "base" || plan === "mensal") return "starter";
+    if (plan === "essencial") return "profissional";
+    if (plan === "anual") return "completo";
+    return plan;
+  };
+
   const updateUserPlan = async (userId: string, plan: string, customStartDate?: string) => {
-    const normalizedPlan = plan === "inicial" ? "mensal" : plan;
-    const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan: normalizedPlan };
+    const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
     
-    if (normalizedPlan !== "expirado") {
+    if (plan !== "expirado") {
       const startDate = customStartDate || new Date().toISOString().split("T")[0];
       updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
-      updates.trial_days = PLAN_DURATIONS[normalizedPlan] || 3;
+      updates.trial_days = PLAN_DURATIONS[plan] || 3;
     }
 
     const newFeatureBlocks: Record<string, boolean> = {};
+    const tier = getPlanTier(plan);
+    const tierModule = PLAN_MODULES[tier as keyof typeof PLAN_MODULES];
+    
     ALL_FEATURE_KEYS.forEach(key => {
       if (plan === "expirado") newFeatureBlocks[key] = true;
+      else if (plan === "free") newFeatureBlocks[key] = false;
       else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
+      else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
       else newFeatureBlocks[key] = false;
     });
     updates.feature_blocks = newFeatureBlocks;
