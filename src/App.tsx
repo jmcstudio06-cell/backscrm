@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import { AuthProvider } from "@/hooks/useAuth";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 import { ShowsProvider } from "@/contexts/shows/ShowsProvider";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { CustomizationProvider } from "@/hooks/useCustomization";
