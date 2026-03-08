@@ -9,14 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, Circle, Square, Type, Monitor, Smartphone, LayoutTemplate } from "lucide-react";
+import { User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, Circle, Square, Type, Monitor, Smartphone } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
 import { useCustomization, COLOR_PRESETS } from "@/hooks/useCustomization";
-import { BudgetTemplatePreview } from "@/components/orcamentos/BudgetTemplatePreview";
+
 
 const planLabels: Record<string, string> = {
   trial: "Teste Rápido (1 hora)",
@@ -524,16 +524,6 @@ export default function Configuracoes() {
             </div>
           </ChartCard>
 
-          {/* Layout do Orçamento */}
-          <ChartCard 
-            title="Layout do Orçamento" 
-            subtitle="Escolha o modelo visual usado para gerar e exportar seus orçamentos"
-          >
-            <BudgetTemplatePreview 
-              selected={customization.budgetTemplate} 
-              onSelect={(t) => updateSettings({ budgetTemplate: t })} 
-            />
-          </ChartCard>
 
           {/* Modo Compacto */}
           <ChartCard 

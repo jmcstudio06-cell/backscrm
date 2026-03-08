@@ -1,19 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, XCircle, Clock, Send, Eye, Download, MoreVertical, Calculator, DollarSign, Settings, AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Plus, Search, FileText, CheckCircle2, XCircle, Clock, Send, Eye, MoreVertical, Settings, AlertTriangle, LayoutTemplate } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useBudgets } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { BudgetModal } from "@/components/orcamentos/BudgetModal";
 import { BudgetPreview } from "@/components/orcamentos/BudgetPreview";
 import { PerformanceTypesModal } from "@/components/orcamentos/PerformanceTypesModal";
+import { BudgetTemplatePreview } from "@/components/orcamentos/BudgetTemplatePreview";
+import { useCustomization } from "@/hooks/useCustomization";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 
 const statusConfig = {
@@ -27,20 +29,19 @@ const statusConfig = {
 export default function Orcamentos() {
   const { budgets, performanceTypes, loading, addBudget, updateBudget, deleteBudget, getBudgetWithItems, addPerformanceType, updatePerformanceType, deletePerformanceType } = useBudgets();
   const { clients } = useClients();
+  const { settings: customization, updateSettings } = useCustomization();
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isTypesModalOpen, setIsTypesModalOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
   const [previewItems, setPreviewItems] = useState<BudgetItem[]>([]);
+  const [templateOpen, setTemplateOpen] = useState(false);
 
   const filteredBudgets = budgets.filter(b => 
     b.client_name.toLowerCase().includes(search.toLowerCase()) ||
     b.budget_number.toLowerCase().includes(search.toLowerCase())
   );
-
-  const totalApproved = budgets.filter(b => b.status === "approved").reduce((acc, b) => acc + b.total, 0);
-  const totalPending = budgets.filter(b => b.status === "pending" || b.status === "sent").reduce((acc, b) => acc + b.total, 0);
 
   const handleSave = async (budgetData: Partial<Budget>, items: Partial<BudgetItem>[]) => {
     if (selectedBudget) {
@@ -74,55 +75,6 @@ export default function Orcamentos() {
 
   return (
     <Layout title="Orçamentos" subtitle="Crie e gerencie propostas comerciais">
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Calculator className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{budgets.length}</p>
-              <p className="text-xs text-muted-foreground">Total de Orçamentos</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-success" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{budgets.filter(b => b.status === "approved").length}</p>
-              <p className="text-xs text-muted-foreground">Aprovados</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-warning" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">R$ {(totalPending / 1000).toFixed(0)}k</p>
-              <p className="text-xs text-muted-foreground">Em Negociação</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">R$ {(totalApproved / 1000).toFixed(0)}k</p>
-              <p className="text-xs text-muted-foreground">Valor Aprovado</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
         <div className="relative">
@@ -141,10 +93,50 @@ export default function Orcamentos() {
         </div>
       </div>
 
+      {/* Template Selector - Collapsible */}
+      <Collapsible open={templateOpen} onOpenChange={setTemplateOpen} className="mb-6">
+        <CollapsibleTrigger asChild>
+          <button className="w-full flex items-center justify-between p-4 rounded-xl glass hover:shadow-card transition-all group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <LayoutTemplate className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-foreground text-sm">Layout do Orçamento</p>
+                <p className="text-xs text-muted-foreground">
+                  Modelo atual: <span className="font-medium text-primary capitalize">{customization.budgetTemplate}</span>
+                </p>
+              </div>
+            </div>
+            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+              {templateOpen ? "Fechar" : "Alterar"}
+            </span>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-3">
+          <div className="p-4 rounded-xl glass-subtle">
+            <BudgetTemplatePreview 
+              selected={customization.budgetTemplate} 
+              onSelect={(t) => updateSettings({ budgetTemplate: t })} 
+            />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
       {/* Budgets Table */}
-      <ChartCard title="Lista de Orçamentos" subtitle="Todas as propostas enviadas">
+      <ChartCard title="Seus Orçamentos" subtitle={`${budgets.length} ${budgets.length === 1 ? "proposta criada" : "propostas criadas"}`}>
         {filteredBudgets.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">Nenhum orçamento encontrado.</div>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <FileText className="w-8 h-8 text-primary/60" />
+            </div>
+            <p className="text-muted-foreground font-medium">Nenhum orçamento encontrado</p>
+            <p className="text-sm text-muted-foreground/70 mt-1">Crie seu primeiro orçamento profissional</p>
+            <Button variant="gradient" size="sm" className="mt-4" onClick={() => { setSelectedBudget(null); setIsModalOpen(true); }}>
+              <Plus className="w-4 h-4 mr-2" />
+              Criar Orçamento
+            </Button>
+          </div>
         ) : (
           <Table>
             <TableHeader>
