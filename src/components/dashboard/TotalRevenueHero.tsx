@@ -113,7 +113,6 @@ export function TotalRevenueHero({
           </div>
         </div>
       </div>
-      )}
 
       {/* Best fee & Best month cards row */}
       {(bestFee || bestMonth) && (
