@@ -261,6 +261,22 @@ const Dashboard = () => {
       });
   }, [shows, clients, contractShowIds, now]);
 
+  // Total revenue hero calculations
+  const totalAllTimeRevenue = useMemo(() => {
+    return transactions
+      .filter(t => t.type === "income")
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions]);
+
+  const completedShowsAllTime = useMemo(() => {
+    return shows.filter(s => s.status === "finalizado" || s.status === "completed").length;
+  }, [shows]);
+
+  const revenueGrowth = useMemo(() => {
+    if (revenueLastMonth === 0) return revenueThisMonth > 0 ? 100 : 0;
+    return ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100;
+  }, [revenueThisMonth, revenueLastMonth]);
+
   // Check if user has data for recommended actions
   const hasLeads = leads.length > 0;
   const hasShows = shows.length > 0;
