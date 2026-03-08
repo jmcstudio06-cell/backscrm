@@ -268,24 +268,93 @@ export default function Historico() {
                 <TableHead>Lucro</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {monthlyHistory.map((month) => (
-                <TableRow key={month.month}>
-                  <TableCell className="font-medium text-foreground">{month.month}</TableCell>
-                  <TableCell className="text-success">
-                    R$ {month.receita.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  <TableCell className="text-destructive">
-                    R$ {month.despesa.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{month.shows} shows</Badge>
-                  </TableCell>
-                  <TableCell className={`font-semibold ${month.lucro >= 0 ? "text-primary" : "text-destructive"}`}>
-                    R$ {month.lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                </TableRow>
-              ))}
+             <TableBody>
+              {monthlyHistory.map((month) => {
+                const isExpanded = expandedMonth === month.month;
+                return (
+                  <Fragment key={month.month}>
+                    <TableRow 
+                      className="cursor-pointer hover:bg-secondary/80 transition-colors"
+                      onClick={() => setExpandedMonth(isExpanded ? null : month.month)}
+                    >
+                      <TableCell className="font-medium text-foreground">
+                        <div className="flex items-center gap-2">
+                          {isExpanded ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+                          {month.month}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-success">
+                        R$ {month.receita.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </TableCell>
+                      <TableCell className="text-destructive">
+                        R$ {month.despesa.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{month.shows} shows</Badge>
+                      </TableCell>
+                      <TableCell className={`font-semibold ${month.lucro >= 0 ? "text-primary" : "text-destructive"}`}>
+                        R$ {month.lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </TableCell>
+                    </TableRow>
+
+                    {isExpanded && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="p-0 border-0">
+                          <div className="bg-secondary/30 px-6 py-4 space-y-4">
+                            {/* Receitas */}
+                            <div>
+                              <h4 className="text-xs font-bold text-success flex items-center gap-1.5 mb-2">
+                                <ArrowUpRight className="w-3.5 h-3.5" />
+                                Receitas ({month.incomeTransactions.length})
+                              </h4>
+                              {month.incomeTransactions.length === 0 ? (
+                                <p className="text-xs text-muted-foreground pl-5">Nenhuma receita</p>
+                              ) : (
+                                <div className="space-y-1 pl-5">
+                                  {month.incomeTransactions.map(t => (
+                                    <div key={t.id} className="flex justify-between items-center py-1 text-sm">
+                                      <span className="text-foreground">{t.description || t.category}</span>
+                                      <span className="text-success font-medium">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Despesas */}
+                            <div>
+                              <h4 className="text-xs font-bold text-destructive flex items-center gap-1.5 mb-2">
+                                <ArrowDownRight className="w-3.5 h-3.5" />
+                                Despesas ({month.expenseTransactions.length})
+                              </h4>
+                              {month.expenseTransactions.length === 0 ? (
+                                <p className="text-xs text-muted-foreground pl-5">Nenhuma despesa</p>
+                              ) : (
+                                <div className="space-y-1 pl-5">
+                                  {month.expenseTransactions.map(t => (
+                                    <div key={t.id} className="flex justify-between items-center py-1 text-sm">
+                                      <span className="text-foreground">{t.description || t.category}</span>
+                                      <span className="text-destructive font-medium">- R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Lucro */}
+                            <div className={`flex justify-between items-center p-3 rounded-lg ${month.lucro >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                              <span className="text-sm font-bold text-foreground">Lucro do Mês</span>
+                              <span className={`text-sm font-bold ${month.lucro >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                R$ {month.lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Fragment>
+                );
+              })}
             </TableBody>
           </Table>
         )}
