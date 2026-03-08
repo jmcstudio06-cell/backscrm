@@ -507,25 +507,6 @@ export default function Admin() {
 
                   {expandedUser === userProfile.user_id && (
                     <CardContent className="border-t bg-muted/20 pt-4 space-y-6">
-                      {/* User details */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Telefone</p>
-                          <p className="text-sm font-medium">{userProfile.phone || "—"}</p>
-                        </div>
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Último acesso</p>
-                          <p className="text-sm font-medium">{getRelativeTime(userProfile.last_seen)}</p>
-                        </div>
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Criado em</p>
-                          <p className="text-sm font-medium">{new Date(userProfile.created_at).toLocaleDateString("pt-BR")}</p>
-                        </div>
-                        <div className="bg-background rounded-lg p-3 border">
-                          <p className="text-[10px] text-muted-foreground uppercase font-semibold">Início do plano</p>
-                          <p className="text-sm font-medium">{userProfile.trial_start ? new Date(userProfile.trial_start).toLocaleDateString("pt-BR") : "—"}</p>
-                        </div>
-                      </div>
 
                       {/* Plan Selection */}
                       <div>
