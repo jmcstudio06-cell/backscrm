@@ -2,7 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { CareerStatusCard } from "@/components/dashboard/CareerStatusCard";
 import { RecommendedActionCard } from "@/components/dashboard/RecommendedActionCard";
 import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
-import { ArtistJourneyCard } from "@/components/dashboard/ArtistJourneyCard";
+
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
@@ -380,15 +380,6 @@ const Dashboard = () => {
           <UpcomingShowsCard shows={upcomingShows} />
         </div>
 
-        {/* Artist Journey Timeline */}
-        <ArtistJourneyCard
-          trialStart={profile?.trial_start || null}
-          showsCount={shows.length}
-          totalRevenue={transactions.filter(t => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0)}
-          contractsCount={contractsCount}
-          checklistsUsed={checklistsUsed}
-          stageMappingsCount={stageMappingsCount}
-        />
       </div>
     </Layout>
   );
