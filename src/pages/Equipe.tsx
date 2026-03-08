@@ -92,7 +92,7 @@ export default function Equipe() {
 
   if (loading) {
     return (
-      <Layout title="Equipe & Freelancer" subtitle="Gerencie sua banda e colaboradores">
+       <Layout title="Banda & Músicos" subtitle="Gerencie sua banda e colaboradores">
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Carregando...</p>
         </div>
