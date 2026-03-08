@@ -1,4 +1,5 @@
 import { Menu, User, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
 
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const { profile } = useProfile();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-30 bg-background/70 backdrop-blur-2xl border-b border-border/50 pt-[env(safe-area-inset-top)]">
@@ -41,7 +43,7 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
           </Button>
           
           {/* Profile */}
-          <Button variant="ghost" size="icon" className="rounded-xl overflow-hidden shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:ring-2 hover:ring-primary/20 transition-all">
+          <Button variant="ghost" size="icon" className="rounded-xl overflow-hidden shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => navigate("/configuracoes")}>
             {profile?.avatar_url ? (
               <img 
                 src={profile.avatar_url} 
