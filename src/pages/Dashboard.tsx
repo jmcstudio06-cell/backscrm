@@ -285,15 +285,28 @@ const Dashboard = () => {
     return { value: Number(best.cachet), showTitle: best.title };
   }, [shows]);
 
-  // Annual projection based on current rhythm
+  // Annual projection: média de shows/mês × 12 × cachê médio
   const annualProjection = useMemo(() => {
-    const dayOfYear = Math.floor((now.getTime() - new Date(currentYear, 0, 1).getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const totalIncomeThisYear = transactions
-      .filter(t => t.type === "income" && t.date.startsWith(String(currentYear)))
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-    if (dayOfYear === 0 || totalIncomeThisYear === 0) return 0;
-    return (totalIncomeThisYear / dayOfYear) * 365;
-  }, [transactions, currentYear, now]);
+    // Shows completados neste ano
+    const completedThisYear = shows.filter(s => 
+      s.status === "completed" && s.date.startsWith(String(currentYear))
+    );
+    if (completedThisYear.length === 0) return 0;
+
+    // Quantos meses já se passaram no ano (mínimo 1)
+    const currentMonth = now.getMonth() + 1; // 1-12
+    const monthsElapsed = Math.max(currentMonth, 1);
+
+    // Média de shows por mês
+    const avgShowsPerMonth = completedThisYear.length / monthsElapsed;
+
+    // Cachê médio dos shows completados neste ano
+    const totalCachet = completedThisYear.reduce((sum, s) => sum + Number(s.cachet || 0), 0);
+    const avgCachet = totalCachet / completedThisYear.length;
+
+    // Projeção: média mensal × 12 × cachê médio
+    return Math.round(avgShowsPerMonth * 12 * avgCachet * 100) / 100;
+  }, [shows, currentYear, now]);
 
   // Best month ever (by income transactions)
   const bestMonth = useMemo(() => {
