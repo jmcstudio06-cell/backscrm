@@ -111,6 +111,13 @@ const PLAN_DURATIONS: Record<string, number> = {
   essencial: 90, completo: 180, anual: 365,
 };
 
+const ALL_FEATURE_KEYS = [
+  "dashboard", "agenda", "crm", "clientes", "orcamentos", "servicos",
+  "contratos", "financeiro", "historico", "precificacao", "checklist",
+  "mapeamento-palco", "equipe", "metas", "repertorio", "aulas",
+  "avancos", "tutoriais", "configuracoes",
+];
+
 const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos"];
 
 const USERS_PER_PAGE = 10;
