@@ -461,14 +461,14 @@ export default function Admin() {
       </div>
 
       {/* Plan Stats Grid */}
-      <div className="grid grid-cols-4 md:grid-cols-5 gap-2 mb-6">
+      <div className="grid grid-cols-4 md:grid-cols-8 gap-1.5 mb-6">
         {Object.entries(PLAN_FILTERS).filter(([_, f]) => f.value !== "all").map(([_, filter]) => {
           const colors = PLAN_COLORS[filter.value] || PLAN_COLORS.trial;
           return (
           <button
             key={filter.value}
             onClick={() => setPlanFilter(planFilter === filter.value ? "all" : filter.value)}
-            className={`relative rounded-xl p-3 text-center transition-all border ${colors.bg} ${colors.border} ${
+            className={`relative rounded-lg p-2 text-center transition-all border aspect-square flex flex-col items-center justify-center ${colors.bg} ${colors.border} ${
               planFilter === filter.value ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
             }`}
           >
