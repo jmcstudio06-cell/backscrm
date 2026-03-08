@@ -157,6 +157,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
               const active = isChildActive(item.children);
               const isOpen = openGroup === item.label || (isChildActive(item.children) && !manualClosed.has(item.label));
               const highlighted = active || isOpen;
+
+              return (
                   <li key={item.label}>
                     <Collapsible
                       open={openGroup === item.label || (isChildActive(item.children) && !manualClosed.has(item.label))}
