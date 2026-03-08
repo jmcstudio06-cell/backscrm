@@ -744,8 +744,11 @@ export default function Admin() {
         {/* Referrals Tab */}
         <TabsContent value="referrals"><ReferralsAdminPanel /></TabsContent>
 
-        {/* Notifications Tab */}
+        {/* Push Notifications Tab */}
         <TabsContent value="notifications"><NotificationsAdminPanel /></TabsContent>
+
+        {/* In-App Notifications Tab */}
+        <TabsContent value="app-notifications"><AppNotificationsAdminPanel /></TabsContent>
 
         {/* Guide Leads Tab */}
         <TabsContent value="guide-leads"><GuideLeadsPanel /></TabsContent>
