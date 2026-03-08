@@ -59,7 +59,7 @@ export default function PlanejamentoConteudo() {
             <Sparkles className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Planejamento de Conteúdo</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Ideia de Post</h1>
             <p className="text-sm text-muted-foreground">Mantenha consistência nas redes e divulgue seus shows</p>
           </div>
         </div>
