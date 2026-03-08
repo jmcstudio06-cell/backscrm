@@ -15,9 +15,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
 import { useShows } from "@/contexts/shows/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
-import { useContracts } from "@/hooks/useContracts";
 import { useClients } from "@/hooks/useClients";
-import { useStageMappings } from "@/hooks/useStageMappings";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
@@ -31,16 +29,18 @@ const Dashboard = () => {
   const { goals, loading: goalsLoading, addGoal } = useGoals();
   const { shows, loading: showsLoading } = useShows();
   const { profile, loading: profileLoading } = useProfile();
-  const { contracts, loading: contractsLoading } = useContracts();
   const { clients, loading: clientsLoading } = useClients();
-  const { mappings: stageMappings, loading: stageMappingsLoading } = useStageMappings();
   const [showWelcome, setShowWelcome] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [checklistsUsed, setChecklistsUsed] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
+  // Lightweight counts instead of full data hooks
+  const [contractsCount, setContractsCount] = useState(0);
+  const [contractShowIds, setContractShowIds] = useState<string[]>([]);
+  const [stageMappingsCount, setStageMappingsCount] = useState(0);
 
   // Unified loading state - only show content when main data is ready
-  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || contractsLoading || clientsLoading || goalsLoading;
+  const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || clientsLoading || goalsLoading;
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
@@ -70,22 +70,15 @@ const Dashboard = () => {
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
-  // Check if user should see onboarding and if user has used checklists
+  // Check if user should see onboarding, checklists, and fetch lightweight counts
   useEffect(() => {
     const checkData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Check onboarding (first-time welcome)
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("user_id", user.id)
-          .single();
-
-        if (profileData && !profileData.onboarding_completed) {
+        // Check onboarding using already-loaded profile (no extra query)
+        if (profile && !profile.onboarding_completed) {
           setShowWelcome(true);
-        } else {
-          // For returning users: show install prompt if app is NOT installed as PWA
+        } else if (profile) {
           const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
             (window.navigator as any).standalone === true;
           
@@ -97,16 +90,31 @@ const Dashboard = () => {
           }
         }
 
-        // Check if user has used checklists
-        const { count } = await supabase
-          .from("show_checklist")
-          .select("*", { count: "exact", head: true });
+        // Batch lightweight count queries (instead of loading full useContracts + useStageMappings hooks)
+        const [checklistResult, contractsResult, mappingsResult] = await Promise.all([
+          supabase
+            .from("show_checklist")
+            .select("*", { count: "exact", head: true }),
+          supabase
+            .from("contracts")
+            .select("id, show_id")
+            .order("created_at", { ascending: false })
+            .limit(5),
+          supabase
+            .from("stage_mappings")
+            .select("*", { count: "exact", head: true }),
+        ]);
         
-        setChecklistsUsed((count || 0) > 0);
+        setChecklistsUsed((checklistResult.count || 0) > 0);
+        setContractsCount(contractsResult.data?.length || 0);
+        setContractShowIds((contractsResult.data || []).map(c => c.show_id).filter(Boolean) as string[]);
+        setStageMappingsCount(mappingsResult.count || 0);
       }
     };
-    checkData();
-  }, []);
+    if (!profileLoading) {
+      checkData();
+    }
+  }, [profile, profileLoading]);
 
   // Show monthly goal modal if no goal set for this month (after loading)
   useEffect(() => {
@@ -238,7 +246,7 @@ const Dashboard = () => {
       .slice(0, 3)
       .map((show) => {
         const client = clients.find(c => c.id === show.client_id);
-        const hasContract = contracts.some(c => c.show_id === show.id);
+        const hasContract = contractShowIds.includes(show.id);
         
         return {
           id: show.id,
@@ -251,12 +259,12 @@ const Dashboard = () => {
           hasContract,
         };
       });
-  }, [shows, clients, contracts, now]);
+  }, [shows, clients, contractShowIds, now]);
 
   // Check if user has data for recommended actions
   const hasLeads = leads.length > 0;
   const hasShows = shows.length > 0;
-  const hasContracts = contracts.length > 0;
+  const hasContracts = contractsCount > 0;
   const hasGoals = goals.length > 0;
 
   const formatCurrency = (value: number) => {
@@ -377,9 +385,9 @@ const Dashboard = () => {
           trialStart={profile?.trial_start || null}
           showsCount={shows.length}
           totalRevenue={transactions.filter(t => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0)}
-          contractsCount={contracts.length}
+          contractsCount={contractsCount}
           checklistsUsed={checklistsUsed}
-          stageMappingsCount={stageMappings.length}
+          stageMappingsCount={stageMappingsCount}
         />
       </div>
     </Layout>
