@@ -121,6 +121,26 @@ const AUTOMATION_CONFIG = [
     configType: null,
     defaultConfig: {},
   },
+  {
+    key: "checklist_reminder",
+    icon: ClipboardList,
+    title: "Lembrete de Checklist",
+    description: "Notificar quando houver checklist pendente para shows nas próximas 48h",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
+  {
+    key: "weekly_motivation",
+    icon: Sparkles,
+    title: "Motivação Semanal",
+    description: "Enviar mensagem motivacional semanal para usuários ativos",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
 ];
  
  const ACTION_URLS = [
