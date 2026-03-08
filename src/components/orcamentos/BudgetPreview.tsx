@@ -394,8 +394,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 32, fontWeight: 900, color: "#1a1a2e", letterSpacing: 3, lineHeight: 1 }}>ORÇAMENTO</div>
-              <div style={{ width: "100%", height: 3, background: c.primary, marginTop: 6, borderRadius: 2 }} />
+              <div style={{ fontSize: 32, fontWeight: 900, color: "#1a1a2e", letterSpacing: 3, lineHeight: 1.15 }}>ORÇAMENTO</div>
+              <div style={{ width: "92%", height: 2, background: c.primary, marginTop: 10, marginLeft: "auto", borderRadius: 2 }} />
               <div style={{ fontSize: 12, color: c.muted, marginTop: 8 }}>
                 Nº {budget!.budget_number}
               </div>
