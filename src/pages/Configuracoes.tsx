@@ -13,7 +13,7 @@ import {
   User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, 
   ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, 
   Circle, Square, Type, Monitor, Smartphone, MapPin, Radio, Disc3, 
-  Guitar, Zap, Lock, Eye, Sparkles
+  Guitar, Zap, Lock, Eye, Sparkles, KeyRound
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
@@ -114,6 +114,28 @@ export default function Configuracoes() {
       window.location.href = "/auth";
     } catch (error) {
       toast.error("Erro ao encerrar sessões");
+    }
+  };
+
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const handleResetPassword = async () => {
+    const userEmail = profile?.email || email;
+    if (!userEmail) {
+      toast.error("Nenhum email encontrado no perfil");
+      return;
+    }
+    setResettingPassword(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Email de redefinição enviado! Verifique sua caixa de entrada.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao enviar email de redefinição");
+    } finally {
+      setResettingPassword(false);
     }
   };
 
@@ -624,6 +646,25 @@ export default function Configuracoes() {
                     </p>
                     <Button variant="destructive" size="sm" className="mt-3" onClick={handleLogoutAll}>
                       Encerrar Todas as Sessões
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Reset Password */}
+              <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
+                <div className="flex items-start gap-3">
+                  <KeyRound className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-foreground">Redefinir Senha</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Enviaremos um link para seu email para criar uma nova senha.
+                    </p>
+                    <Button variant="outline" size="sm" className="mt-3" onClick={handleResetPassword} disabled={resettingPassword}>
+                      {resettingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <KeyRound className="w-4 h-4 mr-2" />}
+                      Enviar Link de Redefinição
                     </Button>
                   </div>
                 </div>
