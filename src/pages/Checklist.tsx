@@ -9,8 +9,7 @@ import {
   Clock, 
   CheckCircle2,
   AlertCircle,
-  ClipboardList,
-  FolderOpen
+  ClipboardList
 } from "lucide-react";
 import { cn, formatDateBR } from "@/lib/utils";
 import { useShows } from "@/contexts/shows/ShowsContext";
