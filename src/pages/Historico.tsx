@@ -36,7 +36,6 @@ import { format, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { DateRange } from "react-day-picker";
 
 export default function Historico() {
   const { transactions, loading: loadingTransactions } = useTransactions();
