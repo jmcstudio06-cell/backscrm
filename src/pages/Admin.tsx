@@ -464,21 +464,25 @@ export default function Admin() {
       </div>
 
       {/* Plan Stats Grid */}
-      <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mb-6">
-        {Object.entries(PLAN_COLORS).map(([key, colors]) => (
+      <div className="grid grid-cols-4 md:grid-cols-5 gap-2 mb-6">
+        {Object.entries(PLAN_FILTERS).filter(([_, f]) => f.value !== "all").map(([_, filter]) => {
+          const colors = PLAN_COLORS[filter.value] || PLAN_COLORS.trial;
+          return (
           <button
-            key={key}
-            onClick={() => setPlanFilter(planFilter === key ? "all" : key)}
+            key={filter.value}
+            onClick={() => setPlanFilter(planFilter === filter.value ? "all" : filter.value)}
             className={`relative rounded-xl p-3 text-center transition-all border ${colors.bg} ${colors.border} ${
-              planFilter === key ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
+              planFilter === filter.value ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
             }`}
           >
             <div className={`mx-auto mb-1 ${colors.text}`}>{colors.icon}</div>
-            <p className={`text-xl md:text-2xl font-black ${colors.text}`}>{planStats[key] || 0}</p>
+            <p className={`text-xl md:text-2xl font-black ${colors.text}`}>{planStats[filter.value] || 0}</p>
             <p className={`text-[10px] font-semibold ${colors.text} opacity-80 truncate`}>
-              {key === "essencial" ? "Prof." : key === "expirado" ? "Expir." : key.charAt(0).toUpperCase() + key.slice(1)}
+              {filter.label}
             </p>
           </button>
+          );
+        })}
         ))}
       </div>
 
