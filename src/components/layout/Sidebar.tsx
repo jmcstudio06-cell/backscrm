@@ -190,7 +190,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
                       <CollapsibleContent className="pl-4 mt-1 space-y-1">
                         {item.children.map((child) => {
-                          const blocked = child.featureKey && isBlocked(child.featureKey);
+                          const blocked = !blocksLoading && child.featureKey && isBlocked(child.featureKey);
                           const isActive = location.pathname.startsWith(child.path);
 
                           if (blocked) {
