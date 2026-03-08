@@ -578,11 +578,10 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 )}
                 <div style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
-                  backgroundColor: template === "minimalista" ? "transparent" : template === "elegante" ? "#1a1a2e" : c.primary,
-                  color: template === "minimalista" ? c.heading : "#fff",
-                  padding: template === "minimalista" ? "12px 0" : "12px 16px",
-                  borderRadius: template === "minimalista" ? 0 : 6,
-                  borderTop: template === "minimalista" ? "2px solid #333" : "none",
+                  backgroundColor: template === "classico" ? c.primary : template === "elegante" ? "#1a1a2e" : c.heading,
+                  color: "#fff",
+                  padding: "12px 16px",
+                  borderRadius: 6,
                   fontSize: 15, fontWeight: 700, marginTop: 8, minHeight: 46, lineHeight: 1,
                 }}>
                   <span style={{ display: "flex", alignItems: "center" }}>TOTAL</span>
