@@ -8,8 +8,13 @@ import { Label } from "@/components/ui/label";
 import {
   DollarSign,
   TrendingUp,
+  TrendingDown,
   Mic2,
   CalendarIcon,
+  ChevronDown,
+  ChevronRight,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import {
   ComposedChart,
