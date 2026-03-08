@@ -277,6 +277,34 @@ const Dashboard = () => {
     return ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100;
   }, [revenueThisMonth, revenueLastMonth]);
 
+  // Best fee ever received (highest cachet from completed shows)
+  const bestFeeShow = useMemo(() => {
+    const completed = shows.filter(s => s.status === "finalizado" || s.status === "completed");
+    if (completed.length === 0) return null;
+    const best = completed.reduce((max, s) => Number(s.cachet) > Number(max.cachet) ? s : max, completed[0]);
+    return { value: Number(best.cachet), showTitle: best.title };
+  }, [shows]);
+
+  // Best month ever (by income transactions)
+  const bestMonth = useMemo(() => {
+    const incomeTransactions = transactions.filter(t => t.type === "income");
+    if (incomeTransactions.length === 0) return null;
+    
+    const byMonth: Record<string, number> = {};
+    incomeTransactions.forEach(t => {
+      const key = t.date.substring(0, 7); // YYYY-MM
+      byMonth[key] = (byMonth[key] || 0) + Number(t.amount);
+    });
+
+    const bestKey = Object.entries(byMonth).reduce((best, [key, val]) => 
+      val > best[1] ? [key, val] : best, ["", 0]);
+    
+    if (!bestKey[0]) return null;
+    const [year, month] = (bestKey[0] as string).split("-");
+    const monthName = format(new Date(Number(year), Number(month) - 1), "MMMM", { locale: ptBR });
+    return { month: monthName, value: bestKey[1] as number };
+  }, [transactions]);
+
   // Check if user has data for recommended actions
   const hasLeads = leads.length > 0;
   const hasShows = shows.length > 0;
@@ -360,6 +388,8 @@ const Dashboard = () => {
           totalRevenue={totalAllTimeRevenue}
           completedShowsCount={completedShowsAllTime}
           growthPercentage={revenueGrowth}
+          bestFee={bestFeeShow}
+          bestMonth={bestMonth}
         />
 
         {/* Main Status Cards Row */}
