@@ -388,6 +388,8 @@ const Dashboard = () => {
           totalRevenue={totalAllTimeRevenue}
           completedShowsCount={completedShowsAllTime}
           growthPercentage={revenueGrowth}
+          bestFee={bestFeeShow}
+          bestMonth={bestMonth}
         />
 
         {/* Main Status Cards Row */}
