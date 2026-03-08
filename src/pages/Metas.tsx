@@ -319,7 +319,7 @@ export default function Metas() {
                     const revenuePercent = calculatePercentage(actuals.revenue, monthTargets.revenue);
 
                     return (
-                      <TableRow key={month} className={index % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}>
+                      <TableRow key={month} className={index % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
                         <TableCell className="font-bold text-center border-r bg-zinc-100 text-xs sm:text-sm whitespace-nowrap">{monthName.toUpperCase()}</TableCell>
                         
                         {/* Leads */}
