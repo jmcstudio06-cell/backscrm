@@ -248,30 +248,14 @@ export default function Clientes() {
                     </span>
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleViewProfile(client)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Ver Perfil
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEditClient(client)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => handleDeleteClient(client)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewProfile(client)}
+                    >
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                      Ver perfil
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
