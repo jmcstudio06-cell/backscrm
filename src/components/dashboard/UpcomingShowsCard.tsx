@@ -155,25 +155,6 @@ export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
 
                           {/* Quick actions */}
                           <div className="flex items-center gap-2">
-                            {show.hasContract ? (
-                              <Link
-                                to="/contratos"
-                                className="p-2 rounded-lg bg-muted/50 hover:bg-secondary transition-colors"
-                                title="Ver contrato"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <FileText className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
-                              </Link>
-                            ) : (
-                              <Link
-                                to="/contratos"
-                                className="p-2 rounded-lg bg-warning/10 hover:bg-warning/20 transition-colors border border-warning/20"
-                                title="Criar contrato"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <FileText className="w-3.5 h-3.5 text-warning" />
-                              </Link>
-                            )}
                             {show.clientPhone && (
                               <button
                                 onClick={(e) => {
