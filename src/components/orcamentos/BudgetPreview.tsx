@@ -276,16 +276,15 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     textTransform: "uppercase",
     letterSpacing: template === "minimalista" ? 1.2 : 0.8,
     verticalAlign: "middle",
-    height: 44,
   };
 
   const thInner = (align: "left" | "right" | "center"): React.CSSProperties => ({
     display: "flex",
     alignItems: "center",
     justifyContent: align === "left" ? "flex-start" : align === "right" ? "flex-end" : "center",
-    height: 44,
-    padding: "0 14px",
-    lineHeight: 1,
+    minHeight: 44,
+    padding: "2px 14px",
+    lineHeight: 1.2,
     whiteSpace: "nowrap",
   });
 
