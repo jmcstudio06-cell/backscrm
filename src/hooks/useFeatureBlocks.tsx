@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-// Interface para os bloqueios de features (novo formato JSON)
 interface FeatureBlocks {
   [key: string]: boolean;
 }
 
-// Default feature blocks para novos usuários (tudo bloqueado exceto básico)
 const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   dashboard: true,
   agenda: true,
@@ -29,7 +27,6 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   configuracoes: true,
 };
 
-// Módulos e quais features eles desbloqueiam
 export const PLAN_MODULES = {
   starter: {
     name: "Starter",
@@ -54,6 +51,47 @@ export function useFeatureBlocks() {
   const [loading, setLoading] = useState(true);
   const [planExpired, setPlanExpired] = useState(false);
 
+  const processProfile = useCallback((profile: { plan: string | null; feature_blocks: unknown } | null) => {
+    if (!profile) {
+      setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
+      setPlanExpired(false);
+      setLoading(false);
+      return;
+    }
+
+    if (profile.plan === "expirado") {
+      setPlanExpired(true);
+      if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
+        setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
+      } else {
+        setFeatureBlocks({});
+      }
+      setLoading(false);
+      return;
+    }
+
+    setPlanExpired(false);
+
+    if (profile.plan === "trial") {
+      const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos"];
+      const trialBlocks: FeatureBlocks = {};
+      for (const key of Object.keys(DEFAULT_FEATURE_BLOCKS)) {
+        trialBlocks[key] = trialBlocked.includes(key);
+      }
+      setFeatureBlocks(trialBlocks);
+      setLoading(false);
+      return;
+    }
+
+    if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
+      setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
+    } else {
+      setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
+    }
+    setLoading(false);
+  }, []);
+
+  // Initial fetch
   useEffect(() => {
     async function fetchBlocks() {
       if (!user) {
@@ -64,80 +102,64 @@ export function useFeatureBlocks() {
       }
 
       try {
-        // Buscar perfil com feature_blocks (novo formato JSON)
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error } = await supabase
           .from("profiles")
           .select("plan, feature_blocks")
           .eq("user_id", user.id)
           .single();
 
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
+        if (error) {
+          console.error("Error fetching profile:", error);
           setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
           setLoading(false);
           return;
         }
 
-        // Verificar se o plano expirou
-        if (profile?.plan === "expirado") {
-          setPlanExpired(true);
-          // Quando expirado, carregar feature_blocks do perfil para respeitar desbloqueios específicos
-          if (profile?.feature_blocks && typeof profile.feature_blocks === 'object') {
-            setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
-          } else {
-            setFeatureBlocks({});
-          }
-          setLoading(false);
-          return;
-        }
-
-        setPlanExpired(false);
-
-        // Trial plan: liberar tudo EXCETO mapeamento-palco, contratos e orcamentos
-        if (profile?.plan === "trial") {
-          const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos"];
-          const trialBlocks: FeatureBlocks = {};
-          for (const key of Object.keys(DEFAULT_FEATURE_BLOCKS)) {
-            trialBlocks[key] = trialBlocked.includes(key);
-          }
-          setFeatureBlocks(trialBlocks);
-          setLoading(false);
-          return;
-        }
-
-        // Usar feature_blocks do perfil (novo formato JSON)
-        if (profile?.feature_blocks && typeof profile.feature_blocks === 'object') {
-          setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
-        } else {
-          // Fallback para default se não existir
-          setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
-        }
+        processProfile(profile);
       } catch (err) {
         console.error("Error fetching feature blocks:", err);
         setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
-      } finally {
         setLoading(false);
       }
     }
 
     fetchBlocks();
-  }, [user]);
+  }, [user, processProfile]);
+
+  // Realtime subscription — updates sidebar instantly when admin changes blocks
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`profile-blocks:${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as { plan: string | null; feature_blocks: unknown };
+          processProfile(updated);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, processProfile]);
 
   const isBlocked = (featureKey: string): boolean => {
-    // Se o plano expirou, verificar se a feature está explicitamente desbloqueada (false)
     if (planExpired && featureKey !== "admin") {
-      // Se a feature está explicitamente desbloqueada (false), respeitar isso
-      if (featureBlocks[featureKey] === false) {
-        return false;
-      }
-      // Caso contrário, bloquear
+      if (featureBlocks[featureKey] === false) return false;
       return true;
     }
-    
     return featureBlocks[featureKey] === true;
   };
 
-  // Converter para formato antigo (array) para compatibilidade
   const blocks = Object.entries(featureBlocks).map(([feature_key, blocked]) => ({
     feature_key,
     blocked,
