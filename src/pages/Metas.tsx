@@ -392,17 +392,17 @@ export default function Metas() {
                   })}
 
                   {/* Totals row */}
-                  <TableRow className="bg-gradient-to-r from-zinc-800 to-zinc-700 text-white font-bold">
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">TOTAL</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.leadsTarget}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.leadsActual}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.showsTarget}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">{totals.showsActual}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueTarget)}</TableCell>
-                    <TableCell className="text-center border-r border-zinc-600 text-xs sm:text-sm">-</TableCell>
-                    <TableCell className="text-center text-emerald-400 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueActual)}</TableCell>
+                  <TableRow className="bg-gradient-to-r from-foreground/90 to-foreground/80 font-bold">
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">TOTAL</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.leadsTarget}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.leadsActual}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.showsTarget}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">{totals.showsActual}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueTarget)}</TableCell>
+                    <TableCell className="text-center border-r border-foreground/20 text-background text-xs sm:text-sm">-</TableCell>
+                    <TableCell className="text-center text-primary-foreground text-xs sm:text-sm whitespace-nowrap">{formatCurrency(totals.revenueActual)}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
