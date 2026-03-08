@@ -619,7 +619,7 @@ export default function Admin() {
                       </div>
 
                       {/* Plan Summary */}
-                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "free" && userProfile.trial_start && (
+                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "trial" && userProfile.trial_start && (
                         <div className="grid grid-cols-3 gap-3">
                           <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Início</p>
