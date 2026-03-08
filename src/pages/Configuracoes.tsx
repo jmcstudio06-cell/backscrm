@@ -664,15 +664,37 @@ export default function Configuracoes() {
               <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
                 <div className="flex items-start gap-3">
                   <KeyRound className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-foreground">Redefinir Senha</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Enviaremos um link para seu email para criar uma nova senha.
-                    </p>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={handleResetPassword} disabled={resettingPassword}>
-                      {resettingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <KeyRound className="w-4 h-4 mr-2" />}
-                      Enviar Link de Redefinição
-                    </Button>
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <h4 className="font-semibold text-foreground">Redefinir Senha</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Digite seu email e enviaremos um link para criar uma nova senha.
+                      </p>
+                    </div>
+                    {resetSent ? (
+                      <div className="p-3 rounded-lg bg-success/10 border border-success/20">
+                        <p className="text-sm text-success font-medium">
+                          ✓ Email enviado para <strong>{resetEmail}</strong>. Verifique sua caixa de entrada e spam.
+                        </p>
+                        <Button variant="ghost" size="sm" className="mt-2 text-xs" onClick={() => setResetSent(false)}>
+                          Enviar novamente
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Input
+                          type="email"
+                          placeholder="seu@email.com"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          className="h-10 bg-card border-border/50 flex-1"
+                        />
+                        <Button variant="outline" size="sm" className="h-10 px-4 shrink-0" onClick={handleResetPassword} disabled={resettingPassword}>
+                          {resettingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <KeyRound className="w-4 h-4 mr-2" />}
+                          Enviar Link
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
