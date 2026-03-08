@@ -114,7 +114,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin } = useAdmin();
-  const { isBlocked } = useFeatureBlocks();
+  const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
   const { pendingCount } = usePendingChecklist();
 
@@ -190,7 +190,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
                       <CollapsibleContent className="pl-4 mt-1 space-y-1">
                         {item.children.map((child) => {
-                          const blocked = child.featureKey && isBlocked(child.featureKey);
+                          const blocked = !blocksLoading && child.featureKey && isBlocked(child.featureKey);
                           const isActive = location.pathname.startsWith(child.path);
 
                           if (blocked) {
@@ -228,7 +228,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 );
               }
 
-              const blocked = item.featureKey && isBlocked(item.featureKey);
+              const blocked = !blocksLoading && item.featureKey && isBlocked(item.featureKey);
               const isActive = location.pathname.startsWith(item.path!);
 
               if (blocked) {
