@@ -153,10 +153,12 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         <nav className="flex-1 overflow-y-auto py-4 px-3">
           <ul className="space-y-1">
             {filteredMenuItems.map((item) => {
-              if (item.children) {
-                const active = isChildActive(item.children);
+            if (item.children) {
+              const active = isChildActive(item.children);
+              const isOpen = openGroup === item.label || (isChildActive(item.children) && !manualClosed.has(item.label));
+              const highlighted = active || isOpen;
 
-                return (
+              return (
                   <li key={item.label}>
                     <Collapsible
                       open={openGroup === item.label || (isChildActive(item.children) && !manualClosed.has(item.label))}
@@ -174,7 +176,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                         <button
                           className={cn(
                             "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 w-full text-left",
-                            active
+                            highlighted
                               ? "bg-primary text-primary-foreground"
                               : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
                           )}
