@@ -41,7 +41,7 @@ export function TotalRevenueHero({
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-primary to-accent">
                 <Music className="w-4.5 h-4.5 text-white" />
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 Total gerado pela sua música
               </span>
             </div>
