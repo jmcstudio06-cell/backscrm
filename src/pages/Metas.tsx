@@ -287,8 +287,8 @@ export default function Metas() {
         </div>
 
         {/* Main table */}
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-zinc-800 to-zinc-700 text-white py-3">
+        <Card className="overflow-hidden border-border/50">
+          <CardHeader className="bg-gradient-to-r from-foreground/90 to-foreground/80 text-background py-3">
             <CardTitle className="text-center text-sm sm:text-base">Controle de Metas Comerciais 2026</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
