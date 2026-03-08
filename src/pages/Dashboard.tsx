@@ -2,7 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { CareerStatusCard } from "@/components/dashboard/CareerStatusCard";
 import { RecommendedActionCard } from "@/components/dashboard/RecommendedActionCard";
 import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
-import { ArtistJourneyCard } from "@/components/dashboard/ArtistJourneyCard";
+
 import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
