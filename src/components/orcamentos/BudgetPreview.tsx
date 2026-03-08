@@ -330,7 +330,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   const c = colors[template];
 
   const thBase: React.CSSProperties = {
-    color: template === "elegante" ? "#1a1a2e" : "#fff",
+    color: template === "elegante" ? "#ffffff" : template === "classico" ? "#fff" : c.heading,
     padding: 0,
     fontSize: 11,
     fontWeight: 700,
@@ -339,10 +339,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     verticalAlign: "middle",
     height: 44,
   };
-
-  if (template === "minimalista") {
-    thBase.color = c.heading;
-  }
 
   const thInner = (align: "left" | "right" | "center"): React.CSSProperties => ({
     display: "flex",
