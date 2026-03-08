@@ -269,21 +269,20 @@ export default function Clientes() {
                       </span>
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-center gap-1">
-                        {client.phone && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-8 h-8 rounded-xl text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
-                            onClick={(e) => handleWhatsApp(client, e)}
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                          </Button>
-                        )}
+                      <div className="flex items-center justify-center gap-1.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`w-8 h-8 rounded-xl ${client.phone ? "text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10" : "invisible"}`}
+                          onClick={(e) => client.phone && handleWhatsApp(client, e)}
+                          tabIndex={client.phone ? 0 : -1}
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-8"
+                          className="h-8 w-[100px]"
                           onClick={() => handleViewProfile(client)}
                         >
                           <Eye className="w-3.5 h-3.5 mr-1.5" />
