@@ -97,25 +97,47 @@ export function TotalRevenueHero({
           </>
         )}
 
-        {/* Best month highlight */}
-        {bestMonth && (
+        {/* Best fee & Best month highlights */}
+        {(bestFee || bestMonth) && (
           <>
             <div className="h-px bg-border my-5" />
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Trophy className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
-                  Melhor mês da carreira
-                </p>
-                <p className="text-sm font-bold text-foreground capitalize">
-                  {bestMonth.month}
-                  <span className="font-normal text-muted-foreground ml-1.5">
-                    — R$ {fmt(bestMonth.value)}
-                  </span>
-                </p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {bestFee && (
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Diamond className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                      Seu maior cachê até hoje
+                    </p>
+                    <p className="text-sm font-bold text-foreground">
+                      R$ {fmt(bestFee.value)}
+                      <span className="font-normal text-muted-foreground ml-1.5 truncate">
+                        — {bestFee.showTitle}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              )}
+              {bestMonth && (
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Trophy className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                      Melhor mês da carreira
+                    </p>
+                    <p className="text-sm font-bold text-foreground capitalize">
+                      {bestMonth.month}
+                      <span className="font-normal text-muted-foreground ml-1.5">
+                        — R$ {fmt(bestMonth.value)}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
