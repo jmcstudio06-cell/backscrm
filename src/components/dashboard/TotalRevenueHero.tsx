@@ -91,7 +91,7 @@ export function TotalRevenueHero({
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-primary/70 font-bold">
-                Projeção anual no ritmo atual
+                Previsão até o final de {new Date().getFullYear()} no ritmo atual
               </p>
               <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
                 R$ {fmt(annualProjection)}
