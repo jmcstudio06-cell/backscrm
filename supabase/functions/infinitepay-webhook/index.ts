@@ -9,20 +9,20 @@ const corsHeaders = {
 
 // Map payment amounts (in cents) to plan names and durations (days)
 const PLAN_MAP: Record<number, { plan: string; days: number }> = {
-  100:   { plan: "mensal_starter",       days: 30 },  // Teste R$1,00
-  1990:  { plan: "mensal_starter",       days: 30 },
-  2490:  { plan: "mensal_profissional",   days: 30 },
-  3990:  { plan: "mensal_completo",       days: 30 },
-  14990: { plan: "anual_starter",        days: 365 },
-  19990: { plan: "anual_profissional",   days: 365 },
-  29880: { plan: "anual_completo",       days: 365 },
+  100: { plan: "mensal_starter", days: 30 }, // Teste R$1,00
+  1990: { plan: "mensal_starter", days: 30 },
+  2490: { plan: "mensal_profissional", days: 30 },
+  3990: { plan: "mensal_completo", days: 30 },
+  14990: { plan: "anual_starter", days: 365 },
+  19990: { plan: "anual_profissional", days: 365 },
+  29880: { plan: "anual_completo", days: 365 },
 };
 
 // Deep-search for amount in nested objects
 function findAmount(obj: unknown, depth = 0): number | null {
   if (depth > 5 || !obj) return null;
   if (typeof obj === "object" && obj !== null) {
-    const amountKeys = ["amount", "total", "value", "total_amount", "price", "payment_amount"];
+    const amountKeys = ["amount", "total", "value", "total_amount", "price", "payment_amount", "paid_amount"];
     for (const key of amountKeys) {
       const val = (obj as Record<string, unknown>)[key];
       if (val !== undefined && val !== null) {
@@ -46,7 +46,6 @@ function resolvePlan(rawAmount: number): { plan: string; days: number } | null {
   if (PLAN_MAP[convertedCents]) return PLAN_MAP[convertedCents];
   return null;
 }
-
 
 function buildFeatureBlocks(plan: string): Record<string, boolean> {
   const allFeatures = [
@@ -89,6 +88,8 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
 
   return blocks;
 }
+
+serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -117,8 +118,8 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    // Find a pending payment matching this amount; fallback to plan key when using test checkout values
-    let pendingPayment: Record<string, any> | null = null;
+    // 1) Primary match: amount + pending
+    let pendingPayment: Record<string, unknown> | null = null;
 
     const { data: paymentByAmount, error: pendingByAmountError } = await supabase
       .from("pending_payments")
@@ -133,10 +134,11 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
       console.error("❌ Error querying pending_payments by amount:", pendingByAmountError);
     }
 
-    pendingPayment = paymentByAmount as Record<string, any> | null;
+    pendingPayment = paymentByAmount as Record<string, unknown> | null;
 
     const resolved = resolvePlan(amountCents);
 
+    // 2) Safe fallback for test/alternate checkout values: plan_key + single recent pending
     if (!pendingPayment && resolved?.plan) {
       const { data: recentPlanMatches, error: pendingByPlanError } = await supabase
         .from("pending_payments")
@@ -152,7 +154,7 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
       }
 
       if (recentPlanMatches && recentPlanMatches.length === 1) {
-        pendingPayment = recentPlanMatches[0] as Record<string, any>;
+        pendingPayment = recentPlanMatches[0] as Record<string, unknown>;
         console.log(`ℹ️ Safe fallback match by plan_key=${resolved.plan} (single recent pending payment)`);
       } else if (recentPlanMatches && recentPlanMatches.length > 1) {
         console.warn(`⚠️ Multiple recent pending payments for plan_key=${resolved.plan}; skipping fallback to avoid wrong activation`);
@@ -167,13 +169,11 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
       });
     }
 
-    // Use the plan from PLAN_MAP or fallback to the pending payment's plan_key
-    const planName = resolved?.plan || pendingPayment.plan_key;
+    const planName = resolved?.plan || String(pendingPayment.plan_key ?? "mensal_starter");
     const planDays = resolved?.days || 30;
+    const featureBlocks = buildFeatureBlocks(planName);
 
     console.log(`✅ Matched pending payment: user_id=${pendingPayment.user_id}, plan=${planName}, days=${planDays}`);
-
-    const featureBlocks = buildFeatureBlocks(planName);
 
     // Update user profile with plan + feature access map
     const { error: updateError } = await supabase
@@ -184,7 +184,7 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
         trial_days: planDays,
         feature_blocks: featureBlocks,
       })
-      .eq("user_id", pendingPayment.user_id);
+      .eq("user_id", String(pendingPayment.user_id));
 
     if (updateError) {
       console.error("❌ Error updating profile:", updateError);
@@ -198,7 +198,7 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
     await supabase
       .from("pending_payments")
       .update({ status: "activated", activated_at: new Date().toISOString() })
-      .eq("id", pendingPayment.id);
+      .eq("id", String(pendingPayment.id));
 
     console.log(`🎉 Plan activated: ${planName} for user ${pendingPayment.user_id}`);
 
