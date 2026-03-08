@@ -53,28 +53,21 @@ export default function Checklist() {
 
   useEffect(() => {
     const DEFAULT_CHECKLIST = [
-      // 🎙️ Voz & Equipamento Pessoal
-      "Microfone pessoal (se usar o seu)",
-      "Microfone reserva (se possível)",
-      "Cabo XLR próprio",
-      "In-ear (se usar)",
-      "Fone reserva",
-      "Pilhas / bateria carregada (se for sem fio)",
-      "Tablet / celular com repertório",
-      "Power bank",
-      "Carregadores",
-      // 🔌 Energia Elétrica
-      "Confirmou se o local é 110V ou 220V?",
-      "Seu equipamento é bivolt?",
-      "Precisa de transformador?",
-      "Tem tomada perto do palco?",
-      "Extensão (mínimo 10m)",
-      "Filtro de linha",
-      "Adaptador de tomada",
-      "Benjamim (T)",
-      // 📋 Antes de Sair de Casa
-      "Salvou a localização no GPS?",
-      "Divulgou o show?",
+      "Você pegou seu instrumento?",
+      "Você pegou o microfone?",
+      "Você pegou o pedestal de microfone?",
+      "Você pegou pelo menos 5 cabos P10?",
+      "Você pegou os cabos XLR do microfone?",
+      "Você pegou a pedaleira ou pedal?",
+      "Você pegou a fonte da pedaleira?",
+      "Você pegou extensões elétricas?",
+      "Você pegou filtro de linha ou régua de energia?",
+      "Você pegou adaptador de tomada?",
+      "Você conferiu se o local é 110v ou 220v? ⚡",
+      "Você pegou suporte de celular ou tablet?",
+      "Você pegou palhetas extras?",
+      "Você pegou o afinador?",
+      "Você pegou a caixa de som ou retorno (se for levar)?",
     ];
 
     const fetchChecklistItems = async () => {
