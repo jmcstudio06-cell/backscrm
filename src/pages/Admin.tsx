@@ -148,6 +148,7 @@ export default function Admin() {
     free: 0, trial: 0, base: 0, mensal: 0,
     essencial: 0, completo: 0, anual: 0, expirado: 0,
   });
+  const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
 
   // Check admin
   useEffect(() => {
