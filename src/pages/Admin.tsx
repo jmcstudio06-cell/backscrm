@@ -126,7 +126,6 @@ const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "
 const USERS_PER_PAGE = 10;
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
-  free:                  { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Sparkles className="h-5 w-5" /> },
   trial:                 { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
   mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
