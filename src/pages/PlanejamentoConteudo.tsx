@@ -51,7 +51,7 @@ export default function PlanejamentoConteudo() {
   };
 
   return (
-    <Layout title="Planejamento de Conteúdo">
+    <Layout title="Ideia de Post">
       <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -59,7 +59,7 @@ export default function PlanejamentoConteudo() {
             <Sparkles className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Planejamento de Conteúdo</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Ideia de Post</h1>
             <p className="text-sm text-muted-foreground">Mantenha consistência nas redes e divulgue seus shows</p>
           </div>
         </div>
