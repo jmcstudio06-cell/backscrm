@@ -51,7 +51,7 @@ function supportsWebP(): boolean {
  * Comprime uma imagem para o tamanho máximo permitido
  * Otimizado para avatares: 300x300 max, WebP quando suportado, 70% qualidade
  */
-export async function compressImage(file: File, maxDimension: number = AVATAR_MAX_DIMENSION): Promise<File> {
+export async function compressImage(file: File, maxDimension: number = AVATAR_MAX_DIMENSION, quality: number = COMPRESSION_QUALITY): Promise<File> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
