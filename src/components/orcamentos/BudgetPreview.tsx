@@ -584,8 +584,8 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 <div style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   ...(template === "minimalista" ? {
-                    backgroundColor: "transparent", color: c.heading,
-                    padding: "12px 0", borderRadius: 0, borderTop: "2px solid #ddd",
+                    backgroundColor: c.primary, color: "#fff",
+                    padding: "12px 16px", borderRadius: 8,
                   } : {
                     backgroundColor: template === "classico" ? c.primary : "#1a1a2e",
                     color: "#fff", padding: "12px 16px", borderRadius: 6,
