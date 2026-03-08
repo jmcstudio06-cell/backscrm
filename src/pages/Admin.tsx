@@ -472,9 +472,9 @@ export default function Admin() {
               planFilter === filter.value ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
             }`}
           >
-            <div className={`mx-auto mb-1 ${colors.text}`}>{colors.icon}</div>
-            <p className={`text-xl md:text-2xl font-black ${colors.text}`}>{planStats[filter.value] || 0}</p>
-            <p className={`text-[10px] font-semibold ${colors.text} opacity-80 truncate`}>
+            <div className={`mb-0.5 ${colors.text}`}>{colors.icon}</div>
+            <p className={`text-lg font-black leading-tight ${colors.text}`}>{planStats[filter.value] || 0}</p>
+            <p className={`text-[8px] md:text-[9px] font-semibold ${colors.text} opacity-80 truncate w-full`}>
               {filter.label}
             </p>
           </button>
