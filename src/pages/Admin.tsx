@@ -570,8 +570,9 @@ export default function Admin() {
                           value={userProfile.plan || "trial"}
                           onChange={e => {
                             const selectedPlan = e.target.value;
-                            const startDate = userPlanDates[userProfile.user_id] || (userProfile.trial_start ? userProfile.trial_start.split("T")[0] : undefined);
-                            updateUserPlan(userProfile.user_id, selectedPlan, startDate);
+                            const today = new Date().toISOString().split("T")[0];
+                            updateUserPlan(userProfile.user_id, selectedPlan, today);
+                            setUserPlanDates(prev => ({ ...prev, [userProfile.user_id]: today }));
                           }}
                           className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
                         >
