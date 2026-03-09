@@ -89,13 +89,8 @@ export default function Booking() {
       setArtist(profileData);
 
       const [productsRes, showsRes] = await Promise.all([
-        supabase
-          .from("performance_types")
-          .select("id, name, description, price, icon")
-          .eq("user_id", profileData.user_id)
-          .order("name"),
-        supabase
-          .rpc("get_artist_occupied_dates", { artist_user_id: profileData.user_id }),
+        supabase.rpc("get_artist_products", { artist_user_id: profileData.user_id }),
+        supabase.rpc("get_artist_occupied_dates", { artist_user_id: profileData.user_id }),
       ]);
 
       if (productsRes.data) setProducts(productsRes.data);
