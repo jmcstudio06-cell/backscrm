@@ -69,7 +69,6 @@ export default function Solicitacoes() {
   };
 
   const handleSave = async () => {
-    // Auto-salvar o slug gerado junto com as configurações
     await updateProfile({
       slug: autoSlug || null,
       bio,
@@ -81,6 +80,9 @@ export default function Solicitacoes() {
       media_kit_url: mediaKitUrl || null,
       show_video_url: showVideoUrl || null,
       repertoire_url: repertoireUrl || null,
+      booking_max_dates: bookingMaxDates,
+      booking_discount_percent: bookingDiscountPercent,
+      booking_min_dates_discount: bookingMinDatesDiscount,
     });
   };
 
