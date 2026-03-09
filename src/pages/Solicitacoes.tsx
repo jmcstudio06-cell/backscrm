@@ -66,8 +66,9 @@ export default function Solicitacoes() {
   };
 
   const handleSave = async () => {
+    // Auto-salvar o slug gerado junto com as configurações
     await updateProfile({
-      slug: slug || null,
+      slug: autoSlug || null,
       bio,
       instagram_url: instagramUrl || null,
       youtube_url: youtubeUrl || null,
