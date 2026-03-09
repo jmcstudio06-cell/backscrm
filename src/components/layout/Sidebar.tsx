@@ -121,7 +121,6 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
   const { pendingCount } = usePendingChecklist();
-  const { unreadCount } = useNotifications();
 
   const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
 
