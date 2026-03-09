@@ -35,6 +35,16 @@ export interface Profile {
   late_fee_percentage: number | null;
   slug: string | null;
   onboarding_completed: boolean | null;
+  // Perfil Público
+  bio: string | null;
+  instagram_url: string | null;
+  youtube_url: string | null;
+  tiktok_url: string | null;
+  spotify_url: string | null;
+  website_url: string | null;
+  media_kit_url: string | null;
+  show_video_url: string | null;
+  repertoire_url: string | null;
 }
 
 export function useProfile() {
