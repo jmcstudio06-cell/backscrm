@@ -102,7 +102,7 @@ const App = () => (
                 <Route path="/solicitacoes" element={<RequireAuth><ErrorBoundary><Solicitacoes /></ErrorBoundary></RequireAuth>} />
                 <Route path="/notificacoes" element={<RequireAuth><ErrorBoundary><Notificacoes /></ErrorBoundary></RequireAuth>} />
                 
-                <Route path="/booking/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
+                <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ShowsProvider>
