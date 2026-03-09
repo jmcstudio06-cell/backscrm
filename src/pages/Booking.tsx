@@ -483,7 +483,7 @@ export default function Booking() {
               Selecione a(s) Data(s)
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Escolha 1 ou mais datas disponíveis. Datas em vermelho estão ocupadas.
+              Selecione de 1 a {MAX_DATES} datas disponíveis. Datas em vermelho estão ocupadas.
             </p>
 
             {/* Indicador de datas selecionadas */}
