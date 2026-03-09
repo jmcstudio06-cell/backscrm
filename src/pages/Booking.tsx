@@ -383,7 +383,7 @@ export default function Booking() {
                     Condição especial!
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> a partir da 3ª data!
+                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> no valor total, aplicado na última data!
                   </p>
                 </div>
               </div>
