@@ -180,55 +180,105 @@ export default function Solicitacoes() {
                   <Instagram className="w-3.5 h-3.5 text-muted-foreground" />
                   Instagram
                 </Label>
-                <Input
-                  value={instagramUrl}
-                  onChange={(e) => setInstagramUrl(e.target.value)}
-                  placeholder="https://instagram.com/seuartista"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={instagramUrl}
+                    onChange={(e) => setInstagramUrl(e.target.value)}
+                    placeholder="https://instagram.com/seuartista"
+                    className="flex-1"
+                  />
+                  {instagramUrl && (
+                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
+                      <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3" /> Ver
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
               <div>
                 <Label className="flex items-center gap-1.5 mb-1">
                   <Youtube className="w-3.5 h-3.5 text-muted-foreground" />
                   YouTube
                 </Label>
-                <Input
-                  value={youtubeUrl}
-                  onChange={(e) => setYoutubeUrl(e.target.value)}
-                  placeholder="https://youtube.com/@seucanal"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    placeholder="https://youtube.com/@seucanal"
+                    className="flex-1"
+                  />
+                  {youtubeUrl && (
+                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
+                      <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3" /> Ver
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
               <div>
                 <Label className="flex items-center gap-1.5 mb-1">
                   <Music2 className="w-3.5 h-3.5 text-muted-foreground" />
                   TikTok
                 </Label>
-                <Input
-                  value={tiktokUrl}
-                  onChange={(e) => setTiktokUrl(e.target.value)}
-                  placeholder="https://tiktok.com/@seuartista"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={tiktokUrl}
+                    onChange={(e) => setTiktokUrl(e.target.value)}
+                    placeholder="https://tiktok.com/@seuartista"
+                    className="flex-1"
+                  />
+                  {tiktokUrl && (
+                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
+                      <a href={tiktokUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3" /> Ver
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
               <div>
                 <Label className="flex items-center gap-1.5 mb-1">
                   <Music className="w-3.5 h-3.5 text-muted-foreground" />
                   Spotify
                 </Label>
-                <Input
-                  value={spotifyUrl}
-                  onChange={(e) => setSpotifyUrl(e.target.value)}
-                  placeholder="https://open.spotify.com/artist/..."
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={spotifyUrl}
+                    onChange={(e) => setSpotifyUrl(e.target.value)}
+                    placeholder="https://open.spotify.com/artist/..."
+                    className="flex-1"
+                  />
+                  {spotifyUrl && (
+                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
+                      <a href={spotifyUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3" /> Ver
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="sm:col-span-1">
                 <Label className="flex items-center gap-1.5 mb-1">
                   <Globe className="w-3.5 h-3.5 text-muted-foreground" />
                   Site Pessoal
                 </Label>
-                <Input
-                  value={websiteUrl}
-                  onChange={(e) => setWebsiteUrl(e.target.value)}
-                  placeholder="https://seusite.com"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={websiteUrl}
+                    onChange={(e) => setWebsiteUrl(e.target.value)}
+                    placeholder="https://seusite.com"
+                    className="flex-1"
+                  />
+                  {websiteUrl && (
+                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
+                      <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3" /> Ver
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
