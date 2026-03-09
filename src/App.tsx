@@ -111,7 +111,7 @@ const App = () => (
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/guia-atendimento" element={<AuthPage><GuiaAtendimento /></AuthPage>} />
+                <Route path="/guia-atendimento" element={<ErrorBoundary><GuiaAtendimento /></ErrorBoundary>} />
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 
