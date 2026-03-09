@@ -29,7 +29,6 @@ export default function Solicitacoes() {
   const { profile, updateProfile, loading: loadingProfile } = useProfile();
 
   const [copied, setCopied] = useState(false);
-  const [slug, setSlug] = useState(profile?.slug || "");
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
   const [youtubeUrl, setYoutubeUrl] = useState(profile?.youtube_url || "");
@@ -40,10 +39,21 @@ export default function Solicitacoes() {
   const [showVideoUrl, setShowVideoUrl] = useState(profile?.show_video_url || "");
   const [repertoireUrl, setRepertoireUrl] = useState(profile?.repertoire_url || "");
 
-  // Usar domínio publicado do Backstage Pro
+  // Gerar slug automaticamente a partir do nome do artista
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .replace(/[^a-z0-9]+/g, "")     // remove caracteres especiais
+      .replace(/^-+|-+$/g, "");        // remove hífens extras
+  };
+
+  const autoSlug = profile?.artist_name ? generateSlug(profile.artist_name) : profile?.name ? generateSlug(profile.name) : "";
+  
   const publishedDomain = "https://backstagepro.lovable.app";
-  const publicUrl = (slug || profile?.slug)
-    ? `${publishedDomain}/booking/${slug || profile?.slug}`
+  const publicUrl = autoSlug
+    ? `${publishedDomain}/artista/${autoSlug}`
     : "";
 
   const copyPublicLink = () => {
