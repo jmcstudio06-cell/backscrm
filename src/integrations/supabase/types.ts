@@ -221,6 +221,9 @@ export type Database = {
           avatar_url: string | null
           base_city: string | null
           bio: string | null
+          booking_discount_percent: number
+          booking_max_dates: number
+          booking_min_dates_discount: number
           created_at: string
           instagram_url: string | null
           media_kit_url: string | null
@@ -241,6 +244,9 @@ export type Database = {
           avatar_url?: string | null
           base_city?: string | null
           bio?: string | null
+          booking_discount_percent?: number
+          booking_max_dates?: number
+          booking_min_dates_discount?: number
           created_at?: string
           instagram_url?: string | null
           media_kit_url?: string | null
@@ -261,6 +267,9 @@ export type Database = {
           avatar_url?: string | null
           base_city?: string | null
           bio?: string | null
+          booking_discount_percent?: number
+          booking_max_dates?: number
+          booking_min_dates_discount?: number
           created_at?: string
           instagram_url?: string | null
           media_kit_url?: string | null
@@ -1215,6 +1224,9 @@ export type Database = {
           avatar_url: string | null
           base_city: string | null
           bio: string | null
+          booking_discount_percent: number
+          booking_max_dates: number
+          booking_min_dates_discount: number
           city: string | null
           created_at: string
           delay_tolerance: string | null
@@ -1257,6 +1269,9 @@ export type Database = {
           avatar_url?: string | null
           base_city?: string | null
           bio?: string | null
+          booking_discount_percent?: number
+          booking_max_dates?: number
+          booking_min_dates_discount?: number
           city?: string | null
           created_at?: string
           delay_tolerance?: string | null
@@ -1299,6 +1314,9 @@ export type Database = {
           avatar_url?: string | null
           base_city?: string | null
           bio?: string | null
+          booking_discount_percent?: number
+          booking_max_dates?: number
+          booking_min_dates_discount?: number
           city?: string | null
           created_at?: string
           delay_tolerance?: string | null
