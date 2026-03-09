@@ -221,10 +221,7 @@ function Quote({ children }: { children: React.ReactNode }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function GuiaAtendimento() {
   const [progress, setProgress] = useState(0);
-  const [unlocked, setUnlocked] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const unlocked = true;
   const [reflections, setReflections] = useState({ r1: false, r2: false, r3: false, r4: false, r5: false });
   const [budgetType, setBudgetType] = useState<string | null>(null);
   const [visibleChecks, setVisibleChecks] = useState(0);
