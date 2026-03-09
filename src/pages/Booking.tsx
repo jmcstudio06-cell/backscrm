@@ -70,13 +70,47 @@ export default function Booking() {
     loadArtistData();
   }, [slug]);
 
+  // Função para gerar slug a partir de um nome
+  const generateSlugFromName = (name: string) => {
+    return name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "")
+      .replace(/^-+|-+$/g, "");
+  };
+
   const loadArtistData = async () => {
     try {
-      const { data: profileData, error: profileError } = await supabase
+      // Primeiro tenta buscar pelo slug direto
+      let { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url")
+        .select("user_id, artist_name, name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url")
         .eq("slug", slug)
         .maybeSingle();
+
+      // Se não encontrou pelo slug, busca todos os profiles e compara pelo nome gerado
+      if (!profileData) {
+        const { data: allProfiles, error: allError } = await supabase
+          .from("profiles")
+          .select("user_id, artist_name, name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url");
+        
+        if (allError) throw allError;
+        
+        // Procura um profile cujo nome gera o slug da URL
+        profileData = allProfiles?.find(p => {
+          const nameToCheck = p.artist_name || p.name || "";
+          return generateSlugFromName(nameToCheck) === slug;
+        }) || null;
+        
+        // Se encontrou, atualiza o slug no banco para próximas buscas
+        if (profileData) {
+          await supabase
+            .from("profiles")
+            .update({ slug })
+            .eq("user_id", profileData.user_id);
+        }
+      }
 
       if (profileError) throw profileError;
       if (!profileData) {
