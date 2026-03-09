@@ -378,17 +378,17 @@ export default function Booking() {
           )}
 
           {/* Grid de 3 calendários */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
             {[0, 1, 2].map((monthOffset) => {
               const monthDate = addMonths(today, monthOffset);
               return (
-                <div key={monthOffset} className="border rounded-lg p-2">
+                <div key={monthOffset} className="border border-border rounded-xl bg-card p-3">
                   <Calendar
                     mode="multiple"
                     selected={selectedDates}
                     onSelect={handleMultipleDatesSelect}
                     month={monthDate}
-                    onMonthChange={() => {}} // Desabilitar mudança manual
+                    onMonthChange={() => {}}
                     locale={ptBR}
                     disabled={(date) => 
                       isBefore(date, today) || 
@@ -399,26 +399,30 @@ export default function Booking() {
                       booked: (date) => confirmedDateSet.has(format(date, "yyyy-MM-dd")),
                     }}
                     modifiersClassNames={{
-                      booked: "!bg-destructive/20 !text-destructive line-through cursor-not-allowed",
+                      booked: "!bg-red-100 dark:!bg-red-900/30 !text-red-500 dark:!text-red-400 line-through cursor-not-allowed opacity-80",
                     }}
-                    className="w-full"
+                    className="w-full pointer-events-auto"
                     classNames={{
                       months: "flex flex-col",
                       month: "space-y-2",
                       caption: "flex justify-center pt-1 relative items-center",
-                      caption_label: "text-sm font-medium capitalize",
+                      caption_label: "text-sm font-semibold capitalize text-foreground",
                       nav: "hidden",
                       nav_button: "hidden",
                       table: "w-full border-collapse",
                       head_row: "flex",
-                      head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.7rem] flex-1 text-center",
+                      head_cell: "text-muted-foreground rounded-md w-8 font-medium text-[0.65rem] uppercase flex-1 text-center",
                       row: "flex w-full mt-1",
-                      cell: "text-center text-sm p-0 relative flex-1 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                      day: "h-8 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md text-xs",
-                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                      day_today: "bg-accent text-accent-foreground",
-                      day_outside: "text-muted-foreground/50",
-                      day_disabled: "text-muted-foreground/30",
+                      cell: "text-center text-sm p-0 relative flex-1 focus-within:relative focus-within:z-20",
+                      day: cn(
+                        "h-8 w-full p-0 font-normal rounded-lg text-xs transition-colors",
+                        "hover:bg-primary/10 hover:text-primary",
+                        "aria-selected:opacity-100"
+                      ),
+                      day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary hover:!text-primary-foreground font-medium",
+                      day_today: "bg-accent text-accent-foreground font-semibold ring-1 ring-primary/30",
+                      day_outside: "text-muted-foreground/40 opacity-50",
+                      day_disabled: "text-muted-foreground/30 opacity-40 cursor-not-allowed",
                     }}
                   />
                 </div>
@@ -426,19 +430,19 @@ export default function Booking() {
             })}
           </div>
 
-          {/* Legenda */}
-          <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-primary"></div>
-              <span>Selecionado</span>
+          {/* Legenda melhorada */}
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-5 pt-4 border-t border-border">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-md bg-primary shadow-sm"></div>
+              <span className="text-sm text-muted-foreground">Selecionado</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-destructive/30"></div>
-              <span>Ocupado</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-md bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800"></div>
+              <span className="text-sm text-muted-foreground">Ocupado</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-accent"></div>
-              <span>Hoje</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-md bg-accent ring-1 ring-primary/30"></div>
+              <span className="text-sm text-muted-foreground">Hoje</span>
             </div>
           </div>
         </Card>
