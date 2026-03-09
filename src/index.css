@@ -272,4 +272,9 @@
   .animate-slide-up {
     animation: slide-up 0.5s ease-out forwards;
   }
+
+  /* Booking calendar - occupied dates */
+  .booking-occupied {
+    @apply !bg-rose-100 dark:!bg-rose-900/40 !text-rose-500 dark:!text-rose-400 line-through cursor-not-allowed;
+  }
 }
