@@ -2122,6 +2122,16 @@ export type Database = {
           show_date: string
         }[]
       }
+      get_artist_products: {
+        Args: { artist_user_id: string }
+        Returns: {
+          description: string
+          icon: string
+          id: string
+          name: string
+          price: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
