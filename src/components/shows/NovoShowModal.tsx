@@ -80,6 +80,7 @@ interface NovoShowModalProps {
   onOpenChange: (open: boolean) => void;
   onShowCreated?: (show: ShowData) => void;
   editingShow?: EditingShow | null;
+  presetDate?: Date;
 }
 
 interface Expense {
