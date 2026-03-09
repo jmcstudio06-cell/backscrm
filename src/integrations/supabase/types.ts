@@ -215,6 +215,69 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_public_profiles: {
+        Row: {
+          artist_name: string | null
+          avatar_url: string | null
+          base_city: string | null
+          bio: string | null
+          created_at: string
+          instagram_url: string | null
+          media_kit_url: string | null
+          music_style: string | null
+          project_type: string | null
+          repertoire_url: string | null
+          show_video_url: string | null
+          slug: string
+          spotify_url: string | null
+          tiktok_url: string | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          artist_name?: string | null
+          avatar_url?: string | null
+          base_city?: string | null
+          bio?: string | null
+          created_at?: string
+          instagram_url?: string | null
+          media_kit_url?: string | null
+          music_style?: string | null
+          project_type?: string | null
+          repertoire_url?: string | null
+          show_video_url?: string | null
+          slug: string
+          spotify_url?: string | null
+          tiktok_url?: string | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          artist_name?: string | null
+          avatar_url?: string | null
+          base_city?: string | null
+          bio?: string | null
+          created_at?: string
+          instagram_url?: string | null
+          media_kit_url?: string | null
+          music_style?: string | null
+          project_type?: string | null
+          repertoire_url?: string | null
+          show_video_url?: string | null
+          slug?: string
+          spotify_url?: string | null
+          tiktok_url?: string | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       bonuses: {
         Row: {
           completion_rule: string
