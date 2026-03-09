@@ -28,7 +28,7 @@ import {
 import { toast } from "sonner";
 
 export default function Solicitacoes() {
-  const { requests, loading: loadingRequests, updateRequestStatus, deleteRequest } = useBookingRequests();
+  const { requests, loading: loadingRequests, updateRequestStatus, deleteRequest, sendToAgenda } = useBookingRequests();
   const { profile, updateProfile, loading: loadingProfile } = useProfile();
 
   const { user } = useAuth();
