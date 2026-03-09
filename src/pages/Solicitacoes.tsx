@@ -29,7 +29,6 @@ export default function Solicitacoes() {
   const { profile, updateProfile, loading: loadingProfile } = useProfile();
 
   const [copied, setCopied] = useState(false);
-  const [slug, setSlug] = useState(profile?.slug || "");
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
   const [youtubeUrl, setYoutubeUrl] = useState(profile?.youtube_url || "");
@@ -40,10 +39,21 @@ export default function Solicitacoes() {
   const [showVideoUrl, setShowVideoUrl] = useState(profile?.show_video_url || "");
   const [repertoireUrl, setRepertoireUrl] = useState(profile?.repertoire_url || "");
 
-  // Usar domínio publicado do Backstage Pro
+  // Gerar slug automaticamente a partir do nome do artista
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .replace(/[^a-z0-9]+/g, "")     // remove caracteres especiais
+      .replace(/^-+|-+$/g, "");        // remove hífens extras
+  };
+
+  const autoSlug = profile?.artist_name ? generateSlug(profile.artist_name) : profile?.name ? generateSlug(profile.name) : "";
+  
   const publishedDomain = "https://backstagepro.lovable.app";
-  const publicUrl = (slug || profile?.slug)
-    ? `${publishedDomain}/booking/${slug || profile?.slug}`
+  const publicUrl = autoSlug
+    ? `${publishedDomain}/artista/${autoSlug}`
     : "";
 
   const copyPublicLink = () => {
@@ -56,8 +66,9 @@ export default function Solicitacoes() {
   };
 
   const handleSave = async () => {
+    // Auto-salvar o slug gerado junto com as configurações
     await updateProfile({
-      slug: slug || null,
+      slug: autoSlug || null,
       bio,
       instagram_url: instagramUrl || null,
       youtube_url: youtubeUrl || null,
@@ -114,29 +125,29 @@ export default function Solicitacoes() {
               Seu Link Público
             </h3>
             <div className="space-y-3">
-              <div>
-                <Label className="text-sm text-muted-foreground">Slug do link (ex: zeoliveira)</Label>
-                <Input
-                  className="mt-1"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                  placeholder="meuartista"
-                />
-              </div>
-              {publicUrl && (
-                <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-                  <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <code className="flex-1 text-xs text-muted-foreground truncate">{publicUrl}</code>
-                  <Button size="sm" variant="outline" onClick={copyPublicLink} className="gap-1 shrink-0">
-                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                    {copied ? "Copiado" : "Copiar"}
-                  </Button>
-                  <Button size="sm" variant="outline" asChild className="shrink-0">
-                    <a href={publicUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </Button>
-                </div>
+              {autoSlug ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Gerado automaticamente a partir do seu nome artístico.
+                  </p>
+                  <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
+                    <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <code className="flex-1 text-xs text-muted-foreground truncate">{publicUrl}</code>
+                    <Button size="sm" variant="outline" onClick={copyPublicLink} className="gap-1 shrink-0">
+                      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      {copied ? "Copiado" : "Copiar"}
+                    </Button>
+                    <Button size="sm" variant="outline" asChild className="shrink-0">
+                      <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Configure seu <strong>nome artístico</strong> nas Configurações de Perfil para gerar automaticamente seu link público.
+                </p>
               )}
             </div>
           </Card>
