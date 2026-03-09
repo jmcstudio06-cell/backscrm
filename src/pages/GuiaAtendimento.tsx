@@ -259,42 +259,6 @@ export default function GuiaAtendimento() {
 
   const checkedCount = Object.values(reflections).filter(Boolean).length;
 
-  const handleSubmit = async () => {
-    const cleanName = normalizeName(name);
-    const phoneDigits = onlyDigits(phone);
-
-    // ✅ validações anti-sabotagem
-    if (!isValidFullName(cleanName)) {
-      toast.error("Digite seu nome real (nome e sobrenome).");
-      return;
-    }
-
-    if (!isValidBRMobile(phoneDigits)) {
-      toast.error("Digite um WhatsApp válido no formato (XX) 9XXXX-XXXX.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const phoneFormatted = formatBRMobileFromDigits(phoneDigits);
-
-      const { error } = await (supabase
-        .from("guide_leads" as any)
-        .insert({ name: cleanName, phone: phoneFormatted } as any) as any);
-
-      if (error) throw error;
-
-      setUnlocked(true);
-      toast.success("Guia liberado! Boa leitura.");
-      setTimeout(() => {
-        document.getElementById("intro")?.scrollIntoView({ behavior: "smooth" });
-      }, 400);
-    } catch {
-      toast.error("Erro ao confirmar. Tente novamente.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const benefits = [
     "Responde mais rápido",
