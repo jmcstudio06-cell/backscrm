@@ -1,8 +1,7 @@
-import { Menu, User, Bell } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { useNotifications } from "@/hooks/useNotifications";
 
 interface HeaderProps {
   title: string;
