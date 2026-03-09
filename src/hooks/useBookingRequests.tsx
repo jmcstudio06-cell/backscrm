@@ -11,8 +11,10 @@ export interface BookingRequest {
   event_date: string;
   client_name: string;
   client_phone: string;
+  event_type: string | null;
   event_city: string | null;
   event_location: string | null;
+  event_time: string | null;
   observations: string | null;
   status: string;
   created_at: string;
