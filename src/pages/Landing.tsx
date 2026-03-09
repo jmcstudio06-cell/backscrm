@@ -497,7 +497,7 @@ const Landing = () => {
                 className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
                 onClick={() => navigate("/auth")}
               >
-                Quero meu Link Agenda
+                Criar conta grátis
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
