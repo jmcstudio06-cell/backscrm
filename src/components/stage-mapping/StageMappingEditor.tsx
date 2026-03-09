@@ -383,21 +383,6 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
     }
   };
 
-  const handleEmail = () => {
-    const subject = encodeURIComponent(`Rider Técnico - ${artistName || name}`);
-    const body = encodeURIComponent(
-      `RIDER TÉCNICO\n\n` +
-      `Artista: ${artistName || "-"}\n` +
-      `Evento: ${eventName || "-"}\n` +
-      `Data: ${eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-"}\n` +
-      `Local: ${eventLocation || "-"}\n\n` +
-      `INPUT LIST:\n` +
-      inputList.map(c => `Canal ${c.channel}: ${c.instrument} - ${c.micType}${c.di ? " (DI)" : ""}`).join("\n") +
-      `\n\nContato: ${technicalContact} - ${technicalPhone}`
-    );
-    window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
