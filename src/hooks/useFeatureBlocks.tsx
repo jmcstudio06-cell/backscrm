@@ -75,7 +75,7 @@ export function useFeatureBlocks() {
     setPlanExpired(false);
 
     if (profile.plan === "trial") {
-      const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos"];
+      const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos", "link-agenda"];
       const trialBlocks: FeatureBlocks = {};
       for (const key of Object.keys(DEFAULT_FEATURE_BLOCKS)) {
         trialBlocks[key] = trialBlocked.includes(key);

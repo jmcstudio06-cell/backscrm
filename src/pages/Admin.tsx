@@ -122,7 +122,7 @@ const ALL_FEATURE_KEYS = [
   "avancos", "tutoriais", "configuracoes", "link-agenda",
 ];
 
-const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos"];
+const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos", "link-agenda"];
 
 const USERS_PER_PAGE = 10;
 
