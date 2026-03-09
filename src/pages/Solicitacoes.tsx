@@ -51,7 +51,7 @@ export default function Solicitacoes() {
 
   const autoSlug = profile?.artist_name ? generateSlug(profile.artist_name) : profile?.name ? generateSlug(profile.name) : "";
   
-  const publishedDomain = "https://backstagepro.lovable.app";
+  const publishedDomain = "https://backstage.online";
   const publicUrl = autoSlug
     ? `${publishedDomain}/artista/${autoSlug}`
     : "";
