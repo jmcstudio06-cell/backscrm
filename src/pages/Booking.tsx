@@ -52,6 +52,7 @@ interface ArtistProfile {
   booking_max_dates: number;
   booking_discount_percent: number;
   booking_min_dates_discount: number;
+  booking_show_products: boolean;
 }
 
 interface PerformanceType {
@@ -73,7 +74,7 @@ export default function Booking() {
   const [notFound, setNotFound] = useState(false);
 
   // Wizard step
-  const [step, setStep] = useState<BookingStep>("products");
+  const [step, setStep] = useState<BookingStep>("products"); // will be adjusted after load
   const [selectedProduct, setSelectedProduct] = useState<PerformanceType | null>(null);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -98,7 +99,7 @@ export default function Booking() {
       const { data: profileData, error: profileError } = await supabase
         .from("artist_public_profiles")
         .select(
-          "user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_max_dates, booking_discount_percent, booking_min_dates_discount"
+          "user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_max_dates, booking_discount_percent, booking_min_dates_discount, booking_show_products"
         )
         .eq("slug", slug)
         .maybeSingle();
@@ -110,6 +111,11 @@ export default function Booking() {
       }
 
       setArtist(profileData);
+
+      // Skip products step if disabled
+      if (!profileData.booking_show_products) {
+        setStep("calendar");
+      }
 
       const [productsRes, showsRes] = await Promise.all([
         supabase.rpc("get_artist_products", { artist_user_id: profileData.user_id }),
@@ -131,6 +137,7 @@ export default function Booking() {
   const today = startOfDay(new Date());
   const maxDate = addMonths(today, 3);
 
+  const showProducts = artist?.booking_show_products ?? true;
   const MAX_DATES = artist?.booking_max_dates ?? 3;
   const DISCOUNT_PERCENT = artist?.booking_discount_percent ?? 10;
   const MIN_DATES_DISCOUNT = artist?.booking_min_dates_discount ?? 3;
@@ -188,7 +195,7 @@ export default function Booking() {
   const handleBackToProducts = () => {
     setSelectedProduct(null);
     setSelectedDates([]);
-    setStep("products");
+    setStep(showProducts ? "products" : "calendar");
   };
 
   const handleContinueToForm = () => {
@@ -205,7 +212,7 @@ export default function Booking() {
 
   const resetBooking = () => {
     setSubmitted(false);
-    setStep("products");
+    setStep(showProducts ? "products" : "calendar");
     setSelectedProduct(null);
     setSelectedDates([]);
     setClientName("");
@@ -288,11 +295,12 @@ export default function Booking() {
   const computeTotal = (price: number) => subtotal(price) - discountAmount(price);
 
   // Step indicator
-  const steps = [
+  const allSteps = [
     { key: "products", label: "Serviço", icon: Tag },
     { key: "calendar", label: "Data", icon: CalendarDays },
     { key: "form", label: "Dados", icon: User },
   ];
+  const steps = showProducts ? allSteps : allSteps.filter(s => s.key !== "products");
 
   const currentStepIndex = steps.findIndex(s => s.key === step);
 

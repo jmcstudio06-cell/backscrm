@@ -224,6 +224,7 @@ export type Database = {
           booking_discount_percent: number
           booking_max_dates: number
           booking_min_dates_discount: number
+          booking_show_products: boolean
           created_at: string
           instagram_url: string | null
           media_kit_url: string | null
@@ -247,6 +248,7 @@ export type Database = {
           booking_discount_percent?: number
           booking_max_dates?: number
           booking_min_dates_discount?: number
+          booking_show_products?: boolean
           created_at?: string
           instagram_url?: string | null
           media_kit_url?: string | null
@@ -270,6 +272,7 @@ export type Database = {
           booking_discount_percent?: number
           booking_max_dates?: number
           booking_min_dates_discount?: number
+          booking_show_products?: boolean
           created_at?: string
           instagram_url?: string | null
           media_kit_url?: string | null
@@ -1227,6 +1230,7 @@ export type Database = {
           booking_discount_percent: number
           booking_max_dates: number
           booking_min_dates_discount: number
+          booking_show_products: boolean
           city: string | null
           created_at: string
           delay_tolerance: string | null
@@ -1272,6 +1276,7 @@ export type Database = {
           booking_discount_percent?: number
           booking_max_dates?: number
           booking_min_dates_discount?: number
+          booking_show_products?: boolean
           city?: string | null
           created_at?: string
           delay_tolerance?: string | null
@@ -1317,6 +1322,7 @@ export type Database = {
           booking_discount_percent?: number
           booking_max_dates?: number
           booking_min_dates_discount?: number
+          booking_show_products?: boolean
           city?: string | null
           created_at?: string
           delay_tolerance?: string | null

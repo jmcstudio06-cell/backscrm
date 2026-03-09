@@ -42,6 +42,7 @@ export default function Solicitacoes() {
   const [bookingMaxDates, setBookingMaxDates] = useState(profile?.booking_max_dates ?? 3);
   const [bookingDiscountPercent, setBookingDiscountPercent] = useState(profile?.booking_discount_percent ?? 10);
   const [bookingMinDatesDiscount, setBookingMinDatesDiscount] = useState(profile?.booking_min_dates_discount ?? 3);
+  const [bookingShowProducts, setBookingShowProducts] = useState(profile?.booking_show_products ?? true);
 
   // Gerar slug automaticamente a partir do nome do artista
   const generateSlug = (name: string) => {
@@ -84,6 +85,7 @@ export default function Solicitacoes() {
       booking_max_dates: bookingMaxDates,
       booking_discount_percent: bookingDiscountPercent,
       booking_min_dates_discount: bookingMinDatesDiscount,
+      booking_show_products: bookingShowProducts,
     });
   };
 
@@ -321,6 +323,25 @@ export default function Solicitacoes() {
                   placeholder="https://docs.google.com/..."
                 />
               </div>
+            </div>
+          </Card>
+
+          {/* Exibir Produtos */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Package className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Exibir Serviços e Produtos</h3>
+                  <p className="text-sm text-muted-foreground">Mostrar seu catálogo de serviços na página pública de agendamento</p>
+                </div>
+              </div>
+              <Switch
+                checked={bookingShowProducts}
+                onCheckedChange={setBookingShowProducts}
+              />
             </div>
           </Card>
 
