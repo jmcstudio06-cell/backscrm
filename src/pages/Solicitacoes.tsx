@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useBookingRequests } from "@/hooks/useBookingRequests";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
