@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { parseLocalDate } from "@/lib/utils";
 import { Layout } from "@/components/layout/Layout";
 import { useBookingRequests } from "@/hooks/useBookingRequests";
 import { useProfile } from "@/hooks/useProfile";
@@ -544,7 +545,7 @@ export default function Solicitacoes() {
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
                         <span className="font-medium">Data:</span>
-                        <span>{format(new Date(request.event_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
+                        <span>{format(parseLocalDate(request.event_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
                       </div>
                       {request.event_time && (
                         <div className="flex items-center gap-2 text-sm">
