@@ -138,5 +138,5 @@ export function useBookingRequests() {
     fetchRequests();
   }, [user]);
 
-  return { requests, loading, fetchRequests, updateRequestStatus, deleteRequest };
+  return { requests, loading, fetchRequests, updateRequestStatus, deleteRequest, sendToAgenda };
 }
