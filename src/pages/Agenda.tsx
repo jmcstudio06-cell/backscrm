@@ -155,7 +155,7 @@ export default function Agenda() {
     setIsModalOpen(true);
   };
 
-  const handleOpenNewShow = () => {
+  const handleOpenNewShow = (presetDate?: Date) => {
     setEditingShow(null);
     setIsModalOpen(true);
   };
@@ -241,6 +241,7 @@ export default function Agenda() {
         onOpenChange={(open) => { setIsModalOpen(open); if (!open) setEditingShow(null); }}
         onShowCreated={handleShowCreated}
         editingShow={editingShow}
+        presetDate={selectedDate}
       />
 
       {/* Header Actions */}
@@ -257,7 +258,7 @@ export default function Agenda() {
             </TabsTrigger>
           </TabsList>
         </Tabs>
-        <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={handleOpenNewShow}>
+        <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Show
         </Button>
@@ -402,7 +403,7 @@ export default function Agenda() {
                 <Button
                   size="sm"
                   className="w-full bg-primary hover:bg-primary/90 gap-2"
-                  onClick={handleOpenNewShow}
+                  onClick={() => handleOpenNewShow(selectedDate)}
                 >
                   <Plus className="w-4 h-4" />
                   Agendar show neste dia

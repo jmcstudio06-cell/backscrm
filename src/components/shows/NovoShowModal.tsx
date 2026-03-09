@@ -80,6 +80,7 @@ interface NovoShowModalProps {
   onOpenChange: (open: boolean) => void;
   onShowCreated?: (show: ShowData) => void;
   editingShow?: EditingShow | null;
+  presetDate?: Date;
 }
 
 interface Expense {
@@ -173,7 +174,7 @@ const initialRecurringConfig: RecurringConfig = {
   endDate: "",
 };
 
-export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }: NovoShowModalProps) {
+export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading } = useMusicians();
   const { clients, loading: clientsLoading, addClient } = useClients();
   const { templates: checklistTemplates, loading: templatesLoading } = useChecklistTemplates();
@@ -380,8 +381,19 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }
       
       // Load financial data
       loadShowFinancialData(editingShow.id);
+    } else if (open && !editingShow && presetDate && !formData.date) {
+      // Auto-fill preset date only if opening for new show and date is empty
+      const year = presetDate.getFullYear();
+      const month = String(presetDate.getMonth() + 1).padStart(2, "0");
+      const day = String(presetDate.getDate()).padStart(2, "0");
+      const dateStr = `${year}-${month}-${day}`;
+      
+      setFormData(prev => ({
+        ...prev,
+        date: dateStr,
+      }));
     }
-  }, [open, editingShow, clients]);
+  }, [open, editingShow, clients, presetDate]);
 
   // Calculate total from musicians + other expenses
   const musiciansCost = selectedMusicians.reduce((sum, m) => sum + m.fee, 0);
