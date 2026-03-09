@@ -91,7 +91,7 @@ const FEATURES: { key: string; label: string }[] = [
   { key: "metas", label: "Metas Comerciais" },
   { key: "metas", label: "Meta Anual 2026" },
   { key: "aulas", label: "Bônus" },
-  { key: "agenda", label: "Solicitações" },
+  { key: "link-agenda", label: "Link Agendamento Online" },
   { key: "configuracoes", label: "Configurações" },
 ];
 
