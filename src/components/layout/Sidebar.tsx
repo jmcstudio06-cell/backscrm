@@ -263,11 +263,6 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="text-sm font-medium flex-1">{item.label}</span>
-                    {item.label === "Notificações" && unreadCount > 0 && (
-                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs font-bold">
-                        {unreadCount > 99 ? "99+" : unreadCount}
-                      </Badge>
-                    )}
                   </RouterNavLink>
                 </li>
               );
