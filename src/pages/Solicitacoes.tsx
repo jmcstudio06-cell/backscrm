@@ -13,7 +13,7 @@ import {
   Calendar, MapPin, User, Phone, Clock, Package, Trash2,
   CheckCircle, XCircle, Loader2, Link2, ExternalLink, Copy,
   Check, Instagram, Youtube, Music2, Globe, FileText, Video,
-  List, Settings2, Music
+  List, Settings2, Music, Tag, Gift
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -38,6 +38,9 @@ export default function Solicitacoes() {
   const [mediaKitUrl, setMediaKitUrl] = useState(profile?.media_kit_url || "");
   const [showVideoUrl, setShowVideoUrl] = useState(profile?.show_video_url || "");
   const [repertoireUrl, setRepertoireUrl] = useState(profile?.repertoire_url || "");
+  const [bookingMaxDates, setBookingMaxDates] = useState(profile?.booking_max_dates ?? 3);
+  const [bookingDiscountPercent, setBookingDiscountPercent] = useState(profile?.booking_discount_percent ?? 10);
+  const [bookingMinDatesDiscount, setBookingMinDatesDiscount] = useState(profile?.booking_min_dates_discount ?? 3);
 
   // Gerar slug automaticamente a partir do nome do artista
   const generateSlug = (name: string) => {
@@ -66,7 +69,6 @@ export default function Solicitacoes() {
   };
 
   const handleSave = async () => {
-    // Auto-salvar o slug gerado junto com as configurações
     await updateProfile({
       slug: autoSlug || null,
       bio,
@@ -78,6 +80,9 @@ export default function Solicitacoes() {
       media_kit_url: mediaKitUrl || null,
       show_video_url: showVideoUrl || null,
       repertoire_url: repertoireUrl || null,
+      booking_max_dates: bookingMaxDates,
+      booking_discount_percent: bookingDiscountPercent,
+      booking_min_dates_discount: bookingMinDatesDiscount,
     });
   };
 
@@ -266,6 +271,69 @@ export default function Solicitacoes() {
                 />
               </div>
             </div>
+          </Card>
+
+          {/* Configurações de Agendamento */}
+          <Card className="p-6">
+            <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
+              <Tag className="w-4 h-4 text-primary" />
+              Regras de Agendamento
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Configure quantas datas o cliente pode selecionar e o desconto para múltiplas datas.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <Label className="flex items-center gap-1.5 mb-1">
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                  Máximo de datas
+                </Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={bookingMaxDates}
+                  onChange={(e) => setBookingMaxDates(Math.max(1, Math.min(10, Number(e.target.value))))}
+                />
+                <p className="text-xs text-muted-foreground mt-1">De 1 a 10 datas por solicitação</p>
+              </div>
+              <div>
+                <Label className="flex items-center gap-1.5 mb-1">
+                  <Gift className="w-3.5 h-3.5 text-muted-foreground" />
+                  Desconto (%)
+                </Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={50}
+                  value={bookingDiscountPercent}
+                  onChange={(e) => setBookingDiscountPercent(Math.max(0, Math.min(50, Number(e.target.value))))}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Desconto aplicado na última data</p>
+              </div>
+              <div>
+                <Label className="flex items-center gap-1.5 mb-1">
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                  Mín. datas p/ desconto
+                </Label>
+                <Input
+                  type="number"
+                  min={2}
+                  max={10}
+                  value={bookingMinDatesDiscount}
+                  onChange={(e) => setBookingMinDatesDiscount(Math.max(2, Math.min(10, Number(e.target.value))))}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Quantas datas para ativar o desconto</p>
+              </div>
+            </div>
+            {bookingDiscountPercent > 0 && (
+              <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Resumo:</strong> O cliente pode selecionar de 1 a {bookingMaxDates} datas. 
+                  Ao selecionar {bookingMinDatesDiscount} ou mais datas, ganha <strong className="text-primary">{bookingDiscountPercent}% de desconto</strong> no valor total, aplicado na última data.
+                </p>
+              </div>
+            )}
           </Card>
 
           <Button onClick={handleSave} className="w-full sm:w-auto">

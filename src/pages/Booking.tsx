@@ -49,6 +49,9 @@ interface ArtistProfile {
   media_kit_url: string | null;
   show_video_url: string | null;
   repertoire_url: string | null;
+  booking_max_dates: number;
+  booking_discount_percent: number;
+  booking_min_dates_discount: number;
 }
 
 interface PerformanceType {
@@ -95,7 +98,7 @@ export default function Booking() {
       const { data: profileData, error: profileError } = await supabase
         .from("artist_public_profiles")
         .select(
-          "user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url"
+          "user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_max_dates, booking_discount_percent, booking_min_dates_discount"
         )
         .eq("slug", slug)
         .maybeSingle();
@@ -128,7 +131,9 @@ export default function Booking() {
   const today = startOfDay(new Date());
   const maxDate = addMonths(today, 3);
 
-  const MAX_DATES = 3;
+  const MAX_DATES = artist?.booking_max_dates ?? 3;
+  const DISCOUNT_PERCENT = artist?.booking_discount_percent ?? 10;
+  const MIN_DATES_DISCOUNT = artist?.booking_min_dates_discount ?? 3;
 
   const handleMultipleDatesSelect = (dates: Date[] | undefined) => {
     if (!dates) {
@@ -276,9 +281,8 @@ export default function Booking() {
     { icon: List, url: artist?.repertoire_url, label: "Repertório" },
   ].filter(link => link.url);
 
-  const hasDiscount = selectedDates.length >= 3;
-  const discountPercentage = 10;
-  // Discount: 10% of the TOTAL (all dates) is applied as discount on the last date
+  const hasDiscount = DISCOUNT_PERCENT > 0 && selectedDates.length >= MIN_DATES_DISCOUNT;
+  const discountPercentage = DISCOUNT_PERCENT;
   const subtotal = (price: number) => price * selectedDates.length;
   const discountAmount = (price: number) => hasDiscount ? subtotal(price) * discountPercentage / 100 : 0;
   const computeTotal = (price: number) => subtotal(price) - discountAmount(price);
@@ -374,6 +378,7 @@ export default function Booking() {
         {step === "products" && (
           <>
             {/* Banner de desconto */}
+            {DISCOUNT_PERCENT > 0 && MAX_DATES >= MIN_DATES_DISCOUNT && (
             <Card className="p-4 border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
@@ -385,11 +390,12 @@ export default function Booking() {
                     Condição especial!
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> no valor total, aplicado na última data!
+                    Contrate {MIN_DATES_DISCOUNT} ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> no valor total, aplicado na última data!
                   </p>
                 </div>
               </div>
             </Card>
+            )}
 
             {/* Portfolio Links */}
             {portfolioLinks.length > 0 && (
@@ -536,7 +542,7 @@ export default function Booking() {
                       })}
                     {hasDiscount && (
                       <p className="text-xs text-muted-foreground italic pt-1">
-                        O desconto de {discountPercentage}% sobre o total das {MAX_DATES} datas é aplicado na última data.
+                        O desconto de {discountPercentage}% sobre o total das {selectedDates.length} datas é aplicado na última data.
                       </p>
                     )}
                     <div className="flex justify-between text-base font-bold text-foreground pt-2 border-t border-border/30">

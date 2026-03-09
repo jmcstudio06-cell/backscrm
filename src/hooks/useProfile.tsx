@@ -45,6 +45,10 @@ export interface Profile {
   media_kit_url: string | null;
   show_video_url: string | null;
   repertoire_url: string | null;
+  // Configurações de Booking
+  booking_max_dates: number;
+  booking_discount_percent: number;
+  booking_min_dates_discount: number;
 }
 
 export function useProfile() {
