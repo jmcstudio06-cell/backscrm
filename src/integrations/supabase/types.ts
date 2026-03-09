@@ -1194,6 +1194,7 @@ export type Database = {
           price: number
           updated_at: string
           user_id: string
+          visible_online: boolean
         }
         Insert: {
           created_at?: string
@@ -1205,6 +1206,7 @@ export type Database = {
           price?: number
           updated_at?: string
           user_id: string
+          visible_online?: boolean
         }
         Update: {
           created_at?: string
@@ -1216,6 +1218,7 @@ export type Database = {
           price?: number
           updated_at?: string
           user_id?: string
+          visible_online?: boolean
         }
         Relationships: []
       }
