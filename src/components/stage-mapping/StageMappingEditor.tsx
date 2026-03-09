@@ -7,7 +7,6 @@ import {
   ArrowLeft, 
   Save, 
   Printer, 
-  Mail,
   MapPin,
   List,
   Package,
