@@ -48,10 +48,24 @@ import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
+import type { ReactNode } from "react";
 
 const queryClient = new QueryClient();
 
 // OneSignal handles service worker registration automatically
+
+/** Wraps a page with ShowsProvider + RequireAuth + ErrorBoundary.
+ *  ShowsProvider is now scoped here instead of wrapping the whole app,
+ *  so unauthenticated/landing pages don't trigger shows queries. */
+function AuthPage({ children }: { children: ReactNode }) {
+  return (
+    <RequireAuth>
+      <ShowsProvider>
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </ShowsProvider>
+    </RequireAuth>
+  );
+}
 
 const App = () => (
   <ErrorBoundary>
@@ -63,7 +77,6 @@ const App = () => (
         <AuthProvider>
           <AppSettingsProvider>
             <CustomizationProvider>
-            <ShowsProvider>
               <NotificationPrompt />
               <PushSubscriptionRefresher />
               <PlanActivatedCelebration />
@@ -71,41 +84,40 @@ const App = () => (
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<RequireAuth><ErrorBoundary><Dashboard /></ErrorBoundary></RequireAuth>} />
-                <Route path="/agenda" element={<RequireAuth><ErrorBoundary><Agenda /></ErrorBoundary></RequireAuth>} />
-                <Route path="/bonus" element={<RequireAuth><ErrorBoundary><Bonus /></ErrorBoundary></RequireAuth>} />
-                <Route path="/tutoriais" element={<RequireAuth><ErrorBoundary><Tutoriais /></ErrorBoundary></RequireAuth>} />
-                <Route path="/crm" element={<RequireAuth><ErrorBoundary><CRM /></ErrorBoundary></RequireAuth>} />
-                <Route path="/clientes" element={<RequireAuth><ErrorBoundary><Clientes /></ErrorBoundary></RequireAuth>} />
-                <Route path="/financeiro" element={<RequireAuth><ErrorBoundary><Financeiro /></ErrorBoundary></RequireAuth>} />
-                <Route path="/historico" element={<RequireAuth><ErrorBoundary><Historico /></ErrorBoundary></RequireAuth>} />
-                <Route path="/checklist" element={<RequireAuth><ErrorBoundary><Checklist /></ErrorBoundary></RequireAuth>} />
-                <Route path="/mapeamento-palco" element={<RequireAuth><ErrorBoundary><MapeamentoPalco /></ErrorBoundary></RequireAuth>} />
-                <Route path="/precificacao" element={<RequireAuth><ErrorBoundary><Precificacao /></ErrorBoundary></RequireAuth>} />
-                <Route path="/avancos" element={<RequireAuth><ErrorBoundary><Avancos /></ErrorBoundary></RequireAuth>} />
-                <Route path="/indicacoes" element={<RequireAuth><ErrorBoundary><Indicacoes /></ErrorBoundary></RequireAuth>} />
-                <Route path="/equipe" element={<RequireAuth><ErrorBoundary><Equipe /></ErrorBoundary></RequireAuth>} />
-                <Route path="/metas" element={<RequireAuth><ErrorBoundary><Metas /></ErrorBoundary></RequireAuth>} />
-                <Route path="/metas/anual" element={<RequireAuth><ErrorBoundary><MetasAnuais /></ErrorBoundary></RequireAuth>} />
-                <Route path="/planos" element={<RequireAuth><ErrorBoundary><Planos /></ErrorBoundary></RequireAuth>} />
-                <Route path="/configuracoes" element={<RequireAuth><ErrorBoundary><Configuracoes /></ErrorBoundary></RequireAuth>} />
-                <Route path="/orcamentos" element={<RequireAuth><ErrorBoundary><Orcamentos /></ErrorBoundary></RequireAuth>} />
-                <Route path="/servicos" element={<RequireAuth><ErrorBoundary><ServicosProdutos /></ErrorBoundary></RequireAuth>} />
-                <Route path="/planejamento-conteudo" element={<RequireAuth><ErrorBoundary><PlanejamentoConteudo /></ErrorBoundary></RequireAuth>} />
-                <Route path="/contratos" element={<RequireAuth><ErrorBoundary><Contratos /></ErrorBoundary></RequireAuth>} />
-                <Route path="/repertorio" element={<RequireAuth><ErrorBoundary><Repertorio /></ErrorBoundary></RequireAuth>} />
-                <Route path="/admin" element={<RequireAuth><ErrorBoundary><Admin /></ErrorBoundary></RequireAuth>} />
+                <Route path="/dashboard" element={<AuthPage><Dashboard /></AuthPage>} />
+                <Route path="/agenda" element={<AuthPage><Agenda /></AuthPage>} />
+                <Route path="/bonus" element={<AuthPage><Bonus /></AuthPage>} />
+                <Route path="/tutoriais" element={<AuthPage><Tutoriais /></AuthPage>} />
+                <Route path="/crm" element={<AuthPage><CRM /></AuthPage>} />
+                <Route path="/clientes" element={<AuthPage><Clientes /></AuthPage>} />
+                <Route path="/financeiro" element={<AuthPage><Financeiro /></AuthPage>} />
+                <Route path="/historico" element={<AuthPage><Historico /></AuthPage>} />
+                <Route path="/checklist" element={<AuthPage><Checklist /></AuthPage>} />
+                <Route path="/mapeamento-palco" element={<AuthPage><MapeamentoPalco /></AuthPage>} />
+                <Route path="/precificacao" element={<AuthPage><Precificacao /></AuthPage>} />
+                <Route path="/avancos" element={<AuthPage><Avancos /></AuthPage>} />
+                <Route path="/indicacoes" element={<AuthPage><Indicacoes /></AuthPage>} />
+                <Route path="/equipe" element={<AuthPage><Equipe /></AuthPage>} />
+                <Route path="/metas" element={<AuthPage><Metas /></AuthPage>} />
+                <Route path="/metas/anual" element={<AuthPage><MetasAnuais /></AuthPage>} />
+                <Route path="/planos" element={<AuthPage><Planos /></AuthPage>} />
+                <Route path="/configuracoes" element={<AuthPage><Configuracoes /></AuthPage>} />
+                <Route path="/orcamentos" element={<AuthPage><Orcamentos /></AuthPage>} />
+                <Route path="/servicos" element={<AuthPage><ServicosProdutos /></AuthPage>} />
+                <Route path="/planejamento-conteudo" element={<AuthPage><PlanejamentoConteudo /></AuthPage>} />
+                <Route path="/contratos" element={<AuthPage><Contratos /></AuthPage>} />
+                <Route path="/repertorio" element={<AuthPage><Repertorio /></AuthPage>} />
+                <Route path="/admin" element={<AuthPage><Admin /></AuthPage>} />
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/guia-atendimento" element={<RequireAuth><ErrorBoundary><GuiaAtendimento /></ErrorBoundary></RequireAuth>} />
-                <Route path="/solicitacoes" element={<RequireAuth><ErrorBoundary><Solicitacoes /></ErrorBoundary></RequireAuth>} />
-                <Route path="/notificacoes" element={<RequireAuth><ErrorBoundary><Notificacoes /></ErrorBoundary></RequireAuth>} />
+                <Route path="/guia-atendimento" element={<AuthPage><GuiaAtendimento /></AuthPage>} />
+                <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
+                <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 
                 <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </ShowsProvider>
             </CustomizationProvider>
           </AppSettingsProvider>
         </AuthProvider>

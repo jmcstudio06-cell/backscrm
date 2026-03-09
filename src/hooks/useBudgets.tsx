@@ -67,13 +67,11 @@ export function useBudgets() {
       
       const allBudgets = data || [];
 
-      // Auto-delete budgets beyond the 5 most recent
+      // Auto-delete budgets beyond the 5 most recent (batch)
       if (allBudgets.length > 5) {
-        const toDelete = allBudgets.slice(5);
-        for (const b of toDelete) {
-          await supabase.from("budget_items").delete().eq("budget_id", b.id);
-          await supabase.from("budgets").delete().eq("id", b.id);
-        }
+        const idsToDelete = allBudgets.slice(5).map(b => b.id);
+        await supabase.from("budget_items").delete().in("budget_id", idsToDelete);
+        await supabase.from("budgets").delete().in("id", idsToDelete);
       }
 
       setBudgets(allBudgets.slice(0, 5));

@@ -78,12 +78,10 @@ export function useContracts() {
           : contract.clauses || []
       }));
 
-      // Auto-delete contracts beyond the 5 most recent
+      // Auto-delete contracts beyond the 5 most recent (batch)
       if (allContracts.length > 5) {
-        const toDelete = allContracts.slice(5);
-        for (const c of toDelete) {
-          await supabase.from("contracts").delete().eq("id", c.id);
-        }
+        const idsToDelete = allContracts.slice(5).map(c => c.id);
+        await supabase.from("contracts").delete().in("id", idsToDelete);
       }
       
       setContracts(allContracts.slice(0, 5));
