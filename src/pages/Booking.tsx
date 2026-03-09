@@ -290,11 +290,12 @@ export default function Booking() {
   const computeTotal = (price: number) => subtotal(price) - discountAmount(price);
 
   // Step indicator
-  const steps = [
+  const allSteps = [
     { key: "products", label: "Serviço", icon: Tag },
     { key: "calendar", label: "Data", icon: CalendarDays },
     { key: "form", label: "Dados", icon: User },
   ];
+  const steps = showProducts ? allSteps : allSteps.filter(s => s.key !== "products");
 
   const currentStepIndex = steps.findIndex(s => s.key === step);
 
