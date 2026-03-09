@@ -384,11 +384,11 @@ export default function Booking() {
                 </div>
                 <div>
                   <p className="font-semibold text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-yellow-500" />
+                    <Sparkles className="w-4 h-4 text-warning" />
                     Condição especial!
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong>.
+                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> a partir da 3ª data!
                   </p>
                 </div>
               </div>
