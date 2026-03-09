@@ -8,8 +8,27 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { MapPin, Music, Loader2, CheckCircle, CalendarDays, User, Phone, Send, Instagram, Youtube, Music2, Globe, ExternalLink, FileText, Video, List, Sparkles, Gift, Tag, ArrowLeft, ArrowRight, Clock, ShoppingCart } from "lucide-react";
+import {
+  MapPin, Music, Loader2, CheckCircle, CalendarDays, User, Phone, Send, Instagram, Youtube, Music2, Globe, ExternalLink, FileText, Video, List, Sparkles, Gift, Tag, ArrowLeft, ArrowRight, Clock, ShoppingCart,
+  Mic, MicVocal, Guitar, Piano, Drum, Headphones, Radio, Volume2, Disc3, ListMusic, AudioLines, Waves,
+  PartyPopper, GlassWater, Star, Heart, Zap, Award, Crown, Camera, Users, UserPlus, Briefcase, Church, Building2, Tent, TreePine, Utensils, Package,
+  type LucideIcon,
+} from "lucide-react";
 import { format, isBefore, startOfDay, addMonths } from "date-fns";
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  music: Music, mic: Mic, "mic-vocal": MicVocal, guitar: Guitar, piano: Piano, drum: Drum,
+  headphones: Headphones, radio: Radio, "volume-2": Volume2, "disc-3": Disc3, "list-music": ListMusic,
+  "audio-lines": AudioLines, waves: Waves, "party-popper": PartyPopper, "glass-water": GlassWater,
+  sparkles: Sparkles, star: Star, heart: Heart, zap: Zap, award: Award, crown: Crown,
+  camera: Camera, video: Video, users: Users, "user-plus": UserPlus, briefcase: Briefcase,
+  church: Church, "building-2": Building2, tent: Tent, "tree-pine": TreePine, utensils: Utensils, package: Package,
+};
+
+function getServiceIcon(iconName: string | null): LucideIcon {
+  if (!iconName) return Music;
+  return ICON_MAP[iconName] || Music;
+}
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
