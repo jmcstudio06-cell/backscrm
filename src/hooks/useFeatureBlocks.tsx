@@ -26,6 +26,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   avancos: true,
   tutoriais: true,
   configuracoes: true,
+  "link-agenda": true,
 };
 
 export const PLAN_MODULES = {
