@@ -95,14 +95,11 @@ export default function Booking() {
           .eq("user_id", profileData.user_id)
           .order("name"),
         supabase
-          .from("shows")
-          .select("date")
-          .eq("user_id", profileData.user_id)
-          .in("status", ["confirmed", "scheduled"]),
+          .rpc("get_artist_occupied_dates", { artist_user_id: profileData.user_id }),
       ]);
 
       if (productsRes.data) setProducts(productsRes.data);
-      if (showsRes.data) setConfirmedDates(showsRes.data.map((s) => s.date));
+      if (showsRes.data) setConfirmedDates(showsRes.data.map((s: { show_date: string }) => s.show_date));
     } catch (error) {
       console.error("Error loading artist data:", error);
       setNotFound(true);
