@@ -13,7 +13,7 @@ import {
   Calendar, MapPin, User, Phone, Clock, Package, Trash2,
   CheckCircle, XCircle, Loader2, Link2, ExternalLink, Copy,
   Check, Instagram, Youtube, Music2, Globe, FileText, Video,
-  List, Settings2, Music
+  List, Settings2, Music, Tag, Gift
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
