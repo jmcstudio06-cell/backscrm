@@ -91,7 +91,7 @@ const FEATURES: { key: string; label: string }[] = [
   { key: "metas", label: "Metas Comerciais" },
   { key: "metas", label: "Meta Anual 2026" },
   { key: "aulas", label: "Bônus" },
-  { key: "agenda", label: "Solicitações" },
+  { key: "link-agenda", label: "Link Agendamento Online" },
   { key: "configuracoes", label: "Configurações" },
 ];
 
@@ -119,10 +119,10 @@ const ALL_FEATURE_KEYS = [
   "dashboard", "agenda", "crm", "clientes", "orcamentos", "servicos",
   "contratos", "financeiro", "historico", "precificacao", "checklist",
   "mapeamento-palco", "equipe", "metas", "repertorio", "aulas",
-  "avancos", "tutoriais", "configuracoes",
+  "avancos", "tutoriais", "configuracoes", "link-agenda",
 ];
 
-const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos"];
+const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos", "link-agenda"];
 
 const USERS_PER_PAGE = 10;
 

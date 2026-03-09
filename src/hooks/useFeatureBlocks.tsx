@@ -26,6 +26,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   avancos: true,
   tutoriais: true,
   configuracoes: true,
+  "link-agenda": true,
 };
 
 export const PLAN_MODULES = {
@@ -41,7 +42,7 @@ export const PLAN_MODULES = {
   },
   completo: {
     name: "Empresarial",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
   },
 };
@@ -74,7 +75,7 @@ export function useFeatureBlocks() {
     setPlanExpired(false);
 
     if (profile.plan === "trial") {
-      const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos"];
+      const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos", "link-agenda"];
       const trialBlocks: FeatureBlocks = {};
       for (const key of Object.keys(DEFAULT_FEATURE_BLOCKS)) {
         trialBlocks[key] = trialBlocked.includes(key);
