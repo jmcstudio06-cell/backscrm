@@ -132,6 +132,7 @@ export default function Booking() {
   const today = startOfDay(new Date());
   const maxDate = addMonths(today, 3);
 
+  const showProducts = artist?.booking_show_products ?? true;
   const MAX_DATES = artist?.booking_max_dates ?? 3;
   const DISCOUNT_PERCENT = artist?.booking_discount_percent ?? 10;
   const MIN_DATES_DISCOUNT = artist?.booking_min_dates_discount ?? 3;
