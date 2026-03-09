@@ -128,13 +128,15 @@ export default function Booking() {
   const today = startOfDay(new Date());
   const maxDate = addMonths(today, 3);
 
+  const MAX_DATES = 3;
+
   const handleMultipleDatesSelect = (dates: Date[] | undefined) => {
     if (!dates) {
       setSelectedDates([]);
       return;
     }
     const validDates = dates.filter(d => !confirmedDateSet.has(format(d, "yyyy-MM-dd")));
-    setSelectedDates(validDates);
+    setSelectedDates(validDates.slice(0, MAX_DATES));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -481,7 +483,7 @@ export default function Booking() {
               Selecione a(s) Data(s)
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Escolha 1 ou mais datas disponíveis. Datas em vermelho estão ocupadas.
+              Selecione de 1 a {MAX_DATES} datas disponíveis. Datas em vermelho estão ocupadas.
             </p>
 
             {/* Indicador de datas selecionadas */}
@@ -494,7 +496,7 @@ export default function Booking() {
                   <div className="flex items-center gap-2 flex-wrap">
                     {hasDiscount && <Gift className="w-4 h-4 text-success" />}
                     <span className="text-sm font-medium text-foreground">
-                      {selectedDates.length} {selectedDates.length === 1 ? "data selecionada" : "datas selecionadas"}
+                      {selectedDates.length}/{MAX_DATES} {selectedDates.length === 1 ? "data selecionada" : "datas selecionadas"}
                     </span>
                     {hasDiscount && (
                       <Badge variant="default" className="bg-success text-success-foreground">
@@ -508,25 +510,36 @@ export default function Booking() {
                   </Button>
                 </div>
 
-                {/* Resumo financeiro */}
+                {/* Resumo financeiro por data */}
                 {selectedProduct.price > 0 && (
-                  <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>{selectedDates.length}x R$ {selectedProduct.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                      <span>R$ {subtotal(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                    </div>
+                  <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5">
+                    {selectedDates
+                      .sort((a, b) => a.getTime() - b.getTime())
+                      .map((date, idx) => {
+                        const isLastAndDiscounted = hasDiscount && idx === selectedDates.length - 1;
+                        const dateValue = isLastAndDiscounted
+                          ? selectedProduct.price - discountAmount(selectedProduct.price)
+                          : selectedProduct.price;
+                        return (
+                          <div key={idx} className={cn(
+                            "flex justify-between text-sm",
+                            isLastAndDiscounted ? "text-success font-medium" : "text-muted-foreground"
+                          )}>
+                            <span className="flex items-center gap-1.5">
+                              <CalendarDays className="w-3.5 h-3.5" />
+                              {format(date, "dd/MM/yyyy")}
+                              {isLastAndDiscounted && <span className="text-xs">({discountPercentage}% off)</span>}
+                            </span>
+                            <span>R$ {dateValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          </div>
+                        );
+                      })}
                     {hasDiscount && (
-                      <>
-                        <div className="flex justify-between text-sm text-success font-medium">
-                          <span>Desconto {discountPercentage}% (aplicado na última data)</span>
-                          <span>- R$ {discountAmount(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground italic">
-                          As 2 primeiras datas mantêm o valor integral. O desconto de {discountPercentage}% sobre o total é concedido na última data.
-                        </p>
-                      </>
+                      <p className="text-xs text-muted-foreground italic pt-1">
+                        O desconto de {discountPercentage}% sobre o total das {MAX_DATES} datas é aplicado na última data.
+                      </p>
                     )}
-                    <div className="flex justify-between text-base font-bold text-foreground pt-1">
+                    <div className="flex justify-between text-base font-bold text-foreground pt-2 border-t border-border/30">
                       <span>Total</span>
                       <span>R$ {computeTotal(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </div>
