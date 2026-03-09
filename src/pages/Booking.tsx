@@ -276,15 +276,10 @@ export default function Booking() {
 
   const hasDiscount = selectedDates.length >= 3;
   const discountPercentage = 10;
-  // Discount applies only to dates beyond the first 2
-  const fullPriceDates = Math.min(selectedDates.length, 2);
-  const discountedDates = Math.max(selectedDates.length - 2, 0);
-  const computeTotal = (price: number) => {
-    const full = price * fullPriceDates;
-    const discounted = price * discountedDates * (1 - discountPercentage / 100);
-    return full + discounted;
-  };
-  const computeDiscount = (price: number) => price * discountedDates * (discountPercentage / 100);
+  // Discount: 10% of the TOTAL (all dates) is applied as discount on the last date
+  const subtotal = (price: number) => price * selectedDates.length;
+  const discountAmount = (price: number) => hasDiscount ? subtotal(price) * discountPercentage / 100 : 0;
+  const computeTotal = (price: number) => subtotal(price) - discountAmount(price);
 
   // Step indicator
   const steps = [
