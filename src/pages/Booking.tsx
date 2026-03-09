@@ -434,23 +434,25 @@ export default function Booking() {
                     return (
                       <div 
                         key={p.id} 
-                        className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-card transition-all cursor-pointer group"
+                        className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-card transition-all cursor-pointer group"
                         onClick={() => handleSelectProduct(p)}
                       >
-                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 group-hover:scale-105 transition-all">
-                          <ServiceIcon className="w-6 h-6 text-primary" />
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 group-hover:scale-105 transition-all">
+                            <ServiceIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-foreground text-sm sm:text-base line-clamp-1">{p.name}</p>
+                            {p.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.description}</p>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-foreground truncate">{p.name}</p>
-                          {p.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.description}</p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                          <span className="font-bold text-foreground text-base whitespace-nowrap">
+                        <div className="flex items-center justify-between sm:justify-end gap-3 sm:shrink-0 pl-[52px] sm:pl-0">
+                          <span className="font-bold text-foreground text-sm sm:text-base whitespace-nowrap">
                             {p.price > 0 ? `R$ ${p.price.toLocaleString("pt-BR")}` : "Consultar"}
                           </span>
-                          <Button size="sm" className="shrink-0 gap-1.5">
+                          <Button size="sm" className="shrink-0 gap-1.5 text-xs sm:text-sm">
                             Contratar
                             <ArrowRight className="w-3.5 h-3.5" />
                           </Button>
