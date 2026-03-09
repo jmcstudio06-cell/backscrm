@@ -174,7 +174,7 @@ const initialRecurringConfig: RecurringConfig = {
   endDate: "",
 };
 
-export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow }: NovoShowModalProps) {
+export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading } = useMusicians();
   const { clients, loading: clientsLoading, addClient } = useClients();
   const { templates: checklistTemplates, loading: templatesLoading } = useChecklistTemplates();
