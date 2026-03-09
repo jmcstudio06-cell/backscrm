@@ -382,7 +382,7 @@ export default function Booking() {
             {[0, 1, 2].map((monthOffset) => {
               const monthDate = addMonths(today, monthOffset);
               return (
-                <div key={monthOffset} className="bg-white dark:bg-card rounded-xl shadow-sm border border-border/50 p-4">
+                <div key={monthOffset} className="bg-white dark:bg-card rounded-xl shadow-sm border border-border/50 overflow-hidden">
                   <Calendar
                     mode="multiple"
                     selected={selectedDates}
@@ -401,27 +401,27 @@ export default function Booking() {
                     modifiersClassNames={{
                       booked: "booking-occupied",
                     }}
-                    className="w-full pointer-events-auto"
+                    className="w-full pointer-events-auto p-3"
                     classNames={{
                       months: "flex flex-col",
-                      month: "space-y-3",
-                      caption: "flex justify-center pt-1 relative items-center mb-2",
-                      caption_label: "text-base font-bold text-foreground",
+                      month: "space-y-2",
+                      caption: "flex justify-center relative items-center pb-2",
+                      caption_label: "text-sm font-bold text-foreground",
                       nav: "hidden",
                       nav_button: "hidden",
                       table: "w-full border-collapse",
-                      head_row: "flex justify-between",
-                      head_cell: "text-muted-foreground/70 font-medium text-[0.7rem] w-9 text-center",
-                      row: "flex w-full justify-between mt-1",
-                      cell: "text-center text-sm p-0 relative h-9 w-9",
+                      head_row: "flex w-full",
+                      head_cell: "text-muted-foreground/60 font-semibold text-[0.65rem] uppercase flex-1 text-center",
+                      row: "flex w-full mt-0.5",
+                      cell: "flex-1 text-center text-sm p-0 relative aspect-square flex items-center justify-center",
                       day: cn(
-                        "h-9 w-9 p-0 font-normal rounded-full text-sm transition-all",
+                        "h-7 w-7 mx-auto p-0 font-normal rounded-full text-xs transition-all inline-flex items-center justify-center",
                         "hover:bg-primary/10 hover:text-primary"
                       ),
-                      day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary/90 font-semibold shadow-md",
-                      day_today: "bg-primary/15 text-primary font-bold",
-                      day_outside: "text-muted-foreground/30",
-                      day_disabled: "text-muted-foreground/25 cursor-not-allowed hover:bg-transparent",
+                      day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary/90 font-semibold shadow-sm",
+                      day_today: "bg-primary/15 text-primary font-bold ring-2 ring-primary/30",
+                      day_outside: "text-muted-foreground/25",
+                      day_disabled: "text-muted-foreground/20 cursor-not-allowed hover:!bg-transparent",
                     }}
                   />
                 </div>
