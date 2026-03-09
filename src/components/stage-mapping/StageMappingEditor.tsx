@@ -401,34 +401,30 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+          <Button variant="ghost" onClick={onBack} size="sm">
+            <ArrowLeft className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Voltar</span>
           </Button>
-          <div>
+          <div className="w-full sm:w-auto">
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="text-lg font-semibold border-none shadow-none px-0 focus-visible:ring-0"
+              className="text-base sm:text-lg font-semibold border-none shadow-none px-0 focus-visible:ring-0 w-full"
               placeholder="Nome do Mapeamento"
             />
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handlePrint} disabled={generatingPdf}>
-            <Printer className="w-4 h-4 mr-1" />
-            {generatingPdf ? "Gerando..." : "Baixar PDF"}
+        <div className="flex gap-2 w-full sm:w-auto justify-end">
+          <Button variant="outline" size="sm" onClick={handlePrint} disabled={generatingPdf} className="flex-1 sm:flex-initial">
+            <Printer className="w-4 h-4 sm:mr-1" />
+            <span className="hidden sm:inline">{generatingPdf ? "Gerando..." : "PDF"}</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleEmail}>
-            <Mail className="w-4 h-4 mr-1" />
-            Email
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? "Salvando..." : "Salvar"}
+          <Button size="sm" onClick={handleSave} disabled={saving} className="flex-1 sm:flex-initial">
+            <Save className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">{saving ? "Salvando..." : "Salvar"}</span>
           </Button>
         </div>
       </div>
