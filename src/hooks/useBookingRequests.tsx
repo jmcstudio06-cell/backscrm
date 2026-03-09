@@ -50,6 +50,41 @@ export function useBookingRequests() {
         .update({ status })
         .eq("id", id);
       if (error) throw error;
+
+      // When approved, automatically create a show in the artist's agenda
+      if (status === "aprovado" && user) {
+        const request = requests.find(r => r.id === id);
+        if (request) {
+          const { error: showError } = await supabase
+            .from("shows")
+            .insert([{
+              user_id: user.id,
+              title: request.product_name
+                ? `${request.client_name} - ${request.product_name}`
+                : request.client_name,
+              date: request.event_date,
+              start_time: request.event_time || null,
+              venue: request.event_location || null,
+              address: request.event_city || null,
+              event_type: request.event_type || null,
+              notes: request.observations || null,
+              status: "confirmed",
+              cachet: 0,
+            }]);
+
+          if (showError) {
+            console.error("Error creating show from booking:", showError);
+            toast.error("Solicitação aprovada, mas houve erro ao criar o show na agenda.");
+            fetchRequests();
+            return true;
+          }
+
+          toast.success("Solicitação aprovada e show adicionado à agenda!");
+          fetchRequests();
+          return true;
+        }
+      }
+
       toast.success(status === "aprovado" ? "Solicitação aprovada!" : "Solicitação recusada.");
       fetchRequests();
       return true;
