@@ -141,6 +141,7 @@ const plans: PlanDef[] = [
     urlYearly: FULL_YEARLY_URL,
     features: [
       "Tudo do Profissional +",
+      "⭐ Link Agenda",
       "Contratos Automáticos",
       "Histórico Financeiro",
       "Mapeamento de Palco",

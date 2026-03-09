@@ -93,17 +93,17 @@ const plans = [
   },
   {
     id: "full",
-    name: "Completo",
+    name: "Empresarial",
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
     price: "R$ 39,90",
     period: "/mês",
-    buttonText: "Começar Completo",
+    buttonText: "Começar Empresarial",
     url: FULL_URL,
     highlight: false,
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
-    features: ["Tudo do Profissional +", "Contratos Automáticos", "Histórico Financeiro", "Mapeamento de Palco", "Metas", "Bônus"],
+    features: ["Tudo do Profissional +", "⭐ Link Agenda", "Contratos Automáticos", "Histórico Financeiro", "Mapeamento de Palco", "Metas", "Bônus"],
   },
 ];
 
