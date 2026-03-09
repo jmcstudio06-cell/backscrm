@@ -517,20 +517,24 @@ export default function Booking() {
                 {selectedProduct.price > 0 && (
                   <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>{selectedDates.length}x {selectedProduct.name}</span>
-                      <span>R$ {(selectedProduct.price * selectedDates.length).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <span>{fullPriceDates}x valor integral</span>
+                      <span>R$ {(selectedProduct.price * fullPriceDates).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </div>
                     {hasDiscount && (
-                      <div className="flex justify-between text-sm text-success font-medium">
-                        <span>Desconto ({discountPercentage}%)</span>
-                        <span>- R$ {(selectedProduct.price * selectedDates.length * discountPercentage / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                      </div>
+                      <>
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>{discountedDates}x com {discountPercentage}% off</span>
+                          <span>R$ {(selectedProduct.price * discountedDates * (1 - discountPercentage / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-success font-medium">
+                          <span>Economia</span>
+                          <span>- R$ {computeDiscount(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                        </div>
+                      </>
                     )}
                     <div className="flex justify-between text-base font-bold text-foreground pt-1">
                       <span>Total</span>
-                      <span>
-                        R$ {(selectedProduct.price * selectedDates.length * (hasDiscount ? (100 - discountPercentage) / 100 : 1)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </span>
+                      <span>R$ {computeTotal(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </div>
                   </div>
                 )}
