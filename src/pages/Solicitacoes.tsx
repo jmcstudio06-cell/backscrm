@@ -159,7 +159,7 @@ export default function Solicitacoes() {
   }
 
   return (
-    <Layout title="Agenda Online" subtitle="Configure seu link público e gerencie solicitações de contratação">
+    <Layout title="Link Agenda" subtitle="Configure seu link público e gerencie solicitações de contratação">
       <Tabs defaultValue="config" className="w-full">
         <TabsList className="w-full mb-6">
           <TabsTrigger value="config" className="flex-1 gap-2">

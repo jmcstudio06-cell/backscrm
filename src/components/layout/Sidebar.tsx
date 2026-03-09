@@ -104,7 +104,7 @@ const menuItems: MenuItem[] = [
   },
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
   
-  { icon: Inbox, label: "Agenda Online", path: "/solicitacoes", featureKey: "agenda" },
+  { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "agenda" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
