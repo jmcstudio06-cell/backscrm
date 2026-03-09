@@ -85,6 +85,7 @@ export default function Solicitacoes() {
       booking_max_dates: bookingMaxDates,
       booking_discount_percent: bookingDiscountPercent,
       booking_min_dates_discount: bookingMinDatesDiscount,
+      booking_show_products: bookingShowProducts,
     });
   };
 
