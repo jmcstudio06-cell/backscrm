@@ -483,24 +483,48 @@ export default function Booking() {
             {/* Indicador de datas selecionadas */}
             {selectedDates.length > 0 && (
               <div className={cn(
-                "mb-4 p-3 rounded-lg border flex items-center justify-between gap-2 flex-wrap",
-                hasDiscount ? "bg-green-500/10 border-green-500/30" : "bg-primary/10 border-primary/30"
+                "mb-4 p-4 rounded-xl border",
+                hasDiscount ? "bg-success/5 border-success/30" : "bg-primary/5 border-primary/30"
               )}>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {hasDiscount && <Gift className="w-4 h-4 text-green-600" />}
-                  <span className="text-sm font-medium">
-                    {selectedDates.length} {selectedDates.length === 1 ? "data" : "datas"}
-                  </span>
-                  {hasDiscount && (
-                    <Badge variant="default" className="bg-green-600 text-white">
-                      -{discountPercentage}% OFF
-                    </Badge>
-                  )}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {hasDiscount && <Gift className="w-4 h-4 text-success" />}
+                    <span className="text-sm font-medium text-foreground">
+                      {selectedDates.length} {selectedDates.length === 1 ? "data selecionada" : "datas selecionadas"}
+                    </span>
+                    {hasDiscount && (
+                      <Badge variant="default" className="bg-success text-success-foreground">
+                        -{discountPercentage}% OFF
+                      </Badge>
+                    )}
+                  </div>
+                  <Button size="sm" onClick={handleContinueToForm}>
+                    Continuar
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
                 </div>
-                <Button size="sm" onClick={handleContinueToForm}>
-                  Continuar
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
+
+                {/* Resumo financeiro */}
+                {selectedProduct.price > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>{selectedDates.length}x {selectedProduct.name}</span>
+                      <span>R$ {(selectedProduct.price * selectedDates.length).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    {hasDiscount && (
+                      <div className="flex justify-between text-sm text-success font-medium">
+                        <span>Desconto ({discountPercentage}%)</span>
+                        <span>- R$ {(selectedProduct.price * selectedDates.length * discountPercentage / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-base font-bold text-foreground pt-1">
+                      <span>Total</span>
+                      <span>
+                        R$ {(selectedProduct.price * selectedDates.length * (hasDiscount ? (100 - discountPercentage) / 100 : 1)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
