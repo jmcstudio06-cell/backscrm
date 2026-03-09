@@ -235,16 +235,19 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
           )
         );
 
-        await new Promise((r) => setTimeout(r, 100));
+        await new Promise((r) => setTimeout(r, 300));
 
         const canvas = await html2canvas(tempContainer, {
           backgroundColor: "#ffffff",
-          scale: 1.5,
+          scale: 2,
           useCORS: true,
           allowTaint: true,
+          logging: false,
+          width: 1000,
+          windowWidth: 1000,
         });
 
-        stageImageSrc = canvas.toDataURL("image/jpeg", 0.9);
+        stageImageSrc = canvas.toDataURL("image/png", 1.0);
       } catch (error) {
         console.error("Erro ao capturar canvas:", error);
       } finally {

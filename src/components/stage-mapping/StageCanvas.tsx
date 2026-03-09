@@ -316,7 +316,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 
       {/* Stage Visual - Proporção fixa e centralizado para impressão correta */}
       <div 
-        className="relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none flex flex-col mx-auto w-full max-w-[1200px]" 
+        className="relative bg-white rounded-lg border-2 border-zinc-400 overflow-hidden shadow-xl print:shadow-none print:border-zinc-900 flex flex-col mx-auto w-full max-w-[1200px]" 
         id="stage-canvas-print" 
         style={{ aspectRatio: '16/9', minHeight: '500px' }}
       >
