@@ -8,8 +8,27 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { MapPin, Music, Loader2, CheckCircle, CalendarDays, User, Phone, Send, Instagram, Youtube, Music2, Globe, ExternalLink, FileText, Video, List, Sparkles, Gift, Tag, ArrowLeft, ArrowRight, Clock, ShoppingCart } from "lucide-react";
+import {
+  MapPin, Music, Loader2, CheckCircle, CalendarDays, User, Phone, Send, Instagram, Youtube, Music2, Globe, ExternalLink, FileText, Video, List, Sparkles, Gift, Tag, ArrowLeft, ArrowRight, Clock, ShoppingCart,
+  Mic, MicVocal, Guitar, Piano, Drum, Headphones, Radio, Volume2, Disc3, ListMusic, AudioLines, Waves,
+  PartyPopper, GlassWater, Star, Heart, Zap, Award, Crown, Camera, Users, UserPlus, Briefcase, Church, Building2, Tent, TreePine, Utensils, Package,
+  type LucideIcon,
+} from "lucide-react";
 import { format, isBefore, startOfDay, addMonths } from "date-fns";
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  music: Music, mic: Mic, "mic-vocal": MicVocal, guitar: Guitar, piano: Piano, drum: Drum,
+  headphones: Headphones, radio: Radio, "volume-2": Volume2, "disc-3": Disc3, "list-music": ListMusic,
+  "audio-lines": AudioLines, waves: Waves, "party-popper": PartyPopper, "glass-water": GlassWater,
+  sparkles: Sparkles, star: Star, heart: Heart, zap: Zap, award: Award, crown: Crown,
+  camera: Camera, video: Video, users: Users, "user-plus": UserPlus, briefcase: Briefcase,
+  church: Church, "building-2": Building2, tent: Tent, "tree-pine": TreePine, utensils: Utensils, package: Package,
+};
+
+function getServiceIcon(iconName: string | null): LucideIcon {
+  if (!iconName) return Music;
+  return ICON_MAP[iconName] || Music;
+}
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -388,34 +407,37 @@ export default function Booking() {
                 Escolha um Serviço
               </h2>
               
-              {products.length > 0 ? (
+             {products.length > 0 ? (
                 <div className="grid gap-3">
-                  {products.map((p) => (
-                    <div 
-                      key={p.id} 
-                      className="flex items-center justify-between p-4 rounded-xl bg-secondary/30 border border-border hover:border-primary/50 hover:bg-secondary/50 transition-all cursor-pointer group"
-                      onClick={() => handleSelectProduct(p)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                          {p.icon || "🎵"}
+                  {products.map((p) => {
+                    const ServiceIcon = getServiceIcon(p.icon);
+                    return (
+                      <div 
+                        key={p.id} 
+                        className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-card transition-all cursor-pointer group"
+                        onClick={() => handleSelectProduct(p)}
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 group-hover:scale-105 transition-all">
+                          <ServiceIcon className="w-6 h-6 text-primary" />
                         </div>
-                        <div>
-                          <p className="font-semibold text-foreground">{p.name}</p>
-                          {p.description && <p className="text-sm text-muted-foreground">{p.description}</p>}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground truncate">{p.name}</p>
+                          {p.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="font-bold text-foreground text-base whitespace-nowrap">
+                            {p.price > 0 ? `R$ ${p.price.toLocaleString("pt-BR")}` : "Consultar"}
+                          </span>
+                          <Button size="sm" className="shrink-0 gap-1.5">
+                            Contratar
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge variant="secondary" className="font-bold text-base shrink-0">
-                          {p.price > 0 ? `R$ ${p.price.toLocaleString("pt-BR")}` : "Consultar"}
-                        </Badge>
-                        <Button size="sm" className="shrink-0 group-hover:bg-primary/90">
-                          Contratar
-                          <ArrowRight className="w-4 h-4 ml-1" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
@@ -434,8 +456,8 @@ export default function Booking() {
             {/* Produto selecionado */}
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-xl">
-                  {selectedProduct.icon || "🎵"}
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  {(() => { const Icon = getServiceIcon(selectedProduct.icon); return <Icon className="w-5 h-5 text-primary" />; })()}
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">{selectedProduct.name}</p>
@@ -569,8 +591,8 @@ export default function Booking() {
             <div className="mb-6 pb-4 border-b border-border space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-xl">
-                    {selectedProduct.icon || "🎵"}
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    {(() => { const Icon = getServiceIcon(selectedProduct.icon); return <Icon className="w-5 h-5 text-primary" />; })()}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{selectedProduct.name}</p>
