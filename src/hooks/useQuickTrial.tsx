@@ -8,14 +8,23 @@ const TRIAL_DURATION_MS = TRIAL_DURATION_MINUTES * 60 * 1000;
 interface QuickTrialStatus {
   isActive: boolean;
   isExpired: boolean;
-  timeRemaining: number; // in milliseconds
+  timeRemaining: number;
   minutesLeft: number;
   secondsLeft: number;
   startedAt: Date | null;
   expiresAt: Date | null;
 }
 
-export function useQuickTrial() {
+interface ProfileLike {
+  plan: string | null;
+  trial_start: string | null;
+  created_at: string;
+}
+
+/**
+ * @param externalProfile - Pass profile data to avoid a duplicate DB query.
+ */
+export function useQuickTrial(externalProfile?: ProfileLike | null) {
   const { user } = useAuth();
   const [status, setStatus] = useState<QuickTrialStatus>({
     isActive: false,
@@ -36,22 +45,45 @@ export function useQuickTrial() {
     const minutesLeft = Math.floor(totalSecondsLeft / 60);
     const secondsLeft = totalSecondsLeft % 60;
 
-    return {
-      timeRemaining,
-      minutesLeft,
-      secondsLeft,
-      expiresAt,
-      isExpired: timeRemaining <= 0,
-    };
+    return { timeRemaining, minutesLeft, secondsLeft, expiresAt, isExpired: timeRemaining <= 0 };
   }, []);
 
   useEffect(() => {
-    async function fetchTrialStatus() {
-      if (!user) {
+    async function processProfile(profile: ProfileLike) {
+      if (profile.plan !== "trial") {
+        setStatus({
+          isActive: false, isExpired: false, timeRemaining: 0,
+          minutesLeft: 0, secondsLeft: 0, startedAt: null, expiresAt: null,
+        });
         setLoading(false);
         return;
       }
 
+      const startedAt = new Date(profile.trial_start || profile.created_at);
+      const timeData = calculateTimeRemaining(startedAt);
+
+      setStatus({
+        isActive: !timeData.isExpired, isExpired: timeData.isExpired,
+        timeRemaining: timeData.timeRemaining, minutesLeft: timeData.minutesLeft,
+        secondsLeft: timeData.secondsLeft, startedAt, expiresAt: timeData.expiresAt,
+      });
+
+      if (timeData.isExpired && user) {
+        await supabase.from("profiles").update({ plan: "expirado" }).eq("user_id", user.id);
+      }
+      setLoading(false);
+    }
+
+    async function init() {
+      if (!user) { setLoading(false); return; }
+
+      if (externalProfile !== undefined) {
+        if (externalProfile) await processProfile(externalProfile);
+        else setLoading(false);
+        return;
+      }
+
+      // Fallback fetch
       try {
         const { data: profile, error } = await supabase
           .from("profiles")
@@ -59,85 +91,29 @@ export function useQuickTrial() {
           .eq("user_id", user.id)
           .single();
 
-        if (error) {
-          console.error("Error fetching profile for quick trial:", error);
-          setLoading(false);
-          return;
-        }
-
-        // Only apply quick trial to trial plan users
-        if (profile?.plan !== "trial") {
-          setStatus({
-            isActive: false,
-            isExpired: false,
-            timeRemaining: 0,
-            minutesLeft: 0,
-            secondsLeft: 0,
-            startedAt: null,
-            expiresAt: null,
-          });
-          setLoading(false);
-          return;
-        }
-
-        // Use trial_start if available, otherwise created_at
-        const startedAt = new Date(profile.trial_start || profile.created_at);
-        const timeData = calculateTimeRemaining(startedAt);
-
-        setStatus({
-          isActive: !timeData.isExpired,
-          isExpired: timeData.isExpired,
-          timeRemaining: timeData.timeRemaining,
-          minutesLeft: timeData.minutesLeft,
-          secondsLeft: timeData.secondsLeft,
-          startedAt,
-          expiresAt: timeData.expiresAt,
-        });
-
-        // Auto-expire the plan if trial ended
-        if (timeData.isExpired && profile?.plan === "trial") {
-          await supabase
-            .from("profiles")
-            .update({ plan: "expirado" })
-            .eq("user_id", user.id);
-        }
-      } catch (err) {
-        console.error("Error in quick trial hook:", err);
-      } finally {
-        setLoading(false);
-      }
+        if (error) { console.error("Error fetching profile for quick trial:", error); setLoading(false); return; }
+        await processProfile(profile);
+      } catch (err) { console.error("Error in quick trial hook:", err); setLoading(false); }
     }
 
-    fetchTrialStatus();
-  }, [user, calculateTimeRemaining]);
+    init();
+  }, [user, externalProfile, calculateTimeRemaining]);
 
-  // Countdown timer effect
+  // Countdown timer
   useEffect(() => {
     if (!status.startedAt || status.isExpired || !status.isActive) return;
 
     const interval = setInterval(() => {
       const timeData = calculateTimeRemaining(status.startedAt!);
-
       setStatus((prev) => ({
-        ...prev,
-        isActive: !timeData.isExpired,
-        isExpired: timeData.isExpired,
-        timeRemaining: timeData.timeRemaining,
-        minutesLeft: timeData.minutesLeft,
-        secondsLeft: timeData.secondsLeft,
-        expiresAt: timeData.expiresAt,
+        ...prev, isActive: !timeData.isExpired, isExpired: timeData.isExpired,
+        timeRemaining: timeData.timeRemaining, minutesLeft: timeData.minutesLeft,
+        secondsLeft: timeData.secondsLeft, expiresAt: timeData.expiresAt,
       }));
 
-      // Auto-expire and update database
       if (timeData.isExpired && user) {
-        supabase
-          .from("profiles")
-          .update({ plan: "expirado" })
-          .eq("user_id", user.id)
-          .then(() => {
-            // Trigger page refresh to apply blocking
-            window.location.reload();
-          });
+        supabase.from("profiles").update({ plan: "expirado" }).eq("user_id", user.id)
+          .then(() => { window.location.reload(); });
       }
     }, 1000);
 
