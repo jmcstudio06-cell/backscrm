@@ -588,7 +588,14 @@ export default function Solicitacoes() {
                       </div>
                     )}
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-between items-center">
+                      {request.status === "aprovado" && (
+                        <Button size="sm" variant="outline" className="gap-1" onClick={() => sendToAgenda(request.id)}>
+                          <Calendar className="w-4 h-4" />
+                          Enviar para Agenda
+                        </Button>
+                      )}
+                      <div className="flex-1" />
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="sm" variant="ghost" className="gap-1 text-destructive hover:text-destructive">
