@@ -40,8 +40,10 @@ export default function Solicitacoes() {
   const [showVideoUrl, setShowVideoUrl] = useState(profile?.show_video_url || "");
   const [repertoireUrl, setRepertoireUrl] = useState(profile?.repertoire_url || "");
 
+  // Usar domínio publicado do Backstage Pro
+  const publishedDomain = "https://backstagepro.lovable.app";
   const publicUrl = (slug || profile?.slug)
-    ? `${window.location.origin}/booking/${slug || profile?.slug}`
+    ? `${publishedDomain}/booking/${slug || profile?.slug}`
     : "";
 
   const copyPublicLink = () => {
