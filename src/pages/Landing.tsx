@@ -439,7 +439,70 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Link Agenda Mockup Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-blue-50/50">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            {/* Phone Mockup */}
+            <div className="flex-shrink-0 flex justify-center lg:justify-start">
+              <div className="relative">
+                {/* Phone frame */}
+                <div className="w-[280px] md:w-[320px] rounded-[3rem] border-[8px] border-slate-800 bg-slate-800 shadow-2xl overflow-hidden">
+                  {/* Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[28px] bg-slate-800 rounded-b-2xl z-10" />
+                  {/* Screen */}
+                  <div className="rounded-[2.2rem] overflow-hidden bg-white">
+                    <img
+                      src={linkAgendaMockup}
+                      alt="Mockup do Link Agenda - página de agendamento online do artista"
+                      className="w-full h-auto"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+                {/* Glow effect */}
+                <div className="absolute -inset-4 bg-[#0066CC]/10 rounded-[4rem] blur-2xl -z-10" />
+              </div>
+            </div>
+
+            {/* Text content */}
+            <div className="text-center lg:text-left max-w-xl">
+              <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
+                <Calendar className="w-5 h-5 text-[#0066CC]" />
+                <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Link Agenda</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
+                Seu link profissional para <span className="text-[#0066CC]">fechar shows</span>
+              </h2>
+              <p className="text-slate-500 text-lg mb-6 leading-relaxed">
+                Compartilhe um único link com contratantes e deixe que eles vejam seus serviços, escolham datas disponíveis e solicitem o show — tudo de forma automática e profissional.
+              </p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  "Catálogo de serviços com preços e descrições",
+                  "Calendário com datas disponíveis em tempo real",
+                  "Desconto automático para múltiplas datas",
+                  "Formulário de solicitação direto no seu painel",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-slate-600">
+                    <Check className="w-5 h-5 text-[#0066CC] mt-0.5 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="lg"
+                className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
+                onClick={() => navigate("/auth")}
+              >
+                Quero meu Link Agenda
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="recursos" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
