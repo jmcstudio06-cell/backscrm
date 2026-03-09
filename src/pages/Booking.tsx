@@ -512,19 +512,18 @@ export default function Booking() {
                 {selectedProduct.price > 0 && (
                   <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>{fullPriceDates}x valor integral</span>
-                      <span>R$ {(selectedProduct.price * fullPriceDates).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <span>{selectedDates.length}x R$ {selectedProduct.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <span>R$ {subtotal(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </div>
                     {hasDiscount && (
                       <>
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{discountedDates}x com {discountPercentage}% off</span>
-                          <span>R$ {(selectedProduct.price * discountedDates * (1 - discountPercentage / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                        </div>
                         <div className="flex justify-between text-sm text-success font-medium">
-                          <span>Economia</span>
-                          <span>- R$ {computeDiscount(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <span>Desconto {discountPercentage}% (aplicado na última data)</span>
+                          <span>- R$ {discountAmount(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                         </div>
+                        <p className="text-xs text-muted-foreground italic">
+                          As 2 primeiras datas mantêm o valor integral. O desconto de {discountPercentage}% sobre o total é concedido na última data.
+                        </p>
                       </>
                     )}
                     <div className="flex justify-between text-base font-bold text-foreground pt-1">
