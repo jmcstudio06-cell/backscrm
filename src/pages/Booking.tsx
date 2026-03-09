@@ -128,13 +128,15 @@ export default function Booking() {
   const today = startOfDay(new Date());
   const maxDate = addMonths(today, 3);
 
+  const MAX_DATES = 3;
+
   const handleMultipleDatesSelect = (dates: Date[] | undefined) => {
     if (!dates) {
       setSelectedDates([]);
       return;
     }
     const validDates = dates.filter(d => !confirmedDateSet.has(format(d, "yyyy-MM-dd")));
-    setSelectedDates(validDates);
+    setSelectedDates(validDates.slice(0, MAX_DATES));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
