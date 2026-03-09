@@ -366,7 +366,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         address: editingShow.address || "",
         client: existingClient?.name || "",
         clientPhone: existingClient?.phone || "",
-        clientEmail: existingClient?.email || "",
+        clientEmail: existingShow?.email || "",
         clientCompany: existingClient?.company || "",
         type: editingShow.event_type || "",
         status: editingShow.status || "scheduled",
@@ -381,8 +381,19 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       
       // Load financial data
       loadShowFinancialData(editingShow.id);
+    } else if (open && !editingShow && presetDate && !formData.date) {
+      // Auto-fill preset date only if opening for new show and date is empty
+      const year = presetDate.getFullYear();
+      const month = String(presetDate.getMonth() + 1).padStart(2, "0");
+      const day = String(presetDate.getDate()).padStart(2, "0");
+      const dateStr = `${year}-${month}-${day}`;
+      
+      setFormData(prev => ({
+        ...prev,
+        date: dateStr,
+      }));
     }
-  }, [open, editingShow, clients]);
+  }, [open, editingShow, clients, presetDate]);
 
   // Calculate total from musicians + other expenses
   const musiciansCost = selectedMusicians.reduce((sum, m) => sum + m.fee, 0);

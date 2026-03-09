@@ -403,7 +403,7 @@ export default function Agenda() {
                 <Button
                   size="sm"
                   className="w-full bg-primary hover:bg-primary/90 gap-2"
-                  onClick={handleOpenNewShow}
+                  onClick={() => handleOpenNewShow(selectedDate)}
                 >
                   <Plus className="w-4 h-4" />
                   Agendar show neste dia
