@@ -95,7 +95,7 @@ export default function Booking() {
       const { data: profileData, error: profileError } = await supabase
         .from("artist_public_profiles")
         .select(
-          "user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url"
+          "user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_max_dates, booking_discount_percent, booking_min_dates_discount"
         )
         .eq("slug", slug)
         .maybeSingle();
