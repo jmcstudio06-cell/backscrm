@@ -276,15 +276,10 @@ export default function Booking() {
 
   const hasDiscount = selectedDates.length >= 3;
   const discountPercentage = 10;
-  // Discount applies only to dates beyond the first 2
-  const fullPriceDates = Math.min(selectedDates.length, 2);
-  const discountedDates = Math.max(selectedDates.length - 2, 0);
-  const computeTotal = (price: number) => {
-    const full = price * fullPriceDates;
-    const discounted = price * discountedDates * (1 - discountPercentage / 100);
-    return full + discounted;
-  };
-  const computeDiscount = (price: number) => price * discountedDates * (discountPercentage / 100);
+  // Discount: 10% of the TOTAL (all dates) is applied as discount on the last date
+  const subtotal = (price: number) => price * selectedDates.length;
+  const discountAmount = (price: number) => hasDiscount ? subtotal(price) * discountPercentage / 100 : 0;
+  const computeTotal = (price: number) => subtotal(price) - discountAmount(price);
 
   // Step indicator
   const steps = [
@@ -388,7 +383,7 @@ export default function Booking() {
                     Condição especial!
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> a partir da 3ª data!
+                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> no valor total, aplicado na última data!
                   </p>
                 </div>
               </div>
@@ -517,19 +512,18 @@ export default function Booking() {
                 {selectedProduct.price > 0 && (
                   <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>{fullPriceDates}x valor integral</span>
-                      <span>R$ {(selectedProduct.price * fullPriceDates).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <span>{selectedDates.length}x R$ {selectedProduct.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <span>R$ {subtotal(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </div>
                     {hasDiscount && (
                       <>
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{discountedDates}x com {discountPercentage}% off</span>
-                          <span>R$ {(selectedProduct.price * discountedDates * (1 - discountPercentage / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                        </div>
                         <div className="flex justify-between text-sm text-success font-medium">
-                          <span>Economia</span>
-                          <span>- R$ {computeDiscount(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <span>Desconto {discountPercentage}% (aplicado na última data)</span>
+                          <span>- R$ {discountAmount(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                         </div>
+                        <p className="text-xs text-muted-foreground italic">
+                          As 2 primeiras datas mantêm o valor integral. O desconto de {discountPercentage}% sobre o total é concedido na última data.
+                        </p>
                       </>
                     )}
                     <div className="flex justify-between text-base font-bold text-foreground pt-1">
