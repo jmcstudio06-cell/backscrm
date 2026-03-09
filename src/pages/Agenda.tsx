@@ -258,7 +258,7 @@ export default function Agenda() {
             </TabsTrigger>
           </TabsList>
         </Tabs>
-        <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={handleOpenNewShow}>
+        <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Show
         </Button>
