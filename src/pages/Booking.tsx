@@ -52,6 +52,7 @@ interface ArtistProfile {
   booking_max_dates: number;
   booking_discount_percent: number;
   booking_min_dates_discount: number;
+  booking_show_products: boolean;
 }
 
 interface PerformanceType {
