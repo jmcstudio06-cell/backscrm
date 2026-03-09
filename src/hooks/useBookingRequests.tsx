@@ -43,6 +43,48 @@ export function useBookingRequests() {
     }
   };
 
+  const createShowFromRequest = async (request: BookingRequest) => {
+    if (!user) return false;
+    try {
+      const { error: showError } = await supabase
+        .from("shows")
+        .insert([{
+          user_id: user.id,
+          title: request.product_name
+            ? `${request.client_name} - ${request.product_name}`
+            : request.client_name,
+          date: request.event_date,
+          start_time: request.event_time || null,
+          venue: request.event_location || null,
+          address: request.event_city || null,
+          event_type: request.event_type || null,
+          notes: request.observations || null,
+          status: "confirmed",
+          cachet: 0,
+        }]);
+
+      if (showError) {
+        console.error("Error creating show from booking:", showError);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error creating show from booking:", error);
+      return false;
+    }
+  };
+
+  const sendToAgenda = async (id: string) => {
+    const request = requests.find(r => r.id === id);
+    if (!request) return;
+    const success = await createShowFromRequest(request);
+    if (success) {
+      toast.success("Show adicionado à agenda!");
+    } else {
+      toast.error("Erro ao adicionar show à agenda.");
+    }
+  };
+
   const updateRequestStatus = async (id: string, status: string) => {
     try {
       const { error } = await supabase
@@ -55,30 +97,12 @@ export function useBookingRequests() {
       if (status === "aprovado" && user) {
         const request = requests.find(r => r.id === id);
         if (request) {
-          const { error: showError } = await supabase
-            .from("shows")
-            .insert([{
-              user_id: user.id,
-              title: request.product_name
-                ? `${request.client_name} - ${request.product_name}`
-                : request.client_name,
-              date: request.event_date,
-              start_time: request.event_time || null,
-              venue: request.event_location || null,
-              address: request.event_city || null,
-              event_type: request.event_type || null,
-              notes: request.observations || null,
-              status: "confirmed",
-              cachet: 0,
-            }]);
-
-          if (showError) {
-            console.error("Error creating show from booking:", showError);
+          const success = await createShowFromRequest(request);
+          if (!success) {
             toast.error("Solicitação aprovada, mas houve erro ao criar o show na agenda.");
             fetchRequests();
             return true;
           }
-
           toast.success("Solicitação aprovada e show adicionado à agenda!");
           fetchRequests();
           return true;
