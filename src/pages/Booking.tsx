@@ -378,11 +378,11 @@ export default function Booking() {
           )}
 
           {/* Grid de 3 calendários */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[0, 1, 2].map((monthOffset) => {
               const monthDate = addMonths(today, monthOffset);
               return (
-                <div key={monthOffset} className="border border-border rounded-xl bg-card p-3">
+                <div key={monthOffset} className="bg-white dark:bg-card rounded-xl shadow-sm border border-border/50 p-4">
                   <Calendar
                     mode="multiple"
                     selected={selectedDates}
@@ -399,30 +399,29 @@ export default function Booking() {
                       booked: (date) => confirmedDateSet.has(format(date, "yyyy-MM-dd")),
                     }}
                     modifiersClassNames={{
-                      booked: "!bg-red-100 dark:!bg-red-900/30 !text-red-500 dark:!text-red-400 line-through cursor-not-allowed opacity-80",
+                      booked: "booking-occupied",
                     }}
                     className="w-full pointer-events-auto"
                     classNames={{
                       months: "flex flex-col",
-                      month: "space-y-2",
-                      caption: "flex justify-center pt-1 relative items-center",
-                      caption_label: "text-sm font-semibold capitalize text-foreground",
+                      month: "space-y-3",
+                      caption: "flex justify-center pt-1 relative items-center mb-2",
+                      caption_label: "text-base font-bold text-foreground",
                       nav: "hidden",
                       nav_button: "hidden",
                       table: "w-full border-collapse",
-                      head_row: "flex",
-                      head_cell: "text-muted-foreground rounded-md w-8 font-medium text-[0.65rem] uppercase flex-1 text-center",
-                      row: "flex w-full mt-1",
-                      cell: "text-center text-sm p-0 relative flex-1 focus-within:relative focus-within:z-20",
+                      head_row: "flex justify-between",
+                      head_cell: "text-muted-foreground/70 font-medium text-[0.7rem] w-9 text-center",
+                      row: "flex w-full justify-between mt-1",
+                      cell: "text-center text-sm p-0 relative h-9 w-9",
                       day: cn(
-                        "h-8 w-full p-0 font-normal rounded-lg text-xs transition-colors",
-                        "hover:bg-primary/10 hover:text-primary",
-                        "aria-selected:opacity-100"
+                        "h-9 w-9 p-0 font-normal rounded-full text-sm transition-all",
+                        "hover:bg-primary/10 hover:text-primary"
                       ),
-                      day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary hover:!text-primary-foreground font-medium",
-                      day_today: "bg-accent text-accent-foreground font-semibold ring-1 ring-primary/30",
-                      day_outside: "text-muted-foreground/40 opacity-50",
-                      day_disabled: "text-muted-foreground/30 opacity-40 cursor-not-allowed",
+                      day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary/90 font-semibold shadow-md",
+                      day_today: "bg-primary/15 text-primary font-bold",
+                      day_outside: "text-muted-foreground/30",
+                      day_disabled: "text-muted-foreground/25 cursor-not-allowed hover:bg-transparent",
                     }}
                   />
                 </div>
@@ -430,19 +429,19 @@ export default function Booking() {
             })}
           </div>
 
-          {/* Legenda melhorada */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-5 pt-4 border-t border-border">
+          {/* Legenda */}
+          <div className="flex flex-wrap items-center justify-center gap-8 mt-6 py-4">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-md bg-primary shadow-sm"></div>
-              <span className="text-sm text-muted-foreground">Selecionado</span>
+              <div className="w-4 h-4 rounded-full bg-primary shadow-sm"></div>
+              <span className="text-sm font-medium text-foreground">Selecionado</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-md bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800"></div>
-              <span className="text-sm text-muted-foreground">Ocupado</span>
+              <div className="w-4 h-4 rounded-full bg-rose-400/80"></div>
+              <span className="text-sm font-medium text-foreground">Ocupado</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-md bg-accent ring-1 ring-primary/30"></div>
-              <span className="text-sm text-muted-foreground">Hoje</span>
+              <div className="w-4 h-4 rounded-full bg-primary/20 border-2 border-primary/40"></div>
+              <span className="text-sm font-medium text-foreground">Hoje</span>
             </div>
           </div>
         </Card>
