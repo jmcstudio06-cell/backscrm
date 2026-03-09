@@ -42,6 +42,7 @@ export default function Solicitacoes() {
   const [bookingMaxDates, setBookingMaxDates] = useState(profile?.booking_max_dates ?? 3);
   const [bookingDiscountPercent, setBookingDiscountPercent] = useState(profile?.booking_discount_percent ?? 10);
   const [bookingMinDatesDiscount, setBookingMinDatesDiscount] = useState(profile?.booking_min_dates_discount ?? 3);
+  const [bookingShowProducts, setBookingShowProducts] = useState(profile?.booking_show_products ?? true);
 
   // Gerar slug automaticamente a partir do nome do artista
   const generateSlug = (name: string) => {
