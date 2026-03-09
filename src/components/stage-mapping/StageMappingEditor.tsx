@@ -235,16 +235,19 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
           )
         );
 
-        await new Promise((r) => setTimeout(r, 100));
+        await new Promise((r) => setTimeout(r, 300));
 
         const canvas = await html2canvas(tempContainer, {
           backgroundColor: "#ffffff",
-          scale: 1.5,
+          scale: 2,
           useCORS: true,
           allowTaint: true,
+          logging: false,
+          width: 1000,
+          windowWidth: 1000,
         });
 
-        stageImageSrc = canvas.toDataURL("image/jpeg", 0.9);
+        stageImageSrc = canvas.toDataURL("image/png", 1.0);
       } catch (error) {
         console.error("Erro ao capturar canvas:", error);
       } finally {
@@ -255,34 +258,43 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         <html>
           <head>
             <title>Rider Técnico - ${artistName || name}</title>
+            <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              
               @media print {
-                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
                 .toolbar { display: none !important; }
+                .stage-drawing { page-break-inside: avoid !important; }
+                .info-grid { page-break-inside: avoid !important; }
+                table { page-break-inside: avoid !important; }
+                .materials { page-break-inside: avoid !important; }
+                h2 { page-break-after: avoid !important; }
+                img { page-break-inside: avoid !important; }
               }
 
               body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: white; }
-              .toolbar { display: flex; gap: 10px; justify-content: center; margin: 0 0 16px; position: sticky; top: 0; background: white; padding: 10px 0; border-bottom: 1px solid #eee; }
+              .toolbar { display: flex; gap: 10px; justify-content: center; margin: 0 0 16px; position: sticky; top: 0; background: white; padding: 10px 0; border-bottom: 1px solid #eee; z-index: 100; }
               .btn { background: #111; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; }
               .btn.secondary { background: #fff; color: #111; border: 1px solid #ddd; }
 
-              h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; text-align: center; font-size: 28px; margin-bottom: 20px; }
-              h2 { color: #333; margin-top: 30px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
-              .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+              h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; text-align: center; font-size: 28px; margin-bottom: 20px; page-break-after: avoid; }
+              h2 { color: #333; margin-top: 30px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px; page-break-after: avoid; }
+              .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; page-break-inside: avoid; }
               .info-item { padding: 12px; background: #f8f8f8; border-radius: 6px; border-left: 4px solid #333; }
               .info-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
               .info-value { font-size: 14px; margin-top: 4px; color: #111; }
-              .stage-drawing { margin: 25px 0; text-align: center; }
-              .stage-drawing img { width: 100%; height: auto; border: 2px solid #333; display: block; }
-              table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+              .stage-drawing { margin: 25px 0; text-align: center; page-break-inside: avoid; }
+              .stage-drawing img { width: 100%; max-width: 900px; height: auto; border: 2px solid #333; display: block; margin: 0 auto; }
+              table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; page-break-inside: avoid; }
               th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-              th { background: #333; color: white; font-weight: bold; text-transform: uppercase; font-size: 11px; }
-              tr:nth-child(even) { background: #f9f9f9; }
-              .materials { background: #f0f0f0; padding: 15px 20px; border-radius: 8px; margin: 20px 0; }
+              th { background: #333 !important; color: white !important; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+              tr:nth-child(even) { background: #f9f9f9 !important; }
+              .materials { background: #f0f0f0 !important; padding: 15px 20px; border-radius: 8px; margin: 20px 0; page-break-inside: avoid; }
               .materials-list { display: flex; flex-wrap: wrap; gap: 10px; }
-              .material-item { background: #333; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
-              .observations { background: #fffbeb; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; }
+              .material-item { background: #333 !important; color: white !important; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
+              .observations { background: #fffbeb !important; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; page-break-inside: avoid; }
               .footer { margin-top: 40px; text-align: center; color: #999; font-size: 11px; border-top: 1px solid #eee; padding-top: 15px; }
             </style>
           </head>
