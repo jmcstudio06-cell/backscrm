@@ -31,6 +31,8 @@ export default function Solicitacoes() {
   const { requests, loading: loadingRequests, updateRequestStatus, deleteRequest } = useBookingRequests();
   const { profile, updateProfile, loading: loadingProfile } = useProfile();
 
+  const { user } = useAuth();
+
   const [copied, setCopied] = useState(false);
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
@@ -45,6 +47,36 @@ export default function Solicitacoes() {
   const [bookingDiscountPercent, setBookingDiscountPercent] = useState(profile?.booking_discount_percent ?? 10);
   const [bookingMinDatesDiscount, setBookingMinDatesDiscount] = useState(profile?.booking_min_dates_discount ?? 3);
   const [bookingShowProducts, setBookingShowProducts] = useState(profile?.booking_show_products ?? true);
+
+  // Products for online visibility toggle
+  interface ProductItem {
+    id: string;
+    name: string;
+    price: number;
+    visible_online: boolean;
+  }
+  const [onlineProducts, setOnlineProducts] = useState<ProductItem[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchProducts = async () => {
+      setLoadingProducts(true);
+      const { data } = await supabase
+        .from("performance_types")
+        .select("id, name, price, visible_online")
+        .eq("user_id", user.id)
+        .order("name");
+      if (data) setOnlineProducts(data);
+      setLoadingProducts(false);
+    };
+    fetchProducts();
+  }, [user]);
+
+  const toggleProductOnline = async (productId: string, value: boolean) => {
+    setOnlineProducts(prev => prev.map(p => p.id === productId ? { ...p, visible_online: value } : p));
+    await supabase.from("performance_types").update({ visible_online: value }).eq("id", productId);
+  };
 
   // Gerar slug automaticamente a partir do nome do artista
   const generateSlug = (name: string) => {
