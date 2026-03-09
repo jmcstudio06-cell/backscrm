@@ -35,6 +35,11 @@ export default function Solicitacoes() {
   const { user } = useAuth();
 
   const [copied, setCopied] = useState(false);
+  const [requestFilter, setRequestFilter] = useState<"todas" | "pendente" | "aprovado" | "recusado">("todas");
+
+  const filteredRequests = requestFilter === "todas" 
+    ? requests 
+    : requests.filter(r => r.status === requestFilter);
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
   const [youtubeUrl, setYoutubeUrl] = useState(profile?.youtube_url || "");
@@ -531,7 +536,36 @@ export default function Solicitacoes() {
             </div>
           ) : (
             <div className="space-y-4">
-              {requests.map((request) => {
+              {/* Filtros por status */}
+              <div className="flex gap-2 flex-wrap">
+                {(["todas", "pendente", "aprovado", "recusado"] as const).map((filter) => {
+                  const counts = {
+                    todas: requests.length,
+                    pendente: requests.filter(r => r.status === "pendente").length,
+                    aprovado: requests.filter(r => r.status === "aprovado").length,
+                    recusado: requests.filter(r => r.status === "recusado").length,
+                  };
+                  const labels = { todas: "Todas", pendente: "Pendentes", aprovado: "Aprovadas", recusado: "Recusadas" };
+                  return (
+                    <Button
+                      key={filter}
+                      size="sm"
+                      variant={requestFilter === filter ? "default" : "outline"}
+                      onClick={() => setRequestFilter(filter)}
+                      className="gap-1"
+                    >
+                      {labels[filter]}
+                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                        {counts[filter]}
+                      </Badge>
+                    </Button>
+                  );
+                })}
+              </div>
+
+              {filteredRequests.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Nenhuma solicitação com este status.</p>
+              ) : filteredRequests.map((request) => {
                 const status = statusConfig[request.status as keyof typeof statusConfig] || statusConfig.pendente;
                 return (
                   <Card key={request.id} className="p-6">
