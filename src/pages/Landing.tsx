@@ -103,7 +103,7 @@ const plans = [
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
-    features: ["Tudo do Profissional +", "⭐ Link Agenda", "Contratos Automáticos", "Histórico Financeiro", "Mapeamento de Palco", "Metas", "Bônus"],
+    features: ["Tudo do Profissional +", "Link Agendamento Online", "Contratos Automáticos", "Histórico Financeiro", "Mapeamento de Palco", "Metas", "Bônus"],
   },
 ];
 
