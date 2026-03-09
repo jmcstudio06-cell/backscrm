@@ -49,7 +49,25 @@ export default function Solicitacoes() {
   const [bookingMinDatesDiscount, setBookingMinDatesDiscount] = useState(profile?.booking_min_dates_discount ?? 3);
   const [bookingShowProducts, setBookingShowProducts] = useState(profile?.booking_show_products ?? true);
 
-  // Products for online visibility toggle
+  // Sync local state when profile loads
+  useEffect(() => {
+    if (profile) {
+      setBio(profile.bio || "");
+      setInstagramUrl(profile.instagram_url || "");
+      setYoutubeUrl(profile.youtube_url || "");
+      setTiktokUrl(profile.tiktok_url || "");
+      setSpotifyUrl(profile.spotify_url || "");
+      setWebsiteUrl(profile.website_url || "");
+      setMediaKitUrl(profile.media_kit_url || "");
+      setShowVideoUrl(profile.show_video_url || "");
+      setRepertoireUrl(profile.repertoire_url || "");
+      setBookingMaxDates(profile.booking_max_dates ?? 3);
+      setBookingDiscountPercent(profile.booking_discount_percent ?? 10);
+      setBookingMinDatesDiscount(profile.booking_min_dates_discount ?? 3);
+      setBookingShowProducts(profile.booking_show_products ?? true);
+    }
+  }, [profile]);
+
   interface ProductItem {
     id: string;
     name: string;
