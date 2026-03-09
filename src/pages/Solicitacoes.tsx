@@ -277,16 +277,13 @@ export default function Solicitacoes() {
         <TabsContent value="requests">
           {requests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6 animate-pulse">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6">
                 <Calendar className="w-10 h-10 text-primary" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground mb-3">Em Breve</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-3">Nenhuma solicitação</h2>
               <p className="text-muted-foreground max-w-md">
-                Configure seu link público e compartilhe para começar a receber solicitações de contratação.
+                Compartilhe seu link público para começar a receber solicitações de contratação dos seus clientes.
               </p>
-              <div className="mt-6 px-6 py-3 bg-primary/5 rounded-full border border-primary/20">
-                <p className="text-sm text-primary font-medium">🎵 Aguarde novidades incríveis</p>
-              </div>
             </div>
           ) : (
             <div className="space-y-4">
