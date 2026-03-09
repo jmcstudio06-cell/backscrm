@@ -327,80 +327,12 @@ export default function GuiaAtendimento() {
             </p>
           </Reveal>
 
-          {/* Lead capture card */}
-          {!unlocked ? (
-            <Reveal delay={240}>
-              <div className="max-w-md mx-auto">
-                <div className="relative p-7 sm:p-8 rounded-3xl bg-white border border-border shadow-elevated">
-                  {/* Top accent */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div
-                      className="px-4 py-1.5 rounded-full text-xs font-bold text-primary-foreground tracking-widest uppercase"
-                      style={{ background: "var(--gradient-primary)" }}
-                    >
-                      Acesso gratuito
-                    </div>
-                  </div>
-
-                  <p className="text-base font-semibold text-foreground mb-1 mt-2">Confirme seus dados para acessar</p>
-                  <p className="text-sm text-muted-foreground mb-6">Você ganha este guia completo sem custo algum.</p>
-
-                  <div className="space-y-3 mb-5">
-                    <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
-                      <Input
-                        placeholder="Seu nome completo (nome e sobrenome)"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        onBlur={() => setName((p) => normalizeName(p))}
-                        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                        className="pl-10 h-11 text-base bg-background"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
-                      <Input
-                        placeholder="Seu WhatsApp (XX) 9XXXX-XXXX"
-                        inputMode="tel"
-                        autoComplete="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(handlePhoneMaskChange(e.target.value))}
-                        onBlur={() => {
-                          const d = onlyDigits(phone);
-                          if (d.length === 11) setPhone(formatBRMobileFromDigits(d));
-                        }}
-                        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                        className="pl-10 h-11 text-base bg-background"
-                      />
-                    </div>
-                  </div>
-
-                  <Button
-                    size="lg"
-                    variant="gradient"
-                    className="w-full rounded-xl h-12 text-base font-bold gap-2 group shadow-lg"
-                    onClick={handleSubmit}
-                    disabled={submitting}
-                  >
-                    {submitting ? "Confirmando..." : "Continuar para meu guia"}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                  </Button>
-
-                  <p className="text-xs text-muted-foreground/60 text-center mt-4">
-                    Sem spam. Seus dados ficam seguros.
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          ) : (
-            <Reveal delay={240}>
+          <Reveal delay={240}>
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-success/10 border border-success/25 text-success font-semibold">
                 <Check className="w-4 h-4" />
-                Guia liberado — role para começar
+                Role para começar o guia
               </div>
             </Reveal>
-          )}
         </div>
 
         {/* Scroll cue */}
