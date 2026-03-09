@@ -155,7 +155,7 @@ export default function Agenda() {
     setIsModalOpen(true);
   };
 
-  const handleOpenNewShow = () => {
+  const handleOpenNewShow = (presetDate?: Date) => {
     setEditingShow(null);
     setIsModalOpen(true);
   };
