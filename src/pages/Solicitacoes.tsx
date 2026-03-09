@@ -28,7 +28,7 @@ export default function Solicitacoes() {
   }
 
   return (
-    <Layout title="Solicitações de Contratação" subtitle="Gerencie pedidos de contratação recebidos pelo seu link público">
+    <Layout title="Agenda Online" subtitle="Configure seu link público e gerencie solicitações de contratação">
       {requests.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
