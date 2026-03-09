@@ -540,7 +540,7 @@ export default function Booking() {
                       })}
                     {hasDiscount && (
                       <p className="text-xs text-muted-foreground italic pt-1">
-                        O desconto de {discountPercentage}% sobre o total das {MAX_DATES} datas é aplicado na última data.
+                        O desconto de {discountPercentage}% sobre o total das {selectedDates.length} datas é aplicado na última data.
                       </p>
                     )}
                     <div className="flex justify-between text-base font-bold text-foreground pt-2 border-t border-border/30">
