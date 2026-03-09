@@ -119,7 +119,7 @@ const ALL_FEATURE_KEYS = [
   "dashboard", "agenda", "crm", "clientes", "orcamentos", "servicos",
   "contratos", "financeiro", "historico", "precificacao", "checklist",
   "mapeamento-palco", "equipe", "metas", "repertorio", "aulas",
-  "avancos", "tutoriais", "configuracoes",
+  "avancos", "tutoriais", "configuracoes", "link-agenda",
 ];
 
 const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos"];
