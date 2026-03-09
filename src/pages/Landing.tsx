@@ -446,22 +446,24 @@ const Landing = () => {
             {/* Phone Mockup */}
             <div className="flex-shrink-0 flex justify-center lg:justify-start">
               <div className="relative">
-                {/* Phone frame */}
-                <div className="w-[280px] md:w-[320px] rounded-[3rem] border-[8px] border-slate-800 bg-slate-800 shadow-2xl overflow-hidden">
-                  {/* Notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[28px] bg-slate-800 rounded-b-2xl z-10" />
+                {/* iPhone-style frame - tall & slim (19.5:9 aspect ratio) */}
+                <div className="w-[240px] md:w-[270px] rounded-[2.5rem] border-[6px] border-[#1a1a1a] bg-[#1a1a1a] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.35)] overflow-hidden relative">
+                  {/* Dynamic Island */}
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-[#1a1a1a] rounded-full z-10" />
                   {/* Screen */}
-                  <div className="rounded-[2.2rem] overflow-hidden bg-white">
+                  <div className="rounded-[2rem] overflow-hidden bg-white aspect-[9/19.5]">
                     <img
                       src={linkAgendaMockup}
                       alt="Mockup do Link Agenda - página de agendamento online do artista"
-                      className="w-full h-auto"
+                      className="w-full h-full object-cover object-top"
                       loading="lazy"
                     />
                   </div>
                 </div>
+                {/* Subtle reflection */}
+                <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
                 {/* Glow effect */}
-                <div className="absolute -inset-4 bg-[#0066CC]/10 rounded-[4rem] blur-2xl -z-10" />
+                <div className="absolute -inset-6 bg-[#0066CC]/8 rounded-[4rem] blur-3xl -z-10" />
               </div>
             </div>
 
