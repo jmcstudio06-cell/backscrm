@@ -241,6 +241,7 @@ export default function Agenda() {
         onOpenChange={(open) => { setIsModalOpen(open); if (!open) setEditingShow(null); }}
         onShowCreated={handleShowCreated}
         editingShow={editingShow}
+        presetDate={selectedDate}
       />
 
       {/* Header Actions */}
