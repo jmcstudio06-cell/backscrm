@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Music, Loader2, CheckCircle, CalendarDays, User, Phone, Send } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { MapPin, Music, Loader2, CheckCircle, CalendarDays, User, Phone, Send, Instagram, Youtube, Music2, Globe, ExternalLink, FileText, Video, List } from "lucide-react";
 import { format, isBefore, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -21,6 +23,15 @@ interface ArtistProfile {
   base_city: string | null;
   music_style: string | null;
   project_type: string | null;
+  bio: string | null;
+  instagram_url: string | null;
+  youtube_url: string | null;
+  tiktok_url: string | null;
+  spotify_url: string | null;
+  website_url: string | null;
+  media_kit_url: string | null;
+  show_video_url: string | null;
+  repertoire_url: string | null;
 }
 
 interface PerformanceType {
@@ -28,10 +39,6 @@ interface PerformanceType {
   name: string;
   description: string | null;
   price: number;
-}
-
-interface ConfirmedShow {
-  date: string;
 }
 
 export default function Booking() {
@@ -42,7 +49,8 @@ export default function Booking() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [multipleMode, setMultipleMode] = useState(false);
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -50,8 +58,10 @@ export default function Booking() {
   // Form fields
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
+  const [eventType, setEventType] = useState("");
   const [eventCity, setEventCity] = useState("");
   const [eventLocation, setEventLocation] = useState("");
+  const [eventTime, setEventTime] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [observations, setObservations] = useState("");
 
@@ -62,10 +72,9 @@ export default function Booking() {
 
   const loadArtistData = async () => {
     try {
-      // Fetch artist profile by slug
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("user_id, artist_name, avatar_url, base_city, music_style, project_type")
+        .select("user_id, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url")
         .eq("slug", slug)
         .maybeSingle();
 
@@ -78,7 +87,6 @@ export default function Booking() {
 
       setArtist(profileData);
 
-      // Fetch performance types and confirmed shows in parallel
       const [productsRes, showsRes] = await Promise.all([
         supabase
           .from("performance_types")
@@ -108,13 +116,19 @@ export default function Booking() {
     if (!date) return;
     const dateStr = format(date, "yyyy-MM-dd");
     if (confirmedDateSet.has(dateStr)) return;
-    setSelectedDate(date);
+    setSelectedDates([date]);
     setShowForm(true);
+  };
+
+  const handleMultipleDatesSelect = (dates: Date[] | undefined) => {
+    if (!dates) return;
+    const validDates = dates.filter(d => !confirmedDateSet.has(format(d, "yyyy-MM-dd")));
+    setSelectedDates(validDates);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!artist || !selectedDate) return;
+    if (!artist || selectedDates.length === 0) return;
     if (!clientName.trim() || !clientPhone.trim()) {
       toast.error("Preencha nome e telefone.");
       return;
@@ -123,17 +137,22 @@ export default function Booking() {
     setSubmitting(true);
     try {
       const productObj = products.find((p) => p.id === selectedProduct);
-      const { error } = await supabase.from("booking_requests").insert({
+      
+      const requests = selectedDates.map(date => ({
         artist_id: artist.user_id,
-        event_date: format(selectedDate, "yyyy-MM-dd"),
+        event_date: format(date, "yyyy-MM-dd"),
         product_id: selectedProduct || null,
         product_name: productObj?.name || null,
         client_name: clientName.trim(),
         client_phone: clientPhone.trim(),
+        event_type: eventType.trim() || null,
         event_city: eventCity.trim() || null,
         event_location: eventLocation.trim() || null,
+        event_time: eventTime.trim() || null,
         observations: observations.trim() || null,
-      });
+      }));
+
+      const { error } = await supabase.from("booking_requests").insert(requests);
 
       if (error) throw error;
       setSubmitted(true);
@@ -175,9 +194,9 @@ export default function Booking() {
           <h1 className="text-2xl font-bold text-foreground">Solicitação Enviada!</h1>
           <p className="text-muted-foreground">
             Sua solicitação de contratação foi enviada para <strong>{artist?.artist_name}</strong>.
-            Você receberá um retorno em breve.
+            Você receberá um retorno em breve no telefone fornecido.
           </p>
-          <Button variant="outline" onClick={() => { setSubmitted(false); setShowForm(false); setSelectedDate(undefined); }}>
+          <Button variant="outline" onClick={() => { setSubmitted(false); setShowForm(false); setSelectedDates([]); }}>
             Fazer nova solicitação
           </Button>
         </div>
@@ -192,6 +211,20 @@ export default function Booking() {
     banda: "Banda",
     orquestra: "Orquestra/Grupo",
   };
+
+  const socialLinks = [
+    { icon: Instagram, url: artist?.instagram_url, label: "Instagram" },
+    { icon: Youtube, url: artist?.youtube_url, label: "YouTube" },
+    { icon: Music2, url: artist?.tiktok_url, label: "TikTok" },
+    { icon: Music2, url: artist?.spotify_url, label: "Spotify" },
+    { icon: Globe, url: artist?.website_url, label: "Website" },
+  ].filter(link => link.url);
+
+  const portfolioLinks = [
+    { icon: FileText, url: artist?.media_kit_url, label: "Baixar Mídia Kit" },
+    { icon: Video, url: artist?.show_video_url, label: "Assistir Vídeo do Show" },
+    { icon: List, url: artist?.repertoire_url, label: "Ver Repertório" },
+  ].filter(link => link.url);
 
   return (
     <div className="min-h-screen bg-background">
@@ -222,44 +255,57 @@ export default function Booking() {
               </span>
             )}
           </div>
+          {artist?.bio && (
+            <p className="mt-4 text-muted-foreground max-w-lg mx-auto">{artist.bio}</p>
+          )}
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-        {/* Calendar */}
-        <div className="bg-card rounded-xl border border-border p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-1 flex items-center gap-2">
-            <CalendarDays className="w-5 h-5 text-primary" />
-            Escolha uma data
-          </h2>
-          <p className="text-sm text-muted-foreground mb-4">Datas em vermelho já estão ocupadas.</p>
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+        {/* Social Links */}
+        {socialLinks.length > 0 && (
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Redes Sociais</h2>
+            <div className="flex flex-wrap gap-3">
+              {socialLinks.map((link, idx) => (
+                <Button key={idx} variant="outline" size="sm" asChild>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <link.icon className="w-4 h-4" />
+                    {link.label}
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </Button>
+              ))}
+            </div>
+          </Card>
+        )}
 
-          <div className="flex justify-center">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              locale={ptBR}
-              disabled={(date) => isBefore(date, startOfDay(new Date()))}
-              modifiers={{
-                booked: (date) => confirmedDateSet.has(format(date, "yyyy-MM-dd")),
-              }}
-              modifiersClassNames={{
-                booked: "!bg-destructive/20 !text-destructive line-through cursor-not-allowed",
-              }}
-              className={cn("p-3 pointer-events-auto")}
-            />
-          </div>
-        </div>
+        {/* Portfolio */}
+        {portfolioLinks.length > 0 && (
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Material do Artista</h2>
+            <div className="grid gap-3">
+              {portfolioLinks.map((link, idx) => (
+                <Button key={idx} variant="secondary" asChild className="justify-start">
+                  <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <link.icon className="w-4 h-4" />
+                    {link.label}
+                    <ExternalLink className="w-3 h-3 ml-auto" />
+                  </a>
+                </Button>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Products */}
         {products.length > 0 && !showForm && (
-          <div className="bg-card rounded-xl border border-border p-6">
+          <Card className="p-6">
             <h2 className="text-lg font-semibold text-foreground mb-4">Tipos de Show Disponíveis</h2>
             <div className="grid gap-3">
               {products.map((p) => (
-                <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border">
+                <div key={p.id} className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 border border-border">
                   <div>
                     <p className="font-medium text-foreground">{p.name}</p>
                     {p.description && <p className="text-sm text-muted-foreground">{p.description}</p>}
@@ -270,15 +316,75 @@ export default function Booking() {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         )}
 
+        {/* Calendar */}
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-1 flex items-center gap-2">
+            <CalendarDays className="w-5 h-5 text-primary" />
+            Escolha {multipleMode ? "as datas" : "uma data"}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">Datas em vermelho já estão ocupadas.</p>
+
+          <div className="flex items-center gap-2 mb-4 p-3 bg-secondary/30 rounded-lg">
+            <Switch checked={multipleMode} onCheckedChange={setMultipleMode} />
+            <Label className="cursor-pointer">Contratar múltiplas datas</Label>
+          </div>
+
+          <div className="flex justify-center">
+            {multipleMode ? (
+              <Calendar
+                mode="multiple"
+                selected={selectedDates}
+                onSelect={handleMultipleDatesSelect}
+                locale={ptBR}
+                disabled={(date) => isBefore(date, startOfDay(new Date())) || confirmedDateSet.has(format(date, "yyyy-MM-dd"))}
+                modifiers={{
+                  booked: (date) => confirmedDateSet.has(format(date, "yyyy-MM-dd")),
+                }}
+                modifiersClassNames={{
+                  booked: "!bg-destructive/20 !text-destructive line-through cursor-not-allowed",
+                }}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            ) : (
+              <Calendar
+                mode="single"
+                selected={selectedDates[0]}
+                onSelect={handleDateSelect}
+                locale={ptBR}
+                disabled={(date) => isBefore(date, startOfDay(new Date())) || confirmedDateSet.has(format(date, "yyyy-MM-dd"))}
+                modifiers={{
+                  booked: (date) => confirmedDateSet.has(format(date, "yyyy-MM-dd")),
+                }}
+                modifiersClassNames={{
+                  booked: "!bg-destructive/20 !text-destructive line-through cursor-not-allowed",
+                }}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            )}
+          </div>
+
+          {multipleMode && selectedDates.length > 0 && (
+            <div className="mt-4">
+              <Button onClick={() => setShowForm(true)} className="w-full">
+                Continuar com {selectedDates.length} {selectedDates.length === 1 ? "data" : "datas"}
+              </Button>
+            </div>
+          )}
+        </Card>
+
         {/* Booking Form */}
-        {showForm && selectedDate && (
-          <div className="bg-card rounded-xl border border-border p-6">
+        {showForm && selectedDates.length > 0 && (
+          <Card className="p-6">
             <h2 className="text-lg font-semibold text-foreground mb-1">Solicitar Contratação</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Data selecionada: <strong>{format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</strong>
+              {selectedDates.length === 1 ? (
+                <>Data selecionada: <strong>{format(selectedDates[0], "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</strong></>
+              ) : (
+                <>{selectedDates.length} datas selecionadas</>
+              )}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -297,7 +403,7 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <Label>Telefone *</Label>
+                  <Label>Telefone / WhatsApp *</Label>
                   <div className="relative mt-1">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
@@ -308,6 +414,27 @@ export default function Booking() {
                       required
                     />
                   </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Tipo de Evento</Label>
+                  <Input
+                    className="mt-1 bg-secondary"
+                    value={eventType}
+                    onChange={(e) => setEventType(e.target.value)}
+                    placeholder="Ex: Casamento, Bar, Festa"
+                  />
+                </div>
+                <div>
+                  <Label>Horário do Evento</Label>
+                  <Input
+                    className="mt-1 bg-secondary"
+                    type="time"
+                    value={eventTime}
+                    onChange={(e) => setEventTime(e.target.value)}
+                  />
                 </div>
               </div>
 
@@ -356,13 +483,13 @@ export default function Booking() {
                   className="mt-1 bg-secondary"
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  placeholder="Detalhes sobre o evento, horário desejado, etc."
+                  placeholder="Detalhes sobre o evento, estrutura necessária, etc."
                   rows={3}
                 />
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setSelectedDate(undefined); }}>
+                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setSelectedDates([]); }}>
                   Voltar
                 </Button>
                 <Button type="submit" disabled={submitting} className="flex-1">
@@ -371,7 +498,7 @@ export default function Booking() {
                 </Button>
               </div>
             </form>
-          </div>
+          </Card>
         )}
       </div>
     </div>

@@ -278,6 +278,8 @@ export type Database = {
           event_city: string | null
           event_date: string
           event_location: string | null
+          event_time: string | null
+          event_type: string | null
           id: string
           observations: string | null
           product_id: string | null
@@ -293,6 +295,8 @@ export type Database = {
           event_city?: string | null
           event_date: string
           event_location?: string | null
+          event_time?: string | null
+          event_type?: string | null
           id?: string
           observations?: string | null
           product_id?: string | null
@@ -308,6 +312,8 @@ export type Database = {
           event_city?: string | null
           event_date?: string
           event_location?: string | null
+          event_time?: string | null
+          event_type?: string | null
           id?: string
           observations?: string | null
           product_id?: string | null
@@ -1145,6 +1151,7 @@ export type Database = {
           artist_name: string | null
           avatar_url: string | null
           base_city: string | null
+          bio: string | null
           city: string | null
           created_at: string
           delay_tolerance: string | null
@@ -1153,8 +1160,10 @@ export type Database = {
           feature_blocks: Json | null
           has_interval: boolean | null
           id: string
+          instagram_url: string | null
           last_seen: string | null
           late_fee_percentage: number | null
+          media_kit_url: string | null
           min_fee: number | null
           music_style: string | null
           name: string | null
@@ -1163,14 +1172,20 @@ export type Database = {
           phone: string | null
           plan: string | null
           project_type: string | null
+          repertoire_url: string | null
           requires_food: boolean | null
           show_duration: string | null
+          show_video_url: string | null
           slug: string | null
+          spotify_url: string | null
           start_time_limit: string | null
+          tiktok_url: string | null
           trial_days: number | null
           trial_start: string | null
           updated_at: string
           user_id: string
+          website_url: string | null
+          youtube_url: string | null
         }
         Insert: {
           accepted_payment?: string | null
@@ -1178,6 +1193,7 @@ export type Database = {
           artist_name?: string | null
           avatar_url?: string | null
           base_city?: string | null
+          bio?: string | null
           city?: string | null
           created_at?: string
           delay_tolerance?: string | null
@@ -1186,8 +1202,10 @@ export type Database = {
           feature_blocks?: Json | null
           has_interval?: boolean | null
           id?: string
+          instagram_url?: string | null
           last_seen?: string | null
           late_fee_percentage?: number | null
+          media_kit_url?: string | null
           min_fee?: number | null
           music_style?: string | null
           name?: string | null
@@ -1196,14 +1214,20 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           project_type?: string | null
+          repertoire_url?: string | null
           requires_food?: boolean | null
           show_duration?: string | null
+          show_video_url?: string | null
           slug?: string | null
+          spotify_url?: string | null
           start_time_limit?: string | null
+          tiktok_url?: string | null
           trial_days?: number | null
           trial_start?: string | null
           updated_at?: string
           user_id: string
+          website_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
           accepted_payment?: string | null
@@ -1211,6 +1235,7 @@ export type Database = {
           artist_name?: string | null
           avatar_url?: string | null
           base_city?: string | null
+          bio?: string | null
           city?: string | null
           created_at?: string
           delay_tolerance?: string | null
@@ -1219,8 +1244,10 @@ export type Database = {
           feature_blocks?: Json | null
           has_interval?: boolean | null
           id?: string
+          instagram_url?: string | null
           last_seen?: string | null
           late_fee_percentage?: number | null
+          media_kit_url?: string | null
           min_fee?: number | null
           music_style?: string | null
           name?: string | null
@@ -1229,14 +1256,20 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           project_type?: string | null
+          repertoire_url?: string | null
           requires_food?: boolean | null
           show_duration?: string | null
+          show_video_url?: string | null
           slug?: string | null
+          spotify_url?: string | null
           start_time_limit?: string | null
+          tiktok_url?: string | null
           trial_days?: number | null
           trial_start?: string | null
           updated_at?: string
           user_id?: string
+          website_url?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }

@@ -738,6 +738,10 @@ export default function Configuracoes() {
             </div>
           </div>
         </TabsContent>
+
+        <TabsContent value="public" className="space-y-6">
+          <PublicProfileSection />
+        </TabsContent>
       </Tabs>
     </Layout>
   );
