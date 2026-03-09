@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useBookingRequests } from "@/hooks/useBookingRequests";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,8 @@ export default function Solicitacoes() {
   const { requests, loading: loadingRequests, updateRequestStatus, deleteRequest } = useBookingRequests();
   const { profile, updateProfile, loading: loadingProfile } = useProfile();
 
+  const { user } = useAuth();
+
   const [copied, setCopied] = useState(false);
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
@@ -43,6 +47,36 @@ export default function Solicitacoes() {
   const [bookingDiscountPercent, setBookingDiscountPercent] = useState(profile?.booking_discount_percent ?? 10);
   const [bookingMinDatesDiscount, setBookingMinDatesDiscount] = useState(profile?.booking_min_dates_discount ?? 3);
   const [bookingShowProducts, setBookingShowProducts] = useState(profile?.booking_show_products ?? true);
+
+  // Products for online visibility toggle
+  interface ProductItem {
+    id: string;
+    name: string;
+    price: number;
+    visible_online: boolean;
+  }
+  const [onlineProducts, setOnlineProducts] = useState<ProductItem[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchProducts = async () => {
+      setLoadingProducts(true);
+      const { data } = await supabase
+        .from("performance_types")
+        .select("id, name, price, visible_online")
+        .eq("user_id", user.id)
+        .order("name");
+      if (data) setOnlineProducts(data);
+      setLoadingProducts(false);
+    };
+    fetchProducts();
+  }, [user]);
+
+  const toggleProductOnline = async (productId: string, value: boolean) => {
+    setOnlineProducts(prev => prev.map(p => p.id === productId ? { ...p, visible_online: value } : p));
+    await supabase.from("performance_types").update({ visible_online: value }).eq("id", productId);
+  };
 
   // Gerar slug automaticamente a partir do nome do artista
   const generateSlug = (name: string) => {
@@ -326,16 +360,16 @@ export default function Solicitacoes() {
             </div>
           </Card>
 
-          {/* Exibir Produtos */}
+          {/* Serviços Visíveis Online */}
           <Card className="p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Package className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Exibir Serviços e Produtos</h3>
-                  <p className="text-sm text-muted-foreground">Mostrar seu catálogo de serviços na página pública de agendamento</p>
+                  <h3 className="text-base font-semibold text-foreground">Serviços Visíveis Online</h3>
+                  <p className="text-sm text-muted-foreground">Escolha quais serviços aparecerão na sua página pública</p>
                 </div>
               </div>
               <Switch
@@ -343,6 +377,37 @@ export default function Solicitacoes() {
                 onCheckedChange={setBookingShowProducts}
               />
             </div>
+            {bookingShowProducts && (
+              <div className="space-y-2 mt-4 border-t border-border pt-4">
+                {loadingProducts ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : onlineProducts.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nenhum serviço cadastrado. Crie serviços em <strong>Serviços e Produtos</strong>.
+                  </p>
+                ) : (
+                  onlineProducts.map((product) => (
+                    <div key={product.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Package className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{product.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            R$ {product.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={product.visible_online}
+                        onCheckedChange={(checked) => toggleProductOnline(product.id, checked)}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </Card>
 
           {/* Configurações de Agendamento */}
