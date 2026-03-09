@@ -276,6 +276,15 @@ export default function Booking() {
 
   const hasDiscount = selectedDates.length >= 3;
   const discountPercentage = 10;
+  // Discount applies only to dates beyond the first 2
+  const fullPriceDates = Math.min(selectedDates.length, 2);
+  const discountedDates = Math.max(selectedDates.length - 2, 0);
+  const computeTotal = (price: number) => {
+    const full = price * fullPriceDates;
+    const discounted = price * discountedDates * (1 - discountPercentage / 100);
+    return full + discounted;
+  };
+  const computeDiscount = (price: number) => price * discountedDates * (discountPercentage / 100);
 
   // Step indicator
   const steps = [
@@ -375,11 +384,11 @@ export default function Booking() {
                 </div>
                 <div>
                   <p className="font-semibold text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-yellow-500" />
+                    <Sparkles className="w-4 h-4 text-warning" />
                     Condição especial!
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong>.
+                    Contrate 3 ou mais datas e ganhe <strong className="text-primary">{discountPercentage}% de desconto</strong> a partir da 3ª data!
                   </p>
                 </div>
               </div>
@@ -508,20 +517,24 @@ export default function Booking() {
                 {selectedProduct.price > 0 && (
                   <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>{selectedDates.length}x {selectedProduct.name}</span>
-                      <span>R$ {(selectedProduct.price * selectedDates.length).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <span>{fullPriceDates}x valor integral</span>
+                      <span>R$ {(selectedProduct.price * fullPriceDates).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </div>
                     {hasDiscount && (
-                      <div className="flex justify-between text-sm text-success font-medium">
-                        <span>Desconto ({discountPercentage}%)</span>
-                        <span>- R$ {(selectedProduct.price * selectedDates.length * discountPercentage / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                      </div>
+                      <>
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>{discountedDates}x com {discountPercentage}% off</span>
+                          <span>R$ {(selectedProduct.price * discountedDates * (1 - discountPercentage / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-success font-medium">
+                          <span>Economia</span>
+                          <span>- R$ {computeDiscount(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                        </div>
+                      </>
                     )}
                     <div className="flex justify-between text-base font-bold text-foreground pt-1">
                       <span>Total</span>
-                      <span>
-                        R$ {(selectedProduct.price * selectedDates.length * (hasDiscount ? (100 - discountPercentage) / 100 : 1)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </span>
+                      <span>R$ {computeTotal(selectedProduct.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </div>
                   </div>
                 )}
