@@ -195,7 +195,7 @@ export default function Booking() {
   const handleBackToProducts = () => {
     setSelectedProduct(null);
     setSelectedDates([]);
-    setStep("products");
+    setStep(showProducts ? "products" : "calendar");
   };
 
   const handleContinueToForm = () => {
