@@ -74,7 +74,7 @@ export default function Booking() {
   const [notFound, setNotFound] = useState(false);
 
   // Wizard step
-  const [step, setStep] = useState<BookingStep>("products");
+  const [step, setStep] = useState<BookingStep>("products"); // will be adjusted after load
   const [selectedProduct, setSelectedProduct] = useState<PerformanceType | null>(null);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [submitted, setSubmitted] = useState(false);
