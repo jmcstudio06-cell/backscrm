@@ -35,6 +35,11 @@ export default function Solicitacoes() {
   const { user } = useAuth();
 
   const [copied, setCopied] = useState(false);
+  const [requestFilter, setRequestFilter] = useState<"todas" | "pendente" | "aprovado" | "recusado">("todas");
+
+  const filteredRequests = requestFilter === "todas" 
+    ? requests 
+    : requests.filter(r => r.status === requestFilter);
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
   const [youtubeUrl, setYoutubeUrl] = useState(profile?.youtube_url || "");
