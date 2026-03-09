@@ -36,7 +36,6 @@ import {
   Inbox,
   Package,
   Sparkles,
-  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -106,7 +105,6 @@ const menuItems: MenuItem[] = [
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
   
   { icon: Inbox, label: "Solicitações", path: "/solicitacoes", featureKey: "agenda" },
-  { icon: Bell, label: "Notificações", path: "/notificacoes" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
@@ -122,7 +120,6 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
   const { pendingCount } = usePendingChecklist();
-  const { unreadCount } = useNotifications();
 
   const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
 
@@ -266,11 +263,6 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="text-sm font-medium flex-1">{item.label}</span>
-                    {item.label === "Notificações" && unreadCount > 0 && (
-                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs font-bold">
-                        {unreadCount > 99 ? "99+" : unreadCount}
-                      </Badge>
-                    )}
                   </RouterNavLink>
                 </li>
               );
