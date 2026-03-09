@@ -105,7 +105,6 @@ const menuItems: MenuItem[] = [
   { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
   
   { icon: Inbox, label: "Solicitações", path: "/solicitacoes", featureKey: "agenda" },
-  { icon: Bell, label: "Notificações", path: "/notificacoes" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
