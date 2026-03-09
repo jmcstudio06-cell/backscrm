@@ -378,6 +378,7 @@ export default function Booking() {
         {step === "products" && (
           <>
             {/* Banner de desconto */}
+            {DISCOUNT_PERCENT > 0 && MAX_DATES >= MIN_DATES_DISCOUNT && (
             <Card className="p-4 border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
@@ -394,6 +395,7 @@ export default function Booking() {
                 </div>
               </div>
             </Card>
+            )}
 
             {/* Portfolio Links */}
             {portfolioLinks.length > 0 && (
