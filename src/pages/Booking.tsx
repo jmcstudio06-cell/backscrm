@@ -212,7 +212,7 @@ export default function Booking() {
 
   const resetBooking = () => {
     setSubmitted(false);
-    setStep("products");
+    setStep(showProducts ? "products" : "calendar");
     setSelectedProduct(null);
     setSelectedDates([]);
     setClientName("");
