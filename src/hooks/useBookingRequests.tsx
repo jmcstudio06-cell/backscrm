@@ -46,14 +46,25 @@ export function useBookingRequests() {
   const createShowFromRequest = async (request: BookingRequest) => {
     if (!user) return false;
     try {
-      const { error: showError } = await supabase
+      // Ensure date is a clean YYYY-MM-DD string (avoid UTC shift)
+      const eventDate = typeof request.event_date === 'string' 
+        ? request.event_date.substring(0, 10) 
+        : request.event_date;
+
+      console.log("Creating show from booking request:", { 
+        title: request.client_name, 
+        date: eventDate, 
+        originalDate: request.event_date 
+      });
+
+      const { data, error: showError } = await supabase
         .from("shows")
         .insert([{
           user_id: user.id,
           title: request.product_name
             ? `${request.client_name} - ${request.product_name}`
             : request.client_name,
-          date: request.event_date,
+          date: eventDate,
           start_time: request.event_time || null,
           venue: request.event_location || null,
           address: request.event_city || null,
@@ -61,12 +72,14 @@ export function useBookingRequests() {
           notes: request.observations || null,
           status: "confirmed",
           cachet: 0,
-        }]);
+        }])
+        .select();
 
       if (showError) {
         console.error("Error creating show from booking:", showError);
         return false;
       }
+      console.log("Show created successfully:", data);
       return true;
     } catch (error) {
       console.error("Error creating show from booking:", error);
