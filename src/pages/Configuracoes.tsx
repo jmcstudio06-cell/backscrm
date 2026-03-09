@@ -67,7 +67,7 @@ const COLOR_LABELS: Record<string, string> = {
 
 export default function Configuracoes() {
   const { profile, loading, updateProfile } = useProfile();
-  const { plan, daysRemaining, trialStart } = useTrialStatus();
+  const { plan, daysRemaining, trialStart } = useTrialStatus(profile);
   const { settings: customization, updateSettings, resetSettings } = useCustomization();
   const navigate = useNavigate();
   
