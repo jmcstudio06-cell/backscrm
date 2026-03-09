@@ -89,20 +89,12 @@ export default function Booking() {
       setArtist(profileData);
 
       const [productsRes, showsRes] = await Promise.all([
-        supabase
-          .from("performance_types")
-          .select("id, name, description, price, icon")
-          .eq("user_id", profileData.user_id)
-          .order("name"),
-        supabase
-          .from("shows")
-          .select("date")
-          .eq("user_id", profileData.user_id)
-          .in("status", ["confirmed", "scheduled"]),
+        supabase.rpc("get_artist_products", { artist_user_id: profileData.user_id }),
+        supabase.rpc("get_artist_occupied_dates", { artist_user_id: profileData.user_id }),
       ]);
 
       if (productsRes.data) setProducts(productsRes.data);
-      if (showsRes.data) setConfirmedDates(showsRes.data.map((s) => s.date));
+      if (showsRes.data) setConfirmedDates(showsRes.data.map((s: { show_date: string }) => s.show_date));
     } catch (error) {
       console.error("Error loading artist data:", error);
       setNotFound(true);
