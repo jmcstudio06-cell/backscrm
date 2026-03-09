@@ -2116,6 +2116,12 @@ export type Database = {
       auto_complete_past_shows: { Args: never; Returns: number }
       cleanup_old_landing_visits: { Args: never; Returns: number }
       cleanup_old_notifications: { Args: never; Returns: number }
+      get_artist_occupied_dates: {
+        Args: { artist_user_id: string }
+        Returns: {
+          show_date: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
