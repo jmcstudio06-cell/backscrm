@@ -232,9 +232,23 @@ export default function Solicitacoes() {
                   </div>
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Configure seu <strong>nome artístico</strong> nas Configurações de Perfil para gerar automaticamente seu link público.
-                </p>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Para gerar seu link público, defina seu <strong>nome artístico</strong> abaixo:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={newArtistName}
+                      onChange={(e) => setNewArtistName(e.target.value)}
+                      placeholder="Ex: Larissa Santos, Banda XYZ..."
+                      className="flex-1"
+                    />
+                    <Button onClick={handleSaveArtistName} disabled={savingName} className="shrink-0 gap-1.5">
+                      {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                      Gerar Link
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </Card>
