@@ -36,6 +36,8 @@ export default function Solicitacoes() {
 
   const [copied, setCopied] = useState(false);
   const [requestFilter, setRequestFilter] = useState<"todas" | "pendente" | "aprovado" | "recusado">("todas");
+  const [newArtistName, setNewArtistName] = useState("");
+  const [savingName, setSavingName] = useState(false);
 
   const filteredRequests = requestFilter === "todas" 
     ? requests 
