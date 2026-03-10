@@ -105,9 +105,31 @@ export default function Booking() {
         .maybeSingle();
 
       if (profileError) throw profileError;
-      if (!profileData) {
-        setNotFound(true);
-        return;
+      
+      let finalProfile = profileData;
+      
+      // Fallback: search by normalized name if slug not found directly
+      if (!finalProfile) {
+        const normalizedSlug = slug!.toLowerCase();
+        const { data: allProfiles } = await supabase
+          .from("artist_public_profiles")
+          .select("user_id, slug, artist_name, avatar_url, base_city, music_style, project_type, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_max_dates, booking_discount_percent, booking_min_dates_discount, booking_show_products");
+        
+        if (allProfiles) {
+          finalProfile = allProfiles.find((p) => {
+            const nameSlug = (p.artist_name || "")
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/[^a-z0-9]/g, "");
+            return nameSlug === normalizedSlug;
+          }) || null;
+        }
+        
+        if (!finalProfile) {
+          setNotFound(true);
+          return;
+        }
       }
 
       setArtist(profileData);
