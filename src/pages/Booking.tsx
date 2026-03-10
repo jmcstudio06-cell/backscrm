@@ -135,13 +135,13 @@ export default function Booking() {
       setArtist(finalProfile);
 
       // Skip products step if disabled
-      if (!profileData.booking_show_products) {
+      if (!finalProfile.booking_show_products) {
         setStep("calendar");
       }
 
       const [productsRes, showsRes] = await Promise.all([
-        supabase.rpc("get_artist_products", { artist_user_id: profileData.user_id }),
-        supabase.rpc("get_artist_occupied_dates", { artist_user_id: profileData.user_id }),
+        supabase.rpc("get_artist_products", { artist_user_id: finalProfile.user_id }),
+        supabase.rpc("get_artist_occupied_dates", { artist_user_id: finalProfile.user_id }),
       ]);
 
       if (productsRes.data) setProducts(productsRes.data);
