@@ -132,7 +132,7 @@ export default function Booking() {
         }
       }
 
-      setArtist(profileData);
+      setArtist(finalProfile);
 
       // Skip products step if disabled
       if (!profileData.booking_show_products) {
