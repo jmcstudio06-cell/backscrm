@@ -121,6 +121,25 @@ export default function Solicitacoes() {
     ? `${publishedDomain}/artista/${autoSlug}`
     : "";
 
+  // Auto-save slug when profile loads and slug is missing
+  useEffect(() => {
+    if (profile && autoSlug && !profile.slug) {
+      updateProfile({ slug: autoSlug });
+    }
+  }, [profile, autoSlug]);
+
+  const handleSaveArtistName = async () => {
+    if (!newArtistName.trim()) {
+      toast.error("Digite o nome artístico.");
+      return;
+    }
+    setSavingName(true);
+    const slug = generateSlug(newArtistName.trim());
+    await updateProfile({ artist_name: newArtistName.trim(), slug });
+    setSavingName(false);
+    toast.success("Nome artístico salvo! Seu link foi gerado.");
+  };
+
   const copyPublicLink = () => {
     if (publicUrl) {
       navigator.clipboard.writeText(publicUrl);
