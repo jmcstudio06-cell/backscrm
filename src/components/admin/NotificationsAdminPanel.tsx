@@ -317,6 +317,32 @@ const AUTOMATION_CONFIG = [
     }
   };
 
+  const runSingleAutomation = async (settingKey: string) => {
+    setRunningIndividual((prev) => ({ ...prev, [settingKey]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke("run-automated-notifications", {
+        body: { automation_key: settingKey },
+      });
+
+      if (error) throw error;
+
+      const sent = data?.sent || 0;
+      const automation = AUTOMATION_CONFIG.find((a) => a.key === settingKey);
+      if (sent > 0) {
+        toast.success(`🔔 ${automation?.title}: ${sent} notificações enviadas!`);
+      } else {
+        toast.info(`${automation?.title}: nenhum usuário se enquadrou nos critérios.`);
+      }
+
+      fetchData();
+    } catch (error) {
+      console.error("Error running automation:", error);
+      toast.error("Erro ao executar automação");
+    } finally {
+      setRunningIndividual((prev) => ({ ...prev, [settingKey]: false }));
+    }
+  };
+
   const sendManualNotification = async () => {
     if (!manualTitle.trim() || !manualMessage.trim()) {
       toast.error("Preencha o título e a mensagem");
