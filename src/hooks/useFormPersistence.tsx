@@ -15,7 +15,7 @@ export function useFormPersistence<T>({
   enabled = true,
 }: UseFormPersistenceOptions<T>) {
   const storageKey = `${STORAGE_KEY_PREFIX}${key}`;
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize state from localStorage or initial value
   const [value, setValue] = useState<T>(() => {
