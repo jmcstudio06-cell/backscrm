@@ -173,7 +173,9 @@ const AUTOMATION_CONFIG = [
  
   const [editingTexts, setEditingTexts] = useState<Record<string, string>>({});
   const [editingConfigs, setEditingConfigs] = useState<Record<string, number>>({});
+  const [editingTimes, setEditingTimes] = useState<Record<string, string>>({});
   const [runningAutomations, setRunningAutomations] = useState(false);
+  const [runningIndividual, setRunningIndividual] = useState<Record<string, boolean>>({});
  
    useEffect(() => {
      fetchData();
