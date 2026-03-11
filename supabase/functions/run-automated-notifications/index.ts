@@ -476,28 +476,72 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Parse optional body
+    let automationKey: string | null = null;
+    try {
+      const body = await req.json();
+      automationKey = body?.automation_key || null;
+    } catch {
+      // no body or invalid json - run all
+    }
+
     // 1. Cleanup old history (48h)
     await supabase.rpc("cleanup_old_notifications");
     console.log("[Cleanup] Old notifications cleaned up");
 
     // 2. Fetch enabled automations
-    const { data: settings } = await supabase
+    let query = supabase
       .from("notification_settings")
       .select("*")
       .eq("is_enabled", true);
 
+    // If a specific automation was requested, filter to just that one
+    if (automationKey) {
+      query = query.eq("setting_key", automationKey);
+    }
+
+    const { data: settings } = await query;
+
     if (!settings || settings.length === 0) {
-      console.log("[Automations] No enabled automations");
+      console.log("[Automations] No enabled automations found");
       return new Response(JSON.stringify({ message: "No enabled automations", sent: 0 }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log(`[Automations] Running ${settings.length} enabled automations`);
+    // If running all (no specific key), check scheduled_time for each automation
+    // Only run automations whose scheduled_time matches the current hour (or has no scheduled_time)
+    const now = new Date();
+    const currentHour = now.getUTCHours();
+    const currentMinute = now.getUTCMinutes();
+    // Convert to Brasilia time (UTC-3)
+    const brasiliaOffset = -3;
+    const brasiliaHour = (currentHour + brasiliaOffset + 24) % 24;
+    const brasiliaTimeStr = `${String(brasiliaHour).padStart(2, "0")}:${String(currentMinute).padStart(2, "0")}`;
+
+    const filteredSettings = automationKey
+      ? settings // When running a specific one manually, always run it
+      : settings.filter((s: any) => {
+          const config = s.config && typeof s.config === "object" ? s.config : {};
+          const scheduledTime = (config as any).scheduled_time;
+          if (!scheduledTime) return true; // No time set = run always (backward compat)
+          // Match if current hour matches scheduled hour
+          const [schedH] = scheduledTime.split(":");
+          return parseInt(schedH) === brasiliaHour;
+        });
+
+    if (filteredSettings.length === 0) {
+      console.log(`[Automations] No automations scheduled for ${brasiliaTimeStr} (Brasília)`);
+      return new Response(JSON.stringify({ message: "No automations scheduled for this time", sent: 0 }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log(`[Automations] Running ${filteredSettings.length} automations at ${brasiliaTimeStr} (Brasília)`);
 
     let totalSent = 0;
 
-    for (const setting of settings) {
+    for (const setting of filteredSettings) {
       const config = setting.config && typeof setting.config === "object" ? setting.config : {};
       const text = setting.notification_text || "";
 
