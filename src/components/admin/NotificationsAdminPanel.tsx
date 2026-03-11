@@ -254,12 +254,17 @@ const AUTOMATION_CONFIG = [
        const automationConfig = AUTOMATION_CONFIG.find((a) => a.key === settingKey);
        const newConfig: Record<string, unknown> = {};
  
-       if (automationConfig?.configField) {
-         const configValue = editingConfigs[`${settingKey}_${automationConfig.configField}`];
-         if (configValue) {
-           newConfig[automationConfig.configField] = configValue;
-         }
-       }
+        if (automationConfig?.configField) {
+          const configValue = editingConfigs[`${settingKey}_${automationConfig.configField}`];
+          if (configValue) {
+            newConfig[automationConfig.configField] = configValue;
+          }
+        }
+
+        // Save scheduled time
+        if (editingTimes[settingKey]) {
+          newConfig.scheduled_time = editingTimes[settingKey];
+        }
  
        const { error } = await supabase
          .from("notification_settings")
