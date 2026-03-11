@@ -199,17 +199,20 @@ const AUTOMATION_CONFIG = [
        if (settingsResult.data) {
          setSettings(settingsResult.data as NotificationSetting[]);
          // Initialize editing states
-         const texts: Record<string, string> = {};
-         const configs: Record<string, number> = {};
-         settingsResult.data.forEach((s: NotificationSetting) => {
-           texts[s.setting_key] = s.notification_text || "";
-           const config = parseConfig(s.config);
-            if (config.hours_before) configs[`${s.setting_key}_hours_before`] = config.hours_before as number;
-            if (config.days_inactive) configs[`${s.setting_key}_days_inactive`] = config.days_inactive as number;
-            if (config.interval_days) configs[`${s.setting_key}_interval_days`] = config.interval_days as number;
-         });
-         setEditingTexts(texts);
-         setEditingConfigs(configs);
+          const texts: Record<string, string> = {};
+          const configs: Record<string, number> = {};
+          const times: Record<string, string> = {};
+          settingsResult.data.forEach((s: NotificationSetting) => {
+            texts[s.setting_key] = s.notification_text || "";
+            const config = parseConfig(s.config);
+             if (config.hours_before) configs[`${s.setting_key}_hours_before`] = config.hours_before as number;
+             if (config.days_inactive) configs[`${s.setting_key}_days_inactive`] = config.days_inactive as number;
+             if (config.interval_days) configs[`${s.setting_key}_interval_days`] = config.interval_days as number;
+             if (config.scheduled_time) times[s.setting_key] = config.scheduled_time as string;
+          });
+          setEditingTexts(texts);
+          setEditingConfigs(configs);
+          setEditingTimes(times);
        }
  
        if (historyResult.data) {
