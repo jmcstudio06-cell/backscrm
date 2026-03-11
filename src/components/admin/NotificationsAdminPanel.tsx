@@ -173,7 +173,9 @@ const AUTOMATION_CONFIG = [
  
   const [editingTexts, setEditingTexts] = useState<Record<string, string>>({});
   const [editingConfigs, setEditingConfigs] = useState<Record<string, number>>({});
+  const [editingTimes, setEditingTimes] = useState<Record<string, string>>({});
   const [runningAutomations, setRunningAutomations] = useState(false);
+  const [runningIndividual, setRunningIndividual] = useState<Record<string, boolean>>({});
  
    useEffect(() => {
      fetchData();
@@ -197,17 +199,20 @@ const AUTOMATION_CONFIG = [
        if (settingsResult.data) {
          setSettings(settingsResult.data as NotificationSetting[]);
          // Initialize editing states
-         const texts: Record<string, string> = {};
-         const configs: Record<string, number> = {};
-         settingsResult.data.forEach((s: NotificationSetting) => {
-           texts[s.setting_key] = s.notification_text || "";
-           const config = parseConfig(s.config);
-            if (config.hours_before) configs[`${s.setting_key}_hours_before`] = config.hours_before as number;
-            if (config.days_inactive) configs[`${s.setting_key}_days_inactive`] = config.days_inactive as number;
-            if (config.interval_days) configs[`${s.setting_key}_interval_days`] = config.interval_days as number;
-         });
-         setEditingTexts(texts);
-         setEditingConfigs(configs);
+          const texts: Record<string, string> = {};
+          const configs: Record<string, number> = {};
+          const times: Record<string, string> = {};
+          settingsResult.data.forEach((s: NotificationSetting) => {
+            texts[s.setting_key] = s.notification_text || "";
+            const config = parseConfig(s.config);
+             if (config.hours_before) configs[`${s.setting_key}_hours_before`] = config.hours_before as number;
+             if (config.days_inactive) configs[`${s.setting_key}_days_inactive`] = config.days_inactive as number;
+             if (config.interval_days) configs[`${s.setting_key}_interval_days`] = config.interval_days as number;
+             if (config.scheduled_time) times[s.setting_key] = config.scheduled_time as string;
+          });
+          setEditingTexts(texts);
+          setEditingConfigs(configs);
+          setEditingTimes(times);
        }
  
        if (historyResult.data) {
@@ -249,12 +254,17 @@ const AUTOMATION_CONFIG = [
        const automationConfig = AUTOMATION_CONFIG.find((a) => a.key === settingKey);
        const newConfig: Record<string, unknown> = {};
  
-       if (automationConfig?.configField) {
-         const configValue = editingConfigs[`${settingKey}_${automationConfig.configField}`];
-         if (configValue) {
-           newConfig[automationConfig.configField] = configValue;
-         }
-       }
+        if (automationConfig?.configField) {
+          const configValue = editingConfigs[`${settingKey}_${automationConfig.configField}`];
+          if (configValue) {
+            newConfig[automationConfig.configField] = configValue;
+          }
+        }
+
+        // Save scheduled time
+        if (editingTimes[settingKey]) {
+          newConfig.scheduled_time = editingTimes[settingKey];
+        }
  
        const { error } = await supabase
          .from("notification_settings")
@@ -304,6 +314,32 @@ const AUTOMATION_CONFIG = [
       toast.error("Erro ao executar automações");
     } finally {
       setRunningAutomations(false);
+    }
+  };
+
+  const runSingleAutomation = async (settingKey: string) => {
+    setRunningIndividual((prev) => ({ ...prev, [settingKey]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke("run-automated-notifications", {
+        body: { automation_key: settingKey },
+      });
+
+      if (error) throw error;
+
+      const sent = data?.sent || 0;
+      const automation = AUTOMATION_CONFIG.find((a) => a.key === settingKey);
+      if (sent > 0) {
+        toast.success(`🔔 ${automation?.title}: ${sent} notificações enviadas!`);
+      } else {
+        toast.info(`${automation?.title}: nenhum usuário se enquadrou nos critérios.`);
+      }
+
+      fetchData();
+    } catch (error) {
+      console.error("Error running automation:", error);
+      toast.error("Erro ao executar automação");
+    } finally {
+      setRunningIndividual((prev) => ({ ...prev, [settingKey]: false }));
     }
   };
 
@@ -552,56 +588,95 @@ const AUTOMATION_CONFIG = [
                    />
                  </div>
  
-                 {isEnabled && (
-                   <div className="pl-10 space-y-4">
-                     <Separator />
- 
-                     {automation.configField && (
-                       <div className="space-y-2">
-                         <Label>{automation.configLabel}</Label>
-                         <Input
-                           type="number"
-                           value={editingConfigs[`${automation.key}_${automation.configField}`] || ""}
-                           onChange={(e) =>
-                             setEditingConfigs((prev) => ({
-                               ...prev,
-                               [`${automation.key}_${automation.configField}`]: parseInt(e.target.value) || 0,
-                             }))
-                           }
-                           className="max-w-[200px]"
-                         />
-                       </div>
-                     )}
- 
-                     <div className="space-y-2">
-                       <Label>Texto da notificação</Label>
-                       <Textarea
-                         value={editingTexts[automation.key] || ""}
-                         onChange={(e) =>
-                           setEditingTexts((prev) => ({
-                             ...prev,
-                             [automation.key]: e.target.value,
-                           }))
-                         }
-                         placeholder="Digite o texto da notificação..."
-                         rows={2}
-                       />
-                       <p className="text-xs text-muted-foreground">
-                         <Info className="inline h-3 w-3 mr-1" />
-                         Variáveis disponíveis: {"{show_title}"}, {"{remaining}"}, {"{user_name}"}
-                       </p>
-                     </div>
- 
-                     <Button
-                       size="sm"
-                       onClick={() => saveAutomationSettings(automation.key)}
-                       disabled={savingSettings[`save_${automation.key}`]}
-                     >
-                       {savingSettings[`save_${automation.key}`] ? (
-                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                       ) : null}
-                       Salvar Configuração
-                     </Button>
+                  {isEnabled && (
+                    <div className="pl-10 space-y-4">
+                      <Separator />
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {automation.configField && (
+                          <div className="space-y-2">
+                            <Label>{automation.configLabel}</Label>
+                            <Input
+                              type="number"
+                              value={editingConfigs[`${automation.key}_${automation.configField}`] || ""}
+                              onChange={(e) =>
+                                setEditingConfigs((prev) => ({
+                                  ...prev,
+                                  [`${automation.key}_${automation.configField}`]: parseInt(e.target.value) || 0,
+                                }))
+                              }
+                              className="max-w-[200px]"
+                            />
+                          </div>
+                        )}
+
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Horário programado
+                          </Label>
+                          <Input
+                            type="time"
+                            value={editingTimes[automation.key] || ""}
+                            onChange={(e) =>
+                              setEditingTimes((prev) => ({
+                                ...prev,
+                                [automation.key]: e.target.value,
+                              }))
+                            }
+                            className="max-w-[200px]"
+                            placeholder="Ex: 09:00"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Horário em que essa automação será disparada diariamente
+                          </p>
+                        </div>
+                      </div>
+  
+                      <div className="space-y-2">
+                        <Label>Texto da notificação</Label>
+                        <Textarea
+                          value={editingTexts[automation.key] || ""}
+                          onChange={(e) =>
+                            setEditingTexts((prev) => ({
+                              ...prev,
+                              [automation.key]: e.target.value,
+                            }))
+                          }
+                          placeholder="Digite o texto da notificação..."
+                          rows={2}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          <Info className="inline h-3 w-3 mr-1" />
+                          Variáveis disponíveis: {"{show_title}"}, {"{remaining}"}, {"{user_name}"}
+                        </p>
+                      </div>
+  
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => saveAutomationSettings(automation.key)}
+                          disabled={savingSettings[`save_${automation.key}`]}
+                        >
+                          {savingSettings[`save_${automation.key}`] ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : null}
+                          Salvar Configuração
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => runSingleAutomation(automation.key)}
+                          disabled={runningIndividual[automation.key]}
+                        >
+                          {runningIndividual[automation.key] ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Play className="h-4 w-4 mr-2" />
+                          )}
+                          Enviar Agora
+                        </Button>
+                      </div>
                    </div>
                  )}
                </div>
