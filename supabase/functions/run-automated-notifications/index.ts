@@ -28,33 +28,17 @@ function b64urlDecode(str: string): Uint8Array {
 }
 
 async function createVapidAuth(
-  endpoint: string,
-  subject: string,
-  publicKeyB64: string,
-  privateKeyB64: string,
+  endpoint: string, subject: string, publicKeyB64: string, privateKeyB64: string,
 ): Promise<string> {
   const url = new URL(endpoint);
   const aud = url.origin;
   let sub = subject.replace(/[<>]/g, "").trim().replace(/\s+/g, "");
   if (!sub.startsWith("mailto:") && !sub.startsWith("http")) sub = `mailto:${sub}`;
-
   const pubRaw = b64urlDecode(publicKeyB64);
   const privRaw = b64urlDecode(privateKeyB64);
-  const jwk = {
-    kty: "EC" as const,
-    crv: "P-256" as const,
-    x: b64url(pubRaw.slice(1, 33)),
-    y: b64url(pubRaw.slice(33, 65)),
-    d: b64url(privRaw),
-  };
+  const jwk = { kty: "EC" as const, crv: "P-256" as const, x: b64url(pubRaw.slice(1, 33)), y: b64url(pubRaw.slice(33, 65)), d: b64url(privRaw) };
   const key = await importJWK(jwk, "ES256");
-  const jwt = await new SignJWT({})
-    .setProtectedHeader({ alg: "ES256", typ: "JWT" })
-    .setAudience(aud)
-    .setSubject(sub)
-    .setIssuedAt()
-    .setExpirationTime("1h")
-    .sign(key);
+  const jwt = await new SignJWT({}).setProtectedHeader({ alg: "ES256", typ: "JWT" }).setAudience(aud).setSubject(sub).setIssuedAt().setExpirationTime("1h").sign(key);
   return `vapid t=${jwt}, k=${publicKeyB64}`;
 }
 
@@ -132,7 +116,6 @@ async function sendToUsers(
 
   if (!allSubs || allSubs.length === 0) return 0;
 
-  // Dedupe: newest sub per user
   const seen = new Set<string>();
   const subs = allSubs.filter((s: any) => {
     if (seen.has(s.user_id)) return false;
@@ -169,15 +152,10 @@ async function sendToUsers(
 
   const sent = results.reduce((acc, r) => acc + (r.status === "fulfilled" && r.value ? 1 : 0), 0);
 
-  // Record in history
   if (sent > 0 || subs.length > 0) {
     await supabase.from("notification_history").insert({
-      title,
-      message: body,
-      action_url: url,
-      notification_type: notificationType,
-      target_audience: "automated",
-      users_reached: sent,
+      title, message: body, action_url: url,
+      notification_type: notificationType, target_audience: "automated", users_reached: sent,
     });
   }
 
@@ -189,17 +167,10 @@ async function sendToUsers(
 async function handleInactivity(supabase: any, config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
   const daysInactive = config?.days_inactive || 7;
   const cutoff = new Date(Date.now() - daysInactive * 24 * 60 * 60 * 1000).toISOString();
-
-  const { data: inactiveUsers } = await supabase
-    .from("profiles")
-    .select("user_id, name, artist_name")
-    .or(`last_seen.is.null,last_seen.lt.${cutoff}`);
-
+  const { data: inactiveUsers } = await supabase.from("profiles").select("user_id, name, artist_name").or(`last_seen.is.null,last_seen.lt.${cutoff}`);
   if (!inactiveUsers || inactiveUsers.length === 0) return 0;
-
   const userIds = inactiveUsers.map((u: any) => u.user_id);
   const message = text || "👋 Sentimos sua falta! Volte e continue evoluindo sua carreira musical.";
-
   console.log(`[Inactivity] Found ${userIds.length} inactive users (>${daysInactive} days)`);
   return sendToUsers(supabase, userIds, "⏰ Você sumiu!", message, "/dashboard", vapidPub, vapidPriv, vapidSub, "inactivity");
 }
@@ -208,185 +179,98 @@ async function handleShowReminder(supabase: any, config: any, text: string, vapi
   const hoursBefore = config?.hours_before || 24;
   const now = new Date();
   const target = new Date(now.getTime() + hoursBefore * 60 * 60 * 1000);
-  
-  // Shows happening within the next X hours
   const todayStr = now.toISOString().split("T")[0];
   const targetStr = target.toISOString().split("T")[0];
-
-  const { data: upcomingShows } = await supabase
-    .from("shows")
-    .select("id, title, user_id, date")
-    .in("status", ["confirmado", "pendente"])
-    .gte("date", todayStr)
-    .lte("date", targetStr);
-
+  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmado", "pendente"]).gte("date", todayStr).lte("date", targetStr);
   if (!upcomingShows || upcomingShows.length === 0) return 0;
-
   let totalSent = 0;
-  // Group by user and send personalized
   const byUser = new Map<string, any[]>();
   for (const show of upcomingShows) {
     if (!byUser.has(show.user_id)) byUser.set(show.user_id, []);
     byUser.get(show.user_id)!.push(show);
   }
-
   for (const [userId, shows] of byUser) {
     const showTitle = shows[0].title;
-    const message = text
-      ? text.replace(/{show_title}/g, showTitle)
-      : `🎤 Seu show "${showTitle}" é em breve! Confira os detalhes.`;
-
+    const message = text ? text.replace(/{show_title}/g, showTitle) : `🎤 Seu show "${showTitle}" é em breve! Confira os detalhes.`;
     const sent = await sendToUsers(supabase, [userId], "🎤 Show chegando!", message.trim(), "/agenda", vapidPub, vapidPriv, vapidSub, "show_reminder");
     totalSent += sent;
   }
-
   console.log(`[ShowReminder] Notified about ${upcomingShows.length} shows, sent ${totalSent}`);
   return totalSent;
 }
 
 async function handleGoalReminder(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  // Get all users with active goals
   const now = new Date();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
-
-  const { data: usersWithGoals } = await supabase
-    .from("user_goals")
-    .select("user_id")
-    .eq("month", month)
-    .eq("year", year);
-
+  const { data: usersWithGoals } = await supabase.from("user_goals").select("user_id").eq("month", month).eq("year", year);
   if (!usersWithGoals || usersWithGoals.length === 0) return 0;
-
   const userIds = [...new Set(usersWithGoals.map((g: any) => g.user_id))];
   const message = text || "🎯 Como estão suas metas? Bora manter o foco!";
-
   console.log(`[GoalReminder] Sending to ${userIds.length} users with goals`);
   return sendToUsers(supabase, userIds as string[], "🎯 Lembrete de Metas", message.trim(), "/metas", vapidPub, vapidPriv, vapidSub, "goal_reminder");
 }
 
 async function handleLowPerformance(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  // Users who had 0 shows in the last 30 days
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   const today = new Date().toISOString().split("T")[0];
-
-  // Get all users
-  const { data: allProfiles } = await supabase
-    .from("profiles")
-    .select("user_id")
-    .not("plan", "eq", "free");
-
+  const { data: allProfiles } = await supabase.from("profiles").select("user_id").not("plan", "eq", "free");
   if (!allProfiles || allProfiles.length === 0) return 0;
-
-  // Get users who HAD shows in last 30 days
-  const { data: activeShowUsers } = await supabase
-    .from("shows")
-    .select("user_id")
-    .gte("date", thirtyDaysAgo)
-    .lte("date", today);
-
+  const { data: activeShowUsers } = await supabase.from("shows").select("user_id").gte("date", thirtyDaysAgo).lte("date", today);
   const activeUserIds = new Set((activeShowUsers || []).map((s: any) => s.user_id));
   const lowPerfUsers = allProfiles.filter((p: any) => !activeUserIds.has(p.user_id)).map((p: any) => p.user_id);
-
   if (lowPerfUsers.length === 0) return 0;
-
   const message = text || "📉 Seu desempenho está abaixo do esperado. Que tal agendar mais shows?";
-
   console.log(`[LowPerformance] Found ${lowPerfUsers.length} users with 0 shows in 30 days`);
   return sendToUsers(supabase, lowPerfUsers, "📉 Desempenho Baixo", message.trim(), "/agenda", vapidPub, vapidPriv, vapidSub, "low_performance");
 }
 
 async function handlePendingPayment(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  // Shows with status 'realizado' that have cachet > 0 but no matching transaction
-  const { data: completedShows } = await supabase
-    .from("shows")
-    .select("id, user_id, title, cachet")
-    .eq("status", "realizado")
-    .gt("cachet", 0);
-
+  const { data: completedShows } = await supabase.from("shows").select("id, user_id, title, cachet").eq("status", "realizado").gt("cachet", 0);
   if (!completedShows || completedShows.length === 0) return 0;
-
-  // Check which have transactions
   const showIds = completedShows.map((s: any) => s.id);
-  const { data: paidShows } = await supabase
-    .from("transactions")
-    .select("show_id")
-    .in("show_id", showIds);
-
+  const { data: paidShows } = await supabase.from("transactions").select("show_id").in("show_id", showIds);
   const paidShowIds = new Set((paidShows || []).map((t: any) => t.show_id));
   const unpaidShows = completedShows.filter((s: any) => !paidShowIds.has(s.id));
-
   if (unpaidShows.length === 0) return 0;
-
   const userIds = [...new Set(unpaidShows.map((s: any) => s.user_id))];
   const message = text || "💰 Você tem cachês pendentes! Confira no financeiro.";
-
   console.log(`[PendingPayment] Found ${unpaidShows.length} unpaid shows for ${userIds.length} users`);
   return sendToUsers(supabase, userIds as string[], "💰 Cachê Pendente", message.trim(), "/financeiro", vapidPub, vapidPriv, vapidSub, "pending_payment");
 }
 
 async function handleChecklistReminder(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  // Find shows happening in the next 48 hours that have incomplete checklist items
   const now = new Date();
   const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
   const todayStr = now.toISOString().split("T")[0];
   const targetStr = in48h.toISOString().split("T")[0];
-
-  const { data: upcomingShows } = await supabase
-    .from("shows")
-    .select("id, title, user_id, date")
-    .in("status", ["confirmado", "pendente"])
-    .gte("date", todayStr)
-    .lte("date", targetStr);
-
+  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmado", "pendente"]).gte("date", todayStr).lte("date", targetStr);
   if (!upcomingShows || upcomingShows.length === 0) return 0;
-
-  // Check which shows have incomplete checklist items
   const showIds = upcomingShows.map((s: any) => s.id);
-  const { data: incompleteItems } = await supabase
-    .from("show_checklist")
-    .select("show_id")
-    .in("show_id", showIds)
-    .eq("completed", false);
-
+  const { data: incompleteItems } = await supabase.from("show_checklist").select("show_id").in("show_id", showIds).eq("completed", false);
   if (!incompleteItems || incompleteItems.length === 0) return 0;
-
   const showsWithPending = new Set(incompleteItems.map((i: any) => i.show_id));
   const usersToNotify = new Map<string, string>();
-
   for (const show of upcomingShows) {
     if (showsWithPending.has(show.id) && !usersToNotify.has(show.user_id)) {
       usersToNotify.set(show.user_id, show.title);
     }
   }
-
   if (usersToNotify.size === 0) return 0;
-
   let totalSent = 0;
   for (const [userId, showTitle] of usersToNotify) {
-    const message = text
-      ? text.replace(/{show_title}/g, showTitle)
-      : `📋 Seu checklist para "${showTitle}" tem itens pendentes! Confira antes do show.`;
-
+    const message = text ? text.replace(/{show_title}/g, showTitle) : `📋 Seu checklist para "${showTitle}" tem itens pendentes! Confira antes do show.`;
     const sent = await sendToUsers(supabase, [userId], "📋 Checklist Pendente!", message.trim(), "/checklist", vapidPub, vapidPriv, vapidSub, "checklist_reminder");
     totalSent += sent;
   }
-
   console.log(`[ChecklistReminder] Notified ${usersToNotify.size} users, sent ${totalSent}`);
   return totalSent;
 }
 
 async function handleWeeklyMotivation(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  // Send a motivational message to all active users (last_seen within 14 days)
   const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
-
-  const { data: activeUsers } = await supabase
-    .from("profiles")
-    .select("user_id")
-    .gte("last_seen", cutoff);
-
+  const { data: activeUsers } = await supabase.from("profiles").select("user_id").gte("last_seen", cutoff);
   if (!activeUsers || activeUsers.length === 0) return 0;
-
   const userIds = activeUsers.map((u: any) => u.user_id);
   const messages = [
     "🚀 Continue evoluindo! Cada show é um passo a mais na sua carreira.",
@@ -396,7 +280,6 @@ async function handleWeeklyMotivation(supabase: any, _config: any, text: string,
     "🔥 Sua dedicação faz a diferença. Continue usando o Backstage Pro!",
   ];
   const message = text || messages[Math.floor(Math.random() * messages.length)];
-
   console.log(`[WeeklyMotivation] Sending to ${userIds.length} active users`);
   return sendToUsers(supabase, userIds, "💡 Dica da Semana", message.trim(), "/dashboard", vapidPub, vapidPriv, vapidSub, "weekly_motivation");
 }
@@ -405,40 +288,19 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
   const now = new Date();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
-
-  // Get goals with targets
-  const { data: goals } = await supabase
-    .from("user_goals")
-    .select("user_id, target_value, goal_type")
-    .eq("month", month)
-    .eq("year", year);
-
+  const { data: goals } = await supabase.from("user_goals").select("user_id, target_value, goal_type").eq("month", month).eq("year", year);
   if (!goals || goals.length === 0) return 0;
-
-  // For show goals, check actual shows this month
   const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
   const lastDay = month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, "0")}-01`;
-
   const userIds = [...new Set(goals.map((g: any) => g.user_id))];
-
-  // Check shows count per user this month
-  const { data: monthShows } = await supabase
-    .from("shows")
-    .select("user_id")
-    .gte("date", firstDay)
-    .lt("date", lastDay)
-    .in("user_id", userIds);
-
+  const { data: monthShows } = await supabase.from("shows").select("user_id").gte("date", firstDay).lt("date", lastDay).in("user_id", userIds);
   const showCountByUser = new Map<string, number>();
   for (const s of (monthShows || [])) {
     showCountByUser.set(s.user_id, (showCountByUser.get(s.user_id) || 0) + 1);
   }
-
-  // Day of month progress check - notify users below pace
   const dayOfMonth = now.getDate();
   const daysInMonth = new Date(year, month, 0).getDate();
   const expectedProgress = dayOfMonth / daysInMonth;
-
   const behindUsers: string[] = [];
   for (const goal of goals) {
     if (goal.goal_type === "shows") {
@@ -447,12 +309,9 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
       if (actual < expected) behindUsers.push(goal.user_id);
     }
   }
-
   if (behindUsers.length === 0) return 0;
-
   const uniqueUsers = [...new Set(behindUsers)];
   const message = text || "📊 Sua meta mensal precisa de atenção! Confira seu progresso.";
-
   console.log(`[MonthlyGoal] Found ${uniqueUsers.length} users behind on goals`);
   return sendToUsers(supabase, uniqueUsers, "📊 Meta Mensal", message.trim(), "/metas", vapidPub, vapidPriv, vapidSub, "monthly_goal");
 }
@@ -495,7 +354,6 @@ serve(async (req) => {
       .select("*")
       .eq("is_enabled", true);
 
-    // If a specific automation was requested, filter to just that one
     if (automationKey) {
       query = query.eq("setting_key", automationKey);
     }
@@ -509,29 +367,44 @@ serve(async (req) => {
       });
     }
 
-    // If running all (no specific key), check scheduled_time for each automation
-    // Only run automations whose scheduled_time matches the current hour (or has no scheduled_time)
+    // Current time in Brasília (UTC-3)
     const now = new Date();
     const currentHour = now.getUTCHours();
-    const currentMinute = now.getUTCMinutes();
-    // Convert to Brasilia time (UTC-3)
     const brasiliaOffset = -3;
     const brasiliaHour = (currentHour + brasiliaOffset + 24) % 24;
-    const brasiliaTimeStr = `${String(brasiliaHour).padStart(2, "0")}:${String(currentMinute).padStart(2, "0")}`;
+    const brasiliaMinute = now.getUTCMinutes();
+    const brasiliaTimeStr = `${String(brasiliaHour).padStart(2, "0")}:${String(brasiliaMinute).padStart(2, "0")}`;
 
     const filteredSettings = automationKey
-      ? settings // When running a specific one manually, always run it
+      ? settings // Manual test: always run
       : settings.filter((s: any) => {
           const config = s.config && typeof s.config === "object" ? s.config : {};
+
+          // Check scheduled_time (hour must match)
           const scheduledTime = (config as any).scheduled_time;
-          if (!scheduledTime) return true; // No time set = run always (backward compat)
-          // Match if current hour matches scheduled hour
-          const [schedH] = scheduledTime.split(":");
-          return parseInt(schedH) === brasiliaHour;
+          if (scheduledTime) {
+            const [schedH] = scheduledTime.split(":");
+            if (parseInt(schedH) !== brasiliaHour) return false;
+          }
+
+          // Check repeat_every_days interval
+          const repeatDays = (config as any).repeat_every_days;
+          const lastSentAt = (config as any).last_sent_at;
+
+          if (repeatDays && repeatDays > 0 && lastSentAt) {
+            const lastSent = new Date(lastSentAt);
+            const daysSinceLast = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60 * 24);
+            if (daysSinceLast < repeatDays) {
+              console.log(`[Automations] Skipping ${s.setting_key}: last sent ${daysSinceLast.toFixed(1)} days ago, interval is ${repeatDays} days`);
+              return false;
+            }
+          }
+
+          return true;
         });
 
     if (filteredSettings.length === 0) {
-      console.log(`[Automations] No automations scheduled for ${brasiliaTimeStr} (Brasília)`);
+      console.log(`[Automations] No automations scheduled for ${brasiliaTimeStr} (Brasília) or interval not met`);
       return new Response(JSON.stringify({ message: "No automations scheduled for this time", sent: 0 }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -577,6 +450,14 @@ serve(async (req) => {
         }
         totalSent += sent;
         console.log(`[Automations] ${setting.setting_key}: sent ${sent}`);
+
+        // Update last_sent_at in config
+        const updatedConfig = { ...(config as any), last_sent_at: now.toISOString() };
+        await supabase
+          .from("notification_settings")
+          .update({ config: updatedConfig })
+          .eq("id", setting.id);
+
       } catch (err) {
         console.error(`[Automations] Error in ${setting.setting_key}:`, err);
       }
