@@ -844,6 +844,7 @@ export default function Admin() {
         <TabsContent value="cloud">
           <CloudUsagePanel />
         </TabsContent>
+      </Tabs>
     </Layout>
   );
 }
