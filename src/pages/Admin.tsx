@@ -839,7 +839,11 @@ export default function Admin() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+
+        {/* Cloud Usage Tab */}
+        <TabsContent value="cloud">
+          <CloudUsagePanel />
+        </TabsContent>
     </Layout>
   );
 }
