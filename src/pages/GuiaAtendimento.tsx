@@ -1558,7 +1558,7 @@ export default function GuiaAtendimento() {
             />
             <div className="absolute inset-0 mesh-bg opacity-15" />
 
-            <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+            <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
               <Reveal>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-8">
                   <Target className="w-3.5 h-3.5" />
