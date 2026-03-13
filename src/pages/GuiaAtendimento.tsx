@@ -845,7 +845,7 @@ export default function GuiaAtendimento() {
               style={{ background: "radial-gradient(circle, hsl(10,60%,30%) 0%, transparent 70%)" }}
             />
 
-            <div className="relative z-10 max-w-2xl mx-auto px-6">
+            <div className="relative z-10 max-w-3xl mx-auto px-6">
               {/* Header */}
               <Reveal>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/30 text-[hsl(10,80%,70%)] text-xs font-bold uppercase tracking-widest mb-8">
