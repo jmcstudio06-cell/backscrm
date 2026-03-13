@@ -479,7 +479,7 @@ export default function GuiaAtendimento() {
         <>
           {/* ── INTRO ──────────────────────────────────── */}
           <section id="intro" className="pt-24 pb-16 sm:pt-32 sm:pb-20">
-            <div className="max-w-2xl mx-auto px-6">
+            <div className="max-w-3xl mx-auto px-6">
               <Reveal>
                 <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">Introdução</p>
                 <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-8">
