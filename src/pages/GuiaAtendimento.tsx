@@ -1314,7 +1314,7 @@ export default function GuiaAtendimento() {
               style={{ background: "var(--gradient-primary)" }}
             />
 
-            <div className="relative z-10 max-w-2xl mx-auto px-6">
+            <div className="relative z-10 max-w-3xl mx-auto px-6">
               <Reveal>
                 <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">O Problema Real</p>
                 <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-6">
