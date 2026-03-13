@@ -194,7 +194,7 @@ export default function Agenda() {
   }, [shows, currentMonth]);
 
   const completedShowsThisMonth = useMemo(() => {
-    return monthShows.filter((s) => s.status === "completed").length;
+    return monthShows.filter((s) => s.status === "completed" || s.status === "confirmed").length;
   }, [monthShows]);
 
   const currentShowGoal = useMemo(() => {
