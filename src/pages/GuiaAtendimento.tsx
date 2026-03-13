@@ -1360,7 +1360,7 @@ export default function GuiaAtendimento() {
           {/* ── A VIRADA DE CHAVE ──────────────────────── */}
           <section className="py-24 sm:py-32 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/3 to-background" />
-            <div className="relative z-10 max-w-2xl mx-auto px-6">
+            <div className="relative z-10 max-w-3xl mx-auto px-6">
               <Reveal>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-success/10 border border-success/20 text-success text-xs font-bold uppercase tracking-widest mb-8">
                   <TrendingUp className="w-3.5 h-3.5" />A Virada de Chave
