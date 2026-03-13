@@ -221,10 +221,66 @@ function Quote({ children }: { children: React.ReactNode }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function GuiaAtendimento() {
   const [progress, setProgress] = useState(0);
-  const unlocked = true;
+  const [unlocked, setUnlocked] = useState(() => {
+    return localStorage.getItem("guia_lead_captured") === "true";
+  });
+  const [leadName, setLeadName] = useState("");
+  const [leadPhone, setLeadPhone] = useState("");
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [leadErrors, setLeadErrors] = useState<{ name?: string; phone?: string }>({});
   const [reflections, setReflections] = useState({ r1: false, r2: false, r3: false, r4: false, r5: false });
   const [budgetType, setBudgetType] = useState<string | null>(null);
   const [visibleChecks, setVisibleChecks] = useState(0);
+
+  const handleLeadSubmit = async () => {
+    const errors: { name?: string; phone?: string } = {};
+    
+    if (!isValidFullName(leadName)) {
+      errors.name = "Digite seu nome e sobrenome completos (mínimo 2 palavras).";
+    }
+    
+    const phoneDigits = onlyDigits(leadPhone);
+    if (!isValidBRMobile(phoneDigits)) {
+      errors.phone = "Digite um número de celular válido com DDD (ex: 11 98765-4321).";
+    }
+    
+    // Additional anti-fake: block sequential patterns
+    const seqPatterns = ["12345678901", "01234567890", "98765432109"];
+    if (seqPatterns.includes(phoneDigits)) {
+      errors.phone = "Por favor, insira seu número real de WhatsApp.";
+    }
+    
+    // Block phones where last 8 digits are all same
+    const last8 = phoneDigits.slice(3);
+    if (last8 && /^(\d)\1+$/.test(last8)) {
+      errors.phone = "Por favor, insira seu número real de WhatsApp.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setLeadErrors(errors);
+      return;
+    }
+    
+    setLeadErrors({});
+    setLeadSubmitting(true);
+    
+    try {
+      const { error } = await supabase.from("guide_leads").insert({
+        name: normalizeName(leadName),
+        phone: formatBRMobileFromDigits(phoneDigits),
+      });
+      
+      if (error) throw error;
+      
+      localStorage.setItem("guia_lead_captured", "true");
+      setUnlocked(true);
+      toast.success("Acesso liberado! Aproveite o guia.");
+    } catch (err) {
+      toast.error("Erro ao liberar acesso. Tente novamente.");
+    } finally {
+      setLeadSubmitting(false);
+    }
+  };
 
   // Reading progress
   useEffect(() => {
