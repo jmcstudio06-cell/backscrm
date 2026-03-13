@@ -221,10 +221,66 @@ function Quote({ children }: { children: React.ReactNode }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function GuiaAtendimento() {
   const [progress, setProgress] = useState(0);
-  const unlocked = true;
+  const [unlocked, setUnlocked] = useState(() => {
+    return localStorage.getItem("guia_lead_captured") === "true";
+  });
+  const [leadName, setLeadName] = useState("");
+  const [leadPhone, setLeadPhone] = useState("");
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [leadErrors, setLeadErrors] = useState<{ name?: string; phone?: string }>({});
   const [reflections, setReflections] = useState({ r1: false, r2: false, r3: false, r4: false, r5: false });
   const [budgetType, setBudgetType] = useState<string | null>(null);
   const [visibleChecks, setVisibleChecks] = useState(0);
+
+  const handleLeadSubmit = async () => {
+    const errors: { name?: string; phone?: string } = {};
+    
+    if (!isValidFullName(leadName)) {
+      errors.name = "Digite seu nome e sobrenome completos (mínimo 2 palavras).";
+    }
+    
+    const phoneDigits = onlyDigits(leadPhone);
+    if (!isValidBRMobile(phoneDigits)) {
+      errors.phone = "Digite um número de celular válido com DDD (ex: 11 98765-4321).";
+    }
+    
+    // Additional anti-fake: block sequential patterns
+    const seqPatterns = ["12345678901", "01234567890", "98765432109"];
+    if (seqPatterns.includes(phoneDigits)) {
+      errors.phone = "Por favor, insira seu número real de WhatsApp.";
+    }
+    
+    // Block phones where last 8 digits are all same
+    const last8 = phoneDigits.slice(3);
+    if (last8 && /^(\d)\1+$/.test(last8)) {
+      errors.phone = "Por favor, insira seu número real de WhatsApp.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setLeadErrors(errors);
+      return;
+    }
+    
+    setLeadErrors({});
+    setLeadSubmitting(true);
+    
+    try {
+      const { error } = await supabase.from("guide_leads").insert({
+        name: normalizeName(leadName),
+        phone: formatBRMobileFromDigits(phoneDigits),
+      });
+      
+      if (error) throw error;
+      
+      localStorage.setItem("guia_lead_captured", "true");
+      setUnlocked(true);
+      toast.success("Acesso liberado! Aproveite o guia.");
+    } catch (err) {
+      toast.error("Erro ao liberar acesso. Tente novamente.");
+    } finally {
+      setLeadSubmitting(false);
+    }
+  };
 
   // Reading progress
   useEffect(() => {
@@ -342,12 +398,88 @@ export default function GuiaAtendimento() {
         </div>
       </section>
 
+      {/* ── LEAD CAPTURE GATE ────────────────────── */}
+      {!unlocked && (
+        <section className="py-16 sm:py-24">
+          <div className="max-w-lg mx-auto px-6">
+            <Reveal>
+              <div className="rounded-2xl border border-border bg-card shadow-elevated overflow-hidden">
+                <div className="px-6 py-5 border-b border-border" style={{ background: "var(--gradient-primary)" }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Acesso Gratuito</h3>
+                      <p className="text-xs text-white/70">Preencha para liberar o guia completo</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                      <User className="w-3.5 h-3.5 inline mr-1.5" />
+                      Nome e sobrenome
+                    </label>
+                    <Input
+                      placeholder="Ex: João Silva"
+                      value={leadName}
+                      onChange={(e) => setLeadName(e.target.value)}
+                      className={cn(leadErrors.name && "border-destructive")}
+                    />
+                    {leadErrors.name && (
+                      <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> {leadErrors.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                      <Phone className="w-3.5 h-3.5 inline mr-1.5" />
+                      WhatsApp (com DDD)
+                    </label>
+                    <Input
+                      placeholder="(11) 98765-4321"
+                      value={leadPhone}
+                      onChange={(e) => setLeadPhone(handlePhoneMaskChange(e.target.value))}
+                      maxLength={15}
+                      className={cn(leadErrors.phone && "border-destructive")}
+                    />
+                    {leadErrors.phone && (
+                      <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> {leadErrors.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  <Button
+                    variant="gradient"
+                    className="w-full rounded-xl gap-2 h-12 text-base font-bold"
+                    onClick={handleLeadSubmit}
+                    disabled={leadSubmitting}
+                  >
+                    {leadSubmitting ? "Liberando..." : "Liberar Guia Completo"}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    Seus dados estão seguros. Não enviamos spam.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
       {/* ── CONTENT (locked) ─────────────────────────── */}
       {unlocked && (
         <>
           {/* ── INTRO ──────────────────────────────────── */}
           <section id="intro" className="pt-24 pb-16 sm:pt-32 sm:pb-20">
-            <div className="max-w-2xl mx-auto px-6">
+            <div className="max-w-3xl mx-auto px-6">
               <Reveal>
                 <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">Introdução</p>
                 <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-8">
@@ -713,7 +845,7 @@ export default function GuiaAtendimento() {
               style={{ background: "radial-gradient(circle, hsl(10,60%,30%) 0%, transparent 70%)" }}
             />
 
-            <div className="relative z-10 max-w-2xl mx-auto px-6">
+            <div className="relative z-10 max-w-3xl mx-auto px-6">
               {/* Header */}
               <Reveal>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/30 text-[hsl(10,80%,70%)] text-xs font-bold uppercase tracking-widest mb-8">
@@ -1182,7 +1314,7 @@ export default function GuiaAtendimento() {
               style={{ background: "var(--gradient-primary)" }}
             />
 
-            <div className="relative z-10 max-w-2xl mx-auto px-6">
+            <div className="relative z-10 max-w-3xl mx-auto px-6">
               <Reveal>
                 <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">O Problema Real</p>
                 <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-6">
@@ -1228,7 +1360,7 @@ export default function GuiaAtendimento() {
           {/* ── A VIRADA DE CHAVE ──────────────────────── */}
           <section className="py-24 sm:py-32 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/3 to-background" />
-            <div className="relative z-10 max-w-2xl mx-auto px-6">
+            <div className="relative z-10 max-w-3xl mx-auto px-6">
               <Reveal>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-success/10 border border-success/20 text-success text-xs font-bold uppercase tracking-widest mb-8">
                   <TrendingUp className="w-3.5 h-3.5" />A Virada de Chave
@@ -1372,7 +1504,7 @@ export default function GuiaAtendimento() {
 
           {/* ── DECISÃO FINAL ──────────────────────────── */}
           <section className="py-16 sm:py-24">
-            <div className="max-w-2xl mx-auto px-6">
+            <div className="max-w-3xl mx-auto px-6">
               <Reveal>
                 <h2 className="text-3xl sm:text-4xl font-black text-center mb-10">A Decisão Final</h2>
               </Reveal>
@@ -1426,7 +1558,7 @@ export default function GuiaAtendimento() {
             />
             <div className="absolute inset-0 mesh-bg opacity-15" />
 
-            <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+            <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
               <Reveal>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-8">
                   <Target className="w-3.5 h-3.5" />
@@ -1478,7 +1610,7 @@ export default function GuiaAtendimento() {
 function StepSection({ id, step, children }: { id: string; step: (typeof STEPS)[0]; children: React.ReactNode }) {
   return (
     <section id={id} className="py-20 sm:py-24">
-      <div className="max-w-2xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-6">
         <Reveal className="mb-10">
           <div className="flex items-start gap-5">
             <div
