@@ -398,6 +398,82 @@ export default function GuiaAtendimento() {
         </div>
       </section>
 
+      {/* ── LEAD CAPTURE GATE ────────────────────── */}
+      {!unlocked && (
+        <section className="py-16 sm:py-24">
+          <div className="max-w-lg mx-auto px-6">
+            <Reveal>
+              <div className="rounded-2xl border border-border bg-card shadow-elevated overflow-hidden">
+                <div className="px-6 py-5 border-b border-border" style={{ background: "var(--gradient-primary)" }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Acesso Gratuito</h3>
+                      <p className="text-xs text-white/70">Preencha para liberar o guia completo</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                      <User className="w-3.5 h-3.5 inline mr-1.5" />
+                      Nome e sobrenome
+                    </label>
+                    <Input
+                      placeholder="Ex: João Silva"
+                      value={leadName}
+                      onChange={(e) => setLeadName(e.target.value)}
+                      className={cn(leadErrors.name && "border-destructive")}
+                    />
+                    {leadErrors.name && (
+                      <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> {leadErrors.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                      <Phone className="w-3.5 h-3.5 inline mr-1.5" />
+                      WhatsApp (com DDD)
+                    </label>
+                    <Input
+                      placeholder="(11) 98765-4321"
+                      value={leadPhone}
+                      onChange={(e) => setLeadPhone(handlePhoneMaskChange(e.target.value))}
+                      maxLength={15}
+                      className={cn(leadErrors.phone && "border-destructive")}
+                    />
+                    {leadErrors.phone && (
+                      <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> {leadErrors.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  <Button
+                    variant="gradient"
+                    className="w-full rounded-xl gap-2 h-12 text-base font-bold"
+                    onClick={handleLeadSubmit}
+                    disabled={leadSubmitting}
+                  >
+                    {leadSubmitting ? "Liberando..." : "Liberar Guia Completo"}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    Seus dados estão seguros. Não enviamos spam.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
       {/* ── CONTENT (locked) ─────────────────────────── */}
       {unlocked && (
         <>
