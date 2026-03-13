@@ -1610,7 +1610,7 @@ export default function GuiaAtendimento() {
 function StepSection({ id, step, children }: { id: string; step: (typeof STEPS)[0]; children: React.ReactNode }) {
   return (
     <section id={id} className="py-20 sm:py-24">
-      <div className="max-w-2xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-6">
         <Reveal className="mb-10">
           <div className="flex items-start gap-5">
             <div
