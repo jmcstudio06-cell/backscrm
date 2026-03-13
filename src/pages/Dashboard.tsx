@@ -58,12 +58,12 @@ const Dashboard = () => {
     );
   }, [goals, currentMonth, currentYear]);
 
-  // Count completed shows this month
+  // Count confirmed + completed shows this month (all except cancelled)
   const completedShowsThisMonth = useMemo(() => {
     return shows.filter((show) => {
       const showDate = new Date(show.date + "T12:00:00");
       return (
-        show.status === "completed" &&
+        (show.status === "completed" || show.status === "confirmed") &&
         showDate >= currentMonthStart &&
         showDate <= currentMonthEnd
       );
