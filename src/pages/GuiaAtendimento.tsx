@@ -1504,7 +1504,7 @@ export default function GuiaAtendimento() {
 
           {/* ── DECISÃO FINAL ──────────────────────────── */}
           <section className="py-16 sm:py-24">
-            <div className="max-w-2xl mx-auto px-6">
+            <div className="max-w-3xl mx-auto px-6">
               <Reveal>
                 <h2 className="text-3xl sm:text-4xl font-black text-center mb-10">A Decisão Final</h2>
               </Reveal>
