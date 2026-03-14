@@ -14,21 +14,18 @@ import {
   CalendarDays,
   CalendarRange,
   Check,
-  MapPin,
-  Instagram,
-  Music,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type AgendaType = "day" | "week" | "month";
 type FlyerFormat = "feed" | "stories";
-type FlyerLayout = "classic" | "modern" | "minimal" | "bold";
+type FlyerLayout = "mensal" | "hoje" | "classico" | "editorial";
 
-const LAYOUTS: { id: FlyerLayout; label: string; desc: string }[] = [
-  { id: "classic", label: "Clássico", desc: "Elegante e tradicional" },
-  { id: "modern", label: "Moderno", desc: "Visual contemporâneo" },
-  { id: "minimal", label: "Minimalista", desc: "Limpo e direto" },
-  { id: "bold", label: "Impactante", desc: "Cores vibrantes e destaque" },
+const LAYOUTS: { id: FlyerLayout; label: string; desc: string; colors: string[] }[] = [
+  { id: "mensal", label: "Agenda Mensal", desc: "Grid com todas as datas", colors: ["#1e1e2e", "#38bdf8"] },
+  { id: "hoje", label: "Show Hoje", desc: "Destaque para uma data", colors: ["#0e7490", "#06b6d4"] },
+  { id: "classico", label: "Próximos Shows", desc: "Card elegante com grid", colors: ["#2a2a2a", "#ef4444"] },
+  { id: "editorial", label: "Editorial", desc: "Estilo revista musical", colors: ["#1a1a1a", "#ffffff"] },
 ];
 
 const AGENDA_TYPES: { id: AgendaType; label: string; icon: React.ElementType }[] = [
@@ -42,18 +39,24 @@ const FORMATS: { id: FlyerFormat; label: string; size: string; w: number; h: num
   { id: "stories", label: "Stories", size: "1080×1920", w: 1080, h: 1920 },
 ];
 
-function formatDateBR(dateStr: string) {
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}`;
+function getDayNum(dateStr: string) {
+  return parseInt(dateStr.split("-")[2], 10);
 }
 
-function getDayName(dateStr: string) {
-  const date = new Date(dateStr + "T12:00:00");
-  return date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "");
+function getMonthAbbr(dateStr: string) {
+  const m = parseInt(dateStr.split("-")[1], 10) - 1;
+  return ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"][m];
 }
 
 function getMonthName(month: number) {
   return new Date(2024, month, 1).toLocaleDateString("pt-BR", { month: "long" });
+}
+
+function getFullDate(dateStr: string) {
+  const [, m, d] = dateStr.split("-");
+  const monthIdx = parseInt(m, 10) - 1;
+  const monthName = getMonthName(monthIdx);
+  return `${parseInt(d, 10)} de ${monthName}`;
 }
 
 export default function FlyerDivulgacao() {
@@ -61,7 +64,7 @@ export default function FlyerDivulgacao() {
   const { profile } = useProfile();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [selectedLayout, setSelectedLayout] = useState<FlyerLayout>("modern");
+  const [selectedLayout, setSelectedLayout] = useState<FlyerLayout>("mensal");
   const [agendaType, setAgendaType] = useState<AgendaType>("week");
   const [flyerFormat, setFlyerFormat] = useState<FlyerFormat>("feed");
   const [generating, setGenerating] = useState(false);
@@ -85,14 +88,11 @@ export default function FlyerDivulgacao() {
       startOfWeek.setDate(startOfWeek.getDate() - day);
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(endOfWeek.getDate() + 6);
-
       const startStr = startOfWeek.toISOString().split("T")[0];
       const endStr = endOfWeek.toISOString().split("T")[0];
-
       return confirmed.filter((s) => s.date >= startStr && s.date <= endStr);
     }
 
-    // month
     const monthStr = todayStr.slice(0, 7);
     return confirmed.filter((s) => s.date.startsWith(monthStr));
   }, [shows, agendaType, todayStr]);
@@ -115,171 +115,34 @@ export default function FlyerDivulgacao() {
       canvas.height = H;
       const ctx = canvas.getContext("2d")!;
 
-      // Colors by layout
-      const themes: Record<FlyerLayout, { bg: string; accent: string; text: string; sub: string; card: string }> = {
-        classic: { bg: "#1a1a2e", accent: "#e94560", text: "#ffffff", sub: "#cccccc", card: "rgba(255,255,255,0.08)" },
-        modern: { bg: "#0f0f23", accent: "#6366f1", text: "#ffffff", sub: "#a5b4fc", card: "rgba(99,102,241,0.12)" },
-        minimal: { bg: "#fafafa", accent: "#18181b", text: "#18181b", sub: "#71717a", card: "rgba(0,0,0,0.04)" },
-        bold: { bg: "#ff6b35", accent: "#ffffff", text: "#ffffff", sub: "#ffe0d0", card: "rgba(255,255,255,0.15)" },
-      };
-      const theme = themes[selectedLayout];
-
-      // Background
-      ctx.fillStyle = theme.bg;
-      ctx.fillRect(0, 0, W, H);
-
-      // Gradient overlay
-      if (selectedLayout !== "minimal") {
-        const grad = ctx.createLinearGradient(0, 0, W, H);
-        grad.addColorStop(0, "rgba(0,0,0,0.3)");
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      // Decorative circles
-      if (selectedLayout === "modern") {
-        ctx.beginPath();
-        ctx.arc(W * 0.85, H * 0.1, 200, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(99,102,241,0.15)";
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(W * 0.15, H * 0.9, 150, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(99,102,241,0.1)";
-        ctx.fill();
-      }
-
-      if (selectedLayout === "bold") {
-        ctx.beginPath();
-        ctx.arc(W * 0.9, H * 0.05, 300, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255,255,255,0.08)";
-        ctx.fill();
-      }
-
-      let yPos = flyerFormat === "stories" ? 140 : 80;
-
-      // Avatar
+      // Load avatar
+      let avatarImg: HTMLImageElement | null = null;
       if (avatarUrl) {
         try {
-          const img = await loadImage(avatarUrl);
-          const size = 120;
-          const cx = W / 2;
-          const cy = yPos + size / 2;
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(cx, cy, size / 2 + 4, 0, Math.PI * 2);
-          ctx.fillStyle = theme.accent;
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
-          ctx.clip();
-          ctx.drawImage(img, cx - size / 2, cy - size / 2, size, size);
-          ctx.restore();
-          yPos += size + 24;
-        } catch {
-          yPos += 20;
-        }
+          avatarImg = await loadImage(avatarUrl);
+        } catch { /* no avatar */ }
       }
 
-      // Artist name
-      ctx.fillStyle = theme.text;
-      ctx.font = "bold 52px 'Segoe UI', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(artistName.toUpperCase(), W / 2, yPos + 50);
-      yPos += 80;
-
-      // Subtitle
-      const subtitles: Record<AgendaType, string> = {
-        day: "AGENDA DE HOJE",
-        week: "AGENDA DA SEMANA",
-        month: `AGENDA DE ${getMonthName(today.getMonth()).toUpperCase()}`,
-      };
-      ctx.fillStyle = theme.accent;
-      ctx.font = "bold 28px 'Segoe UI', sans-serif";
-      ctx.fillText(subtitles[agendaType], W / 2, yPos + 30);
-      yPos += 60;
-
-      // Divider
-      ctx.strokeStyle = theme.accent;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(W * 0.3, yPos);
-      ctx.lineTo(W * 0.7, yPos);
-      ctx.stroke();
-      yPos += 30;
-
-      // Shows list
-      if (filteredShows.length === 0) {
-        ctx.fillStyle = theme.sub;
-        ctx.font = "24px 'Segoe UI', sans-serif";
-        ctx.fillText("Nenhum show agendado", W / 2, yPos + 40);
-      } else {
-        const maxShows = flyerFormat === "stories" ? 8 : 5;
-        const showsToRender = filteredShows.slice(0, maxShows);
-        const cardH = flyerFormat === "stories" ? 120 : 100;
-        const gap = 16;
-
-        for (const show of showsToRender) {
-          // Card background
-          ctx.fillStyle = theme.card;
-          const cardW = W - 120;
-          const cardX = 60;
-          roundRect(ctx, cardX, yPos, cardW, cardH, 16);
-          ctx.fill();
-
-          // Date badge
-          ctx.fillStyle = theme.accent;
-          roundRect(ctx, cardX + 16, yPos + (cardH - 60) / 2, 80, 60, 12);
-          ctx.fill();
-
-          ctx.fillStyle = selectedLayout === "bold" ? "#ff6b35" : "#ffffff";
-          ctx.font = "bold 22px 'Segoe UI', sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(formatDateBR(show.date), cardX + 56, yPos + cardH / 2 - 4);
-          ctx.font = "14px 'Segoe UI', sans-serif";
-          ctx.fillText(getDayName(show.date).toUpperCase(), cardX + 56, yPos + cardH / 2 + 16);
-
-          // Show info
-          ctx.textAlign = "left";
-          ctx.fillStyle = theme.text;
-          ctx.font = "bold 24px 'Segoe UI', sans-serif";
-          const titleX = cardX + 116;
-          const maxTitleW = cardW - 140;
-          const title = truncateText(ctx, show.title, maxTitleW);
-          ctx.fillText(title, titleX, yPos + cardH / 2 - 8);
-
-          ctx.fillStyle = theme.sub;
-          ctx.font = "18px 'Segoe UI', sans-serif";
-          const venue = show.venue || show.address || "Local a confirmar";
-          ctx.fillText(`📍 ${truncateText(ctx, venue, maxTitleW - 30)}`, titleX, yPos + cardH / 2 + 20);
-
-          yPos += cardH + gap;
-        }
-
-        if (filteredShows.length > maxShows) {
-          ctx.fillStyle = theme.sub;
-          ctx.font = "italic 20px 'Segoe UI', sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(`+ ${filteredShows.length - maxShows} shows`, W / 2, yPos + 10);
-          yPos += 30;
-        }
-      }
-
-      // Instagram handle at bottom
-      const bottomY = H - (flyerFormat === "stories" ? 120 : 60);
-      if (instagram) {
-        ctx.fillStyle = theme.sub;
-        ctx.font = "22px 'Segoe UI', sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(`📸 ${instagram}`, W / 2, bottomY);
+      switch (selectedLayout) {
+        case "mensal":
+          drawMensalLayout(ctx, W, H, avatarImg, artistName, filteredShows, instagram);
+          break;
+        case "hoje":
+          drawHojeLayout(ctx, W, H, avatarImg, artistName, filteredShows, instagram);
+          break;
+        case "classico":
+          drawClassicoLayout(ctx, W, H, avatarImg, artistName, filteredShows, instagram);
+          break;
+        case "editorial":
+          drawEditorialLayout(ctx, W, H, avatarImg, artistName, filteredShows, instagram);
+          break;
       }
 
       // Watermark
-      ctx.fillStyle = theme.sub;
-      ctx.globalAlpha = 0.4;
+      ctx.fillStyle = "rgba(255,255,255,0.25)";
       ctx.font = "14px 'Segoe UI', sans-serif";
-      ctx.fillText("Feito com Backstage Pro", W / 2, H - 20);
-      ctx.globalAlpha = 1;
+      ctx.textAlign = "center";
+      ctx.fillText("Feito com Backstage Pro", W / 2, H - 16);
 
       const dataUrl = canvas.toDataURL("image/png");
       setGeneratedImage(dataUrl);
@@ -295,7 +158,7 @@ export default function FlyerDivulgacao() {
   const downloadFlyer = () => {
     if (!generatedImage) return;
     const link = document.createElement("a");
-    link.download = `flyer-${agendaType}-${flyerFormat}.png`;
+    link.download = `flyer-${selectedLayout}-${flyerFormat}.png`;
     link.href = generatedImage;
     link.click();
     toast.success("Flyer baixado!");
@@ -303,9 +166,8 @@ export default function FlyerDivulgacao() {
 
   const autoGenerateWeek = () => {
     setAgendaType("week");
-    setSelectedLayout("modern");
+    setSelectedLayout("mensal");
     setFlyerFormat("stories");
-    // Delay to let state update then generate
     setTimeout(() => generateFlyer(), 100);
   };
 
@@ -323,13 +185,7 @@ export default function FlyerDivulgacao() {
               Gere flyers automáticos da sua agenda para divulgar seus shows
             </p>
           </div>
-          <Button
-            onClick={autoGenerateWeek}
-            variant="gradient"
-            size="lg"
-            disabled={generating}
-            className="gap-2"
-          >
+          <Button onClick={autoGenerateWeek} variant="gradient" size="lg" disabled={generating} className="gap-2">
             <Sparkles className="w-5 h-5" />
             Gerar flyer da semana
           </Button>
@@ -364,21 +220,9 @@ export default function FlyerDivulgacao() {
                           <Check className="w-3 h-3 text-primary-foreground" />
                         </div>
                       )}
-                      <div className={cn(
-                        "w-full h-16 rounded-lg mb-2",
-                        layout.id === "classic" && "bg-[#1a1a2e]",
-                        layout.id === "modern" && "bg-[#0f0f23]",
-                        layout.id === "minimal" && "bg-[#fafafa] border border-border",
-                        layout.id === "bold" && "bg-[#ff6b35]",
-                      )}>
+                      <div className="w-full h-16 rounded-lg mb-2 overflow-hidden" style={{ background: `linear-gradient(135deg, ${layout.colors[0]}, ${layout.colors[1]})` }}>
                         <div className="flex items-center justify-center h-full">
-                          <div className={cn(
-                            "w-6 h-6 rounded-full",
-                            layout.id === "classic" && "bg-[#e94560]",
-                            layout.id === "modern" && "bg-[#6366f1]",
-                            layout.id === "minimal" && "bg-[#18181b]",
-                            layout.id === "bold" && "bg-white",
-                          )} />
+                          <div className="w-6 h-6 rounded-full bg-white/30 backdrop-blur-sm" />
                         </div>
                       </div>
                       <p className="font-semibold text-sm text-foreground">{layout.label}</p>
@@ -461,12 +305,7 @@ export default function FlyerDivulgacao() {
             </Card>
 
             {/* Generate button */}
-            <Button
-              onClick={generateFlyer}
-              size="lg"
-              className="w-full gap-2"
-              disabled={generating}
-            >
+            <Button onClick={generateFlyer} size="lg" className="w-full gap-2" disabled={generating}>
               {generating ? (
                 <>
                   <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
@@ -509,14 +348,13 @@ export default function FlyerDivulgacao() {
                   </div>
                 )}
 
-                {/* Shows info */}
                 {filteredShows.length > 0 && (
                   <div className="w-full space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground uppercase">Shows no flyer:</p>
                     {filteredShows.slice(0, 5).map((show) => (
                       <div key={show.id} className="flex items-center gap-2 text-sm">
                         <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <span className="font-medium text-foreground">{formatDateBR(show.date)}</span>
+                        <span className="font-medium text-foreground">{getDayNum(show.date)}/{getMonthAbbr(show.date)}</span>
                         <span className="text-muted-foreground truncate">{show.title}</span>
                       </div>
                     ))}
@@ -530,11 +368,527 @@ export default function FlyerDivulgacao() {
           </div>
         </div>
 
-        {/* Hidden canvas */}
         <canvas ref={canvasRef} className="hidden" />
       </div>
     </Layout>
   );
+}
+
+// =====================================================
+// LAYOUT 1: MENSAL — Dark bg, cyan/blue accent, grid
+// =====================================================
+function drawMensalLayout(
+  ctx: CanvasRenderingContext2D, W: number, H: number,
+  avatar: HTMLImageElement | null, name: string, shows: any[], instagram: string | null
+) {
+  // Dark gradient background
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, "#0f172a");
+  bgGrad.addColorStop(0.5, "#1e293b");
+  bgGrad.addColorStop(1, "#0f172a");
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle diagonal lines
+  ctx.strokeStyle = "rgba(56,189,248,0.04)";
+  ctx.lineWidth = 1;
+  for (let i = -H; i < W + H; i += 40) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + H, H);
+    ctx.stroke();
+  }
+
+  let y = H * 0.04;
+
+  // Avatar
+  if (avatar) {
+    const size = Math.min(W * 0.3, 280);
+    const cx = W / 2;
+    const cy = y + size / 2 + 20;
+
+    // Glow behind avatar
+    const glowGrad = ctx.createRadialGradient(cx, cy, size * 0.3, cx, cy, size * 0.9);
+    glowGrad.addColorStop(0, "rgba(56,189,248,0.15)");
+    glowGrad.addColorStop(1, "rgba(56,189,248,0)");
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(cx - size, cy - size, size * 2, size * 2);
+
+    // Avatar circle
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, size / 2 + 4, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(56,189,248,0.3)";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatar, cx - size / 2, cy - size / 2, size, size);
+    ctx.restore();
+    y = cy + size / 2 + 30;
+  } else {
+    y += 40;
+  }
+
+  // Title "AGENDA MENSAL"
+  const titleGrad = ctx.createLinearGradient(W * 0.2, y, W * 0.8, y + 60);
+  titleGrad.addColorStop(0, "#38bdf8");
+  titleGrad.addColorStop(1, "#06b6d4");
+  ctx.fillStyle = titleGrad;
+  ctx.font = "900 64px 'Segoe UI', Impact, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("AGENDA MENSAL", W / 2, y + 55);
+  y += 80;
+
+  // Artist name
+  ctx.fillStyle = "#e2e8f0";
+  ctx.font = "300 36px 'Segoe UI', sans-serif";
+  ctx.letterSpacing = "8px";
+  ctx.fillText(name, W / 2, y + 30);
+  y += 70;
+
+  // Shows grid (3 columns)
+  if (shows.length > 0) {
+    const cols = 3;
+    const cellW = (W - 120) / cols;
+    const cellH = 100;
+    const startX = 60;
+
+    for (let i = 0; i < shows.length; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const cx = startX + col * cellW;
+      const cy = y + row * (cellH + 16);
+
+      // Day number
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "900 52px 'Segoe UI', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(String(getDayNum(shows[i].date)), cx, cy + 48);
+
+      // Show title
+      const numW = ctx.measureText(String(getDayNum(shows[i].date))).width;
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "400 20px 'Segoe UI', sans-serif";
+      const title = truncateText(ctx, shows[i].title, cellW - numW - 30);
+      ctx.fillText(title, cx + numW + 12, cy + 30);
+
+      // Venue
+      if (shows[i].venue || shows[i].address) {
+        ctx.fillStyle = "rgba(148,163,184,0.7)";
+        ctx.font = "400 16px 'Segoe UI', sans-serif";
+        const venue = truncateText(ctx, shows[i].venue || shows[i].address || "", cellW - numW - 30);
+        ctx.fillText(venue, cx + numW + 12, cy + 50);
+      }
+
+      // Month abbreviation
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "800 22px 'Segoe UI', sans-serif";
+      ctx.fillText(getMonthAbbr(shows[i].date), cx, cy + 78);
+    }
+
+    const totalRows = Math.ceil(shows.length / cols);
+    y += totalRows * (cellH + 16) + 20;
+  } else {
+    ctx.fillStyle = "#64748b";
+    ctx.font = "24px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Nenhum show agendado", W / 2, y + 40);
+  }
+
+  // Instagram at bottom
+  if (instagram) {
+    ctx.fillStyle = "#64748b";
+    ctx.font = "22px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(`📸 ${instagram}`, W / 2, H - 50);
+  }
+}
+
+// =====================================================
+// LAYOUT 2: HOJE — Teal gradient, wave texture, script
+// =====================================================
+function drawHojeLayout(
+  ctx: CanvasRenderingContext2D, W: number, H: number,
+  avatar: HTMLImageElement | null, name: string, shows: any[], instagram: string | null
+) {
+  // Teal gradient background
+  const bgGrad = ctx.createLinearGradient(0, 0, W * 0.5, H);
+  bgGrad.addColorStop(0, "#0e7490");
+  bgGrad.addColorStop(0.4, "#0891b2");
+  bgGrad.addColorStop(1, "#155e75");
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Wave texture pattern
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = 1.5;
+  for (let row = 0; row < H; row += 30) {
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 5) {
+      const yOff = Math.sin((x + row) * 0.02) * 12 + Math.sin((x - row) * 0.015) * 8;
+      if (x === 0) ctx.moveTo(x, row + yOff);
+      else ctx.lineTo(x, row + yOff);
+    }
+    ctx.stroke();
+  }
+
+  // Artist name at top
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "300 32px 'Segoe UI', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(name, W / 2, 60);
+
+  // Large avatar
+  const avatarSize = Math.min(W * 0.45, 400);
+  const cx = W / 2;
+  const cy = H * 0.38;
+
+  if (avatar) {
+    // White circle border
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, avatarSize / 2 + 8, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, avatarSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatar, cx - avatarSize / 2, cy - avatarSize / 2, avatarSize, avatarSize);
+    ctx.restore();
+  }
+
+  // "Hoje" script text
+  let textY = cy + avatarSize / 2 - 30;
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "italic 900 80px Georgia, 'Times New Roman', serif";
+  ctx.textAlign = "center";
+
+  // Text shadow
+  ctx.shadowColor = "rgba(0,0,0,0.4)";
+  ctx.shadowBlur = 15;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+  ctx.fillText("Hoje", W / 2, textY);
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  textY += 60;
+
+  // Show info
+  if (shows.length > 0) {
+    const show = shows[0];
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 28px 'Segoe UI', sans-serif";
+    ctx.fillText(show.title.toUpperCase(), W / 2, textY + 20);
+
+    if (show.venue || show.address) {
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
+      ctx.font = "22px 'Segoe UI', sans-serif";
+      ctx.fillText(show.venue || show.address, W / 2, textY + 55);
+    }
+
+    // Date at bottom
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "italic bold 36px Georgia, 'Times New Roman', serif";
+    ctx.fillText(getFullDate(show.date), W / 2, H - 80);
+
+    if (show.start_time) {
+      ctx.font = "24px 'Segoe UI', sans-serif";
+      ctx.fillText(show.start_time, W / 2, H - 45);
+    }
+  } else {
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.font = "24px 'Segoe UI', sans-serif";
+    ctx.fillText("Nenhum show hoje", W / 2, textY + 30);
+  }
+
+  // Instagram
+  if (instagram) {
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = "20px 'Segoe UI', sans-serif";
+    ctx.fillText(instagram, W / 2, H - 50);
+  }
+}
+
+// =====================================================
+// LAYOUT 3: CLÁSSICO — Dark card, red accents, grid
+// =====================================================
+function drawClassicoLayout(
+  ctx: CanvasRenderingContext2D, W: number, H: number,
+  avatar: HTMLImageElement | null, name: string, shows: any[], instagram: string | null
+) {
+  // Dark background with subtle gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, "#1a1a1a");
+  bgGrad.addColorStop(0.3, "#2a2a2a");
+  bgGrad.addColorStop(0.7, "#222222");
+  bgGrad.addColorStop(1, "#1a1a1a");
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Geometric shapes in background
+  ctx.fillStyle = "rgba(255,255,255,0.02)";
+  ctx.save();
+  ctx.translate(W * 0.8, H * 0.15);
+  ctx.rotate(0.5);
+  ctx.fillRect(-150, -150, 300, 300);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(W * 0.2, H * 0.85);
+  ctx.rotate(-0.3);
+  ctx.fillRect(-100, -100, 200, 200);
+  ctx.restore();
+
+  // Card area
+  const cardMargin = 40;
+  const cardY = H * 0.22;
+  const cardH = H * 0.72;
+  const cardGrad = ctx.createLinearGradient(cardMargin, cardY, cardMargin, cardY + cardH);
+  cardGrad.addColorStop(0, "rgba(60,60,60,0.9)");
+  cardGrad.addColorStop(1, "rgba(40,40,40,0.95)");
+  ctx.fillStyle = cardGrad;
+  roundRect(ctx, cardMargin, cardY, W - cardMargin * 2, cardH, 24);
+  ctx.fill();
+
+  // Red accent line top
+  const redGrad = ctx.createLinearGradient(W * 0.25, 0, W * 0.75, 0);
+  redGrad.addColorStop(0, "transparent");
+  redGrad.addColorStop(0.2, "#ef4444");
+  redGrad.addColorStop(0.8, "#ef4444");
+  redGrad.addColorStop(1, "transparent");
+  ctx.fillStyle = redGrad;
+  ctx.fillRect(W * 0.25, cardY - 2, W * 0.5, 4);
+
+  // Red accent line bottom
+  ctx.fillStyle = redGrad;
+  ctx.fillRect(W * 0.25, cardY + cardH - 2, W * 0.5, 4);
+
+  // Avatar
+  const avatarSize = Math.min(W * 0.32, 280);
+  const cx = W / 2;
+  const avatarCy = cardY - 20;
+
+  if (avatar) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, avatarCy, avatarSize / 2 + 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, avatarCy, avatarSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatar, cx - avatarSize / 2, avatarCy - avatarSize / 2, avatarSize, avatarSize);
+    ctx.restore();
+  }
+
+  // Artist name
+  let y = avatarCy + avatarSize / 2 + 40;
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "600 38px 'Segoe UI', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(name, W / 2, y);
+  y += 10;
+
+  // Subtitle
+  ctx.fillStyle = "#ef4444";
+  ctx.font = "bold 26px 'Segoe UI', sans-serif";
+  ctx.fillText("Próximos Shows", W / 2, y + 30);
+  y += 65;
+
+  // Shows grid (2 columns)
+  if (shows.length > 0) {
+    const cols = 2;
+    const cellW = (W - cardMargin * 2 - 80) / cols;
+    const cellH = 90;
+    const startX = cardMargin + 40;
+
+    for (let i = 0; i < Math.min(shows.length, 8); i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const sx = startX + col * cellW;
+      const sy = y + row * (cellH + 8);
+
+      // Day number bold
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 48px 'Segoe UI', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(String(getDayNum(shows[i].date)), sx, sy + 44);
+
+      const numW = ctx.measureText(String(getDayNum(shows[i].date))).width;
+
+      // Show title
+      ctx.fillStyle = "#e5e5e5";
+      ctx.font = "400 20px 'Segoe UI', sans-serif";
+      const title = truncateText(ctx, shows[i].title, cellW - numW - 20);
+      ctx.fillText(title, sx + numW + 10, sy + 26);
+
+      // Venue
+      if (shows[i].venue || shows[i].address) {
+        ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.font = "400 16px 'Segoe UI', sans-serif";
+        const venue = truncateText(ctx, shows[i].venue || shows[i].address || "", cellW - numW - 20);
+        ctx.fillText(venue, sx + numW + 10, sy + 48);
+      }
+
+      // Month
+      ctx.fillStyle = "#a3a3a3";
+      ctx.font = "600 18px 'Segoe UI', sans-serif";
+      ctx.fillText(getMonthAbbr(shows[i].date).toLowerCase(), sx, sy + 72);
+    }
+  } else {
+    ctx.fillStyle = "#737373";
+    ctx.font = "22px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Nenhum show agendado", W / 2, y + 40);
+  }
+
+  // Instagram
+  if (instagram) {
+    ctx.fillStyle = "#737373";
+    ctx.font = "20px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(instagram, W / 2, H - 50);
+  }
+}
+
+// =====================================================
+// LAYOUT 4: EDITORIAL — Concert vibe, paint-splash
+// =====================================================
+function drawEditorialLayout(
+  ctx: CanvasRenderingContext2D, W: number, H: number,
+  avatar: HTMLImageElement | null, name: string, shows: any[], instagram: string | null
+) {
+  // Very dark background
+  ctx.fillStyle = "#111111";
+  ctx.fillRect(0, 0, W, H);
+
+  // Concert-style gradient at bottom
+  const concertGrad = ctx.createLinearGradient(0, H * 0.6, 0, H);
+  concertGrad.addColorStop(0, "rgba(17,17,17,1)");
+  concertGrad.addColorStop(0.5, "rgba(30,20,20,0.9)");
+  concertGrad.addColorStop(1, "rgba(17,17,17,1)");
+  ctx.fillStyle = concertGrad;
+  ctx.fillRect(0, H * 0.6, W, H * 0.4);
+
+  // Bokeh lights
+  for (let i = 0; i < 15; i++) {
+    const bx = Math.random() * W;
+    const by = H * 0.5 + Math.random() * H * 0.3;
+    const br = 3 + Math.random() * 8;
+    const alpha = 0.05 + Math.random() * 0.1;
+    ctx.beginPath();
+    ctx.arc(bx, by, br, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,200,150,${alpha})`;
+    ctx.fill();
+  }
+
+  // Silhouette hands at bottom
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  for (let x = 0; x < W; x += 60) {
+    const handH = 30 + Math.random() * 50;
+    const handW = 15 + Math.random() * 20;
+    roundRect(ctx, x + Math.random() * 20, H - handH - 30, handW, handH, 8);
+    ctx.fill();
+  }
+
+  // Avatar on right side with paint-splash effect
+  const avatarSize = Math.min(W * 0.42, 380);
+  const avX = W * 0.65;
+  const avY = H * 0.35;
+
+  if (avatar) {
+    // Paint splash shapes (white blobs)
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * Math.PI * 2;
+      const dist = avatarSize * 0.45 + Math.random() * avatarSize * 0.2;
+      const blobX = avX + Math.cos(angle) * dist;
+      const blobY = avY + Math.sin(angle) * dist;
+      const blobR = 15 + Math.random() * 35;
+      ctx.beginPath();
+      ctx.arc(blobX, blobY, blobR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // White base circle
+    ctx.beginPath();
+    ctx.arc(avX, avY, avatarSize / 2 + 15, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.fill();
+
+    // Avatar
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(avX, avY, avatarSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatar, avX - avatarSize / 2, avY - avatarSize / 2, avatarSize, avatarSize);
+    ctx.restore();
+  }
+
+  // "AGENDA" + "SEMANAL" editorial text top-left
+  const margin = 60;
+  let y = 80;
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 56px 'Segoe UI', Impact, sans-serif";
+  ctx.textAlign = "left";
+  ctx.letterSpacing = "12px";
+  ctx.fillText("AGENDA", margin, y);
+  y += 35;
+  ctx.font = "300 32px 'Segoe UI', sans-serif";
+  ctx.fillText("S E M A N A L", margin, y);
+  y += 50;
+
+  // Shows list (left aligned, editorial style)
+  if (shows.length > 0) {
+    for (let i = 0; i < Math.min(shows.length, 6); i++) {
+      // Day number
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "italic 900 46px Georgia, 'Times New Roman', serif";
+      ctx.textAlign = "left";
+      ctx.fillText(String(getDayNum(shows[i].date)), margin, y + 40);
+
+      const numW = ctx.measureText(String(getDayNum(shows[i].date))).width;
+
+      // Show title
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
+      ctx.font = "400 20px 'Segoe UI', sans-serif";
+      const maxTitleW = W * 0.4 - numW - 20;
+      const title = truncateText(ctx, shows[i].title, maxTitleW);
+      ctx.fillText(title, margin + numW + 14, y + 24);
+
+      // Venue
+      if (shows[i].venue || shows[i].address) {
+        ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.font = "400 16px 'Segoe UI', sans-serif";
+        const venue = truncateText(ctx, shows[i].venue || shows[i].address || "", maxTitleW);
+        ctx.fillText(venue, margin + numW + 14, y + 44);
+      }
+
+      // Month
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "800 18px 'Segoe UI', sans-serif";
+      ctx.fillText(getMonthAbbr(shows[i].date), margin, y + 68);
+
+      y += 90;
+    }
+  }
+
+  // Artist name at bottom center
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "600 44px 'Segoe UI', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(name, W / 2, H - 70);
+
+  // Instagram
+  if (instagram) {
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.font = "20px 'Segoe UI', sans-serif";
+    ctx.fillText(instagram, W / 2, H - 38);
+  }
 }
 
 // --- Helpers ---
