@@ -44,6 +44,7 @@ import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
 import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
 import Notificacoes from "./pages/Notificacoes";
+import FlyerDivulgacao from "./pages/FlyerDivulgacao";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
