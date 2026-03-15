@@ -138,11 +138,11 @@ export default function FlyerDivulgacao() {
           break;
       }
 
-      // Watermark
-      ctx.fillStyle = "rgba(255,255,255,0.25)";
-      ctx.font = "14px 'Segoe UI', sans-serif";
+      // Watermark Backstage Pro
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.font = "bold 16px 'Segoe UI', sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("Feito com Backstage Pro", W / 2, H - 16);
+      ctx.fillText("BACKSTAGE PRO", W / 2, H - 14);
 
       const dataUrl = canvas.toDataURL("image/png");
       setGeneratedImage(dataUrl);
@@ -614,144 +614,179 @@ function drawHojeLayout(
 }
 
 // =====================================================
-// LAYOUT 3: CLÁSSICO — Dark card, red accents, grid
+// LAYOUT 3: CLÁSSICO — Dark angular bg, red accents, 2-col grid
 // =====================================================
 function drawClassicoLayout(
   ctx: CanvasRenderingContext2D, W: number, H: number,
   avatar: HTMLImageElement | null, name: string, shows: any[], instagram: string | null
 ) {
-  // Dark background with subtle gradient
-  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-  bgGrad.addColorStop(0, "#1a1a1a");
-  bgGrad.addColorStop(0.3, "#2a2a2a");
-  bgGrad.addColorStop(0.7, "#222222");
-  bgGrad.addColorStop(1, "#1a1a1a");
-  ctx.fillStyle = bgGrad;
+  // Base dark background
+  ctx.fillStyle = "#1a1a1a";
   ctx.fillRect(0, 0, W, H);
 
-  // Geometric shapes in background
-  ctx.fillStyle = "rgba(255,255,255,0.02)";
-  ctx.save();
-  ctx.translate(W * 0.8, H * 0.15);
-  ctx.rotate(0.5);
-  ctx.fillRect(-150, -150, 300, 300);
-  ctx.restore();
+  // Angular geometric shapes for depth
+  const shapes = [
+    { x: W * 0.05, y: H * 0.02, w: W * 0.55, h: H * 0.45, rot: -0.08, color: "rgba(40,40,40,0.9)" },
+    { x: W * 0.35, y: H * 0.1, w: W * 0.65, h: H * 0.5, rot: 0.06, color: "rgba(35,35,35,0.8)" },
+    { x: -W * 0.1, y: H * 0.55, w: W * 0.7, h: H * 0.5, rot: -0.04, color: "rgba(45,45,45,0.7)" },
+    { x: W * 0.4, y: H * 0.6, w: W * 0.7, h: H * 0.45, rot: 0.03, color: "rgba(30,30,30,0.8)" },
+  ];
+  for (const s of shapes) {
+    ctx.save();
+    ctx.translate(s.x + s.w / 2, s.y + s.h / 2);
+    ctx.rotate(s.rot);
+    ctx.fillStyle = s.color;
+    ctx.fillRect(-s.w / 2, -s.h / 2, s.w, s.h);
+    ctx.restore();
+  }
 
-  ctx.save();
-  ctx.translate(W * 0.2, H * 0.85);
-  ctx.rotate(-0.3);
-  ctx.fillRect(-100, -100, 200, 200);
-  ctx.restore();
+  // Subtle noise-like dots for texture
+  ctx.fillStyle = "rgba(255,255,255,0.008)";
+  for (let i = 0; i < 600; i++) {
+    const dx = Math.random() * W;
+    const dy = Math.random() * H;
+    ctx.fillRect(dx, dy, 2, 2);
+  }
 
-  // Card area
-  const cardMargin = 40;
-  const cardY = H * 0.22;
-  const cardH = H * 0.72;
-  const cardGrad = ctx.createLinearGradient(cardMargin, cardY, cardMargin, cardY + cardH);
-  cardGrad.addColorStop(0, "rgba(60,60,60,0.9)");
-  cardGrad.addColorStop(1, "rgba(40,40,40,0.95)");
-  ctx.fillStyle = cardGrad;
-  roundRect(ctx, cardMargin, cardY, W - cardMargin * 2, cardH, 24);
-  ctx.fill();
+  // Calculate layout positions
+  const isStories = H > W;
+  const avatarSize = isStories ? Math.min(W * 0.38, 340) : Math.min(W * 0.3, 280);
+  const cx = W / 2;
+  const avatarCy = isStories ? H * 0.18 : H * 0.24;
 
-  // Red accent line top
-  const redGrad = ctx.createLinearGradient(W * 0.25, 0, W * 0.75, 0);
+  // Red accent line TOP
+  const lineW = W * 0.5;
+  const lineX = (W - lineW) / 2;
+  const topLineY = avatarCy + avatarSize / 2 + 20;
+  const redGrad = ctx.createLinearGradient(lineX, 0, lineX + lineW, 0);
   redGrad.addColorStop(0, "transparent");
-  redGrad.addColorStop(0.2, "#ef4444");
-  redGrad.addColorStop(0.8, "#ef4444");
+  redGrad.addColorStop(0.15, "#ef4444");
+  redGrad.addColorStop(0.85, "#ef4444");
   redGrad.addColorStop(1, "transparent");
   ctx.fillStyle = redGrad;
-  ctx.fillRect(W * 0.25, cardY - 2, W * 0.5, 4);
+  ctx.fillRect(lineX, topLineY, lineW, 3);
 
-  // Red accent line bottom
-  ctx.fillStyle = redGrad;
-  ctx.fillRect(W * 0.25, cardY + cardH - 2, W * 0.5, 4);
-
-  // Avatar
-  const avatarSize = Math.min(W * 0.32, 280);
-  const cx = W / 2;
-  const avatarCy = cardY - 20;
-
+  // Avatar with white ring
   if (avatar) {
+    // Subtle glow
+    const glow = ctx.createRadialGradient(cx, avatarCy, avatarSize * 0.3, cx, avatarCy, avatarSize * 0.8);
+    glow.addColorStop(0, "rgba(255,255,255,0.06)");
+    glow.addColorStop(1, "transparent");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, avatarCy - avatarSize, W, avatarSize * 2);
+
+    // White border ring
     ctx.save();
     ctx.beginPath();
-    ctx.arc(cx, avatarCy, avatarSize / 2 + 6, 0, Math.PI * 2);
-    ctx.fillStyle = "#ffffff";
-    ctx.fill();
+    ctx.arc(cx, avatarCy, avatarSize / 2 + 5, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(255,255,255,0.5)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    // Clip and draw avatar
     ctx.beginPath();
     ctx.arc(cx, avatarCy, avatarSize / 2, 0, Math.PI * 2);
     ctx.clip();
     ctx.drawImage(avatar, cx - avatarSize / 2, avatarCy - avatarSize / 2, avatarSize, avatarSize);
     ctx.restore();
+  } else {
+    // Placeholder circle
+    ctx.beginPath();
+    ctx.arc(cx, avatarCy, avatarSize / 2, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(80,80,80,0.6)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    // Person icon placeholder
+    ctx.fillStyle = "rgba(255,255,255,0.2)";
+    ctx.beginPath();
+    ctx.arc(cx, avatarCy - avatarSize * 0.08, avatarSize * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, avatarCy + avatarSize * 0.28, avatarSize * 0.25, Math.PI, 0);
+    ctx.fill();
   }
 
   // Artist name
-  let y = avatarCy + avatarSize / 2 + 40;
+  let y = topLineY + 35;
   ctx.fillStyle = "#ffffff";
-  ctx.font = "600 38px 'Segoe UI', sans-serif";
+  ctx.font = `600 ${isStories ? 42 : 36}px 'Segoe UI', sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(name, W / 2, y);
-  y += 10;
+  ctx.fillText(name, cx, y);
+  y += isStories ? 10 : 8;
 
-  // Subtitle
+  // "Próximos Shows" subtitle in red italic
   ctx.fillStyle = "#ef4444";
-  ctx.font = "bold 26px 'Segoe UI', sans-serif";
-  ctx.fillText("Próximos Shows", W / 2, y + 30);
-  y += 65;
+  ctx.font = `italic 600 ${isStories ? 28 : 24}px Georgia, 'Times New Roman', serif`;
+  ctx.fillText("Próximos Shows", cx, y + 30);
+  y += isStories ? 65 : 55;
 
-  // Shows grid (2 columns)
+  // Shows in 2-column grid
   if (shows.length > 0) {
     const cols = 2;
-    const cellW = (W - cardMargin * 2 - 80) / cols;
-    const cellH = 90;
-    const startX = cardMargin + 40;
+    const gridMargin = isStories ? 80 : 60;
+    const colW = (W - gridMargin * 2) / cols;
+    const rowH = isStories ? 110 : 95;
+    const maxShows = isStories ? 10 : 6;
 
-    for (let i = 0; i < Math.min(shows.length, 8); i++) {
+    for (let i = 0; i < Math.min(shows.length, maxShows); i++) {
       const col = i % cols;
       const row = Math.floor(i / cols);
-      const sx = startX + col * cellW;
-      const sy = y + row * (cellH + 8);
+      const sx = gridMargin + col * colW;
+      const sy = y + row * rowH;
 
-      // Day number bold
+      // Large day number
       ctx.fillStyle = "#ffffff";
-      ctx.font = "900 48px 'Segoe UI', sans-serif";
+      ctx.font = `900 ${isStories ? 56 : 48}px 'Segoe UI', sans-serif`;
       ctx.textAlign = "left";
-      ctx.fillText(String(getDayNum(shows[i].date)), sx, sy + 44);
+      const dayStr = String(getDayNum(shows[i].date));
+      ctx.fillText(dayStr, sx, sy + 48);
 
-      const numW = ctx.measureText(String(getDayNum(shows[i].date))).width;
+      const numW = ctx.measureText(dayStr).width;
 
-      // Show title
-      ctx.fillStyle = "#e5e5e5";
-      ctx.font = "400 20px 'Segoe UI', sans-serif";
-      const title = truncateText(ctx, shows[i].title, cellW - numW - 20);
-      ctx.fillText(title, sx + numW + 10, sy + 26);
+      // Show title/venue next to number
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = `400 ${isStories ? 20 : 18}px 'Segoe UI', sans-serif`;
+      const titleMaxW = colW - numW - 24;
+      const title = truncateText(ctx, shows[i].title || shows[i].venue || "", titleMaxW);
+      ctx.fillText(title, sx + numW + 12, sy + 30);
 
-      // Venue
-      if (shows[i].venue || shows[i].address) {
+      // Venue below title if different
+      if (shows[i].venue && shows[i].title !== shows[i].venue) {
         ctx.fillStyle = "rgba(255,255,255,0.4)";
-        ctx.font = "400 16px 'Segoe UI', sans-serif";
-        const venue = truncateText(ctx, shows[i].venue || shows[i].address || "", cellW - numW - 20);
-        ctx.fillText(venue, sx + numW + 10, sy + 48);
+        ctx.font = `400 ${isStories ? 16 : 14}px 'Segoe UI', sans-serif`;
+        const venue = truncateText(ctx, shows[i].venue || "", titleMaxW);
+        ctx.fillText(venue, sx + numW + 12, sy + 50);
       }
 
-      // Month
-      ctx.fillStyle = "#a3a3a3";
-      ctx.font = "600 18px 'Segoe UI', sans-serif";
-      ctx.fillText(getMonthAbbr(shows[i].date).toLowerCase(), sx, sy + 72);
+      // Month abbreviation below day number
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.font = `700 ${isStories ? 20 : 18}px 'Segoe UI', sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText(getMonthAbbr(shows[i].date).toLowerCase(), sx, sy + 76);
     }
+
+    const totalRows = Math.ceil(Math.min(shows.length, maxShows) / cols);
+    y += totalRows * rowH + 10;
   } else {
-    ctx.fillStyle = "#737373";
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
     ctx.font = "22px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Nenhum show agendado", W / 2, y + 40);
+    ctx.fillText("Nenhum show agendado", cx, y + 40);
+    y += 80;
   }
+
+  // Red accent line BOTTOM
+  const bottomLineY = Math.min(y + 10, H - 70);
+  ctx.fillStyle = redGrad;
+  ctx.fillRect(lineX, bottomLineY, lineW, 3);
 
   // Instagram
   if (instagram) {
-    ctx.fillStyle = "#737373";
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
     ctx.font = "20px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(instagram, W / 2, H - 50);
+    ctx.fillText(instagram, cx, H - 45);
   }
 }
 
