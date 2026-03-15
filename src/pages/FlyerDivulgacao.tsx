@@ -65,16 +65,15 @@ export default function FlyerDivulgacao() {
   const { profile } = useProfile();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [selectedLayout, setSelectedLayout] = useState<FlyerLayout>("mensal");
-  const [agendaType, setAgendaType] = useState<AgendaType>("week");
-  const [flyerFormat, setFlyerFormat] = useState<FlyerFormat>("feed");
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [flyerFormat, setFlyerFormat] = useState<FlyerFormat>("stories");
   const [generating, setGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
-  const filteredShows = useMemo(() => {
+  const getFilteredShows = useCallback((agendaType: string) => {
     const confirmed = shows.filter(
       (s) => s.status === "confirmed" || s.status === "scheduled"
     );
@@ -96,7 +95,7 @@ export default function FlyerDivulgacao() {
 
     const monthStr = todayStr.slice(0, 7);
     return confirmed.filter((s) => s.date.startsWith(monthStr));
-  }, [shows, agendaType, todayStr]);
+  }, [shows, todayStr]);
 
   const artistName = profile?.artist_name || profile?.name || "Artista";
   const avatarUrl = profile?.avatar_url || null;
@@ -104,12 +103,14 @@ export default function FlyerDivulgacao() {
     ? profile.instagram_url.replace(/https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "")
     : null;
 
-  const generateFlyer = useCallback(async () => {
+  const generateFlyer = useCallback(async (templateId: string, format: FlyerFormat) => {
     setGenerating(true);
     try {
-      const format = FORMATS.find((f) => f.id === flyerFormat)!;
-      const W = format.w;
-      const H = format.h;
+      const template = TEMPLATES.find((t) => t.id === templateId)!;
+      const fmt = FORMATS.find((f) => f.id === format)!;
+      const W = fmt.w;
+      const H = fmt.h;
+      const filteredShows = getFilteredShows(template.agendaType);
 
       const canvas = canvasRef.current!;
       canvas.width = W;
@@ -124,7 +125,7 @@ export default function FlyerDivulgacao() {
         } catch { /* no avatar */ }
       }
 
-      switch (selectedLayout) {
+      switch (template.layoutFn) {
         case "mensal":
           drawMensalLayout(ctx, W, H, avatarImg, artistName, filteredShows, instagram);
           break;
@@ -147,6 +148,7 @@ export default function FlyerDivulgacao() {
 
       const dataUrl = canvas.toDataURL("image/png");
       setGeneratedImage(dataUrl);
+      setSelectedTemplate(templateId);
       toast.success("Flyer gerado com sucesso!");
     } catch (err) {
       console.error("Error generating flyer:", err);
@@ -154,22 +156,26 @@ export default function FlyerDivulgacao() {
     } finally {
       setGenerating(false);
     }
-  }, [selectedLayout, agendaType, flyerFormat, filteredShows, artistName, avatarUrl, instagram]);
+  }, [getFilteredShows, artistName, avatarUrl, instagram]);
 
   const downloadFlyer = () => {
     if (!generatedImage) return;
     const link = document.createElement("a");
-    link.download = `flyer-${selectedLayout}-${flyerFormat}.png`;
+    link.download = `flyer-${selectedTemplate}-${flyerFormat}.png`;
     link.href = generatedImage;
     link.click();
     toast.success("Flyer baixado!");
   };
 
   const autoGenerateWeek = () => {
-    setAgendaType("week");
-    setSelectedLayout("mensal");
     setFlyerFormat("stories");
-    setTimeout(() => generateFlyer(), 100);
+    generateFlyer("classico", "stories");
+  };
+
+  const handleSelectTemplate = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    setGeneratedImage(null);
+    generateFlyer(templateId, flyerFormat);
   };
 
   return (
@@ -192,186 +198,117 @@ export default function FlyerDivulgacao() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
-          {/* Configuration */}
-          <div className="space-y-6">
-            {/* Step 1 - Layout */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Badge className="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded-full p-0 text-xs">1</Badge>
-                  Escolha o Layout
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {LAYOUTS.map((layout) => (
-                    <button
-                      key={layout.id}
-                      onClick={() => { setSelectedLayout(layout.id); setGeneratedImage(null); }}
-                      className={cn(
-                        "relative p-4 rounded-xl border-2 transition-all text-left",
-                        selectedLayout === layout.id
-                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                          : "border-border hover:border-primary/40"
-                      )}
-                    >
-                      {selectedLayout === layout.id && (
-                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                          <Check className="w-3 h-3 text-primary-foreground" />
-                        </div>
-                      )}
-                      <div className="w-full h-16 rounded-lg mb-2 overflow-hidden" style={{ background: `linear-gradient(135deg, ${layout.colors[0]}, ${layout.colors[1]})` }}>
-                        <div className="flex items-center justify-center h-full">
-                          <div className="w-6 h-6 rounded-full bg-white/30 backdrop-blur-sm" />
-                        </div>
-                      </div>
-                      <p className="font-semibold text-sm text-foreground">{layout.label}</p>
-                      <p className="text-xs text-muted-foreground">{layout.desc}</p>
-                    </button>
-                  ))}
+        {/* Generated image modal/preview */}
+        {generatedImage && (
+          <Card className="border-primary/30">
+            <CardContent className="p-6">
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center justify-between w-full">
+                  <h3 className="text-lg font-semibold text-foreground">Flyer Gerado</h3>
+                  <Button variant="ghost" size="sm" onClick={() => setGeneratedImage(null)}>
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Step 2 - Agenda Type */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Badge className="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded-full p-0 text-xs">2</Badge>
-                  Tipo de Agenda
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-3">
-                  {AGENDA_TYPES.map((type) => (
-                    <button
-                      key={type.id}
-                      onClick={() => { setAgendaType(type.id); setGeneratedImage(null); }}
-                      className={cn(
-                        "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
-                        agendaType === type.id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/40"
-                      )}
-                    >
-                      <type.icon className={cn("w-6 h-6", agendaType === type.id ? "text-primary" : "text-muted-foreground")} />
-                      <span className="text-sm font-medium text-foreground">{type.label}</span>
-                    </button>
-                  ))}
+                <img
+                  src={generatedImage}
+                  alt="Flyer gerado"
+                  className="w-full max-w-[360px] rounded-lg shadow-xl border border-border"
+                />
+                <div className="flex gap-3 w-full max-w-[360px]">
+                  <Button onClick={downloadFlyer} className="flex-1 gap-2" variant="gradient">
+                    <Download className="w-4 h-4" />
+                    Baixar Flyer
+                  </Button>
                 </div>
-                <p className="text-sm text-muted-foreground mt-3">
-                  {filteredShows.length === 0
-                    ? "⚠️ Nenhum show encontrado para esse período"
-                    : `✅ ${filteredShows.length} show${filteredShows.length > 1 ? "s" : ""} encontrado${filteredShows.length > 1 ? "s" : ""}`
-                  }
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Step 3 - Format */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Badge className="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded-full p-0 text-xs">3</Badge>
-                  Formato
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
+                {/* Format toggle */}
+                <div className="flex gap-2">
                   {FORMATS.map((fmt) => (
-                    <button
+                    <Button
                       key={fmt.id}
-                      onClick={() => { setFlyerFormat(fmt.id); setGeneratedImage(null); }}
-                      className={cn(
-                        "flex items-center gap-3 p-4 rounded-xl border-2 transition-all",
-                        flyerFormat === fmt.id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/40"
-                      )}
+                      variant={flyerFormat === fmt.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setFlyerFormat(fmt.id);
+                        if (selectedTemplate) generateFlyer(selectedTemplate, fmt.id);
+                      }}
                     >
-                      <div className={cn(
-                        "border-2 rounded",
-                        flyerFormat === fmt.id ? "border-primary" : "border-muted-foreground/40",
-                        fmt.id === "feed" ? "w-8 h-8" : "w-6 h-10"
-                      )} />
-                      <div className="text-left">
-                        <p className="font-semibold text-sm text-foreground">{fmt.label}</p>
-                        <p className="text-xs text-muted-foreground">{fmt.size}</p>
-                      </div>
-                    </button>
+                      {fmt.label} ({fmt.size})
+                    </Button>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-            {/* Generate button */}
-            <Button onClick={generateFlyer} size="lg" className="w-full gap-2" disabled={generating}>
-              {generating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  Gerando...
-                </>
-              ) : (
-                <>
-                  <ImageIcon className="w-5 h-5" />
-                  Gerar Flyer
-                </>
+        {/* Divider */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Escolha um template</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
+        {/* Template list */}
+        <div className="space-y-3">
+          {TEMPLATES.map((template) => (
+            <button
+              key={template.id}
+              onClick={() => handleSelectTemplate(template.id)}
+              disabled={generating}
+              className={cn(
+                "w-full flex items-center gap-5 p-5 rounded-xl border-2 transition-all text-left hover:shadow-md",
+                selectedTemplate === template.id
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/40 bg-card"
               )}
-            </Button>
-          </div>
+            >
+              {/* Thumbnail preview */}
+              <div className="w-20 h-24 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-muted to-muted-foreground/20 flex items-center justify-center">
+                <TemplateThumbnail id={template.id} />
+              </div>
 
-          {/* Preview */}
-          <div className="space-y-4">
-            <Card className="sticky top-4">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Prévia do Flyer</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center gap-4">
-                {generatedImage ? (
-                  <>
-                    <img
-                      src={generatedImage}
-                      alt="Flyer gerado"
-                      className="w-full max-w-[340px] rounded-lg shadow-lg border border-border"
-                    />
-                    <Button onClick={downloadFlyer} className="w-full gap-2" variant="gradient">
-                      <Download className="w-4 h-4" />
-                      Baixar Flyer
-                    </Button>
-                  </>
-                ) : (
-                  <div className="w-full aspect-square max-w-[340px] rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground gap-3 p-8">
-                    <ImageIcon className="w-12 h-12 opacity-30" />
-                    <p className="text-sm text-center">
-                      Configure as opções e clique em <strong>"Gerar Flyer"</strong> para ver a prévia
-                    </p>
-                  </div>
-                )}
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-bold text-foreground text-lg">{template.label}</h3>
+                  <span className={cn("text-xs text-white font-semibold px-2.5 py-0.5 rounded-full", template.badgeColor)}>
+                    {template.badge}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{template.desc}</p>
+              </div>
 
-                {filteredShows.length > 0 && (
-                  <div className="w-full space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase">Shows no flyer:</p>
-                    {filteredShows.slice(0, 5).map((show) => (
-                      <div key={show.id} className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <span className="font-medium text-foreground">{getDayNum(show.date)}/{getMonthAbbr(show.date)}</span>
-                        <span className="text-muted-foreground truncate">{show.title}</span>
-                      </div>
-                    ))}
-                    {filteredShows.length > 5 && (
-                      <p className="text-xs text-muted-foreground">+ {filteredShows.length - 5} mais</p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+              {/* Arrow */}
+              <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+            </button>
+          ))}
         </div>
 
         <canvas ref={canvasRef} className="hidden" />
       </div>
     </Layout>
+  );
+}
+
+// Mini thumbnail component for template previews
+function TemplateThumbnail({ id }: { id: string }) {
+  const colors: Record<string, { bg: string; accent: string }> = {
+    mensal: { bg: "#0f172a", accent: "#38bdf8" },
+    hoje: { bg: "#0e7490", accent: "#ffffff" },
+    classico: { bg: "#1a1a1a", accent: "#ef4444" },
+    editorial: { bg: "#111111", accent: "#ffffff" },
+  };
+  const c = colors[id] || colors.mensal;
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-2" style={{ background: c.bg }}>
+      <div className="w-6 h-6 rounded-full border-2" style={{ borderColor: c.accent, opacity: 0.7 }} />
+      <div className="w-10 h-1 rounded" style={{ background: c.accent, opacity: 0.5 }} />
+      <div className="w-8 h-0.5 rounded" style={{ background: c.accent, opacity: 0.3 }} />
+      <div className="flex gap-1 mt-1">
+        <div className="w-3 h-3 rounded-sm" style={{ background: c.accent, opacity: 0.4 }} />
+        <div className="w-3 h-3 rounded-sm" style={{ background: c.accent, opacity: 0.3 }} />
+      </div>
+    </div>
   );
 }
 
