@@ -11,27 +11,28 @@ import {
   Download,
   Sparkles,
   Calendar,
-  CalendarDays,
-  CalendarRange,
-  Check,
+  ChevronRight,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type AgendaType = "day" | "week" | "month";
 type FlyerFormat = "feed" | "stories";
-type FlyerLayout = "mensal" | "hoje" | "classico" | "editorial";
 
-const LAYOUTS: { id: FlyerLayout; label: string; desc: string; colors: string[] }[] = [
-  { id: "mensal", label: "Agenda Mensal", desc: "Grid com todas as datas", colors: ["#1e1e2e", "#38bdf8"] },
-  { id: "hoje", label: "Show Hoje", desc: "Destaque para uma data", colors: ["#0e7490", "#06b6d4"] },
-  { id: "classico", label: "Próximos Shows", desc: "Card elegante com grid", colors: ["#2a2a2a", "#ef4444"] },
-  { id: "editorial", label: "Editorial", desc: "Estilo revista musical", colors: ["#1a1a1a", "#ffffff"] },
-];
+interface FlyerTemplate {
+  id: string;
+  label: string;
+  desc: string;
+  badge: string;
+  badgeColor: string;
+  agendaType: "day" | "week" | "month";
+  layoutFn: string;
+}
 
-const AGENDA_TYPES: { id: AgendaType; label: string; icon: React.ElementType }[] = [
-  { id: "day", label: "Agenda do Dia", icon: Calendar },
-  { id: "week", label: "Agenda Semanal", icon: CalendarDays },
-  { id: "month", label: "Agenda Mensal", icon: CalendarRange },
+const TEMPLATES: FlyerTemplate[] = [
+  { id: "mensal", label: "Flyer Mensal", desc: "Layout mensal com todas as datas do mês", badge: "Mensal", badgeColor: "bg-blue-600", agendaType: "month", layoutFn: "mensal" },
+  { id: "hoje", label: "Flyer Diário", desc: "Layout diário com destaque para foto", badge: "Diário", badgeColor: "bg-red-600", agendaType: "day", layoutFn: "hoje" },
+  { id: "classico", label: "Próximos Shows", desc: "Card elegante com grid de datas", badge: "Semanal", badgeColor: "bg-emerald-600", agendaType: "week", layoutFn: "classico" },
+  { id: "editorial", label: "Flyer Editorial", desc: "Estilo revista musical premium", badge: "Semanal", badgeColor: "bg-purple-600", agendaType: "week", layoutFn: "editorial" },
 ];
 
 const FORMATS: { id: FlyerFormat; label: string; size: string; w: number; h: number }[] = [
