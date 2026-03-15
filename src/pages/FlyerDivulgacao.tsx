@@ -138,11 +138,11 @@ export default function FlyerDivulgacao() {
           break;
       }
 
-      // Watermark
-      ctx.fillStyle = "rgba(255,255,255,0.25)";
-      ctx.font = "14px 'Segoe UI', sans-serif";
+      // Watermark Backstage Pro
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.font = "bold 16px 'Segoe UI', sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("Feito com Backstage Pro", W / 2, H - 16);
+      ctx.fillText("BACKSTAGE PRO", W / 2, H - 14);
 
       const dataUrl = canvas.toDataURL("image/png");
       setGeneratedImage(dataUrl);
