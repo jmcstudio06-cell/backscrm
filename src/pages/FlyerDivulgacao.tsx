@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Image as ImageIcon, Download, ChevronLeft, ChevronRight, Music, MapPin, Clock, Calendar } from "lucide-react";
+import { Image as ImageIcon, Download, ChevronLeft, ChevronRight, Calendar, Music } from "lucide-react";
 import { useShows } from "@/contexts/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
 import { toPng } from "html-to-image";
@@ -14,8 +14,6 @@ const MONTH_NAMES = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
-const WEEKDAY_SHORT = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
-
 export default function FlyerDivulgacao() {
   const { shows } = useShows();
   const { profile } = useProfile();
@@ -25,7 +23,7 @@ export default function FlyerDivulgacao() {
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
-  const [format, setFormat] = useState<"feed" | "stories">("feed");
+  const [format, setFormat] = useState<"feed" | "stories">("stories");
 
   const artistName = profile?.artist_name || profile?.name || "Artista";
   const avatarUrl = profile?.avatar_url || null;
@@ -65,7 +63,7 @@ export default function FlyerDivulgacao() {
       const dataUrl = await toPng(flyerRef.current, {
         cacheBust: true,
         pixelRatio: 3,
-        backgroundColor: "#000",
+        backgroundColor: "#fdf6ef",
       });
       const link = document.createElement("a");
       link.download = `flyer-${MONTH_NAMES[selectedMonth].toLowerCase()}-${selectedYear}.png`;
@@ -79,13 +77,20 @@ export default function FlyerDivulgacao() {
     }
   };
 
-  const formatShowDate = (dateStr: string) => {
-    const d = new Date(dateStr + "T12:00:00");
-    return {
-      day: String(d.getDate()).padStart(2, "0"),
-      weekday: WEEKDAY_SHORT[d.getDay()],
-    };
+  const getShowLine = (show: typeof monthShows[0]) => {
+    const d = new Date(show.date + "T12:00:00");
+    const day = String(d.getDate()).padStart(2, "0");
+    const city = show.venue || show.address || show.title;
+    return { day, city };
   };
+
+  // Split shows into two columns
+  const midpoint = Math.ceil(monthShows.length / 2);
+  const col1 = monthShows.slice(0, midpoint);
+  const col2 = monthShows.slice(midpoint);
+
+  const flyerW = format === "feed" ? 540 : 405;
+  const flyerH = format === "feed" ? 540 : 720;
 
   return (
     <Layout title="Flyer Divulgação">
@@ -146,151 +151,208 @@ export default function FlyerDivulgacao() {
           </Card>
         ) : (
           <div className="flex justify-center overflow-auto pb-4">
-            {/* Flyer Preview */}
+            {/* ===== FLYER ===== */}
             <div
               ref={flyerRef}
               className="relative overflow-hidden flex-shrink-0"
               style={{
-                width: format === "feed" ? 540 : 405,
-                height: format === "feed" ? 540 : 720,
+                width: flyerW,
+                height: flyerH,
                 fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
               }}
             >
-              {/* Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a1025] to-[#0d0d0d]" />
-              
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-[60%] h-[60%] bg-gradient-to-bl from-purple-600/20 via-transparent to-transparent rounded-bl-full" />
-              <div className="absolute bottom-0 left-0 w-[40%] h-[40%] bg-gradient-to-tr from-amber-500/10 via-transparent to-transparent rounded-tr-full" />
-              
-              {/* Grid lines decorative */}
-              <div className="absolute inset-0 opacity-[0.03]" style={{
-                backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-              }} />
+              {/* Warm background */}
+              <div className="absolute inset-0" style={{ background: "#fdf6ef" }} />
+
+              {/* Organic blob shapes */}
+              <svg
+                className="absolute"
+                style={{ top: -30, right: -40, width: "65%", height: "auto", opacity: 0.9 }}
+                viewBox="0 0 300 300"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M45.3,-57.2C58.6,-48.1,69.3,-34.1,74.2,-17.8C79.1,-1.6,78.2,16.8,70.1,31.5C62,46.2,46.7,57.1,30.2,63.3C13.6,69.5,-4.3,71,-21.4,66.7C-38.4,62.4,-54.7,52.3,-64.3,37.8C-73.9,23.3,-76.8,4.4,-73.2,-13C-69.5,-30.3,-59.3,-46.1,-45.5,-55.2C-31.7,-64.3,-14.3,-66.6,1,-67.8C16.2,-69,32,-66.3,45.3,-57.2Z"
+                  transform="translate(150,150)"
+                  fill="#F4845F"
+                />
+              </svg>
+
+              <svg
+                className="absolute"
+                style={{ bottom: -20, left: -50, width: "55%", height: "auto", opacity: 0.85 }}
+                viewBox="0 0 300 300"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M39.5,-51.6C52.9,-44.5,66.8,-35.5,72.5,-22.6C78.2,-9.7,75.7,7,68.2,20.2C60.7,33.4,48.2,43.2,35,51.7C21.7,60.3,7.7,67.5,-6.6,69.1C-20.9,70.6,-35.6,66.5,-47.5,57.5C-59.3,48.4,-68.4,34.3,-72.2,18.8C-76,-3.3,-74.5,-18.9,-66.8,-31.4C-59.1,-44,-45.2,-53.6,-31,-59.6C-16.7,-65.6,-2.1,-68,8.3,-62.1C18.7,-56.2,26.1,-58.7,39.5,-51.6Z"
+                  transform="translate(150,150)"
+                  fill="#F4845F"
+                />
+              </svg>
+
+              <svg
+                className="absolute"
+                style={{ bottom: "25%", right: -30, width: "35%", height: "auto", opacity: 0.5 }}
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M44.5,-52.2C56.4,-43.5,64,-28.5,67.7,-12.4C71.3,3.8,71,21.1,63.2,34.1C55.5,47.2,40.3,56,24.2,60.6C8,65.2,-9.2,65.5,-24.3,60C-39.5,54.5,-52.6,43.1,-60.7,28.5C-68.7,13.9,-71.7,-3.8,-66.5,-18.3C-61.3,-32.8,-48,-44.1,-34.2,-52.3C-20.4,-60.5,-6.2,-65.5,5.6,-62.6C17.4,-59.6,32.5,-60.8,44.5,-52.2Z"
+                  transform="translate(100,100)"
+                  fill="#FDBA74"
+                />
+              </svg>
+
+              {/* Small decorative hearts */}
+              <div className="absolute" style={{ bottom: 60, left: 30, fontSize: 18, color: "#F4845F", opacity: 0.5 }}>♥</div>
+              <div className="absolute" style={{ bottom: 100, right: 50, fontSize: 14, color: "#FDBA74", opacity: 0.4 }}>♥</div>
+              <div className="absolute" style={{ top: "40%", right: 20, fontSize: 12, color: "#F4845F", opacity: 0.3 }}>♥</div>
 
               {/* Content */}
-              <div className="relative z-10 flex flex-col h-full p-6">
-                {/* Header - Artist info */}
-                <div className="flex items-center gap-3 mb-4">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={artistName}
-                      className="w-14 h-14 rounded-full object-cover border-2 border-purple-400/60 shadow-lg shadow-purple-500/20"
-                      crossOrigin="anonymous"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center border-2 border-purple-400/60">
-                      <Music className="w-6 h-6 text-white" />
-                    </div>
-                  )}
-                  <div>
-                    <h2 className="text-white font-extrabold text-xl leading-tight tracking-tight">
-                      {artistName}
-                    </h2>
-                    <p className="text-purple-300/80 text-xs font-medium uppercase tracking-widest">
-                      Agenda de Shows
-                    </p>
-                  </div>
+              <div className="relative z-10 flex flex-col h-full" style={{ padding: format === "feed" ? "28px 28px 20px" : "32px 28px 20px" }}>
+                {/* Title */}
+                <div className="text-center" style={{ marginBottom: format === "feed" ? 16 : 24 }}>
+                  <h1
+                    className="font-black uppercase tracking-tight leading-none"
+                    style={{
+                      fontSize: format === "feed" ? 36 : 40,
+                      color: "#1a1a1a",
+                      letterSpacing: "2px",
+                    }}
+                  >
+                    Próximos
+                  </h1>
+                  <h2
+                    className="font-black uppercase tracking-widest"
+                    style={{
+                      fontSize: format === "feed" ? 28 : 32,
+                      color: "#F4845F",
+                      letterSpacing: "6px",
+                      marginTop: -4,
+                    }}
+                  >
+                    Shows
+                  </h2>
                 </div>
 
-                {/* Month Title */}
-                <div className="mb-4">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-amber-400 font-black text-3xl tracking-tight">
-                      {MONTH_NAMES[selectedMonth]}
-                    </span>
-                    <span className="text-white/40 font-light text-lg">{selectedYear}</span>
-                  </div>
-                  <div className="h-[2px] w-16 bg-gradient-to-r from-amber-400 to-purple-500 mt-1 rounded-full" />
-                </div>
-
-                {/* Shows List */}
+                {/* Dates in two columns */}
                 <div
-                  className="flex-1 overflow-hidden flex flex-col"
-                  style={{ gap: monthShows.length > 8 ? 4 : monthShows.length > 5 ? 6 : 10 }}
+                  className="flex gap-4"
+                  style={{
+                    marginBottom: format === "feed" ? 12 : 20,
+                    flex: format === "feed" ? "0 0 auto" : undefined,
+                  }}
                 >
-                  {monthShows.map((show, i) => {
-                    const { day, weekday } = formatShowDate(show.date);
-                    const isCompact = monthShows.length > 8;
-                    const isMedium = monthShows.length > 5;
-
-                    return (
-                      <div
-                        key={show.id}
-                        className="flex items-center gap-3 rounded-xl px-3"
-                        style={{
-                          backgroundColor: "rgba(255,255,255,0.04)",
-                          borderLeft: "3px solid",
-                          borderImage: i % 2 === 0
-                            ? "linear-gradient(to bottom, #a855f7, #7c3aed) 1"
-                            : "linear-gradient(to bottom, #f59e0b, #d97706) 1",
-                          padding: isCompact ? "6px 12px" : isMedium ? "8px 12px" : "10px 12px",
-                        }}
-                      >
-                        {/* Date */}
-                        <div className="text-center flex-shrink-0" style={{ minWidth: 44 }}>
+                  {/* Column 1 */}
+                  <div className="flex-1 flex flex-col" style={{ gap: monthShows.length > 10 ? 3 : 6 }}>
+                    {col1.map((show) => {
+                      const { day, city } = getShowLine(show);
+                      return (
+                        <div
+                          key={show.id}
+                          className="font-bold uppercase truncate"
+                          style={{
+                            fontSize: monthShows.length > 12 ? 10 : monthShows.length > 8 ? 11 : 12,
+                            color: "#1a1a1a",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          {day} – {city}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Column 2 */}
+                  {col2.length > 0 && (
+                    <div className="flex-1 flex flex-col" style={{ gap: monthShows.length > 10 ? 3 : 6 }}>
+                      {col2.map((show) => {
+                        const { day, city } = getShowLine(show);
+                        return (
                           <div
-                            className="font-black text-white leading-none"
-                            style={{ fontSize: isCompact ? 20 : 26 }}
-                          >
-                            {day}
-                          </div>
-                          <div
-                            className="font-bold uppercase tracking-wider"
+                            key={show.id}
+                            className="font-bold uppercase truncate"
                             style={{
-                              fontSize: isCompact ? 8 : 9,
-                              color: i % 2 === 0 ? "#c084fc" : "#fbbf24",
+                              fontSize: monthShows.length > 12 ? 10 : monthShows.length > 8 ? 11 : 12,
+                              color: "#1a1a1a",
+                              letterSpacing: "0.5px",
                             }}
                           >
-                            {weekday}
+                            {day} – {city}
                           </div>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="w-px h-8 bg-white/10 flex-shrink-0" />
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <div
-                            className="text-white font-bold truncate leading-tight"
-                            style={{ fontSize: isCompact ? 12 : isMedium ? 13 : 14 }}
-                          >
-                            {show.title}
-                          </div>
-                          <div className="flex items-center gap-3 mt-0.5">
-                            {show.start_time && (
-                              <span className="flex items-center gap-1 text-white/50" style={{ fontSize: isCompact ? 9 : 10 }}>
-                                <Clock className="flex-shrink-0" style={{ width: 9, height: 9 }} />
-                                {show.start_time.slice(0, 5)}
-                              </span>
-                            )}
-                            {(show.venue || show.address) && (
-                              <span className="flex items-center gap-1 text-white/50 truncate" style={{ fontSize: isCompact ? 9 : 10 }}>
-                                <MapPin className="flex-shrink-0" style={{ width: 9, height: 9 }} />
-                                <span className="truncate">{show.venue || show.address}</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                {/* Footer - Branding */}
-                <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center">
-                      <Music className="w-3 h-3 text-white" />
+                {/* Spacer to push artist to bottom */}
+                <div className="flex-1" />
+
+                {/* Artist Section */}
+                <div className="flex flex-col items-center" style={{ marginTop: 8 }}>
+                  {/* Circular Avatar */}
+                  <div
+                    className="relative"
+                    style={{
+                      width: format === "feed" ? 180 : 200,
+                      height: format === "feed" ? 180 : 200,
+                    }}
+                  >
+                    <div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: "linear-gradient(135deg, #F4845F 0%, #FDBA74 50%, #F4845F 100%)",
+                        padding: 4,
+                      }}
+                    >
+                      <div
+                        className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
+                        style={{ background: "#fdf6ef" }}
+                      >
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={artistName}
+                            className="w-full h-full object-cover rounded-full"
+                            crossOrigin="anonymous"
+                            style={{ padding: 3 }}
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full rounded-full flex items-center justify-center"
+                            style={{ background: "linear-gradient(135deg, #F4845F, #FDBA74)" }}
+                          >
+                            <Music className="text-white" style={{ width: 60, height: 60 }} />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-white/30 text-[10px] font-semibold tracking-wider uppercase">
-                      Backstage Pro
-                    </span>
                   </div>
-                  <span className="text-white/20 text-[9px]">
-                    {monthShows.length} {monthShows.length === 1 ? "show" : "shows"} confirmados
+
+                  {/* Artist Name */}
+                  <div
+                    className="text-center"
+                    style={{
+                      marginTop: 10,
+                      fontFamily: "'Georgia', 'Times New Roman', serif",
+                      fontStyle: "italic",
+                      fontWeight: 700,
+                      fontSize: format === "feed" ? 24 : 28,
+                      color: "#1a1a1a",
+                    }}
+                  >
+                    {artistName}
+                  </div>
+                </div>
+
+                {/* Footer Branding */}
+                <div className="text-center" style={{ marginTop: 10 }}>
+                  <span
+                    className="uppercase font-semibold tracking-widest"
+                    style={{ fontSize: 8, color: "#1a1a1a", opacity: 0.3 }}
+                  >
+                    Backstage Pro
                   </span>
                 </div>
               </div>
