@@ -11,5 +11,3 @@ project_id = "nwewheihdqfwsobompnp"
     verify_jwt = false
   [functions.infinitepay-webhook]
     verify_jwt = false
-  [functions.generate-flyer]
-    verify_jwt = false
