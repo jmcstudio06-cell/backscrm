@@ -14,6 +14,8 @@ const MONTH_NAMES = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
+const WEEKDAY_SHORT = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+
 export default function FlyerDivulgacao() {
   const { shows } = useShows();
   const { profile } = useProfile();
@@ -39,58 +41,37 @@ export default function FlyerDivulgacao() {
   }, [shows, selectedMonth, selectedYear]);
 
   const handlePrevMonth = () => {
-    if (selectedMonth === 0) {
-      setSelectedMonth(11);
-      setSelectedYear((y) => y - 1);
-    } else {
-      setSelectedMonth((m) => m - 1);
-    }
+    if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear((y) => y - 1); }
+    else setSelectedMonth((m) => m - 1);
   };
-
   const handleNextMonth = () => {
-    if (selectedMonth === 11) {
-      setSelectedMonth(0);
-      setSelectedYear((y) => y + 1);
-    } else {
-      setSelectedMonth((m) => m + 1);
-    }
+    if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear((y) => y + 1); }
+    else setSelectedMonth((m) => m + 1);
   };
 
   const handleDownload = async () => {
     if (!flyerRef.current) return;
     setDownloading(true);
     try {
-      const dataUrl = await toPng(flyerRef.current, {
-        cacheBust: true,
-        pixelRatio: 3,
-        backgroundColor: "#fdf6ef",
-      });
+      const dataUrl = await toPng(flyerRef.current, { cacheBust: true, pixelRatio: 3 });
       const link = document.createElement("a");
       link.download = `flyer-${MONTH_NAMES[selectedMonth].toLowerCase()}-${selectedYear}.png`;
       link.href = dataUrl;
       link.click();
       toast.success("Flyer baixado com sucesso!");
-    } catch {
-      toast.error("Erro ao gerar imagem do flyer");
-    } finally {
-      setDownloading(false);
-    }
+    } catch { toast.error("Erro ao gerar imagem do flyer"); }
+    finally { setDownloading(false); }
   };
 
-  const getShowLine = (show: typeof monthShows[0]) => {
-    const d = new Date(show.date + "T12:00:00");
-    const day = String(d.getDate()).padStart(2, "0");
-    const city = show.venue || show.address || show.title;
-    return { day, city };
-  };
-
-  // Split shows into two columns
   const midpoint = Math.ceil(monthShows.length / 2);
   const col1 = monthShows.slice(0, midpoint);
   const col2 = monthShows.slice(midpoint);
 
   const flyerW = format === "feed" ? 540 : 405;
   const flyerH = format === "feed" ? 540 : 720;
+  const isFeed = format === "feed";
+  const isCompact = monthShows.length > 10;
+  const isMedium = monthShows.length > 6;
 
   return (
     <Layout title="Flyer Divulgação">
@@ -100,40 +81,25 @@ export default function FlyerDivulgacao() {
             <ImageIcon className="w-7 h-7 text-primary" />
             Flyer Divulgação
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Gere flyers mensais profissionais com suas datas de show
-          </p>
+          <p className="text-muted-foreground mt-1">Gere flyers mensais profissionais com suas datas de show</p>
         </div>
 
-        {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={handlePrevMonth}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
+            <Button variant="outline" size="icon" onClick={handlePrevMonth}><ChevronLeft className="w-4 h-4" /></Button>
             <div className="px-4 py-2 font-semibold text-foreground min-w-[160px] text-center">
               {MONTH_NAMES[selectedMonth]} {selectedYear}
             </div>
-            <Button variant="outline" size="icon" onClick={handleNextMonth}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+            <Button variant="outline" size="icon" onClick={handleNextMonth}><ChevronRight className="w-4 h-4" /></Button>
           </div>
-
           <Select value={format} onValueChange={(v) => setFormat(v as "feed" | "stories")}>
-            <SelectTrigger className="w-[130px]">
-              <SelectValue />
-            </SelectTrigger>
+            <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="feed">Feed (1:1)</SelectItem>
               <SelectItem value="stories">Stories (9:16)</SelectItem>
             </SelectContent>
           </Select>
-
-          <Button
-            onClick={handleDownload}
-            disabled={downloading || monthShows.length === 0}
-            className="gap-2"
-          >
+          <Button onClick={handleDownload} disabled={downloading || monthShows.length === 0} className="gap-2">
             <Download className="w-4 h-4" />
             {downloading ? "Gerando..." : "Baixar Flyer"}
           </Button>
@@ -144,186 +110,73 @@ export default function FlyerDivulgacao() {
             <CardContent className="flex flex-col items-center justify-center py-16 gap-4 text-center">
               <Calendar className="w-10 h-10 text-muted-foreground" />
               <h2 className="text-xl font-semibold text-foreground">Nenhum show neste mês</h2>
-              <p className="text-muted-foreground max-w-md">
-                Adicione shows na Agenda para gerar o flyer mensal.
-              </p>
+              <p className="text-muted-foreground max-w-md">Adicione shows na Agenda para gerar o flyer mensal.</p>
             </CardContent>
           </Card>
         ) : (
           <div className="flex justify-center overflow-auto pb-4">
-            {/* ===== FLYER ===== */}
             <div
               ref={flyerRef}
               className="relative overflow-hidden flex-shrink-0"
-              style={{
-                width: flyerW,
-                height: flyerH,
-                fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-              }}
+              style={{ width: flyerW, height: flyerH, fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}
             >
-              {/* Warm background */}
-              <div className="absolute inset-0" style={{ background: "#fdf6ef" }} />
+              {/* ===== BACKGROUND ===== */}
+              <div className="absolute inset-0" style={{
+                background: "linear-gradient(160deg, #0f0c29 0%, #1a0a2e 25%, #24243e 50%, #1a0a2e 75%, #0f0c29 100%)",
+              }} />
 
-              {/* Organic blob shapes */}
-              <svg
-                className="absolute"
-                style={{ top: -30, right: -40, width: "65%", height: "auto", opacity: 0.9 }}
-                viewBox="0 0 300 300"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M45.3,-57.2C58.6,-48.1,69.3,-34.1,74.2,-17.8C79.1,-1.6,78.2,16.8,70.1,31.5C62,46.2,46.7,57.1,30.2,63.3C13.6,69.5,-4.3,71,-21.4,66.7C-38.4,62.4,-54.7,52.3,-64.3,37.8C-73.9,23.3,-76.8,4.4,-73.2,-13C-69.5,-30.3,-59.3,-46.1,-45.5,-55.2C-31.7,-64.3,-14.3,-66.6,1,-67.8C16.2,-69,32,-66.3,45.3,-57.2Z"
-                  transform="translate(150,150)"
-                  fill="#F4845F"
-                />
-              </svg>
+              {/* Neon glow blobs */}
+              <div className="absolute" style={{
+                width: 300, height: 300, top: -80, right: -60,
+                background: "radial-gradient(circle, rgba(168,85,247,0.35) 0%, transparent 70%)",
+                filter: "blur(40px)",
+              }} />
+              <div className="absolute" style={{
+                width: 250, height: 250, bottom: -40, left: -50,
+                background: "radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)",
+                filter: "blur(40px)",
+              }} />
+              <div className="absolute" style={{
+                width: 200, height: 200, top: "40%", left: "50%",
+                transform: "translateX(-50%)",
+                background: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)",
+                filter: "blur(30px)",
+              }} />
 
-              <svg
-                className="absolute"
-                style={{ bottom: -20, left: -50, width: "55%", height: "auto", opacity: 0.85 }}
-                viewBox="0 0 300 300"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M39.5,-51.6C52.9,-44.5,66.8,-35.5,72.5,-22.6C78.2,-9.7,75.7,7,68.2,20.2C60.7,33.4,48.2,43.2,35,51.7C21.7,60.3,7.7,67.5,-6.6,69.1C-20.9,70.6,-35.6,66.5,-47.5,57.5C-59.3,48.4,-68.4,34.3,-72.2,18.8C-76,-3.3,-74.5,-18.9,-66.8,-31.4C-59.1,-44,-45.2,-53.6,-31,-59.6C-16.7,-65.6,-2.1,-68,8.3,-62.1C18.7,-56.2,26.1,-58.7,39.5,-51.6Z"
-                  transform="translate(150,150)"
-                  fill="#F4845F"
-                />
-              </svg>
+              {/* Subtle grain overlay */}
+              <div className="absolute inset-0" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
+                opacity: 0.5,
+              }} />
 
-              <svg
-                className="absolute"
-                style={{ bottom: "25%", right: -30, width: "35%", height: "auto", opacity: 0.5 }}
-                viewBox="0 0 200 200"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M44.5,-52.2C56.4,-43.5,64,-28.5,67.7,-12.4C71.3,3.8,71,21.1,63.2,34.1C55.5,47.2,40.3,56,24.2,60.6C8,65.2,-9.2,65.5,-24.3,60C-39.5,54.5,-52.6,43.1,-60.7,28.5C-68.7,13.9,-71.7,-3.8,-66.5,-18.3C-61.3,-32.8,-48,-44.1,-34.2,-52.3C-20.4,-60.5,-6.2,-65.5,5.6,-62.6C17.4,-59.6,32.5,-60.8,44.5,-52.2Z"
-                  transform="translate(100,100)"
-                  fill="#FDBA74"
-                />
-              </svg>
+              {/* ===== CONTENT ===== */}
+              <div className="relative z-10 flex flex-col h-full" style={{ padding: isFeed ? "24px 24px 16px" : "28px 26px 18px" }}>
 
-              {/* Small decorative hearts */}
-              <div className="absolute" style={{ bottom: 60, left: 30, fontSize: 18, color: "#F4845F", opacity: 0.5 }}>♥</div>
-              <div className="absolute" style={{ bottom: 100, right: 50, fontSize: 14, color: "#FDBA74", opacity: 0.4 }}>♥</div>
-              <div className="absolute" style={{ top: "40%", right: 20, fontSize: 12, color: "#F4845F", opacity: 0.3 }}>♥</div>
-
-              {/* Content */}
-              <div className="relative z-10 flex flex-col h-full" style={{ padding: format === "feed" ? "28px 28px 20px" : "32px 28px 20px" }}>
-                {/* Title */}
-                <div className="text-center" style={{ marginBottom: format === "feed" ? 16 : 24 }}>
-                  <h1
-                    className="font-black uppercase tracking-tight leading-none"
-                    style={{
-                      fontSize: format === "feed" ? 36 : 40,
-                      color: "#1a1a1a",
-                      letterSpacing: "2px",
-                    }}
-                  >
-                    Próximos
-                  </h1>
-                  <h2
-                    className="font-black uppercase tracking-widest"
-                    style={{
-                      fontSize: format === "feed" ? 28 : 32,
-                      color: "#F4845F",
-                      letterSpacing: "6px",
-                      marginTop: -4,
-                    }}
-                  >
-                    Shows
-                  </h2>
-                </div>
-
-                {/* Dates in two columns */}
-                <div
-                  className="flex gap-4"
-                  style={{
-                    marginBottom: format === "feed" ? 12 : 20,
-                    flex: format === "feed" ? "0 0 auto" : undefined,
-                  }}
-                >
-                  {/* Column 1 */}
-                  <div className="flex-1 flex flex-col" style={{ gap: monthShows.length > 10 ? 3 : 6 }}>
-                    {col1.map((show) => {
-                      const { day, city } = getShowLine(show);
-                      return (
-                        <div
-                          key={show.id}
-                          className="font-bold uppercase truncate"
-                          style={{
-                            fontSize: monthShows.length > 12 ? 10 : monthShows.length > 8 ? 11 : 12,
-                            color: "#1a1a1a",
-                            letterSpacing: "0.5px",
-                          }}
-                        >
-                          {day} – {city}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* Column 2 */}
-                  {col2.length > 0 && (
-                    <div className="flex-1 flex flex-col" style={{ gap: monthShows.length > 10 ? 3 : 6 }}>
-                      {col2.map((show) => {
-                        const { day, city } = getShowLine(show);
-                        return (
-                          <div
-                            key={show.id}
-                            className="font-bold uppercase truncate"
-                            style={{
-                              fontSize: monthShows.length > 12 ? 10 : monthShows.length > 8 ? 11 : 12,
-                              color: "#1a1a1a",
-                              letterSpacing: "0.5px",
-                            }}
-                          >
-                            {day} – {city}
-                          </div>
-                        );
-                      })}
+                {/* ── HEADER: Avatar + Title ── */}
+                <div className="flex flex-col items-center" style={{ marginBottom: isFeed ? 14 : 20 }}>
+                  {/* Glowing avatar ring */}
+                  <div className="relative" style={{ width: isFeed ? 80 : 90, height: isFeed ? 80 : 90, marginBottom: 10 }}>
+                    {/* Outer glow */}
+                    <div className="absolute inset-0 rounded-full" style={{
+                      background: "conic-gradient(from 0deg, #a855f7, #ec4899, #f97316, #eab308, #22c55e, #3b82f6, #a855f7)",
+                      padding: 3,
+                      filter: "blur(1px)",
+                    }}>
+                      <div className="w-full h-full rounded-full" style={{ background: "#1a0a2e" }} />
                     </div>
-                  )}
-                </div>
-
-                {/* Spacer to push artist to bottom */}
-                <div className="flex-1" />
-
-                {/* Artist Section */}
-                <div className="flex flex-col items-center" style={{ marginTop: 8 }}>
-                  {/* Circular Avatar */}
-                  <div
-                    className="relative"
-                    style={{
-                      width: format === "feed" ? 180 : 200,
-                      height: format === "feed" ? 180 : 200,
-                    }}
-                  >
-                    <div
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background: "linear-gradient(135deg, #F4845F 0%, #FDBA74 50%, #F4845F 100%)",
-                        padding: 4,
-                      }}
-                    >
-                      <div
-                        className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
-                        style={{ background: "#fdf6ef" }}
-                      >
+                    {/* Avatar container */}
+                    <div className="absolute inset-0 rounded-full" style={{ padding: 3 }}>
+                      <div className="absolute inset-0 rounded-full" style={{
+                        background: "conic-gradient(from 0deg, #a855f7, #ec4899, #f97316, #eab308, #22c55e, #3b82f6, #a855f7)",
+                      }} />
+                      <div className="absolute rounded-full overflow-hidden" style={{ inset: 3, background: "#1a0a2e" }}>
                         {avatarUrl ? (
-                          <img
-                            src={avatarUrl}
-                            alt={artistName}
-                            className="w-full h-full object-cover rounded-full"
-                            crossOrigin="anonymous"
-                            style={{ padding: 3 }}
-                          />
+                          <img src={avatarUrl} alt={artistName} className="w-full h-full object-cover" crossOrigin="anonymous" />
                         ) : (
-                          <div
-                            className="w-full h-full rounded-full flex items-center justify-center"
-                            style={{ background: "linear-gradient(135deg, #F4845F, #FDBA74)" }}
-                          >
-                            <Music className="text-white" style={{ width: 60, height: 60 }} />
+                          <div className="w-full h-full flex items-center justify-center" style={{
+                            background: "linear-gradient(135deg, #a855f7, #ec4899)",
+                          }}>
+                            <Music className="text-white" style={{ width: 32, height: 32 }} />
                           </div>
                         )}
                       </div>
@@ -331,29 +184,165 @@ export default function FlyerDivulgacao() {
                   </div>
 
                   {/* Artist Name */}
-                  <div
-                    className="text-center"
-                    style={{
-                      marginTop: 10,
-                      fontFamily: "'Georgia', 'Times New Roman', serif",
-                      fontStyle: "italic",
-                      fontWeight: 700,
-                      fontSize: format === "feed" ? 24 : 28,
-                      color: "#1a1a1a",
-                    }}
-                  >
+                  <div className="text-center" style={{
+                    fontSize: isFeed ? 22 : 26,
+                    fontWeight: 900,
+                    background: "linear-gradient(135deg, #e879f9, #f9a8d4, #fcd34d)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    letterSpacing: "1px",
+                    lineHeight: 1.1,
+                  }}>
                     {artistName}
+                  </div>
+
+                  {/* "PRÓXIMOS SHOWS" */}
+                  <div className="flex items-center gap-2" style={{ marginTop: 6 }}>
+                    <div style={{ width: 24, height: 1, background: "linear-gradient(to right, transparent, rgba(168,85,247,0.6))" }} />
+                    <span style={{
+                      fontSize: 9,
+                      fontWeight: 700,
+                      letterSpacing: "4px",
+                      color: "rgba(168,85,247,0.8)",
+                      textTransform: "uppercase",
+                    }}>
+                      Próximos Shows
+                    </span>
+                    <div style={{ width: 24, height: 1, background: "linear-gradient(to left, transparent, rgba(168,85,247,0.6))" }} />
                   </div>
                 </div>
 
-                {/* Footer Branding */}
-                <div className="text-center" style={{ marginTop: 10 }}>
-                  <span
-                    className="uppercase font-semibold tracking-widest"
-                    style={{ fontSize: 8, color: "#1a1a1a", opacity: 0.3 }}
-                  >
-                    Backstage Pro
-                  </span>
+                {/* ── MONTH BADGE ── */}
+                <div className="flex items-center justify-center" style={{ marginBottom: isFeed ? 12 : 16 }}>
+                  <div style={{
+                    padding: "4px 20px",
+                    borderRadius: 20,
+                    background: "linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.2))",
+                    border: "1px solid rgba(168,85,247,0.3)",
+                    backdropFilter: "blur(10px)",
+                  }}>
+                    <span style={{
+                      fontSize: 13,
+                      fontWeight: 800,
+                      letterSpacing: "3px",
+                      textTransform: "uppercase",
+                      background: "linear-gradient(135deg, #c084fc, #f9a8d4)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}>
+                      {MONTH_NAMES[selectedMonth]} {selectedYear}
+                    </span>
+                  </div>
+                </div>
+
+                {/* ── SHOWS LIST ── */}
+                <div className="flex-1 flex gap-3" style={{ overflow: "hidden" }}>
+                  {[col1, col2].map((col, ci) => {
+                    if (col.length === 0) return null;
+                    return (
+                      <div key={ci} className="flex-1 flex flex-col" style={{ gap: isCompact ? 3 : isMedium ? 5 : 7 }}>
+                        {col.map((show, i) => {
+                          const d = new Date(show.date + "T12:00:00");
+                          const day = String(d.getDate()).padStart(2, "0");
+                          const weekday = WEEKDAY_SHORT[d.getDay()];
+                          const city = show.venue || show.address || show.title;
+                          const globalIdx = ci === 0 ? i : i + col1.length;
+                          const colors = [
+                            ["#a855f7", "rgba(168,85,247,0.12)"],
+                            ["#ec4899", "rgba(236,72,153,0.12)"],
+                            ["#f97316", "rgba(249,115,22,0.12)"],
+                            ["#3b82f6", "rgba(59,130,246,0.12)"],
+                            ["#eab308", "rgba(234,179,8,0.12)"],
+                            ["#22c55e", "rgba(34,197,94,0.12)"],
+                          ];
+                          const [accent, bg] = colors[globalIdx % colors.length];
+
+                          return (
+                            <div
+                              key={show.id}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                padding: isCompact ? "4px 8px" : "6px 10px",
+                                borderRadius: 10,
+                                background: bg,
+                                borderLeft: `3px solid ${accent}`,
+                              }}
+                            >
+                              {/* Day number */}
+                              <div style={{ textAlign: "center", minWidth: 30, flexShrink: 0 }}>
+                                <div style={{
+                                  fontSize: isCompact ? 16 : 20,
+                                  fontWeight: 900,
+                                  color: accent,
+                                  lineHeight: 1,
+                                }}>
+                                  {day}
+                                </div>
+                                <div style={{
+                                  fontSize: 7,
+                                  fontWeight: 700,
+                                  color: "rgba(255,255,255,0.35)",
+                                  letterSpacing: "1px",
+                                  textTransform: "uppercase",
+                                }}>
+                                  {weekday}
+                                </div>
+                              </div>
+
+                              {/* City */}
+                              <div style={{
+                                flex: 1,
+                                minWidth: 0,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                fontSize: isCompact ? 9 : isMedium ? 10 : 11,
+                                fontWeight: 700,
+                                color: "rgba(255,255,255,0.85)",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.5px",
+                              }}>
+                                {city}
+                              </div>
+
+                              {/* Time pill */}
+                              {show.start_time && !isCompact && (
+                                <div style={{
+                                  flexShrink: 0,
+                                  fontSize: 8,
+                                  fontWeight: 600,
+                                  color: accent,
+                                  padding: "1px 5px",
+                                  borderRadius: 4,
+                                  background: "rgba(255,255,255,0.05)",
+                                }}>
+                                  {show.start_time.slice(0, 5)}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* ── FOOTER ── */}
+                <div className="flex items-center justify-center" style={{ marginTop: isFeed ? 10 : 14, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div className="flex items-center gap-1.5">
+                    <div style={{
+                      width: 14, height: 14, borderRadius: 4,
+                      background: "linear-gradient(135deg, #a855f7, #ec4899)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <Music style={{ width: 8, height: 8, color: "white" }} />
+                    </div>
+                    <span style={{ fontSize: 8, fontWeight: 600, letterSpacing: "2px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>
+                      Backstage Pro
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
