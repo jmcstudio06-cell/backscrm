@@ -1,354 +1,573 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Image as ImageIcon, Download, ChevronLeft, ChevronRight, Calendar, Music } from "lucide-react";
-import { useShows } from "@/contexts/ShowsContext";
+import { useShows } from "@/contexts/shows/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
-import { toPng } from "html-to-image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import {
+  Image as ImageIcon,
+  Download,
+  Sparkles,
+  Calendar,
+  CalendarDays,
+  CalendarRange,
+  Check,
+  MapPin,
+  Instagram,
+  Music,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const MONTH_NAMES = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+type AgendaType = "day" | "week" | "month";
+type FlyerFormat = "feed" | "stories";
+type FlyerLayout = "classic" | "modern" | "minimal" | "bold";
+
+const LAYOUTS: { id: FlyerLayout; label: string; desc: string }[] = [
+  { id: "classic", label: "Clássico", desc: "Elegante e tradicional" },
+  { id: "modern", label: "Moderno", desc: "Visual contemporâneo" },
+  { id: "minimal", label: "Minimalista", desc: "Limpo e direto" },
+  { id: "bold", label: "Impactante", desc: "Cores vibrantes e destaque" },
 ];
 
-const WEEKDAY_SHORT = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+const AGENDA_TYPES: { id: AgendaType; label: string; icon: React.ElementType }[] = [
+  { id: "day", label: "Agenda do Dia", icon: Calendar },
+  { id: "week", label: "Agenda Semanal", icon: CalendarDays },
+  { id: "month", label: "Agenda Mensal", icon: CalendarRange },
+];
+
+const FORMATS: { id: FlyerFormat; label: string; size: string; w: number; h: number }[] = [
+  { id: "feed", label: "Feed", size: "1080×1080", w: 1080, h: 1080 },
+  { id: "stories", label: "Stories", size: "1080×1920", w: 1080, h: 1920 },
+];
+
+function formatDateBR(dateStr: string) {
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}`;
+}
+
+function getDayName(dateStr: string) {
+  const date = new Date(dateStr + "T12:00:00");
+  return date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "");
+}
+
+function getMonthName(month: number) {
+  return new Date(2024, month, 1).toLocaleDateString("pt-BR", { month: "long" });
+}
 
 export default function FlyerDivulgacao() {
   const { shows } = useShows();
   const { profile } = useProfile();
-  const flyerRef = useRef<HTMLDivElement>(null);
-  const [downloading, setDownloading] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const now = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
-  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
-  const [format, setFormat] = useState<"feed" | "stories">("stories");
+  const [selectedLayout, setSelectedLayout] = useState<FlyerLayout>("modern");
+  const [agendaType, setAgendaType] = useState<AgendaType>("week");
+  const [flyerFormat, setFlyerFormat] = useState<FlyerFormat>("feed");
+  const [generating, setGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+
+  const filteredShows = useMemo(() => {
+    const confirmed = shows.filter(
+      (s) => s.status === "confirmed" || s.status === "scheduled"
+    );
+
+    if (agendaType === "day") {
+      return confirmed.filter((s) => s.date === todayStr);
+    }
+
+    if (agendaType === "week") {
+      const startOfWeek = new Date(today);
+      const day = startOfWeek.getDay();
+      startOfWeek.setDate(startOfWeek.getDate() - day);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 6);
+
+      const startStr = startOfWeek.toISOString().split("T")[0];
+      const endStr = endOfWeek.toISOString().split("T")[0];
+
+      return confirmed.filter((s) => s.date >= startStr && s.date <= endStr);
+    }
+
+    // month
+    const monthStr = todayStr.slice(0, 7);
+    return confirmed.filter((s) => s.date.startsWith(monthStr));
+  }, [shows, agendaType, todayStr]);
 
   const artistName = profile?.artist_name || profile?.name || "Artista";
   const avatarUrl = profile?.avatar_url || null;
+  const instagram = profile?.instagram_url
+    ? profile.instagram_url.replace(/https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "")
+    : null;
 
-  const monthShows = useMemo(() => {
-    return shows
-      .filter((s) => {
-        if (!s.date || s.status === "cancelled") return false;
-        const d = new Date(s.date + "T12:00:00");
-        return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
-      })
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }, [shows, selectedMonth, selectedYear]);
-
-  const handlePrevMonth = () => {
-    if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear((y) => y - 1); }
-    else setSelectedMonth((m) => m - 1);
-  };
-  const handleNextMonth = () => {
-    if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear((y) => y + 1); }
-    else setSelectedMonth((m) => m + 1);
-  };
-
-  const handleDownload = async () => {
-    if (!flyerRef.current) return;
-    setDownloading(true);
+  const generateFlyer = useCallback(async () => {
+    setGenerating(true);
     try {
-      const dataUrl = await toPng(flyerRef.current, { cacheBust: true, pixelRatio: 3 });
-      const link = document.createElement("a");
-      link.download = `flyer-${MONTH_NAMES[selectedMonth].toLowerCase()}-${selectedYear}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success("Flyer baixado com sucesso!");
-    } catch { toast.error("Erro ao gerar imagem do flyer"); }
-    finally { setDownloading(false); }
+      const format = FORMATS.find((f) => f.id === flyerFormat)!;
+      const W = format.w;
+      const H = format.h;
+
+      const canvas = canvasRef.current!;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d")!;
+
+      // Colors by layout
+      const themes: Record<FlyerLayout, { bg: string; accent: string; text: string; sub: string; card: string }> = {
+        classic: { bg: "#1a1a2e", accent: "#e94560", text: "#ffffff", sub: "#cccccc", card: "rgba(255,255,255,0.08)" },
+        modern: { bg: "#0f0f23", accent: "#6366f1", text: "#ffffff", sub: "#a5b4fc", card: "rgba(99,102,241,0.12)" },
+        minimal: { bg: "#fafafa", accent: "#18181b", text: "#18181b", sub: "#71717a", card: "rgba(0,0,0,0.04)" },
+        bold: { bg: "#ff6b35", accent: "#ffffff", text: "#ffffff", sub: "#ffe0d0", card: "rgba(255,255,255,0.15)" },
+      };
+      const theme = themes[selectedLayout];
+
+      // Background
+      ctx.fillStyle = theme.bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Gradient overlay
+      if (selectedLayout !== "minimal") {
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, "rgba(0,0,0,0.3)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      // Decorative circles
+      if (selectedLayout === "modern") {
+        ctx.beginPath();
+        ctx.arc(W * 0.85, H * 0.1, 200, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(99,102,241,0.15)";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(W * 0.15, H * 0.9, 150, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(99,102,241,0.1)";
+        ctx.fill();
+      }
+
+      if (selectedLayout === "bold") {
+        ctx.beginPath();
+        ctx.arc(W * 0.9, H * 0.05, 300, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.08)";
+        ctx.fill();
+      }
+
+      let yPos = flyerFormat === "stories" ? 140 : 80;
+
+      // Avatar
+      if (avatarUrl) {
+        try {
+          const img = await loadImage(avatarUrl);
+          const size = 120;
+          const cx = W / 2;
+          const cy = yPos + size / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(cx, cy, size / 2 + 4, 0, Math.PI * 2);
+          ctx.fillStyle = theme.accent;
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(img, cx - size / 2, cy - size / 2, size, size);
+          ctx.restore();
+          yPos += size + 24;
+        } catch {
+          yPos += 20;
+        }
+      }
+
+      // Artist name
+      ctx.fillStyle = theme.text;
+      ctx.font = "bold 52px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(artistName.toUpperCase(), W / 2, yPos + 50);
+      yPos += 80;
+
+      // Subtitle
+      const subtitles: Record<AgendaType, string> = {
+        day: "AGENDA DE HOJE",
+        week: "AGENDA DA SEMANA",
+        month: `AGENDA DE ${getMonthName(today.getMonth()).toUpperCase()}`,
+      };
+      ctx.fillStyle = theme.accent;
+      ctx.font = "bold 28px 'Segoe UI', sans-serif";
+      ctx.fillText(subtitles[agendaType], W / 2, yPos + 30);
+      yPos += 60;
+
+      // Divider
+      ctx.strokeStyle = theme.accent;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(W * 0.3, yPos);
+      ctx.lineTo(W * 0.7, yPos);
+      ctx.stroke();
+      yPos += 30;
+
+      // Shows list
+      if (filteredShows.length === 0) {
+        ctx.fillStyle = theme.sub;
+        ctx.font = "24px 'Segoe UI', sans-serif";
+        ctx.fillText("Nenhum show agendado", W / 2, yPos + 40);
+      } else {
+        const maxShows = flyerFormat === "stories" ? 8 : 5;
+        const showsToRender = filteredShows.slice(0, maxShows);
+        const cardH = flyerFormat === "stories" ? 120 : 100;
+        const gap = 16;
+
+        for (const show of showsToRender) {
+          // Card background
+          ctx.fillStyle = theme.card;
+          const cardW = W - 120;
+          const cardX = 60;
+          roundRect(ctx, cardX, yPos, cardW, cardH, 16);
+          ctx.fill();
+
+          // Date badge
+          ctx.fillStyle = theme.accent;
+          roundRect(ctx, cardX + 16, yPos + (cardH - 60) / 2, 80, 60, 12);
+          ctx.fill();
+
+          ctx.fillStyle = selectedLayout === "bold" ? "#ff6b35" : "#ffffff";
+          ctx.font = "bold 22px 'Segoe UI', sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(formatDateBR(show.date), cardX + 56, yPos + cardH / 2 - 4);
+          ctx.font = "14px 'Segoe UI', sans-serif";
+          ctx.fillText(getDayName(show.date).toUpperCase(), cardX + 56, yPos + cardH / 2 + 16);
+
+          // Show info
+          ctx.textAlign = "left";
+          ctx.fillStyle = theme.text;
+          ctx.font = "bold 24px 'Segoe UI', sans-serif";
+          const titleX = cardX + 116;
+          const maxTitleW = cardW - 140;
+          const title = truncateText(ctx, show.title, maxTitleW);
+          ctx.fillText(title, titleX, yPos + cardH / 2 - 8);
+
+          ctx.fillStyle = theme.sub;
+          ctx.font = "18px 'Segoe UI', sans-serif";
+          const venue = show.venue || show.address || "Local a confirmar";
+          ctx.fillText(`📍 ${truncateText(ctx, venue, maxTitleW - 30)}`, titleX, yPos + cardH / 2 + 20);
+
+          yPos += cardH + gap;
+        }
+
+        if (filteredShows.length > maxShows) {
+          ctx.fillStyle = theme.sub;
+          ctx.font = "italic 20px 'Segoe UI', sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`+ ${filteredShows.length - maxShows} shows`, W / 2, yPos + 10);
+          yPos += 30;
+        }
+      }
+
+      // Instagram handle at bottom
+      const bottomY = H - (flyerFormat === "stories" ? 120 : 60);
+      if (instagram) {
+        ctx.fillStyle = theme.sub;
+        ctx.font = "22px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`📸 ${instagram}`, W / 2, bottomY);
+      }
+
+      // Watermark
+      ctx.fillStyle = theme.sub;
+      ctx.globalAlpha = 0.4;
+      ctx.font = "14px 'Segoe UI', sans-serif";
+      ctx.fillText("Feito com Backstage Pro", W / 2, H - 20);
+      ctx.globalAlpha = 1;
+
+      const dataUrl = canvas.toDataURL("image/png");
+      setGeneratedImage(dataUrl);
+      toast.success("Flyer gerado com sucesso!");
+    } catch (err) {
+      console.error("Error generating flyer:", err);
+      toast.error("Erro ao gerar flyer");
+    } finally {
+      setGenerating(false);
+    }
+  }, [selectedLayout, agendaType, flyerFormat, filteredShows, artistName, avatarUrl, instagram]);
+
+  const downloadFlyer = () => {
+    if (!generatedImage) return;
+    const link = document.createElement("a");
+    link.download = `flyer-${agendaType}-${flyerFormat}.png`;
+    link.href = generatedImage;
+    link.click();
+    toast.success("Flyer baixado!");
   };
 
-  const midpoint = Math.ceil(monthShows.length / 2);
-  const col1 = monthShows.slice(0, midpoint);
-  const col2 = monthShows.slice(midpoint);
-
-  const flyerW = format === "feed" ? 540 : 405;
-  const flyerH = format === "feed" ? 540 : 720;
-  const isFeed = format === "feed";
-  const isCompact = monthShows.length > 10;
-  const isMedium = monthShows.length > 6;
+  const autoGenerateWeek = () => {
+    setAgendaType("week");
+    setSelectedLayout("modern");
+    setFlyerFormat("stories");
+    // Delay to let state update then generate
+    setTimeout(() => generateFlyer(), 100);
+  };
 
   return (
     <Layout title="Flyer Divulgação">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-            <ImageIcon className="w-7 h-7 text-primary" />
-            Flyer Divulgação
-          </h1>
-          <p className="text-muted-foreground mt-1">Gere flyers mensais profissionais com suas datas de show</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={handlePrevMonth}><ChevronLeft className="w-4 h-4" /></Button>
-            <div className="px-4 py-2 font-semibold text-foreground min-w-[160px] text-center">
-              {MONTH_NAMES[selectedMonth]} {selectedYear}
-            </div>
-            <Button variant="outline" size="icon" onClick={handleNextMonth}><ChevronRight className="w-4 h-4" /></Button>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+              <ImageIcon className="w-7 h-7 text-primary" />
+              Flyer Divulgação
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Gere flyers automáticos da sua agenda para divulgar seus shows
+            </p>
           </div>
-          <Select value={format} onValueChange={(v) => setFormat(v as "feed" | "stories")}>
-            <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="feed">Feed (1:1)</SelectItem>
-              <SelectItem value="stories">Stories (9:16)</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={handleDownload} disabled={downloading || monthShows.length === 0} className="gap-2">
-            <Download className="w-4 h-4" />
-            {downloading ? "Gerando..." : "Baixar Flyer"}
+          <Button
+            onClick={autoGenerateWeek}
+            variant="gradient"
+            size="lg"
+            disabled={generating}
+            className="gap-2"
+          >
+            <Sparkles className="w-5 h-5" />
+            Gerar flyer da semana
           </Button>
         </div>
 
-        {monthShows.length === 0 ? (
-          <Card className="border-dashed border-2 border-border">
-            <CardContent className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-              <Calendar className="w-10 h-10 text-muted-foreground" />
-              <h2 className="text-xl font-semibold text-foreground">Nenhum show neste mês</h2>
-              <p className="text-muted-foreground max-w-md">Adicione shows na Agenda para gerar o flyer mensal.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="flex justify-center overflow-auto pb-4">
-            <div
-              ref={flyerRef}
-              className="relative overflow-hidden flex-shrink-0"
-              style={{ width: flyerW, height: flyerH, fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
+          {/* Configuration */}
+          <div className="space-y-6">
+            {/* Step 1 - Layout */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Badge className="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded-full p-0 text-xs">1</Badge>
+                  Escolha o Layout
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {LAYOUTS.map((layout) => (
+                    <button
+                      key={layout.id}
+                      onClick={() => { setSelectedLayout(layout.id); setGeneratedImage(null); }}
+                      className={cn(
+                        "relative p-4 rounded-xl border-2 transition-all text-left",
+                        selectedLayout === layout.id
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                          : "border-border hover:border-primary/40"
+                      )}
+                    >
+                      {selectedLayout === layout.id && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                          <Check className="w-3 h-3 text-primary-foreground" />
+                        </div>
+                      )}
+                      <div className={cn(
+                        "w-full h-16 rounded-lg mb-2",
+                        layout.id === "classic" && "bg-[#1a1a2e]",
+                        layout.id === "modern" && "bg-[#0f0f23]",
+                        layout.id === "minimal" && "bg-[#fafafa] border border-border",
+                        layout.id === "bold" && "bg-[#ff6b35]",
+                      )}>
+                        <div className="flex items-center justify-center h-full">
+                          <div className={cn(
+                            "w-6 h-6 rounded-full",
+                            layout.id === "classic" && "bg-[#e94560]",
+                            layout.id === "modern" && "bg-[#6366f1]",
+                            layout.id === "minimal" && "bg-[#18181b]",
+                            layout.id === "bold" && "bg-white",
+                          )} />
+                        </div>
+                      </div>
+                      <p className="font-semibold text-sm text-foreground">{layout.label}</p>
+                      <p className="text-xs text-muted-foreground">{layout.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 2 - Agenda Type */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Badge className="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded-full p-0 text-xs">2</Badge>
+                  Tipo de Agenda
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-3">
+                  {AGENDA_TYPES.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => { setAgendaType(type.id); setGeneratedImage(null); }}
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
+                        agendaType === type.id
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/40"
+                      )}
+                    >
+                      <type.icon className={cn("w-6 h-6", agendaType === type.id ? "text-primary" : "text-muted-foreground")} />
+                      <span className="text-sm font-medium text-foreground">{type.label}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  {filteredShows.length === 0
+                    ? "⚠️ Nenhum show encontrado para esse período"
+                    : `✅ ${filteredShows.length} show${filteredShows.length > 1 ? "s" : ""} encontrado${filteredShows.length > 1 ? "s" : ""}`
+                  }
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Step 3 - Format */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Badge className="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded-full p-0 text-xs">3</Badge>
+                  Formato
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {FORMATS.map((fmt) => (
+                    <button
+                      key={fmt.id}
+                      onClick={() => { setFlyerFormat(fmt.id); setGeneratedImage(null); }}
+                      className={cn(
+                        "flex items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                        flyerFormat === fmt.id
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/40"
+                      )}
+                    >
+                      <div className={cn(
+                        "border-2 rounded",
+                        flyerFormat === fmt.id ? "border-primary" : "border-muted-foreground/40",
+                        fmt.id === "feed" ? "w-8 h-8" : "w-6 h-10"
+                      )} />
+                      <div className="text-left">
+                        <p className="font-semibold text-sm text-foreground">{fmt.label}</p>
+                        <p className="text-xs text-muted-foreground">{fmt.size}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Generate button */}
+            <Button
+              onClick={generateFlyer}
+              size="lg"
+              className="w-full gap-2"
+              disabled={generating}
             >
-              {/* ===== BACKGROUND ===== */}
-              <div className="absolute inset-0" style={{
-                background: "linear-gradient(160deg, #0f0c29 0%, #1a0a2e 25%, #24243e 50%, #1a0a2e 75%, #0f0c29 100%)",
-              }} />
-
-              {/* Neon glow blobs */}
-              <div className="absolute" style={{
-                width: 300, height: 300, top: -80, right: -60,
-                background: "radial-gradient(circle, rgba(168,85,247,0.35) 0%, transparent 70%)",
-                filter: "blur(40px)",
-              }} />
-              <div className="absolute" style={{
-                width: 250, height: 250, bottom: -40, left: -50,
-                background: "radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)",
-                filter: "blur(40px)",
-              }} />
-              <div className="absolute" style={{
-                width: 200, height: 200, top: "40%", left: "50%",
-                transform: "translateX(-50%)",
-                background: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)",
-                filter: "blur(30px)",
-              }} />
-
-              {/* Subtle grain overlay */}
-              <div className="absolute inset-0" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
-                opacity: 0.5,
-              }} />
-
-              {/* ===== CONTENT ===== */}
-              <div className="relative z-10 flex flex-col h-full" style={{ padding: isFeed ? "24px 24px 16px" : "28px 26px 18px" }}>
-
-                {/* ── HEADER: Avatar + Title ── */}
-                <div className="flex flex-col items-center" style={{ marginBottom: isFeed ? 14 : 20 }}>
-                  {/* Glowing avatar ring */}
-                  <div className="relative" style={{ width: isFeed ? 80 : 90, height: isFeed ? 80 : 90, marginBottom: 10 }}>
-                    {/* Outer glow */}
-                    <div className="absolute inset-0 rounded-full" style={{
-                      background: "conic-gradient(from 0deg, #a855f7, #ec4899, #f97316, #eab308, #22c55e, #3b82f6, #a855f7)",
-                      padding: 3,
-                      filter: "blur(1px)",
-                    }}>
-                      <div className="w-full h-full rounded-full" style={{ background: "#1a0a2e" }} />
-                    </div>
-                    {/* Avatar container */}
-                    <div className="absolute inset-0 rounded-full" style={{ padding: 3 }}>
-                      <div className="absolute inset-0 rounded-full" style={{
-                        background: "conic-gradient(from 0deg, #a855f7, #ec4899, #f97316, #eab308, #22c55e, #3b82f6, #a855f7)",
-                      }} />
-                      <div className="absolute rounded-full overflow-hidden" style={{ inset: 3, background: "#1a0a2e" }}>
-                        {avatarUrl ? (
-                          <img src={avatarUrl} alt={artistName} className="w-full h-full object-cover" crossOrigin="anonymous" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center" style={{
-                            background: "linear-gradient(135deg, #a855f7, #ec4899)",
-                          }}>
-                            <Music className="text-white" style={{ width: 32, height: 32 }} />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Artist Name */}
-                  <div className="text-center" style={{
-                    fontSize: isFeed ? 22 : 26,
-                    fontWeight: 900,
-                    background: "linear-gradient(135deg, #e879f9, #f9a8d4, #fcd34d)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    letterSpacing: "1px",
-                    lineHeight: 1.1,
-                  }}>
-                    {artistName}
-                  </div>
-
-                  {/* "PRÓXIMOS SHOWS" */}
-                  <div className="flex items-center gap-2" style={{ marginTop: 6 }}>
-                    <div style={{ width: 24, height: 1, background: "linear-gradient(to right, transparent, rgba(168,85,247,0.6))" }} />
-                    <span style={{
-                      fontSize: 9,
-                      fontWeight: 700,
-                      letterSpacing: "4px",
-                      color: "rgba(168,85,247,0.8)",
-                      textTransform: "uppercase",
-                    }}>
-                      Próximos Shows
-                    </span>
-                    <div style={{ width: 24, height: 1, background: "linear-gradient(to left, transparent, rgba(168,85,247,0.6))" }} />
-                  </div>
-                </div>
-
-                {/* ── MONTH BADGE ── */}
-                <div className="flex items-center justify-center" style={{ marginBottom: isFeed ? 12 : 16 }}>
-                  <div style={{
-                    padding: "4px 20px",
-                    borderRadius: 20,
-                    background: "linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.2))",
-                    border: "1px solid rgba(168,85,247,0.3)",
-                    backdropFilter: "blur(10px)",
-                  }}>
-                    <span style={{
-                      fontSize: 13,
-                      fontWeight: 800,
-                      letterSpacing: "3px",
-                      textTransform: "uppercase",
-                      background: "linear-gradient(135deg, #c084fc, #f9a8d4)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}>
-                      {MONTH_NAMES[selectedMonth]} {selectedYear}
-                    </span>
-                  </div>
-                </div>
-
-                {/* ── SHOWS LIST ── */}
-                <div className="flex-1 flex gap-3" style={{ overflow: "hidden" }}>
-                  {[col1, col2].map((col, ci) => {
-                    if (col.length === 0) return null;
-                    return (
-                      <div key={ci} className="flex-1 flex flex-col" style={{ gap: isCompact ? 3 : isMedium ? 5 : 7 }}>
-                        {col.map((show, i) => {
-                          const d = new Date(show.date + "T12:00:00");
-                          const day = String(d.getDate()).padStart(2, "0");
-                          const weekday = WEEKDAY_SHORT[d.getDay()];
-                          const city = show.venue || show.address || show.title;
-                          const globalIdx = ci === 0 ? i : i + col1.length;
-                          const colors = [
-                            ["#a855f7", "rgba(168,85,247,0.12)"],
-                            ["#ec4899", "rgba(236,72,153,0.12)"],
-                            ["#f97316", "rgba(249,115,22,0.12)"],
-                            ["#3b82f6", "rgba(59,130,246,0.12)"],
-                            ["#eab308", "rgba(234,179,8,0.12)"],
-                            ["#22c55e", "rgba(34,197,94,0.12)"],
-                          ];
-                          const [accent, bg] = colors[globalIdx % colors.length];
-
-                          return (
-                            <div
-                              key={show.id}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                                padding: isCompact ? "4px 8px" : "6px 10px",
-                                borderRadius: 10,
-                                background: bg,
-                                borderLeft: `3px solid ${accent}`,
-                              }}
-                            >
-                              {/* Day number */}
-                              <div style={{ textAlign: "center", minWidth: 30, flexShrink: 0 }}>
-                                <div style={{
-                                  fontSize: isCompact ? 16 : 20,
-                                  fontWeight: 900,
-                                  color: accent,
-                                  lineHeight: 1,
-                                }}>
-                                  {day}
-                                </div>
-                                <div style={{
-                                  fontSize: 7,
-                                  fontWeight: 700,
-                                  color: "rgba(255,255,255,0.35)",
-                                  letterSpacing: "1px",
-                                  textTransform: "uppercase",
-                                }}>
-                                  {weekday}
-                                </div>
-                              </div>
-
-                              {/* City */}
-                              <div style={{
-                                flex: 1,
-                                minWidth: 0,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                fontSize: isCompact ? 9 : isMedium ? 10 : 11,
-                                fontWeight: 700,
-                                color: "rgba(255,255,255,0.85)",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                              }}>
-                                {city}
-                              </div>
-
-                              {/* Time pill */}
-                              {show.start_time && !isCompact && (
-                                <div style={{
-                                  flexShrink: 0,
-                                  fontSize: 8,
-                                  fontWeight: 600,
-                                  color: accent,
-                                  padding: "1px 5px",
-                                  borderRadius: 4,
-                                  background: "rgba(255,255,255,0.05)",
-                                }}>
-                                  {show.start_time.slice(0, 5)}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* ── FOOTER ── */}
-                <div className="flex items-center justify-center" style={{ marginTop: isFeed ? 10 : 14, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                  <div className="flex items-center gap-1.5">
-                    <div style={{
-                      width: 14, height: 14, borderRadius: 4,
-                      background: "linear-gradient(135deg, #a855f7, #ec4899)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <Music style={{ width: 8, height: 8, color: "white" }} />
-                    </div>
-                    <span style={{ fontSize: 8, fontWeight: 600, letterSpacing: "2px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>
-                      Backstage Pro
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              {generating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <ImageIcon className="w-5 h-5" />
+                  Gerar Flyer
+                </>
+              )}
+            </Button>
           </div>
-        )}
+
+          {/* Preview */}
+          <div className="space-y-4">
+            <Card className="sticky top-4">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Prévia do Flyer</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center gap-4">
+                {generatedImage ? (
+                  <>
+                    <img
+                      src={generatedImage}
+                      alt="Flyer gerado"
+                      className="w-full max-w-[340px] rounded-lg shadow-lg border border-border"
+                    />
+                    <Button onClick={downloadFlyer} className="w-full gap-2" variant="gradient">
+                      <Download className="w-4 h-4" />
+                      Baixar Flyer
+                    </Button>
+                  </>
+                ) : (
+                  <div className="w-full aspect-square max-w-[340px] rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground gap-3 p-8">
+                    <ImageIcon className="w-12 h-12 opacity-30" />
+                    <p className="text-sm text-center">
+                      Configure as opções e clique em <strong>"Gerar Flyer"</strong> para ver a prévia
+                    </p>
+                  </div>
+                )}
+
+                {/* Shows info */}
+                {filteredShows.length > 0 && (
+                  <div className="w-full space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase">Shows no flyer:</p>
+                    {filteredShows.slice(0, 5).map((show) => (
+                      <div key={show.id} className="flex items-center gap-2 text-sm">
+                        <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-medium text-foreground">{formatDateBR(show.date)}</span>
+                        <span className="text-muted-foreground truncate">{show.title}</span>
+                      </div>
+                    ))}
+                    {filteredShows.length > 5 && (
+                      <p className="text-xs text-muted-foreground">+ {filteredShows.length - 5} mais</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Hidden canvas */}
+        <canvas ref={canvasRef} className="hidden" />
       </div>
     </Layout>
   );
+}
+
+// --- Helpers ---
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function truncateText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let truncated = text;
+  while (ctx.measureText(truncated + "…").width > maxWidth && truncated.length > 0) {
+    truncated = truncated.slice(0, -1);
+  }
+  return truncated + "…";
 }
