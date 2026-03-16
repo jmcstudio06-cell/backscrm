@@ -36,7 +36,6 @@ import {
   Inbox,
   Package,
   Sparkles,
-  Image,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -63,7 +62,6 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", featureKey: "dashboard" },
   { icon: Calendar, label: "Agenda de Shows", path: "/agenda", featureKey: "agenda" },
-  { icon: Image, label: "Flyer Divulgação", path: "/flyer", featureKey: "agenda" },
   { icon: Sparkles, label: "Ideias de Post", path: "/planejamento-conteudo", featureKey: "checklist" },
   {
     icon: Briefcase,
