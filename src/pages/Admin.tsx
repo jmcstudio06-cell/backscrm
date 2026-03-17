@@ -849,6 +849,11 @@ export default function Admin() {
         <TabsContent value="cloud">
           <CloudUsagePanel />
         </TabsContent>
+
+        {/* Invites Tab */}
+        <TabsContent value="invites">
+          <InviteUsersPanel />
+        </TabsContent>
       </Tabs>
     </Layout>
   );
