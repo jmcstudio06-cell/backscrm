@@ -526,6 +526,9 @@ export default function Admin() {
           <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Activity className="h-3.5 w-3.5" /> Cloud
           </TabsTrigger>
+          <TabsTrigger value="invites" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Mail className="h-3.5 w-3.5" /> Convites
+          </TabsTrigger>
         </TabsList>
 
         {/* Users Tab */}

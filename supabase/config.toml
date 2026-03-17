@@ -11,3 +11,5 @@ project_id = "nwewheihdqfwsobompnp"
     verify_jwt = false
   [functions.infinitepay-webhook]
     verify_jwt = false
+  [functions.invite-user]
+    verify_jwt = false
