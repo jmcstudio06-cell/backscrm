@@ -525,7 +525,7 @@ export default function Agenda() {
                   <p className="text-[10px] text-muted-foreground font-semibold">Confirmados</p>
                 </div>
                 <div className="rounded-xl bg-muted/30 border border-border/30 p-2.5 text-center">
-                  <p className="text-lg font-bold text-green-500">{completedShowsThisMonth}</p>
+                  <p className="text-lg font-bold text-green-500">{monthShows.filter((s) => s.status === "completed").length}</p>
                   <p className="text-[10px] text-muted-foreground font-semibold">Realizados</p>
                 </div>
               </div>
