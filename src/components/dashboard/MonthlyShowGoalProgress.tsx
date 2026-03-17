@@ -53,12 +53,17 @@ export function MonthlyShowGoalProgress({ current, target, monthName }: MonthlyS
             </div>
           </div>
 
-          {/* Counter */}
-          <div className="text-right">
-            <div className="text-2xl sm:text-3xl font-black text-foreground">
-              {current}<span className="text-muted-foreground text-lg sm:text-xl font-semibold">/{target}</span>
+          {/* Counter: Realizado x Meta */}
+          <div className="flex items-center gap-2 text-right">
+            <div className="text-center">
+              <div className="text-2xl sm:text-3xl font-black text-foreground">{current}</div>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Realizado</p>
             </div>
-            <p className="text-xs text-muted-foreground">shows realizados</p>
+            <span className="text-muted-foreground text-lg font-light">/</span>
+            <div className="text-center">
+              <div className="text-2xl sm:text-3xl font-black text-muted-foreground">{target}</div>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Meta</p>
+            </div>
           </div>
         </div>
 
