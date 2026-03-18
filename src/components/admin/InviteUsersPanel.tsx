@@ -24,7 +24,27 @@ export function InviteUsersPanel() {
     });
 
     if (error) {
-      return { email: targetEmail, status: "error", message: error.message || "Erro ao enviar" };
+      // For non-2xx responses, try to parse the error context for our JSON body
+      let errorMessage = error.message || "Erro ao enviar";
+      try {
+        // FunctionsHttpError has a context with the Response object
+        const context = (error as any).context;
+        if (context instanceof Response) {
+          const body = await context.json();
+          errorMessage = body?.error || errorMessage;
+        } else if (typeof errorMessage === 'string' && errorMessage.includes("já está cadastrado")) {
+          // fallback
+        }
+      } catch {
+        // ignore parse errors
+      }
+      
+      const isDuplicate = errorMessage.includes("já está cadastrado");
+      return {
+        email: targetEmail,
+        status: isDuplicate ? "duplicate" : "error",
+        message: errorMessage,
+      };
     }
 
     if (data?.error) {
