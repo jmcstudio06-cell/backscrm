@@ -76,15 +76,20 @@ Deno.serve(async (req) => {
     })
 
     // Enqueue email via the transactional email queue
+    const payload = {
+      to: email.trim().toLowerCase(),
+      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      sender_domain: SENDER_DOMAIN,
+      subject: 'Você foi convidado para o Backstage Pro! 🎉',
+      html,
+      text,
+      template_name: 'invite',
+      purpose: 'transactional',
+    }
+
     const { error: enqueueError } = await supabaseAdmin.rpc('enqueue_email', {
-      p_to: email.trim().toLowerCase(),
-      p_from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-      p_sender_domain: SENDER_DOMAIN,
-      p_subject: 'Você foi convidado para o Backstage Pro! 🎉',
-      p_html: html,
-      p_text: text,
-      p_template_name: 'invite',
-      p_purpose: 'transactional',
+      queue_name: 'transactional_emails',
+      payload,
     })
 
     if (enqueueError) {
