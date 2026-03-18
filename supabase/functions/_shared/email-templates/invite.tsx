@@ -32,14 +32,17 @@ export const InviteEmail = ({
       <Container style={container}>
         <Heading style={h1}>Você foi convidado! 🎉</Heading>
         <Text style={text}>
-          Você recebeu um convite para fazer parte do{' '}
+          Você recebeu um convite especial para conhecer o{' '}
           <Link href={siteUrl} style={link}>
             <strong>Backstage Pro</strong>
           </Link>
-          . Clique no botão abaixo para aceitar e criar sua conta.
+          , a plataforma completa para gestão de carreira musical.
+        </Text>
+        <Text style={text}>
+          Gerencie seus shows, contratos, finanças, equipe e muito mais — tudo em um só lugar.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Aceitar convite
+          Conhecer o Backstage Pro
         </Button>
         <Text style={footer}>
           Se você não esperava este convite, pode ignorar este e-mail.

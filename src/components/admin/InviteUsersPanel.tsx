@@ -86,8 +86,8 @@ export function InviteUsersPanel() {
             Enviar Convite Individual
           </CardTitle>
           <CardDescription>
-            Envia um e-mail de convite para a pessoa criar uma conta no Backstage Pro.
-            O e-mail será enviado pelo domínio backstagepro.online com o template de convite configurado.
+            Envia um e-mail de convite para a pessoa conhecer o Backstage Pro.
+            A pessoa receberá um e-mail com um link para a landing page do app (não cria conta automaticamente).
           </CardDescription>
         </CardHeader>
         <CardContent>
