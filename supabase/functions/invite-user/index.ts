@@ -77,6 +77,7 @@ Deno.serve(async (req) => {
 
     // Enqueue email via the transactional email queue
     const payload = {
+      run_id: crypto.randomUUID(),
       to: email.trim().toLowerCase(),
       from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
