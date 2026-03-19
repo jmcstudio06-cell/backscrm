@@ -147,7 +147,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
-  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getCurrentData = useCallback(() => ({
     name,
