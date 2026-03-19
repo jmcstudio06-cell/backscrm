@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,6 +42,7 @@ import monitor1Img from '@/assets/stage/monitor1.png';
 import monitor2Img from '@/assets/stage/monitor2.png';
 import stairsImg from '@/assets/stage/stairs.png';
 import riserImg from '@/assets/stage/riser.png';
+import pedalboardImg from '@/assets/stage/pedalboard.png';
 
 const ELEMENT_TYPE_IMAGES: Record<string, string> = {
   vocal: singerImg,
@@ -54,6 +55,7 @@ const ELEMENT_TYPE_IMAGES: Record<string, string> = {
   accordion: accordionistImg,
   brass: brassImg,
   amp: ampImg,
+  pedalboard: pedalboardImg,
   sider: siderImg,
   monitor1: monitor1Img,
   monitor2: monitor2Img,
@@ -75,6 +77,7 @@ const ELEMENT_TYPE_SIZES: Record<string, { width: number; height: number }> = {
   accordion: { width: 70, height: 85 },
   brass: { width: 65, height: 85 },
   amp: { width: 50, height: 40 },
+  pedalboard: { width: 60, height: 35 },
   sider: { width: 45, height: 70 },
   monitor1: { width: 70, height: 45 },
   monitor2: { width: 65, height: 55 },
@@ -141,25 +144,46 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
   const [materialsChecklist, setMaterialsChecklist] = useState<MaterialsChecklistType>(mapping.materials_checklist);
   const [observations, setObservations] = useState(mapping.observations || "");
   const [saving, setSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const getCurrentData = useCallback(() => ({
+    name,
+    artist_name: artistName || null,
+    event_name: eventName || null,
+    event_date: eventDate || null,
+    event_location: eventLocation || null,
+    technical_contact: technicalContact || null,
+    technical_phone: technicalPhone || null,
+    stage_layout: stageLayout,
+    input_list: inputList,
+    materials_checklist: materialsChecklist,
+    observations: observations || null,
+  }), [name, artistName, eventName, eventDate, eventLocation, technicalContact, technicalPhone, stageLayout, inputList, materialsChecklist, observations]);
+
+  // Auto-save after 3 seconds of inactivity
+  useEffect(() => {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        await onSave(getCurrentData());
+        setLastSaved(new Date());
+      } finally {
+        setSaving(false);
+      }
+    }, 3000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  }, [name, artistName, eventName, eventDate, eventLocation, technicalContact, technicalPhone, stageLayout, inputList, materialsChecklist, observations]);
 
   const handleSave = async () => {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     setSaving(true);
     try {
-      await onSave({
-        name,
-        artist_name: artistName || null,
-        event_name: eventName || null,
-        event_date: eventDate || null,
-        event_location: eventLocation || null,
-        technical_contact: technicalContact || null,
-        technical_phone: technicalPhone || null,
-        stage_layout: stageLayout,
-        input_list: inputList,
-        materials_checklist: materialsChecklist,
-        observations: observations || null,
-      });
+      await onSave(getCurrentData());
+      setLastSaved(new Date());
     } finally {
       setSaving(false);
     }
@@ -401,10 +425,15 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
           </div>
         </div>
 
-        <div className="flex gap-2 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          {lastSaved && (
+            <span className="text-[11px] text-muted-foreground hidden sm:inline">
+              {saving ? "Salvando..." : `Salvo às ${lastSaved.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}`}
+            </span>
+          )}
           <Button variant="outline" size="sm" onClick={handlePrint} disabled={generatingPdf} className="flex-1 sm:flex-initial">
             <Printer className="w-4 h-4 sm:mr-1" />
-            <span className="hidden sm:inline">{generatingPdf ? "Gerando..." : "PDF"}</span>
+            <span className="hidden sm:inline">{generatingPdf ? "Gerando..." : "Gerar PDF"}</span>
           </Button>
           <Button size="sm" onClick={handleSave} disabled={saving} className="flex-1 sm:flex-initial">
             <Save className="w-4 h-4 sm:mr-2" />
