@@ -144,25 +144,46 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
   const [materialsChecklist, setMaterialsChecklist] = useState<MaterialsChecklistType>(mapping.materials_checklist);
   const [observations, setObservations] = useState(mapping.observations || "");
   const [saving, setSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const getCurrentData = useCallback(() => ({
+    name,
+    artist_name: artistName || null,
+    event_name: eventName || null,
+    event_date: eventDate || null,
+    event_location: eventLocation || null,
+    technical_contact: technicalContact || null,
+    technical_phone: technicalPhone || null,
+    stage_layout: stageLayout,
+    input_list: inputList,
+    materials_checklist: materialsChecklist,
+    observations: observations || null,
+  }), [name, artistName, eventName, eventDate, eventLocation, technicalContact, technicalPhone, stageLayout, inputList, materialsChecklist, observations]);
+
+  // Auto-save after 3 seconds of inactivity
+  useEffect(() => {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        await onSave(getCurrentData());
+        setLastSaved(new Date());
+      } finally {
+        setSaving(false);
+      }
+    }, 3000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  }, [name, artistName, eventName, eventDate, eventLocation, technicalContact, technicalPhone, stageLayout, inputList, materialsChecklist, observations]);
 
   const handleSave = async () => {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     setSaving(true);
     try {
-      await onSave({
-        name,
-        artist_name: artistName || null,
-        event_name: eventName || null,
-        event_date: eventDate || null,
-        event_location: eventLocation || null,
-        technical_contact: technicalContact || null,
-        technical_phone: technicalPhone || null,
-        stage_layout: stageLayout,
-        input_list: inputList,
-        materials_checklist: materialsChecklist,
-        observations: observations || null,
-      });
+      await onSave(getCurrentData());
+      setLastSaved(new Date());
     } finally {
       setSaving(false);
     }
