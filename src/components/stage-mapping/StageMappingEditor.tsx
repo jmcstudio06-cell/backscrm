@@ -42,6 +42,7 @@ import monitor1Img from '@/assets/stage/monitor1.png';
 import monitor2Img from '@/assets/stage/monitor2.png';
 import stairsImg from '@/assets/stage/stairs.png';
 import riserImg from '@/assets/stage/riser.png';
+import pedalboardImg from '@/assets/stage/pedalboard.png';
 
 const ELEMENT_TYPE_IMAGES: Record<string, string> = {
   vocal: singerImg,
@@ -54,6 +55,7 @@ const ELEMENT_TYPE_IMAGES: Record<string, string> = {
   accordion: accordionistImg,
   brass: brassImg,
   amp: ampImg,
+  pedalboard: pedalboardImg,
   sider: siderImg,
   monitor1: monitor1Img,
   monitor2: monitor2Img,
@@ -75,6 +77,7 @@ const ELEMENT_TYPE_SIZES: Record<string, { width: number; height: number }> = {
   accordion: { width: 70, height: 85 },
   brass: { width: 65, height: 85 },
   amp: { width: 50, height: 40 },
+  pedalboard: { width: 60, height: 35 },
   sider: { width: 45, height: 70 },
   monitor1: { width: 70, height: 45 },
   monitor2: { width: 65, height: 55 },
