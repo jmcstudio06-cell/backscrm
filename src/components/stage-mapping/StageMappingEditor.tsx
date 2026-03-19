@@ -425,10 +425,15 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
           </div>
         </div>
 
-        <div className="flex gap-2 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          {lastSaved && (
+            <span className="text-[11px] text-muted-foreground hidden sm:inline">
+              {saving ? "Salvando..." : `Salvo às ${lastSaved.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}`}
+            </span>
+          )}
           <Button variant="outline" size="sm" onClick={handlePrint} disabled={generatingPdf} className="flex-1 sm:flex-initial">
             <Printer className="w-4 h-4 sm:mr-1" />
-            <span className="hidden sm:inline">{generatingPdf ? "Gerando..." : "PDF"}</span>
+            <span className="hidden sm:inline">{generatingPdf ? "Gerando..." : "Gerar PDF"}</span>
           </Button>
           <Button size="sm" onClick={handleSave} disabled={saving} className="flex-1 sm:flex-initial">
             <Save className="w-4 h-4 sm:mr-2" />
