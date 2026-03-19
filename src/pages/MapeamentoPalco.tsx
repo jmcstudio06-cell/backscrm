@@ -7,11 +7,14 @@ import {
   MapPin, 
   Calendar, 
   Trash2,
-  Edit,
-  FileText
+  Copy,
+  FileText,
+  Music,
+  Layers
 } from "lucide-react";
 import { useStageMappings, StageMapping } from "@/hooks/useStageMappings";
 import { StageMappingEditor } from "@/components/stage-mapping/StageMappingEditor";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function MapeamentoPalco() {
   const { mappings, loading, addMapping, updateMapping, deleteMapping } = useStageMappings();
@@ -30,20 +34,35 @@ export default function MapeamentoPalco() {
   const [mappingToDelete, setMappingToDelete] = useState<string | null>(null);
 
   const handleCreateMapping = async () => {
-    const newMapping = await addMapping({
-      name: "Novo Mapeamento",
-    });
-    if (newMapping) {
-      setSelectedMapping(newMapping);
+    const newMapping = await addMapping({ name: "Novo Mapeamento" });
+    if (newMapping) setSelectedMapping(newMapping);
+  };
+
+  const handleDuplicate = async (mapping: StageMapping) => {
+    if (mappings.length >= 3) {
+      toast.error("Limite de 3 mapeamentos atingido.");
+      return;
     }
+    const newMapping = await addMapping({
+      name: `${mapping.name} (cópia)`,
+      artist_name: mapping.artist_name,
+      event_name: mapping.event_name,
+      event_date: mapping.event_date,
+      event_location: mapping.event_location,
+      technical_contact: mapping.technical_contact,
+      technical_phone: mapping.technical_phone,
+      stage_layout: mapping.stage_layout,
+      input_list: mapping.input_list,
+      materials_checklist: mapping.materials_checklist,
+      observations: mapping.observations,
+    });
+    if (newMapping) setSelectedMapping(newMapping);
   };
 
   const handleSaveMapping = async (updates: Partial<StageMapping>) => {
     if (selectedMapping) {
       const updated = await updateMapping(selectedMapping.id, updates);
-      if (updated) {
-        setSelectedMapping(updated);
-      }
+      if (updated) setSelectedMapping(updated);
     }
   };
 
@@ -89,29 +108,33 @@ export default function MapeamentoPalco() {
     <Layout title="Mapeamento de Palco" subtitle="Organize sua estrutura técnica para cada show">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">{mappings.length}/3 mapeamentos</p>
-          <Button onClick={handleCreateMapping} disabled={mappings.length >= 3}>
-            <Plus className="w-4 h-4 mr-2" />
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="text-xs font-medium">
+              {mappings.length}/3 mapeamentos
+            </Badge>
+          </div>
+          <Button onClick={handleCreateMapping} disabled={mappings.length >= 3} className="gap-2">
+            <Plus className="w-4 h-4" />
             Novo Mapeamento
           </Button>
         </div>
 
         {mappings.length === 0 ? (
-          <Card className="border-dashed">
+          <Card className="border-dashed border-2">
             <CardContent className="py-16">
               <div className="flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-primary/50" />
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mb-5">
+                  <Layers className="w-10 h-10 text-primary/40" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   Nenhum mapeamento de palco
                 </h3>
-                <p className="text-muted-foreground max-w-md mb-6 text-sm">
-                  Crie seu primeiro mapeamento de palco para organizar a estrutura técnica 
-                  do seu show e gerar riders profissionais.
+                <p className="text-muted-foreground max-w-lg mb-6 text-sm leading-relaxed">
+                  Crie seu rider técnico profissional com mapeamento de palco visual, 
+                  input list automática e checklist de materiais. Tudo pronto para enviar à casa de show.
                 </p>
-                <Button onClick={handleCreateMapping}>
-                  <Plus className="w-4 h-4 mr-2" />
+                <Button onClick={handleCreateMapping} size="lg" className="gap-2">
+                  <Plus className="w-5 h-5" />
                   Criar Primeiro Mapeamento
                 </Button>
               </div>
@@ -122,62 +145,81 @@ export default function MapeamentoPalco() {
             {mappings.map((mapping) => (
               <Card 
                 key={mapping.id} 
-                className="group hover:shadow-lg transition-all duration-300 cursor-pointer"
+                className="group hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden"
                 onClick={() => setSelectedMapping(mapping)}
               >
-                <CardHeader className="pb-2">
+                {/* Color accent bar */}
+                <div className="h-1.5 w-full" style={{ background: 'var(--gradient-primary)' }} />
+                
+                <CardHeader className="pb-2 pt-4">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
                         <MapPin className="w-5 h-5 text-white" />
                       </div>
-                      <div>
-                        <CardTitle className="text-base">{mapping.name}</CardTitle>
+                      <div className="min-w-0">
+                        <CardTitle className="text-base truncate">{mapping.name}</CardTitle>
                         {mapping.artist_name && (
-                          <p className="text-sm text-muted-foreground">{mapping.artist_name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{mapping.artist_name}</p>
                         )}
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        confirmDelete(mapping.id);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDuplicate(mapping);
+                        }}
+                        title="Duplicar"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          confirmDelete(mapping.id);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm text-muted-foreground">
                     {mapping.event_name && (
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        <span>{mapping.event_name}</span>
+                        <FileText className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{mapping.event_name}</span>
                       </div>
                     )}
                     {mapping.event_date && (
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
                         <span>{new Date(mapping.event_date).toLocaleDateString("pt-BR")}</span>
                       </div>
                     )}
                     {mapping.event_location && (
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-4 h-4 flex-shrink-0" />
                         <span className="truncate">{mapping.event_location}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-4 pt-2 border-t mt-3">
-                      <span className="text-xs">
+                    <div className="flex items-center gap-3 pt-3 border-t mt-3">
+                      <Badge variant="secondary" className="text-[11px]">
+                        <Music className="w-3 h-3 mr-1" />
                         {mapping.input_list.length} canais
-                      </span>
-                      <span className="text-xs">
+                      </Badge>
+                      <Badge variant="secondary" className="text-[11px]">
+                        <Layers className="w-3 h-3 mr-1" />
                         {mapping.stage_layout.length} elementos
-                      </span>
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
