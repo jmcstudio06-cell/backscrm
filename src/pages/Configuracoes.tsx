@@ -713,6 +713,56 @@ export default function Configuracoes() {
 
               <Separator />
 
+              {/* Clear Cache */}
+              <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
+                <div className="flex items-start gap-3">
+                  <Trash2 className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-foreground">Limpar Cache do App</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Se o app estiver travando ou mostrando dados desatualizados, limpe o cache para resolver.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-3 gap-2" 
+                      onClick={async () => {
+                        try {
+                          if ('caches' in window) {
+                            const cacheNames = await caches.keys();
+                            await Promise.all(cacheNames.map(name => caches.delete(name)));
+                          }
+                          const authKeys: string[] = [];
+                          for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && (key.startsWith('sb-') || key.startsWith('supabase'))) {
+                              authKeys.push(key);
+                            }
+                          }
+                          const authData = authKeys.map(k => ({ k, v: localStorage.getItem(k) }));
+                          localStorage.clear();
+                          authData.forEach(({ k, v }) => { if (v) localStorage.setItem(k, v); });
+                          if ('serviceWorker' in navigator) {
+                            const registrations = await navigator.serviceWorker.getRegistrations();
+                            await Promise.all(registrations.map(r => r.unregister()));
+                          }
+                          toast.success("Cache limpo! O app será recarregado...");
+                          setTimeout(() => window.location.reload(), 1500);
+                        } catch (err) {
+                          console.error("Erro ao limpar cache:", err);
+                          toast.error("Erro ao limpar cache");
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Limpar Cache e Recarregar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
               {/* Legal */}
               <div>
                 <h4 className="font-semibold text-foreground flex items-center gap-2 mb-3">
