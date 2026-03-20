@@ -13,7 +13,7 @@ import {
   User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, 
   ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, 
   Circle, Square, Type, Monitor, Smartphone, MapPin, Radio, Disc3, 
-  Guitar, Zap, Lock, Eye, Sparkles, KeyRound
+  Guitar, Zap, Lock, Eye, Sparkles, KeyRound, Trash2
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
