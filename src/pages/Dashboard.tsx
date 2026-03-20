@@ -7,6 +7,7 @@ import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
+import { QuickAccessActions } from "@/components/dashboard/QuickAccessActions";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
@@ -390,6 +391,9 @@ const Dashboard = () => {
 
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
+
+        {/* Quick Access Actions */}
+        <QuickAccessActions />
 
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
