@@ -53,38 +53,39 @@ export function QuickAccessActions() {
   return (
     <>
       <div className="animate-fade-in">
-        <div className="rounded-3xl border border-border/60 bg-card/80 p-3 shadow-sm backdrop-blur-sm sm:p-4">
-          <div className="grid grid-cols-4 gap-3 sm:gap-4">
-            {quickActions.map((action) => {
-              const blocked = !loading && isBlocked(action.featureKey);
-              const Icon = action.icon;
+        <div className="flex items-center justify-center gap-6 sm:gap-8">
+          {quickActions.map((action) => {
+            const blocked = !loading && isBlocked(action.featureKey);
+            const Icon = action.icon;
 
-              return (
-                <button
-                  key={action.path}
-                  type="button"
-                  title={action.label}
-                  aria-label={blocked ? `${action.label} bloqueado` : action.label}
-                  onClick={() => handleActionClick(action.label, action.path, action.featureKey)}
+            return (
+              <button
+                key={action.path}
+                type="button"
+                onClick={() => handleActionClick(action.label, action.path, action.featureKey)}
+                className="group flex flex-col items-center gap-1.5 focus-visible:outline-none"
+              >
+                <div
                   className={cn(
-                    "group relative flex aspect-square w-full items-center justify-center rounded-full border border-border/60 bg-muted/40 text-foreground shadow-sm transition-all duration-200",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    "relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-200",
                     blocked
-                      ? "opacity-70 hover:bg-muted"
-                      : "hover:-translate-y-0.5 hover:border-primary/30 hover:bg-accent hover:text-accent-foreground",
+                      ? "opacity-60"
+                      : "group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-md",
                   )}
                 >
-                  <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
+                  <Icon className="h-5 w-5 text-foreground/80" />
                   {blocked && (
-                    <span className="absolute right-1.5 top-1.5 rounded-full border border-border/70 bg-background/95 p-1 text-muted-foreground shadow-sm sm:right-2 sm:top-2">
-                      <Lock className="h-3 w-3" />
+                    <span className="absolute -right-1 -top-1 rounded-full border border-border/70 bg-background p-0.5 text-muted-foreground shadow-sm">
+                      <Lock className="h-2.5 w-2.5" />
                     </span>
                   )}
-                  <span className="sr-only">{action.label}</span>
-                </button>
-              );
-            })}
-          </div>
+                </div>
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {action.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
