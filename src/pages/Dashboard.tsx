@@ -392,9 +392,6 @@ const Dashboard = () => {
         {/* Trial Countdown Card */}
         <TrialCountdownCard />
 
-        {/* Quick Access Actions */}
-        <QuickAccessActions />
-
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
           <div className="relative">
@@ -409,6 +406,9 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
+
+        {/* Quick Access Actions */}
+        <QuickAccessActions />
 
         {/* Total Revenue Hero */}
         <TotalRevenueHero
