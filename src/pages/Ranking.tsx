@@ -21,7 +21,7 @@ const podiumConfig = [
     ring: "ring-yellow-400/30",
     bg: "bg-yellow-500/10",
     text: "text-yellow-600 dark:text-yellow-400",
-    label: "1º Lugar 🥇",
+    label: "1º Lugar",
     size: "w-20 h-20",
     iconSize: "w-9 h-9",
   },
@@ -31,7 +31,7 @@ const podiumConfig = [
     ring: "ring-gray-300/30",
     bg: "bg-gray-400/10",
     text: "text-gray-500 dark:text-gray-400",
-    label: "2º Lugar 🥈",
+    label: "2º Lugar",
     size: "w-16 h-16",
     iconSize: "w-7 h-7",
   },
@@ -41,7 +41,7 @@ const podiumConfig = [
     ring: "ring-amber-600/30",
     bg: "bg-amber-600/10",
     text: "text-amber-700 dark:text-amber-500",
-    label: "3º Lugar 🥉",
+    label: "3º Lugar",
     size: "w-14 h-14",
     iconSize: "w-6 h-6",
   },
@@ -103,7 +103,7 @@ export default function RankingPage() {
                 <Trophy className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-foreground">🏆 Top 3 do Mês</h2>
+                <h2 className="text-xl font-bold text-foreground">Top 3 do Mês</h2>
                 <p className="text-sm text-muted-foreground capitalize flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
                   {monthName}
@@ -123,7 +123,7 @@ export default function RankingPage() {
               </div>
               <div>
                 <p className="font-bold text-foreground">
-                  Você está a {showsToTop3} {showsToTop3 === 1 ? "show" : "shows"} de entrar no TOP 3! 🔥
+                  Você está a {showsToTop3} {showsToTop3 === 1 ? "show" : "shows"} de entrar no TOP 3!
                 </p>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Seus shows este mês: <strong className="text-foreground">{myShowCount}</strong> — Continue vendendo!
@@ -143,7 +143,7 @@ export default function RankingPage() {
               </div>
               <div>
                 <p className="font-bold text-foreground">
-                  Parabéns! Você está no TOP 3 este mês! 🎉
+                  Parabéns! Você está no TOP 3 este mês!
                 </p>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Continue assim — você é referência no Backstage Pro!
@@ -229,7 +229,7 @@ export default function RankingPage() {
         {!loading && ranking.length > 0 && (
           <div className="rounded-2xl bg-muted/30 border border-border/30 p-5 text-center">
             <p className="text-sm text-muted-foreground">
-              🏅 Os artistas do <strong className="text-foreground">Top 3</strong> ganham o selo de{" "}
+              Os artistas do <strong className="text-foreground">Top 3</strong> ganham o selo de{" "}
               <strong className="text-primary">Top Vendedor do Mês</strong> e destaque no Backstage Pro!
             </p>
           </div>
