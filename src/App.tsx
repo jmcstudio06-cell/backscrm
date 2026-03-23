@@ -15,7 +15,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
-import Bonus from "./pages/Bonus";
+import Ranking from "./pages/Ranking";
 import Tutoriais from "./pages/Tutoriais";
 import CRM from "./pages/CRM";
 import Clientes from "./pages/Clientes";
@@ -86,7 +86,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<AuthPage><Dashboard /></AuthPage>} />
                 <Route path="/agenda" element={<AuthPage><Agenda /></AuthPage>} />
-                <Route path="/bonus" element={<AuthPage><Bonus /></AuthPage>} />
+                <Route path="/ranking" element={<AuthPage><Ranking /></AuthPage>} />
                 <Route path="/tutoriais" element={<AuthPage><Tutoriais /></AuthPage>} />
                 <Route path="/crm" element={<AuthPage><CRM /></AuthPage>} />
                 <Route path="/clientes" element={<AuthPage><Clientes /></AuthPage>} />
