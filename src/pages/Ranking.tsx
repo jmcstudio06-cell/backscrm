@@ -233,8 +233,6 @@ export default function RankingPage() {
               <strong className="text-primary">Top Vendedor do Mês</strong> e destaque no Backstage Pro!
             </p>
           </div>
-            </p>
-          </div>
         )}
       </div>
     </Layout>
