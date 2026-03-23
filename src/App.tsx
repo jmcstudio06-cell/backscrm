@@ -86,7 +86,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<AuthPage><Dashboard /></AuthPage>} />
                 <Route path="/agenda" element={<AuthPage><Agenda /></AuthPage>} />
-                <Route path="/bonus" element={<AuthPage><Bonus /></AuthPage>} />
+                <Route path="/ranking" element={<AuthPage><Ranking /></AuthPage>} />
                 <Route path="/tutoriais" element={<AuthPage><Tutoriais /></AuthPage>} />
                 <Route path="/crm" element={<AuthPage><CRM /></AuthPage>} />
                 <Route path="/clientes" element={<AuthPage><Clientes /></AuthPage>} />

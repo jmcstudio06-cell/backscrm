@@ -102,7 +102,7 @@ const menuItems: MenuItem[] = [
       { icon: Target, label: "Meta Anual 2026", path: "/metas/anual", featureKey: "metas" },
     ],
   },
-  { icon: Trophy, label: "Bônus", path: "/bonus", featureKey: "aulas" },
+  { icon: Trophy, label: "Ranking", path: "/ranking", featureKey: "aulas" },
   
   { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
