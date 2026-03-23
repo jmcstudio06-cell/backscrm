@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Calendar, DollarSign, Lock, Settings, UserCheck } from "lucide-react";
 import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 const quickActions = [
