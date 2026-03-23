@@ -8,6 +8,7 @@ import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
 import { QuickAccessActions } from "@/components/dashboard/QuickAccessActions";
+import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
