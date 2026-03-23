@@ -2278,6 +2278,14 @@ export type Database = {
           price: number
         }[]
       }
+      get_monthly_show_ranking: {
+        Args: never
+        Returns: {
+          show_count: number
+          user_id: string
+          user_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
