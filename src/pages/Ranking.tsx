@@ -123,7 +123,7 @@ export default function RankingPage() {
               </div>
               <div>
                 <p className="font-bold text-foreground">
-                  Você está a {showsToTop3} {showsToTop3 === 1 ? "show" : "shows"} de entrar no TOP 3! 🔥
+                  Você está a {showsToTop3} {showsToTop3 === 1 ? "show" : "shows"} de entrar no TOP 3!
                 </p>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Seus shows este mês: <strong className="text-foreground">{myShowCount}</strong> — Continue vendendo!
