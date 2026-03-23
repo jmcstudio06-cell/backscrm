@@ -143,7 +143,7 @@ export default function RankingPage() {
               </div>
               <div>
                 <p className="font-bold text-foreground">
-                  Parabéns! Você está no TOP 3 este mês! 🎉
+                  Parabéns! Você está no TOP 3 este mês!
                 </p>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Continue assim — você é referência no Backstage Pro!
