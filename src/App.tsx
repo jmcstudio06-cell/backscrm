@@ -15,7 +15,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
-import Bonus from "./pages/Bonus";
+import Ranking from "./pages/Ranking";
 import Tutoriais from "./pages/Tutoriais";
 import CRM from "./pages/CRM";
 import Clientes from "./pages/Clientes";
