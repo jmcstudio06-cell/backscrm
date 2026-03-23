@@ -411,6 +411,9 @@ const Dashboard = () => {
         {/* Quick Access Actions */}
         <QuickAccessActions />
 
+        {/* Ranking Teaser */}
+        <RankingTeaser />
+
         {/* Total Revenue Hero */}
         <TotalRevenueHero
           totalRevenue={totalAllTimeRevenue}
