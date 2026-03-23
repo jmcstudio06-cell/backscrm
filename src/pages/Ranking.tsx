@@ -229,8 +229,10 @@ export default function RankingPage() {
         {!loading && ranking.length > 0 && (
           <div className="rounded-2xl bg-muted/30 border border-border/30 p-5 text-center">
             <p className="text-sm text-muted-foreground">
-              🏅 Os artistas do <strong className="text-foreground">Top 3</strong> ganham o selo de{" "}
+              Os artistas do <strong className="text-foreground">Top 3</strong> ganham o selo de{" "}
               <strong className="text-primary">Top Vendedor do Mês</strong> e destaque no Backstage Pro!
+            </p>
+          </div>
             </p>
           </div>
         )}
