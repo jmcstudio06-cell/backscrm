@@ -103,7 +103,7 @@ export default function RankingPage() {
                 <Trophy className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-foreground">🏆 Top 3 do Mês</h2>
+                <h2 className="text-xl font-bold text-foreground">Top 3 do Mês</h2>
                 <p className="text-sm text-muted-foreground capitalize flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
                   {monthName}
