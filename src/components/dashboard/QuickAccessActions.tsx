@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Calendar, DollarSign, Lock, Settings, UserCheck } from "lucide-react";
 import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 const quickActions = [
@@ -35,8 +36,11 @@ const quickActions = [
 export function QuickAccessActions() {
   const navigate = useNavigate();
   const { isBlocked, loading } = useFeatureBlocks();
+  const isMobile = useIsMobile();
   const [blockedDialogOpen, setBlockedDialogOpen] = useState(false);
   const [blockedFeatureName, setBlockedFeatureName] = useState("");
+
+  if (!isMobile) return null;
 
   const handleActionClick = (label: string, path: string, featureKey: string) => {
     const blocked = !loading && isBlocked(featureKey);
