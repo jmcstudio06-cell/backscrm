@@ -167,6 +167,36 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_badges: {
+        Row: {
+          badge_type: string
+          created_at: string
+          id: string
+          month: number
+          show_count: number
+          user_id: string
+          year: number
+        }
+        Insert: {
+          badge_type?: string
+          created_at?: string
+          id?: string
+          month: number
+          show_count?: number
+          user_id: string
+          year: number
+        }
+        Update: {
+          badge_type?: string
+          created_at?: string
+          id?: string
+          month?: number
+          show_count?: number
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       artist_equipment: {
         Row: {
           category: string
