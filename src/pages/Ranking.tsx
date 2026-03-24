@@ -4,7 +4,7 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Medal, Award, Calendar, Flame, Star } from "lucide-react";
+import { Trophy, Medal, Award, Calendar, Flame, Star, Crown } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -16,34 +16,46 @@ interface RankingEntry {
 
 const podiumConfig = [
   {
-    icon: Trophy,
+    icon: Crown,
     gradient: "from-yellow-400 to-amber-500",
-    ring: "ring-yellow-400/30",
-    bg: "bg-yellow-500/10",
+    ring: "ring-yellow-400/40",
+    bg: "bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-500/10 dark:to-amber-500/10",
     text: "text-yellow-600 dark:text-yellow-400",
+    border: "border-yellow-300/50 dark:border-yellow-500/30",
     label: "1º Lugar",
-    avatarSize: "w-14 h-14",
-    iconSize: "w-6 h-6",
+    avatarSize: "w-16 h-16 sm:w-20 sm:h-20",
+    iconSize: "w-7 h-7 sm:w-9 sm:h-9",
+    nameSize: "text-xl sm:text-2xl",
+    countSize: "text-3xl sm:text-4xl",
+    highlight: true,
   },
   {
     icon: Medal,
     gradient: "from-slate-300 to-slate-400",
     ring: "ring-slate-300/30",
-    bg: "bg-slate-300/10",
+    bg: "bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-500/10 dark:to-gray-500/10",
     text: "text-slate-500 dark:text-slate-400",
+    border: "border-slate-200/50 dark:border-slate-500/20",
     label: "2º Lugar",
-    avatarSize: "w-12 h-12",
-    iconSize: "w-5 h-5",
+    avatarSize: "w-14 h-14 sm:w-16 sm:h-16",
+    iconSize: "w-6 h-6 sm:w-7 sm:h-7",
+    nameSize: "text-lg sm:text-xl",
+    countSize: "text-2xl sm:text-3xl",
+    highlight: false,
   },
   {
     icon: Award,
     gradient: "from-amber-600 to-amber-700",
-    ring: "ring-amber-600/20",
-    bg: "bg-amber-600/10",
+    ring: "ring-amber-600/25",
+    bg: "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-500/10 dark:to-orange-500/10",
     text: "text-amber-700 dark:text-amber-500",
+    border: "border-amber-300/40 dark:border-amber-500/20",
     label: "3º Lugar",
-    avatarSize: "w-12 h-12",
-    iconSize: "w-5 h-5",
+    avatarSize: "w-14 h-14 sm:w-16 sm:h-16",
+    iconSize: "w-6 h-6 sm:w-7 sm:h-7",
+    nameSize: "text-lg sm:text-xl",
+    countSize: "text-2xl sm:text-3xl",
+    highlight: false,
   },
 ];
 
@@ -89,55 +101,57 @@ export default function RankingPage() {
 
   return (
     <Layout title="Ranking" subtitle="Os artistas que mais vendem shows no mês">
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className="max-w-3xl mx-auto space-y-6">
 
-        {/* Header */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 border border-primary/20 p-5">
-          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/5 blur-3xl" />
-          <div className="relative flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg flex-shrink-0">
-              <Trophy className="w-6 h-6 text-white" />
+        {/* Header Card */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-accent/10 border border-primary/20 p-6 sm:p-8">
+          <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-accent/10 blur-3xl" />
+          <div className="relative flex items-center gap-5">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-xl flex-shrink-0">
+              <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-foreground">Top 3 do Mês</h2>
-              <p className="text-xs text-muted-foreground capitalize flex items-center gap-1.5 mt-0.5">
-                <Calendar className="w-3 h-3" />
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">Top 3 do Mês</h2>
+              <p className="text-sm text-muted-foreground capitalize flex items-center gap-2 mt-1">
+                <Calendar className="w-4 h-4" />
                 {monthName}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Motivation / Celebration Banner */}
+        {/* Motivation Banner */}
         {!loading && !isInTop3 && myShowCount !== null && showsToTop3 !== null && showsToTop3 > 0 && (
-          <div className="rounded-2xl bg-gradient-to-r from-primary/8 via-primary/4 to-accent/8 border border-primary/15 p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-                <Flame className="w-5 h-5 text-primary animate-pulse" />
+          <div className="rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 border border-primary/20 p-5 sm:p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+                <Flame className="w-6 h-6 text-primary animate-pulse" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-base sm:text-lg font-bold text-foreground">
                   Você está a {showsToTop3} {showsToTop3 === 1 ? "show" : "shows"} de entrar no TOP 3!
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Seus shows este mês: <span className="font-semibold text-foreground">{myShowCount}</span> — Continue vendendo!
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Seus shows este mês: <span className="font-bold text-foreground">{myShowCount}</span> — Continue vendendo!
                 </p>
               </div>
             </div>
           </div>
         )}
 
+        {/* In Top 3 Celebration */}
         {!loading && isInTop3 && (
-          <div className="rounded-2xl bg-gradient-to-r from-yellow-500/10 via-amber-400/5 to-yellow-500/10 border border-yellow-500/15 p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-md flex-shrink-0">
-                <Star className="w-5 h-5 text-white" />
+          <div className="rounded-2xl bg-gradient-to-r from-yellow-500/10 via-amber-400/5 to-yellow-500/10 border border-yellow-500/20 p-5 sm:p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                <Star className="w-6 h-6 text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-base sm:text-lg font-bold text-foreground">
                   Parabéns! Você está no TOP 3 este mês!
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-sm text-muted-foreground mt-0.5">
                   Continue assim — você é referência no Backstage Pro!
                 </p>
               </div>
@@ -145,25 +159,25 @@ export default function RankingPage() {
           </div>
         )}
 
-        {/* Ranking List */}
+        {/* Ranking Cards */}
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-2xl" />
+              <Skeleton key={i} className="h-28 w-full rounded-3xl" />
             ))}
           </div>
         ) : ranking.length === 0 ? (
-          <div className="rounded-2xl bg-card border border-border/50 p-10 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
-              <Trophy className="w-7 h-7 text-muted-foreground/40" />
+          <div className="rounded-3xl bg-card border border-border/50 p-12 sm:p-16 text-center shadow-card">
+            <div className="w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto mb-5">
+              <Trophy className="w-9 h-9 text-muted-foreground/40" />
             </div>
-            <p className="text-base font-semibold text-foreground mb-1">Nenhum show agendado este mês</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xl font-bold text-foreground mb-2">Nenhum show agendado este mês</p>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
               O ranking aparecerá quando houver shows confirmados ou agendados
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {ranking.map((entry, index) => {
               const config = podiumConfig[index];
               const Icon = config.icon;
@@ -172,44 +186,47 @@ export default function RankingPage() {
               return (
                 <div
                   key={entry.user_id}
-                  className={`relative rounded-2xl bg-card border p-4 transition-all ${
-                    isMe
-                      ? "border-primary/30 ring-2 ring-primary/15 shadow-md"
-                      : "border-border/50 shadow-sm hover:shadow-md"
-                  }`}
+                  className={`relative overflow-hidden rounded-3xl ${config.bg} border ${config.border} p-5 sm:p-7 transition-all duration-300 hover:shadow-elevated ${
+                    isMe ? "ring-2 ring-primary/25 shadow-lg" : "shadow-card"
+                  } ${config.highlight ? "scale-[1.02]" : ""}`}
                 >
                   {isMe && (
-                    <div className="absolute top-2.5 right-3">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    <div className="absolute top-3 right-4">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
                         Você
                       </span>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-4">
-                    {/* Avatar / Icon */}
+                  <div className="flex items-center gap-5 sm:gap-7">
+                    {/* Position Badge */}
                     <div
-                      className={`${config.avatarSize} rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-md ring-4 ${config.ring} flex-shrink-0`}
+                      className={`${config.avatarSize} rounded-2xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-xl ring-4 ${config.ring} flex-shrink-0`}
                     >
                       <Icon className={`${config.iconSize} text-white`} />
                     </div>
 
-                    {/* Name */}
+                    {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className={`text-[11px] font-bold uppercase tracking-wider ${config.text}`}>
+                      <p className={`text-[11px] sm:text-xs font-bold uppercase tracking-widest mb-1 ${config.text}`}>
                         {config.label}
                       </p>
-                      <h3 className="text-base font-bold text-foreground truncate mt-0.5">
+                      <h3 className={`${config.nameSize} font-extrabold text-foreground truncate`}>
                         {entry.user_name}
                       </h3>
+                      {config.highlight && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Ganha o selo Top Vendedor do Mês
+                        </p>
+                      )}
                     </div>
 
-                    {/* Count */}
-                    <div className={`flex-shrink-0 text-center px-4 py-2.5 rounded-xl ${config.bg}`}>
-                      <p className={`text-2xl font-extrabold leading-none ${config.text}`}>
+                    {/* Show Count */}
+                    <div className="flex-shrink-0 text-center px-5 sm:px-7 py-3 sm:py-4 rounded-2xl bg-white/60 dark:bg-white/5 border border-border/30">
+                      <p className={`${config.countSize} font-black leading-none ${config.text}`}>
                         {entry.show_count}
                       </p>
-                      <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mt-1">
+                      <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground mt-1">
                         {entry.show_count === 1 ? "show" : "shows"}
                       </p>
                     </div>
@@ -220,12 +237,12 @@ export default function RankingPage() {
           </div>
         )}
 
-        {/* Footer */}
+        {/* Hall da Fama info */}
         {!loading && ranking.length > 0 && (
-          <div className="rounded-xl bg-muted/30 border border-border/20 px-5 py-3.5 text-center">
-            <p className="text-xs text-muted-foreground">
-              Os artistas do <strong className="text-foreground">Top 3</strong> ganham o selo de{" "}
-              <strong className="text-primary">Top Vendedor do Mês</strong> e destaque no Backstage Pro!
+          <div className="rounded-2xl bg-muted/30 border border-border/30 px-6 py-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              Quem fica em <strong className="text-foreground">1º lugar</strong> ganha um selo exclusivo do{" "}
+              <strong className="text-primary">Backstage Pro</strong> — confira seus troféus na página de Selos!
             </p>
           </div>
         )}
