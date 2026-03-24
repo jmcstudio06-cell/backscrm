@@ -4,9 +4,10 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Medal, Award, Calendar, Flame, Star, Crown } from "lucide-react";
+import { Trophy, Medal, Award, Flame, Star } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 interface RankingEntry {
   user_id: string;
@@ -14,82 +15,33 @@ interface RankingEntry {
   show_count: number;
 }
 
-const podiumConfig = [
-  {
-    icon: Crown,
-    gradient: "from-yellow-400 to-amber-500",
-    ring: "ring-yellow-400/40",
-    bg: "bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-500/10 dark:to-amber-500/10",
-    text: "text-yellow-600 dark:text-yellow-400",
-    border: "border-yellow-300/50 dark:border-yellow-500/30",
-    label: "1º Lugar",
-    avatarSize: "w-16 h-16 sm:w-20 sm:h-20",
-    iconSize: "w-7 h-7 sm:w-9 sm:h-9",
-    nameSize: "text-xl sm:text-2xl",
-    countSize: "text-3xl sm:text-4xl",
-    highlight: true,
-  },
-  {
-    icon: Medal,
-    gradient: "from-slate-300 to-slate-400",
-    ring: "ring-slate-300/30",
-    bg: "bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-500/10 dark:to-gray-500/10",
-    text: "text-slate-500 dark:text-slate-400",
-    border: "border-slate-200/50 dark:border-slate-500/20",
-    label: "2º Lugar",
-    avatarSize: "w-14 h-14 sm:w-16 sm:h-16",
-    iconSize: "w-6 h-6 sm:w-7 sm:h-7",
-    nameSize: "text-lg sm:text-xl",
-    countSize: "text-2xl sm:text-3xl",
-    highlight: false,
-  },
-  {
-    icon: Award,
-    gradient: "from-amber-600 to-amber-700",
-    ring: "ring-amber-600/25",
-    bg: "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-500/10 dark:to-orange-500/10",
-    text: "text-amber-700 dark:text-amber-500",
-    border: "border-amber-300/40 dark:border-amber-500/20",
-    label: "3º Lugar",
-    avatarSize: "w-14 h-14 sm:w-16 sm:h-16",
-    iconSize: "w-6 h-6 sm:w-7 sm:h-7",
-    nameSize: "text-lg sm:text-xl",
-    countSize: "text-2xl sm:text-3xl",
-    highlight: false,
-  },
-];
-
 export default function RankingPage() {
   useRequireAuth();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
   const [myShowCount, setMyShowCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const monthName = format(new Date(), "MMMM 'de' yyyy", { locale: ptBR });
+  const monthName = format(new Date(), "MMMM yyyy", { locale: ptBR });
 
   useEffect(() => {
     const fetchRanking = async () => {
       const { data, error } = await supabase.rpc("get_monthly_show_ranking");
-      if (!error && data) {
-        setRanking(data as RankingEntry[]);
-      }
+      if (!error && data) setRanking(data as RankingEntry[]);
 
       if (user) {
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
-
         const { count } = await supabase
           .from("shows")
           .select("*", { count: "exact", head: true })
           .in("status", ["confirmed", "completed", "scheduled"])
           .gte("date", startOfMonth)
           .lte("date", endOfMonth);
-
         setMyShowCount(count || 0);
       }
-
       setLoading(false);
     };
     fetchRanking();
@@ -101,152 +53,146 @@ export default function RankingPage() {
 
   return (
     <Layout title="Ranking" subtitle="Os artistas que mais vendem shows no mês">
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="space-y-5">
 
-        {/* Header Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-accent/10 border border-primary/20 p-6 sm:p-8">
-          <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-accent/10 blur-3xl" />
-          <div className="relative flex items-center gap-5">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-xl flex-shrink-0">
-              <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">Top 3 do Mês</h2>
-              <p className="text-sm text-muted-foreground capitalize flex items-center gap-2 mt-1">
-                <Calendar className="w-4 h-4" />
-                {monthName}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Motivation Banner */}
+        {/* Motivation / Celebration — compact */}
         {!loading && !isInTop3 && myShowCount !== null && showsToTop3 !== null && showsToTop3 > 0 && (
-          <div className="rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 border border-primary/20 p-5 sm:p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-                <Flame className="w-6 h-6 text-primary animate-pulse" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-lg font-bold text-foreground">
-                  Você está a {showsToTop3} {showsToTop3 === 1 ? "show" : "shows"} de entrar no TOP 3!
-                </p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Seus shows este mês: <span className="font-bold text-foreground">{myShowCount}</span> — Continue vendendo!
-                </p>
-              </div>
-            </div>
+          <div className="flex items-center gap-3 rounded-xl bg-primary/5 border border-primary/15 px-4 py-3">
+            <Flame className="w-5 h-5 text-primary flex-shrink-0" />
+            <p className="text-sm text-foreground">
+              Você está a <strong>{showsToTop3} {showsToTop3 === 1 ? "show" : "shows"}</strong> do TOP 3 — seus shows este mês: <strong>{myShowCount}</strong>
+            </p>
           </div>
         )}
-
-        {/* In Top 3 Celebration */}
         {!loading && isInTop3 && (
-          <div className="rounded-2xl bg-gradient-to-r from-yellow-500/10 via-amber-400/5 to-yellow-500/10 border border-yellow-500/20 p-5 sm:p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                <Star className="w-6 h-6 text-white" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-lg font-bold text-foreground">
-                  Parabéns! Você está no TOP 3 este mês!
-                </p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Continue assim — você é referência no Backstage Pro!
-                </p>
-              </div>
-            </div>
+          <div className="flex items-center gap-3 rounded-xl bg-yellow-500/5 border border-yellow-500/15 px-4 py-3">
+            <Star className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+            <p className="text-sm text-foreground">
+              Parabéns! Você está no <strong>TOP 3</strong> este mês!
+            </p>
           </div>
         )}
 
-        {/* Ranking Cards */}
+        {/* Podium Visual */}
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28 w-full rounded-3xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
+        ) : ranking.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <PodiumView ranking={ranking} currentUserId={user?.id} />
+        )}
+
+        {/* List View */}
+        {!loading && ranking.length > 0 && (
+          <div className="space-y-2">
+            {ranking.map((entry, i) => (
+              <ListItem key={entry.user_id} entry={entry} position={i + 1} isMe={entry.user_id === user?.id} />
             ))}
           </div>
-        ) : ranking.length === 0 ? (
-          <div className="rounded-3xl bg-card border border-border/50 p-12 sm:p-16 text-center shadow-card">
-            <div className="w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto mb-5">
-              <Trophy className="w-9 h-9 text-muted-foreground/40" />
-            </div>
-            <p className="text-xl font-bold text-foreground mb-2">Nenhum show agendado este mês</p>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              O ranking aparecerá quando houver shows confirmados ou agendados
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {ranking.map((entry, index) => {
-              const config = podiumConfig[index];
-              const Icon = config.icon;
-              const isMe = entry.user_id === user?.id;
-
-              return (
-                <div
-                  key={entry.user_id}
-                  className={`relative overflow-hidden rounded-3xl ${config.bg} border ${config.border} p-5 sm:p-7 transition-all duration-300 hover:shadow-elevated ${
-                    isMe ? "ring-2 ring-primary/25 shadow-lg" : "shadow-card"
-                  } ${config.highlight ? "scale-[1.02]" : ""}`}
-                >
-                  {isMe && (
-                    <div className="absolute top-3 right-4">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
-                        Você
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-5 sm:gap-7">
-                    {/* Position Badge */}
-                    <div
-                      className={`${config.avatarSize} rounded-2xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-xl ring-4 ${config.ring} flex-shrink-0`}
-                    >
-                      <Icon className={`${config.iconSize} text-white`} />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-[11px] sm:text-xs font-bold uppercase tracking-widest mb-1 ${config.text}`}>
-                        {config.label}
-                      </p>
-                      <h3 className={`${config.nameSize} font-extrabold text-foreground truncate`}>
-                        {entry.user_name}
-                      </h3>
-                      {config.highlight && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Ganha o selo Top Vendedor do Mês
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Show Count */}
-                    <div className="flex-shrink-0 text-center px-5 sm:px-7 py-3 sm:py-4 rounded-2xl bg-white/60 dark:bg-white/5 border border-border/30">
-                      <p className={`${config.countSize} font-black leading-none ${config.text}`}>
-                        {entry.show_count}
-                      </p>
-                      <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground mt-1">
-                        {entry.show_count === 1 ? "show" : "shows"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         )}
 
-        {/* Hall da Fama info */}
+        {/* Footer */}
         {!loading && ranking.length > 0 && (
-          <div className="rounded-2xl bg-muted/30 border border-border/30 px-6 py-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Quem fica em <strong className="text-foreground">1º lugar</strong> ganha um selo exclusivo do{" "}
-              <strong className="text-primary">Backstage Pro</strong> — confira seus troféus na página de Selos!
+          <button
+            type="button"
+            onClick={() => navigate("/selos")}
+            className="w-full rounded-xl bg-muted/40 border border-border/30 px-4 py-3 text-center hover:bg-muted/60 transition-colors"
+          >
+            <p className="text-xs text-muted-foreground">
+              O 1º lugar ganha um <strong className="text-primary">selo exclusivo</strong> — veja a Sala de Troféus
             </p>
-          </div>
+          </button>
         )}
       </div>
     </Layout>
+  );
+}
+
+/* ── Podium ── */
+function PodiumView({ ranking, currentUserId }: { ranking: RankingEntry[]; currentUserId?: string }) {
+  const ordered = [ranking[1], ranking[0], ranking[2]].filter(Boolean); // 2nd, 1st, 3rd
+  const heights = ["h-28", "h-40", "h-24"];
+  const icons = [Medal, Trophy, Award];
+  const colors = [
+    { bar: "from-slate-300 to-slate-400", icon: "bg-slate-400", text: "text-slate-500" },
+    { bar: "from-yellow-400 to-amber-500", icon: "bg-amber-500", text: "text-yellow-600 dark:text-yellow-400" },
+    { bar: "from-amber-600 to-amber-700", icon: "bg-amber-700", text: "text-amber-600" },
+  ];
+  const positions = [2, 1, 3];
+
+  return (
+    <div className="rounded-2xl bg-card border border-border/50 shadow-card p-5 sm:p-6">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground text-center mb-6 capitalize">
+        {format(new Date(), "MMMM yyyy", { locale: ptBR })}
+      </p>
+
+      <div className="flex items-end justify-center gap-3 sm:gap-5">
+        {ordered.map((entry, i) => {
+          if (!entry) return null;
+          const Icon = icons[i];
+          const color = colors[i];
+          const isMe = entry.user_id === currentUserId;
+
+          return (
+            <div key={entry.user_id} className="flex flex-col items-center w-24 sm:w-28">
+              {/* Avatar */}
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${color.icon} flex items-center justify-center mb-2 shadow-md ${isMe ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : ""}`}>
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+
+              {/* Name */}
+              <p className="text-xs font-bold text-foreground text-center truncate w-full leading-tight">
+                {entry.user_name}
+              </p>
+              <p className={`text-lg sm:text-xl font-black ${color.text} leading-none mt-0.5`}>
+                {entry.show_count}
+              </p>
+              <p className="text-[9px] uppercase tracking-wider text-muted-foreground">shows</p>
+
+              {/* Bar */}
+              <div className={`w-full ${heights[i]} rounded-t-xl bg-gradient-to-t ${color.bar} mt-2 flex items-start justify-center pt-2`}>
+                <span className="text-white font-black text-lg">{positions[i]}º</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── List Item ── */
+function ListItem({ entry, position, isMe }: { entry: RankingEntry; position: number; isMe: boolean }) {
+  const config = [
+    { text: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-500/10" },
+    { text: "text-slate-500 dark:text-slate-400", bg: "bg-slate-400/10" },
+    { text: "text-amber-600 dark:text-amber-500", bg: "bg-amber-500/10" },
+  ][position - 1];
+
+  return (
+    <div className={`flex items-center gap-3 rounded-xl bg-card border px-4 py-3 transition-all ${isMe ? "border-primary/30 shadow-md" : "border-border/50 shadow-sm"}`}>
+      <div className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0`}>
+        <span className={`text-sm font-black ${config.text}`}>{position}</span>
+      </div>
+      <p className="flex-1 text-sm font-semibold text-foreground truncate">
+        {entry.user_name}
+        {isMe && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Você</span>}
+      </p>
+      <p className={`text-base font-black ${config.text}`}>{entry.show_count}</p>
+      <p className="text-[9px] uppercase tracking-wider text-muted-foreground -ml-1">shows</p>
+    </div>
+  );
+}
+
+/* ── Empty ── */
+function EmptyState() {
+  return (
+    <div className="rounded-2xl bg-card border border-border/50 p-10 text-center shadow-card">
+      <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
+        <Trophy className="w-6 h-6 text-muted-foreground/40" />
+      </div>
+      <p className="text-sm font-semibold text-foreground mb-1">Nenhum show agendado este mês</p>
+      <p className="text-xs text-muted-foreground">O ranking aparecerá quando houver shows confirmados</p>
+    </div>
   );
 }
