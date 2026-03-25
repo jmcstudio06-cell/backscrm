@@ -20,12 +20,15 @@ import { useProfile } from "@/hooks/useProfile";
 import { useClients } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Lightbulb, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { leads, loading: leadsLoading } = useLeads();
   const { transactions, loading: transactionsLoading } = useTransactions();
   const { goals, loading: goalsLoading, addGoal } = useGoals();
@@ -394,7 +397,7 @@ const Dashboard = () => {
         <TrialCountdownCard />
 
         {/* Welcome Section */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 animate-fade-in">
           <div className="relative">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               <span className="text-foreground">Olá, </span>
@@ -406,6 +409,14 @@ const Dashboard = () => {
               {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
             </p>
           </div>
+          <button
+            onClick={() => navigate("/tutoriais")}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-colors text-left sm:text-right shrink-0"
+          >
+            <Lightbulb className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-xs font-medium text-foreground">Aproveite 100% do seu plano</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+          </button>
         </div>
 
         {/* Quick Access Actions */}
