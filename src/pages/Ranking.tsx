@@ -35,7 +35,7 @@ function toTitleCase(str: string) {
 }
 
 
-  useRequireAuth();
+  export default function RankingPage() {
   const { user } = useAuth();
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
   const [myShowCount, setMyShowCount] = useState<number | null>(null);
