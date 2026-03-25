@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface Profile {
   id: string;
@@ -15,19 +15,16 @@ export interface Profile {
   plan: string | null;
   created_at: string;
   updated_at: string;
-  // Perfil Artístico
   artist_name: string | null;
   project_type: string | null;
   music_style: string | null;
   base_city: string | null;
   action_radius: number | null;
-  // Regras de Show
   show_duration: string | null;
   start_time_limit: string | null;
   delay_tolerance: string | null;
   has_interval: boolean | null;
   requires_food: boolean | null;
-  // Regras Financeiras
   min_fee: number | null;
   deposit_percentage: number | null;
   accepted_payment: string | null;
@@ -35,7 +32,6 @@ export interface Profile {
   late_fee_percentage: number | null;
   slug: string | null;
   onboarding_completed: boolean | null;
-  // Perfil Público
   bio: string | null;
   instagram_url: string | null;
   youtube_url: string | null;
@@ -45,42 +41,38 @@ export interface Profile {
   media_kit_url: string | null;
   show_video_url: string | null;
   repertoire_url: string | null;
-  // Configurações de Booking
   booking_max_dates: number;
   booking_discount_percent: number;
   booking_min_dates_discount: number;
   booking_show_products: boolean;
+  feature_blocks: Record<string, boolean> | null;
+  trial_days: number | null;
 }
 
 export function useProfile() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchProfile = async () => {
-    if (!user) return;
-
-    try {
+  const { data: profile = null, isLoading: loading } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", user!.id)
         .maybeSingle();
 
       if (error) throw error;
-      setProfile(data);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data as Profile | null;
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return;
 
     try {
-      // Check if profile exists
       const { data: existing } = await supabase
         .from("profiles")
         .select("id")
@@ -88,41 +80,29 @@ export function useProfile() {
         .maybeSingle();
 
       if (existing) {
-        // Update existing profile
         const { error } = await supabase
           .from("profiles")
           .update({ ...updates, updated_at: new Date().toISOString() })
           .eq("user_id", user.id);
-
         if (error) throw error;
       } else {
-        // Create new profile
         const { error } = await supabase
           .from("profiles")
-          .insert({
-            user_id: user.id,
-            ...updates,
-          });
-
+          .insert({ user_id: user.id, ...updates });
         if (error) throw error;
       }
 
       toast.success("Perfil atualizado com sucesso!");
-      fetchProfile();
+      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Erro ao atualizar perfil");
     }
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, [user]);
-
-  return {
-    profile,
-    loading,
-    updateProfile,
-    fetchProfile,
+  const fetchProfile = () => {
+    if (user) queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
   };
+
+  return { profile, loading, updateProfile, fetchProfile };
 }

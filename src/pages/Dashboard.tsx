@@ -77,48 +77,37 @@ const Dashboard = () => {
 
   // Check if user should see onboarding, checklists, and fetch lightweight counts
   useEffect(() => {
-    const checkData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // Check onboarding using already-loaded profile (no extra query)
-        if (profile && !profile.onboarding_completed) {
-          setShowWelcome(true);
-        } else if (profile) {
-          const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
-            (window.navigator as any).standalone === true;
-          
-          if (!isStandalone) {
-            const dismissed = localStorage.getItem("install_prompt_dismissed");
-            if (!dismissed || Date.now() - parseInt(dismissed, 10) > 7 * 24 * 60 * 60 * 1000) {
-              setShowInstallPrompt(true);
-            }
-          }
-        }
+    if (profileLoading || !profile) return;
 
-        // Batch lightweight count queries (instead of loading full useContracts + useStageMappings hooks)
-        const [checklistResult, contractsResult, mappingsResult] = await Promise.all([
-          supabase
-            .from("show_checklist")
-            .select("*", { count: "exact", head: true }),
-          supabase
-            .from("contracts")
-            .select("id, show_id")
-            .order("created_at", { ascending: false })
-            .limit(5),
-          supabase
-            .from("stage_mappings")
-            .select("*", { count: "exact", head: true }),
-        ]);
-        
-        setChecklistsUsed((checklistResult.count || 0) > 0);
-        setContractsCount(contractsResult.data?.length || 0);
-        setContractShowIds((contractsResult.data || []).map(c => c.show_id).filter(Boolean) as string[]);
-        setStageMappingsCount(mappingsResult.count || 0);
+    // Check onboarding using already-loaded profile (no auth.getUser call)
+    if (!profile.onboarding_completed) {
+      setShowWelcome(true);
+    } else {
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true;
+      
+      if (!isStandalone) {
+        const dismissed = localStorage.getItem("install_prompt_dismissed");
+        if (!dismissed || Date.now() - parseInt(dismissed, 10) > 7 * 24 * 60 * 60 * 1000) {
+          setShowInstallPrompt(true);
+        }
       }
-    };
-    if (!profileLoading) {
-      checkData();
     }
+
+    // Batch lightweight count queries
+    const fetchCounts = async () => {
+      const [checklistResult, contractsResult, mappingsResult] = await Promise.all([
+        supabase.from("show_checklist").select("*", { count: "exact", head: true }),
+        supabase.from("contracts").select("id, show_id").order("created_at", { ascending: false }).limit(5),
+        supabase.from("stage_mappings").select("*", { count: "exact", head: true }),
+      ]);
+      
+      setChecklistsUsed((checklistResult.count || 0) > 0);
+      setContractsCount(contractsResult.data?.length || 0);
+      setContractShowIds((contractsResult.data || []).map(c => c.show_id).filter(Boolean) as string[]);
+      setStageMappingsCount(mappingsResult.count || 0);
+    };
+    fetchCounts();
   }, [profile, profileLoading]);
 
   // Show monthly goal modal if no goal set for this month (after loading)

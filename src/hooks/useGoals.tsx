@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface Goal {
   id: string;
@@ -16,31 +16,25 @@ export interface Goal {
 
 export function useGoals() {
   const { user } = useAuth();
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchGoals = async () => {
-    if (!user) return;
-    
-    try {
+  const { data: goals = [], isLoading: loading } = useQuery({
+    queryKey: ["goals", user?.id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("goals")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setGoals(data || []);
-    } catch (error) {
-      console.error("Error fetching goals:", error);
-      toast.error("Erro ao carregar metas");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return (data || []) as Goal[];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const addGoal = async (goalData: Partial<Goal>) => {
     if (!user) return;
-
     try {
       const { data, error } = await supabase
         .from("goals")
@@ -53,11 +47,10 @@ export function useGoals() {
           year: goalData.year || new Date().getFullYear(),
           user_id: user.id,
         }])
-        .select()
-        .single();
+        .select().single();
 
       if (error) throw error;
-      setGoals([data, ...goals]);
+      queryClient.invalidateQueries({ queryKey: ["goals", user.id] });
       toast.success("Meta adicionada com sucesso!");
       return data;
     } catch (error) {
@@ -69,14 +62,9 @@ export function useGoals() {
   const updateGoal = async (id: string, updates: Partial<Goal>) => {
     try {
       const { data, error } = await supabase
-        .from("goals")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-
+        .from("goals").update(updates).eq("id", id).select().single();
       if (error) throw error;
-      setGoals(goals.map(g => g.id === id ? data : g));
+      queryClient.invalidateQueries({ queryKey: ["goals", user?.id] });
       toast.success("Meta atualizada com sucesso!");
       return data;
     } catch (error) {
@@ -87,13 +75,9 @@ export function useGoals() {
 
   const deleteGoal = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("goals")
-        .delete()
-        .eq("id", id);
-
+      const { error } = await supabase.from("goals").delete().eq("id", id);
       if (error) throw error;
-      setGoals(goals.filter(g => g.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["goals", user?.id] });
       toast.success("Meta excluída com sucesso!");
     } catch (error) {
       console.error("Error deleting goal:", error);
@@ -101,9 +85,7 @@ export function useGoals() {
     }
   };
 
-  useEffect(() => {
-    fetchGoals();
-  }, [user]);
+  const refetch = () => queryClient.invalidateQueries({ queryKey: ["goals", user?.id] });
 
-  return { goals, loading, addGoal, updateGoal, deleteGoal, refetch: fetchGoals };
+  return { goals, loading, addGoal, updateGoal, deleteGoal, refetch };
 }
