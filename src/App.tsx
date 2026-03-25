@@ -51,7 +51,17 @@ import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscr
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 import type { ReactNode } from "react";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes — data stays fresh, no refetch
+      gcTime: 10 * 60 * 1000,   // 10 minutes garbage collection
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      retry: 1,
+    },
+  },
+});
 
 // OneSignal handles service worker registration automatically
 
