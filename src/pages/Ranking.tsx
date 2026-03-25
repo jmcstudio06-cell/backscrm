@@ -30,7 +30,11 @@ const monthNames = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
-export default function RankingPage() {
+function toTitleCase(str: string) {
+  return str.toLowerCase().split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+
   useRequireAuth();
   const { user } = useAuth();
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
