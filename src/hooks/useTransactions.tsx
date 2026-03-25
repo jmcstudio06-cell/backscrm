@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface Transaction {
   id: string;
@@ -16,27 +16,28 @@ export interface Transaction {
 
 export function useTransactions() {
   const { user } = useAuth();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchTransactions = async () => {
-    if (!user) return;
-    
-    try {
+  const { data: transactions = [], isLoading: loading } = useQuery({
+    queryKey: ["transactions", user?.id],
+    queryFn: async () => {
+      // Only fetch last 6 months instead of all history
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      const cutoff = sixMonthsAgo.toISOString().split("T")[0];
+
       const { data, error } = await supabase
         .from("transactions")
         .select("*")
+        .gte("date", cutoff)
         .order("date", { ascending: false });
 
       if (error) throw error;
-      setTransactions(data || []);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      toast.error("Erro ao carregar transações");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return (data || []) as Transaction[];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const addTransaction = async (transactionData: Partial<Transaction>) => {
     if (!user) return;
@@ -57,7 +58,7 @@ export function useTransactions() {
         .single();
 
       if (error) throw error;
-      setTransactions([data, ...transactions]);
+      queryClient.invalidateQueries({ queryKey: ["transactions", user.id] });
       toast.success("Transação adicionada com sucesso!");
       return data;
     } catch (error) {
@@ -74,7 +75,7 @@ export function useTransactions() {
         .eq("id", id);
 
       if (error) throw error;
-      setTransactions(transactions.filter(t => t.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["transactions", user?.id] });
       toast.success("Transação excluída com sucesso!");
     } catch (error) {
       console.error("Error deleting transaction:", error);
@@ -85,9 +86,7 @@ export function useTransactions() {
   const getTotalIncome = () => transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
   const getTotalExpense = () => transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [user]);
+  const refetch = () => queryClient.invalidateQueries({ queryKey: ["transactions", user?.id] });
 
-  return { transactions, loading, addTransaction, deleteTransaction, getTotalIncome, getTotalExpense, refetch: fetchTransactions };
+  return { transactions, loading, addTransaction, deleteTransaction, getTotalIncome, getTotalExpense, refetch };
 }

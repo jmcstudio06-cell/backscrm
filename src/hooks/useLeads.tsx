@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface Lead {
   id: string;
@@ -38,27 +38,22 @@ const stageNames: Record<string, string> = {
 
 export function useLeads() {
   const { user } = useAuth();
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchLeads = async () => {
-    if (!user) return;
-    
-    try {
+  const { data: leads = [], isLoading: loading } = useQuery({
+    queryKey: ["leads", user?.id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("leads")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setLeads(data || []);
-    } catch (error) {
-      console.error("Error fetching leads:", error);
-      toast.error("Erro ao carregar leads");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return (data || []) as Lead[];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const fetchLeadHistory = async (leadId: string): Promise<LeadHistoryEntry[]> => {
     try {
@@ -80,11 +75,7 @@ export function useLeads() {
     try {
       await supabase
         .from("lead_history")
-        .insert([{
-          lead_id: leadId,
-          from_status: fromStatus,
-          to_status: toStatus,
-        }]);
+        .insert([{ lead_id: leadId, from_status: fromStatus, to_status: toStatus }]);
     } catch (error) {
       console.error("Error adding lead history:", error);
     }
@@ -92,9 +83,7 @@ export function useLeads() {
 
   const convertLeadToClient = async (lead: Lead) => {
     if (!user) return;
-
     try {
-      // Check if client already exists with this name/email
       const { data: existingClient } = await supabase
         .from("clients")
         .select("id")
@@ -102,24 +91,17 @@ export function useLeads() {
         .eq("name", lead.name)
         .maybeSingle();
 
-      if (existingClient) {
-        console.log("Client already exists, skipping conversion");
-        return;
-      }
+      if (existingClient) return;
 
-      // Create new client from lead
       const { error } = await supabase
         .from("clients")
         .insert([{
-          name: lead.name,
-          email: lead.email,
-          phone: lead.phone,
-          company: lead.company,
-          notes: lead.notes,
-          user_id: user.id,
+          name: lead.name, email: lead.email, phone: lead.phone,
+          company: lead.company, notes: lead.notes, user_id: user.id,
         }]);
 
       if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["clients", user.id] });
       toast.success(`${lead.name} foi adicionado como cliente!`);
     } catch (error) {
       console.error("Error converting lead to client:", error);
@@ -128,32 +110,21 @@ export function useLeads() {
 
   const addLead = async (leadData: Partial<Lead>) => {
     if (!user) return;
-
     try {
       const { data, error } = await supabase
         .from("leads")
         .insert([{
-          name: leadData.name || "",
-          phone: leadData.phone,
-          email: leadData.email,
-          company: leadData.company,
-          event_type: leadData.event_type,
-          event_date: leadData.event_date,
-          estimated_value: leadData.estimated_value,
-          status: leadData.status || "new",
-          source: leadData.source,
-          notes: leadData.notes,
-          user_id: user.id,
+          name: leadData.name || "", phone: leadData.phone, email: leadData.email,
+          company: leadData.company, event_type: leadData.event_type,
+          event_date: leadData.event_date, estimated_value: leadData.estimated_value,
+          status: leadData.status || "new", source: leadData.source,
+          notes: leadData.notes, user_id: user.id,
         }])
-        .select()
-        .single();
+        .select().single();
 
       if (error) throw error;
-      
-      // Add initial history entry
       await addLeadHistory(data.id, null, data.status);
-      
-      setLeads([data, ...leads]);
+      queryClient.invalidateQueries({ queryKey: ["leads", user.id] });
       toast.success("Lead adicionado com sucesso!");
       return data;
     } catch (error) {
@@ -168,25 +139,18 @@ export function useLeads() {
       const oldStatus = currentLead?.status;
 
       const { data, error } = await supabase
-        .from("leads")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
+        .from("leads").update(updates).eq("id", id).select().single();
 
       if (error) throw error;
-      
-      // If status changed, add history entry
+
       if (updates.status && oldStatus !== updates.status) {
         await addLeadHistory(id, oldStatus || null, updates.status);
-        
-        // If moved to "closed", convert to client
         if (updates.status === "closed" && currentLead) {
           await convertLeadToClient({ ...currentLead, ...updates } as Lead);
         }
       }
-      
-      setLeads(leads.map(l => l.id === id ? data : l));
+
+      queryClient.invalidateQueries({ queryKey: ["leads", user?.id] });
       toast.success("Lead atualizado com sucesso!");
       return data;
     } catch (error) {
@@ -197,13 +161,9 @@ export function useLeads() {
 
   const deleteLead = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("leads")
-        .delete()
-        .eq("id", id);
-
+      const { error } = await supabase.from("leads").delete().eq("id", id);
       if (error) throw error;
-      setLeads(leads.filter(l => l.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["leads", user?.id] });
       toast.success("Lead excluído com sucesso!");
     } catch (error) {
       console.error("Error deleting lead:", error);
@@ -211,18 +171,7 @@ export function useLeads() {
     }
   };
 
-  useEffect(() => {
-    fetchLeads();
-  }, [user]);
+  const refetch = () => queryClient.invalidateQueries({ queryKey: ["leads", user?.id] });
 
-  return { 
-    leads, 
-    loading, 
-    addLead, 
-    updateLead, 
-    deleteLead, 
-    fetchLeadHistory,
-    stageNames,
-    refetch: fetchLeads 
-  };
+  return { leads, loading, addLead, updateLead, deleteLead, fetchLeadHistory, stageNames, refetch };
 }
