@@ -105,7 +105,7 @@ export default function RankingPage() {
 
   return (
     <Layout title="Ranking" subtitle="Os artistas que mais vendem shows no mês">
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className="space-y-5">
 
         {/* Motivation / Celebration */}
         {!loading && !isInTop3 && myShowCount !== null && showsToTop3 !== null && showsToTop3 > 0 && (
@@ -205,7 +205,7 @@ export default function RankingPage() {
                         <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <span className="text-xs font-extrabold text-primary">{i + 1}</span>
                         </div>
-                        <p className="flex-1 text-sm font-semibold text-foreground truncate">{entry.user_name}</p>
+                        <p className="flex-1 text-sm font-semibold text-foreground truncate">{toTitleCase(entry.user_name)}</p>
                         <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/15">
                           <Crown className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
                           <span className="text-xs font-bold text-yellow-600 dark:text-yellow-400">{entry.count}</span>
@@ -251,7 +251,7 @@ function PodiumView({ ranking, currentUserId }: { ranking: RankingEntry[]; curre
               <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${color.icon} flex items-center justify-center mb-2 shadow-md ${isMe ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : ""}`}>
                 <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <p className="text-xs font-bold text-foreground text-center truncate w-full leading-tight">{entry.user_name}</p>
+              <p className="text-xs font-bold text-foreground text-center truncate w-full leading-tight">{toTitleCase(entry.user_name)}</p>
               <p className={`text-lg sm:text-xl font-black ${color.text} leading-none mt-0.5`}>{entry.show_count}</p>
               <p className="text-[9px] uppercase tracking-wider text-muted-foreground">shows</p>
               <div className={`w-full ${heights[i]} rounded-t-xl bg-gradient-to-t ${color.bar} mt-2 flex items-start justify-center pt-2`}>
@@ -279,7 +279,7 @@ function ListItem({ entry, position, isMe }: { entry: RankingEntry; position: nu
         <span className={`text-sm font-black ${config.text}`}>{position}</span>
       </div>
       <p className="flex-1 text-sm font-semibold text-foreground truncate">
-        {entry.user_name}
+        {toTitleCase(entry.user_name)}
         {isMe && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Você</span>}
       </p>
       <p className={`text-base font-black ${config.text}`}>{entry.show_count}</p>
