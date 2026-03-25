@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Lightbulb, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { leads, loading: leadsLoading } = useLeads();
   const { transactions, loading: transactionsLoading } = useTransactions();
   const { goals, loading: goalsLoading, addGoal } = useGoals();
