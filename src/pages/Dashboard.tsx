@@ -394,7 +394,7 @@ const Dashboard = () => {
         <TrialCountdownCard />
 
         {/* Welcome Section */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-4 animate-fade-in">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 animate-fade-in">
           <div className="relative">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               <span className="text-foreground">Olá, </span>
@@ -406,6 +406,14 @@ const Dashboard = () => {
               {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
             </p>
           </div>
+          <button
+            onClick={() => navigate("/tutoriais")}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-colors text-left sm:text-right shrink-0"
+          >
+            <Lightbulb className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-xs font-medium text-foreground">Aproveite 100% do seu plano</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+          </button>
         </div>
 
         {/* Quick Access Actions */}
