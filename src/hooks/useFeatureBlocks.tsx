@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FeatureBlocks {
   [key: string]: boolean;
@@ -93,21 +94,31 @@ export function useFeatureBlocks() {
     setLoading(false);
   }, []);
 
-  // Initial fetch
-  useEffect(() => {
-    async function fetchBlocks() {
-      if (!user) {
-        setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
-        setPlanExpired(false);
-        setLoading(false);
-        return;
-      }
+  const queryClient = useQueryClient();
 
+  // Reuse cached profile from useProfile instead of separate DB query
+  useEffect(() => {
+    if (!user) {
+      setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
+      setPlanExpired(false);
+      setLoading(false);
+      return;
+    }
+
+    // Try to get profile from React Query cache first
+    const cachedProfile = queryClient.getQueryData<any>(["profile", user.id]);
+    if (cachedProfile) {
+      processProfile(cachedProfile);
+      return;
+    }
+
+    // Fallback: fetch from DB only if not cached
+    async function fetchBlocks() {
       try {
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("plan, feature_blocks")
-          .eq("user_id", user.id)
+          .eq("user_id", user!.id)
           .single();
 
         if (error) {
@@ -126,7 +137,7 @@ export function useFeatureBlocks() {
     }
 
     fetchBlocks();
-  }, [user, processProfile]);
+  }, [user, processProfile, queryClient]);
 
   // Realtime subscription — updates sidebar instantly when admin changes blocks
   useEffect(() => {
