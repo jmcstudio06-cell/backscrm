@@ -20,10 +20,12 @@ import { useProfile } from "@/hooks/useProfile";
 import { useClients } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Lightbulb, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const { leads, loading: leadsLoading } = useLeads();
