@@ -76,16 +76,19 @@ Deno.serve(async (req) => {
     })
 
     // Enqueue email via the transactional email queue
+    const messageId = `invite-${email.trim().toLowerCase()}-${Date.now()}`
     const payload = {
-      run_id: crypto.randomUUID(),
       to: email.trim().toLowerCase(),
       from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
       subject: 'Você foi convidado para o Backstage Pro! 🎉',
       html,
       text,
-      template_name: 'invite',
+      label: 'invite',
       purpose: 'transactional',
+      message_id: messageId,
+      idempotency_key: messageId,
+      queued_at: new Date().toISOString(),
     }
 
     const { error: enqueueError } = await supabaseAdmin.rpc('enqueue_email', {
