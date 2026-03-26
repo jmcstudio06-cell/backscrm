@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { trackLandingVisit } from "@/hooks/useLandingInsights";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   ArrowRight, 
@@ -111,10 +111,6 @@ const Landing = () => {
   const navigate = useNavigate();
   const [isYearly, setIsYearly] = useState(false);
 
-  // Track landing page visit
-  useEffect(() => {
-    trackLandingVisit();
-  }, []);
 
   const features = [
     {
