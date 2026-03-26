@@ -33,8 +33,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Crown,
-  Activity,
-  Mail,
 } from "lucide-react";
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
