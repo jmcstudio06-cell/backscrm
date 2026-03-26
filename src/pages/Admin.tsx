@@ -41,8 +41,6 @@ import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
-import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
-import { InviteUsersPanel } from "@/components/admin/InviteUsersPanel";
 
 import type { Json } from "@/integrations/supabase/types";
 import { PLAN_MODULES } from "@/hooks/useFeatureBlocks";
@@ -524,12 +522,6 @@ export default function Admin() {
           <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <PartyPopper className="h-3.5 w-3.5" /> Marco
           </TabsTrigger>
-          <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Activity className="h-3.5 w-3.5" /> Cloud
-          </TabsTrigger>
-          <TabsTrigger value="invites" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Mail className="h-3.5 w-3.5" /> Convites
-          </TabsTrigger>
         </TabsList>
 
         {/* Users Tab */}
@@ -845,15 +837,6 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
-        {/* Cloud Usage Tab */}
-        <TabsContent value="cloud">
-          <CloudUsagePanel />
-        </TabsContent>
-
-        {/* Invites Tab */}
-        <TabsContent value="invites">
-          <InviteUsersPanel />
-        </TabsContent>
       </Tabs>
     </Layout>
   );
