@@ -43,7 +43,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
 export default function Historico() {
-  const { transactions, loading: loadingTransactions } = useTransactions();
+  const { transactions, loading: loadingTransactions } = useTransactions({ fullHistory: true });
   const { shows, loading: loadingShows } = useShowsData();
 
   const [startDate, setStartDate] = useState(() => format(subMonths(new Date(), 12), "yyyy-MM-dd"));
