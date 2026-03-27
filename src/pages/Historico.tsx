@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useShowsData } from "@/hooks/useShows";
-import { format, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval } from "date-fns";
+import { format, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval, subMonths } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,7 @@ export default function Historico() {
   const { transactions, loading: loadingTransactions } = useTransactions();
   const { shows, loading: loadingShows } = useShowsData();
 
-  const [startDate, setStartDate] = useState("2020-01-01");
+  const [startDate, setStartDate] = useState(() => format(subMonths(new Date(), 12), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
   const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
 
