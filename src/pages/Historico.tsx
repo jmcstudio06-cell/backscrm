@@ -64,10 +64,11 @@ export default function Historico() {
     return isWithinInterval(showDate, { start: fromDate, end: toDate });
   });
 
-  const totalReceita = filteredTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-  const totalDespesa = filteredTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+  // Stats cards = ALL career data (unfiltered)
+  const totalReceita = transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+  const totalDespesa = transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
   const totalLucro = totalReceita - totalDespesa;
-  const totalShows = filteredShows.filter(s => s.status === "completed").length;
+  const totalShows = shows.filter(s => s.status === "completed").length;
 
   // Generate monthly history from transactions
   const generateMonthlyHistory = () => {
@@ -205,7 +206,7 @@ export default function Historico() {
 
       {/* Chart - Evolução Mensal com Receita, Despesa e Lucro */}
       <div className="mb-6">
-        <ChartCard title="Evolução Mensal" subtitle="Receita, Despesa e Lucro - últimos 12 meses">
+        <ChartCard title="Evolução Mensal" subtitle={`Receita, Despesa e Lucro - ${format(fromDate, "MMM/yy", { locale: ptBR })} a ${format(toDate, "MMM/yy", { locale: ptBR })}`}>
           {monthlyHistory.length === 0 ? (
             <div className="flex items-center justify-center h-[350px] text-muted-foreground">
               Nenhum dado para exibir no período selecionado
