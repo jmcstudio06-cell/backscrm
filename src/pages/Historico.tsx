@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useShowsData } from "@/hooks/useShows";
-import { format, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval, subMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth, isWithinInterval, eachMonthOfInterval } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -46,10 +46,7 @@ export default function Historico() {
   const { transactions, loading: loadingTransactions } = useTransactions();
   const { shows, loading: loadingShows } = useShowsData();
 
-  const [startDate, setStartDate] = useState(() => {
-    const d = subMonths(new Date(), 11);
-    return format(d, "yyyy-MM-dd");
-  });
+  const [startDate, setStartDate] = useState("2020-01-01");
   const [endDate, setEndDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
   const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
 
@@ -123,7 +120,7 @@ export default function Historico() {
   }
 
   return (
-    <Layout title="Histórico Completo" subtitle="Acompanhe sua evolução ao longo do ano">
+    <Layout title="Histórico Completo" subtitle="Acompanhe toda a evolução da sua carreira">
       {/* Date Range Filter */}
       <div className="flex flex-wrap items-end gap-4 mb-6">
         <div className="space-y-1.5">
