@@ -14,23 +14,31 @@ export interface Transaction {
   created_at: string;
 }
 
-export function useTransactions() {
+interface UseTransactionsOptions {
+  fullHistory?: boolean;
+}
+
+export function useTransactions(options: UseTransactionsOptions = {}) {
+  const { fullHistory = false } = options;
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: transactions = [], isLoading: loading } = useQuery({
-    queryKey: ["transactions", user?.id],
+    queryKey: ["transactions", user?.id, fullHistory ? "all" : "recent"],
     queryFn: async () => {
-      // Only fetch last 6 months instead of all history
-      const sixMonthsAgo = new Date();
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-      const cutoff = sixMonthsAgo.toISOString().split("T")[0];
-
-      const { data, error } = await supabase
+      let query = supabase
         .from("transactions")
         .select("*")
-        .gte("date", cutoff)
         .order("date", { ascending: false });
+
+      if (!fullHistory) {
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const cutoff = sixMonthsAgo.toISOString().split("T")[0];
+        query = query.gte("date", cutoff);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return (data || []) as Transaction[];
