@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export interface Show {
@@ -36,9 +37,14 @@ interface ShowExpense {
 
 export function useShowsData() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
   const [autoCompleteRan, setAutoCompleteRan] = useState(false);
+
+  const invalidateTransactions = () => {
+    queryClient.invalidateQueries({ queryKey: ["transactions"] });
+  };
 
   const formatDateString = (date: Date) => {
     const year = date.getFullYear();
