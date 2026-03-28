@@ -19,7 +19,8 @@ import { useShows } from "@/contexts/shows/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useClients } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
@@ -29,6 +30,7 @@ import { Lightbulb, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { leads, loading: leadsLoading } = useLeads();
   const { transactions, loading: transactionsLoading } = useTransactions({ fullHistory: true });
   const { goals, loading: goalsLoading, addGoal } = useGoals();
@@ -368,7 +370,10 @@ const Dashboard = () => {
       {/* Welcome/Onboarding Modal (first-time users) */}
       <WelcomeModal 
         open={showWelcome} 
-        onClose={() => setShowWelcome(false)}
+        onClose={() => {
+          setShowWelcome(false);
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+        }}
         userName={profile?.name || undefined}
       />
 
