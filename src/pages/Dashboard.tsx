@@ -30,7 +30,7 @@ import { Lightbulb, ChevronRight } from "lucide-react";
 const Dashboard = () => {
   const navigate = useNavigate();
   const { leads, loading: leadsLoading } = useLeads();
-  const { transactions, loading: transactionsLoading } = useTransactions();
+  const { transactions, loading: transactionsLoading } = useTransactions({ fullHistory: true });
   const { goals, loading: goalsLoading, addGoal } = useGoals();
   const { shows, loading: showsLoading } = useShows();
   const { profile, loading: profileLoading } = useProfile();
