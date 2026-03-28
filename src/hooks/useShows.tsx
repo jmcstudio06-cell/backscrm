@@ -237,6 +237,7 @@ export function useShowsData() {
 
         if (error) throw error;
         console.log("Transactions created for show:", show.title);
+        invalidateTransactions();
       }
     } catch (error) {
       console.error("Error creating transactions:", error);
@@ -473,6 +474,7 @@ export function useShowsData() {
 
       if (error) throw error;
       console.log("Transactions deleted for show:", showId);
+      invalidateTransactions();
     } catch (error) {
       console.error("Error deleting show transactions:", error);
     }
