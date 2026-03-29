@@ -34,11 +34,17 @@ export function PlanActivatedCelebration() {
     const currentPlan = profile.plan;
     const lastKnown = localStorage.getItem(STORAGE_KEY);
 
+    // First time ever: just store current plan, never celebrate
+    if (lastKnown === null) {
+      localStorage.setItem(STORAGE_KEY, currentPlan || "");
+      return;
+    }
+
     // Always update stored plan
     localStorage.setItem(STORAGE_KEY, currentPlan || "");
 
-    // If last known was inactive/absent and current is active → celebrate
-    const wasInactive = !lastKnown || INACTIVE_PLANS.includes(lastKnown) || lastKnown === "";
+    // Only celebrate when transitioning FROM inactive TO active
+    const wasInactive = INACTIVE_PLANS.includes(lastKnown) || lastKnown === "";
     const isNowActive = currentPlan && !INACTIVE_PLANS.includes(currentPlan);
 
     if (wasInactive && isNowActive) {
