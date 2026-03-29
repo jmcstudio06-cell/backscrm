@@ -23,11 +23,10 @@ import {
   Calculator,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   PieChart,
@@ -214,58 +213,63 @@ export default function Financeiro() {
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <ChartCard
-              title="Receita vs Despesas"
+              title="Entradas e saídas"
               subtitle="Últimos 6 meses"
               className="lg:col-span-2"
+              action={
+                <button 
+                  className="text-xs text-primary font-medium hover:underline"
+                  onClick={() => {/* future: open detailed analysis */}}
+                >
+                  Analisar →
+                </button>
+              }
             >
               {monthlyData.length === 0 ? (
-                <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                <div className="flex items-center justify-center h-[200px] text-muted-foreground">
                   Nenhum dado para exibir
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyData}>
-                    <defs>
-                      <linearGradient id="colorReceita" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorDespesa" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" stroke="#000" tick={{ fill: "#000", fontWeight: 600 }} fontSize={13} />
-                    <YAxis stroke="#000" tick={{ fill: "#000", fontWeight: 600 }} fontSize={13} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: "hsl(var(--card))", 
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px"
-                      }}
-                      formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, ""]}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="receita"
-                      stroke="hsl(var(--success))"
-                      fillOpacity={1}
-                      fill="url(#colorReceita)"
-                      strokeWidth={2}
-                      name="Receita"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="despesa"
-                      stroke="hsl(var(--destructive))"
-                      fillOpacity={1}
-                      fill="url(#colorDespesa)"
-                      strokeWidth={2}
-                      name="Despesa"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <div className="flex items-center gap-6">
+                  <div className="flex-1">
+                    <ResponsiveContainer width="100%" height={160}>
+                      <BarChart data={monthlyData.slice(-3)} barGap={4} barSize={24}>
+                        <XAxis 
+                          dataKey="month" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontWeight: 500 }} 
+                        />
+                        <YAxis hide />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: "hsl(var(--card))", 
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: "8px",
+                            fontSize: "12px"
+                          }}
+                          formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, ""]}
+                        />
+                        <Bar dataKey="receita" name="Entradas" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="despesa" name="Saídas" fill="hsl(var(--muted))" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex flex-col gap-4 min-w-[140px]">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">Entradas</p>
+                      <p className="text-lg font-semibold text-success">
+                        + R$ {(monthlyData[monthlyData.length - 1]?.receita || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">Saídas</p>
+                      <p className="text-lg font-semibold text-destructive">
+                        - R$ {(monthlyData[monthlyData.length - 1]?.despesa || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
             </ChartCard>
 
