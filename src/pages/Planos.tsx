@@ -262,9 +262,9 @@ export default function Planos() {
         return;
       }
 
-      // Open checkout in new tab
-      window.open(checkoutUrl, "_blank");
-      toast.success("Link de pagamento aberto! Após o pagamento, seu plano será ativado automaticamente.");
+      // Navigate to checkout - using location.href for PWA/mobile compatibility
+      toast.success("Redirecionando para pagamento...");
+      window.location.href = checkoutUrl;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
