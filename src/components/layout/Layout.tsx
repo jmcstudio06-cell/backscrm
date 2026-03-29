@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { MobileBottomNav } from "./MobileBottomNav";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 
 interface LayoutProps {
@@ -19,13 +20,16 @@ export function Layout({ children, title, subtitle }: LayoutProps) {
 
       {/* Content */}
       <div className="transition-all duration-300 pl-0 lg:pl-64">
-        <Header title={title} subtitle={subtitle} onMenuClick={() => setMobileOpen(true)} />
+        <Header title={title} subtitle={subtitle} />
 
-        <main className="p-3 sm:p-4 md:p-6 pb-28 md:pb-24">{children}</main>
+        <main className="p-3 sm:p-4 md:p-6 pb-24 lg:pb-6">{children}</main>
       </div>
 
-       {/* Notification Permission Prompt */}
-       <NotificationPrompt />
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav onMenuClick={() => setMobileOpen(true)} />
+
+      {/* Notification Permission Prompt */}
+      <NotificationPrompt />
     </div>
   );
 }

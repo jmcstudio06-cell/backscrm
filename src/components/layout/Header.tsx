@@ -6,10 +6,9 @@ import { useProfile } from "@/hooks/useProfile";
 interface HeaderProps {
   title: string;
   subtitle?: string;
-  onMenuClick?: () => void;
 }
 
-export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
+export function Header({ title, subtitle }: HeaderProps) {
   const { profile } = useProfile();
   const navigate = useNavigate();
 
