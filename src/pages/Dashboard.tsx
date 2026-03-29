@@ -7,7 +7,7 @@ import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
-import { QuickAccessActions } from "@/components/dashboard/QuickAccessActions";
+
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
@@ -413,8 +413,8 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Quick Access Actions */}
-        <QuickAccessActions />
+
+
 
         {/* Ranking Teaser */}
         <RankingTeaser />
