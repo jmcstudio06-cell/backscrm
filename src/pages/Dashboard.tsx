@@ -413,8 +413,8 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Quick Access Actions */}
-        <QuickAccessActions />
+
+
 
         {/* Ranking Teaser */}
         <RankingTeaser />
