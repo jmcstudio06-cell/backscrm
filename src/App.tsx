@@ -39,6 +39,9 @@ import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
 import ResetPassword from "./pages/ResetPassword";
 import GuiaAtendimento from "./pages/GuiaAtendimento";
+import KitProfissional from "./pages/KitProfissional";
+import MensagensProntas from "./pages/MensagensProntas";
+import ArtesCanva from "./pages/ArtesCanva";
 import Booking from "./pages/Booking";
 import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
@@ -124,6 +127,9 @@ const App = () => (
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/guia-atendimento" element={<ErrorBoundary><GuiaAtendimento /></ErrorBoundary>} />
+                <Route path="/kit-profissional" element={<ErrorBoundary><KitProfissional /></ErrorBoundary>} />
+                <Route path="/kit-profissional/mensagens" element={<ErrorBoundary><MensagensProntas /></ErrorBoundary>} />
+                <Route path="/kit-profissional/artes" element={<ErrorBoundary><ArtesCanva /></ErrorBoundary>} />
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 
