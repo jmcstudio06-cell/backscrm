@@ -18,8 +18,7 @@ const cards = [
     description: "Descubra os erros mais comuns que artistas cometem e como evitá-los",
     icon: AlertTriangle,
     path: "/guia-atendimento",
-    accent: "from-destructive/80 to-destructive",
-    external: false,
+    accent: "from-destructive/80 to-destructive/60",
     featured: false,
   },
   {
