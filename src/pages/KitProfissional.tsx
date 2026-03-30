@@ -1,74 +1,142 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AlertTriangle,
-  Palette,
-  MessageSquareText,
-  Rocket,
   ArrowRight,
   Gift,
   ExternalLink,
+  Shield,
+  User,
+  Phone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+import kitErros from "@/assets/kit-erros.png";
+import kitArtes from "@/assets/kit-artes.png";
+import kitMensagens from "@/assets/kit-mensagens.png";
+import kitBackstage from "@/assets/kit-backstage.png";
+
+const LEAD_STORAGE_KEY = "kit_profissional_lead";
 
 const cards = [
   {
     id: "erros",
     title: "Erros que fazem você perder show",
     description: "Descubra os erros mais comuns que artistas cometem e como evitá-los",
-    icon: AlertTriangle,
+    image: kitErros,
     path: "/guia-atendimento",
-    accent: "from-destructive/80 to-destructive/60",
-    featured: false,
+    external: false,
+    requiresLead: true,
   },
   {
     id: "artes",
     title: "Artes editáveis no Canva",
     description: "Artes profissionais prontas para divulgar seus shows",
-    icon: Palette,
+    image: kitArtes,
     path: "/kit-profissional/artes",
-    accent: "from-primary/70 to-primary/50",
     external: false,
-    featured: false,
+    requiresLead: true,
   },
   {
     id: "mensagens",
-    title: "Mensagens prontas",
+    title: "Mensagens prontas para o contratante",
     description: "Copie e use mensagens profissionais para fechar mais shows",
-    icon: MessageSquareText,
+    image: kitMensagens,
     path: "/kit-profissional/mensagens",
-    accent: "from-success/80 to-success/60",
     external: false,
-    featured: false,
+    requiresLead: true,
   },
   {
     id: "backstage",
     title: "Backstage Pro",
-    description: "Sistema que já está sendo usado por mais de 60 artistas para gerenciar sua carreira",
-    icon: Rocket,
+    description: "O sistema que organiza sua carreira e faz você vender mais",
+    image: kitBackstage,
     path: "https://backstagepro.online/landing",
-    accent: "from-primary to-primary/80",
     external: true,
-    featured: true,
+    requiresLead: false,
   },
 ];
 
 export default function KitProfissional() {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [pendingPath, setPendingPath] = useState<{ path: string; external: boolean } | null>(null);
+  const [isLeadRegistered, setIsLeadRegistered] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleClick = (card: typeof cards[0]) => {
+  useEffect(() => {
+    const stored = localStorage.getItem(LEAD_STORAGE_KEY);
+    if (stored) setIsLeadRegistered(true);
+  }, []);
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+    if (digits.length <= 2) return `(${digits}`;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
+
+  const handleClick = (card: (typeof cards)[0]) => {
     if (card.external) {
       window.location.href = card.path;
-    } else {
-      navigate(card.path);
+      return;
+    }
+
+    if (card.requiresLead && !isLeadRegistered) {
+      setPendingPath({ path: card.path, external: false });
+      setShowLeadForm(true);
+      return;
+    }
+
+    navigate(card.path);
+  };
+
+  const handleSubmitLead = async () => {
+    const trimmedName = name.trim();
+    const digits = phone.replace(/\D/g, "");
+
+    if (!trimmedName || trimmedName.length < 2) {
+      toast.error("Digite seu nome completo");
+      return;
+    }
+    if (digits.length < 10 || digits.length > 11) {
+      toast.error("Digite um WhatsApp válido com DDD");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await supabase.from("guide_leads").insert({ name: trimmedName, phone: digits });
+      localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify({ name: trimmedName, phone: digits }));
+      setIsLeadRegistered(true);
+      setShowLeadForm(false);
+      toast.success("Acesso liberado! 🎉");
+
+      if (pendingPath) {
+        if (pendingPath.external) {
+          window.location.href = pendingPath.path;
+        } else {
+          navigate(pendingPath.path);
+        }
+        setPendingPath(null);
+      }
+    } catch {
+      toast.error("Erro ao salvar. Tente novamente.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       {/* Hero */}
-      <section className="relative overflow-hidden py-16 sm:py-24">
+      <section className="relative overflow-hidden py-12 sm:py-20">
         <div
           className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-15"
           style={{ background: "var(--gradient-primary)" }}
@@ -78,22 +146,21 @@ export default function KitProfissional() {
             <Gift className="w-4 h-4" />
             Conteúdo gratuito
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight mb-4">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight mb-4">
             Kit Profissional
             <br />
             <span className="gradient-text">do Cantor</span>
           </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
             Preparei isso para você começar a se profissionalizar hoje — mesmo sem pagar nada
           </p>
         </div>
       </section>
 
-      {/* Cards Grid */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      {/* Netflix-style cards */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {cards.map((card) => {
-            const Icon = card.icon;
             const isHovered = hoveredCard === card.id;
 
             return (
@@ -103,56 +170,39 @@ export default function KitProfissional() {
                 onMouseEnter={() => setHoveredCard(card.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 className={cn(
-                  "group relative rounded-2xl border text-left overflow-hidden transition-all duration-300",
-                  "bg-card hover:shadow-xl",
-                  card.featured
-                    ? "sm:col-span-2 border-primary/30 shadow-lg shadow-primary/10"
-                    : "border-border hover:border-primary/30",
-                  isHovered && "scale-[1.02]"
+                  "group relative rounded-2xl overflow-hidden text-left transition-all duration-300 bg-card border border-border",
+                  "hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/40",
+                  isHovered && "scale-[1.03]"
                 )}
               >
-                {/* Gradient accent top */}
-                <div className={cn("h-1.5 w-full bg-gradient-to-r", card.accent)} />
-
-                <div className={cn("p-6 sm:p-8", card.featured && "sm:flex sm:items-center sm:gap-8")}>
-                  {/* Icon */}
-                  <div
+                {/* Cover image */}
+                <div className="relative aspect-[16/9] overflow-hidden">
+                  <img
+                    src={card.image}
+                    alt={card.title}
                     className={cn(
-                      "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 transition-transform duration-300",
-                      card.accent,
-                      card.featured && "sm:mb-0 sm:w-20 sm:h-20 sm:rounded-3xl",
+                      "w-full h-full object-cover transition-transform duration-500",
                       isHovered && "scale-110"
                     )}
-                  >
-                    <Icon className={cn("w-7 h-7 text-white", card.featured && "sm:w-10 sm:h-10")} />
-                  </div>
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                </div>
 
-                  <div className="flex-1">
-                    <h3
-                      className={cn(
-                        "font-bold text-foreground mb-2",
-                        card.featured ? "text-xl sm:text-2xl" : "text-lg"
-                      )}
-                    >
-                      {card.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-4">
-                      {card.description}
-                    </p>
-
-                    <div
-                      className={cn(
-                        "inline-flex items-center gap-2 text-sm font-semibold transition-colors",
-                        card.featured ? "text-primary" : "text-primary/80 group-hover:text-primary"
-                      )}
-                    >
-                      {card.featured ? "Começar agora" : "Acessar"}
-                      {card.external ? (
-                        <ExternalLink className="w-4 h-4" />
-                      ) : (
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                      )}
-                    </div>
+                {/* Info */}
+                <div className="p-3 sm:p-4 space-y-2">
+                  <h3 className="font-bold text-foreground text-sm sm:text-base leading-tight line-clamp-2">
+                    {card.title}
+                  </h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed line-clamp-2 hidden sm:block">
+                    {card.description}
+                  </p>
+                  <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary pt-1">
+                    {card.external ? "Começar agora" : "Acessar"}
+                    {card.external ? (
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    ) : (
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                    )}
                   </div>
                 </div>
               </button>
@@ -160,6 +210,67 @@ export default function KitProfissional() {
           })}
         </div>
       </section>
+
+      {/* Lead capture modal */}
+      {showLeadForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md rounded-2xl bg-card border border-border shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
+                <Shield className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <h2 className="text-xl font-bold text-primary-foreground">Acesso Gratuito</h2>
+              <p className="text-primary-foreground/80 text-sm mt-1">
+                Preencha para liberar o conteúdo completo
+              </p>
+            </div>
+
+            {/* Form */}
+            <div className="p-6 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  Nome e sobrenome
+                </label>
+                <Input
+                  placeholder="Ex: João Silva"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={100}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-muted-foreground" />
+                  WhatsApp (com DDD)
+                </label>
+                <Input
+                  placeholder="(11) 98765-4321"
+                  value={phone}
+                  onChange={(e) => setPhone(formatPhone(e.target.value))}
+                  maxLength={15}
+                  inputMode="tel"
+                />
+              </div>
+
+              <Button
+                className="w-full gap-2 text-base py-6"
+                onClick={handleSubmitLead}
+                disabled={submitting}
+              >
+                {submitting ? "Liberando..." : "Liberar Conteúdo"}
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+
+              <p className="text-center text-xs text-muted-foreground">
+                Seus dados estão seguros. Não enviamos spam.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
