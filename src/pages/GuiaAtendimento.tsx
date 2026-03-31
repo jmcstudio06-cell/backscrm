@@ -222,7 +222,7 @@ function Quote({ children }: { children: React.ReactNode }) {
 export default function GuiaAtendimento() {
   const [progress, setProgress] = useState(0);
   const [unlocked, setUnlocked] = useState(() => {
-    return localStorage.getItem("guia_lead_captured") === "true";
+    return localStorage.getItem("guia_lead_captured") === "true" || !!localStorage.getItem("kit_profissional_lead");
   });
   const [leadName, setLeadName] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
