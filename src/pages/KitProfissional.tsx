@@ -203,6 +203,18 @@ export default function KitProfissional() {
                   <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed line-clamp-2 mt-1.5">
                     {card.description}
                   </p>
+                  {card.priceFrom && (
+                    <p className="text-xs sm:text-sm mt-2">
+                      <span className="text-muted-foreground line-through">De: {card.priceFrom}</span>
+                      {" "}
+                      <span className="text-green-500 font-bold">por {card.priceTo}</span>
+                    </p>
+                  )}
+                  {card.badge && (
+                    <span className="inline-block mt-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+                      🎟️ {card.badge}
+                    </span>
+                  )}
                   <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary mt-auto pt-3">
                     {card.external ? "Começar agora" : "Acessar"}
                     {card.external ? (
