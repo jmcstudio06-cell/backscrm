@@ -193,7 +193,7 @@ export default function KitProfissional() {
                   <h3 className="font-bold text-foreground text-sm sm:text-base leading-tight line-clamp-2">
                     {card.title}
                   </h3>
-                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed line-clamp-2 hidden sm:block">
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed line-clamp-2">
                     {card.description}
                   </p>
                   <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary pt-1">
