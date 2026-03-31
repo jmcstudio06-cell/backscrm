@@ -170,33 +170,33 @@ export default function KitProfissional() {
                 onMouseEnter={() => setHoveredCard(card.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 className={cn(
-                  "group relative rounded-2xl overflow-hidden text-left transition-all duration-300 bg-card border border-border",
+                  "group relative rounded-2xl overflow-hidden text-left transition-all duration-300 bg-card border border-border flex flex-col",
                   "hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/40",
                   isHovered && "scale-[1.03]"
                 )}
               >
                 {/* Cover image */}
-                <div className="relative aspect-[16/9] overflow-hidden">
+                <div className="relative aspect-[3/2] overflow-hidden rounded-t-2xl">
                   <img
                     src={card.image}
                     alt={card.title}
                     className={cn(
-                      "w-full h-full object-cover transition-transform duration-500",
+                      "w-full h-full object-cover object-center transition-transform duration-500",
                       isHovered && "scale-110"
                     )}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                 </div>
 
                 {/* Info */}
-                <div className="p-3 sm:p-4 space-y-2">
+                <div className="p-3 sm:p-4 flex flex-col flex-1">
                   <h3 className="font-bold text-foreground text-sm sm:text-base leading-tight line-clamp-2">
                     {card.title}
                   </h3>
-                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed line-clamp-2">
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed line-clamp-2 mt-1.5">
                     {card.description}
                   </p>
-                  <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary pt-1">
+                  <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary mt-auto pt-3">
                     {card.external ? "Começar agora" : "Acessar"}
                     {card.external ? (
                       <ExternalLink className="w-3.5 h-3.5" />
