@@ -510,9 +510,8 @@ export default function ServicosProdutos() {
         </DialogContent>
       </Dialog>
 
-      {/* ===== DETAIL MODAL ===== */}
       <Dialog open={!!detailId} onOpenChange={() => setDetailId(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md overflow-hidden p-0">
           {detailPerf && (() => {
             const IconComp = getIconComponent((detailPerf as any).icon || "music");
             const perfMusicians: string[] = (detailPerf as any).musician_ids || [];
@@ -521,19 +520,28 @@ export default function ServicosProdutos() {
 
             return (
               <>
-                <DialogHeader>
-                  <DialogTitle className="sr-only">Detalhes do Serviço</DialogTitle>
+                <DialogHeader className="sr-only">
+                  <DialogTitle>Detalhes do Serviço</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex flex-col items-center text-center pb-4 border-b border-border">
-                  <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center mb-3 shadow-lg">
-                    <IconComp className="w-7 h-7 text-primary" />
+                {detailPerf.cover_url && (
+                  <div className="aspect-[3/2] overflow-hidden">
+                    <img src={detailPerf.cover_url} alt={detailPerf.name} className="w-full h-full object-cover" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground">{detailPerf.name}</h2>
-                  {detailPerf.description && (
-                    <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">{detailPerf.description}</p>
-                  )}
-                </div>
+                )}
+
+                <div className="p-6">
+                  <div className="flex flex-col items-center text-center pb-4 border-b border-border">
+                    {!detailPerf.cover_url && (
+                      <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center mb-3 shadow-lg">
+                        <IconComp className="w-7 h-7 text-primary" />
+                      </div>
+                    )}
+                    <h2 className="text-xl font-bold text-foreground">{detailPerf.name}</h2>
+                    {detailPerf.description && (
+                      <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">{detailPerf.description}</p>
+                    )}
+                  </div>
 
                 {/* Price breakdown */}
                 <div className="py-4 space-y-3">
