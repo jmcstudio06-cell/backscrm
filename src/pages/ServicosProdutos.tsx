@@ -107,6 +107,24 @@ export default function ServicosProdutos() {
 
   const totalWithMusicians = price + selectedMusiciansTotal;
 
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `service-cover-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
+      setCoverUrl(data.publicUrl);
+    } catch {
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
   const handleOpenNew = () => {
     setEditingId(null);
     setName("");
@@ -114,12 +132,13 @@ export default function ServicosProdutos() {
     setPrice(0);
     setSelectedIcon("music");
     setSelectedMusicians([]);
+    setCoverUrl(null);
     setModalOpen(true);
   };
 
   const handleSave = async () => {
     if (!name.trim()) return;
-    const payload = { name, description, price, icon: selectedIcon, musician_ids: selectedMusicians } as any;
+    const payload = { name, description, price, icon: selectedIcon, musician_ids: selectedMusicians, cover_url: coverUrl } as any;
     if (editingId) {
       await updatePerformanceType(editingId, payload);
     } else {
@@ -135,6 +154,7 @@ export default function ServicosProdutos() {
     setPrice(perf.price);
     setSelectedIcon((perf as any).icon || "music");
     setSelectedMusicians((perf as any).musician_ids || []);
+    setCoverUrl(perf.cover_url || null);
     setModalOpen(true);
   };
 
