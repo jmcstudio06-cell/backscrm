@@ -111,14 +111,24 @@ export default function ServicosProdutos() {
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validation = validateImageSize(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
+
     setUploadingCover(true);
     try {
-      const ext = file.name.split(".").pop();
+      // Comprimir: max 1200px, 70% qualidade → arquivo leve
+      const compressed = await compressImage(file, 1200, 0.7);
+      const ext = compressed.name.split(".").pop();
       const fileName = `service-cover-${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, compressed, { upsert: true });
       if (uploadError) throw uploadError;
       const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
       setCoverUrl(data.publicUrl);
+      toast.success("Capa enviada!");
     } catch {
       toast.error("Erro ao enviar imagem");
     } finally {
