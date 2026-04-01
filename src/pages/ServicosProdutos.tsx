@@ -237,13 +237,20 @@ export default function ServicosProdutos() {
             return (
               <div
                 key={perf.id}
-                className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col"
                 onClick={() => setDetailId(perf.id)}
               >
-                {/* Glow */}
-                <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                {/* Cover Image */}
+                {perf.cover_url ? (
+                  <div className="relative aspect-[3/2] overflow-hidden">
+                    <img src={perf.cover_url} alt={perf.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                  </div>
+                ) : (
+                  <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                )}
 
-                <div className="relative p-5">
+                <div className="relative p-5 flex flex-col flex-1">
                   {/* Header */}
                   <div className="flex items-start gap-3.5 mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center flex-shrink-0 shadow-sm">
