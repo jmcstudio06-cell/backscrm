@@ -87,6 +87,8 @@ export default function ServicosProdutos() {
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [musicianPickerOpen, setMusicianPickerOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const filtered = performanceTypes.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase())
