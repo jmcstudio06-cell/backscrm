@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { useRequireAuth } from "@/hooks/useAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,8 +33,37 @@ function toTitleCase(str: string) {
   return str.toLowerCase().split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
+const BADGE_CONFIG: Record<string, { label: string; icon: typeof Crown; gradient: string; border: string; textColor: string; iconBg: string; ring: string }> = {
+  gold: {
+    label: "Ouro",
+    icon: Crown,
+    gradient: "from-yellow-50 to-amber-50 dark:from-yellow-500/10 dark:to-amber-500/10",
+    border: "border-yellow-300/40 dark:border-yellow-500/20",
+    textColor: "text-yellow-600 dark:text-yellow-400",
+    iconBg: "bg-gradient-to-br from-yellow-400 to-amber-500",
+    ring: "ring-yellow-400/20",
+  },
+  silver: {
+    label: "Prata",
+    icon: Medal,
+    gradient: "from-slate-50 to-gray-100 dark:from-slate-500/10 dark:to-gray-500/10",
+    border: "border-slate-300/40 dark:border-slate-500/20",
+    textColor: "text-slate-500 dark:text-slate-400",
+    iconBg: "bg-gradient-to-br from-slate-300 to-slate-400",
+    ring: "ring-slate-300/20",
+  },
+  bronze: {
+    label: "Bronze",
+    icon: Award,
+    gradient: "from-orange-50 to-amber-50 dark:from-orange-500/10 dark:to-amber-600/10",
+    border: "border-orange-300/40 dark:border-orange-500/20",
+    textColor: "text-amber-700 dark:text-amber-500",
+    iconBg: "bg-gradient-to-br from-amber-600 to-amber-700",
+    ring: "ring-amber-500/20",
+  },
+};
 
-  export default function RankingPage() {
+export default function RankingPage() {
   const { user } = useAuth();
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
   const [myShowCount, setMyShowCount] = useState<number | null>(null);
@@ -44,10 +72,11 @@ function toTitleCase(str: string) {
   const [hallOfFame, setHallOfFame] = useState<{ user_name: string; count: number }[]>([]);
   const [selosOpen, setSelosOpen] = useState(false);
 
-  const monthName = format(new Date(), "MMMM yyyy", { locale: ptBR });
-
   useEffect(() => {
     const fetchAll = async () => {
+      // Archive previous month's ranking (idempotent)
+      await supabase.rpc("archive_monthly_ranking");
+
       // Ranking
       const { data } = await supabase.rpc("get_monthly_show_ranking");
       if (data) setRanking(data as RankingEntry[]);
@@ -75,9 +104,13 @@ function toTitleCase(str: string) {
       if (allBadges) {
         if (user) setMyBadges(allBadges.filter((b: Badge) => b.user_id === user.id));
 
-        const countMap: Record<string, number> = {};
+        // Hall of Fame: count badges per user
+        const countMap: Record<string, { gold: number; silver: number; bronze: number; total: number }> = {};
         allBadges.forEach((b: Badge) => {
-          countMap[b.user_id] = (countMap[b.user_id] || 0) + 1;
+          if (!countMap[b.user_id]) countMap[b.user_id] = { gold: 0, silver: 0, bronze: 0, total: 0 };
+          const bt = b.badge_type as "gold" | "silver" | "bronze";
+          if (countMap[b.user_id][bt] !== undefined) countMap[b.user_id][bt]++;
+          countMap[b.user_id].total++;
         });
 
         const userIds = Object.keys(countMap);
@@ -91,7 +124,7 @@ function toTitleCase(str: string) {
             userIds
               .map((uid) => {
                 const p = profiles?.find((pr) => pr.user_id === uid);
-                return { user_name: p?.artist_name || p?.name || "Artista", count: countMap[uid] };
+                return { user_name: p?.artist_name || p?.name || "Artista", count: countMap[uid].total };
               })
               .sort((a, b) => b.count - a.count)
           );
@@ -158,7 +191,7 @@ function toTitleCase(str: string) {
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-bold text-foreground">Sala de Troféus</p>
-                    <p className="text-xs text-muted-foreground">Selos de conquista e Hall da Fama</p>
+                    <p className="text-xs text-muted-foreground">Suas conquistas mensais</p>
                   </div>
                 </div>
                 <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${selosOpen ? "rotate-180" : ""}`} />
@@ -169,29 +202,35 @@ function toTitleCase(str: string) {
               <div>
                 <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2">
                   <Trophy className="w-4 h-4 text-primary" />
-                  Meus Selos
+                  Meus Troféus
                 </h3>
                 {myBadges.length === 0 ? (
                   <div className="rounded-xl bg-card border border-border/50 p-6 text-center">
                     <Trophy className="w-6 h-6 text-muted-foreground/30 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-foreground">Nenhum selo ainda</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Fique em 1º lugar no ranking mensal para ganhar!</p>
+                    <p className="text-sm font-medium text-foreground">Nenhum troféu ainda</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Fique no TOP 3 do ranking mensal para ganhar!</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {myBadges.map((badge) => (
-                      <div key={badge.id} className="rounded-xl bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-500/10 dark:to-amber-500/10 border border-yellow-300/40 dark:border-yellow-500/20 p-3 text-center">
-                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow mx-auto mb-2 ring-2 ring-yellow-400/20">
-                          <Crown className="w-4 h-4 text-white" />
+                    {myBadges.map((badge) => {
+                      const config = BADGE_CONFIG[badge.badge_type] || BADGE_CONFIG.gold;
+                      const BadgeIcon = config.icon;
+                      return (
+                        <div key={badge.id} className={`rounded-xl bg-gradient-to-br ${config.gradient} border ${config.border} p-3 text-center`}>
+                          <div className={`w-9 h-9 rounded-lg ${config.iconBg} flex items-center justify-center shadow mx-auto mb-2 ring-2 ${config.ring}`}>
+                            <BadgeIcon className="w-4 h-4 text-white" />
+                          </div>
+                          <p className={`text-[10px] font-bold uppercase tracking-wider ${config.textColor}`}>
+                            Troféu {config.label}
+                          </p>
+                          <p className="text-xs font-bold text-foreground mt-0.5 flex items-center justify-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {monthNames[badge.month]} {badge.year}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{badge.show_count} shows</p>
                         </div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-600 dark:text-yellow-400">Top Vendedor</p>
-                        <p className="text-xs font-bold text-foreground mt-0.5 flex items-center justify-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {monthNames[badge.month]} {badge.year}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground">{badge.show_count} shows</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -239,10 +278,14 @@ function PodiumView({ ranking, currentUserId }: { ranking: RankingEntry[]; curre
   ];
   const positions = [2, 1, 3];
 
+  // Use Brazil timezone-aware month display
+  const now = new Date();
+  const brasilMonth = format(now, "MMMM yyyy", { locale: ptBR });
+
   return (
     <div className="rounded-2xl bg-card border border-border/50 shadow-card p-5 sm:p-6">
       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground text-center mb-6 capitalize">
-        {format(new Date(), "MMMM yyyy", { locale: ptBR })}
+        {brasilMonth}
       </p>
       <div className="flex items-end justify-center gap-3 sm:gap-5">
         {ordered.map((entry, i) => {

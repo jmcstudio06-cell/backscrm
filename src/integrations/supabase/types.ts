@@ -2284,6 +2284,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_monthly_ranking: { Args: never; Returns: number }
       auto_complete_past_shows: { Args: never; Returns: number }
       cleanup_old_landing_visits: { Args: never; Returns: number }
       cleanup_old_notifications: { Args: never; Returns: number }
