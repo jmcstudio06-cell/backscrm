@@ -21,9 +21,11 @@ import {
   Users, UserPlus, Briefcase, Award, Crown,
   Disc3, ListMusic, AudioLines, Waves, Zap,
   Church, Building2, Tent, TreePine, Utensils,
-  DollarSign, TrendingUp, Eye,
+  DollarSign, TrendingUp, Eye, ImagePlus, X,
   type LucideIcon,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useBudgets, PerformanceType } from "@/hooks/useBudgets";
 import { useMusicians } from "@/hooks/useMusicians";
 
@@ -85,6 +87,8 @@ export default function ServicosProdutos() {
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [musicianPickerOpen, setMusicianPickerOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const filtered = performanceTypes.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -103,6 +107,24 @@ export default function ServicosProdutos() {
 
   const totalWithMusicians = price + selectedMusiciansTotal;
 
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `service-cover-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
+      setCoverUrl(data.publicUrl);
+    } catch {
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
   const handleOpenNew = () => {
     setEditingId(null);
     setName("");
@@ -110,12 +132,13 @@ export default function ServicosProdutos() {
     setPrice(0);
     setSelectedIcon("music");
     setSelectedMusicians([]);
+    setCoverUrl(null);
     setModalOpen(true);
   };
 
   const handleSave = async () => {
     if (!name.trim()) return;
-    const payload = { name, description, price, icon: selectedIcon, musician_ids: selectedMusicians } as any;
+    const payload = { name, description, price, icon: selectedIcon, musician_ids: selectedMusicians, cover_url: coverUrl } as any;
     if (editingId) {
       await updatePerformanceType(editingId, payload);
     } else {
@@ -131,6 +154,7 @@ export default function ServicosProdutos() {
     setPrice(perf.price);
     setSelectedIcon((perf as any).icon || "music");
     setSelectedMusicians((perf as any).musician_ids || []);
+    setCoverUrl(perf.cover_url || null);
     setModalOpen(true);
   };
 
@@ -213,13 +237,20 @@ export default function ServicosProdutos() {
             return (
               <div
                 key={perf.id}
-                className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col"
                 onClick={() => setDetailId(perf.id)}
               >
-                {/* Glow */}
-                <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                {/* Cover Image */}
+                {perf.cover_url ? (
+                  <div className="relative aspect-[3/2] overflow-hidden">
+                    <img src={perf.cover_url} alt={perf.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                  </div>
+                ) : (
+                  <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                )}
 
-                <div className="relative p-5">
+                <div className="relative p-5 flex flex-col flex-1">
                   {/* Header */}
                   <div className="flex items-start gap-3.5 mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center flex-shrink-0 shadow-sm">
@@ -307,6 +338,29 @@ export default function ServicosProdutos() {
           </DialogHeader>
 
           <div className="space-y-5 pt-2">
+            {/* Cover Photo */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Foto de Capa (opcional)</Label>
+              {coverUrl ? (
+                <div className="relative aspect-[3/2] rounded-xl overflow-hidden border border-border">
+                  <img src={coverUrl} alt="Capa" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setCoverUrl(null)}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors bg-muted/20">
+                  <ImagePlus className="w-8 h-8 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">{uploadingCover ? "Enviando..." : "Clique para adicionar uma capa"}</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploadingCover} />
+                </label>
+              )}
+            </div>
+
             {/* Icon + Name */}
             <div className="flex items-end gap-3">
               <div className="space-y-1.5">
@@ -456,9 +510,8 @@ export default function ServicosProdutos() {
         </DialogContent>
       </Dialog>
 
-      {/* ===== DETAIL MODAL ===== */}
       <Dialog open={!!detailId} onOpenChange={() => setDetailId(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md overflow-hidden p-0">
           {detailPerf && (() => {
             const IconComp = getIconComponent((detailPerf as any).icon || "music");
             const perfMusicians: string[] = (detailPerf as any).musician_ids || [];
@@ -467,19 +520,28 @@ export default function ServicosProdutos() {
 
             return (
               <>
-                <DialogHeader>
-                  <DialogTitle className="sr-only">Detalhes do Serviço</DialogTitle>
+                <DialogHeader className="sr-only">
+                  <DialogTitle>Detalhes do Serviço</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex flex-col items-center text-center pb-4 border-b border-border">
-                  <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center mb-3 shadow-lg">
-                    <IconComp className="w-7 h-7 text-primary" />
+                {detailPerf.cover_url && (
+                  <div className="aspect-[3/2] overflow-hidden">
+                    <img src={detailPerf.cover_url} alt={detailPerf.name} className="w-full h-full object-cover" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground">{detailPerf.name}</h2>
-                  {detailPerf.description && (
-                    <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">{detailPerf.description}</p>
-                  )}
-                </div>
+                )}
+
+                <div className="p-6">
+                  <div className="flex flex-col items-center text-center pb-4 border-b border-border">
+                    {!detailPerf.cover_url && (
+                      <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center mb-3 shadow-lg">
+                        <IconComp className="w-7 h-7 text-primary" />
+                      </div>
+                    )}
+                    <h2 className="text-xl font-bold text-foreground">{detailPerf.name}</h2>
+                    {detailPerf.description && (
+                      <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">{detailPerf.description}</p>
+                    )}
+                  </div>
 
                 {/* Price breakdown */}
                 <div className="py-4 space-y-3">
@@ -526,6 +588,7 @@ export default function ServicosProdutos() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
+                </div>
                 </div>
               </>
             );
