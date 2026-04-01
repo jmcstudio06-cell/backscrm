@@ -338,6 +338,29 @@ export default function ServicosProdutos() {
           </DialogHeader>
 
           <div className="space-y-5 pt-2">
+            {/* Cover Photo */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Foto de Capa (opcional)</Label>
+              {coverUrl ? (
+                <div className="relative aspect-[3/2] rounded-xl overflow-hidden border border-border">
+                  <img src={coverUrl} alt="Capa" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setCoverUrl(null)}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors bg-muted/20">
+                  <ImagePlus className="w-8 h-8 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">{uploadingCover ? "Enviando..." : "Clique para adicionar uma capa"}</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploadingCover} />
+                </label>
+              )}
+            </div>
+
             {/* Icon + Name */}
             <div className="flex items-end gap-3">
               <div className="space-y-1.5">
