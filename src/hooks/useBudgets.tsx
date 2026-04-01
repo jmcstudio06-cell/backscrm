@@ -45,6 +45,7 @@ export interface PerformanceType {
   name: string;
   description: string | null;
   price: number;
+  cover_url: string | null;
   created_at: string;
 }
 

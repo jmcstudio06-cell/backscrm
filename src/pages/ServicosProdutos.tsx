@@ -21,9 +21,11 @@ import {
   Users, UserPlus, Briefcase, Award, Crown,
   Disc3, ListMusic, AudioLines, Waves, Zap,
   Church, Building2, Tent, TreePine, Utensils,
-  DollarSign, TrendingUp, Eye,
+  DollarSign, TrendingUp, Eye, ImagePlus, X,
   type LucideIcon,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useBudgets, PerformanceType } from "@/hooks/useBudgets";
 import { useMusicians } from "@/hooks/useMusicians";
 
