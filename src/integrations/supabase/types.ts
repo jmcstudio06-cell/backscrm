@@ -1302,6 +1302,7 @@ export type Database = {
       }
       performance_types: {
         Row: {
+          cover_url: string | null
           created_at: string
           description: string | null
           icon: string | null
@@ -1314,6 +1315,7 @@ export type Database = {
           visible_online: boolean
         }
         Insert: {
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -1326,6 +1328,7 @@ export type Database = {
           visible_online?: boolean
         }
         Update: {
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           icon?: string | null
