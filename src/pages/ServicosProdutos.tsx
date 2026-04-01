@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useBudgets, PerformanceType } from "@/hooks/useBudgets";
 import { useMusicians } from "@/hooks/useMusicians";
+import { validateImageSize, compressImage } from "@/lib/imageUtils";
 
 const ICON_OPTIONS: { name: string; icon: LucideIcon; label: string }[] = [
   { name: "music", icon: Music, label: "Música" },
