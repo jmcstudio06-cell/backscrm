@@ -484,9 +484,8 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
             <div class="page">
               <!-- HEADER -->
               <div class="header">
-                <div class="header-badge">★ Rider Técnico Profissional</div>
-                <h1>${artistName || name || "RIDER TÉCNICO"}</h1>
-                ${eventName ? `<div class="subtitle">${eventName}</div>` : ''}
+                <h1>RIDER TÉCNICO</h1>
+                ${(artistName || eventName) ? `<div class="subtitle">${artistName || ''}${artistName && eventName ? ' — ' : ''}${eventName || ''}</div>` : ''}
                 <div class="generated">Documento gerado em ${generatedAt}</div>
               </div>
 
