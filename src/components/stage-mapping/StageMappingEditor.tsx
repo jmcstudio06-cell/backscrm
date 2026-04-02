@@ -341,33 +341,19 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
 
               /* === HEADER === */
               .header {
-                background: linear-gradient(135deg, var(--dark) 0%, var(--dark-3) 100%);
-                padding: 40px 36px; border-radius: 16px; margin-bottom: 32px;
-                position: relative; overflow: hidden;
-              }
-              .header::before {
-                content: ''; position: absolute; top: -50%; right: -20%;
-                width: 400px; height: 400px; border-radius: 50%;
-                background: radial-gradient(circle, rgba(212,168,83,0.15) 0%, transparent 70%);
-              }
-              .header-badge {
-                display: inline-flex; align-items: center; gap: 6px;
-                background: rgba(212,168,83,0.15); border: 1px solid rgba(212,168,83,0.3);
-                color: var(--gold); padding: 6px 14px; border-radius: 100px;
-                font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
-                margin-bottom: 20px;
+                text-align: center; padding: 10px 0 20px; margin-bottom: 32px;
               }
               .header h1 {
-                color: var(--white); font-size: 36px; font-weight: 800;
-                letter-spacing: -0.5px; margin-bottom: 6px; position: relative;
+                color: var(--dark); font-size: 32px; font-weight: 800;
+                letter-spacing: 1px; border-bottom: 3px solid var(--dark);
+                padding-bottom: 12px; margin-bottom: 8px;
               }
               .header .subtitle {
-                color: var(--gold); font-size: 16px; font-weight: 500;
-                position: relative;
+                color: var(--gray-2); font-size: 14px; font-weight: 500;
+                margin-top: 4px;
               }
               .header .generated {
-                color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 16px;
-                position: relative;
+                color: var(--gray-3); font-size: 11px; margin-top: 8px;
               }
 
               /* === INFO GRID === */
