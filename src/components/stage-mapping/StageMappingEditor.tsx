@@ -277,117 +277,345 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         document.body.removeChild(tempContainer);
       }
 
+      const dateFormatted = eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-";
+      const now = new Date();
+      const generatedAt = `${now.toLocaleDateString("pt-BR")} às ${now.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}`;
+      const totalChannels = inputList.length;
+      const totalDI = inputList.filter(c => c.di).length;
+      const activeMaterials = Object.entries(materialsChecklist).filter(([_, v]) => v);
+
       const printContent = `
         <html>
           <head>
             <title>Rider Técnico - ${artistName || name}</title>
             <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
             <style>
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+              
               * { margin: 0; padding: 0; box-sizing: border-box; }
               
+              :root {
+                --gold: #D4A853;
+                --gold-light: #F0DBA8;
+                --dark: #111111;
+                --dark-2: #1a1a1a;
+                --dark-3: #222222;
+                --gray-1: #333333;
+                --gray-2: #666666;
+                --gray-3: #999999;
+                --gray-4: #cccccc;
+                --gray-5: #f0f0f0;
+                --white: #ffffff;
+              }
+              
               @media print {
-                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                 .toolbar { display: none !important; }
-                .stage-drawing { page-break-inside: avoid !important; }
-                .info-grid { page-break-inside: avoid !important; }
-                table { page-break-inside: avoid !important; }
-                .materials { page-break-inside: avoid !important; }
-                h2 { page-break-after: avoid !important; }
-                img { page-break-inside: avoid !important; }
+                .page-break { page-break-before: always; }
+                section { page-break-inside: avoid; }
+              }
+              
+              body {
+                font-family: 'Inter', Arial, sans-serif;
+                background: var(--white);
+                color: var(--dark);
+                padding: 0;
+                margin: 0;
               }
 
-              body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: white; }
-              .toolbar { display: flex; gap: 10px; justify-content: center; margin: 0 0 16px; position: sticky; top: 0; background: white; padding: 10px 0; border-bottom: 1px solid #eee; z-index: 100; }
-              .btn { background: #111; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; }
-              .btn.secondary { background: #fff; color: #111; border: 1px solid #ddd; }
+              .toolbar {
+                display: flex; gap: 12px; justify-content: center; align-items: center;
+                padding: 16px; background: var(--dark); position: sticky; top: 0; z-index: 100;
+              }
+              .btn {
+                background: var(--gold); color: var(--dark); border: none;
+                padding: 12px 24px; border-radius: 8px; cursor: pointer;
+                font-weight: 700; font-size: 14px; letter-spacing: 0.5px;
+                transition: all 0.2s;
+              }
+              .btn:hover { background: var(--gold-light); }
+              .btn.secondary { background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.3); }
+              .btn.secondary:hover { border-color: var(--white); }
 
-              h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; text-align: center; font-size: 28px; margin-bottom: 20px; page-break-after: avoid; }
-              h2 { color: #333; margin-top: 30px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px; page-break-after: avoid; }
-              .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; page-break-inside: avoid; }
-              .info-item { padding: 12px; background: #f8f8f8; border-radius: 6px; border-left: 4px solid #333; }
-              .info-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
-              .info-value { font-size: 14px; margin-top: 4px; color: #111; }
-              .stage-drawing { margin: 25px 0; text-align: center; page-break-inside: avoid; }
-              .stage-drawing img { width: 100%; max-width: 900px; height: auto; border: 2px solid #333; display: block; margin: 0 auto; }
-              table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; page-break-inside: avoid; }
-              th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-              th { background: #333 !important; color: white !important; font-weight: bold; text-transform: uppercase; font-size: 11px; }
-              tr:nth-child(even) { background: #f9f9f9 !important; }
-              .materials { background: #f0f0f0 !important; padding: 15px 20px; border-radius: 8px; margin: 20px 0; page-break-inside: avoid; }
-              .materials-list { display: flex; flex-wrap: wrap; gap: 10px; }
-              .material-item { background: #333 !important; color: white !important; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
-              .observations { background: #fffbeb !important; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; page-break-inside: avoid; }
-              .footer { margin-top: 40px; text-align: center; color: #999; font-size: 11px; border-top: 1px solid #eee; padding-top: 15px; }
+              .page { max-width: 900px; margin: 0 auto; padding: 40px 32px; }
+
+              /* === HEADER === */
+              .header {
+                background: linear-gradient(135deg, var(--dark) 0%, var(--dark-3) 100%);
+                padding: 40px 36px; border-radius: 16px; margin-bottom: 32px;
+                position: relative; overflow: hidden;
+              }
+              .header::before {
+                content: ''; position: absolute; top: -50%; right: -20%;
+                width: 400px; height: 400px; border-radius: 50%;
+                background: radial-gradient(circle, rgba(212,168,83,0.15) 0%, transparent 70%);
+              }
+              .header-badge {
+                display: inline-flex; align-items: center; gap: 6px;
+                background: rgba(212,168,83,0.15); border: 1px solid rgba(212,168,83,0.3);
+                color: var(--gold); padding: 6px 14px; border-radius: 100px;
+                font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+                margin-bottom: 20px;
+              }
+              .header h1 {
+                color: var(--white); font-size: 36px; font-weight: 800;
+                letter-spacing: -0.5px; margin-bottom: 6px; position: relative;
+              }
+              .header .subtitle {
+                color: var(--gold); font-size: 16px; font-weight: 500;
+                position: relative;
+              }
+              .header .generated {
+                color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 16px;
+                position: relative;
+              }
+
+              /* === INFO GRID === */
+              .info-section { margin-bottom: 32px; }
+              .info-grid {
+                display: grid; grid-template-columns: 1fr 1fr 1fr;
+                gap: 0; border: 1px solid var(--gray-4); border-radius: 12px; overflow: hidden;
+              }
+              .info-cell {
+                padding: 16px 20px; border-right: 1px solid var(--gray-4);
+                border-bottom: 1px solid var(--gray-4); background: var(--white);
+              }
+              .info-cell:nth-child(3), .info-cell:nth-child(6) { border-right: none; }
+              .info-cell:nth-child(4), .info-cell:nth-child(5), .info-cell:nth-child(6) { border-bottom: none; }
+              .info-cell .label {
+                font-size: 10px; font-weight: 700; text-transform: uppercase;
+                letter-spacing: 1.2px; color: var(--gray-3); margin-bottom: 6px;
+              }
+              .info-cell .value { font-size: 15px; font-weight: 600; color: var(--dark); }
+
+              /* === SECTION HEADER === */
+              .section-header {
+                display: flex; align-items: center; gap: 12px;
+                margin: 36px 0 20px; padding-bottom: 12px;
+                border-bottom: 2px solid var(--dark);
+              }
+              .section-number {
+                background: var(--dark); color: var(--white);
+                width: 32px; height: 32px; border-radius: 8px;
+                display: flex; align-items: center; justify-content: center;
+                font-weight: 800; font-size: 14px; flex-shrink: 0;
+              }
+              .section-header h2 {
+                font-size: 18px; font-weight: 800; letter-spacing: 1px;
+                text-transform: uppercase; color: var(--dark);
+              }
+
+              /* === STAGE MAP === */
+              .stage-container {
+                border: 2px solid var(--dark); border-radius: 12px; overflow: hidden;
+                margin-bottom: 8px; background: var(--white);
+              }
+              .stage-container img { width: 100%; display: block; }
+
+              /* === STATS BAR === */
+              .stats-bar {
+                display: flex; gap: 12px; margin: 20px 0 0;
+              }
+              .stat-chip {
+                display: flex; align-items: center; gap: 6px;
+                background: var(--gray-5); padding: 8px 16px; border-radius: 8px;
+                font-size: 13px; font-weight: 600; color: var(--gray-1);
+              }
+              .stat-chip .num {
+                background: var(--dark); color: var(--white);
+                padding: 2px 8px; border-radius: 4px; font-weight: 800;
+              }
+
+              /* === TABLE === */
+              .input-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-4); }
+              .input-table thead th {
+                background: var(--dark) !important; color: var(--white) !important;
+                padding: 14px 16px; text-align: left;
+                font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+              }
+              .input-table tbody td {
+                padding: 12px 16px; border-bottom: 1px solid var(--gray-5);
+                font-size: 13px; color: var(--gray-1);
+              }
+              .input-table tbody tr:last-child td { border-bottom: none; }
+              .input-table tbody tr:nth-child(even) { background: #fafafa !important; }
+              .input-table .channel-num {
+                font-weight: 800; font-size: 15px; color: var(--dark);
+                text-align: center; width: 50px;
+              }
+              .input-table .di-yes {
+                background: var(--dark) !important; color: var(--white) !important;
+                padding: 3px 10px; border-radius: 4px; font-weight: 700; font-size: 11px;
+                display: inline-block;
+              }
+              .input-table .di-no { color: var(--gray-3); }
+
+              /* === MATERIALS === */
+              .materials-grid {
+                display: flex; flex-wrap: wrap; gap: 10px;
+              }
+              .material-tag {
+                background: var(--dark) !important; color: var(--white) !important;
+                padding: 10px 18px; border-radius: 8px;
+                font-size: 13px; font-weight: 600;
+                display: flex; align-items: center; gap: 8px;
+              }
+              .material-tag .check { color: var(--gold); font-weight: 800; }
+              .no-materials {
+                background: var(--gray-5); padding: 20px; border-radius: 12px;
+                text-align: center; color: var(--gray-3); font-size: 14px;
+              }
+
+              /* === OBSERVATIONS === */
+              .obs-box {
+                background: linear-gradient(135deg, #FFFBF0, #FFF8E7) !important;
+                border: 1px solid var(--gold-light);
+                border-left: 4px solid var(--gold) !important;
+                padding: 20px 24px; border-radius: 12px; margin-top: 8px;
+                font-size: 14px; line-height: 1.7; color: var(--gray-1);
+              }
+
+              /* === FOOTER === */
+              .footer-bar {
+                margin-top: 48px; padding: 24px 0;
+                border-top: 2px solid var(--dark);
+                display: flex; justify-content: space-between; align-items: center;
+              }
+              .footer-logo {
+                font-weight: 800; font-size: 14px; color: var(--dark);
+                letter-spacing: 0.5px;
+              }
+              .footer-logo span { color: var(--gold); }
+              .footer-info { font-size: 11px; color: var(--gray-3); }
             </style>
           </head>
           <body>
             <div class="toolbar">
-              <button class="btn" onclick="window.print()">Baixar PDF / Imprimir</button>
+              <button class="btn" onclick="window.print()">⬇ Baixar PDF / Imprimir</button>
               <button class="btn secondary" onclick="window.close()">Fechar</button>
             </div>
 
-            <h1>RIDER TÉCNICO</h1>
-            
-            <div class="info-grid">
-              <div class="info-item"><div class="info-label">Artista/Banda</div><div class="info-value">${artistName || "-"}</div></div>
-              <div class="info-item"><div class="info-label">Evento</div><div class="info-value">${eventName || "-"}</div></div>
-              <div class="info-item"><div class="info-label">Data</div><div class="info-value">${eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-"}</div></div>
-              <div class="info-item"><div class="info-label">Local</div><div class="info-value">${eventLocation || "-"}</div></div>
-              <div class="info-item"><div class="info-label">Contato Técnico</div><div class="info-value">${technicalContact || "-"}</div></div>
-              <div class="info-item"><div class="info-label">Telefone</div><div class="info-value">${technicalPhone || "-"}</div></div>
-            </div>
+            <div class="page">
+              <!-- HEADER -->
+              <div class="header">
+                <div class="header-badge">★ Rider Técnico Profissional</div>
+                <h1>${artistName || name || "RIDER TÉCNICO"}</h1>
+                ${eventName ? `<div class="subtitle">${eventName}</div>` : ''}
+                <div class="generated">Documento gerado em ${generatedAt}</div>
+              </div>
 
-            <h2>MAPEAMENTO DE PALCO</h2>
-            <div class="stage-drawing">
-              ${stageImageSrc ? `<img src="${stageImageSrc}" alt="Mapeamento de Palco" />` : "<p>Erro ao gerar imagem do palco</p>"}
-            </div>
-
-            <h2>INPUT LIST</h2>
-            ${inputList.length > 0 ? `
-              <table>
-                <thead>
-                  <tr>
-                    <th style="width: 60px;">Canal</th>
-                    <th>Instrumento / Função</th>
-                    <th>Microfone</th>
-                    <th style="width: 60px;">DI</th>
-                    <th>Observações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${inputList.map(channel => `
-                    <tr>
-                      <td style="text-align: center; font-weight: bold;">${channel.channel}</td>
-                      <td>${channel.instrument}</td>
-                      <td>${channel.micType || "-"}</td>
-                      <td style="text-align: center;">${channel.di ? "✓" : "-"}</td>
-                      <td>${channel.observations || "-"}</td>
-                    </tr>
-                  `).join("")}
-                </tbody>
-              </table>
-            ` : "<p>Nenhum canal configurado</p>"}
-
-            <h2>MATERIAL SOLICITADO</h2>
-            <div class="materials">
-              ${Object.entries(materialsChecklist).filter(([_, value]) => value).length > 0 ? `
-                <div class="materials-list">
-                  ${Object.entries(materialsChecklist)
-                    .filter(([_, value]) => value)
-                    .map(([key]) => `<span class="material-item">${materialLabels[key] || key}</span>`)
-                    .join("")}
+              <!-- EVENT INFO -->
+              <div class="info-section">
+                <div class="info-grid">
+                  <div class="info-cell">
+                    <div class="label">Artista / Banda</div>
+                    <div class="value">${artistName || "-"}</div>
+                  </div>
+                  <div class="info-cell">
+                    <div class="label">Evento</div>
+                    <div class="value">${eventName || "-"}</div>
+                  </div>
+                  <div class="info-cell">
+                    <div class="label">Data</div>
+                    <div class="value">${dateFormatted}</div>
+                  </div>
+                  <div class="info-cell">
+                    <div class="label">Local</div>
+                    <div class="value">${eventLocation || "-"}</div>
+                  </div>
+                  <div class="info-cell">
+                    <div class="label">Contato Técnico</div>
+                    <div class="value">${technicalContact || "-"}</div>
+                  </div>
+                  <div class="info-cell">
+                    <div class="label">Telefone</div>
+                    <div class="value">${technicalPhone || "-"}</div>
+                  </div>
                 </div>
-              ` : "Nenhum material selecionado"}
-            </div>
+              </div>
 
-            ${observations ? `
-              <h2>OBSERVAÇÕES</h2>
-              <div class="observations">${observations}</div>
-            ` : ""}
+              <!-- STAGE MAP -->
+              <section>
+                <div class="section-header">
+                  <div class="section-number">1</div>
+                  <h2>Mapeamento de Palco</h2>
+                </div>
+                <div class="stage-container">
+                  ${stageImageSrc ? `<img src="${stageImageSrc}" alt="Mapeamento de Palco" />` : "<p style='padding:40px;text-align:center;color:#999;'>Nenhum elemento no palco</p>"}
+                </div>
+                <div class="stats-bar">
+                  <div class="stat-chip"><span class="num">${stageLayout.length}</span> elementos no palco</div>
+                  <div class="stat-chip"><span class="num">${totalChannels}</span> canais</div>
+                  ${totalDI > 0 ? `<div class="stat-chip"><span class="num">${totalDI}</span> DI boxes</div>` : ''}
+                </div>
+              </section>
 
-            <div class="footer">
-              Rider gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}
+              <!-- INPUT LIST -->
+              <section>
+                <div class="section-header">
+                  <div class="section-number">2</div>
+                  <h2>Input List</h2>
+                </div>
+                ${inputList.length > 0 ? `
+                  <table class="input-table">
+                    <thead>
+                      <tr>
+                        <th style="width:50px;text-align:center;">CH</th>
+                        <th>Instrumento / Função</th>
+                        <th>Microfone</th>
+                        <th style="width:70px;text-align:center;">DI</th>
+                        <th>Observações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${inputList.map(ch => `
+                        <tr>
+                          <td class="channel-num">${String(ch.channel).padStart(2, '0')}</td>
+                          <td style="font-weight:600;">${ch.instrument}</td>
+                          <td>${ch.micType || "-"}</td>
+                          <td style="text-align:center;">${ch.di ? '<span class="di-yes">DI</span>' : '<span class="di-no">—</span>'}</td>
+                          <td style="color:#666;">${ch.observations || "-"}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                ` : '<div class="no-materials">Nenhum canal configurado</div>'}
+              </section>
+
+              <!-- MATERIALS -->
+              <section>
+                <div class="section-header">
+                  <div class="section-number">3</div>
+                  <h2>Material Solicitado</h2>
+                </div>
+                ${activeMaterials.length > 0 ? `
+                  <div class="materials-grid">
+                    ${activeMaterials.map(([key]) => `
+                      <div class="material-tag">
+                        <span class="check">✓</span>
+                        ${materialLabels[key] || key}
+                      </div>
+                    `).join("")}
+                  </div>
+                ` : '<div class="no-materials">Nenhum material selecionado</div>'}
+              </section>
+
+              <!-- OBSERVATIONS -->
+              ${observations ? `
+                <section>
+                  <div class="section-header">
+                    <div class="section-number">4</div>
+                    <h2>Observações</h2>
+                  </div>
+                  <div class="obs-box">${observations.replace(/\n/g, '<br/>')}</div>
+                </section>
+              ` : ""}
+
+              <!-- FOOTER -->
+              <div class="footer-bar">
+                <div class="footer-logo">Backstage<span>Pro</span></div>
+                <div class="footer-info">Rider gerado em ${generatedAt}</div>
+              </div>
             </div>
           </body>
         </html>
