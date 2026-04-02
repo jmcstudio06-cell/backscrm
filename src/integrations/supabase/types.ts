@@ -2320,6 +2320,22 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_monthly_show_ranking_for_month: {
+        Args: { target_month: number; target_year: number }
+        Returns: {
+          show_count: number
+          user_id: string
+          user_name: string
+        }[]
+      }
+      get_yearly_show_totals: {
+        Args: { target_year: number }
+        Returns: {
+          show_count: number
+          user_id: string
+          user_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
