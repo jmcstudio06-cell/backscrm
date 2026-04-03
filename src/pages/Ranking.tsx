@@ -202,7 +202,7 @@ export default function RankingPage() {
               <button
                 onClick={goToPrevMonth}
                 className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors disabled:opacity-30"
-                disabled={selectedMonth === 1 && selectedYear <= 2025}
+                disabled={selectedMonth === 1 && selectedYear <= 2026}
               >
                 <ChevronLeft className="w-4 h-4 text-foreground" />
               </button>
