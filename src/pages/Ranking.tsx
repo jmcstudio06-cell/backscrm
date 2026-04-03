@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Medal, Award, Flame, Star, Crown, Calendar, ChevronDown, ChevronLeft, ChevronRight, Music } from "lucide-react";
+import { Trophy, Medal, Award, Flame, Star, Crown, Calendar, ChevronDown, ChevronLeft, ChevronRight, Music, X } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface RankingEntry {
