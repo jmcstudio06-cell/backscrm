@@ -2296,6 +2296,14 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_alltime_show_totals: {
+        Args: never
+        Returns: {
+          show_count: number
+          user_id: string
+          user_name: string
+        }[]
+      }
       get_artist_occupied_dates: {
         Args: { artist_user_id: string }
         Returns: {
