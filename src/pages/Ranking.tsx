@@ -332,7 +332,7 @@ export default function RankingPage() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-foreground">Hall da Fama</p>
-                    <p className="text-[11px] text-muted-foreground">Top 10 — Todos os tempos</p>
+                    <p className="text-[11px] text-muted-foreground">Top 5 — Todos os tempos</p>
                   </div>
                 </div>
                 <button onClick={() => setHallOpen(false)} className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center">
