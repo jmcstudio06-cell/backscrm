@@ -77,8 +77,10 @@ export default function RankingPage() {
   const [loading, setLoading] = useState(true);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [myBadges, setMyBadges] = useState<Badge[]>([]);
-  const [hallOfFame, setHallOfFame] = useState<{ user_name: string; count: number }[]>([]);
   const [selosOpen, setSelosOpen] = useState(false);
+  const [hallOpen, setHallOpen] = useState(false);
+  const [hallOfFame, setHallOfFame] = useState<{ user_name: string; count: number }[]>([]);
+  const [hallLoading, setHallLoading] = useState(false);
 
   const isCurrentMonth = selectedMonth === brasilNow.getMonth() + 1 && selectedYear === brasilNow.getFullYear();
 
