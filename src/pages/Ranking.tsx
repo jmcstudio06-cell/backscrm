@@ -148,22 +148,23 @@ export default function RankingPage() {
         if (user) setMyBadges(allBadges.filter((b: Badge) => b.user_id === user.id));
       }
 
-      // Hall of Fame: top 5 by total shows this year
-      const currentYear = getBrasilNow().getFullYear();
-      const { data: yearlyData } = await supabase.rpc("get_yearly_show_totals", {
-        target_year: currentYear,
-      });
-      if (yearlyData) {
-        setHallOfFame((yearlyData as RankingEntry[]).map((e) => ({
-          user_name: e.user_name,
-          count: Number(e.show_count),
-        })));
-      }
-
       setLoading(false);
     };
     fetchAll();
   }, [user, fetchRankingForMonth, selectedMonth, selectedYear]);
+
+  const openHallOfFame = async () => {
+    setHallOpen(true);
+    setHallLoading(true);
+    const { data } = await supabase.rpc("get_alltime_show_totals");
+    if (data) {
+      setHallOfFame((data as RankingEntry[]).map((e) => ({
+        user_name: e.user_name,
+        count: Number(e.show_count),
+      })));
+    }
+    setHallLoading(false);
+  };
 
   const isInTop3 = isCurrentMonth && ranking.some((r) => r.user_id === user?.id);
   const minTop3Shows = ranking.length >= 3 ? ranking[2].show_count : ranking.length > 0 ? ranking[0].show_count : 1;
