@@ -235,7 +235,7 @@ export default function RankingPage() {
         {/* List */}
         {!loading && !rankingLoading && ranking.length > 0 && (
           <div className="space-y-2">
-            {ranking.map((entry, i) => (
+            {ranking.slice(0, 5).map((entry, i) => (
               <ListItem key={entry.user_id} entry={entry} position={i + 1} isMe={entry.user_id === user?.id} />
             ))}
           </div>
