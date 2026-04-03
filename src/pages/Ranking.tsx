@@ -298,34 +298,82 @@ export default function RankingPage() {
                   </div>
                 )}
               </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
-              {/* Hall of Fame — Top 5 by total shows this year */}
-              {hallOfFame.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2">
-                    <Award className="w-4 h-4 text-primary" />
-                    Hall da Fama {getBrasilNow().getFullYear()}
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground mb-2">Top 5 artistas com mais shows no ano</p>
-                  <div className="space-y-1.5">
-                    {hallOfFame.map((entry, i) => (
-                      <div key={i} className="flex items-center gap-3 rounded-xl bg-card border border-border/50 px-3 py-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-extrabold text-primary">{i + 1}</span>
+        {/* Hall da Fama Button */}
+        {!loading && (
+          <button
+            onClick={openHallOfFame}
+            className="w-full flex items-center justify-between rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-amber-500/10 border border-primary/20 px-5 py-4 hover:from-primary/15 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
+                <Award className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-bold text-foreground">Hall da Fama</p>
+                <p className="text-xs text-muted-foreground">Os que mais venderam shows — todos os tempos</p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
+        )}
+
+        {/* Hall da Fama Modal */}
+        {hallOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setHallOpen(false)}>
+            <div className="w-full max-w-md bg-card rounded-2xl border border-border shadow-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow">
+                    <Award className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Hall da Fama</p>
+                    <p className="text-[11px] text-muted-foreground">Top 10 — Todos os tempos</p>
+                  </div>
+                </div>
+                <button onClick={() => setHallOpen(false)} className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center">
+                  <X className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+              <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
+                {hallLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+                  </div>
+                ) : hallOfFame.length === 0 ? (
+                  <div className="text-center py-10">
+                    <Award className="w-6 h-6 text-muted-foreground/40 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nenhum dado disponível</p>
+                  </div>
+                ) : (
+                  hallOfFame.map((entry, i) => {
+                    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : null;
+                    return (
+                      <div key={i} className="flex items-center gap-3 rounded-xl bg-muted/30 border border-border/50 px-4 py-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${i < 3 ? "bg-primary/10" : "bg-muted/50"}`}>
+                          {medal ? (
+                            <span className="text-base">{medal}</span>
+                          ) : (
+                            <span className="text-xs font-extrabold text-muted-foreground">{i + 1}</span>
+                          )}
                         </div>
                         <p className="flex-1 text-sm font-semibold text-foreground truncate">{toTitleCase(entry.user_name)}</p>
-                        <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 border border-primary/15">
+                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/15">
                           <Music className="w-3 h-3 text-primary" />
                           <span className="text-xs font-bold text-primary">{entry.count}</span>
                           <span className="text-[9px] text-muted-foreground">shows</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CollapsibleContent>
-          </Collapsible>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </Layout>
