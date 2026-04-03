@@ -96,11 +96,11 @@ export default function RankingPage() {
   }, []);
 
   const goToPrevMonth = () => {
-    if (selectedMonth === 1 && selectedYear <= 2025) return;
+    if (selectedMonth === 1 && selectedYear <= 2026) return;
     let newMonth = selectedMonth - 1;
     let newYear = selectedYear;
     if (newMonth < 1) { newMonth = 12; newYear--; }
-    if (newYear < 2025) return;
+    if (newYear < 2026) return;
     setSelectedMonth(newMonth);
     setSelectedYear(newYear);
     fetchRankingForMonth(newMonth, newYear);
