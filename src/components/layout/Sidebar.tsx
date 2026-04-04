@@ -51,6 +51,7 @@ interface MenuItem {
   path?: string;
   featureKey?: string;
   adminOnly?: boolean;
+  isGradient?: boolean;
   children?: {
     icon: React.ElementType;
     label: string;
@@ -105,6 +106,7 @@ const menuItems: MenuItem[] = [
   { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "aulas" },
   
   { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
+  { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais", isGradient: true },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
@@ -278,10 +280,13 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                     to={item.path!}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
+                      item.isGradient
+                        ? "text-primary-foreground font-medium"
+                        : isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
                     )}
+                    style={item.isGradient ? { background: "var(--gradient-primary)" } : undefined}
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="text-sm font-medium flex-1">{item.label}</span>
@@ -294,16 +299,6 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
         {/* Footer */}
         <div className="px-3 pb-2 space-y-2">
-          {/* Tutoriais */}
-          <RouterNavLink
-            to="/tutoriais"
-            className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            <BookOpen className="w-5 h-5" />
-            <span>Tutoriais</span>
-          </RouterNavLink>
-
           {/* Indique e Ganhe */}
           <RouterNavLink
             to="/indicacoes"
