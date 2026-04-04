@@ -296,17 +296,17 @@ const Auth = () => {
             )}
 
             {/* Benefits */}
-            <div className="flex flex-wrap items-center gap-6 pt-4">
+            <div className={`flex flex-wrap items-center gap-4 lg:gap-6 ${showForm ? 'pt-1 lg:pt-4' : 'pt-4'}`}>
               {benefits.map((benefit, index) => (
                 <div 
                   key={index} 
                   className="flex items-center gap-2 text-white/80"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                    <benefit.icon className="w-4 h-4 text-cyan-300" />
+                  <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-white/10 flex items-center justify-center">
+                    <benefit.icon className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-cyan-300" />
                   </div>
-                  <span className="text-sm font-medium">{benefit.text}</span>
+                  <span className="text-xs lg:text-sm font-medium">{benefit.text}</span>
                 </div>
               ))}
             </div>
