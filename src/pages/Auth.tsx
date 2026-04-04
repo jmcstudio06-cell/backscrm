@@ -252,10 +252,10 @@ const Auth = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-6 py-8 md:py-12">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center min-h-[calc(100vh-200px)]">
+      <main className="relative z-10 container mx-auto px-6 py-4 md:py-12">
+        <div className={`grid gap-6 lg:grid-cols-2 lg:gap-16 items-center ${!showForm ? 'min-h-[calc(100vh-200px)]' : 'lg:min-h-[calc(100vh-200px)]'}`}>
           {/* Left Side - Hero Content */}
-          <div className="space-y-8 animate-fade-in">
+          <div className={`animate-fade-in ${showForm ? 'space-y-3 lg:space-y-8' : 'space-y-8'}`}>
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 border border-white/20">
               <Sparkles className="h-4 w-4 text-cyan-300 animate-pulse" />
               <span className="text-sm text-white/90 font-medium">Gestão completa para artistas</span>
