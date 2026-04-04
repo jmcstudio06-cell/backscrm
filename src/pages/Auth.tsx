@@ -252,23 +252,23 @@ const Auth = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-6 py-8 md:py-12">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center min-h-[calc(100vh-200px)]">
+      <main className="relative z-10 container mx-auto px-6 py-4 md:py-12">
+        <div className={`grid gap-6 lg:grid-cols-2 lg:gap-16 items-center ${!showForm ? 'min-h-[calc(100vh-200px)]' : 'lg:min-h-[calc(100vh-200px)]'}`}>
           {/* Left Side - Hero Content */}
-          <div className="space-y-8 animate-fade-in">
+          <div className={`animate-fade-in ${showForm ? 'space-y-3 lg:space-y-8' : 'space-y-8'}`}>
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 border border-white/20">
               <Sparkles className="h-4 w-4 text-cyan-300 animate-pulse" />
               <span className="text-sm text-white/90 font-medium">Gestão completa para artistas</span>
             </div>
 
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-white">
+            <div className={`${showForm ? 'space-y-2 lg:space-y-4' : 'space-y-4'}`}>
+              <h1 className={`font-bold leading-tight text-white ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
                 Transforme sua
               </h1>
-              <h2 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-cyan-300">
+              <h2 className={`font-bold leading-tight text-cyan-300 ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
                 carreira musical
               </h2>
-              <p className="text-lg text-white/80 max-w-lg mt-6">
+              <p className={`text-white/80 max-w-lg ${showForm ? 'text-sm lg:text-lg mt-2 lg:mt-6' : 'text-lg mt-6'}`}>
                 O jeito mais fácil de gerenciar shows, controlar finanças, 
                 organizar sua banda e converter leads em contratos.
               </p>
@@ -296,23 +296,23 @@ const Auth = () => {
             )}
 
             {/* Benefits */}
-            <div className="flex flex-wrap items-center gap-6 pt-4">
+            <div className={`flex flex-wrap items-center gap-4 lg:gap-6 ${showForm ? 'pt-1 lg:pt-4' : 'pt-4'}`}>
               {benefits.map((benefit, index) => (
                 <div 
                   key={index} 
                   className="flex items-center gap-2 text-white/80"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                    <benefit.icon className="w-4 h-4 text-cyan-300" />
+                  <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-white/10 flex items-center justify-center">
+                    <benefit.icon className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-cyan-300" />
                   </div>
-                  <span className="text-sm font-medium">{benefit.text}</span>
+                  <span className="text-xs lg:text-sm font-medium">{benefit.text}</span>
                 </div>
               ))}
             </div>
 
-            {/* Social proof */}
-            <div className="flex items-center gap-4 pt-2">
+            {/* Social proof - hide on mobile when form is showing */}
+            <div className={`items-center gap-4 pt-2 ${showForm ? 'hidden lg:flex' : 'flex'}`}>
               <div className="flex -space-x-3">
                 {userAvatars.map((avatar, i) => (
                   <img 
