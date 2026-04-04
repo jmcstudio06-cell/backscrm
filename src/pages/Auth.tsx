@@ -311,8 +311,8 @@ const Auth = () => {
               ))}
             </div>
 
-            {/* Social proof */}
-            <div className="flex items-center gap-4 pt-2">
+            {/* Social proof - hide on mobile when form is showing */}
+            <div className={`items-center gap-4 pt-2 ${showForm ? 'hidden lg:flex' : 'flex'}`}>
               <div className="flex -space-x-3">
                 {userAvatars.map((avatar, i) => (
                   <img 
