@@ -280,10 +280,13 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                     to={item.path!}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
+                      item.isGradient
+                        ? "text-primary-foreground font-medium"
+                        : isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
                     )}
+                    style={item.isGradient ? { background: "var(--gradient-primary)" } : undefined}
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="text-sm font-medium flex-1">{item.label}</span>
