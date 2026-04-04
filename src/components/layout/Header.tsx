@@ -17,8 +17,8 @@ export function Header({ title, subtitle }: HeaderProps) {
       <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 md:px-6">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="min-w-0">
-            <h1 className="text-base sm:text-lg md:text-xl font-bold text-foreground truncate">{title}</h1>
-            {subtitle && <p className="text-[10px] text-muted-foreground truncate uppercase tracking-wider">{subtitle}</p>}
+            <h1 className="text-base sm:text-lg md:text-xl font-bold text-primary sm:text-foreground truncate">{title}</h1>
+            {subtitle && <p className="text-[10px] text-primary/70 sm:text-muted-foreground truncate uppercase tracking-wider">{subtitle}</p>}
           </div>
         </div>
 
