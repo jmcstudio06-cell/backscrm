@@ -105,6 +105,7 @@ const menuItems: MenuItem[] = [
   { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "aulas" },
   
   { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
+  { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais", isGradient: true },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
