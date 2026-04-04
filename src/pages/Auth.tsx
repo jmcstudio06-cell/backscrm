@@ -261,14 +261,14 @@ const Auth = () => {
               <span className="text-sm text-white/90 font-medium">Gestão completa para artistas</span>
             </div>
 
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-white">
+            <div className={`${showForm ? 'space-y-2 lg:space-y-4' : 'space-y-4'}`}>
+              <h1 className={`font-bold leading-tight text-white ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
                 Transforme sua
               </h1>
-              <h2 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-cyan-300">
+              <h2 className={`font-bold leading-tight text-cyan-300 ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
                 carreira musical
               </h2>
-              <p className="text-lg text-white/80 max-w-lg mt-6">
+              <p className={`text-white/80 max-w-lg ${showForm ? 'text-sm lg:text-lg mt-2 lg:mt-6' : 'text-lg mt-6'}`}>
                 O jeito mais fácil de gerenciar shows, controlar finanças, 
                 organizar sua banda e converter leads em contratos.
               </p>
