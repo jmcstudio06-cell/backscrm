@@ -51,6 +51,7 @@ interface MenuItem {
   path?: string;
   featureKey?: string;
   adminOnly?: boolean;
+  isGradient?: boolean;
   children?: {
     icon: React.ElementType;
     label: string;
