@@ -303,7 +303,7 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
   const expectedProgress = dayOfMonth / daysInMonth;
   const behindUsers: string[] = [];
   for (const goal of goals) {
-    if (goal.goal_type === "shows") {
+    if (goal.type === "shows") {
       const actual = showCountByUser.get(goal.user_id) || 0;
       const expected = Math.floor(goal.target_value * expectedProgress);
       if (actual < expected) behindUsers.push(goal.user_id);
