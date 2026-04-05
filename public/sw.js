@@ -67,14 +67,15 @@ self.addEventListener("push", (event) => {
       const existing = await self.registration.getNotifications({ tag: NOTIF_TAG });
       existing.forEach((n) => n.close());
 
+      // iOS Safari does not support tag+renotify well — skip tag on Apple
+      const isApple = self.registration?.pushManager?.getSubscription?.toString().includes("apple") || false;
+
       const options = {
         body: data.body,
         icon: data.icon || DEFAULT_ICON,
         badge: data.badge || DEFAULT_BADGE,
-        tag: NOTIF_TAG,
-        renotify: false,
+        ...(isApple ? {} : { tag: NOTIF_TAG, renotify: true }),
         requireInteraction: false,
-        timestamp: Date.now(),
         data: { url: data.url || "/dashboard" },
       };
 
