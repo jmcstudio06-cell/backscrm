@@ -63,18 +63,21 @@ self.addEventListener("push", (event) => {
         }
       }
 
-      // ✅ Fecha duplicadas
-      const existing = await self.registration.getNotifications({ tag: NOTIF_TAG });
-      existing.forEach((n) => n.close());
+      // Close duplicates (may not work on iOS)
+      try {
+        const existing = await self.registration.getNotifications({ tag: NOTIF_TAG });
+        existing.forEach((n) => n.close());
+      } catch {
+        // ignore on iOS
+      }
 
       const options = {
         body: data.body,
         icon: data.icon || DEFAULT_ICON,
         badge: data.badge || DEFAULT_BADGE,
         tag: NOTIF_TAG,
-        renotify: false,
+        renotify: true,
         requireInteraction: false,
-        timestamp: Date.now(),
         data: { url: data.url || "/dashboard" },
       };
 
