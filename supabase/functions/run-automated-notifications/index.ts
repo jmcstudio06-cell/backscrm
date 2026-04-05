@@ -226,7 +226,7 @@ async function handleLowPerformance(supabase: any, _config: any, text: string, v
 }
 
 async function handlePendingPayment(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const { data: completedShows } = await supabase.from("shows").select("id, user_id, title, cachet").eq("status", "realizado").gt("cachet", 0);
+  const { data: completedShows } = await supabase.from("shows").select("id, user_id, title, cachet").eq("status", "completed").gt("cachet", 0);
   if (!completedShows || completedShows.length === 0) return 0;
   const showIds = completedShows.map((s: any) => s.id);
   const { data: paidShows } = await supabase.from("transactions").select("show_id").in("show_id", showIds);
