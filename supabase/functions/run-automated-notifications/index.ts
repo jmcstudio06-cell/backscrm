@@ -181,7 +181,7 @@ async function handleShowReminder(supabase: any, config: any, text: string, vapi
   const target = new Date(now.getTime() + hoursBefore * 60 * 60 * 1000);
   const todayStr = now.toISOString().split("T")[0];
   const targetStr = target.toISOString().split("T")[0];
-  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmado", "pendente"]).gte("date", todayStr).lte("date", targetStr);
+  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmed", "scheduled"]).gte("date", todayStr).lte("date", targetStr);
   if (!upcomingShows || upcomingShows.length === 0) return 0;
   let totalSent = 0;
   const byUser = new Map<string, any[]>();
@@ -203,7 +203,7 @@ async function handleGoalReminder(supabase: any, _config: any, text: string, vap
   const now = new Date();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
-  const { data: usersWithGoals } = await supabase.from("user_goals").select("user_id").eq("month", month).eq("year", year);
+  const { data: usersWithGoals } = await supabase.from("goals").select("user_id").eq("month", month).eq("year", year);
   if (!usersWithGoals || usersWithGoals.length === 0) return 0;
   const userIds = [...new Set(usersWithGoals.map((g: any) => g.user_id))];
   const message = text || "🎯 Como estão suas metas? Bora manter o foco!";
@@ -226,7 +226,7 @@ async function handleLowPerformance(supabase: any, _config: any, text: string, v
 }
 
 async function handlePendingPayment(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const { data: completedShows } = await supabase.from("shows").select("id, user_id, title, cachet").eq("status", "realizado").gt("cachet", 0);
+  const { data: completedShows } = await supabase.from("shows").select("id, user_id, title, cachet").eq("status", "completed").gt("cachet", 0);
   if (!completedShows || completedShows.length === 0) return 0;
   const showIds = completedShows.map((s: any) => s.id);
   const { data: paidShows } = await supabase.from("transactions").select("show_id").in("show_id", showIds);
@@ -244,7 +244,7 @@ async function handleChecklistReminder(supabase: any, _config: any, text: string
   const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
   const todayStr = now.toISOString().split("T")[0];
   const targetStr = in48h.toISOString().split("T")[0];
-  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmado", "pendente"]).gte("date", todayStr).lte("date", targetStr);
+  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmed", "scheduled"]).gte("date", todayStr).lte("date", targetStr);
   if (!upcomingShows || upcomingShows.length === 0) return 0;
   const showIds = upcomingShows.map((s: any) => s.id);
   const { data: incompleteItems } = await supabase.from("show_checklist").select("show_id").in("show_id", showIds).eq("completed", false);
@@ -288,7 +288,7 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
   const now = new Date();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
-  const { data: goals } = await supabase.from("user_goals").select("user_id, target_value, goal_type").eq("month", month).eq("year", year);
+  const { data: goals } = await supabase.from("goals").select("user_id, target_value, type").eq("month", month).eq("year", year);
   if (!goals || goals.length === 0) return 0;
   const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
   const lastDay = month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, "0")}-01`;
@@ -303,7 +303,7 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
   const expectedProgress = dayOfMonth / daysInMonth;
   const behindUsers: string[] = [];
   for (const goal of goals) {
-    if (goal.goal_type === "shows") {
+    if (goal.type === "shows") {
       const actual = showCountByUser.get(goal.user_id) || 0;
       const expected = Math.floor(goal.target_value * expectedProgress);
       if (actual < expected) behindUsers.push(goal.user_id);
