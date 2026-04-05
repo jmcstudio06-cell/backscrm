@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -197,18 +197,32 @@ export default function CRM() {
   const hasFilters = filterType || filterStatus || searchTerm;
 
   // Stats
-  const totalOpportunities = leads.length;
-  const pendingContact = leads.filter((l) => l.status === "contact").length;
-  const closedDeals = leads.filter((l) => l.status === "closed").length;
-
-  // Check which opportunities need contact this month
   const currentMonth = new Date().getMonth();
   const monthNames = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
   const currentMonthName = monthNames[currentMonth];
+
+  const totalOpportunities = leads.length;
+  const pendingContact = leads.filter((l) => l.status === "contact").length;
+  const closedDeals = leads.filter((l) => l.status === "closed").length;
   const contactThisMonth = leads.filter((l) => {
     const contactWhen = l.notes?.split("|||CONTACT_WHEN|||")[1] || "";
     return contactWhen === currentMonthName || contactWhen === "qualquer";
   }).length;
+
+  // Auto-update leads to "contact" status when their contact month arrives
+  const autoUpdatedRef = useRef(new Set<string>());
+  useEffect(() => {
+    if (loading || leads.length === 0) return;
+    leads.forEach((lead) => {
+      if (autoUpdatedRef.current.has(lead.id)) return;
+      if (lead.status !== "new") return;
+      const contactWhen = lead.notes?.split("|||CONTACT_WHEN|||")[1] || "";
+      if (contactWhen === currentMonthName || contactWhen === "qualquer") {
+        autoUpdatedRef.current.add(lead.id);
+        updateLead(lead.id, { status: "contact" });
+      }
+    });
+  }, [leads, loading, currentMonthName]);
 
   if (loading) {
     return (
