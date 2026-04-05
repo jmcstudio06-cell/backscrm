@@ -116,10 +116,10 @@ async function sendToUsers(
 
   if (!allSubs || allSubs.length === 0) return 0;
 
-  const seen = new Set<string>();
+  const seenEndpoints = new Set<string>();
   const subs = allSubs.filter((s: any) => {
-    if (seen.has(s.user_id)) return false;
-    seen.add(s.user_id);
+    if (seenEndpoints.has(s.endpoint)) return false;
+    seenEndpoints.add(s.endpoint);
     return true;
   });
 

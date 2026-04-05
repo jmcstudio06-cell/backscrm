@@ -289,11 +289,11 @@ serve(async (req) => {
     const { data: allSubs, error: subsError } = await subsQuery;
     if (subsError) throw subsError;
 
-    // Keep only newest subscription per user
-    const seen = new Set<string>();
+    // Keep unique active subscriptions by endpoint (send to all user devices)
+    const seenEndpoints = new Set<string>();
     const subs = (allSubs ?? []).filter((s: any) => {
-      if (seen.has(s.user_id)) return false;
-      seen.add(s.user_id);
+      if (seenEndpoints.has(s.endpoint)) return false;
+      seenEndpoints.add(s.endpoint);
       return true;
     });
 
@@ -305,7 +305,7 @@ serve(async (req) => {
       url: url || "/dashboard",
     });
 
-    console.log(`Sending push to ${subs.length} subs (deduped from ${allSubs?.length ?? 0})`);
+    console.log(`Sending push to ${subs.length} active subscriptions`);
 
     const results = await Promise.allSettled(
       subs.map(async (s: any) => {
