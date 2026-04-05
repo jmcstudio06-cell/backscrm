@@ -203,7 +203,7 @@ async function handleGoalReminder(supabase: any, _config: any, text: string, vap
   const now = new Date();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
-  const { data: usersWithGoals } = await supabase.from("user_goals").select("user_id").eq("month", month).eq("year", year);
+  const { data: usersWithGoals } = await supabase.from("goals").select("user_id").eq("month", month).eq("year", year);
   if (!usersWithGoals || usersWithGoals.length === 0) return 0;
   const userIds = [...new Set(usersWithGoals.map((g: any) => g.user_id))];
   const message = text || "🎯 Como estão suas metas? Bora manter o foco!";
@@ -288,7 +288,7 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
   const now = new Date();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
-  const { data: goals } = await supabase.from("user_goals").select("user_id, target_value, goal_type").eq("month", month).eq("year", year);
+  const { data: goals } = await supabase.from("goals").select("user_id, target_value, type").eq("month", month).eq("year", year);
   if (!goals || goals.length === 0) return 0;
   const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
   const lastDay = month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, "0")}-01`;
