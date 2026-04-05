@@ -1,7 +1,7 @@
 const CACHE_NAME = "backstage-pro-v4";
 const NOTIF_TAG = "backstage-notification";
 
-// ✅ ÍCONES NO MESMO DOMÍNIO (PWA)
+// Notification assets
 const DEFAULT_ICON = "/icons/icon-192.png";
 const DEFAULT_BADGE = "/icons/badge-72.png"; // se não tiver, pode apontar pro mono-192
 
