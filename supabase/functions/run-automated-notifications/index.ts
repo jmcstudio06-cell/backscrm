@@ -181,7 +181,7 @@ async function handleShowReminder(supabase: any, config: any, text: string, vapi
   const target = new Date(now.getTime() + hoursBefore * 60 * 60 * 1000);
   const todayStr = now.toISOString().split("T")[0];
   const targetStr = target.toISOString().split("T")[0];
-  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmado", "pendente"]).gte("date", todayStr).lte("date", targetStr);
+  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmed", "scheduled"]).gte("date", todayStr).lte("date", targetStr);
   if (!upcomingShows || upcomingShows.length === 0) return 0;
   let totalSent = 0;
   const byUser = new Map<string, any[]>();
@@ -244,7 +244,7 @@ async function handleChecklistReminder(supabase: any, _config: any, text: string
   const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
   const todayStr = now.toISOString().split("T")[0];
   const targetStr = in48h.toISOString().split("T")[0];
-  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmado", "pendente"]).gte("date", todayStr).lte("date", targetStr);
+  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmed", "scheduled"]).gte("date", todayStr).lte("date", targetStr);
   if (!upcomingShows || upcomingShows.length === 0) return 0;
   const showIds = upcomingShows.map((s: any) => s.id);
   const { data: incompleteItems } = await supabase.from("show_checklist").select("show_id").in("show_id", showIds).eq("completed", false);
