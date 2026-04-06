@@ -87,7 +87,7 @@ export function useTrialStatus(externalProfile?: ProfileLike | null) {
         if (isExpired && user) {
           await supabase
             .from("profiles")
-            .update({ plan: "expirado" })
+            .update({ plan: "comprou_expirado" })
             .eq("user_id", user.id);
         }
       }
