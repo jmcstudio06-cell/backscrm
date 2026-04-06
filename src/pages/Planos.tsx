@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -228,6 +228,29 @@ function InfoStrip() {
 export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [userPlan, setUserPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchPlan() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
+      if (data) setUserPlan(data.plan);
+    }
+    fetchPlan();
+  }, []);
+
+  const isActiveOrExpiredPaid = userPlan && !["trial", "expirado", null].includes(userPlan);
+
+  const getUserPlanTier = (): string | null => {
+    if (!userPlan) return null;
+    if (userPlan.includes("starter")) return "starter";
+    if (userPlan.includes("profissional")) return "pro";
+    if (userPlan.includes("completo")) return "full";
+    if (userPlan === "comprou_expirado") return "comprou_expirado";
+    return null;
+  };
+  const userTier = getUserPlanTier();
 
   const handleSubscribe = async (planKey: string, amountCents: number, checkoutUrl: string) => {
     setLoadingPlan(planKey);
