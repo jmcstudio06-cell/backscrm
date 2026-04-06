@@ -609,7 +609,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
 
           {/* Info Tab */}
-          <TabsContent value="info" className="space-y-4 mt-4">
+          <TabsContent value="info" className="space-y-4 mt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome do Evento *</Label>
