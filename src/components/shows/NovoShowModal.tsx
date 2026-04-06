@@ -551,66 +551,53 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
-        {/* Premium Header */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl border-b border-border/50">
-          <div className="px-5 sm:px-6 pt-5 pb-3">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-3 text-lg sm:text-xl">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Mic2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
-                </div>
-                {editingShow ? "Editar Show" : "Novo Show"}
-              </DialogTitle>
-            </DialogHeader>
-          </div>
-
-          {/* Restored Draft Banner */}
-          {showRestoredBanner && !isEditing && (
-            <div className="mx-5 sm:mx-6 mb-3 flex items-center justify-between p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-600 dark:text-amber-400">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>Rascunho recuperado!</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDiscardDraft}
-                className="text-xs text-muted-foreground hover:text-destructive h-7 px-2"
-              >
-                Descartar
-              </Button>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <Mic2 className="w-5 h-5 text-primary-foreground" />
             </div>
-          )}
+            {editingShow ? "Editar Show" : "Novo Show"}
+          </DialogTitle>
+        </DialogHeader>
 
-          <div className="px-5 sm:px-6 pb-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-3 w-full h-10 sm:h-11 bg-secondary/80 rounded-xl p-1">
-                <TabsTrigger value="info" className="gap-1.5 text-xs sm:text-sm rounded-lg data-[state=active]:shadow-sm">
-                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Informações</span>
-                  <span className="sm:hidden">Info</span>
-                </TabsTrigger>
-                <TabsTrigger value="financial" className="gap-1.5 text-xs sm:text-sm rounded-lg data-[state=active]:shadow-sm">
-                  <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Financeiro</span>
-                  <span className="sm:hidden">R$</span>
-                </TabsTrigger>
-                <TabsTrigger value="summary" className="gap-1.5 text-xs sm:text-sm rounded-lg data-[state=active]:shadow-sm">
-                  <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  Resumo
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+        {/* Restored Draft Banner */}
+        {showRestoredBanner && !isEditing && (
+          <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+              <AlertCircle className="w-4 h-4" />
+              <span>Rascunho recuperado! Continue de onde parou.</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDiscardDraft}
+              className="text-xs text-muted-foreground hover:text-destructive"
+            >
+              Descartar
+            </Button>
           </div>
-        </div>
+        )}
 
-        <div className="px-5 sm:px-6 pb-5 sm:pb-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <TabsList className="grid grid-cols-3 w-full bg-secondary">
+            <TabsTrigger value="info" className="gap-2">
+              <Calendar className="w-4 h-4" />
+              Informações
+            </TabsTrigger>
+            <TabsTrigger value="financial" className="gap-2">
+              <DollarSign className="w-4 h-4" />
+              Financeiro
+            </TabsTrigger>
+            <TabsTrigger value="summary" className="gap-2">
+              <Receipt className="w-4 h-4" />
+              Resumo
+            </TabsTrigger>
+          </TabsList>
 
           {/* Info Tab */}
-          <TabsContent value="info" className="space-y-4 mt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <TabsContent value="info" className="space-y-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome do Evento *</Label>
                 <Input
@@ -874,7 +861,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           </TabsContent>
 
           {/* Financial Tab */}
-          <TabsContent value="financial" className="space-y-5 mt-2">
+          <TabsContent value="financial" className="space-y-6 mt-4">
             {loadingData && (
               <div className="text-center py-4 text-muted-foreground">
                 Carregando dados financeiros...
@@ -1137,7 +1124,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           </TabsContent>
 
           {/* Summary Tab */}
-          <TabsContent value="summary" className="space-y-5 mt-2">
+          <TabsContent value="summary" className="space-y-6 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Event Info Card */}
               <div className="p-4 rounded-xl bg-secondary/50 space-y-3">
@@ -1258,7 +1245,6 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
             </div>
           </TabsContent>
         </Tabs>
-        </div>
 
         {/* Transport Calculator Modal */}
         <TransportCalculatorModal
