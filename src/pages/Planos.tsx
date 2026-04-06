@@ -431,7 +431,9 @@ export default function Planos() {
                         disabled={isLoading}
                         className={cn(
                           "w-full rounded-2xl text-white font-semibold shadow-md",
-                          p.highlight
+                          isActiveOrExpiredPaid && userTier === p.id
+                            ? "bg-gradient-to-r from-emerald-600 to-emerald-500"
+                            : p.highlight
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
@@ -442,6 +444,16 @@ export default function Planos() {
                             <>
                               <Loader2 className="w-4 h-4 animate-spin" />
                               Processando...
+                            </>
+                          ) : isActiveOrExpiredPaid && userTier === p.id ? (
+                            <>
+                              Renovar assinatura
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          ) : isActiveOrExpiredPaid ? (
+                            <>
+                              Renovar plano
+                              <ArrowRight className="w-4 h-4" />
                             </>
                           ) : (
                             <>
