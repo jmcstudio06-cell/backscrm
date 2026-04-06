@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -228,6 +228,29 @@ function InfoStrip() {
 export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [userPlan, setUserPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchPlan() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
+      if (data) setUserPlan(data.plan);
+    }
+    fetchPlan();
+  }, []);
+
+  const isActiveOrExpiredPaid = userPlan && !["trial", "expirado", null].includes(userPlan);
+
+  const getUserPlanTier = (): string | null => {
+    if (!userPlan) return null;
+    if (userPlan.includes("starter")) return "starter";
+    if (userPlan.includes("profissional")) return "pro";
+    if (userPlan.includes("completo")) return "full";
+    if (userPlan === "comprou_expirado") return "comprou_expirado";
+    return null;
+  };
+  const userTier = getUserPlanTier();
 
   const handleSubscribe = async (planKey: string, amountCents: number, checkoutUrl: string) => {
     setLoadingPlan(planKey);
@@ -408,7 +431,9 @@ export default function Planos() {
                         disabled={isLoading}
                         className={cn(
                           "w-full rounded-2xl text-white font-semibold shadow-md",
-                          p.highlight
+                          isActiveOrExpiredPaid && userTier === p.id
+                            ? "bg-gradient-to-r from-emerald-600 to-emerald-500"
+                            : p.highlight
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
@@ -419,6 +444,16 @@ export default function Planos() {
                             <>
                               <Loader2 className="w-4 h-4 animate-spin" />
                               Processando...
+                            </>
+                          ) : isActiveOrExpiredPaid && userTier === p.id ? (
+                            <>
+                              Renovar assinatura
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          ) : isActiveOrExpiredPaid ? (
+                            <>
+                              Renovar plano
+                              <ArrowRight className="w-4 h-4" />
                             </>
                           ) : (
                             <>
