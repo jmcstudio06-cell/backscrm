@@ -610,7 +610,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
           {/* Info Tab */}
           <TabsContent value="info" className="space-y-4 mt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome do Evento *</Label>
                 <Input
@@ -874,7 +874,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           </TabsContent>
 
           {/* Financial Tab */}
-          <TabsContent value="financial" className="space-y-6 mt-4">
+          <TabsContent value="financial" className="space-y-5 mt-2">
             {loadingData && (
               <div className="text-center py-4 text-muted-foreground">
                 Carregando dados financeiros...
@@ -1137,7 +1137,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           </TabsContent>
 
           {/* Summary Tab */}
-          <TabsContent value="summary" className="space-y-6 mt-4">
+          <TabsContent value="summary" className="space-y-5 mt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Event Info Card */}
               <div className="p-4 rounded-xl bg-secondary/50 space-y-3">
