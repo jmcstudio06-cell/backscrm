@@ -105,6 +105,7 @@ const PLAN_FILTERS = [
   { value: "anual_profissional", label: "Anual Prof." },
   { value: "anual_completo", label: "Anual Completo" },
   { value: "expirado", label: "Expirados" },
+  { value: "comprou_expirado", label: "Comprou Expirado" },
 ];
 
 const PLAN_DURATIONS: Record<string, number> = {

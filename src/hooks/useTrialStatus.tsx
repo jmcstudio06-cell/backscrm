@@ -58,7 +58,7 @@ export function useTrialStatus(externalProfile?: ProfileLike | null) {
       let isExpired = false;
       const isTrial = plan === "trial";
 
-      if (plan === "expirado") {
+      if (plan === "expirado" || plan === "comprou_expirado") {
         isExpired = true;
         daysRemaining = 0;
       } else if (plan === "trial" && trialStart) {
