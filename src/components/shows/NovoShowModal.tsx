@@ -1258,6 +1258,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
             </div>
           </TabsContent>
         </Tabs>
+        </div>
 
         {/* Transport Calculator Modal */}
         <TransportCalculatorModal
