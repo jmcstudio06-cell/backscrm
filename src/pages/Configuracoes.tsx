@@ -40,6 +40,7 @@ const planLabels: Record<string, string> = {
   anual: "Plano Anual",
   base: "Plano Mensal",
   expirado: "Expirado",
+  comprou_expirado: "Comprou Expirado",
 };
 
 const PLAN_DURATIONS: Record<string, number> = {
@@ -204,13 +205,13 @@ export default function Configuracoes() {
     toast.success("Personalização restaurada ao padrão!");
   };
 
-  const planGradient = plan === "expirado" 
+  const planGradient = (plan === "expirado" || plan === "comprou_expirado") 
     ? "from-destructive/20 to-destructive/5" 
     : plan === "trial" 
       ? "from-warning/20 to-warning/5"
       : "from-primary/20 to-accent/10";
 
-  const planIcon = plan === "expirado" ? "text-destructive" : plan === "trial" ? "text-warning" : "text-primary";
+  const planIcon = (plan === "expirado" || plan === "comprou_expirado") ? "text-destructive" : plan === "trial" ? "text-warning" : "text-primary";
 
   return (
     <Layout title="Configurações" subtitle="Gerencie suas preferências e personalize seu app">
@@ -253,7 +254,7 @@ export default function Configuracoes() {
                   <div>
                     <h2 className="text-xl font-bold text-foreground">{planLabels[plan] || "Trial"}</h2>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      {plan === "expirado" 
+                      {(plan === "expirado" || plan === "comprou_expirado")
                         ? "Plano expirado — renove para continuar" 
                         : plan === "trial"
                           ? "Teste gratuito de 1 hora"
@@ -262,14 +263,14 @@ export default function Configuracoes() {
                     </p>
                   </div>
                 </div>
-                {plan !== "trial" && plan !== "expirado" && (
+                {plan !== "trial" && plan !== "expirado" && plan !== "comprou_expirado" && (
                   <span className={`text-2xl font-black ${daysRemaining <= 7 ? "text-destructive" : "text-primary"}`}>
                     {daysRemaining}d
                   </span>
                 )}
               </div>
 
-              {plan !== "trial" && plan !== "expirado" && trialStart && (
+              {plan !== "trial" && plan !== "expirado" && plan !== "comprou_expirado" && trialStart && (
                 <div className="space-y-3 mb-5">
                   <div className="grid grid-cols-3 gap-3">
                     {[
@@ -306,7 +307,7 @@ export default function Configuracoes() {
                   className="w-full h-12 text-base font-semibold shadow-lg"
                   onClick={() => navigate("/planos")}
                 >
-                  {plan === "expirado" ? (
+                  {(plan === "expirado" || plan === "comprou_expirado") ? (
                     <><Crown className="w-5 h-5 mr-2" /> Renovar Plano</>
                   ) : plan === "trial" ? (
                     <><Zap className="w-5 h-5 mr-2" /> Escolher um Plano</>

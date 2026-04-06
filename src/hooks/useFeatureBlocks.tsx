@@ -62,7 +62,7 @@ export function useFeatureBlocks() {
       return;
     }
 
-    if (profile.plan === "expirado") {
+    if (profile.plan === "expirado" || profile.plan === "comprou_expirado") {
       setPlanExpired(true);
       if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
         setFeatureBlocks(profile.feature_blocks as FeatureBlocks);

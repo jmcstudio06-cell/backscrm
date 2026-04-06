@@ -105,6 +105,7 @@ const PLAN_FILTERS = [
   { value: "anual_profissional", label: "Anual Prof." },
   { value: "anual_completo", label: "Anual Completo" },
   { value: "expirado", label: "Expirados" },
+  { value: "comprou_expirado", label: "Comprou Expirado" },
 ];
 
 const PLAN_DURATIONS: Record<string, number> = {
@@ -141,6 +142,7 @@ const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; ic
   completo:  { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
   anual:     { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
   expirado:  { bg: "bg-red-500/10", text: "text-red-600", border: "border-red-500/20", icon: <AlertCircle className="h-5 w-5" /> },
+  comprou_expirado: { bg: "bg-rose-500/10", text: "text-rose-600", border: "border-rose-500/20", icon: <Crown className="h-5 w-5" /> },
 };
 
 export default function Admin() {
@@ -163,7 +165,7 @@ export default function Admin() {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [planStats, setPlanStats] = useState<Record<string, number>>({
     trial: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
-    anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0,
+    anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
   });
   const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
 
@@ -221,7 +223,7 @@ export default function Admin() {
       if (planResult.data) {
         const stats: Record<string, number> = {
           trial: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
-          anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0,
+           anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
         };
         planResult.data.forEach(p => {
           const plan = p.plan || 'trial';
@@ -229,6 +231,8 @@ export default function Admin() {
             stats[plan]++;
           } else if (plan === 'expirado' || plan === 'expired') {
             stats.expirado++;
+          } else if (plan === 'comprou_expirado') {
+            stats.comprou_expirado++;
           } else {
             // Legacy plans count as trial
             stats.trial++;
@@ -296,7 +300,7 @@ export default function Admin() {
   const updateUserPlan = async (userId: string, plan: string, customStartDate?: string) => {
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
     
-    if (plan !== "expirado") {
+    if (plan !== "expirado" && plan !== "comprou_expirado") {
       const startDate = customStartDate || new Date().toISOString().split("T")[0];
       updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
       updates.trial_days = PLAN_DURATIONS[plan] || 3;
@@ -307,7 +311,7 @@ export default function Admin() {
     const tierModule = PLAN_MODULES[tier as keyof typeof PLAN_MODULES];
     
     ALL_FEATURE_KEYS.forEach(key => {
-      if (plan === "expirado") newFeatureBlocks[key] = true;
+      if (plan === "expirado" || plan === "comprou_expirado") newFeatureBlocks[key] = true;
       else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
       else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
       else newFeatureBlocks[key] = false;
@@ -328,7 +332,7 @@ export default function Admin() {
   const updatePlanStartDate = async (userId: string, dateStr: string) => {
     setUserPlanDates(prev => ({ ...prev, [userId]: dateStr }));
     const userProfile = users.find(u => u.user_id === userId);
-    if (!userProfile || !userProfile.plan || userProfile.plan === "expirado") return;
+    if (!userProfile || !userProfile.plan || userProfile.plan === "expirado" || userProfile.plan === "comprou_expirado") return;
     
     const startDate = new Date(dateStr + "T00:00:00").toISOString();
     const { error } = await supabase.from("profiles").update({ trial_start: startDate }).eq("user_id", userId);
@@ -435,7 +439,7 @@ export default function Admin() {
 
   const getPlanBadge = (plan: string | null) => {
     const p = plan || "trial";
-    const labels: Record<string, string> = { trial: "Trial (1h)", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado" };
+    const labels: Record<string, string> = { trial: "Trial (1h)", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
     const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
     return (
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
@@ -629,11 +633,12 @@ export default function Admin() {
                             <option value="anual_completo">Anual Completo</option>
                           </optgroup>
                           <option value="expirado">Expirado</option>
+                          <option value="comprou_expirado">Comprou Expirado</option>
                         </select>
                       </div>
 
                       {/* Plan Summary */}
-                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "trial" && userProfile.trial_start && (
+                      {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "comprou_expirado" && userProfile.plan !== "trial" && userProfile.trial_start && (
                         <div className="grid grid-cols-3 gap-3">
                           <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Início</p>
