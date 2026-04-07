@@ -23,20 +23,14 @@ import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/7QCYJywp45";
-const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCb9OZCnx";
-const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/7QCXhRFxpN";
-const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3i6HnCnhEF";
-const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/2TOs3baPMb";
-const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCdAuUpaT";
-
-const PLAN_AMOUNTS: Record<string, number> = {
-  "mensal_starter": 1990,
-  "mensal_profissional": 2490,
-  "mensal_completo": 3990,
-  "anual_starter": 14990,
-  "anual_profissional": 19990,
-  "anual_completo": 29880,
+// Stripe Price IDs
+const STRIPE_PRICES: Record<string, string> = {
+  "mensal_starter": "price_1TJhuV2NgPNemgdBlI4jwEky",
+  "anual_starter": "price_1TJhw82NgPNemgdBcgjYS1mI",
+  "mensal_profissional": "price_1TJhz42NgPNemgdBPiofIBLc",
+  "anual_profissional": "price_1TJi4z2NgPNemgdBkwvlK79c",
+  "mensal_completo": "price_1TJi712NgPNemgdBfOOEXClS",
+  "anual_completo": "price_1TJi7r2NgPNemgdBYFPcUSQQ",
 };
 
 const testimonials = [
@@ -77,8 +71,6 @@ interface PlanDef {
   features: string[];
   planKeyMonthly: string;
   planKeyYearly: string;
-  urlMonthly: string;
-  urlYearly: string;
 }
 
 const plans: PlanDef[] = [
@@ -95,8 +87,6 @@ const plans: PlanDef[] = [
     socialProof: "",
     planKeyMonthly: "mensal_starter",
     planKeyYearly: "anual_starter",
-    urlMonthly: STARTER_URL,
-    urlYearly: STARTER_YEARLY_URL,
     features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Avanços", "Tutoriais", "Configurações"],
   },
   {
@@ -112,8 +102,6 @@ const plans: PlanDef[] = [
     socialProof: "47 artistas estão nesse plano!",
     planKeyMonthly: "mensal_profissional",
     planKeyYearly: "anual_profissional",
-    urlMonthly: PRO_URL,
-    urlYearly: PRO_YEARLY_URL,
     features: [
       "Tudo do Starter +",
       "Clientes",
@@ -137,8 +125,6 @@ const plans: PlanDef[] = [
     socialProof: "21 artistas estão nesse plano!",
     planKeyMonthly: "mensal_completo",
     planKeyYearly: "anual_completo",
-    urlMonthly: FULL_URL,
-    urlYearly: FULL_YEARLY_URL,
     features: [
       "Tudo do Profissional +",
       "Link Agendamento Online",
@@ -234,6 +220,25 @@ export default function Planos() {
     async function fetchPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // If returning from successful Stripe checkout, verify subscription
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("success") === "true") {
+        toast.success("Pagamento realizado! Verificando assinatura...");
+        const { data: subData } = await supabase.functions.invoke("check-subscription");
+        if (subData?.subscribed && subData?.plan_key) {
+          setUserPlan(subData.plan_key);
+          toast.success("Plano ativado com sucesso! 🎉");
+          // Clean URL
+          window.history.replaceState({}, "", "/planos");
+          return;
+        }
+      }
+      if (params.get("canceled") === "true") {
+        toast.info("Pagamento cancelado.");
+        window.history.replaceState({}, "", "/planos");
+      }
+
       const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
       if (data) setUserPlan(data.plan);
     }
@@ -252,7 +257,7 @@ export default function Planos() {
   };
   const userTier = getUserPlanTier();
 
-  const handleSubscribe = async (planKey: string, amountCents: number, checkoutUrl: string) => {
+  const handleSubscribe = async (planKey: string) => {
     setLoadingPlan(planKey);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -262,32 +267,26 @@ export default function Planos() {
         return;
       }
 
-      // Cancel any previous pending payments for this user with same amount
-      await supabase
-        .from("pending_payments")
-        .update({ status: "cancelled" } as any)
-        .eq("user_id", user.id)
-        .eq("status", "pending");
-
-      // Create pending payment record
-      const { error } = await supabase
-        .from("pending_payments")
-        .insert({
-          user_id: user.id,
-          plan_key: planKey,
-          amount_cents: amountCents,
-        } as any);
-
-      if (error) {
-        console.error("Error creating pending payment:", error);
-        toast.error("Erro ao processar. Tente novamente.");
+      const priceId = STRIPE_PRICES[planKey];
+      if (!priceId) {
+        toast.error("Plano inválido.");
         setLoadingPlan(null);
         return;
       }
 
-      // Navigate to checkout - using location.href for PWA/mobile compatibility
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId },
+      });
+
+      if (error || !data?.url) {
+        console.error("Checkout error:", error);
+        toast.error("Erro ao criar sessão de pagamento. Tente novamente.");
+        setLoadingPlan(null);
+        return;
+      }
+
       toast.success("Redirecionando para pagamento...");
-      window.location.href = checkoutUrl;
+      window.location.href = data.url;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
@@ -342,9 +341,7 @@ export default function Planos() {
               const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,66" : "24,90";
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
-              const finalUrl = isYearly ? p.urlYearly : p.urlMonthly;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
-              const finalAmountCents = PLAN_AMOUNTS[finalPlanKey] || 0;
               const finalPeriod = isYearly ? "/ano" : "/mês";
               const isLoading = loadingPlan === finalPlanKey;
 
@@ -437,7 +434,7 @@ export default function Planos() {
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
-                        onClick={() => handleSubscribe(finalPlanKey, finalAmountCents, finalUrl)}
+                        onClick={() => handleSubscribe(finalPlanKey)}
                       >
                         <span className="flex items-center justify-center gap-2">
                           {isLoading ? (
