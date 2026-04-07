@@ -71,8 +71,6 @@ interface PlanDef {
   features: string[];
   planKeyMonthly: string;
   planKeyYearly: string;
-  urlMonthly: string;
-  urlYearly: string;
 }
 
 const plans: PlanDef[] = [
@@ -89,8 +87,6 @@ const plans: PlanDef[] = [
     socialProof: "",
     planKeyMonthly: "mensal_starter",
     planKeyYearly: "anual_starter",
-    urlMonthly: STARTER_URL,
-    urlYearly: STARTER_YEARLY_URL,
     features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Avanços", "Tutoriais", "Configurações"],
   },
   {
@@ -106,8 +102,6 @@ const plans: PlanDef[] = [
     socialProof: "47 artistas estão nesse plano!",
     planKeyMonthly: "mensal_profissional",
     planKeyYearly: "anual_profissional",
-    urlMonthly: PRO_URL,
-    urlYearly: PRO_YEARLY_URL,
     features: [
       "Tudo do Starter +",
       "Clientes",
@@ -131,8 +125,6 @@ const plans: PlanDef[] = [
     socialProof: "21 artistas estão nesse plano!",
     planKeyMonthly: "mensal_completo",
     planKeyYearly: "anual_completo",
-    urlMonthly: FULL_URL,
-    urlYearly: FULL_YEARLY_URL,
     features: [
       "Tudo do Profissional +",
       "Link Agendamento Online",
