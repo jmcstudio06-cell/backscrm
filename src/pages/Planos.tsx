@@ -220,6 +220,25 @@ export default function Planos() {
     async function fetchPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // If returning from successful Stripe checkout, verify subscription
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("success") === "true") {
+        toast.success("Pagamento realizado! Verificando assinatura...");
+        const { data: subData } = await supabase.functions.invoke("check-subscription");
+        if (subData?.subscribed && subData?.plan_key) {
+          setUserPlan(subData.plan_key);
+          toast.success("Plano ativado com sucesso! 🎉");
+          // Clean URL
+          window.history.replaceState({}, "", "/planos");
+          return;
+        }
+      }
+      if (params.get("canceled") === "true") {
+        toast.info("Pagamento cancelado.");
+        window.history.replaceState({}, "", "/planos");
+      }
+
       const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
       if (data) setUserPlan(data.plan);
     }
