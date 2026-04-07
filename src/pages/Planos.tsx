@@ -23,20 +23,14 @@ import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/7QCYJywp45";
-const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCb9OZCnx";
-const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/7QCXhRFxpN";
-const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3i6HnCnhEF";
-const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/2TOs3baPMb";
-const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCdAuUpaT";
-
-const PLAN_AMOUNTS: Record<string, number> = {
-  "mensal_starter": 1990,
-  "mensal_profissional": 2490,
-  "mensal_completo": 3990,
-  "anual_starter": 14990,
-  "anual_profissional": 19990,
-  "anual_completo": 29880,
+// Stripe Price IDs
+const STRIPE_PRICES: Record<string, string> = {
+  "mensal_starter": "price_1TJhuV2NgPNemgdBlI4jwEky",
+  "anual_starter": "price_1TJhw82NgPNemgdBcgjYS1mI",
+  "mensal_profissional": "price_1TJhz42NgPNemgdBPiofIBLc",
+  "anual_profissional": "price_1TJi4z2NgPNemgdBkwvlK79c",
+  "mensal_completo": "price_1TJi712NgPNemgdBfOOEXClS",
+  "anual_completo": "price_1TJi7r2NgPNemgdBYFPcUSQQ",
 };
 
 const testimonials = [
