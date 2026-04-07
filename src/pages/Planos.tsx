@@ -322,9 +322,7 @@ export default function Planos() {
               const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,66" : "24,90";
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
-              const finalUrl = isYearly ? p.urlYearly : p.urlMonthly;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
-              const finalAmountCents = PLAN_AMOUNTS[finalPlanKey] || 0;
               const finalPeriod = isYearly ? "/ano" : "/mês";
               const isLoading = loadingPlan === finalPlanKey;
 
@@ -417,7 +415,7 @@ export default function Planos() {
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
-                        onClick={() => handleSubscribe(finalPlanKey, finalAmountCents, finalUrl)}
+                        onClick={() => handleSubscribe(finalPlanKey)}
                       >
                         <span className="flex items-center justify-center gap-2">
                           {isLoading ? (
