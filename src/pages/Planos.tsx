@@ -238,7 +238,7 @@ export default function Planos() {
   };
   const userTier = getUserPlanTier();
 
-  const handleSubscribe = async (planKey: string, amountCents: number, checkoutUrl: string) => {
+  const handleSubscribe = async (planKey: string) => {
     setLoadingPlan(planKey);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -248,32 +248,26 @@ export default function Planos() {
         return;
       }
 
-      // Cancel any previous pending payments for this user with same amount
-      await supabase
-        .from("pending_payments")
-        .update({ status: "cancelled" } as any)
-        .eq("user_id", user.id)
-        .eq("status", "pending");
-
-      // Create pending payment record
-      const { error } = await supabase
-        .from("pending_payments")
-        .insert({
-          user_id: user.id,
-          plan_key: planKey,
-          amount_cents: amountCents,
-        } as any);
-
-      if (error) {
-        console.error("Error creating pending payment:", error);
-        toast.error("Erro ao processar. Tente novamente.");
+      const priceId = STRIPE_PRICES[planKey];
+      if (!priceId) {
+        toast.error("Plano inválido.");
         setLoadingPlan(null);
         return;
       }
 
-      // Navigate to checkout - using location.href for PWA/mobile compatibility
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId },
+      });
+
+      if (error || !data?.url) {
+        console.error("Checkout error:", error);
+        toast.error("Erro ao criar sessão de pagamento. Tente novamente.");
+        setLoadingPlan(null);
+        return;
+      }
+
       toast.success("Redirecionando para pagamento...");
-      window.location.href = checkoutUrl;
+      window.location.href = data.url;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
