@@ -9,12 +9,12 @@ const corsHeaders = {
 
 // Map Stripe product IDs to plan keys
 const PRODUCT_TO_PLAN: Record<string, string> = {
-  "prod_UIIVNhRWs92Vge": "mensal_starter",
-  "prod_UIIXsoJ6hZpzmi": "anual_starter",
-  "prod_UIIaGjovca0BKE": "mensal_profissional",
-  "prod_UIIgWV3DyZ59i7": "anual_profissional",
-  "prod_UIIisFLPoFiEmm": "mensal_completo",
-  "prod_UIIjIfhA6w65jz": "anual_completo",
+  "prod_UIKykSBOc4zLS4": "mensal_starter",
+  "prod_UIKyyCWePFFbv2": "anual_starter",
+  "prod_UIKybvA16WdTBg": "mensal_profissional",
+  "prod_UIKzaOra1dvZVt": "anual_profissional",
+  "prod_UIKznTT7EQaZYz": "mensal_completo",
+  "prod_UIL0G1SmpP97WA": "anual_completo",
 };
 
 serve(async (req) => {

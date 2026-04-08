@@ -25,12 +25,12 @@ import { toast } from "sonner";
 
 // Stripe Price IDs
 const STRIPE_PRICES: Record<string, string> = {
-  "mensal_starter": "price_1TJhuV2NgPNemgdBlI4jwEky",
-  "anual_starter": "price_1TJhw82NgPNemgdBcgjYS1mI",
-  "mensal_profissional": "price_1TJhz42NgPNemgdBPiofIBLc",
-  "anual_profissional": "price_1TJi4z2NgPNemgdBkwvlK79c",
-  "mensal_completo": "price_1TJi712NgPNemgdBfOOEXClS",
-  "anual_completo": "price_1TJi7r2NgPNemgdBYFPcUSQQ",
+  "mensal_starter": "price_1TJkIBRrEj00ctsSm2uCqBNA",
+  "anual_starter": "price_1TJkISRrEj00ctsSXir7KCe1",
+  "mensal_profissional": "price_1TJkIoRrEj00ctsS2qAtbTFO",
+  "anual_profissional": "price_1TJkJBRrEj00ctsSu7OiDRwK",
+  "mensal_completo": "price_1TJkJURrEj00ctsSdJXnjKa1",
+  "anual_completo": "price_1TJkKFRrEj00ctsStdhDKbho",
 };
 
 const testimonials = [
