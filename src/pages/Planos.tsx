@@ -23,14 +23,6 @@ import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const PLAN_AMOUNTS: Record<string, number> = {
-  "mensal_starter": 1990,
-  "mensal_profissional": 2490,
-  "mensal_completo": 3990,
-  "anual_starter": 14990,
-  "anual_profissional": 19990,
-  "anual_completo": 29880,
-};
 
 const testimonials = [
   {
@@ -317,7 +309,7 @@ export default function Planos() {
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
-              const finalAmountCents = PLAN_AMOUNTS[finalPlanKey] || 0;
+              
               const finalPeriod = isYearly ? "/ano" : "/mês";
               const isLoading = loadingPlan === finalPlanKey;
 
