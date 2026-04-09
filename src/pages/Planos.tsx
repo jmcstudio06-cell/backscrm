@@ -70,8 +70,6 @@ interface PlanDef {
   features: string[];
   planKeyMonthly: string;
   planKeyYearly: string;
-  urlMonthly: string;
-  urlYearly: string;
 }
 
 const plans: PlanDef[] = [
