@@ -23,21 +23,6 @@ import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/7QCYJywp45";
-const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCb9OZCnx";
-const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/7QCXhRFxpN";
-const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3i6HnCnhEF";
-const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/2TOs3baPMb";
-const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7QCdAuUpaT";
-
-const PLAN_AMOUNTS: Record<string, number> = {
-  "mensal_starter": 1990,
-  "mensal_profissional": 2490,
-  "mensal_completo": 3990,
-  "anual_starter": 14990,
-  "anual_profissional": 19990,
-  "anual_completo": 29880,
-};
 
 const testimonials = [
   {
@@ -77,8 +62,6 @@ interface PlanDef {
   features: string[];
   planKeyMonthly: string;
   planKeyYearly: string;
-  urlMonthly: string;
-  urlYearly: string;
 }
 
 const plans: PlanDef[] = [
@@ -95,8 +78,6 @@ const plans: PlanDef[] = [
     socialProof: "",
     planKeyMonthly: "mensal_starter",
     planKeyYearly: "anual_starter",
-    urlMonthly: STARTER_URL,
-    urlYearly: STARTER_YEARLY_URL,
     features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Avanços", "Tutoriais", "Configurações"],
   },
   {
@@ -112,8 +93,6 @@ const plans: PlanDef[] = [
     socialProof: "47 artistas estão nesse plano!",
     planKeyMonthly: "mensal_profissional",
     planKeyYearly: "anual_profissional",
-    urlMonthly: PRO_URL,
-    urlYearly: PRO_YEARLY_URL,
     features: [
       "Tudo do Starter +",
       "Clientes",
@@ -137,8 +116,6 @@ const plans: PlanDef[] = [
     socialProof: "21 artistas estão nesse plano!",
     planKeyMonthly: "mensal_completo",
     planKeyYearly: "anual_completo",
-    urlMonthly: FULL_URL,
-    urlYearly: FULL_YEARLY_URL,
     features: [
       "Tudo do Profissional +",
       "Link Agendamento Online",
@@ -252,7 +229,7 @@ export default function Planos() {
   };
   const userTier = getUserPlanTier();
 
-  const handleSubscribe = async (planKey: string, amountCents: number, checkoutUrl: string) => {
+  const handleSubscribe = async (planKey: string) => {
     setLoadingPlan(planKey);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -262,32 +239,21 @@ export default function Planos() {
         return;
       }
 
-      // Cancel any previous pending payments for this user with same amount
-      await supabase
-        .from("pending_payments")
-        .update({ status: "cancelled" } as any)
-        .eq("user_id", user.id)
-        .eq("status", "pending");
+      // Call edge function to create Mercado Pago preference
+      const { data, error } = await supabase.functions.invoke("mercadopago-create-preference", {
+        body: { plan_key: planKey },
+      });
 
-      // Create pending payment record
-      const { error } = await supabase
-        .from("pending_payments")
-        .insert({
-          user_id: user.id,
-          plan_key: planKey,
-          amount_cents: amountCents,
-        } as any);
-
-      if (error) {
-        console.error("Error creating pending payment:", error);
-        toast.error("Erro ao processar. Tente novamente.");
+      if (error || !data?.init_point) {
+        console.error("Error creating preference:", error, data);
+        toast.error("Erro ao processar pagamento. Tente novamente.");
         setLoadingPlan(null);
         return;
       }
 
-      // Navigate to checkout - using location.href for PWA/mobile compatibility
+      // Redirect to Mercado Pago checkout
       toast.success("Redirecionando para pagamento...");
-      window.location.href = checkoutUrl;
+      window.location.href = data.init_point;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
@@ -342,9 +308,8 @@ export default function Planos() {
               const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,66" : "24,90";
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
-              const finalUrl = isYearly ? p.urlYearly : p.urlMonthly;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
-              const finalAmountCents = PLAN_AMOUNTS[finalPlanKey] || 0;
+              
               const finalPeriod = isYearly ? "/ano" : "/mês";
               const isLoading = loadingPlan === finalPlanKey;
 
@@ -437,7 +402,7 @@ export default function Planos() {
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
-                        onClick={() => handleSubscribe(finalPlanKey, finalAmountCents, finalUrl)}
+                        onClick={() => handleSubscribe(finalPlanKey)}
                       >
                         <span className="flex items-center justify-center gap-2">
                           {isLoading ? (
