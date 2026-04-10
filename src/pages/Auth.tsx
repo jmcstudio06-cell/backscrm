@@ -215,12 +215,14 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0066CC] via-[#0077DD] to-[#00B4D8] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -left-20 w-60 h-60 bg-cyan-400/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-1/4 w-40 h-40 bg-blue-300/10 rounded-full blur-2xl" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-cyan-400/15 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 -left-20 w-72 h-72 bg-blue-300/10 rounded-full blur-[80px]" />
+        <div className="absolute bottom-0 right-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-[80px]" />
+        {/* Subtle grid */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       </div>
 
       {/* Header */}
