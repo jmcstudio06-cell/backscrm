@@ -26,7 +26,13 @@ import {
   Check,
   Shield,
   Zap,
-  Mail
+  Mail,
+  ClipboardCheck,
+  MapPin,
+  FileText,
+  Receipt,
+  Rocket,
+  MousePointerClick
 } from "lucide-react";
 
 type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent";
