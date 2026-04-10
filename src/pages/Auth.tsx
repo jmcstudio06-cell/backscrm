@@ -26,7 +26,13 @@ import {
   Check,
   Shield,
   Zap,
-  Mail
+  Mail,
+  ClipboardCheck,
+  MapPin,
+  FileText,
+  Receipt,
+  Rocket,
+  MousePointerClick
 } from "lucide-react";
 
 type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent";
@@ -369,40 +375,74 @@ const Auth = () => {
                 />
               </div>
 
-              {/* Floating stat cards */}
-              <div className="absolute top-6 right-6 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3s' }}>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center">
+              {/* Floating feature cards */}
+              {/* Top left */}
+              <div className="absolute top-4 left-4 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3s' }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
                     <DollarSign className="w-4 h-4 text-white" />
                   </div>
-                  <div>
-                    <p className="text-white/70 text-[10px]">Receita gerenciada</p>
-                    <p className="text-white font-bold text-sm">R$ 2.5M+</p>
-                  </div>
+                  <span className="text-white font-semibold text-xs">Financeiro</span>
                 </div>
               </div>
 
-              <div className="absolute top-6 left-6 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-4 h-4 text-white" />
+              {/* Top right */}
+              <div className="absolute top-4 right-4 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <ClipboardCheck className="w-4 h-4 text-white" />
                   </div>
-                  <div>
-                    <p className="text-white/70 text-[10px]">Shows organizados</p>
-                    <p className="text-white font-bold text-sm">4.200+</p>
-                  </div>
+                  <span className="text-white font-semibold text-xs">Checklist</span>
                 </div>
               </div>
 
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 bg-purple-500 rounded-lg flex items-center justify-center">
-                    <Users className="w-4 h-4 text-white" />
+              {/* Mid left */}
+              <div className="absolute top-[38%] left-3 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-white" />
                   </div>
-                  <div>
-                    <p className="text-white/70 text-[10px]">Artistas ativos</p>
-                    <p className="text-white font-bold text-sm">+90</p>
+                  <span className="text-white font-semibold text-xs">Mapeamento de Palco</span>
+                </div>
+              </div>
+
+              {/* Mid right */}
+              <div className="absolute top-[35%] right-3 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.8s', animationDelay: '1.5s' }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                    <Receipt className="w-4 h-4 text-white" />
                   </div>
+                  <span className="text-white font-semibold text-xs">Orçamento Rápido</span>
+                </div>
+              </div>
+
+              {/* Bottom left */}
+              <div className="absolute bottom-14 left-6 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.2s', animationDelay: '2s' }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-white font-semibold text-xs">Contrato Rápido</span>
+                </div>
+              </div>
+
+              {/* Bottom right */}
+              <div className="absolute bottom-14 right-6 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '4.2s', animationDelay: '2.5s' }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
+                    <Rocket className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-white font-semibold text-xs">Agilidade</span>
+                </div>
+              </div>
+
+              {/* Bottom center */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.6s', animationDelay: '3s' }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                    <MousePointerClick className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-white font-semibold text-xs">Facilidade</span>
                 </div>
               </div>
             </div>
