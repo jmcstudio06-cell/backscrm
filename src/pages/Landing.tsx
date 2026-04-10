@@ -200,7 +200,7 @@ const Landing = () => {
           
           <nav className="hidden md:flex items-center gap-8">
             <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
-            <a href="#planos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Planos</a>
+            
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
             <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
           </nav>
