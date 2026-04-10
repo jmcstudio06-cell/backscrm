@@ -7,10 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
-import heroSingerImg from "@/assets/hero-singer-clean.webp";
 import baIconImg from "@/assets/ba-icon.png";
-import heroDjImg from "@/assets/hero-dj.webp";
-import heroManagerImg from "@/assets/hero-manager.webp";
 import artist1Img from "@/assets/artists/artist-1.png";
 import artist2Img from "@/assets/artists/artist-2.png";
 import artist3Img from "@/assets/artists/artist-3.png";
@@ -37,7 +34,8 @@ import {
   FileText,
   Receipt,
   Rocket,
-  MousePointerClick
+  Link2,
+  Music
 } from "lucide-react";
 
 type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent";
