@@ -346,27 +346,41 @@ const Auth = () => {
 
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
-            <div className="relative flex gap-6 items-center">
+            <div className="relative flex items-center justify-center">
+              {/* Left column cards - float up */}
+              <div className="flex flex-col gap-3 w-[170px] shrink-0 animate-[floatUp_3s_ease-in-out_infinite]">
+                {[
+                  { icon: DollarSign, label: "Financeiro", color: "bg-emerald-500" },
+                  { icon: ClipboardCheck, label: "Checklist", color: "bg-blue-500" },
+                  { icon: MapPin, label: "Mapa de Palco", color: "bg-purple-500" },
+                ].map((item, i) => (
+                  <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 transition-all duration-300 cursor-default">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 ${item.color} rounded-lg flex items-center justify-center shrink-0`}>
+                        <item.icon className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-white font-medium text-xs">{item.label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               {/* Artist image container */}
-              <div className="relative h-[350px] flex-1 overflow-hidden rounded-3xl">
-                {/* Subtle floating bubbles background */}
+              <div className="relative h-[380px] w-[340px] shrink-0 overflow-hidden rounded-3xl mx-4">
+                {/* Subtle floating bubbles */}
                 <div className="absolute inset-0 z-5 pointer-events-none">
                   <div className="absolute w-24 h-24 rounded-full bg-white/[0.04] top-[10%] left-[15%]" />
-                  <div className="absolute w-16 h-16 rounded-full bg-white/[0.03] top-[60%] left-[10%]" />
-                  <div className="absolute w-32 h-32 rounded-full bg-white/[0.04] top-[30%] right-[10%]" />
-                  <div className="absolute w-20 h-20 rounded-full bg-white/[0.03] bottom-[15%] right-[25%]" />
-                  <div className="absolute w-12 h-12 rounded-full bg-white/[0.05] top-[5%] right-[40%]" />
-                  <div className="absolute w-28 h-28 rounded-full bg-white/[0.03] bottom-[30%] left-[35%]" />
-                  <div className="absolute w-10 h-10 rounded-full bg-white/[0.04] top-[45%] left-[50%]" />
-                  <div className="absolute w-36 h-36 rounded-full bg-white/[0.03] top-[70%] right-[5%]" />
+                  <div className="absolute w-16 h-16 rounded-full bg-white/[0.03] top-[50%] left-[10%]" />
+                  <div className="absolute w-32 h-32 rounded-full bg-white/[0.04] top-[20%] right-[10%]" />
+                  <div className="absolute w-20 h-20 rounded-full bg-white/[0.03] bottom-[20%] right-[20%]" />
                 </div>
 
-                {/* Fade overlays - strong bottom fade */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0058BB] via-[#0058BB]/70 via-30% to-transparent z-20 pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/40 via-transparent to-transparent z-20 pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB]/80 via-transparent to-[#0055BB]/80 z-20 pointer-events-none" />
+                {/* Fade overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0058BB] via-[#0058BB]/60 via-25% to-transparent z-20 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/30 via-transparent to-transparent z-20 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB]/70 via-transparent to-[#0055BB]/70 z-20 pointer-events-none" />
 
-                {/* 3 artists - cropped from waist up */}
+                {/* 3 artists */}
                 <div className="absolute inset-0 flex items-start justify-center pt-4 z-10">
                   <img src={heroDjImg} alt="DJ" className="h-[420px] object-cover object-top -mr-6 select-none pointer-events-none" />
                   <img src={heroSingerImg} alt="Cantor" className="h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
@@ -374,21 +388,15 @@ const Auth = () => {
                 </div>
               </div>
 
-              {/* Feature cards - stacked on the right */}
-              <div className="flex flex-col gap-3 w-[180px] shrink-0">
+              {/* Right column cards - float down (opposite sync) */}
+              <div className="flex flex-col gap-3 w-[170px] shrink-0 animate-[floatDown_3s_ease-in-out_infinite]">
                 {[
-                  { icon: DollarSign, label: "Financeiro", color: "bg-emerald-500" },
-                  { icon: ClipboardCheck, label: "Checklist", color: "bg-blue-500" },
-                  { icon: MapPin, label: "Mapeamento de Palco", color: "bg-purple-500" },
                   { icon: Receipt, label: "Orçamento Rápido", color: "bg-orange-500" },
                   { icon: FileText, label: "Contrato Rápido", color: "bg-pink-500" },
                   { icon: Rocket, label: "Agilidade", color: "bg-cyan-500" },
                   { icon: MousePointerClick, label: "Facilidade", color: "bg-yellow-500" },
                 ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 hover:bg-white/20 hover:border-white/30 hover:scale-105 transition-all duration-300 cursor-default"
-                  >
+                  <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 transition-all duration-300 cursor-default">
                     <div className="flex items-center gap-2.5">
                       <div className={`w-8 h-8 ${item.color} rounded-lg flex items-center justify-center shrink-0`}>
                         <item.icon className="w-4 h-4 text-white" />
