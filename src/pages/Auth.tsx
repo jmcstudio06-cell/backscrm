@@ -223,38 +223,37 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-cyan-400/15 rounded-full blur-[100px]" />
         <div className="absolute top-1/2 -left-20 w-72 h-72 bg-blue-300/10 rounded-full blur-[80px]" />
         <div className="absolute bottom-0 right-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-[80px]" />
-        {/* Subtle grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       </div>
 
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-6 py-4 md:px-12">
+      <header className="relative z-20 flex items-center justify-between px-5 py-3 md:px-12 md:py-4">
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-white transition-transform group-hover:scale-105">Backstage</span>
-            <span className="text-2xl font-bold text-cyan-300 transition-transform group-hover:scale-105">Pro</span>
+            <span className="text-xl md:text-2xl font-bold text-white transition-transform group-hover:scale-105">Backstage</span>
+            <span className="text-xl md:text-2xl font-bold text-cyan-300 transition-transform group-hover:scale-105">Pro</span>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {showForm && (
             <Button 
               variant="ghost" 
-              className="text-white/80 hover:text-white hover:bg-white/10 transition-all"
+              className="text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm md:text-base"
               onClick={handleBack}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
               Voltar
             </Button>
           )}
           <Button 
             variant="ghost" 
-            className="text-white hover:text-white hover:bg-white/10 font-medium transition-all"
+            className="text-white hover:text-white hover:bg-white/10 font-medium transition-all text-sm md:text-base"
             onClick={() => setView("login")}
           >
             Entrar
@@ -263,8 +262,8 @@ const Auth = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-6 py-4 md:py-12">
-        <div className={`grid gap-6 lg:grid-cols-2 lg:gap-16 items-center ${!showForm ? 'min-h-[calc(100vh-200px)]' : 'lg:min-h-[calc(100vh-200px)]'}`}>
+      <main className="relative z-10 container mx-auto px-5 md:px-6 py-4 md:py-12 overflow-x-hidden">
+        <div className={`grid gap-6 lg:grid-cols-2 lg:gap-16 items-center ${!showForm ? 'min-h-[calc(100vh-180px)]' : 'lg:min-h-[calc(100vh-200px)]'}`}>
           {/* Left Side - Hero Content */}
           <div className={`animate-fade-in ${showForm ? 'space-y-3 lg:space-y-8' : 'space-y-8'}`}>
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 border border-white/20">
