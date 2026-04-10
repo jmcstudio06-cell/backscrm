@@ -347,16 +347,12 @@ const Auth = () => {
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
             <div className="relative flex items-center justify-center">
-              {/* Artist image container */}
-              <div className="relative h-[380px] w-[420px] shrink-0 overflow-visible">
-                {/* Inner image with clipping */}
+              <div className="relative h-[400px] w-[440px] shrink-0 overflow-visible">
+                {/* Inner image */}
                 <div className="relative h-full w-full overflow-hidden rounded-3xl">
-                  {/* Fade overlays */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0058BB] via-[#0058BB]/60 via-25% to-transparent z-20 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/30 via-transparent to-transparent z-20 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB]/70 via-transparent to-[#0055BB]/70 z-20 pointer-events-none" />
-
-                  {/* 3 artists */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/20 via-transparent to-transparent z-20 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB]/50 via-transparent to-[#0055BB]/50 z-20 pointer-events-none" />
                   <div className="absolute inset-0 flex items-start justify-center pt-4 z-10">
                     <img src={heroDjImg} alt="DJ" className="h-[420px] object-cover object-top -mr-6 select-none pointer-events-none" />
                     <img src={heroSingerImg} alt="Cantor" className="h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
@@ -364,76 +360,66 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* Floating cards around the artist - LEFT side */}
-                <div className="absolute -left-[140px] top-[10%] z-30 animate-[floatUp_3s_ease-in-out_infinite]">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 shadow-lg">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shrink-0">
+                {/* LEFT cards - staggered, static */}
+                <div className="absolute -left-[130px] top-[8%] z-30">
+                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                         <DollarSign className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-white font-medium text-xs">Financeiro</span>
+                      <span className="text-white font-semibold text-sm">Financeiro</span>
                     </div>
                   </div>
                 </div>
-                <div className="absolute -left-[120px] top-[38%] z-30 animate-[floatDown_3s_ease-in-out_infinite]">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 shadow-lg">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
+                <div className="absolute -left-[110px] top-[35%] z-30">
+                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-blue-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                         <ClipboardCheck className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-white font-medium text-xs">Checklist</span>
+                      <span className="text-white font-semibold text-sm">Checklist</span>
                     </div>
                   </div>
                 </div>
-                <div className="absolute -left-[100px] top-[66%] z-30 animate-[floatUp_3s_ease-in-out_infinite] [animation-delay:0.5s]">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 shadow-lg">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center shrink-0">
+                <div className="absolute -left-[90px] top-[62%] z-30">
+                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-purple-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                         <MapPin className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-white font-medium text-xs">Mapa de Palco</span>
+                      <span className="text-white font-semibold text-sm">Mapa de Palco</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Floating cards around the artist - RIGHT side */}
-                <div className="absolute -right-[150px] top-[8%] z-30 animate-[floatDown_3s_ease-in-out_infinite]">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 shadow-lg">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shrink-0">
+                {/* RIGHT cards - staggered, static */}
+                <div className="absolute -right-[130px] top-[12%] z-30">
+                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                         <Receipt className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-white font-medium text-xs">Orçamento</span>
+                      <span className="text-white font-semibold text-sm">Orçamento</span>
                     </div>
                   </div>
                 </div>
-                <div className="absolute -right-[130px] top-[35%] z-30 animate-[floatUp_3s_ease-in-out_infinite] [animation-delay:0.3s]">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 shadow-lg">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center shrink-0">
+                <div className="absolute -right-[110px] top-[40%] z-30">
+                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-pink-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                         <FileText className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-white font-medium text-xs">Contratos</span>
+                      <span className="text-white font-semibold text-sm">Contratos</span>
                     </div>
                   </div>
                 </div>
-                <div className="absolute -right-[110px] top-[60%] z-30 animate-[floatDown_3s_ease-in-out_infinite] [animation-delay:0.6s]">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 shadow-lg">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center shrink-0">
+                <div className="absolute -right-[90px] top-[66%] z-30">
+                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-cyan-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                         <Rocket className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-white font-medium text-xs">Agilidade</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -right-[90px] top-[82%] z-30 animate-[floatUp_3s_ease-in-out_infinite] [animation-delay:0.8s]">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 shadow-lg">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center shrink-0">
-                        <MousePointerClick className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-white font-medium text-xs">Facilidade</span>
+                      <span className="text-white font-semibold text-sm">Agilidade</span>
                     </div>
                   </div>
                 </div>
