@@ -339,33 +339,51 @@ const Auth = () => {
 
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
-            <div className="grid grid-cols-2 gap-4">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="group rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-6 transition-all duration-300 hover:bg-white/20 hover:border-white/30 hover:scale-[1.02] hover:shadow-xl animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-4 shadow-lg transition-transform group-hover:scale-110`}>
-                    <feature.icon className="h-7 w-7 text-white" />
+            <div className="relative flex flex-col items-center">
+              {/* Singer image with glow */}
+              <div className="relative">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-cyan-400/25 rounded-full blur-[100px]" />
+                <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-[250px] h-[250px] bg-white/10 rounded-full blur-[80px]" />
+                <img 
+                  src={heroSingerImg} 
+                  alt="Artista" 
+                  className="relative z-10 w-[420px] max-h-[520px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.4)] select-none pointer-events-none"
+                />
+              </div>
+
+              {/* Floating stat cards */}
+              <div className="absolute top-8 right-0 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="font-bold text-white text-lg mb-2">{feature.title}</h3>
-                  <p className="text-sm text-white/70 leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
-              
-              {/* Stats Card */}
-              <div 
-                className="col-span-2 rounded-2xl bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 p-6 animate-fade-in"
-                style={{ animationDelay: "400ms" }}
-              >
-                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-white/70 mb-2">Receita gerenciada por artistas</p>
-                    <p className="text-4xl font-bold text-white">R$ 2.5M+</p>
+                    <p className="text-white/60 text-xs">Receita gerenciada</p>
+                    <p className="text-white font-bold text-lg">R$ 2.5M+</p>
                   </div>
-                  <div className="h-20 w-20 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-500/20 flex items-center justify-center">
-                    <DollarSign className="h-10 w-10 text-cyan-300" />
+                </div>
+              </div>
+
+              <div className="absolute top-1/3 -left-4 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs">Shows organizados</p>
+                    <p className="text-white font-bold text-lg">4.200+</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute bottom-20 right-0 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs">Artistas ativos</p>
+                    <p className="text-white font-bold text-lg">+90</p>
                   </div>
                 </div>
               </div>
