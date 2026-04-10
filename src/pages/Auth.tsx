@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
 import heroSingerImg from "@/assets/hero-singer-clean.png";
+import baIconImg from "@/assets/ba-icon.png";
 import heroDjImg from "@/assets/hero-dj.png";
 import heroManagerImg from "@/assets/hero-manager.png";
 import artist1Img from "@/assets/artists/artist-1.png";
