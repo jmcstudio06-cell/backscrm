@@ -347,52 +347,52 @@ const Auth = () => {
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
             <div className="relative flex items-center justify-center">
-              <div className="relative h-[420px] w-[340px] shrink-0 overflow-visible">
+              <div className="relative h-[280px] md:h-[350px] lg:h-[420px] w-[260px] md:w-[300px] lg:w-[340px] shrink-0 overflow-visible">
                 {/* Dark card with artist */}
                 <div className="relative h-full w-full overflow-hidden rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(0,40,100,0.45) 0%, rgba(0,30,80,0.7) 100%)' }}>
                   <div className="absolute inset-0 border border-white/10 rounded-2xl z-30 pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#002860] via-[#002860]/40 via-15% to-transparent z-20 pointer-events-none" />
                   <div className="absolute inset-0 flex items-start justify-center pt-2 z-10">
-                    <img src={heroDjImg} alt="DJ" className="h-[420px] object-cover object-top -mr-6 select-none pointer-events-none" />
-                    <img src={heroSingerImg} alt="Cantor" className="h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
-                    <img src={heroManagerImg} alt="Empresário" className="h-[420px] object-cover object-top -ml-6 select-none pointer-events-none" />
+                    <img src={heroDjImg} alt="DJ" className="h-[280px] md:h-[350px] lg:h-[420px] object-cover object-top -mr-4 lg:-mr-6 select-none pointer-events-none" />
+                    <img src={heroSingerImg} alt="Cantor" className="h-[300px] md:h-[380px] lg:h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
+                    <img src={heroManagerImg} alt="Empresário" className="h-[280px] md:h-[350px] lg:h-[420px] object-cover object-top -ml-4 lg:-ml-6 select-none pointer-events-none" />
                   </div>
                 </div>
 
-                {/* Cards espelhados - maiores e alinhados igualmente nos dois lados */}
-                {[
-                  { left: { icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500' }, right: { icon: Receipt, label: 'Orçamento', color: 'bg-orange-500' }, top: 28 },
-                  { left: { icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500' }, right: { icon: FileText, label: 'Contratos', color: 'bg-pink-500' }, top: 162 },
-                  { left: { icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500' }, right: { icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500' }, top: 296 },
-                ].map((row, i) => (
-                  <>
-                    <div
-                      key={`left-${i}`}
-                      className="absolute z-30"
-                      style={{ top: `${row.top}px`, left: 0, transform: 'translateX(-72%)' }}
-                    >
-                      <div className="flex h-[82px] w-[220px] items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-5 backdrop-blur-lg shadow-xl shadow-black/10">
-                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${row.left.color}`}>
-                          <row.left.icon className="h-5 w-5 text-white" />
+                {/* Cards - hidden on mobile, shown on md+ */}
+                <div className="hidden md:block">
+                  {[
+                    { left: { icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500' }, right: { icon: Receipt, label: 'Orçamento', color: 'bg-orange-500' }, top: { md: 20, lg: 28 } },
+                    { left: { icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500' }, right: { icon: FileText, label: 'Contratos', color: 'bg-pink-500' }, top: { md: 125, lg: 162 } },
+                    { left: { icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500' }, right: { icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500' }, top: { md: 230, lg: 296 } },
+                  ].map((row, i) => (
+                    <div key={i}>
+                      <div
+                        className="absolute z-30"
+                        style={{ top: `${row.top.lg}px`, left: 0, transform: 'translateX(-72%)' }}
+                      >
+                        <div className="flex h-[60px] lg:h-[82px] w-[170px] lg:w-[220px] items-center gap-2 lg:gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-3 lg:px-5 backdrop-blur-lg shadow-xl shadow-black/10">
+                          <div className={`flex h-9 w-9 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-xl ${row.left.color}`}>
+                            <row.left.icon className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
+                          </div>
+                          <span className="whitespace-nowrap text-sm lg:text-base font-semibold text-white">{row.left.label}</span>
                         </div>
-                        <span className="whitespace-nowrap text-base font-semibold text-white">{row.left.label}</span>
                       </div>
-                    </div>
 
-                    <div
-                      key={`right-${i}`}
-                      className="absolute z-30"
-                      style={{ top: `${row.top}px`, right: 0, transform: 'translateX(72%)' }}
-                    >
-                      <div className="flex h-[82px] w-[220px] items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-5 backdrop-blur-lg shadow-xl shadow-black/10">
-                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${row.right.color}`}>
-                          <row.right.icon className="h-5 w-5 text-white" />
+                      <div
+                        className="absolute z-30"
+                        style={{ top: `${row.top.lg}px`, right: 0, transform: 'translateX(72%)' }}
+                      >
+                        <div className="flex h-[60px] lg:h-[82px] w-[170px] lg:w-[220px] items-center gap-2 lg:gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-3 lg:px-5 backdrop-blur-lg shadow-xl shadow-black/10">
+                          <div className={`flex h-9 w-9 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-xl ${row.right.color}`}>
+                            <row.right.icon className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
+                          </div>
+                          <span className="whitespace-nowrap text-sm lg:text-base font-semibold text-white">{row.right.label}</span>
                         </div>
-                        <span className="whitespace-nowrap text-base font-semibold text-white">{row.right.label}</span>
                       </div>
                     </div>
-                  </>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
