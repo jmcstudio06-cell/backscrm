@@ -208,22 +208,34 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pb-20 bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8] relative overflow-hidden transition-all duration-300 pt-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+      <section className="pb-20 bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden transition-all duration-300 pt-32 min-h-[90vh] flex items-center">
+        {/* Animated background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,rgba(0,180,216,0.3),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,rgba(0,51,170,0.4),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(0,180,216,0.2),transparent_40%)]" />
+          {/* Subtle grid pattern */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+        </div>
+        
+        {/* Floating light orbs */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-40 right-20 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }} />
         
         <div className="container mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left Column - Text */}
             <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8 border border-white/20">
                 <Sparkles className="w-4 h-4 text-cyan-300" />
                 <span className="text-white/90 text-sm font-medium">A plataforma que artistas usam para profissionalizar a carreira</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 drop-shadow-lg">
                 Seu talento é no palco.
               </h1>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-cyan-300 mb-6">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-cyan-300 mb-6 drop-shadow-lg">
                 A organização deixa com a gente.
               </h2>
 
@@ -265,7 +277,7 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Social proof - CLEAN DESIGN */}
+              {/* Social proof */}
               <div className="mt-4 flex items-center gap-4">
                 <div className="flex -space-x-3">
                   {userAvatars.map((avatar, i) => (
@@ -293,64 +305,55 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Right Column - Feature Cards */}
-            <div className="hidden lg:grid grid-cols-2 gap-4">
-              {/* Agenda de Shows - Highlighted */}
-              <Card className="bg-white/10 backdrop-blur-sm border-white/30 border-2 hover:bg-white/15 transition-all relative">
-                <div className="absolute -top-2 -right-2 bg-yellow-400 text-[#0066CC] text-xs font-bold px-2 py-1 rounded-full">
-                  Essencial
-                </div>
-                <CardContent className="p-5">
-                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-3">
-                    <Calendar className="w-6 h-6 text-white" />
+            {/* Right Column - Singer Image with glow effect */}
+            <div className="hidden lg:flex items-end justify-center relative">
+              {/* Glow behind singer */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-400/25 rounded-full blur-[100px]" />
+              <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-white/10 rounded-full blur-[80px]" />
+              
+              {/* Singer image */}
+              <img 
+                src={heroSingerImg} 
+                alt="Artista com microfone" 
+                className="relative z-10 w-[480px] max-h-[600px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.4)] select-none pointer-events-none"
+              />
+              
+              {/* Floating stat cards around singer */}
+              <div className="absolute top-12 right-0 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-white font-bold mb-1">Agenda de Shows</h3>
-                  <p className="text-white/70 text-sm">Gerencie todos os seus eventos e apresentações</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
-                <CardContent className="p-5">
-                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mb-3">
-                    <DollarSign className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-white font-bold mb-1">Financeiro Completo</h3>
-                  <p className="text-white/70 text-sm">Controle receitas e despesas automaticamente</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
-                <CardContent className="p-5">
-                  <div className="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center mb-3">
-                    <TrendingUp className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-white font-bold mb-1">CRM de Vendas</h3>
-                  <p className="text-white/70 text-sm">Pipeline visual para converter leads em shows</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all">
-                <CardContent className="p-5">
-                  <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-3">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-white font-bold mb-1">Gestão de Músicos</h3>
-                  <p className="text-white/70 text-sm">Organize sua banda e pagamentos</p>
-                </CardContent>
-              </Card>
-
-              {/* Revenue Card - Contextualized */}
-              <Card className="col-span-2 bg-white/5 backdrop-blur-sm border-white/20 hover:bg-white/10 transition-all">
-                <CardContent className="p-5 flex items-center justify-between">
                   <div>
-                    <p className="text-white/60 text-sm mb-1">Receita gerenciada por artistas na plataforma</p>
-                    <p className="text-white font-bold text-3xl">R$ 2.5M+</p>
+                    <p className="text-white/60 text-xs">Receita gerenciada</p>
+                    <p className="text-white font-bold text-lg">R$ 2.5M+</p>
                   </div>
-                  <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-7 h-7 text-white/50" />
+                </div>
+              </div>
+
+              <div className="absolute top-1/3 left-0 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <p className="text-white/60 text-xs">Shows organizados</p>
+                    <p className="text-white font-bold text-lg">4.200+</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute bottom-32 right-4 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs">Músicos cadastrados</p>
+                    <p className="text-white font-bold text-lg">350+</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
