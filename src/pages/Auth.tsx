@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
 import heroSingerImg from "@/assets/hero-singer-clean.png";
+import baIconImg from "@/assets/ba-icon.png";
 import heroDjImg from "@/assets/hero-dj.png";
 import heroManagerImg from "@/assets/hero-manager.png";
 import artist1Img from "@/assets/artists/artist-1.png";
@@ -400,12 +401,8 @@ const Auth = () => {
             <div className="rounded-3xl bg-white shadow-2xl p-8 md:p-10 animate-scale-in">
               {/* Form Header */}
               <div className="mb-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#0066CC] to-[#00B4D8] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  {isForgot || isResetSent ? (
-                    <Mail className="w-8 h-8 text-white" />
-                  ) : (
-                    <Sparkles className="w-8 h-8 text-white" />
-                  )}
+                <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-4 shadow-lg">
+                  <img src={baIconImg} alt="BA" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800">{getFormTitle()}</h3>
                 <p className="text-slate-500 mt-2">{getFormSubtitle()}</p>
