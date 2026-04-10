@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
-import heroSingerImg from "@/assets/hero-singer-cutout.png";
+import heroSingerImg from "@/assets/hero-singer-clean.png";
 
 import { 
   Calendar, 
