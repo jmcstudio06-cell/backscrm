@@ -347,103 +347,57 @@ const Auth = () => {
 
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
-            <div className="relative h-[500px] w-full overflow-hidden rounded-3xl">
-              {/* Glow behind */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0055BB] via-transparent to-transparent z-20 pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/60 via-transparent to-transparent z-20 pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB] via-transparent to-[#0055BB] z-20 pointer-events-none" />
+            <div className="relative flex gap-6 items-center">
+              {/* Artist image container */}
+              <div className="relative h-[520px] flex-1 overflow-hidden rounded-3xl">
+                {/* Subtle floating bubbles background */}
+                <div className="absolute inset-0 z-5 pointer-events-none">
+                  <div className="absolute w-24 h-24 rounded-full bg-white/[0.04] top-[10%] left-[15%]" />
+                  <div className="absolute w-16 h-16 rounded-full bg-white/[0.03] top-[60%] left-[10%]" />
+                  <div className="absolute w-32 h-32 rounded-full bg-white/[0.04] top-[30%] right-[10%]" />
+                  <div className="absolute w-20 h-20 rounded-full bg-white/[0.03] bottom-[15%] right-[25%]" />
+                  <div className="absolute w-12 h-12 rounded-full bg-white/[0.05] top-[5%] right-[40%]" />
+                  <div className="absolute w-28 h-28 rounded-full bg-white/[0.03] bottom-[30%] left-[35%]" />
+                  <div className="absolute w-10 h-10 rounded-full bg-white/[0.04] top-[45%] left-[50%]" />
+                  <div className="absolute w-36 h-36 rounded-full bg-white/[0.03] top-[70%] right-[5%]" />
+                </div>
 
-              {/* 3 artists side by side */}
-              <div className="absolute inset-0 flex items-end justify-center z-10">
-                {/* DJ - Left */}
-                <img 
-                  src={heroDjImg} 
-                  alt="DJ" 
-                  className="h-[460px] object-cover object-top -mr-8 select-none pointer-events-none"
-                />
-                {/* Singer - Center, taller */}
-                <img 
-                  src={heroSingerImg} 
-                  alt="Cantor" 
-                  className="h-[500px] object-cover object-top relative z-10 select-none pointer-events-none"
-                />
-                {/* Manager - Right */}
-                <img 
-                  src={heroManagerImg} 
-                  alt="Empresário" 
-                  className="h-[460px] object-cover object-top -ml-8 select-none pointer-events-none"
-                />
-              </div>
+                {/* Fade overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0055BB] via-transparent to-transparent z-20 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/50 via-transparent to-transparent z-20 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB] via-transparent to-[#0055BB] z-20 pointer-events-none" />
 
-              {/* Floating feature cards */}
-              {/* Top left */}
-              <div className="absolute top-4 left-4 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white font-semibold text-xs">Financeiro</span>
+                {/* 3 artists side by side */}
+                <div className="absolute inset-0 flex items-end justify-center z-10">
+                  <img src={heroDjImg} alt="DJ" className="h-[460px] object-cover object-top -mr-8 select-none pointer-events-none" />
+                  <img src={heroSingerImg} alt="Cantor" className="h-[500px] object-cover object-top relative z-10 select-none pointer-events-none" />
+                  <img src={heroManagerImg} alt="Empresário" className="h-[460px] object-cover object-top -ml-8 select-none pointer-events-none" />
                 </div>
               </div>
 
-              {/* Top right */}
-              <div className="absolute top-4 right-4 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <ClipboardCheck className="w-4 h-4 text-white" />
+              {/* Feature cards - stacked on the right */}
+              <div className="flex flex-col gap-3 w-[180px] shrink-0">
+                {[
+                  { icon: DollarSign, label: "Financeiro", color: "bg-emerald-500" },
+                  { icon: ClipboardCheck, label: "Checklist", color: "bg-blue-500" },
+                  { icon: MapPin, label: "Mapeamento de Palco", color: "bg-purple-500" },
+                  { icon: Receipt, label: "Orçamento Rápido", color: "bg-orange-500" },
+                  { icon: FileText, label: "Contrato Rápido", color: "bg-pink-500" },
+                  { icon: Rocket, label: "Agilidade", color: "bg-cyan-500" },
+                  { icon: MousePointerClick, label: "Facilidade", color: "bg-yellow-500" },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="bg-white/10 backdrop-blur-sm rounded-xl px-3.5 py-2.5 border border-white/15 hover:bg-white/20 hover:border-white/30 hover:scale-105 transition-all duration-300 cursor-default"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 ${item.color} rounded-lg flex items-center justify-center shrink-0`}>
+                        <item.icon className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-white font-medium text-xs">{item.label}</span>
+                    </div>
                   </div>
-                  <span className="text-white font-semibold text-xs">Checklist</span>
-                </div>
-              </div>
-
-              {/* Mid left */}
-              <div className="absolute top-[38%] left-3 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white font-semibold text-xs">Mapeamento de Palco</span>
-                </div>
-              </div>
-
-              {/* Mid right */}
-              <div className="absolute top-[35%] right-3 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.8s', animationDelay: '1.5s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                    <Receipt className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white font-semibold text-xs">Orçamento Rápido</span>
-                </div>
-              </div>
-
-              {/* Bottom left */}
-              <div className="absolute bottom-14 left-6 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.2s', animationDelay: '2s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white font-semibold text-xs">Contrato Rápido</span>
-                </div>
-              </div>
-
-              {/* Bottom right */}
-              <div className="absolute bottom-14 right-6 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '4.2s', animationDelay: '2.5s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
-                    <Rocket className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white font-semibold text-xs">Agilidade</span>
-                </div>
-              </div>
-
-              {/* Bottom center */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-md rounded-2xl px-3.5 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.6s', animationDelay: '3s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
-                    <MousePointerClick className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white font-semibold text-xs">Facilidade</span>
-                </div>
+                ))}
               </div>
             </div>
           ) : (
