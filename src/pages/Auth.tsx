@@ -274,10 +274,10 @@ const Auth = () => {
 
             <div className={`${showForm ? 'space-y-2 lg:space-y-4' : 'space-y-4'}`}>
               <h1 className={`font-bold leading-tight text-white ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
-                Transforme sua
+                Sua carreira,
               </h1>
               <h2 className={`font-bold leading-tight text-cyan-300 ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
-                carreira musical
+                sob controle
               </h2>
               <p className={`text-white/80 max-w-lg ${showForm ? 'text-sm lg:text-lg mt-2 lg:mt-6' : 'text-lg mt-6'}`}>
                 O jeito mais fácil de gerenciar shows, controlar finanças, 
