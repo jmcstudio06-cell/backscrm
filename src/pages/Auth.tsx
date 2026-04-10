@@ -348,7 +348,7 @@ const Auth = () => {
           {!showForm ? (
             <div className="relative flex gap-6 items-center">
               {/* Artist image container */}
-              <div className="relative h-[520px] flex-1 overflow-hidden rounded-3xl">
+              <div className="relative h-[350px] flex-1 overflow-hidden rounded-3xl">
                 {/* Subtle floating bubbles background */}
                 <div className="absolute inset-0 z-5 pointer-events-none">
                   <div className="absolute w-24 h-24 rounded-full bg-white/[0.04] top-[10%] left-[15%]" />
