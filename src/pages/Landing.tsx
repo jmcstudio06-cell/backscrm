@@ -53,7 +53,7 @@ import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
 import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
 import linkAgendaMockup from "@/assets/mockups/link-agenda-mockup.jpeg";
-import heroSingerImg from "@/assets/hero-singer-clean.png";
+import heroSingerImg from "@/assets/hero-singer-clean.webp";
 
 const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
 const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
