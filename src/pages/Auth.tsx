@@ -10,6 +10,10 @@ import { TermsModal } from "@/components/auth/TermsModal";
 import heroSingerImg from "@/assets/hero-singer-clean.png";
 import heroDjImg from "@/assets/hero-dj.png";
 import heroManagerImg from "@/assets/hero-manager.png";
+import artist1Img from "@/assets/artists/artist-1.png";
+import artist2Img from "@/assets/artists/artist-2.png";
+import artist3Img from "@/assets/artists/artist-3.png";
+import artist4Img from "@/assets/artists/artist-4.png";
 
 import { 
   Calendar, 
