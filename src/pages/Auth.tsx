@@ -347,12 +347,11 @@ const Auth = () => {
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
             <div className="relative flex items-center justify-center">
-              <div className="relative h-[400px] w-[440px] shrink-0 overflow-visible">
-                {/* Inner image */}
-                <div className="relative h-full w-full overflow-hidden rounded-3xl">
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0058BB] via-[#0058BB]/60 via-25% to-transparent z-20 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/20 via-transparent to-transparent z-20 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB]/50 via-transparent to-[#0055BB]/50 z-20 pointer-events-none" />
+              <div className="relative h-[420px] w-[400px] shrink-0 overflow-visible">
+                {/* Dark card with artist */}
+                <div className="relative h-full w-full overflow-hidden rounded-3xl bg-white/[0.06] border border-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#003d8a] via-[#003d8a]/50 via-20% to-transparent z-20 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#003d8a]/40 via-transparent to-[#003d8a]/40 z-20 pointer-events-none" />
                   <div className="absolute inset-0 flex items-start justify-center pt-4 z-10">
                     <img src={heroDjImg} alt="DJ" className="h-[420px] object-cover object-top -mr-6 select-none pointer-events-none" />
                     <img src={heroSingerImg} alt="Cantor" className="h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
@@ -360,69 +359,33 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* LEFT cards - staggered, static */}
-                <div className="absolute -left-[130px] top-[8%] z-30">
-                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                        <DollarSign className="w-4 h-4 text-white" />
+                {/* Cards alternating LEFT/RIGHT - zigzag, saindo do quadrado */}
+                {[
+                  { side: 'left', icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500', top: '8%' },
+                  { side: 'right', icon: Receipt, label: 'Orçamento', color: 'bg-orange-500', top: '24%' },
+                  { side: 'left', icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500', top: '40%' },
+                  { side: 'right', icon: FileText, label: 'Contratos', color: 'bg-pink-500', top: '56%' },
+                  { side: 'left', icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500', top: '72%' },
+                  { side: 'right', icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500', top: '88%' },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="absolute z-30"
+                    style={{
+                      top: item.top,
+                      ...(item.side === 'left' ? { left: '-100px' } : { right: '-100px' }),
+                    }}
+                  >
+                    <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 ${item.color} rounded-xl flex items-center justify-center shrink-0 shadow-md`}>
+                          <item.icon className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-white font-semibold text-sm">{item.label}</span>
                       </div>
-                      <span className="text-white font-semibold text-sm">Financeiro</span>
                     </div>
                   </div>
-                </div>
-                <div className="absolute -left-[110px] top-[35%] z-30">
-                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-blue-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                        <ClipboardCheck className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-white font-semibold text-sm">Checklist</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -left-[90px] top-[62%] z-30">
-                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-purple-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                        <MapPin className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-white font-semibold text-sm">Mapa de Palco</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RIGHT cards - staggered, static */}
-                <div className="absolute -right-[130px] top-[12%] z-30">
-                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                        <Receipt className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-white font-semibold text-sm">Orçamento</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -right-[110px] top-[40%] z-30">
-                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-pink-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                        <FileText className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-white font-semibold text-sm">Contratos</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -right-[90px] top-[66%] z-30">
-                  <div className="bg-white/15 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 shadow-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-cyan-500 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                        <Rocket className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-white font-semibold text-sm">Agilidade</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           ) : (
