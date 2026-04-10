@@ -7,10 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
-import heroSingerImg from "@/assets/hero-singer-clean.webp";
 import baIconImg from "@/assets/ba-icon.png";
-import heroDjImg from "@/assets/hero-dj.webp";
-import heroManagerImg from "@/assets/hero-manager.webp";
 import artist1Img from "@/assets/artists/artist-1.png";
 import artist2Img from "@/assets/artists/artist-2.png";
 import artist3Img from "@/assets/artists/artist-3.png";
@@ -37,7 +34,8 @@ import {
   FileText,
   Receipt,
   Rocket,
-  MousePointerClick
+  Link2,
+  Music
 } from "lucide-react";
 
 type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent";
@@ -347,49 +345,63 @@ const Auth = () => {
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
             <div className="relative flex items-center justify-center">
-              <div className="relative h-[280px] md:h-[350px] lg:h-[420px] w-[260px] md:w-[300px] lg:w-[340px] shrink-0 overflow-visible">
-                {/* Dark card with artist */}
-                <div className="relative h-full w-full overflow-hidden rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(0,40,100,0.45) 0%, rgba(0,30,80,0.7) 100%)' }}>
-                  <div className="absolute inset-0 border border-white/10 rounded-2xl z-30 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#002860] via-[#002860]/40 via-15% to-transparent z-20 pointer-events-none" />
-                  <div className="absolute inset-0 flex items-start justify-center pt-2 z-10">
-                    <img src={heroDjImg} alt="DJ" className="h-[280px] md:h-[350px] lg:h-[420px] object-cover object-top -mr-4 lg:-mr-6 select-none pointer-events-none" />
-                    <img src={heroSingerImg} alt="Cantor" className="h-[300px] md:h-[380px] lg:h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
-                    <img src={heroManagerImg} alt="Empresário" className="h-[280px] md:h-[350px] lg:h-[420px] object-cover object-top -ml-4 lg:-ml-6 select-none pointer-events-none" />
+              {/* Feature Showcase - replaces artist images */}
+              <div className="w-full max-w-[380px] md:max-w-[440px] space-y-3 md:space-y-4">
+                {/* Main app mockup card */}
+                <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-4 md:p-6 shadow-2xl shadow-black/20">
+                  <div className="flex items-center gap-3 mb-4 md:mb-5">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
+                      <img src={baIconImg} alt="BA" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">Backstage Pro</p>
+                      <p className="text-white/50 text-xs">Painel do Artista</p>
+                    </div>
+                    <div className="ml-auto flex gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <div className="w-2 h-2 rounded-full bg-white/20" />
+                      <div className="w-2 h-2 rounded-full bg-white/20" />
+                    </div>
+                  </div>
+                  
+                  {/* Feature grid */}
+                  <div className="grid grid-cols-2 gap-2.5 md:gap-3">
+                    {[
+                      { icon: Link2, label: "Link Agenda", desc: "Receba pedidos online", color: "from-blue-500 to-blue-600", delay: "0s" },
+                      { icon: MapPin, label: "Mapa de Palco", desc: "Rider técnico digital", color: "from-purple-500 to-purple-600", delay: "0.1s" },
+                      { icon: DollarSign, label: "Financeiro", desc: "Receitas automáticas", color: "from-emerald-500 to-emerald-600", delay: "0.2s" },
+                      { icon: Calendar, label: "Agenda Rápida", desc: "Shows organizados", color: "from-orange-500 to-orange-600", delay: "0.3s" },
+                      { icon: Receipt, label: "Orçamento", desc: "Propostas em 1 clique", color: "from-pink-500 to-pink-600", delay: "0.4s" },
+                      { icon: FileText, label: "Contrato", desc: "Gere e envie rápido", color: "from-cyan-500 to-cyan-600", delay: "0.5s" },
+                    ].map((feat, i) => (
+                      <div
+                        key={i}
+                        className="group flex items-center gap-2.5 md:gap-3 p-2.5 md:p-3.5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/[0.12] transition-all duration-300 cursor-default"
+                        style={{ animationDelay: feat.delay }}
+                      >
+                        <div className={`flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feat.color} shadow-lg`}>
+                          <feat.icon className="h-4 w-4 md:h-5 md:w-5 text-white" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white text-xs md:text-sm font-semibold truncate">{feat.label}</p>
+                          <p className="text-white/40 text-[10px] md:text-xs truncate">{feat.desc}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Cards - hidden on mobile, shown on md+ */}
-                <div className="hidden md:block">
+                {/* Bottom stats row */}
+                <div className="grid grid-cols-3 gap-2 md:gap-3">
                   {[
-                    { left: { icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500' }, right: { icon: Receipt, label: 'Orçamento', color: 'bg-orange-500' }, top: { md: 20, lg: 28 } },
-                    { left: { icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500' }, right: { icon: FileText, label: 'Contratos', color: 'bg-pink-500' }, top: { md: 125, lg: 162 } },
-                    { left: { icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500' }, right: { icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500' }, top: { md: 230, lg: 296 } },
-                  ].map((row, i) => (
-                    <div key={i}>
-                      <div
-                        className="absolute z-30"
-                        style={{ top: `${row.top.lg}px`, left: 0, transform: 'translateX(-72%)' }}
-                      >
-                        <div className="flex h-[60px] lg:h-[82px] w-[170px] lg:w-[220px] items-center gap-2 lg:gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-3 lg:px-5 backdrop-blur-lg shadow-xl shadow-black/10">
-                          <div className={`flex h-9 w-9 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-xl ${row.left.color}`}>
-                            <row.left.icon className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
-                          </div>
-                          <span className="whitespace-nowrap text-sm lg:text-base font-semibold text-white">{row.left.label}</span>
-                        </div>
-                      </div>
-
-                      <div
-                        className="absolute z-30"
-                        style={{ top: `${row.top.lg}px`, right: 0, transform: 'translateX(72%)' }}
-                      >
-                        <div className="flex h-[60px] lg:h-[82px] w-[170px] lg:w-[220px] items-center gap-2 lg:gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-3 lg:px-5 backdrop-blur-lg shadow-xl shadow-black/10">
-                          <div className={`flex h-9 w-9 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-xl ${row.right.color}`}>
-                            <row.right.icon className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
-                          </div>
-                          <span className="whitespace-nowrap text-sm lg:text-base font-semibold text-white">{row.right.label}</span>
-                        </div>
-                      </div>
+                    { icon: Rocket, value: "2min", label: "Setup", color: "text-cyan-300" },
+                    { icon: Music, value: "+100", label: "Artistas", color: "text-emerald-300" },
+                    { icon: ClipboardCheck, value: "100%", label: "Grátis", color: "text-amber-300" },
+                  ].map((stat, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1 p-3 md:p-4 rounded-xl border border-white/10 bg-white/[0.06] backdrop-blur-lg">
+                      <stat.icon className={`h-4 w-4 md:h-5 md:w-5 ${stat.color}`} />
+                      <span className="text-white font-bold text-sm md:text-lg">{stat.value}</span>
+                      <span className="text-white/50 text-[10px] md:text-xs">{stat.label}</span>
                     </div>
                   ))}
                 </div>
