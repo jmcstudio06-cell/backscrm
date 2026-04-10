@@ -223,38 +223,37 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-cyan-400/15 rounded-full blur-[100px]" />
         <div className="absolute top-1/2 -left-20 w-72 h-72 bg-blue-300/10 rounded-full blur-[80px]" />
         <div className="absolute bottom-0 right-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-[80px]" />
-        {/* Subtle grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       </div>
 
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-6 py-4 md:px-12">
+      <header className="relative z-20 flex items-center justify-between px-5 py-3 md:px-12 md:py-4">
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-white transition-transform group-hover:scale-105">Backstage</span>
-            <span className="text-2xl font-bold text-cyan-300 transition-transform group-hover:scale-105">Pro</span>
+            <span className="text-xl md:text-2xl font-bold text-white transition-transform group-hover:scale-105">Backstage</span>
+            <span className="text-xl md:text-2xl font-bold text-cyan-300 transition-transform group-hover:scale-105">Pro</span>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {showForm && (
             <Button 
               variant="ghost" 
-              className="text-white/80 hover:text-white hover:bg-white/10 transition-all"
+              className="text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm md:text-base"
               onClick={handleBack}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
               Voltar
             </Button>
           )}
           <Button 
             variant="ghost" 
-            className="text-white hover:text-white hover:bg-white/10 font-medium transition-all"
+            className="text-white hover:text-white hover:bg-white/10 font-medium transition-all text-sm md:text-base"
             onClick={() => setView("login")}
           >
             Entrar
@@ -263,8 +262,8 @@ const Auth = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-6 py-4 md:py-12">
-        <div className={`grid gap-6 lg:grid-cols-2 lg:gap-16 items-center ${!showForm ? 'min-h-[calc(100vh-200px)]' : 'lg:min-h-[calc(100vh-200px)]'}`}>
+      <main className="relative z-10 container mx-auto px-5 md:px-6 py-4 md:py-12 overflow-x-hidden">
+        <div className={`grid gap-6 lg:grid-cols-2 lg:gap-16 items-center ${!showForm ? 'min-h-[calc(100vh-180px)]' : 'lg:min-h-[calc(100vh-200px)]'}`}>
           {/* Left Side - Hero Content */}
           <div className={`animate-fade-in ${showForm ? 'space-y-3 lg:space-y-8' : 'space-y-8'}`}>
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 border border-white/20">
@@ -348,57 +347,57 @@ const Auth = () => {
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
             <div className="relative flex items-center justify-center">
-              <div className="relative h-[420px] w-[340px] shrink-0 overflow-visible">
+              <div className="relative h-[280px] md:h-[350px] lg:h-[420px] w-[260px] md:w-[300px] lg:w-[340px] shrink-0 overflow-visible">
                 {/* Dark card with artist */}
                 <div className="relative h-full w-full overflow-hidden rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(0,40,100,0.45) 0%, rgba(0,30,80,0.7) 100%)' }}>
                   <div className="absolute inset-0 border border-white/10 rounded-2xl z-30 pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#002860] via-[#002860]/40 via-15% to-transparent z-20 pointer-events-none" />
                   <div className="absolute inset-0 flex items-start justify-center pt-2 z-10">
-                    <img src={heroDjImg} alt="DJ" className="h-[420px] object-cover object-top -mr-6 select-none pointer-events-none" />
-                    <img src={heroSingerImg} alt="Cantor" className="h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
-                    <img src={heroManagerImg} alt="Empresário" className="h-[420px] object-cover object-top -ml-6 select-none pointer-events-none" />
+                    <img src={heroDjImg} alt="DJ" className="h-[280px] md:h-[350px] lg:h-[420px] object-cover object-top -mr-4 lg:-mr-6 select-none pointer-events-none" />
+                    <img src={heroSingerImg} alt="Cantor" className="h-[300px] md:h-[380px] lg:h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
+                    <img src={heroManagerImg} alt="Empresário" className="h-[280px] md:h-[350px] lg:h-[420px] object-cover object-top -ml-4 lg:-ml-6 select-none pointer-events-none" />
                   </div>
                 </div>
 
-                {/* Cards espelhados - maiores e alinhados igualmente nos dois lados */}
-                {[
-                  { left: { icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500' }, right: { icon: Receipt, label: 'Orçamento', color: 'bg-orange-500' }, top: 28 },
-                  { left: { icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500' }, right: { icon: FileText, label: 'Contratos', color: 'bg-pink-500' }, top: 162 },
-                  { left: { icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500' }, right: { icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500' }, top: 296 },
-                ].map((row, i) => (
-                  <>
-                    <div
-                      key={`left-${i}`}
-                      className="absolute z-30"
-                      style={{ top: `${row.top}px`, left: 0, transform: 'translateX(-72%)' }}
-                    >
-                      <div className="flex h-[82px] w-[220px] items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-5 backdrop-blur-lg shadow-xl shadow-black/10">
-                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${row.left.color}`}>
-                          <row.left.icon className="h-5 w-5 text-white" />
+                {/* Cards - hidden on mobile, shown on md+ */}
+                <div className="hidden md:block">
+                  {[
+                    { left: { icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500' }, right: { icon: Receipt, label: 'Orçamento', color: 'bg-orange-500' }, top: { md: 20, lg: 28 } },
+                    { left: { icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500' }, right: { icon: FileText, label: 'Contratos', color: 'bg-pink-500' }, top: { md: 125, lg: 162 } },
+                    { left: { icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500' }, right: { icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500' }, top: { md: 230, lg: 296 } },
+                  ].map((row, i) => (
+                    <div key={i}>
+                      <div
+                        className="absolute z-30"
+                        style={{ top: `${row.top.lg}px`, left: 0, transform: 'translateX(-72%)' }}
+                      >
+                        <div className="flex h-[60px] lg:h-[82px] w-[170px] lg:w-[220px] items-center gap-2 lg:gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-3 lg:px-5 backdrop-blur-lg shadow-xl shadow-black/10">
+                          <div className={`flex h-9 w-9 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-xl ${row.left.color}`}>
+                            <row.left.icon className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
+                          </div>
+                          <span className="whitespace-nowrap text-sm lg:text-base font-semibold text-white">{row.left.label}</span>
                         </div>
-                        <span className="whitespace-nowrap text-base font-semibold text-white">{row.left.label}</span>
                       </div>
-                    </div>
 
-                    <div
-                      key={`right-${i}`}
-                      className="absolute z-30"
-                      style={{ top: `${row.top}px`, right: 0, transform: 'translateX(72%)' }}
-                    >
-                      <div className="flex h-[82px] w-[220px] items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-5 backdrop-blur-lg shadow-xl shadow-black/10">
-                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${row.right.color}`}>
-                          <row.right.icon className="h-5 w-5 text-white" />
+                      <div
+                        className="absolute z-30"
+                        style={{ top: `${row.top.lg}px`, right: 0, transform: 'translateX(72%)' }}
+                      >
+                        <div className="flex h-[60px] lg:h-[82px] w-[170px] lg:w-[220px] items-center gap-2 lg:gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-3 lg:px-5 backdrop-blur-lg shadow-xl shadow-black/10">
+                          <div className={`flex h-9 w-9 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-xl ${row.right.color}`}>
+                            <row.right.icon className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
+                          </div>
+                          <span className="whitespace-nowrap text-sm lg:text-base font-semibold text-white">{row.right.label}</span>
                         </div>
-                        <span className="whitespace-nowrap text-base font-semibold text-white">{row.right.label}</span>
                       </div>
                     </div>
-                  </>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
             /* Auth Form */
-            <div className="rounded-3xl bg-white shadow-2xl p-8 md:p-10 animate-scale-in">
+            <div className="rounded-2xl md:rounded-3xl bg-white shadow-2xl p-5 md:p-8 lg:p-10 animate-scale-in mx-auto w-full max-w-md">
               {/* Form Header */}
               <div className="mb-8 text-center">
                 <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-4 shadow-lg">
