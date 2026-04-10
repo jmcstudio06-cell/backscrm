@@ -359,32 +359,39 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* Cards zigzag - saindo da borda do quadrado, alinhados */}
+                {/* Cards espelhados - maiores e alinhados igualmente nos dois lados */}
                 {[
-                  { side: 'left' as const, icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500', top: 30 },
-                  { side: 'right' as const, icon: Receipt, label: 'Orçamento', color: 'bg-orange-500', top: 100 },
-                  { side: 'left' as const, icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500', top: 170 },
-                  { side: 'right' as const, icon: FileText, label: 'Contratos', color: 'bg-pink-500', top: 240 },
-                  { side: 'left' as const, icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500', top: 310 },
-                  { side: 'right' as const, icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500', top: 370 },
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="absolute z-30"
-                    style={{
-                      top: `${item.top}px`,
-                      ...(item.side === 'left'
-                        ? { left: 0, transform: 'translateX(-60%)' }
-                        : { right: 0, transform: 'translateX(60%)' }),
-                    }}
-                  >
-                    <div className="flex items-center gap-2.5 bg-white/[0.12] backdrop-blur-lg rounded-xl px-3 py-2 border border-white/[0.18] shadow-lg shadow-black/10">
-                      <div className={`w-8 h-8 ${item.color} rounded-lg flex items-center justify-center shrink-0`}>
-                        <item.icon className="w-4 h-4 text-white" />
+                  { left: { icon: DollarSign, label: 'Financeiro', color: 'bg-emerald-500' }, right: { icon: Receipt, label: 'Orçamento', color: 'bg-orange-500' }, top: 28 },
+                  { left: { icon: ClipboardCheck, label: 'Checklist', color: 'bg-blue-500' }, right: { icon: FileText, label: 'Contratos', color: 'bg-pink-500' }, top: 162 },
+                  { left: { icon: MapPin, label: 'Mapa de Palco', color: 'bg-purple-500' }, right: { icon: Rocket, label: 'Agilidade', color: 'bg-cyan-500' }, top: 296 },
+                ].map((row, i) => (
+                  <>
+                    <div
+                      key={`left-${i}`}
+                      className="absolute z-30"
+                      style={{ top: `${row.top}px`, left: 0, transform: 'translateX(-72%)' }}
+                    >
+                      <div className="flex h-[82px] w-[220px] items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-5 backdrop-blur-lg shadow-xl shadow-black/10">
+                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${row.left.color}`}>
+                          <row.left.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <span className="whitespace-nowrap text-base font-semibold text-white">{row.left.label}</span>
                       </div>
-                      <span className="text-white font-semibold text-xs whitespace-nowrap">{item.label}</span>
                     </div>
-                  </div>
+
+                    <div
+                      key={`right-${i}`}
+                      className="absolute z-30"
+                      style={{ top: `${row.top}px`, right: 0, transform: 'translateX(72%)' }}
+                    >
+                      <div className="flex h-[82px] w-[220px] items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.14] px-5 backdrop-blur-lg shadow-xl shadow-black/10">
+                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${row.right.color}`}>
+                          <row.right.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <span className="whitespace-nowrap text-base font-semibold text-white">{row.right.label}</span>
+                      </div>
+                    </div>
+                  </>
                 ))}
               </div>
             </div>
