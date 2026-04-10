@@ -397,7 +397,7 @@ const Auth = () => {
             </div>
           ) : (
             /* Auth Form */
-            <div className="rounded-3xl bg-white shadow-2xl p-8 md:p-10 animate-scale-in">
+            <div className="rounded-2xl md:rounded-3xl bg-white shadow-2xl p-5 md:p-8 lg:p-10 animate-scale-in mx-auto w-full max-w-md">
               {/* Form Header */}
               <div className="mb-8 text-center">
                 <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-4 shadow-lg">
