@@ -10,6 +10,10 @@ import { TermsModal } from "@/components/auth/TermsModal";
 import heroSingerImg from "@/assets/hero-singer-clean.png";
 import heroDjImg from "@/assets/hero-dj.png";
 import heroManagerImg from "@/assets/hero-manager.png";
+import artist1Img from "@/assets/artists/artist-1.png";
+import artist2Img from "@/assets/artists/artist-2.png";
+import artist3Img from "@/assets/artists/artist-3.png";
+import artist4Img from "@/assets/artists/artist-4.png";
 
 import { 
   Calendar, 
@@ -191,12 +195,7 @@ const Auth = () => {
     { icon: Star, text: "Suporte dedicado" },
   ];
 
-  const userAvatars = [
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
-    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
-  ];
+  const userAvatars = [artist1Img, artist2Img, artist3Img, artist4Img];
 
   const handleBack = () => {
     if (isResetSent) {
