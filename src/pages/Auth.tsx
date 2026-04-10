@@ -341,59 +341,67 @@ const Auth = () => {
 
           {/* Right Side - Feature Cards or Auth Form */}
           {!showForm ? (
-            <div className="relative flex items-end justify-center h-[600px]">
-              {/* Background glow */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-cyan-400/20 rounded-full blur-[120px]" />
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-white/8 rounded-full blur-[80px]" />
+            <div className="relative h-[500px] w-full overflow-hidden rounded-3xl">
+              {/* Glow behind */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0055BB] via-transparent to-transparent z-20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/60 via-transparent to-transparent z-20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB] via-transparent to-[#0055BB] z-20 pointer-events-none" />
 
-              {/* DJ - Left, slightly behind */}
-              <div className="absolute bottom-0 left-0 z-10" style={{ maskImage: 'linear-gradient(to top, transparent 0%, black 25%, black 75%, transparent 100%), linear-gradient(to right, transparent 0%, black 30%)', WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 25%, black 75%, transparent 100%)', maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }}>
+              {/* 3 artists side by side */}
+              <div className="absolute inset-0 flex items-end justify-center z-10">
+                {/* DJ - Left */}
                 <img 
                   src={heroDjImg} 
                   alt="DJ" 
-                  className="w-[320px] max-h-[500px] object-contain drop-shadow-[0_10px_40px_rgba(0,0,0,0.3)] select-none pointer-events-none opacity-80"
+                  className="h-[460px] object-cover object-top -mr-8 select-none pointer-events-none"
                 />
-              </div>
-
-              {/* Singer - Center, front and biggest */}
-              <div className="relative z-30" style={{ maskImage: 'linear-gradient(to top, transparent 0%, black 20%, black 100%)', WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 20%, black 100%)' }}>
+                {/* Singer - Center, taller */}
                 <img 
                   src={heroSingerImg} 
                   alt="Cantor" 
-                  className="w-[380px] max-h-[580px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.5)] select-none pointer-events-none"
+                  className="h-[500px] object-cover object-top relative z-10 select-none pointer-events-none"
                 />
-              </div>
-
-              {/* Manager - Right, slightly behind */}
-              <div className="absolute bottom-0 right-0 z-10" style={{ maskImage: 'linear-gradient(to top, transparent 0%, black 25%, black 75%, transparent 100%), linear-gradient(to left, transparent 0%, black 30%)', WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 25%, black 75%, transparent 100%)', maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }}>
+                {/* Manager - Right */}
                 <img 
                   src={heroManagerImg} 
                   alt="Empresário" 
-                  className="w-[320px] max-h-[500px] object-contain drop-shadow-[0_10px_40px_rgba(0,0,0,0.3)] select-none pointer-events-none opacity-80"
+                  className="h-[460px] object-cover object-top -ml-8 select-none pointer-events-none"
                 />
               </div>
 
               {/* Floating stat cards */}
-              <div className="absolute top-4 right-4 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-40 animate-bounce" style={{ animationDuration: '3s' }}>
+              <div className="absolute top-6 right-6 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3s' }}>
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center">
                     <DollarSign className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-[10px]">Receita gerenciada</p>
+                    <p className="text-white/70 text-[10px]">Receita gerenciada</p>
                     <p className="text-white font-bold text-sm">R$ 2.5M+</p>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute top-1/4 -left-2 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-40 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+              <div className="absolute top-6 left-6 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center">
                     <Calendar className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-[10px]">Shows organizados</p>
+                    <p className="text-white/70 text-[10px]">Shows organizados</p>
                     <p className="text-white font-bold text-sm">4.200+</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-md rounded-2xl px-4 py-2.5 border border-white/25 shadow-xl z-30 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white/70 text-[10px]">Artistas ativos</p>
+                    <p className="text-white font-bold text-sm">+90</p>
                   </div>
                 </div>
               </div>
