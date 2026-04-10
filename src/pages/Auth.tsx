@@ -348,7 +348,7 @@ const Auth = () => {
           {!showForm ? (
             <div className="relative flex gap-6 items-center">
               {/* Artist image container */}
-              <div className="relative h-[520px] flex-1 overflow-hidden rounded-3xl">
+              <div className="relative h-[350px] flex-1 overflow-hidden rounded-3xl">
                 {/* Subtle floating bubbles background */}
                 <div className="absolute inset-0 z-5 pointer-events-none">
                   <div className="absolute w-24 h-24 rounded-full bg-white/[0.04] top-[10%] left-[15%]" />
@@ -361,16 +361,16 @@ const Auth = () => {
                   <div className="absolute w-36 h-36 rounded-full bg-white/[0.03] top-[70%] right-[5%]" />
                 </div>
 
-                {/* Fade overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0055BB] via-transparent to-transparent z-20 pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/50 via-transparent to-transparent z-20 pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB] via-transparent to-[#0055BB] z-20 pointer-events-none" />
+                {/* Fade overlays - strong bottom fade */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0058BB] via-[#0058BB]/70 via-30% to-transparent z-20 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0055BB]/40 via-transparent to-transparent z-20 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0055BB]/80 via-transparent to-[#0055BB]/80 z-20 pointer-events-none" />
 
-                {/* 3 artists side by side */}
-                <div className="absolute inset-0 flex items-end justify-center z-10">
-                  <img src={heroDjImg} alt="DJ" className="h-[460px] object-cover object-top -mr-8 select-none pointer-events-none" />
-                  <img src={heroSingerImg} alt="Cantor" className="h-[500px] object-cover object-top relative z-10 select-none pointer-events-none" />
-                  <img src={heroManagerImg} alt="Empresário" className="h-[460px] object-cover object-top -ml-8 select-none pointer-events-none" />
+                {/* 3 artists - cropped from waist up */}
+                <div className="absolute inset-0 flex items-start justify-center pt-4 z-10">
+                  <img src={heroDjImg} alt="DJ" className="h-[420px] object-cover object-top -mr-6 select-none pointer-events-none" />
+                  <img src={heroSingerImg} alt="Cantor" className="h-[450px] object-cover object-top relative z-10 select-none pointer-events-none" />
+                  <img src={heroManagerImg} alt="Empresário" className="h-[420px] object-cover object-top -ml-6 select-none pointer-events-none" />
                 </div>
               </div>
 
