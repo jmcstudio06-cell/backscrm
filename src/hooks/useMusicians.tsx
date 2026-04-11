@@ -14,6 +14,7 @@ export interface Musician {
   member_type: string;
   rating: number | null;
   payment_request_date: string | null;
+  pix_key: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -48,6 +49,7 @@ export function useMusicians() {
           member_type: musicianData.member_type || "freelancer",
           rating: musicianData.rating,
           payment_request_date: musicianData.payment_request_date,
+          pix_key: musicianData.pix_key || null,
           user_id: user.id,
         }])
         .select().single();
