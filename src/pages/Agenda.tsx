@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
   ArrowRight,
   Music,
   CalendarCheck,
+  FileDown,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, parseLocalDate } from "@/lib/utils";
@@ -618,6 +619,87 @@ export default function Agenda() {
               {monthNames[currentMonth.getMonth()]} de {currentMonth.getFullYear()}
             </h2>
             <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs px-2 gap-1"
+                onClick={() => {
+                  const listShows = shows
+                    .filter((show) => {
+                      if (!show.date || typeof show.date !== "string") return false;
+                      const parts = show.date.split("-");
+                      if (parts.length < 2) return false;
+                      const [y, m] = parts.map(Number);
+                      return m - 1 === currentMonth.getMonth() && y === currentMonth.getFullYear();
+                    })
+                    .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+                  if (listShows.length === 0) {
+                    toast.error("Nenhum show para exportar neste mês");
+                    return;
+                  }
+
+                  const monthLabel = `${monthNames[currentMonth.getMonth()]} de ${currentMonth.getFullYear()}`;
+                  const totalCachet = listShows.reduce((s, sh) => s + (sh.cachet ?? 0), 0);
+
+                  let html = `
+                    <html><head><meta charset="utf-8"><title>Agenda - ${monthLabel}</title>
+                    <style>
+                      * { margin: 0; padding: 0; box-sizing: border-box; }
+                      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 32px; color: #1a1a1a; }
+                      h1 { font-size: 22px; margin-bottom: 4px; }
+                      .subtitle { color: #666; font-size: 13px; margin-bottom: 24px; }
+                      table { width: 100%; border-collapse: collapse; font-size: 13px; }
+                      th { background: #f5f5f5; text-align: left; padding: 10px 12px; font-weight: 600; border-bottom: 2px solid #ddd; }
+                      td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+                      tr:hover { background: #fafafa; }
+                      .status { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+                      .status-confirmed { background: #e8f5e9; color: #2e7d32; }
+                      .status-completed { background: #e8f5e9; color: #1b5e20; }
+                      .status-pending { background: #fff3e0; color: #e65100; }
+                      .status-cancelled { background: #ffebee; color: #c62828; text-decoration: line-through; }
+                      .status-negotiation { background: #e3f2fd; color: #1565c0; }
+                      .status-scheduled { background: #e3f2fd; color: #1565c0; }
+                      .total-row { font-weight: 700; background: #f0f0f0; }
+                      .right { text-align: right; }
+                      @media print { body { padding: 16px; } }
+                    </style></head><body>
+                    <h1>📅 Agenda de Shows</h1>
+                    <p class="subtitle">${monthLabel} — ${listShows.length} show(s)</p>
+                    <table>
+                      <thead><tr><th>Data</th><th>Show</th><th>Local</th><th>Horário</th><th>Status</th><th class="right">Cachê</th></tr></thead>
+                      <tbody>`;
+
+                  listShows.forEach((show) => {
+                    const d = parseLocalDate(show.date);
+                    const dayOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][d.getDay()];
+                    const statusClass = `status-${show.status}`;
+                    html += `<tr>
+                      <td>${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')} (${dayOfWeek})</td>
+                      <td><strong>${show.title}</strong></td>
+                      <td>${show.venue || '—'}</td>
+                      <td>${show.start_time || '—'}</td>
+                      <td><span class="status ${statusClass}">${statusLabels[show.status] || show.status}</span></td>
+                      <td class="right">${(show.cachet ?? 0) > 0 ? `R$ ${fmt(show.cachet ?? 0)}` : '—'}</td>
+                    </tr>`;
+                  });
+
+                  html += `<tr class="total-row">
+                      <td colspan="5">Total do mês</td>
+                      <td class="right">R$ ${fmt(totalCachet)}</td>
+                    </tr></tbody></table></body></html>`;
+
+                  const printWindow = window.open('', '_blank');
+                  if (printWindow) {
+                    printWindow.document.write(html);
+                    printWindow.document.close();
+                    setTimeout(() => printWindow.print(), 500);
+                  }
+                }}
+              >
+                <FileDown className="w-3 h-3" />
+                PDF
+              </Button>
               <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth}>
                 <ChevronLeft className="w-3 h-3" />
               </Button>
