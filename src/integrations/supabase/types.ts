@@ -1164,6 +1164,7 @@ export type Database = {
           notes: string | null
           payment_request_date: string | null
           phone: string | null
+          pix_key: string | null
           rate: number | null
           rating: number | null
           updated_at: string
@@ -1179,6 +1180,7 @@ export type Database = {
           notes?: string | null
           payment_request_date?: string | null
           phone?: string | null
+          pix_key?: string | null
           rate?: number | null
           rating?: number | null
           updated_at?: string
@@ -1194,6 +1196,7 @@ export type Database = {
           notes?: string | null
           payment_request_date?: string | null
           phone?: string | null
+          pix_key?: string | null
           rate?: number | null
           rating?: number | null
           updated_at?: string
@@ -1968,6 +1971,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          is_advance_payment: boolean
           show_id: string | null
           type: string
           user_id: string
@@ -1979,6 +1983,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          is_advance_payment?: boolean
           show_id?: string | null
           type: string
           user_id: string
@@ -1990,6 +1995,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          is_advance_payment?: boolean
           show_id?: string | null
           type?: string
           user_id?: string
