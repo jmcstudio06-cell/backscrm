@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User, Music, Phone, Mail, DollarSign, Star, Calendar } from "lucide-react";
+import { User, Music, Phone, Mail, DollarSign, Star, Calendar, Key } from "lucide-react";
 import { Musician } from "@/hooks/useMusicians";
 
 interface MusicianModalProps {
@@ -61,6 +61,7 @@ export function MusicianModal({ open, onOpenChange, onSave, editingMusician }: M
     member_type: "freelancer",
     rating: "",
     payment_request_date: "",
+    pix_key: "",
   });
 
   useEffect(() => {
@@ -72,9 +73,10 @@ export function MusicianModal({ open, onOpenChange, onSave, editingMusician }: M
         phone: editingMusician.phone || "",
         rate: editingMusician.rate || 0,
         notes: editingMusician.notes || "",
-        member_type: (editingMusician as any).member_type || "freelancer",
-        rating: (editingMusician as any).rating?.toString() || "",
-        payment_request_date: (editingMusician as any).payment_request_date || "",
+        member_type: editingMusician.member_type || "freelancer",
+        rating: editingMusician.rating?.toString() || "",
+        payment_request_date: editingMusician.payment_request_date || "",
+        pix_key: editingMusician.pix_key || "",
       });
     } else if (open && !editingMusician) {
       setFormData({
@@ -87,6 +89,7 @@ export function MusicianModal({ open, onOpenChange, onSave, editingMusician }: M
         member_type: "freelancer",
         rating: "",
         payment_request_date: "",
+        pix_key: "",
       });
     }
   }, [open, editingMusician]);
@@ -106,6 +109,7 @@ export function MusicianModal({ open, onOpenChange, onSave, editingMusician }: M
       member_type: formData.member_type,
       rating: formData.rating ? parseFloat(formData.rating) : undefined,
       payment_request_date: formData.payment_request_date || undefined,
+      pix_key: formData.pix_key || null,
     });
 
     onOpenChange(false);
@@ -226,6 +230,18 @@ export function MusicianModal({ open, onOpenChange, onSave, editingMusician }: M
                 type="date"
                 value={formData.payment_request_date}
                 onChange={(e) => setFormData({ ...formData, payment_request_date: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pix_key" className="flex items-center gap-2">
+                <Key className="w-4 h-4" /> Chave PIX
+              </Label>
+              <Input
+                id="pix_key"
+                placeholder="CPF, telefone, email ou chave aleatória"
+                value={formData.pix_key}
+                onChange={(e) => setFormData({ ...formData, pix_key: e.target.value })}
               />
             </div>
 
