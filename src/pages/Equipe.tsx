@@ -15,6 +15,8 @@ import {
   XCircle,
   Eye,
   Users2,
+  Key,
+  Copy,
 } from "lucide-react";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
 import { useMusicianStats } from "@/hooks/useMusicianStats";
@@ -207,18 +209,36 @@ export default function Equipe() {
                     <span className="text-xs text-muted-foreground">
                       Cachê: <span className="font-semibold text-foreground">R$ {fmt(musician.rate || 0)}</span>
                     </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewProfile(musician);
-                      }}
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Perfil
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      {musician.pix_key && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(musician.pix_key!);
+                            toast.success("Chave PIX copiada!");
+                          }}
+                        >
+                          <Key className="w-3 h-3 mr-1" />
+                          PIX
+                          <Copy className="w-3 h-3 ml-1" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewProfile(musician);
+                        }}
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        Perfil
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
