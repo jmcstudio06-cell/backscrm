@@ -11,6 +11,7 @@ export interface Transaction {
   description: string | null;
   date: string;
   show_id: string | null;
+  is_advance_payment: boolean;
   created_at: string;
 }
 
@@ -60,6 +61,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
           description: transactionData.description,
           date: transactionData.date,
           show_id: transactionData.show_id,
+          is_advance_payment: transactionData.is_advance_payment || false,
           user_id: user.id,
         }])
         .select()

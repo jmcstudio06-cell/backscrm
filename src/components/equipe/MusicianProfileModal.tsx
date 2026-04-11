@@ -19,7 +19,10 @@ import {
   MessageCircle,
   TrendingUp,
   Award,
+  Key,
+  Copy,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface MusicianProfileModalProps {
   open: boolean;
@@ -147,7 +150,6 @@ export function MusicianProfileModal({
           />
         </div>
 
-        {/* Contact Info */}
         <div className="space-y-2 py-3 border-t border-border">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Contato</p>
           <div className="flex flex-wrap gap-2">
@@ -174,6 +176,30 @@ export function MusicianProfileModal({
               </div>
             )}
           </div>
+
+          {/* PIX Key */}
+          {musician.pix_key && (
+            <div className="mt-3">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Chave PIX</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-between font-mono text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(musician.pix_key!);
+                  toast.success("Chave PIX copiada!");
+                }}
+              >
+                <span className="flex items-center gap-1.5 truncate">
+                  <Key className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                  <span className="truncate">{musician.pix_key}</span>
+                </span>
+                <Copy className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 ml-2" />
+              </Button>
+            </div>
+          )}
+
           {musician.notes && (
             <p className="text-sm text-muted-foreground mt-2 italic">"{musician.notes}"</p>
           )}
