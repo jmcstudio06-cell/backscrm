@@ -69,6 +69,7 @@ export default function Financeiro() {
     category: string;
     description: string;
     date: string;
+    is_advance_payment: boolean;
   }) => {
     await addTransaction(data);
   };
