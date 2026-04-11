@@ -669,9 +669,12 @@ export default function Financeiro() {
                       .filter(t => t.type === "income")
                       .map(t => (
                         <div key={t.id} className="flex justify-between items-center py-1.5 border-b border-dashed border-border/50 last:border-0">
-                          <div>
+                          <div className="flex items-center gap-1.5">
                             <span className="text-sm text-foreground">{t.description || t.category}</span>
-                            <span className="text-xs text-muted-foreground ml-2">({formatDateBR(t.date)})</span>
+                            {t.is_advance_payment && (
+                              <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 bg-blue-500/10 text-blue-600 border-blue-500/30">Antecipado</Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">({formatDateBR(t.date)})</span>
                           </div>
                           <span className="text-sm font-medium text-success whitespace-nowrap">
                             + R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -702,9 +705,12 @@ export default function Financeiro() {
                       .filter(t => t.type === "expense")
                       .map(t => (
                         <div key={t.id} className="flex justify-between items-center py-1.5 border-b border-dashed border-border/50 last:border-0">
-                          <div>
+                          <div className="flex items-center gap-1.5">
                             <span className="text-sm text-foreground">{t.description || t.category}</span>
-                            <span className="text-xs text-muted-foreground ml-2">({formatDateBR(t.date)})</span>
+                            {t.is_advance_payment && (
+                              <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 bg-blue-500/10 text-blue-600 border-blue-500/30">Antecipado</Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">({formatDateBR(t.date)})</span>
                           </div>
                           <span className="text-sm font-medium text-destructive whitespace-nowrap">
                             - R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
