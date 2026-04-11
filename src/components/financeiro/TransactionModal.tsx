@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -42,6 +43,7 @@ interface TransactionModalProps {
     category: string;
     description: string;
     date: string;
+    is_advance_payment: boolean;
   }) => Promise<void>;
 }
 
@@ -72,6 +74,7 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isAdvancePayment, setIsAdvancePayment] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -85,6 +88,7 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
       setCategory("");
       setDescription("");
       setDate(new Date());
+      setIsAdvancePayment(false);
       setErrors({});
     }
   }, [open]);
@@ -126,6 +130,7 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
         category,
         description: description.trim(),
         date: format(date!, "yyyy-MM-dd"),
+        is_advance_payment: isAdvancePayment,
       });
       onOpenChange(false);
     } catch (error) {
@@ -230,6 +235,21 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
             <p className="text-xs text-muted-foreground text-right">
               {description.length}/200
             </p>
+          </div>
+
+          {/* Advance Payment Toggle */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/30">
+            <div className="space-y-0.5">
+              <Label htmlFor="advance-payment" className="text-sm font-medium cursor-pointer">
+                Pagamento Antecipado
+              </Label>
+              <p className="text-xs text-muted-foreground">Marque se foi pago antes da data do evento</p>
+            </div>
+            <Switch
+              id="advance-payment"
+              checked={isAdvancePayment}
+              onCheckedChange={setIsAdvancePayment}
+            />
           </div>
         </div>
 
