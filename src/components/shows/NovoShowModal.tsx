@@ -1284,6 +1284,18 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                     <span className="text-muted-foreground">Cachê</span>
                     <span className="font-medium text-success">R${formatCurrency(formData.cachet)}</span>
                   </div>
+                  {computedAdvance > 0 && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">↳ Antecipado</span>
+                        <span className="font-medium text-primary">R${formatCurrency(computedAdvance)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">↳ Pendente</span>
+                        <span className="font-medium text-amber-500">R${formatCurrency(pendingAmount)}</span>
+                      </div>
+                    </>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total Despesas</span>
                     <span className="font-medium text-destructive">R${formatCurrency(totalExpenses)}</span>

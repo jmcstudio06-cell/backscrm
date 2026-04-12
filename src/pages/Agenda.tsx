@@ -122,6 +122,7 @@ export default function Agenda() {
         title: newShow.name, date: safeDate, start_time: newShow.time || null,
         venue: newShow.venue || null, address: newShow.address || null, cachet: newShow.cachet,
         status: newShow.status, event_type: newShow.type || null, client_id: newShow.clientId || null,
+        advance_amount: newShow.advanceAmount || 0,
       }, musicians, expenses);
       setEditingShow(null);
     } else {
@@ -129,7 +130,8 @@ export default function Agenda() {
         title: newShow.name, date: safeDate, start_time: newShow.time || null,
         venue: newShow.venue || null, address: newShow.address || null, cachet: newShow.cachet,
         status: newShow.status, event_type: newShow.type || null, client_id: newShow.clientId || null,
-      }, musicians, expenses, newShow.checklistTemplateId, undefined, newShow.isAdvancePayment);
+        advance_amount: newShow.advanceAmount || 0,
+      }, musicians, expenses, newShow.checklistTemplateId, undefined, newShow.advanceAmount || 0);
     }
   };
 
