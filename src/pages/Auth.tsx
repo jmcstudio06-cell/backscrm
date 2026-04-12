@@ -346,7 +346,7 @@ const Auth = () => {
           {!showForm ? (
             <div className="relative flex items-center justify-center">
               {/* Feature Showcase - replaces artist images */}
-              <div className="w-full max-w-[380px] md:max-w-[440px] space-y-3 md:space-y-4">
+              <div className="w-full max-w-[420px] md:max-w-[500px] lg:max-w-[540px] space-y-3 md:space-y-4">
                 {/* Main app mockup card */}
                 <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-4 md:p-6 shadow-2xl shadow-black/20">
                   <div className="flex items-center gap-3 mb-4 md:mb-5">
@@ -396,7 +396,7 @@ const Auth = () => {
                   {[
                     { icon: Rocket, value: "2min", label: "Setup", color: "text-cyan-300" },
                     { icon: Music, value: "+100", label: "Artistas", color: "text-emerald-300" },
-                    { icon: ClipboardCheck, value: "100%", label: "Grátis", color: "text-amber-300" },
+                    { icon: ClipboardCheck, value: "100%", label: "Prático", color: "text-amber-300" },
                   ].map((stat, i) => (
                     <div key={i} className="flex flex-col items-center gap-1 p-3 md:p-4 rounded-xl border border-white/10 bg-white/[0.06] backdrop-blur-lg">
                       <stat.icon className={`h-4 w-4 md:h-5 md:w-5 ${stat.color}`} />
