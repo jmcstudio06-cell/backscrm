@@ -191,6 +191,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
   const [selectedChecklistTemplateId, setSelectedChecklistTemplateId] = useState<string>("");
+  const [isAdvancePayment, setIsAdvancePayment] = useState(false);
 
   // Form persistence - only for new shows, not editing
   const isEditing = !!editingShow;
