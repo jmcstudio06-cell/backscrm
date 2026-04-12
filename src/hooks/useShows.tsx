@@ -178,7 +178,7 @@ export function useShowsData() {
   };
 
   // Create financial transactions when show is marked as completed
-  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[]) => {
+  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[], isAdvancePayment = false) => {
     if (!user) return;
 
     try {
@@ -197,6 +197,7 @@ export function useShowsData() {
           description: `Cachê: ${show.title}`,
           date: show.date,
           show_id: show.id,
+          is_advance_payment: isAdvancePayment,
         });
       }
 
@@ -332,7 +333,8 @@ export function useShowsData() {
     musicians: ShowMusician[] = [],
     expenses: ShowExpense[] = [],
     checklistTemplateId?: string,
-    userPlan?: string | null
+    userPlan?: string | null,
+    isAdvancePayment = false
   ) => {
     if (!user) return;
 
