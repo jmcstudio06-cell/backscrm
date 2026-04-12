@@ -336,7 +336,7 @@ export function useShowsData() {
     expenses: ShowExpense[] = [],
     checklistTemplateId?: string,
     userPlan?: string | null,
-    isAdvancePayment = false
+    advanceAmount = 0
   ) => {
     if (!user) return;
 
