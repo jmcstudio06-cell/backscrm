@@ -904,14 +904,80 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
               <div className="flex items-center justify-between mt-3 px-1">
                 <Label htmlFor="advance-payment" className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
                   <DollarSign className="w-4 h-4 text-primary" />
-                  Pagamento antecipado?
+                  Recebeu valor antecipado?
                 </Label>
                 <Switch
                   id="advance-payment"
                   checked={isAdvancePayment}
-                  onCheckedChange={setIsAdvancePayment}
+                  onCheckedChange={(checked) => {
+                    setIsAdvancePayment(checked);
+                    if (!checked) setAdvanceAmount(0);
+                  }}
                 />
               </div>
+              {isAdvancePayment && (
+                <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={advanceMode === "value" ? "default" : "outline"}
+                      onClick={() => { setAdvanceMode("value"); setAdvanceAmount(0); }}
+                      className="text-xs"
+                    >
+                      R$ Valor
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={advanceMode === "percent" ? "default" : "outline"}
+                      onClick={() => { setAdvanceMode("percent"); setAdvanceAmount(0); }}
+                      className="text-xs"
+                    >
+                      % Porcentagem
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {advanceMode === "value" ? (
+                      <>
+                        <span className="text-sm font-bold text-primary">R$</span>
+                        <Input
+                          type="number"
+                          placeholder="0,00"
+                          className="h-10 bg-background"
+                          value={advanceAmount || ""}
+                          onChange={(e) => setAdvanceAmount(Number(e.target.value))}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          min={0}
+                          max={100}
+                          className="h-10 bg-background"
+                          value={advanceAmount || ""}
+                          onChange={(e) => setAdvanceAmount(Math.min(100, Number(e.target.value)))}
+                        />
+                        <span className="text-sm font-bold text-primary">%</span>
+                      </>
+                    )}
+                  </div>
+                  {computedAdvance > 0 && (
+                    <div className="text-xs space-y-1">
+                      <div className="flex justify-between text-primary">
+                        <span>Antecipado</span>
+                        <span className="font-semibold">R${formatCurrency(computedAdvance)}</span>
+                      </div>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Pendente</span>
+                        <span className="font-semibold">R${formatCurrency(pendingAmount)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Select Team Members - Collapsible */}
