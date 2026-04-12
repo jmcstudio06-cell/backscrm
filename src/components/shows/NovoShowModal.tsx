@@ -108,6 +108,7 @@ export interface ShowData {
   status: string;
   notes: string;
   cachet: number;
+  advanceAmount: number;
   isAdvancePayment: boolean;
   expenses: Expense[];
   totalExpenses: number;
@@ -192,6 +193,8 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
   const [selectedChecklistTemplateId, setSelectedChecklistTemplateId] = useState<string>("");
   const [isAdvancePayment, setIsAdvancePayment] = useState(false);
+  const [advanceAmount, setAdvanceAmount] = useState(0);
+  const [advanceMode, setAdvanceMode] = useState<"value" | "percent">("value");
 
   // Form persistence - only for new shows, not editing
   const isEditing = !!editingShow;
