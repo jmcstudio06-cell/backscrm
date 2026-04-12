@@ -1795,6 +1795,7 @@ export type Database = {
       shows: {
         Row: {
           address: string | null
+          advance_amount: number
           cachet: number
           checklist_template_id: string | null
           client_id: string | null
@@ -1814,6 +1815,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          advance_amount?: number
           cachet?: number
           checklist_template_id?: string | null
           client_id?: string | null
@@ -1833,6 +1835,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          advance_amount?: number
           cachet?: number
           checklist_template_id?: string | null
           client_id?: string | null

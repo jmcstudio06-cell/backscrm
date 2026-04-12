@@ -31,7 +31,7 @@ export interface ShowsContextType {
     expenses?: ShowExpense[],
     checklistTemplateId?: string,
     userPlan?: string | null,
-    isAdvancePayment?: boolean
+    advanceAmount?: number
   ) => Promise<Show | undefined>;
   updateShow: (
     id: string,

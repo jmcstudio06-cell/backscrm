@@ -13,6 +13,7 @@ export interface Show {
   venue: string | null;
   address: string | null;
   cachet: number;
+  advance_amount: number;
   status: string;
   client_id: string | null;
   lead_id: string | null;
@@ -75,6 +76,7 @@ export function useShowsData() {
       venue: typeof row.venue === "string" ? row.venue : null,
       address: typeof row.address === "string" ? row.address : null,
       cachet: Number.isFinite(cachetValue) ? cachetValue : 0,
+      advance_amount: typeof row.advance_amount === "number" ? row.advance_amount : 0,
       status: typeof row.status === "string" && row.status.trim() ? row.status : "scheduled",
       client_id: typeof row.client_id === "string" ? row.client_id : null,
       lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
@@ -178,7 +180,7 @@ export function useShowsData() {
   };
 
   // Create financial transactions when show is marked as completed
-  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[], isAdvancePayment = false) => {
+  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[], advanceAmountOverride?: number) => {
     if (!user) return;
 
     try {
@@ -186,19 +188,45 @@ export function useShowsData() {
       await supabase.from("transactions").delete().eq("show_id", show.id);
 
       const transactionsToInsert = [];
+      const advance = advanceAmountOverride ?? show.advance_amount ?? 0;
+      const hasAdvance = advance > 0 && advance < show.cachet;
 
       // Add income from cachet
       if (show.cachet > 0) {
-        transactionsToInsert.push({
-          user_id: user.id,
-          type: "income",
-          category: "Show",
-          amount: show.cachet,
-          description: `Cachê: ${show.title}`,
-          date: show.date,
-          show_id: show.id,
-          is_advance_payment: isAdvancePayment,
-        });
+        if (hasAdvance) {
+          // Split into advance + pending
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "income",
+            category: "Show",
+            amount: advance,
+            description: `Cachê antecipado: ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+            is_advance_payment: true,
+          });
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "income",
+            category: "Show",
+            amount: show.cachet - advance,
+            description: `Cachê pendente: ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+            is_advance_payment: false,
+          });
+        } else {
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "income",
+            category: "Show",
+            amount: show.cachet,
+            description: `Cachê: ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+            is_advance_payment: advance >= show.cachet,
+          });
+        }
       }
 
       // Add expenses from musicians
@@ -334,7 +362,7 @@ export function useShowsData() {
     expenses: ShowExpense[] = [],
     checklistTemplateId?: string,
     userPlan?: string | null,
-    isAdvancePayment = false
+    advanceAmount = 0
   ) => {
     if (!user) return;
 
@@ -349,6 +377,7 @@ export function useShowsData() {
           venue: showData.venue,
           address: showData.address,
           cachet: showData.cachet || 0,
+          advance_amount: showData.advance_amount || advanceAmount || 0,
           status: showData.status || "scheduled",
           client_id: showData.client_id,
           lead_id: showData.lead_id,
@@ -373,7 +402,7 @@ export function useShowsData() {
 
       // If status is completed, create transactions
       if (data.status === "completed") {
-        await createShowTransactions(data, musicians, expenses, isAdvancePayment);
+        await createShowTransactions(data, musicians, expenses, advanceAmount);
       }
 
       setShows([...shows, data]);

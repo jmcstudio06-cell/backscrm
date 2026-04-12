@@ -1,0 +1,1 @@
+ALTER TABLE public.shows ADD COLUMN advance_amount numeric NOT NULL DEFAULT 0;
