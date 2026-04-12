@@ -405,6 +405,12 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   const musiciansCost = selectedMusicians.reduce((sum, m) => sum + m.fee, 0);
   const otherExpenses = expenses.reduce((sum, exp) => sum + exp.value, 0);
   const totalExpenses = musiciansCost + otherExpenses;
+  const computedAdvance = isAdvancePayment
+    ? advanceMode === "percent"
+      ? Math.min((formData.cachet * advanceAmount) / 100, formData.cachet)
+      : Math.min(advanceAmount, formData.cachet)
+    : 0;
+  const pendingAmount = formData.cachet - computedAdvance;
   const netProfit = formData.cachet - totalExpenses;
 
   const handleToggleMusician = (musician: Musician, checked: boolean) => {
@@ -507,6 +513,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           date: dates[i],
           clientId,
           isAdvancePayment,
+          advanceAmount: computedAdvance,
           expenses,
           totalExpenses,
           netProfit,
@@ -524,6 +531,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         ...formData,
         clientId,
         isAdvancePayment,
+        advanceAmount: computedAdvance,
         expenses,
         totalExpenses,
         netProfit,
