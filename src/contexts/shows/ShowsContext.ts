@@ -29,7 +29,9 @@ export interface ShowsContextType {
     show: Partial<Show>,
     musicians?: ShowMusician[],
     expenses?: ShowExpense[],
-    checklistTemplateId?: string
+    checklistTemplateId?: string,
+    userPlan?: string | null,
+    isAdvancePayment?: boolean
   ) => Promise<Show | undefined>;
   updateShow: (
     id: string,
