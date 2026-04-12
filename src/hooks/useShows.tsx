@@ -180,7 +180,7 @@ export function useShowsData() {
   };
 
   // Create financial transactions when show is marked as completed
-  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[], isAdvancePayment = false) => {
+  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[], advanceAmountOverride?: number) => {
     if (!user) return;
 
     try {
@@ -188,19 +188,45 @@ export function useShowsData() {
       await supabase.from("transactions").delete().eq("show_id", show.id);
 
       const transactionsToInsert = [];
+      const advance = advanceAmountOverride ?? show.advance_amount ?? 0;
+      const hasAdvance = advance > 0 && advance < show.cachet;
 
       // Add income from cachet
       if (show.cachet > 0) {
-        transactionsToInsert.push({
-          user_id: user.id,
-          type: "income",
-          category: "Show",
-          amount: show.cachet,
-          description: `Cachê: ${show.title}`,
-          date: show.date,
-          show_id: show.id,
-          is_advance_payment: isAdvancePayment,
-        });
+        if (hasAdvance) {
+          // Split into advance + pending
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "income",
+            category: "Show",
+            amount: advance,
+            description: `Cachê antecipado: ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+            is_advance_payment: true,
+          });
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "income",
+            category: "Show",
+            amount: show.cachet - advance,
+            description: `Cachê pendente: ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+            is_advance_payment: false,
+          });
+        } else {
+          transactionsToInsert.push({
+            user_id: user.id,
+            type: "income",
+            category: "Show",
+            amount: show.cachet,
+            description: `Cachê: ${show.title}`,
+            date: show.date,
+            show_id: show.id,
+            is_advance_payment: advance >= show.cachet,
+          });
+        }
       }
 
       // Add expenses from musicians
