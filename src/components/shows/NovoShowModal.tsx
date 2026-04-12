@@ -107,6 +107,7 @@ export interface ShowData {
   status: string;
   notes: string;
   cachet: number;
+  isAdvancePayment: boolean;
   expenses: Expense[];
   totalExpenses: number;
   netProfit: number;
