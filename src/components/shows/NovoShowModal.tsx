@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -107,6 +108,7 @@ export interface ShowData {
   status: string;
   notes: string;
   cachet: number;
+  isAdvancePayment: boolean;
   expenses: Expense[];
   totalExpenses: number;
   netProfit: number;
@@ -189,6 +191,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
   const [selectedChecklistTemplateId, setSelectedChecklistTemplateId] = useState<string>("");
+  const [isAdvancePayment, setIsAdvancePayment] = useState(false);
 
   // Form persistence - only for new shows, not editing
   const isEditing = !!editingShow;
@@ -500,6 +503,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           ...formData,
           date: dates[i],
           clientId,
+          isAdvancePayment,
           expenses,
           totalExpenses,
           netProfit,
@@ -516,6 +520,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         id: editingShow?.id || crypto.randomUUID(),
         ...formData,
         clientId,
+        isAdvancePayment,
         expenses,
         totalExpenses,
         netProfit,
@@ -883,6 +888,17 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   className="text-2xl font-bold h-14 bg-background"
                   value={formData.cachet || ""}
                   onChange={(e) => setFormData({ ...formData, cachet: Number(e.target.value) })}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-3 px-1">
+                <Label htmlFor="advance-payment" className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                  <DollarSign className="w-4 h-4 text-primary" />
+                  Pagamento antecipado?
+                </Label>
+                <Switch
+                  id="advance-payment"
+                  checked={isAdvancePayment}
+                  onCheckedChange={setIsAdvancePayment}
                 />
               </div>
             </div>
