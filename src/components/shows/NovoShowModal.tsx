@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -501,6 +502,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           ...formData,
           date: dates[i],
           clientId,
+          isAdvancePayment,
           expenses,
           totalExpenses,
           netProfit,
@@ -517,6 +519,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         id: editingShow?.id || crypto.randomUUID(),
         ...formData,
         clientId,
+        isAdvancePayment,
         expenses,
         totalExpenses,
         netProfit,
