@@ -351,6 +351,7 @@ export function useShowsData() {
           venue: showData.venue,
           address: showData.address,
           cachet: showData.cachet || 0,
+          advance_amount: showData.advance_amount || advanceAmount || 0,
           status: showData.status || "scheduled",
           client_id: showData.client_id,
           lead_id: showData.lead_id,
@@ -375,7 +376,7 @@ export function useShowsData() {
 
       // If status is completed, create transactions
       if (data.status === "completed") {
-        await createShowTransactions(data, musicians, expenses, isAdvancePayment);
+        await createShowTransactions(data, musicians, expenses, advanceAmount);
       }
 
       setShows([...shows, data]);
