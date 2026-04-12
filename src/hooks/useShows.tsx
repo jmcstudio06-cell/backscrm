@@ -373,7 +373,7 @@ export function useShowsData() {
 
       // If status is completed, create transactions
       if (data.status === "completed") {
-        await createShowTransactions(data, musicians, expenses);
+        await createShowTransactions(data, musicians, expenses, isAdvancePayment);
       }
 
       setShows([...shows, data]);
