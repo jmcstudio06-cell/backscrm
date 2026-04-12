@@ -890,6 +890,17 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   onChange={(e) => setFormData({ ...formData, cachet: Number(e.target.value) })}
                 />
               </div>
+              <div className="flex items-center justify-between mt-3 px-1">
+                <Label htmlFor="advance-payment" className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                  <DollarSign className="w-4 h-4 text-primary" />
+                  Pagamento antecipado?
+                </Label>
+                <Switch
+                  id="advance-payment"
+                  checked={isAdvancePayment}
+                  onCheckedChange={setIsAdvancePayment}
+                />
+              </div>
             </div>
 
             {/* Select Team Members - Collapsible */}
