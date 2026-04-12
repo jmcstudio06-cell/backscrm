@@ -13,6 +13,7 @@ export interface Show {
   venue: string | null;
   address: string | null;
   cachet: number;
+  advance_amount: number;
   status: string;
   client_id: string | null;
   lead_id: string | null;
