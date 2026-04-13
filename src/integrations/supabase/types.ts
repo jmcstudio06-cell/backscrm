@@ -1011,6 +1011,10 @@ export type Database = {
           priority: string
           title: string
           updated_at: string
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+          user_phone: string | null
         }
         Insert: {
           completed?: boolean
@@ -1021,6 +1025,10 @@ export type Database = {
           priority?: string
           title: string
           updated_at?: string
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+          user_phone?: string | null
         }
         Update: {
           completed?: boolean
@@ -1031,6 +1039,10 @@ export type Database = {
           priority?: string
           title?: string
           updated_at?: string
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+          user_phone?: string | null
         }
         Relationships: []
       }
