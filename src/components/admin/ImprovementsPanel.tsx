@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Lightbulb, Loader2 } from "lucide-react";
+import { User, Phone, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Improvement {
@@ -18,6 +19,10 @@ interface Improvement {
   completed_at: string | null;
   priority: string;
   created_at: string;
+  user_id: string | null;
+  user_name: string | null;
+  user_phone: string | null;
+  user_email: string | null;
 }
 
 const PRIORITY_CONFIG = {
@@ -189,14 +194,31 @@ export function ImprovementsPanel() {
                         {item.description && (
                           <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
                         )}
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline" className={PRIORITY_CONFIG[item.priority as keyof typeof PRIORITY_CONFIG]?.color}>
-                            {PRIORITY_CONFIG[item.priority as keyof typeof PRIORITY_CONFIG]?.label}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(item.created_at).toLocaleDateString("pt-BR")}
-                          </span>
-                        </div>
+                         <div className="flex items-center gap-2 mt-2 flex-wrap">
+                           <Badge variant="outline" className={PRIORITY_CONFIG[item.priority as keyof typeof PRIORITY_CONFIG]?.color}>
+                             {PRIORITY_CONFIG[item.priority as keyof typeof PRIORITY_CONFIG]?.label}
+                           </Badge>
+                           <span className="text-xs text-muted-foreground">
+                             {new Date(item.created_at).toLocaleDateString("pt-BR")}
+                           </span>
+                         </div>
+                         {item.user_name && (
+                           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
+                             <span className="flex items-center gap-1">
+                               <User className="w-3 h-3" /> {item.user_name}
+                             </span>
+                             {item.user_phone && (
+                               <span className="flex items-center gap-1">
+                                 <Phone className="w-3 h-3" /> {item.user_phone}
+                               </span>
+                             )}
+                             {item.user_email && (
+                               <span className="flex items-center gap-1">
+                                 <Mail className="w-3 h-3" /> {item.user_email}
+                               </span>
+                             )}
+                           </div>
+                         )}
                       </div>
                       <Button variant="ghost" size="icon" onClick={() => deleteImprovement(item.id)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
