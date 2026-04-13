@@ -93,12 +93,6 @@ const menuItems: MenuItem[] = [
       { icon: Users2, label: "Banda & Músicos", path: "/equipe", featureKey: "equipe" },
       { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },
       { icon: MapPin, label: "Mapeamento de Palco", path: "/mapeamento-palco", featureKey: "mapeamento-palco" },
-    ],
-  },
-  {
-    icon: Target,
-    label: "Controle de Metas",
-    children: [
       { icon: TrendingUp, label: "Metas Comerciais", path: "/metas", featureKey: "metas" },
       { icon: Target, label: "Meta Anual 2026", path: "/metas/anual", featureKey: "metas" },
     ],
