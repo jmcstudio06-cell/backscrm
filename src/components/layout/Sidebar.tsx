@@ -36,6 +36,7 @@ import {
   Inbox,
   Package,
   Sparkles,
+  Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";

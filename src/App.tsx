@@ -133,6 +133,7 @@ const App = () => (
                 <Route path="/kit-profissional/artes" element={<ErrorBoundary><ArtesCanva /></ErrorBoundary>} />
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
+                <Route path="/sugestoes" element={<AuthPage><Sugestoes /></AuthPage>} />
                 
                 <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
