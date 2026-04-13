@@ -48,6 +48,7 @@ import ServicosProdutos from "./pages/ServicosProdutos";
 import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
 import Selos from "./pages/Selos";
 import Notificacoes from "./pages/Notificacoes";
+import Sugestoes from "./pages/Sugestoes";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
