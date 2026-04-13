@@ -18,6 +18,10 @@ interface Improvement {
   completed_at: string | null;
   priority: string;
   created_at: string;
+  user_id: string | null;
+  user_name: string | null;
+  user_phone: string | null;
+  user_email: string | null;
 }
 
 const PRIORITY_CONFIG = {
