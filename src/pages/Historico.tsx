@@ -312,8 +312,11 @@ export default function Historico() {
                                 <div className="space-y-1 pl-5">
                                   {month.incomeTransactions.map(t => (
                                     <div key={t.id} className="flex justify-between items-center py-1 text-sm">
-                                      <span className="text-foreground">{t.description || t.category}</span>
-                                      <span className="text-success font-medium">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs text-muted-foreground whitespace-nowrap">{format(parseLocalDate(t.date), "dd/MM")}</span>
+                                        <span className="text-foreground">{t.description || t.category}</span>
+                                      </div>
+                                      <span className="text-success font-medium whitespace-nowrap">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -332,8 +335,11 @@ export default function Historico() {
                                 <div className="space-y-1 pl-5">
                                   {month.expenseTransactions.map(t => (
                                     <div key={t.id} className="flex justify-between items-center py-1 text-sm">
-                                      <span className="text-foreground">{t.description || t.category}</span>
-                                      <span className="text-destructive font-medium">- R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs text-muted-foreground whitespace-nowrap">{format(parseLocalDate(t.date), "dd/MM")}</span>
+                                        <span className="text-foreground">{t.description || t.category}</span>
+                                      </div>
+                                      <span className="text-destructive font-medium whitespace-nowrap">- R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                                     </div>
                                   ))}
                                 </div>
