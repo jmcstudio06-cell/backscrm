@@ -98,6 +98,7 @@ export default function RankingPage() {
   const [hallOpen, setHallOpen] = useState(false);
   const [hallOfFame, setHallOfFame] = useState<{ user_name: string; count: number }[]>([]);
   const [hallLoading, setHallLoading] = useState(false);
+  const [trophyYear, setTrophyYear] = useState(brasilNow.getFullYear());
 
   const isCurrentMonth = selectedMonth === brasilNow.getMonth() + 1 && selectedYear === brasilNow.getFullYear();
 
