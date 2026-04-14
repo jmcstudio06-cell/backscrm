@@ -32,7 +32,7 @@ import bassistImg from '@/assets/stage/bassist.png';
 import singerImg from '@/assets/stage/singer.png';
 import ampImg from '@/assets/stage/amp.png';
 import accordionistImg from '@/assets/stage/accordionist.png';
-import acousticImg from '@/assets/stage/acoustic.png';
+import acousticImg from '@/assets/stage/acoustic-transparent.png';
 import brassImg from '@/assets/stage/brass.png';
 import power110vImg from '@/assets/stage/power110v.png';
 import power220vImg from '@/assets/stage/power220v.png';
