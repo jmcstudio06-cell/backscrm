@@ -33,6 +33,7 @@ import {
   isCompletedShowStatus,
 } from "@/lib/historico";
 import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
+import { cn } from "@/lib/utils";
 
 export default function Historico() {
   const { user } = useAuth();
