@@ -247,7 +247,17 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                               )}
                             >
                               <child.icon className="w-4 h-4" />
-                              <span className="text-sm">{child.label}</span>
+                              <span className="text-sm flex-1">{child.label}</span>
+                              {child.label === "Checklist de Show" && checklistBadge > 0 && (
+                                <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                                  {checklistBadge > 99 ? "99+" : checklistBadge}
+                                </span>
+                              )}
+                              {child.label === "Histórico Completo" && historicoBadge > 0 && (
+                                <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                                  {historicoBadge > 99 ? "99+" : historicoBadge}
+                                </span>
+                              )}
                             </RouterNavLink>
                           );
                         })}
