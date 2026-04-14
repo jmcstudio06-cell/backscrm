@@ -35,7 +35,19 @@ import {
 import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
 import { cn } from "@/lib/utils";
 
-export default function Historico() {
+function ComparisonBadge({ current, previous, invertColors = false, isCount = false }: { current: number; previous: number; invertColors?: boolean; isCount?: boolean }) {
+  if (previous === 0 && current === 0) return null;
+  const diff = current - previous;
+  const pct = previous !== 0 ? Math.round((diff / Math.abs(previous)) * 100) : (current > 0 ? 100 : 0);
+  const isPositive = invertColors ? diff <= 0 : diff >= 0;
+  return (
+    <span className={cn("mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-semibold", isPositive ? "text-success" : "text-destructive")}>
+      {diff >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+      {pct >= 0 ? "+" : ""}{pct}% vs ano anterior
+    </span>
+  );
+}
+
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
