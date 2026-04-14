@@ -217,7 +217,8 @@ export default function RankingPage() {
     setHallLoading(false);
   };
 
-  const isInTop3 = isCurrentMonth && ranking.some((r) => r.user_id === user?.id);
+  const myPosition = ranking.findIndex((r) => r.user_id === user?.id);
+  const isInTop3 = isCurrentMonth && myPosition >= 0 && myPosition < 3;
   const minTop3Shows = ranking.length >= 3 ? ranking[2].show_count : ranking.length > 0 ? ranking[0].show_count : 1;
   const showsToTop3 = myShowCount !== null ? Math.max(0, minTop3Shows - myShowCount + 1) : null;
 
