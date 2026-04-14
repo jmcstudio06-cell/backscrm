@@ -56,6 +56,10 @@ interface ExistingShowTransaction {
   is_advance_payment: boolean;
 }
 
+const COMPLETED_SHOW_STATUSES = new Set(["completed", "finalizado"]);
+
+const isCompletedShowStatus = (status: string) => COMPLETED_SHOW_STATUSES.has(status);
+
 const formatDateString = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -354,10 +358,10 @@ export function useShowsData() {
   };
 
   const saveShowMusicians = async (showId: string, musicians: ShowMusician[]) => {
-    if (musicians.length === 0) return;
-
     try {
       await supabase.from("show_musicians").delete().eq("show_id", showId);
+
+      if (musicians.length === 0) return;
 
       const musiciansToInsert = musicians.map((m) => ({
         show_id: showId,
@@ -374,10 +378,10 @@ export function useShowsData() {
   };
 
   const saveShowExpenses = async (showId: string, expenses: ShowExpense[]) => {
-    if (expenses.length === 0) return;
-
     try {
       await supabase.from("show_expenses").delete().eq("show_id", showId);
+
+      if (expenses.length === 0) return;
 
       const expensesToInsert = expenses.map((e) => ({
         show_id: showId,
@@ -467,7 +471,7 @@ export function useShowsData() {
         await applyChecklistTemplateToShow(data.id, checklistTemplateId);
       }
 
-      if (data.status === "completed") {
+      if (isCompletedShowStatus(data.status)) {
         await createShowTransactions(data, musicians, expenses, advanceAmount);
       }
 
@@ -483,8 +487,8 @@ export function useShowsData() {
   const updateShow = async (
     id: string,
     updates: Partial<Show>,
-    musicians: ShowMusician[] = [],
-    expenses: ShowExpense[] = []
+    musicians?: ShowMusician[],
+    expenses?: ShowExpense[]
   ) => {
     if (!user) return;
 
@@ -502,17 +506,17 @@ export function useShowsData() {
 
       if (error) throw error;
 
-      if (musicians.length > 0) {
+      if (musicians !== undefined) {
         await saveShowMusicians(id, musicians);
       }
-      if (expenses.length > 0) {
+      if (expenses !== undefined) {
         await saveShowExpenses(id, expenses);
       }
 
       let musiciansToUse = musicians;
       let expensesToUse = expenses;
 
-      if (musicians.length === 0) {
+      if (musicians === undefined) {
         const { data: savedMusicians } = await supabase
           .from("show_musicians")
           .select("musician_id, fee, musicians(name)")
@@ -527,7 +531,7 @@ export function useShowsData() {
         }
       }
 
-      if (expenses.length === 0) {
+      if (expenses === undefined) {
         const { data: savedExpenses } = await supabase
           .from("show_expenses")
           .select("*")
@@ -572,7 +576,7 @@ export function useShowsData() {
 
     await deleteShowTransactions(show.id);
 
-    if (show.status === "completed") {
+    if (isCompletedShowStatus(show.status)) {
       await createShowTransactions(show, musicians, expenses);
     }
   };
@@ -602,7 +606,7 @@ export function useShowsData() {
   };
 
   const getConfirmedShows = () => shows.filter(s => s.status === "confirmed");
-  const getCompletedShows = () => shows.filter(s => s.status === "completed");
+  const getCompletedShows = () => shows.filter(s => isCompletedShowStatus(s.status));
 
   // Background repair: create missing transactions for completed shows (non-blocking)
   useEffect(() => {
@@ -611,7 +615,7 @@ export function useShowsData() {
 
     (async () => {
       try {
-        const completedShows = shows.filter((show) => show.status === "completed");
+        const completedShows = shows.filter((show) => isCompletedShowStatus(show.status));
         if (completedShows.length === 0) return;
 
         const showIds = completedShows.map(s => s.id);
