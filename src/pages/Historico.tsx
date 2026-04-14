@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,20 +21,25 @@ import {
 } from "recharts";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useShows } from "@/contexts/ShowsContext";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   buildHistoricoYearSummary,
   formatCurrencyBR,
   getHistoricoAvailableYears,
+  isCompletedShowStatus,
 } from "@/lib/historico";
 import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
 
 export default function Historico() {
-  const { transactions, loading: loadingTransactions } = useTransactions({ fullHistory: true });
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { transactions, loading: loadingTransactions, refetch: refetchTransactions } = useTransactions({ fullHistory: true });
   const { shows, loading: loadingShows } = useShows();
   const availableYears = useMemo(() => getHistoricoAvailableYears(transactions, shows), [transactions, shows]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [repairDone, setRepairDone] = useState(false);
 
   useEffect(() => {
     if (loadingTransactions || loadingShows || availableYears.length === 0) return;
@@ -43,6 +48,97 @@ export default function Historico() {
       setSelectedYear(availableYears[availableYears.length - 1]);
     }
   }, [availableYears, loadingShows, loadingTransactions, selectedYear]);
+
+  // Ensure completed shows have financial transactions
+  useEffect(() => {
+    if (repairDone || !user || loadingShows || loadingTransactions || shows.length === 0) return;
+    setRepairDone(true);
+
+    (async () => {
+      try {
+        const completedShows = shows.filter((s) => isCompletedShowStatus(s.status) && s.cachet > 0);
+        if (completedShows.length === 0) return;
+
+        const showIds = completedShows.map((s) => s.id);
+        const transactionShowIds = new Set(
+          transactions.filter((t) => t.show_id).map((t) => t.show_id as string),
+        );
+
+        const missingShows = completedShows.filter((s) => !transactionShowIds.has(s.id));
+        if (missingShows.length === 0) return;
+
+        console.log(`Historico: creating transactions for ${missingShows.length} completed shows without financial data`);
+
+        const newTransactions = missingShows.map((show) => ({
+          user_id: user.id,
+          type: "income" as const,
+          category: "Show",
+          amount: show.cachet,
+          description: `Cachê: ${show.title}`,
+          date: show.date,
+          show_id: show.id,
+          is_advance_payment: false,
+        }));
+
+        // Also fetch musician fees and expenses for these shows
+        const batchSize = 50;
+        for (let i = 0; i < missingShows.length; i += batchSize) {
+          const batch = missingShows.slice(i, i + batchSize);
+          const batchIds = batch.map((s) => s.id);
+
+          const [musiciansResult, expensesResult] = await Promise.all([
+            supabase.from("show_musicians").select("show_id, fee, musicians(name)").in("show_id", batchIds),
+            supabase.from("show_expenses").select("show_id, category, amount, description").in("show_id", batchIds),
+          ]);
+
+          (musiciansResult.data || []).forEach((m: any) => {
+            if (m.fee > 0) {
+              newTransactions.push({
+                user_id: user.id,
+                type: "expense" as const,
+                category: "Músicos",
+                amount: m.fee,
+                description: `${m.musicians?.name || "Músico"} - ${batch.find((s) => s.id === m.show_id)?.title || "Show"}`,
+                date: batch.find((s) => s.id === m.show_id)?.date || "",
+                show_id: m.show_id,
+                is_advance_payment: false,
+              });
+            }
+          });
+
+          (expensesResult.data || []).forEach((e: any) => {
+            if (e.amount > 0) {
+              newTransactions.push({
+                user_id: user.id,
+                type: "expense" as const,
+                category: e.category,
+                amount: e.amount,
+                description: `${e.description || e.category} - ${batch.find((s) => s.id === e.show_id)?.title || "Show"}`,
+                date: batch.find((s) => s.id === e.show_id)?.date || "",
+                show_id: e.show_id,
+                is_advance_payment: false,
+              });
+            }
+          });
+        }
+
+        // Insert in batches
+        for (let i = 0; i < newTransactions.length; i += 200) {
+          const batch = newTransactions.slice(i, i + 200);
+          const { error } = await supabase.from("transactions").insert(batch);
+          if (error) {
+            console.error("Historico repair insert error:", error);
+            return;
+          }
+        }
+
+        console.log(`Historico: created ${newTransactions.length} transactions for ${missingShows.length} shows`);
+        queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      } catch (err) {
+        console.error("Historico repair error:", err);
+      }
+    })();
+  }, [user, loadingShows, loadingTransactions, shows, transactions, repairDone, queryClient]);
 
   const { monthlyHistory, totalDespesa, totalLucro, totalReceita, totalShows } = useMemo(
     () => buildHistoricoYearSummary(transactions, shows, selectedYear),
