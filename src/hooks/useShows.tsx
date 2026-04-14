@@ -80,6 +80,7 @@ export function useShowsData() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const autoCompleteRanRef = useRef(false);
+  const repairRanRef = useRef(false);
 
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["shows"] });
@@ -511,6 +512,63 @@ export function useShowsData() {
 
   const getConfirmedShows = () => shows.filter(s => s.status === "confirmed");
   const getCompletedShows = () => shows.filter(s => s.status === "completed");
+
+  // Background repair: create missing transactions for completed shows (non-blocking)
+  useEffect(() => {
+    if (repairRanRef.current || !user || loading || shows.length === 0) return;
+    repairRanRef.current = true;
+
+    (async () => {
+      try {
+        const completedShows = shows.filter(s => s.status === "completed" && s.cachet > 0);
+        if (completedShows.length === 0) return;
+
+        const showIds = completedShows.map(s => s.id);
+        // Batch in groups of 50 to avoid query size limits
+        const batches = [];
+        for (let i = 0; i < showIds.length; i += 50) {
+          batches.push(showIds.slice(i, i + 50));
+        }
+
+        const allExistingShowIds = new Set<string>();
+        for (const batch of batches) {
+          const { data: existingTx } = await supabase
+            .from("transactions")
+            .select("show_id")
+            .in("show_id", batch);
+          (existingTx || []).forEach(t => { if (t.show_id) allExistingShowIds.add(t.show_id); });
+        }
+
+        const showsMissingTx = completedShows.filter(s => !allExistingShowIds.has(s.id));
+        if (showsMissingTx.length === 0) return;
+
+        console.log(`Repairing ${showsMissingTx.length} shows missing transactions`);
+
+        // Create simple cachet transactions for missing shows (no musicians/expenses lookup to avoid errors)
+        const transactionsToInsert = showsMissingTx.map(show => ({
+          user_id: user.id,
+          type: "income" as const,
+          category: "Show",
+          amount: show.cachet,
+          description: `Cachê: ${show.title}`,
+          date: show.date,
+          show_id: show.id,
+          is_advance_payment: false,
+        }));
+
+        const { error } = await supabase.from("transactions").insert(transactionsToInsert);
+        if (error) {
+          console.error("Repair insert error:", error);
+          return;
+        }
+
+        console.log(`Repaired ${showsMissingTx.length} transactions successfully`);
+        queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      } catch (error) {
+        console.error("Error repairing missing transactions:", error);
+      }
+    })();
+  }, [user, loading, shows]);
 
   return {
     shows,
