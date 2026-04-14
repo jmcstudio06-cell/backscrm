@@ -152,8 +152,6 @@ export function useShowsData() {
     }
   };
 
-  };
-
   // React Query for shows - shared cache across all components
   const { data: shows = [], isLoading: loading } = useQuery({
     queryKey: ["shows", user?.id],
