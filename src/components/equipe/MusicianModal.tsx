@@ -28,18 +28,14 @@ interface MusicianModalProps {
 }
 
 const instruments = [
+  "Violonista",
+  "Baterista",
+  "Percussionista",
+  "Contrabaixista",
+  "Guitarrista",
   "Vocalista",
-  "Guitarra",
-  "Baixo",
-  "Bateria",
-  "Teclado",
   "Sanfoneiro",
-  "Saxofone",
-  "Trompete",
-  "Trombone",
-  "Violino",
-  "Violinista",
-  "Percussão",
+  "Tecladista",
   "DJ",
   "Outro",
 ];
