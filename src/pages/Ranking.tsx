@@ -262,9 +262,9 @@ export default function RankingPage() {
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3 space-y-4">
-              {/* My Badges */}
+              {/* My Badges grouped by type */}
               <div>
-                <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2">
+                <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <Trophy className="w-4 h-4 text-primary" />
                   Meus Troféus
                 </h3>
@@ -275,23 +275,40 @@ export default function RankingPage() {
                     <p className="text-xs text-muted-foreground mt-0.5">Fique no TOP 3 do ranking mensal para ganhar!</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {myBadges.map((badge) => {
-                      const config = BADGE_CONFIG[badge.badge_type] || BADGE_CONFIG.gold;
+                  <div className="space-y-3">
+                    {(["gold", "silver", "bronze"] as const).map((type) => {
+                      const badges = myBadges.filter((b) => b.badge_type === type);
+                      if (badges.length === 0) return null;
+                      const config = BADGE_CONFIG[type];
                       const BadgeIcon = config.icon;
                       return (
-                        <div key={badge.id} className={`rounded-xl bg-gradient-to-br ${config.gradient} border ${config.border} p-3 text-center`}>
-                          <div className={`w-9 h-9 rounded-lg ${config.iconBg} flex items-center justify-center shadow mx-auto mb-2 ring-2 ${config.ring}`}>
-                            <BadgeIcon className="w-4 h-4 text-white" />
+                        <div key={type} className={`rounded-xl bg-gradient-to-br ${config.gradient} border ${config.border} p-4`}>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className={`w-10 h-10 rounded-xl ${config.iconBg} flex items-center justify-center shadow-md ring-2 ${config.ring}`}>
+                              <BadgeIcon className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <p className={`text-xs font-bold uppercase tracking-wider ${config.textColor}`}>
+                                Troféu {config.label}
+                              </p>
+                              <p className="text-sm font-bold text-foreground">
+                                {badges.length}× conquistado
+                              </p>
+                            </div>
                           </div>
-                          <p className={`text-[10px] font-bold uppercase tracking-wider ${config.textColor}`}>
-                            Troféu {config.label}
-                          </p>
-                          <p className="text-xs font-bold text-foreground mt-0.5 flex items-center justify-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {monthNames[badge.month]} {badge.year}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{badge.show_count} shows</p>
+                          <div className="space-y-1.5 pl-[52px]">
+                            {badges
+                              .sort((a, b) => b.year - a.year || b.month - a.month)
+                              .map((badge) => (
+                                <div key={badge.id} className="flex items-center justify-between text-xs rounded-lg bg-white/40 dark:bg-white/5 px-3 py-1.5 border border-white/20 dark:border-white/5">
+                                  <span className="font-medium text-foreground flex items-center gap-1.5">
+                                    <Calendar className="w-3 h-3 text-muted-foreground" />
+                                    {monthNames[badge.month]} {badge.year}
+                                  </span>
+                                  <span className="text-muted-foreground">{badge.show_count} shows</span>
+                                </div>
+                              ))}
+                          </div>
                         </div>
                       );
                     })}
