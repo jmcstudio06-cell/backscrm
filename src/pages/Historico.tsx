@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -259,8 +259,8 @@ export default function Historico() {
                 <Legend 
                   formatter={(value) => value === "receita" ? "Receita" : value === "despesa" ? "Despesa" : "Lucro"}
                 />
-                <Bar dataKey="receita" fill="#22c55e" radius={[4, 4, 0, 0]} name="receita" />
-                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" />
+                <Bar dataKey="receita" fill="#22c55e" radius={[4, 4, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
+                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={300} />
                 <Line
                   type="monotone"
                   dataKey="lucro"
@@ -269,6 +269,8 @@ export default function Historico() {
                   dot={{ fill: "#3b82f6", strokeWidth: 2, r: 5 }}
                   activeDot={{ r: 7, strokeWidth: 2 }}
                   name="lucro"
+                  animationDuration={1500}
+                  animationBegin={600}
                 />
               </ComposedChart>
             </ResponsiveContainer>
