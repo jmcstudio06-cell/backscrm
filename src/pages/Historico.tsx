@@ -303,9 +303,9 @@ export default function Historico() {
                     return labels[value] || value;
                   }}
                 />
-                <Bar dataKey="receita" fill="#22c55e" radius={[4, 4, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
-                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={200} />
-                <Bar dataKey="receitaPrevista" fill="#eab308" radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={400} />
+                <Bar dataKey="receita" stackId="revenue" fill="#22c55e" radius={[0, 0, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
+                <Bar dataKey="receitaPrevista" stackId="revenue" fill="#eab308" radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
+                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
                 <Line
                   type="monotone"
                   dataKey="lucro"
