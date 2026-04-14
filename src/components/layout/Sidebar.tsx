@@ -116,7 +116,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { isAdmin } = useAdmin();
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
-  const { agendaBadge, checklistBadge, historicoBadge } = useSidebarBadges();
+  const { agendaBadge, checklistBadge, historicoBadge, dismiss } = useSidebarBadges();
 
   const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
 
@@ -239,6 +239,10 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                             <RouterNavLink
                               key={child.path}
                               to={child.path}
+                              onClick={() => {
+                                if (child.label === "Checklist de Show") dismiss("checklist");
+                                if (child.label === "Histórico Completo") dismiss("historico");
+                              }}
                               className={cn(
                                 "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
                                 isActive
@@ -288,6 +292,9 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 <li key={item.path}>
                   <RouterNavLink
                     to={item.path!}
+                    onClick={() => {
+                      if (item.label === "Agenda de Shows") dismiss("agenda");
+                    }}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                       item.isGradient
