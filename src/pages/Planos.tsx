@@ -258,21 +258,31 @@ export default function Planos() {
         return;
       }
 
-      // Call edge function to create Mercado Pago preference
-      const { data, error } = await supabase.functions.invoke("mercadopago-create-preference", {
-        body: { plan_key: planKey },
-      });
-
-      if (error || !data?.init_point) {
-        console.error("Error creating preference:", error, data);
-        toast.error("Erro ao processar pagamento. Tente novamente.");
+      const checkoutUrl = CHECKOUT_URLS[planKey];
+      if (!checkoutUrl) {
+        toast.error("Plano inválido.");
         setLoadingPlan(null);
         return;
       }
 
-      // Redirect to Mercado Pago checkout
+      // Cancel previous pending payments and create new one
+      await supabase
+        .from("pending_payments")
+        .update({ status: "cancelled" } as any)
+        .eq("user_id", user.id)
+        .eq("status", "pending");
+
+      await supabase
+        .from("pending_payments")
+        .insert({
+          user_id: user.id,
+          plan_key: planKey,
+          amount_cents: PLAN_AMOUNTS[planKey] || 0,
+        } as any);
+
+      // Redirect to InfinitePay checkout
       toast.success("Redirecionando para pagamento...");
-      window.location.href = data.init_point;
+      window.location.href = checkoutUrl;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
