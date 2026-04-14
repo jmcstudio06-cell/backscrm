@@ -149,7 +149,7 @@ export default function RankingPage() {
     );
 
     return results
-      .filter((badge): badge is Badge => badge !== null)
+      .filter((badge): badge is NonNullable<typeof badge> => badge !== null)
       .sort((a, b) => b.year - a.year || b.month - a.month);
   }, []);
 
