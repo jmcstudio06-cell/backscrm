@@ -36,11 +36,148 @@ interface ShowExpense {
   value: number;
 }
 
+interface ShowTransactionInput {
+  user_id: string;
+  type: "income" | "expense";
+  category: string;
+  amount: number;
+  description: string;
+  date: string;
+  show_id: string;
+  is_advance_payment?: boolean;
+}
+
+interface ExistingShowTransaction {
+  show_id: string | null;
+  type: string;
+  category: string;
+  amount: number;
+  description: string | null;
+  is_advance_payment: boolean;
+}
+
 const formatDateString = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+const chunkArray = <T,>(items: T[], size: number) => {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size));
+  }
+
+  return chunks;
+};
+
+const buildShowTransactions = (
+  userId: string,
+  show: Show,
+  musicians: ShowMusician[],
+  expenses: ShowExpense[],
+  advanceAmountOverride?: number,
+) => {
+  const transactionsToInsert: ShowTransactionInput[] = [];
+  const advance = advanceAmountOverride ?? show.advance_amount ?? 0;
+  const hasAdvance = advance > 0 && advance < show.cachet;
+
+  if (show.cachet > 0) {
+    if (hasAdvance) {
+      transactionsToInsert.push({
+        user_id: userId,
+        type: "income",
+        category: "Show",
+        amount: advance,
+        description: `Cachê antecipado: ${show.title}`,
+        date: show.date,
+        show_id: show.id,
+        is_advance_payment: true,
+      });
+      transactionsToInsert.push({
+        user_id: userId,
+        type: "income",
+        category: "Show",
+        amount: show.cachet - advance,
+        description: `Cachê pendente: ${show.title}`,
+        date: show.date,
+        show_id: show.id,
+        is_advance_payment: false,
+      });
+    } else {
+      transactionsToInsert.push({
+        user_id: userId,
+        type: "income",
+        category: "Show",
+        amount: show.cachet,
+        description: `Cachê: ${show.title}`,
+        date: show.date,
+        show_id: show.id,
+        is_advance_payment: advance >= show.cachet,
+      });
+    }
+  }
+
+  for (const musician of musicians) {
+    if (musician.fee > 0) {
+      transactionsToInsert.push({
+        user_id: userId,
+        type: "expense",
+        category: "Músicos",
+        amount: musician.fee,
+        description: `${musician.name} - ${show.title}`,
+        date: show.date,
+        show_id: show.id,
+      });
+    }
+  }
+
+  for (const expense of expenses) {
+    if (expense.value > 0) {
+      transactionsToInsert.push({
+        user_id: userId,
+        type: "expense",
+        category: expense.category,
+        amount: expense.value,
+        description: `${expense.description} - ${show.title}`,
+        date: show.date,
+        show_id: show.id,
+      });
+    }
+  }
+
+  return transactionsToInsert;
+};
+
+const buildTransactionSignature = (transaction: {
+  type: string;
+  category: string;
+  amount: number;
+  description?: string | null;
+  is_advance_payment?: boolean;
+}) => {
+  return [
+    transaction.type,
+    transaction.category,
+    Number(transaction.amount).toFixed(2),
+    transaction.description ?? "",
+    transaction.is_advance_payment ? "1" : "0",
+  ].join("|");
+};
+
+const hasMatchingTransactions = (expected: ShowTransactionInput[], existing: ExistingShowTransaction[]) => {
+  if (expected.length !== existing.length) return false;
+
+  const expectedSignatures = expected
+    .map((transaction) => buildTransactionSignature(transaction))
+    .sort();
+  const existingSignatures = existing
+    .map((transaction) => buildTransactionSignature(transaction))
+    .sort();
+
+  return expectedSignatures.every((signature, index) => signature === existingSignatures[index]);
 };
 
 const normalizeShowRow = (row: any): Show | null => {
@@ -159,13 +296,27 @@ export function useShowsData() {
     queryFn: async () => {
       await autoCompletePastShows();
 
-      const { data, error } = await supabase
-        .from("shows")
-        .select("*")
-        .order("date", { ascending: true });
+      const pageSize = 1000;
+      const allShows: Show[] = [];
+      let from = 0;
 
-      if (error) throw error;
-      return (data || [])
+      while (true) {
+        const { data, error } = await supabase
+          .from("shows")
+          .select("*")
+          .order("date", { ascending: true })
+          .range(from, from + pageSize - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        allShows.push(...(data as Show[]));
+
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+
+      return allShows
         .map(normalizeShowRow)
         .filter((s): s is Show => s !== null);
     },
@@ -180,73 +331,13 @@ export function useShowsData() {
     try {
       await supabase.from("transactions").delete().eq("show_id", show.id);
 
-      const transactionsToInsert = [];
-      const advance = advanceAmountOverride ?? show.advance_amount ?? 0;
-      const hasAdvance = advance > 0 && advance < show.cachet;
-
-      if (show.cachet > 0) {
-        if (hasAdvance) {
-          transactionsToInsert.push({
-            user_id: user.id,
-            type: "income",
-            category: "Show",
-            amount: advance,
-            description: `Cachê antecipado: ${show.title}`,
-            date: show.date,
-            show_id: show.id,
-            is_advance_payment: true,
-          });
-          transactionsToInsert.push({
-            user_id: user.id,
-            type: "income",
-            category: "Show",
-            amount: show.cachet - advance,
-            description: `Cachê pendente: ${show.title}`,
-            date: show.date,
-            show_id: show.id,
-            is_advance_payment: false,
-          });
-        } else {
-          transactionsToInsert.push({
-            user_id: user.id,
-            type: "income",
-            category: "Show",
-            amount: show.cachet,
-            description: `Cachê: ${show.title}`,
-            date: show.date,
-            show_id: show.id,
-            is_advance_payment: advance >= show.cachet,
-          });
-        }
-      }
-
-      for (const musician of musicians) {
-        if (musician.fee > 0) {
-          transactionsToInsert.push({
-            user_id: user.id,
-            type: "expense",
-            category: "Músicos",
-            amount: musician.fee,
-            description: `${musician.name} - ${show.title}`,
-            date: show.date,
-            show_id: show.id,
-          });
-        }
-      }
-
-      for (const expense of expenses) {
-        if (expense.value > 0) {
-          transactionsToInsert.push({
-            user_id: user.id,
-            type: "expense",
-            category: expense.category,
-            amount: expense.value,
-            description: `${expense.description} - ${show.title}`,
-            date: show.date,
-            show_id: show.id,
-          });
-        }
-      }
+      const transactionsToInsert = buildShowTransactions(
+        user.id,
+        show,
+        musicians,
+        expenses,
+        advanceAmountOverride,
+      );
 
       if (transactionsToInsert.length > 0) {
         const { error } = await supabase
@@ -520,49 +611,114 @@ export function useShowsData() {
 
     (async () => {
       try {
-        const completedShows = shows.filter(s => s.status === "completed" && s.cachet > 0);
+        const completedShows = shows.filter((show) => show.status === "completed");
         if (completedShows.length === 0) return;
 
         const showIds = completedShows.map(s => s.id);
-        // Batch in groups of 50 to avoid query size limits
-        const batches = [];
-        for (let i = 0; i < showIds.length; i += 50) {
-          batches.push(showIds.slice(i, i + 50));
-        }
+        const batches = chunkArray(showIds, 50);
+        const existingTransactionsByShow: Record<string, ExistingShowTransaction[]> = {};
+        const musiciansByShow: Record<string, ShowMusician[]> = {};
+        const expensesByShow: Record<string, ShowExpense[]> = {};
 
-        const allExistingShowIds = new Set<string>();
         for (const batch of batches) {
-          const { data: existingTx } = await supabase
+          const [existingTransactionsResult, musiciansResult, expensesResult] = await Promise.all([
+            supabase
+              .from("transactions")
+              .select("show_id, type, category, amount, description, is_advance_payment")
+              .in("show_id", batch),
+            supabase
+              .from("show_musicians")
+              .select("show_id, musician_id, fee, musicians(name)")
+              .in("show_id", batch),
+            supabase
+              .from("show_expenses")
+              .select("*")
+              .in("show_id", batch),
+          ]);
+
+          (existingTransactionsResult.data || []).forEach((transaction) => {
+            if (!transaction.show_id) return;
+            if (!existingTransactionsByShow[transaction.show_id]) {
+              existingTransactionsByShow[transaction.show_id] = [];
+            }
+
+            existingTransactionsByShow[transaction.show_id].push(transaction as ExistingShowTransaction);
+          });
+
+          (musiciansResult.data || []).forEach((musician: any) => {
+            if (!musiciansByShow[musician.show_id]) {
+              musiciansByShow[musician.show_id] = [];
+            }
+
+            musiciansByShow[musician.show_id].push({
+              musicianId: musician.musician_id,
+              name: musician.musicians?.name || "Músico",
+              fee: musician.fee,
+            });
+          });
+
+          (expensesResult.data || []).forEach((expense: any) => {
+            if (!expensesByShow[expense.show_id]) {
+              expensesByShow[expense.show_id] = [];
+            }
+
+            expensesByShow[expense.show_id].push({
+              id: expense.id,
+              description: expense.description || "",
+              category: expense.category,
+              value: expense.amount,
+            });
+          });
+        }
+
+        const showsToRepair = completedShows.filter((show) => {
+          const expectedTransactions = buildShowTransactions(
+            user.id,
+            show,
+            musiciansByShow[show.id] || [],
+            expensesByShow[show.id] || [],
+          );
+          const existingTransactions = existingTransactionsByShow[show.id] || [];
+
+          return !hasMatchingTransactions(expectedTransactions, existingTransactions);
+        });
+
+        if (showsToRepair.length === 0) return;
+
+        console.log(`Repairing ${showsToRepair.length} completed shows with inconsistent financial transactions`);
+
+        for (const batch of chunkArray(showsToRepair.map((show) => show.id), 50)) {
+          const { error } = await supabase
             .from("transactions")
-            .select("show_id")
+            .delete()
             .in("show_id", batch);
-          (existingTx || []).forEach(t => { if (t.show_id) allExistingShowIds.add(t.show_id); });
+
+          if (error) {
+            console.error("Repair delete error:", error);
+            return;
+          }
         }
 
-        const showsMissingTx = completedShows.filter(s => !allExistingShowIds.has(s.id));
-        if (showsMissingTx.length === 0) return;
+        const rebuiltTransactions = showsToRepair.flatMap((show) =>
+          buildShowTransactions(
+            user.id,
+            show,
+            musiciansByShow[show.id] || [],
+            expensesByShow[show.id] || [],
+          ),
+        );
 
-        console.log(`Repairing ${showsMissingTx.length} shows missing transactions`);
+        for (const batch of chunkArray(rebuiltTransactions, 200)) {
+          if (batch.length === 0) continue;
 
-        // Create simple cachet transactions for missing shows (no musicians/expenses lookup to avoid errors)
-        const transactionsToInsert = showsMissingTx.map(show => ({
-          user_id: user.id,
-          type: "income" as const,
-          category: "Show",
-          amount: show.cachet,
-          description: `Cachê: ${show.title}`,
-          date: show.date,
-          show_id: show.id,
-          is_advance_payment: false,
-        }));
-
-        const { error } = await supabase.from("transactions").insert(transactionsToInsert);
-        if (error) {
-          console.error("Repair insert error:", error);
-          return;
+          const { error } = await supabase.from("transactions").insert(batch);
+          if (error) {
+            console.error("Repair insert error:", error);
+            return;
+          }
         }
 
-        console.log(`Repaired ${showsMissingTx.length} transactions successfully`);
+        console.log(`Repaired financial transactions for ${showsToRepair.length} completed shows successfully`);
         queryClient.invalidateQueries({ queryKey: ["transactions"] });
       } catch (error) {
         console.error("Error repairing missing transactions:", error);
