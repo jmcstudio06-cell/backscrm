@@ -253,16 +253,32 @@ export default function Historico() {
               Nenhum dado financeiro para exibir no ano selecionado
             </div>
           ) : (
-            <ResponsiveContainer key={selectedYear} width="100%" height={350}>
-              <ComposedChart data={monthlyHistory}>
+            <ResponsiveContainer key={selectedYear} width="100%" height={isMobile ? 280 : 350}>
+              <ComposedChart data={monthlyHistory} margin={isMobile ? { left: -15, right: 5, top: 5, bottom: 5 } : undefined}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="#000" tick={{ fill: "#000", fontWeight: 600 }} fontSize={13} />
-                <YAxis stroke="#000" tick={{ fill: "#000", fontWeight: 600 }} fontSize={13} />
+                <XAxis 
+                  dataKey="month" 
+                  stroke="#000" 
+                  tick={{ fill: "#000", fontWeight: 600 }} 
+                  fontSize={isMobile ? 9 : 13} 
+                  interval={isMobile ? 1 : 0}
+                  angle={isMobile ? -45 : 0}
+                  textAnchor={isMobile ? "end" : "middle"}
+                  height={isMobile ? 50 : 30}
+                />
+                <YAxis 
+                  stroke="#000" 
+                  tick={{ fill: "#000", fontWeight: 600 }} 
+                  fontSize={isMobile ? 9 : 13}
+                  tickFormatter={isMobile ? (v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v) : undefined}
+                  width={isMobile ? 35 : 60}
+                />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px"
+                    borderRadius: "8px",
+                    fontSize: isMobile ? 12 : 14,
                   }}
                   formatter={(value: number, name: string) => {
                     const labels: Record<string, string> = {
@@ -275,6 +291,8 @@ export default function Historico() {
                   }}
                 />
                 <Legend 
+                  iconSize={isMobile ? 8 : 14}
+                  wrapperStyle={isMobile ? { fontSize: 10 } : undefined}
                   formatter={(value) => {
                     const labels: Record<string, string> = {
                       receita: "Receita",
@@ -292,9 +310,9 @@ export default function Historico() {
                   type="monotone"
                   dataKey="lucro"
                   stroke="#3b82f6"
-                  strokeWidth={3}
-                  dot={{ fill: "#3b82f6", strokeWidth: 2, r: 5 }}
-                  activeDot={{ r: 7, strokeWidth: 2 }}
+                  strokeWidth={isMobile ? 2 : 3}
+                  dot={{ fill: "#3b82f6", strokeWidth: 2, r: isMobile ? 3 : 5 }}
+                  activeDot={{ r: isMobile ? 5 : 7, strokeWidth: 2 }}
                   name="lucro"
                   animationDuration={1500}
                   animationBegin={600}
