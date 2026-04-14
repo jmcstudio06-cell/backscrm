@@ -116,7 +116,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { isAdmin } = useAdmin();
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
-  const { pendingCount } = usePendingChecklist();
+  const { agendaBadge, checklistBadge, historicoBadge } = useSidebarBadges();
 
   const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
 
