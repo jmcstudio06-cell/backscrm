@@ -7,7 +7,6 @@ import {
   TrendingUp,
   Mic2,
   TrendingDown,
-  GitCompareArrows,
 } from "lucide-react";
 import {
   ComposedChart,
