@@ -20,7 +20,7 @@ import {
   Legend,
 } from "recharts";
 import { useTransactions } from "@/hooks/useTransactions";
-import { useShowsData } from "@/hooks/useShows";
+import { useShows } from "@/contexts/ShowsContext";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -32,7 +32,7 @@ import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTa
 
 export default function Historico() {
   const { transactions, loading: loadingTransactions } = useTransactions({ fullHistory: true });
-  const { shows, loading: loadingShows } = useShowsData();
+  const { shows, loading: loadingShows } = useShows();
   const availableYears = useMemo(() => getHistoricoAvailableYears(transactions, shows), [transactions, shows]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
