@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Mic2,
   TrendingDown,
+  GitCompareArrows,
 } from "lucide-react";
 import {
   ComposedChart,
@@ -32,6 +33,20 @@ import {
   isCompletedShowStatus,
 } from "@/lib/historico";
 import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
+import { cn } from "@/lib/utils";
+
+function ComparisonBadge({ current, previous, invertColors = false, isCount = false }: { current: number; previous: number; invertColors?: boolean; isCount?: boolean }) {
+  if (previous === 0 && current === 0) return null;
+  const diff = current - previous;
+  const pct = previous !== 0 ? Math.round((diff / Math.abs(previous)) * 100) : (current > 0 ? 100 : 0);
+  const isPositive = invertColors ? diff <= 0 : diff >= 0;
+  return (
+    <span className={cn("mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-semibold", isPositive ? "text-success" : "text-destructive")}>
+      {diff >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+      {pct >= 0 ? "+" : ""}{pct}% vs ano anterior
+    </span>
+  );
+}
 
 export default function Historico() {
   const { user } = useAuth();
@@ -41,7 +56,10 @@ export default function Historico() {
   const { shows, loading: loadingShows } = useShows();
   const availableYears = useMemo(() => getHistoricoAvailableYears(transactions, shows), [transactions, shows]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [compareMode, setCompareMode] = useState(false);
   const [repairDone, setRepairDone] = useState(false);
+
+  const hasPreviousYear = availableYears.includes(selectedYear - 1);
 
   useEffect(() => {
     if (loadingTransactions || loadingShows || availableYears.length === 0) return;
@@ -156,6 +174,11 @@ export default function Historico() {
     [selectedYear, shows, transactions],
   );
 
+  const previousYearSummary = useMemo(
+    () => (hasPreviousYear && compareMode ? buildHistoricoYearSummary(transactions, shows, selectedYear - 1) : null),
+    [hasPreviousYear, compareMode, selectedYear, shows, transactions],
+  );
+
   const loading = loadingTransactions || loadingShows;
 
   if (loading) {
@@ -186,6 +209,20 @@ export default function Historico() {
             </SelectContent>
           </Select>
         </div>
+        {hasPreviousYear && (
+          <button
+            onClick={() => setCompareMode(!compareMode)}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+              compareMode
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <GitCompareArrows className="h-4 w-4" />
+            Comparar com {selectedYear - 1}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
@@ -197,6 +234,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalReceita)}</p>
               <p className="text-xs text-muted-foreground">Receita de {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalReceita} previous={previousYearSummary.totalReceita} />
+              )}
             </div>
           </div>
         </div>
@@ -208,6 +248,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalDespesa)}</p>
               <p className="text-xs text-muted-foreground">Despesas de {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalDespesa} previous={previousYearSummary.totalDespesa} invertColors />
+              )}
             </div>
           </div>
         </div>
@@ -230,6 +273,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{totalShows}</p>
               <p className="text-xs text-muted-foreground">Shows realizados em {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalShows} previous={previousYearSummary.totalShows} isCount />
+              )}
             </div>
           </div>
         </div>
@@ -241,6 +287,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalLucro)}</p>
               <p className="text-xs text-muted-foreground">Lucro de {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalLucro} previous={previousYearSummary.totalLucro} />
+              )}
             </div>
           </div>
         </div>
