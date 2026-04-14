@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -152,80 +152,6 @@ export function useShowsData() {
     }
   };
 
-  // Repair: find completed shows that have no transactions and create them
-  const repairMissingTransactions = async () => {
-    if (!user) return;
-
-    try {
-      // Get all completed shows for this user
-      const { data: completedShows } = await supabase
-        .from("shows")
-        .select("*")
-        .eq("status", "completed")
-        .eq("user_id", user.id);
-
-      if (!completedShows || completedShows.length === 0) return;
-
-      // Get all show_ids that already have transactions
-      const showIds = completedShows.map(s => s.id);
-      const { data: existingTx } = await supabase
-        .from("transactions")
-        .select("show_id")
-        .in("show_id", showIds);
-
-      const showIdsWithTx = new Set((existingTx || []).map(t => t.show_id));
-      const showsMissingTx = completedShows.filter(s => !showIdsWithTx.has(s.id) && s.cachet > 0);
-
-      if (showsMissingTx.length === 0) return;
-
-      console.log(`Repairing ${showsMissingTx.length} shows missing transactions`);
-
-      const missingIds = showsMissingTx.map(s => s.id);
-      const [musiciansResult, expensesResult] = await Promise.all([
-        supabase
-          .from("show_musicians")
-          .select("show_id, musician_id, fee, musicians(name)")
-          .in("show_id", missingIds),
-        supabase
-          .from("show_expenses")
-          .select("*")
-          .in("show_id", missingIds),
-      ]);
-
-      const musiciansByShow: Record<string, ShowMusician[]> = {};
-      const expensesByShow: Record<string, ShowExpense[]> = {};
-
-      (musiciansResult.data || []).forEach((m: any) => {
-        if (!musiciansByShow[m.show_id]) musiciansByShow[m.show_id] = [];
-        musiciansByShow[m.show_id].push({
-          musicianId: m.musician_id,
-          name: m.musicians?.name || "Músico",
-          fee: m.fee,
-        });
-      });
-
-      (expensesResult.data || []).forEach((e: any) => {
-        if (!expensesByShow[e.show_id]) expensesByShow[e.show_id] = [];
-        expensesByShow[e.show_id].push({
-          id: e.id,
-          description: e.description || "",
-          category: e.category,
-          value: e.amount,
-        });
-      });
-
-      for (const show of showsMissingTx) {
-        await createShowTransactions(
-          normalizeShowRow(show)!,
-          musiciansByShow[show.id] || [],
-          expensesByShow[show.id] || []
-        );
-      }
-
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
-    } catch (error) {
-      console.error("Error repairing missing transactions:", error);
-    }
   };
 
   // React Query for shows - shared cache across all components
@@ -233,7 +159,6 @@ export function useShowsData() {
     queryKey: ["shows", user?.id],
     queryFn: async () => {
       await autoCompletePastShows();
-      await repairMissingTransactions();
 
       const { data, error } = await supabase
         .from("shows")
