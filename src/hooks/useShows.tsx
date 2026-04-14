@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export interface Show {
@@ -36,165 +36,155 @@ interface ShowExpense {
   value: number;
 }
 
+const formatDateString = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const normalizeShowRow = (row: any): Show | null => {
+  if (!row || typeof row !== "object") return null;
+
+  const date = typeof row.date === "string" ? row.date.trim() : "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+
+  const cachetValue =
+    typeof row.cachet === "number"
+      ? row.cachet
+      : typeof row.cachet === "string"
+        ? Number(row.cachet)
+        : 0;
+
+  return {
+    id: typeof row.id === "string" && row.id.trim() ? row.id : `fallback-${Date.now()}-${Math.random()}`,
+    title: typeof row.title === "string" && row.title.trim() ? row.title : "Show sem título",
+    date,
+    start_time: typeof row.start_time === "string" ? row.start_time : null,
+    end_time: typeof row.end_time === "string" ? row.end_time : null,
+    venue: typeof row.venue === "string" ? row.venue : null,
+    address: typeof row.address === "string" ? row.address : null,
+    cachet: Number.isFinite(cachetValue) ? cachetValue : 0,
+    advance_amount: typeof row.advance_amount === "number" ? row.advance_amount : 0,
+    status: typeof row.status === "string" && row.status.trim() ? row.status : "scheduled",
+    client_id: typeof row.client_id === "string" ? row.client_id : null,
+    lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
+    event_type: typeof row.event_type === "string" ? row.event_type : null,
+    notes: typeof row.notes === "string" ? row.notes : null,
+    created_at: typeof row.created_at === "string" ? row.created_at : new Date().toISOString(),
+    updated_at: typeof row.updated_at === "string" ? row.updated_at : new Date().toISOString(),
+  };
+};
+
 export function useShowsData() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [shows, setShows] = useState<Show[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [autoCompleteRan, setAutoCompleteRan] = useState(false);
+  const autoCompleteRanRef = useRef(false);
 
-  const invalidateTransactions = () => {
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["shows"] });
     queryClient.invalidateQueries({ queryKey: ["transactions"] });
   };
 
-  const formatDateString = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+  // Auto-complete past confirmed shows (once per session)
+  const autoCompletePastShows = async () => {
+    if (autoCompleteRanRef.current || !user) return;
+    autoCompleteRanRef.current = true;
+
+    const today = formatDateString(new Date());
+
+    const { data: showsToComplete } = await supabase
+      .from("shows")
+      .select("*")
+      .lt("date", today)
+      .eq("status", "confirmed");
+
+    if (!showsToComplete || showsToComplete.length === 0) return;
+
+    await supabase
+      .from("shows")
+      .update({ status: "completed", updated_at: new Date().toISOString() })
+      .lt("date", today)
+      .eq("status", "confirmed");
+
+    const showIds = showsToComplete.map(s => s.id);
+
+    const [musiciansResult, expensesResult] = await Promise.all([
+      supabase
+        .from("show_musicians")
+        .select("show_id, musician_id, fee, musicians(name)")
+        .in("show_id", showIds),
+      supabase
+        .from("show_expenses")
+        .select("*")
+        .in("show_id", showIds),
+    ]);
+
+    const musiciansByShow: Record<string, ShowMusician[]> = {};
+    const expensesByShow: Record<string, ShowExpense[]> = {};
+
+    (musiciansResult.data || []).forEach((m: any) => {
+      if (!musiciansByShow[m.show_id]) musiciansByShow[m.show_id] = [];
+      musiciansByShow[m.show_id].push({
+        musicianId: m.musician_id,
+        name: m.musicians?.name || "Músico",
+        fee: m.fee,
+      });
+    });
+
+    (expensesResult.data || []).forEach((e: any) => {
+      if (!expensesByShow[e.show_id]) expensesByShow[e.show_id] = [];
+      expensesByShow[e.show_id].push({
+        id: e.id,
+        description: e.description || "",
+        category: e.category,
+        value: e.amount,
+      });
+    });
+
+    for (const show of showsToComplete) {
+      const completedShow = { ...show, status: "completed" } as Show;
+      await createShowTransactions(
+        completedShow,
+        musiciansByShow[show.id] || [],
+        expensesByShow[show.id] || []
+      );
+    }
   };
 
-  const normalizeShowRow = (row: any): Show | null => {
-    if (!row || typeof row !== "object") return null;
+  // React Query for shows - shared cache across all components
+  const { data: shows = [], isLoading: loading } = useQuery({
+    queryKey: ["shows", user?.id],
+    queryFn: async () => {
+      await autoCompletePastShows();
 
-    const date = typeof row.date === "string" ? row.date.trim() : "";
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-
-    const cachetValue =
-      typeof row.cachet === "number"
-        ? row.cachet
-        : typeof row.cachet === "string"
-          ? Number(row.cachet)
-          : 0;
-
-    return {
-      id: typeof row.id === "string" && row.id.trim() ? row.id : `fallback-${Date.now()}-${Math.random()}`,
-      title: typeof row.title === "string" && row.title.trim() ? row.title : "Show sem título",
-      date,
-      start_time: typeof row.start_time === "string" ? row.start_time : null,
-      end_time: typeof row.end_time === "string" ? row.end_time : null,
-      venue: typeof row.venue === "string" ? row.venue : null,
-      address: typeof row.address === "string" ? row.address : null,
-      cachet: Number.isFinite(cachetValue) ? cachetValue : 0,
-      advance_amount: typeof row.advance_amount === "number" ? row.advance_amount : 0,
-      status: typeof row.status === "string" && row.status.trim() ? row.status : "scheduled",
-      client_id: typeof row.client_id === "string" ? row.client_id : null,
-      lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
-      event_type: typeof row.event_type === "string" ? row.event_type : null,
-      notes: typeof row.notes === "string" ? row.notes : null,
-      created_at: typeof row.created_at === "string" ? row.created_at : new Date().toISOString(),
-      updated_at: typeof row.updated_at === "string" ? row.updated_at : new Date().toISOString(),
-    };
-  };
-
-  const fetchShows = async () => {
-    if (!user) return;
-    
-    try {
-      // First, find past shows that need auto-completion (only once per session)
-      if (!autoCompleteRan) {
-        setAutoCompleteRan(true);
-        const today = formatDateString(new Date());
-        
-        const { data: showsToComplete } = await supabase
-          .from("shows")
-          .select("*")
-          .lt("date", today)
-          .eq("status", "confirmed");
-
-        if (showsToComplete && showsToComplete.length > 0) {
-          // Auto-complete them
-          await supabase
-            .from("shows")
-            .update({ status: "completed", updated_at: new Date().toISOString() })
-            .lt("date", today)
-            .eq("status", "confirmed");
-
-        // Batch fetch all musicians and expenses for all shows at once (instead of N+1)
-        const showIds = showsToComplete.map(s => s.id);
-
-        const [musiciansResult, expensesResult] = await Promise.all([
-          supabase
-            .from("show_musicians")
-            .select("show_id, musician_id, fee, musicians(name)")
-            .in("show_id", showIds),
-          supabase
-            .from("show_expenses")
-            .select("*")
-            .in("show_id", showIds),
-        ]);
-
-        // Group by show_id
-        const musiciansByShow: Record<string, ShowMusician[]> = {};
-        const expensesByShow: Record<string, ShowExpense[]> = {};
-
-        (musiciansResult.data || []).forEach((m: any) => {
-          if (!musiciansByShow[m.show_id]) musiciansByShow[m.show_id] = [];
-          musiciansByShow[m.show_id].push({
-            musicianId: m.musician_id,
-            name: m.musicians?.name || "Músico",
-            fee: m.fee,
-          });
-        });
-
-        (expensesResult.data || []).forEach((e: any) => {
-          if (!expensesByShow[e.show_id]) expensesByShow[e.show_id] = [];
-          expensesByShow[e.show_id].push({
-            id: e.id,
-            description: e.description || "",
-            category: e.category,
-            value: e.amount,
-          });
-        });
-
-        // Create transactions for each show using pre-fetched data
-        for (const show of showsToComplete) {
-          const completedShow = { ...show, status: "completed" } as Show;
-          await createShowTransactions(
-            completedShow,
-            musiciansByShow[show.id] || [],
-            expensesByShow[show.id] || []
-          );
-        }
-        }
-      }
-
-      // Then fetch all shows
       const { data, error } = await supabase
         .from("shows")
         .select("*")
         .order("date", { ascending: true });
 
       if (error) throw error;
-      const normalizedShows = (data || [])
+      return (data || [])
         .map(normalizeShowRow)
         .filter((s): s is Show => s !== null);
-
-      setShows(normalizedShows);
-    } catch (error) {
-      console.error("Error fetching shows:", error);
-      toast.error("Erro ao carregar shows");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    enabled: !!user,
+    staleTime: 30_000, // 30s - keeps data fresh across pages
+  });
 
   // Create financial transactions when show is marked as completed
   const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[], advanceAmountOverride?: number) => {
     if (!user) return;
 
     try {
-      // Idempotência: garante que não haverá duplicação para o mesmo show
       await supabase.from("transactions").delete().eq("show_id", show.id);
 
       const transactionsToInsert = [];
       const advance = advanceAmountOverride ?? show.advance_amount ?? 0;
       const hasAdvance = advance > 0 && advance < show.cachet;
 
-      // Add income from cachet
       if (show.cachet > 0) {
         if (hasAdvance) {
-          // Split into advance + pending
           transactionsToInsert.push({
             user_id: user.id,
             type: "income",
@@ -229,7 +219,6 @@ export function useShowsData() {
         }
       }
 
-      // Add expenses from musicians
       for (const musician of musicians) {
         if (musician.fee > 0) {
           transactionsToInsert.push({
@@ -244,7 +233,6 @@ export function useShowsData() {
         }
       }
 
-      // Add other expenses
       for (const expense of expenses) {
         if (expense.value > 0) {
           transactionsToInsert.push({
@@ -266,7 +254,6 @@ export function useShowsData() {
 
         if (error) throw error;
         console.log("Transactions created for show:", show.title);
-        invalidateTransactions();
       }
     } catch (error) {
       console.error("Error creating transactions:", error);
@@ -274,15 +261,12 @@ export function useShowsData() {
     }
   };
 
-  // Save musicians to show
   const saveShowMusicians = async (showId: string, musicians: ShowMusician[]) => {
     if (musicians.length === 0) return;
 
     try {
-      // Delete existing musicians for this show
       await supabase.from("show_musicians").delete().eq("show_id", showId);
 
-      // Insert new musicians
       const musiciansToInsert = musicians.map((m) => ({
         show_id: showId,
         musician_id: m.musicianId,
@@ -297,15 +281,12 @@ export function useShowsData() {
     }
   };
 
-  // Save expenses to show
   const saveShowExpenses = async (showId: string, expenses: ShowExpense[]) => {
     if (expenses.length === 0) return;
 
     try {
-      // Delete existing expenses for this show
       await supabase.from("show_expenses").delete().eq("show_id", showId);
 
-      // Insert new expenses
       const expensesToInsert = expenses.map((e) => ({
         show_id: showId,
         category: e.category,
@@ -320,10 +301,8 @@ export function useShowsData() {
     }
   };
 
-  // Apply checklist template to a show
   const applyChecklistTemplateToShow = async (showId: string, templateId: string) => {
     try {
-      // Fetch the template
       const { data: template, error: templateError } = await supabase
         .from("checklist_templates")
         .select("tasks")
@@ -338,7 +317,6 @@ export function useShowsData() {
       const tasks = Array.isArray(template.tasks) ? template.tasks : [];
       if (tasks.length === 0) return;
 
-      // Create checklist items for the show
       const checklistItems = tasks.map((task: string) => ({
         show_id: showId,
         item: task,
@@ -350,7 +328,6 @@ export function useShowsData() {
         .insert(checklistItems);
 
       if (error) throw error;
-      console.log(`Applied ${tasks.length} checklist items to show ${showId}`);
     } catch (error) {
       console.error("Error applying checklist template:", error);
     }
@@ -391,21 +368,18 @@ export function useShowsData() {
 
       if (error) throw error;
 
-      // Save musicians and expenses
       await saveShowMusicians(data.id, musicians);
       await saveShowExpenses(data.id, expenses);
 
-      // Apply checklist template if provided
       if (checklistTemplateId) {
         await applyChecklistTemplateToShow(data.id, checklistTemplateId);
       }
 
-      // If status is completed, create transactions
       if (data.status === "completed") {
         await createShowTransactions(data, musicians, expenses, advanceAmount);
       }
 
-      setShows([...shows, data]);
+      invalidateAll();
       toast.success("Show adicionado com sucesso!");
       return data;
     } catch (error) {
@@ -423,10 +397,6 @@ export function useShowsData() {
     if (!user) return;
 
     try {
-      // Get current show to check status change
-      const currentShow = shows.find((s) => s.id === id);
-
-      // Sanitize updates: convert empty strings to null for time fields
       const sanitizedUpdates = { ...updates };
       if (sanitizedUpdates.start_time === "") sanitizedUpdates.start_time = null;
       if (sanitizedUpdates.end_time === "") sanitizedUpdates.end_time = null;
@@ -440,7 +410,6 @@ export function useShowsData() {
 
       if (error) throw error;
 
-      // Save musicians and expenses
       if (musicians.length > 0) {
         await saveShowMusicians(id, musicians);
       }
@@ -448,7 +417,6 @@ export function useShowsData() {
         await saveShowExpenses(id, expenses);
       }
 
-      // Fetch saved musicians and expenses if not provided
       let musiciansToUse = musicians;
       let expensesToUse = expenses;
 
@@ -483,10 +451,9 @@ export function useShowsData() {
         }
       }
 
-      // Always sync transactions when show is updated (delete old, recreate if completed)
       await updateShowTransactions(data, musiciansToUse, expensesToUse);
 
-      setShows(shows.map((s) => (s.id === id ? data : s)));
+      invalidateAll();
       toast.success("Show atualizado com sucesso!");
       return data;
     } catch (error) {
@@ -495,7 +462,6 @@ export function useShowsData() {
     }
   };
 
-  // Delete all transactions linked to a show
   const deleteShowTransactions = async (showId: string) => {
     try {
       const { error } = await supabase
@@ -504,21 +470,16 @@ export function useShowsData() {
         .eq("show_id", showId);
 
       if (error) throw error;
-      console.log("Transactions deleted for show:", showId);
-      invalidateTransactions();
     } catch (error) {
       console.error("Error deleting show transactions:", error);
     }
   };
 
-  // Update transactions when show is edited
   const updateShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[]) => {
     if (!user) return;
 
-    // Delete existing transactions for this show
     await deleteShowTransactions(show.id);
 
-    // If show is completed, recreate transactions
     if (show.status === "completed") {
       await createShowTransactions(show, musicians, expenses);
     }
@@ -526,21 +487,17 @@ export function useShowsData() {
 
   const deleteShow = async (id: string) => {
     try {
-      // First delete related transactions
       await deleteShowTransactions(id);
-
-      // Delete related musicians and expenses
       await supabase.from("show_musicians").delete().eq("show_id", id);
       await supabase.from("show_expenses").delete().eq("show_id", id);
 
-      // Delete the show
       const { error } = await supabase
         .from("shows")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
-      setShows(shows.filter(s => s.id !== id));
+      invalidateAll();
       toast.success("Show e transações excluídos com sucesso!");
     } catch (error) {
       console.error("Error deleting show:", error);
@@ -555,10 +512,6 @@ export function useShowsData() {
   const getConfirmedShows = () => shows.filter(s => s.status === "confirmed");
   const getCompletedShows = () => shows.filter(s => s.status === "completed");
 
-  useEffect(() => {
-    fetchShows();
-  }, [user]);
-
   return {
     shows,
     loading,
@@ -568,6 +521,6 @@ export function useShowsData() {
     cancelShow,
     getConfirmedShows,
     getCompletedShows,
-    refetch: fetchShows,
+    refetch: () => invalidateAll(),
   };
 }
