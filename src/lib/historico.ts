@@ -5,12 +5,14 @@ import type { Transaction } from "@/hooks/useTransactions";
 import { parseLocalDate } from "@/lib/utils";
 
 const COMPLETED_SHOW_STATUSES = new Set(["completed", "finalizado"]);
+const PROJECTED_SHOW_STATUSES = new Set(["confirmed", "confirmado", "pending", "pendente", "scheduled", "agendado", "negotiation"]);
 const IGNORED_SHOW_STATUSES = new Set(["cancelled"]);
 
 export interface HistoricoMonthData {
   month: string;
   monthKey: string;
   receita: number;
+  receitaPrevista: number;
   despesa: number;
   lucro: number;
   shows: number;
@@ -26,6 +28,8 @@ const getYearFromDate = (value: string) => parseLocalDate(value).getFullYear();
 const getMonthFromDate = (value: string) => parseLocalDate(value).getMonth();
 
 export const isCompletedShowStatus = (status: string) => COMPLETED_SHOW_STATUSES.has(status);
+
+export const isProjectedShowStatus = (status: string) => PROJECTED_SHOW_STATUSES.has(status);
 
 export const shouldIncludeShowInHistory = (status: string) => !IGNORED_SHOW_STATUSES.has(status);
 
@@ -67,12 +71,15 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
   );
 
   const completedShows = yearShows.filter((show) => isCompletedShowStatus(show.status));
+  const projectedShows = yearShows.filter((show) => isProjectedShowStatus(show.status));
   const totalReceita = yearTransactions
     .filter((transaction) => transaction.type === "income")
     .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
   const totalDespesa = yearTransactions
     .filter((transaction) => transaction.type === "expense")
     .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+  const totalReceitaPrevista = projectedShows
+    .reduce((sum, show) => sum + Number(show.cachet || 0), 0);
 
   // Always show all 12 months for any year
   const maxMonth = 11;
@@ -86,13 +93,16 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
       (transaction) => transaction.type === "expense" && getMonthFromDate(transaction.date) === monthIndex,
     );
     const completedMonthShows = completedShows.filter((show) => getMonthFromDate(show.date) === monthIndex);
+    const projectedMonthShows = projectedShows.filter((show) => getMonthFromDate(show.date) === monthIndex);
     const receita = incomeTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
     const despesa = expenseTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+    const receitaPrevista = projectedMonthShows.reduce((sum, show) => sum + Number(show.cachet || 0), 0);
 
     return {
       month: format(monthDate, "MMM/yy", { locale: ptBR }),
       monthKey: `${selectedYear}-${String(monthIndex + 1).padStart(2, "0")}`,
       receita,
+      receitaPrevista,
       despesa,
       lucro: receita - despesa,
       shows: completedMonthShows.length,
@@ -103,6 +113,7 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
 
   return {
     totalReceita,
+    totalReceitaPrevista,
     totalDespesa,
     totalLucro: totalReceita - totalDespesa,
     totalShows: completedShows.length,
