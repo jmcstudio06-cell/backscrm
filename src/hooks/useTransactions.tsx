@@ -27,22 +27,54 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
   const { data: transactions = [], isLoading: loading } = useQuery({
     queryKey: ["transactions", user?.id, fullHistory ? "all" : "recent"],
     queryFn: async () => {
-      let query = supabase
-        .from("transactions")
-        .select("*")
-        .order("date", { ascending: false });
-
+      const pageSize = 1000;
+      const allTransactions: Transaction[] = [];
       if (!fullHistory) {
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
         const cutoff = sixMonthsAgo.toISOString().split("T")[0];
-        query = query.gte("date", cutoff);
+
+        let from = 0;
+        while (true) {
+          const { data, error } = await supabase
+            .from("transactions")
+            .select("*")
+            .gte("date", cutoff)
+            .order("date", { ascending: false })
+            .order("created_at", { ascending: false })
+            .range(from, from + pageSize - 1);
+
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+
+          allTransactions.push(...(data as Transaction[]));
+
+          if (data.length < pageSize) break;
+          from += pageSize;
+        }
+
+        return allTransactions;
       }
 
-      const { data, error } = await query;
+      let from = 0;
+      while (true) {
+        const { data, error } = await supabase
+          .from("transactions")
+          .select("*")
+          .order("date", { ascending: false })
+          .order("created_at", { ascending: false })
+          .range(from, from + pageSize - 1);
 
-      if (error) throw error;
-      return (data || []) as Transaction[];
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        allTransactions.push(...(data as Transaction[]));
+
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+
+      return allTransactions;
     },
     enabled: !!user,
     staleTime: 30_000,
