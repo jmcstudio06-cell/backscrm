@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, Fragment } from "react";
+import { useState, Fragment } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Badge } from "@/components/ui/badge";
@@ -46,47 +46,23 @@ export default function Historico() {
   const { transactions, loading: loadingTransactions } = useTransactions({ fullHistory: true });
   const { shows, loading: loadingShows } = useShowsData();
 
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState(() => format(subMonths(new Date(), 12), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
   const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
-  const [rangeInitialized, setRangeInitialized] = useState(false);
 
-  useEffect(() => {
-    if (rangeInitialized || loadingTransactions || loadingShows) return;
+  const fromDate = parseLocalDate(startDate);
+  const toDate = parseLocalDate(endDate);
 
-    const allDates = [...transactions.map((transaction) => transaction.date), ...shows.map((show) => show.date)]
-      .filter(Boolean)
-      .sort((first, second) => first.localeCompare(second));
+  // Filter transactions by date range
+  const filteredTransactions = transactions.filter(t => {
+    const transactionDate = parseLocalDate(t.date);
+    return isWithinInterval(transactionDate, { start: fromDate, end: toDate });
+  });
 
-    const today = format(new Date(), "yyyy-MM-dd");
-    setStartDate(allDates[0] || today);
-    setEndDate(today);
-    setRangeInitialized(true);
-  }, [rangeInitialized, loadingTransactions, loadingShows, transactions, shows]);
-
-  const safeStartDate = startDate || format(subMonths(new Date(), 12), "yyyy-MM-dd");
-  const safeEndDate = endDate || format(new Date(), "yyyy-MM-dd");
-
-  const startBoundary = parseLocalDate(safeStartDate);
-  const endBoundary = parseLocalDate(safeEndDate);
-  const fromDate = startBoundary <= endBoundary ? startBoundary : endBoundary;
-  const toDate = startBoundary <= endBoundary ? endBoundary : startBoundary;
-
-  const filteredTransactions = useMemo(
-    () => transactions.filter((transaction) => {
-      const transactionDate = parseLocalDate(transaction.date);
-      return isWithinInterval(transactionDate, { start: fromDate, end: toDate });
-    }),
-    [transactions, fromDate, toDate],
-  );
-
-  const filteredShows = useMemo(
-    () => shows.filter((show) => {
-      const showDate = parseLocalDate(show.date);
-      return isWithinInterval(showDate, { start: fromDate, end: toDate });
-    }),
-    [shows, fromDate, toDate],
-  );
+  const filteredShows = shows.filter(s => {
+    const showDate = parseLocalDate(s.date);
+    return isWithinInterval(showDate, { start: fromDate, end: toDate });
+  });
 
   // Stats cards = ALL career data (unfiltered)
   const totalReceita = transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0)
@@ -95,32 +71,35 @@ export default function Historico() {
   const totalLucro = totalReceita - totalDespesa;
   const totalShows = shows.filter(s => s.status !== "cancelled").length;
 
-  const monthlyHistory = useMemo(() => {
+  // Generate monthly history from transactions
+  const generateMonthlyHistory = () => {
     const months = eachMonthOfInterval({ start: fromDate, end: toDate });
 
-    return months.map((monthDate) => {
+    return months.map(monthDate => {
       const monthStart = startOfMonth(monthDate);
       const monthEnd = endOfMonth(monthDate);
       const monthName = format(monthDate, "MMM/yy", { locale: ptBR });
 
-      const monthTransactions = filteredTransactions.filter((transaction) => {
-        const transactionDate = parseLocalDate(transaction.date);
+      const monthTransactions = transactions.filter(t => {
+        const transactionDate = parseLocalDate(t.date);
         return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
       });
 
-      const monthShows = filteredShows.filter((show) => {
-        const showDate = parseLocalDate(show.date);
-        return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && show.status !== "cancelled";
+      const monthShows = shows.filter(s => {
+        const showDate = parseLocalDate(s.date);
+        return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && s.status !== "cancelled";
       });
 
-      const incomeTransactions = monthTransactions.filter((transaction) => transaction.type === "income");
-      const expenseTransactions = monthTransactions.filter((transaction) => transaction.type === "expense");
+      const incomeTransactions = monthTransactions.filter(t => t.type === "income");
+      const expenseTransactions = monthTransactions.filter(t => t.type === "expense");
 
+      // Revenue from transactions (completed shows)
       const transactionReceita = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
-      const showsWithoutTransactions = monthShows.filter((show) =>
-        show.status !== "completed" && show.cachet > 0
+      // Add cachet from confirmed/scheduled shows that don't have transactions yet
+      const showsWithoutTransactions = monthShows.filter(s => 
+        s.status !== "completed" && s.cachet > 0
       );
-      const pendingReceita = showsWithoutTransactions.reduce((sum, show) => sum + show.cachet, 0);
+      const pendingReceita = showsWithoutTransactions.reduce((sum, s) => sum + s.cachet, 0);
       const receita = transactionReceita + pendingReceita;
       const despesa = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
 
@@ -134,7 +113,9 @@ export default function Historico() {
         expenseTransactions,
       };
     });
-  }, [filteredShows, filteredTransactions, fromDate, toDate]);
+  };
+
+  const monthlyHistory = generateMonthlyHistory();
 
   const loading = loadingTransactions || loadingShows;
 
