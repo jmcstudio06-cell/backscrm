@@ -37,6 +37,23 @@ function getBrasilNow() {
   return new Date(brasilStr);
 }
 
+const BADGE_TYPES_BY_POSITION = ["gold", "silver", "bronze"] as const;
+
+function getTrackedMonths() {
+  const now = getBrasilNow();
+  const months: Array<{ month: number; year: number }> = [];
+
+  for (let year = 2026; year <= now.getFullYear(); year += 1) {
+    const lastMonth = year === now.getFullYear() ? now.getMonth() + 1 : 12;
+
+    for (let month = 1; month <= lastMonth; month += 1) {
+      months.push({ month, year });
+    }
+  }
+
+  return months;
+}
+
 const BADGE_CONFIG: Record<string, { label: string; icon: typeof Crown; gradient: string; border: string; textColor: string; iconBg: string; ring: string }> = {
   gold: {
     label: "Ouro",
@@ -95,6 +112,47 @@ export default function RankingPage() {
     setRankingLoading(false);
   }, []);
 
+  const fetchMyBadges = useCallback(async (userId: string) => {
+    const trackedMonths = getTrackedMonths();
+
+    const results = await Promise.all(
+      trackedMonths.map(async ({ month, year }) => {
+        const { data, error } = await supabase.rpc("get_monthly_show_ranking_for_month", {
+          target_month: month,
+          target_year: year,
+        });
+
+        if (error || !data) {
+          return null;
+        }
+
+        const typedData = data as RankingEntry[];
+        const position = typedData.findIndex((entry) => entry.user_id === userId);
+
+        if (position < 0 || position > 2) {
+          return null;
+        }
+
+        const entry = typedData[position];
+        const badgeType = BADGE_TYPES_BY_POSITION[position];
+
+        return {
+          id: `${userId}-${year}-${month}-${badgeType}`,
+          user_id: userId,
+          badge_type: badgeType,
+          month,
+          year,
+          show_count: Number(entry.show_count),
+          created_at: `${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`,
+        } satisfies Badge;
+      }),
+    );
+
+    return results
+      .filter((badge): badge is Badge => badge !== null)
+      .sort((a, b) => b.year - a.year || b.month - a.month);
+  }, []);
+
   const goToPrevMonth = () => {
     if (selectedMonth === 1 && selectedYear <= 2026) return;
     let newMonth = selectedMonth - 1;
@@ -103,7 +161,6 @@ export default function RankingPage() {
     if (newYear < 2026) return;
     setSelectedMonth(newMonth);
     setSelectedYear(newYear);
-    fetchRankingForMonth(newMonth, newYear);
   };
 
   const goToNextMonth = () => {
@@ -115,14 +172,15 @@ export default function RankingPage() {
     if (newYear > now.getFullYear() || (newYear === now.getFullYear() && newMonth > now.getMonth() + 1)) return;
     setSelectedMonth(newMonth);
     setSelectedYear(newYear);
-    fetchRankingForMonth(newMonth, newYear);
   };
 
   useEffect(() => {
-    const fetchAll = async () => {
-      await supabase.rpc("archive_monthly_ranking");
+    void fetchRankingForMonth(selectedMonth, selectedYear);
+  }, [fetchRankingForMonth, selectedMonth, selectedYear]);
 
-      await fetchRankingForMonth(selectedMonth, selectedYear);
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true);
 
       if (user) {
         const now = getBrasilNow();
@@ -135,23 +193,16 @@ export default function RankingPage() {
           .gte("date", startOfMonth)
           .lte("date", endOfMonth);
         setMyShowCount(count || 0);
-      }
-
-      // Badges
-      const { data: allBadges } = await supabase
-        .from("artist_badges")
-        .select("*")
-        .order("year", { ascending: false })
-        .order("month", { ascending: false });
-
-      if (allBadges) {
-        if (user) setMyBadges(allBadges.filter((b: Badge) => b.user_id === user.id));
+        setMyBadges(await fetchMyBadges(user.id));
+      } else {
+        setMyShowCount(null);
+        setMyBadges([]);
       }
 
       setLoading(false);
     };
-    fetchAll();
-  }, [user, fetchRankingForMonth, selectedMonth, selectedYear]);
+    void fetchAll();
+  }, [user, fetchMyBadges]);
 
   const openHallOfFame = async () => {
     setHallOpen(true);
