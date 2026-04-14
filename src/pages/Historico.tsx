@@ -24,6 +24,7 @@ import { useShows } from "@/contexts/ShowsContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   buildHistoricoYearSummary,
   formatCurrencyBR,
