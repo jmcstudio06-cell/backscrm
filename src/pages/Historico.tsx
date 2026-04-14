@@ -86,12 +86,20 @@ export default function Historico() {
 
       const monthShows = shows.filter(s => {
         const showDate = parseLocalDate(s.date);
-        return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && s.status === "completed";
+        return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && s.status !== "cancelled";
       });
 
       const incomeTransactions = monthTransactions.filter(t => t.type === "income");
       const expenseTransactions = monthTransactions.filter(t => t.type === "expense");
-      const receita = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+      // Revenue from transactions (completed shows)
+      const transactionReceita = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+      // Add cachet from confirmed/scheduled shows that don't have transactions yet
+      const showsWithoutTransactions = monthShows.filter(s => 
+        s.status !== "completed" && s.cachet > 0
+      );
+      const pendingReceita = showsWithoutTransactions.reduce((sum, s) => sum + s.cachet, 0);
+      const receita = transactionReceita + pendingReceita;
       const despesa = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
 
       return {
