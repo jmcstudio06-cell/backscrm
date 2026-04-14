@@ -74,9 +74,8 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
     .filter((transaction) => transaction.type === "expense")
     .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
 
-  // Determine which months to show: for current year show up to current month, for past years show all 12
-  const now = new Date();
-  const maxMonth = selectedYear === now.getFullYear() ? now.getMonth() : 11;
+  // Always show all 12 months for any year
+  const maxMonth = 11;
 
   const monthlyHistory: HistoricoMonthData[] = Array.from({ length: maxMonth + 1 }, (_, monthIndex) => {
     const monthDate = new Date(selectedYear, monthIndex, 1);
