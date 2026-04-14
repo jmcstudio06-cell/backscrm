@@ -45,7 +45,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
       return (data || []) as Transaction[];
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30_000,
   });
 
   const addTransaction = async (transactionData: Partial<Transaction>) => {
