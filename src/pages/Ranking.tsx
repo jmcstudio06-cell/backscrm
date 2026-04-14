@@ -314,58 +314,85 @@ export default function RankingPage() {
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3 space-y-4">
+              {/* Year filter */}
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setTrophyYear((y) => Math.max(2026, y - 1))}
+                  className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors disabled:opacity-30"
+                  disabled={trophyYear <= 2026}
+                >
+                  <ChevronLeft className="w-4 h-4 text-foreground" />
+                </button>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground min-w-[60px] text-center">
+                  {trophyYear}
+                </p>
+                <button
+                  onClick={() => setTrophyYear((y) => Math.min(brasilNow.getFullYear(), y + 1))}
+                  className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors disabled:opacity-30"
+                  disabled={trophyYear >= brasilNow.getFullYear()}
+                >
+                  <ChevronRight className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+
               {/* My Badges grouped by type */}
               <div>
                 <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <Trophy className="w-4 h-4 text-primary" />
-                  Meus Troféus
+                  Meus Troféus — {trophyYear}
                 </h3>
-                {myBadges.length === 0 ? (
-                  <div className="rounded-xl bg-card border border-border/50 p-6 text-center">
-                    <Trophy className="w-6 h-6 text-muted-foreground/30 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-foreground">Nenhum troféu ainda</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Fique no TOP 3 do ranking mensal para ganhar!</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {(["gold", "silver", "bronze"] as const).map((type) => {
-                      const badges = myBadges.filter((b) => b.badge_type === type);
-                      if (badges.length === 0) return null;
-                      const config = BADGE_CONFIG[type];
-                      const BadgeIcon = config.icon;
-                      return (
-                        <div key={type} className={`rounded-xl bg-gradient-to-br ${config.gradient} border ${config.border} p-4`}>
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className={`w-10 h-10 rounded-xl ${config.iconBg} flex items-center justify-center shadow-md ring-2 ${config.ring}`}>
-                              <BadgeIcon className="w-5 h-5 text-white" />
+                {(() => {
+                  const yearBadges = myBadges.filter((b) => b.year === trophyYear);
+                  if (yearBadges.length === 0) {
+                    return (
+                      <div className="rounded-xl bg-card border border-border/50 p-6 text-center">
+                        <Trophy className="w-6 h-6 text-muted-foreground/30 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-foreground">Nenhum troféu em {trophyYear}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Fique no TOP 3 do ranking mensal para ganhar!</p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="space-y-3">
+                      {(["gold", "silver", "bronze"] as const).map((type) => {
+                        const badges = yearBadges.filter((b) => b.badge_type === type);
+                        if (badges.length === 0) return null;
+                        const config = BADGE_CONFIG[type];
+                        const BadgeIcon = config.icon;
+                        return (
+                          <div key={type} className={`rounded-xl bg-gradient-to-br ${config.gradient} border ${config.border} p-4`}>
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={`w-10 h-10 rounded-xl ${config.iconBg} flex items-center justify-center shadow-md ring-2 ${config.ring}`}>
+                                <BadgeIcon className="w-5 h-5 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <p className={`text-xs font-bold uppercase tracking-wider ${config.textColor}`}>
+                                  Troféu {config.label}
+                                </p>
+                                <p className="text-sm font-bold text-foreground">
+                                  {badges.length}× conquistado em {trophyYear}
+                                </p>
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className={`text-xs font-bold uppercase tracking-wider ${config.textColor}`}>
-                                Troféu {config.label}
-                              </p>
-                              <p className="text-sm font-bold text-foreground">
-                                {badges.length}× conquistado
-                              </p>
+                            <div className="space-y-1.5 pl-[52px]">
+                              {badges
+                                .sort((a, b) => b.month - a.month)
+                                .map((badge) => (
+                                  <div key={badge.id} className="flex items-center justify-between text-xs rounded-lg bg-white/40 dark:bg-white/5 px-3 py-1.5 border border-white/20 dark:border-white/5">
+                                    <span className="font-medium text-foreground flex items-center gap-1.5">
+                                      <Calendar className="w-3 h-3 text-muted-foreground" />
+                                      {monthNames[badge.month]} {badge.year}
+                                    </span>
+                                    <span className="text-muted-foreground">{badge.show_count} shows</span>
+                                  </div>
+                                ))}
                             </div>
                           </div>
-                          <div className="space-y-1.5 pl-[52px]">
-                            {badges
-                              .sort((a, b) => b.year - a.year || b.month - a.month)
-                              .map((badge) => (
-                                <div key={badge.id} className="flex items-center justify-between text-xs rounded-lg bg-white/40 dark:bg-white/5 px-3 py-1.5 border border-white/20 dark:border-white/5">
-                                  <span className="font-medium text-foreground flex items-center gap-1.5">
-                                    <Calendar className="w-3 h-3 text-muted-foreground" />
-                                    {monthNames[badge.month]} {badge.year}
-                                  </span>
-                                  <span className="text-muted-foreground">{badge.show_count} shows</span>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
             </CollapsibleContent>
           </Collapsible>
