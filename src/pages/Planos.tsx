@@ -24,6 +24,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 
+// InfinitePay checkout URLs
+const CHECKOUT_URLS: Record<string, string> = {
+  mensal_starter: "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH",
+  mensal_profissional: "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB",
+  mensal_completo: "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl",
+  anual_starter: "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3",
+  anual_profissional: "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP",
+  anual_completo: "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh",
+};
+
+const PLAN_AMOUNTS: Record<string, number> = {
+  mensal_starter: 1990,
+  mensal_profissional: 2490,
+  mensal_completo: 3990,
+  anual_starter: 14990,
+  anual_profissional: 19990,
+  anual_completo: 29880,
+};
+
 const testimonials = [
   {
     name: "Paula Seven",
