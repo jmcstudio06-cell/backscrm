@@ -42,7 +42,10 @@ export default function Historico() {
   const { shows, loading: loadingShows } = useShows();
   const availableYears = useMemo(() => getHistoricoAvailableYears(transactions, shows), [transactions, shows]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [compareMode, setCompareMode] = useState(false);
   const [repairDone, setRepairDone] = useState(false);
+
+  const hasPreviousYear = availableYears.includes(selectedYear - 1);
 
   useEffect(() => {
     if (loadingTransactions || loadingShows || availableYears.length === 0) return;
