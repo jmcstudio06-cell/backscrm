@@ -160,6 +160,11 @@ export default function Historico() {
     [selectedYear, shows, transactions],
   );
 
+  const previousYearSummary = useMemo(
+    () => (hasPreviousYear && compareMode ? buildHistoricoYearSummary(transactions, shows, selectedYear - 1) : null),
+    [hasPreviousYear, compareMode, selectedYear, shows, transactions],
+  );
+
   const loading = loadingTransactions || loadingShows;
 
   if (loading) {
