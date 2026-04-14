@@ -251,7 +251,7 @@ export default function Historico() {
               Nenhum dado financeiro para exibir no ano selecionado
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer key={selectedYear} width="100%" height={350}>
               <ComposedChart data={monthlyHistory}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" stroke="#000" tick={{ fill: "#000", fontWeight: 600 }} fontSize={13} />
