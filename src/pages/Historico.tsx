@@ -71,14 +71,23 @@ export default function Historico() {
 
         const newTransactions = missingShows.map((show) => ({
           user_id: user.id,
-          type: "income" as const,
+          type: "income",
           category: "Show",
           amount: show.cachet,
           description: `Cachê: ${show.title}`,
           date: show.date,
           show_id: show.id,
           is_advance_payment: false,
-        }));
+        })) as Array<{
+          user_id: string;
+          type: string;
+          category: string;
+          amount: number;
+          description: string;
+          date: string;
+          show_id: string;
+          is_advance_payment: boolean;
+        }>;
 
         // Also fetch musician fees and expenses for these shows
         const batchSize = 50;
@@ -95,7 +104,7 @@ export default function Historico() {
             if (m.fee > 0) {
               newTransactions.push({
                 user_id: user.id,
-                type: "expense" as const,
+                type: "expense",
                 category: "Músicos",
                 amount: m.fee,
                 description: `${m.musicians?.name || "Músico"} - ${batch.find((s) => s.id === m.show_id)?.title || "Show"}`,
@@ -110,7 +119,7 @@ export default function Historico() {
             if (e.amount > 0) {
               newTransactions.push({
                 user_id: user.id,
-                type: "expense" as const,
+                type: "expense",
                 category: e.category,
                 amount: e.amount,
                 description: `${e.description || e.category} - ${batch.find((s) => s.id === e.show_id)?.title || "Show"}`,
