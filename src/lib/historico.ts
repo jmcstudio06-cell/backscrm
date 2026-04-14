@@ -74,7 +74,11 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
     .filter((transaction) => transaction.type === "expense")
     .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
 
-  const monthlyHistory: HistoricoMonthData[] = Array.from({ length: 12 }, (_, monthIndex) => {
+  // Determine which months to show: for current year show up to current month, for past years show all 12
+  const now = new Date();
+  const maxMonth = selectedYear === now.getFullYear() ? now.getMonth() : 11;
+
+  const monthlyHistory: HistoricoMonthData[] = Array.from({ length: maxMonth + 1 }, (_, monthIndex) => {
     const monthDate = new Date(selectedYear, monthIndex, 1);
     const incomeTransactions = yearTransactions.filter(
       (transaction) => transaction.type === "income" && getMonthFromDate(transaction.date) === monthIndex,
@@ -96,9 +100,7 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
       incomeTransactions,
       expenseTransactions,
     };
-  }).filter(
-    (month) => month.receita > 0 || month.despesa > 0 || month.shows > 0,
-  );
+  });
 
   return {
     totalReceita,
