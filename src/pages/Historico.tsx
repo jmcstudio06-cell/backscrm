@@ -48,6 +48,7 @@ function ComparisonBadge({ current, previous, invertColors = false, isCount = fa
   );
 }
 
+export default function Historico() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
