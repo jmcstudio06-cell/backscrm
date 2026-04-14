@@ -200,23 +200,23 @@ export default function Historico() {
         </div>
         <div className="p-4 rounded-xl glass">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-warning" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalReceitaPrevista)}</p>
-              <p className="text-xs text-muted-foreground">Previsto de {selectedYear}</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 rounded-xl glass">
-          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
               <DollarSign className="w-5 h-5 text-destructive" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalDespesa)}</p>
               <p className="text-xs text-muted-foreground">Despesas de {selectedYear}</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4 rounded-xl glass">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-warning" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalReceitaPrevista)}</p>
+              <p className="text-xs text-muted-foreground">Previsto de {selectedYear}</p>
             </div>
           </div>
         </div>
@@ -284,8 +284,8 @@ export default function Historico() {
                   }}
                 />
                 <Bar dataKey="receita" fill="#22c55e" radius={[4, 4, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
-                <Bar dataKey="receitaPrevista" fill="#eab308" radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
-                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
+                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={200} />
+                <Bar dataKey="receitaPrevista" fill="#eab308" radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={400} />
                 <Line
                   type="monotone"
                   dataKey="lucro"
