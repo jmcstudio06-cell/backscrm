@@ -65,10 +65,11 @@ export default function Historico() {
   });
 
   // Stats cards = ALL career data (unfiltered)
-  const totalReceita = transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+  const totalReceita = transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0)
+    + shows.filter(s => s.status !== "completed" && s.status !== "cancelled" && s.cachet > 0).reduce((sum, s) => sum + s.cachet, 0);
   const totalDespesa = transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
   const totalLucro = totalReceita - totalDespesa;
-  const totalShows = shows.filter(s => s.status === "completed").length;
+  const totalShows = shows.filter(s => s.status !== "cancelled").length;
 
   // Generate monthly history from transactions
   const generateMonthlyHistory = () => {
