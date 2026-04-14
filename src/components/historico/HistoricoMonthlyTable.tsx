@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { format } from "date-fns";
-import { ArrowDownRight, ArrowUpRight, ChevronDown, ChevronRight, TrendingUp } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, CalendarClock, ChevronDown, ChevronRight, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import type { HistoricoMonthData } from "@/lib/historico";
-import { formatCurrencyBR } from "@/lib/historico";
+import { formatCurrencyBR, getProjectedStatusLabel } from "@/lib/historico";
 import { parseLocalDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +38,7 @@ export function HistoricoMonthlyTable({ monthlyHistory }: HistoricoMonthlyTableP
               <TableHead>Mês</TableHead>
               <TableHead>Receita</TableHead>
               <TableHead>Despesa</TableHead>
+              <TableHead>Previsto</TableHead>
               <TableHead>Shows</TableHead>
               <TableHead>Lucro</TableHead>
             </TableRow>
@@ -64,6 +65,7 @@ export function HistoricoMonthlyTable({ monthlyHistory }: HistoricoMonthlyTableP
                     </TableCell>
                     <TableCell className="text-success">{formatCurrencyBR(month.receita)}</TableCell>
                     <TableCell className="text-destructive">{formatCurrencyBR(month.despesa)}</TableCell>
+                    <TableCell className="text-warning">{formatCurrencyBR(month.receitaPrevista)}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{month.shows} shows</Badge>
                     </TableCell>
@@ -74,8 +76,9 @@ export function HistoricoMonthlyTable({ monthlyHistory }: HistoricoMonthlyTableP
 
                   {isExpanded && (
                     <TableRow>
-                      <TableCell colSpan={5} className="border-0 p-0">
+                      <TableCell colSpan={6} className="border-0 p-0">
                         <div className="space-y-4 bg-secondary/30 px-6 py-4">
+                          {/* Receitas */}
                           <div>
                             <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-success">
                               <ArrowUpRight className="h-3.5 w-3.5" />
@@ -102,6 +105,7 @@ export function HistoricoMonthlyTable({ monthlyHistory }: HistoricoMonthlyTableP
                             )}
                           </div>
 
+                          {/* Despesas */}
                           <div>
                             <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-destructive">
                               <ArrowDownRight className="h-3.5 w-3.5" />
@@ -128,6 +132,37 @@ export function HistoricoMonthlyTable({ monthlyHistory }: HistoricoMonthlyTableP
                             )}
                           </div>
 
+                          {/* Receita Prevista */}
+                          <div>
+                            <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-warning">
+                              <CalendarClock className="h-3.5 w-3.5" />
+                              Receita Prevista ({month.projectedShows.length})
+                            </h4>
+                            {month.projectedShows.length === 0 ? (
+                              <p className="pl-5 text-xs text-muted-foreground">Nenhum show previsto</p>
+                            ) : (
+                              <div className="space-y-1 pl-5">
+                                {month.projectedShows.map((show) => (
+                                  <div key={show.id} className="flex items-center justify-between py-1 text-sm">
+                                    <div className="flex items-center gap-2">
+                                      <span className="whitespace-nowrap text-xs text-muted-foreground">
+                                        {format(parseLocalDate(show.date), "dd/MM")}
+                                      </span>
+                                      <span className="text-foreground">{show.title}</span>
+                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-warning border-warning/30">
+                                        {getProjectedStatusLabel(show.status)}
+                                      </Badge>
+                                    </div>
+                                    <span className="whitespace-nowrap font-medium text-warning">
+                                      {formatCurrencyBR(show.cachet)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Lucro do mês */}
                           <div
                             className={cn(
                               "flex items-center justify-between rounded-lg p-3",

@@ -8,6 +8,14 @@ const COMPLETED_SHOW_STATUSES = new Set(["completed", "finalizado"]);
 const PROJECTED_SHOW_STATUSES = new Set(["confirmed", "confirmado", "pending", "pendente", "scheduled", "agendado", "negotiation"]);
 const IGNORED_SHOW_STATUSES = new Set(["cancelled"]);
 
+export interface ProjectedShow {
+  id: string;
+  title: string;
+  date: string;
+  cachet: number;
+  status: string;
+}
+
 export interface HistoricoMonthData {
   month: string;
   monthKey: string;
@@ -18,6 +26,7 @@ export interface HistoricoMonthData {
   shows: number;
   incomeTransactions: Transaction[];
   expenseTransactions: Transaction[];
+  projectedShows: ProjectedShow[];
 }
 
 const isValidDateString = (value: string | null | undefined) =>
@@ -35,6 +44,19 @@ export const shouldIncludeShowInHistory = (status: string) => !IGNORED_SHOW_STAT
 
 export const formatCurrencyBR = (value: number) =>
   `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+export const getProjectedStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
+    confirmed: "Confirmado",
+    confirmado: "Confirmado",
+    pending: "Pendente",
+    pendente: "Pendente",
+    scheduled: "Agendado",
+    agendado: "Agendado",
+    negotiation: "Negociação",
+  };
+  return labels[status] || status;
+};
 
 export function getHistoricoAvailableYears(transactions: Transaction[], shows: Show[]) {
   const years = new Set<number>();
@@ -108,6 +130,13 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
       shows: completedMonthShows.length,
       incomeTransactions,
       expenseTransactions,
+      projectedShows: projectedMonthShows.map((s) => ({
+        id: s.id,
+        title: s.title,
+        date: s.date,
+        cachet: s.cachet,
+        status: s.status,
+      })),
     };
   });
 
