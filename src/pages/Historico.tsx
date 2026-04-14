@@ -35,6 +35,7 @@ import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTa
 
 export default function Historico() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const { transactions, loading: loadingTransactions, refetch: refetchTransactions } = useTransactions({ fullHistory: true });
   const { shows, loading: loadingShows } = useShows();
