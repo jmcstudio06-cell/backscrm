@@ -66,7 +66,11 @@ export default function Historico() {
     if (!availableYears.includes(selectedYear)) {
       setSelectedYear(availableYears[availableYears.length - 1]);
     }
-  }, [availableYears, loadingShows, loadingTransactions, selectedYear]);
+    // Reset compare if selected year changed and compare is now same
+    if (compareYear === selectedYear) {
+      setCompareYear(null);
+    }
+  }, [availableYears, loadingShows, loadingTransactions, selectedYear, compareYear]);
 
   // Ensure completed shows have financial transactions
   useEffect(() => {
