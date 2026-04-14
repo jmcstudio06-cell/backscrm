@@ -15,6 +15,7 @@ import type { HistoricoMonthData } from "@/lib/historico";
 import { formatCurrencyBR, getProjectedStatusLabel } from "@/lib/historico";
 import { parseLocalDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HistoricoMonthlyTableProps {
   monthlyHistory: HistoricoMonthData[];
@@ -26,6 +27,7 @@ interface HistoricoMonthlyTableProps {
 export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareYear, selectedYear }: HistoricoMonthlyTableProps) {
   const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
   const hasCompare = !!compareHistory && !!compareYear;
+  const isMobile = useIsMobile();
 
   return (
     <ChartCard title="Detalhamento Mensal" subtitle={hasCompare ? `${selectedYear} vs ${compareYear}` : "Resumo financeiro mês a mês do ano selecionado"}>
@@ -45,7 +47,7 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
                 {hasCompare && <TableHead className="text-muted-foreground">Receita {compareYear}</TableHead>}
                 <TableHead>Despesa{hasCompare ? ` ${selectedYear}` : ""}</TableHead>
                 {hasCompare && <TableHead className="text-muted-foreground">Despesa {compareYear}</TableHead>}
-                <TableHead>Previsto</TableHead>
+                {!isMobile && <TableHead>Previsto</TableHead>}
                 <TableHead>Shows{hasCompare ? ` ${selectedYear}` : ""}</TableHead>
                 {hasCompare && <TableHead className="text-muted-foreground">Shows {compareYear}</TableHead>}
                 <TableHead>Lucro{hasCompare ? ` ${selectedYear}` : ""}</TableHead>
@@ -56,6 +58,9 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
               {monthlyHistory.map((month, i) => {
                 const isExpanded = expandedMonth === month.monthKey;
                 const comp = hasCompare ? compareHistory![i] : null;
+                const colSpan = isMobile
+                  ? (hasCompare ? 9 : 5)
+                  : (hasCompare ? 10 : 6);
 
                 return (
                   <Fragment key={month.monthKey}>
@@ -77,7 +82,7 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
                       {comp && <TableCell className="text-success/60">{formatCurrencyBR(comp.receita)}</TableCell>}
                       <TableCell className="text-destructive">{formatCurrencyBR(month.despesa)}</TableCell>
                       {comp && <TableCell className="text-destructive/60">{formatCurrencyBR(comp.despesa)}</TableCell>}
-                      <TableCell className="text-warning">{formatCurrencyBR(month.receitaPrevista)}</TableCell>
+                      {!isMobile && <TableCell className="text-warning">{formatCurrencyBR(month.receitaPrevista)}</TableCell>}
                       <TableCell>
                         <Badge variant="secondary">{month.shows} shows</Badge>
                       </TableCell>
@@ -98,7 +103,7 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
 
                     {isExpanded && (
                       <TableRow>
-                        <TableCell colSpan={hasCompare ? 10 : 6} className="border-0 p-0">
+                        <TableCell colSpan={colSpan} className="border-0 p-0">
                           <div className={cn("px-6 py-4", hasCompare ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "space-y-4", "bg-secondary/30")}>
                             {/* Current year details */}
                             <div className="space-y-4">
