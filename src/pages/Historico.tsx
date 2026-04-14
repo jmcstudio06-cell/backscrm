@@ -174,10 +174,25 @@ export default function Historico() {
     [selectedYear, shows, transactions],
   );
 
-  const previousYearSummary = useMemo(
-    () => (hasPreviousYear && compareMode ? buildHistoricoYearSummary(transactions, shows, selectedYear - 1) : null),
-    [hasPreviousYear, compareMode, selectedYear, shows, transactions],
+  const compareYearSummary = useMemo(
+    () => (compareYear ? buildHistoricoYearSummary(transactions, shows, compareYear) : null),
+    [compareYear, selectedYear, shows, transactions],
   );
+
+  // Merge chart data for comparison
+  const mergedChartData = useMemo(() => {
+    if (!compareYearSummary) return monthlyHistory;
+    return monthlyHistory.map((m, i) => {
+      const prev = compareYearSummary.monthlyHistory[i];
+      return {
+        ...m,
+        receitaPrev: prev?.receita ?? 0,
+        receitaPrevistaPrev: prev?.receitaPrevista ?? 0,
+        despesaPrev: prev?.despesa ?? 0,
+        lucroPrev: prev?.lucro ?? 0,
+      };
+    });
+  }, [monthlyHistory, compareYearSummary]);
 
   const loading = loadingTransactions || loadingShows;
 
@@ -209,19 +224,23 @@ export default function Historico() {
             </SelectContent>
           </Select>
         </div>
-        {hasPreviousYear && (
-          <button
-            onClick={() => setCompareMode(!compareMode)}
-            className={cn(
-              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-              compareMode
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <GitCompareArrows className="h-4 w-4" />
-            Comparar com {selectedYear - 1}
-          </button>
+        {comparableYears.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-muted-foreground">Comparar com</p>
+            <Select value={compareYear ? String(compareYear) : "none"} onValueChange={(v) => setCompareYear(v === "none" ? null : Number(v))}>
+              <SelectTrigger className="w-40 bg-secondary">
+                <SelectValue placeholder="Nenhum" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhum</SelectItem>
+                {comparableYears.map((year) => (
+                  <SelectItem key={year} value={String(year)}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         )}
       </div>
 
