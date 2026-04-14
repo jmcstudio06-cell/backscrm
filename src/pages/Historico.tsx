@@ -221,6 +221,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalReceita)}</p>
               <p className="text-xs text-muted-foreground">Receita de {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalReceita} previous={previousYearSummary.totalReceita} />
+              )}
             </div>
           </div>
         </div>
@@ -232,6 +235,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalDespesa)}</p>
               <p className="text-xs text-muted-foreground">Despesas de {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalDespesa} previous={previousYearSummary.totalDespesa} invertColors />
+              )}
             </div>
           </div>
         </div>
@@ -254,6 +260,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{totalShows}</p>
               <p className="text-xs text-muted-foreground">Shows realizados em {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalShows} previous={previousYearSummary.totalShows} isCount />
+              )}
             </div>
           </div>
         </div>
@@ -265,6 +274,9 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalLucro)}</p>
               <p className="text-xs text-muted-foreground">Lucro de {selectedYear}</p>
+              {previousYearSummary && (
+                <ComparisonBadge current={totalLucro} previous={previousYearSummary.totalLucro} />
+              )}
             </div>
           </div>
         </div>
