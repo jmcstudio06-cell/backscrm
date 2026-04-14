@@ -195,6 +195,20 @@ export default function Historico() {
             </SelectContent>
           </Select>
         </div>
+        {hasPreviousYear && (
+          <button
+            onClick={() => setCompareMode(!compareMode)}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+              compareMode
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <GitCompareArrows className="h-4 w-4" />
+            Comparar com {selectedYear - 1}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
