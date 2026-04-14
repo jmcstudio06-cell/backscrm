@@ -300,6 +300,11 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="text-sm font-medium flex-1">{item.label}</span>
+                    {item.label === "Agenda de Shows" && agendaBadge > 0 && (
+                      <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                        {agendaBadge > 99 ? "99+" : agendaBadge}
+                      </span>
+                    )}
                   </RouterNavLink>
                 </li>
               );
