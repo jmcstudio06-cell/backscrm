@@ -315,14 +315,14 @@ export default function Historico() {
       </div>
 
       <div className="mb-6">
-        <ChartCard title="Evolução Mensal" subtitle={`Receita, despesa e lucro reais de ${selectedYear}`}>
+        <ChartCard title="Evolução Mensal" subtitle={compareYear ? `${selectedYear} vs ${compareYear}` : `Receita, despesa e lucro reais de ${selectedYear}`}>
           {monthlyHistory.length === 0 ? (
             <div className="flex items-center justify-center h-[350px] text-muted-foreground">
               Nenhum dado financeiro para exibir no ano selecionado
             </div>
           ) : (
-            <ResponsiveContainer key={selectedYear} width="100%" height={isMobile ? 280 : 350}>
-              <ComposedChart data={monthlyHistory} margin={isMobile ? { left: -15, right: 5, top: 5, bottom: 5 } : undefined}>
+            <ResponsiveContainer key={`${selectedYear}-${compareYear}`} width="100%" height={isMobile ? 280 : 350}>
+              <ComposedChart data={mergedChartData} margin={isMobile ? { left: -15, right: 5, top: 5, bottom: 5 } : undefined}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
                   dataKey="month" 
@@ -350,10 +350,14 @@ export default function Historico() {
                   }}
                   formatter={(value: number, name: string) => {
                     const labels: Record<string, string> = {
-                      receita: "Receita",
-                      receitaPrevista: "Previsto",
-                      despesa: "Despesa",
-                      lucro: "Lucro",
+                      receita: `Receita ${selectedYear}`,
+                      receitaPrevista: `Previsto ${selectedYear}`,
+                      despesa: `Despesa ${selectedYear}`,
+                      lucro: `Lucro ${selectedYear}`,
+                      receitaPrev: `Receita ${compareYear}`,
+                      receitaPrevistaPrev: `Previsto ${compareYear}`,
+                      despesaPrev: `Despesa ${compareYear}`,
+                      lucroPrev: `Lucro ${compareYear}`,
                     };
                     return [formatCurrencyBR(value), labels[name] || name];
                   }}
@@ -363,17 +367,30 @@ export default function Historico() {
                   wrapperStyle={isMobile ? { fontSize: 10 } : undefined}
                   formatter={(value) => {
                     const labels: Record<string, string> = {
-                      receita: "Receita",
-                      receitaPrevista: "Previsto",
-                      despesa: "Despesa",
-                      lucro: "Lucro",
+                      receita: `Receita ${compareYear ? selectedYear : ""}`,
+                      receitaPrevista: `Previsto ${compareYear ? selectedYear : ""}`,
+                      despesa: `Despesa ${compareYear ? selectedYear : ""}`,
+                      lucro: `Lucro ${compareYear ? selectedYear : ""}`,
+                      receitaPrev: `Receita ${compareYear}`,
+                      receitaPrevistaPrev: `Previsto ${compareYear}`,
+                      despesaPrev: `Despesa ${compareYear}`,
+                      lucroPrev: `Lucro ${compareYear}`,
                     };
                     return labels[value] || value;
                   }}
                 />
+                {/* Current year bars */}
                 <Bar dataKey="receita" stackId="revenue" fill="#22c55e" radius={[0, 0, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
                 <Bar dataKey="receitaPrevista" stackId="revenue" fill="#eab308" radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
                 <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
+                {/* Comparison year bars (semi-transparent) */}
+                {compareYear && (
+                  <>
+                    <Bar dataKey="receitaPrev" stackId="revenuePrev" fill="#22c55e" fillOpacity={0.35} radius={[0, 0, 0, 0]} name="receitaPrev" animationDuration={1200} animationBegin={0} />
+                    <Bar dataKey="receitaPrevistaPrev" stackId="revenuePrev" fill="#eab308" fillOpacity={0.35} radius={[4, 4, 0, 0]} name="receitaPrevistaPrev" animationDuration={1200} animationBegin={200} />
+                    <Bar dataKey="despesaPrev" fill="#ef4444" fillOpacity={0.35} radius={[4, 4, 0, 0]} name="despesaPrev" animationDuration={1200} animationBegin={400} />
+                  </>
+                )}
                 <Line
                   type="monotone"
                   dataKey="lucro"
@@ -385,13 +402,32 @@ export default function Historico() {
                   animationDuration={1500}
                   animationBegin={600}
                 />
+                {compareYear && (
+                  <Line
+                    type="monotone"
+                    dataKey="lucroPrev"
+                    stroke="#3b82f6"
+                    strokeWidth={isMobile ? 1 : 2}
+                    strokeDasharray="6 3"
+                    strokeOpacity={0.45}
+                    dot={{ fill: "#3b82f6", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
+                    name="lucroPrev"
+                    animationDuration={1500}
+                    animationBegin={600}
+                  />
+                )}
               </ComposedChart>
             </ResponsiveContainer>
           )}
         </ChartCard>
       </div>
 
-      <HistoricoMonthlyTable monthlyHistory={monthlyHistory} />
+      <HistoricoMonthlyTable
+        monthlyHistory={monthlyHistory}
+        compareHistory={compareYearSummary?.monthlyHistory ?? null}
+        compareYear={compareYear}
+        selectedYear={selectedYear}
+      />
     </Layout>
   );
 }
