@@ -149,7 +149,7 @@ export default function Historico() {
     })();
   }, [user, loadingShows, loadingTransactions, shows, transactions, repairDone, queryClient]);
 
-  const { monthlyHistory, totalDespesa, totalLucro, totalReceita, totalShows } = useMemo(
+  const { monthlyHistory, totalDespesa, totalLucro, totalReceita, totalReceitaPrevista, totalShows } = useMemo(
     () => buildHistoricoYearSummary(transactions, shows, selectedYear),
     [selectedYear, shows, transactions],
   );
@@ -186,7 +186,7 @@ export default function Historico() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div className="p-4 rounded-xl glass">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
@@ -195,6 +195,17 @@ export default function Historico() {
             <div>
               <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalReceita)}</p>
               <p className="text-xs text-muted-foreground">Receita de {selectedYear}</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4 rounded-xl glass">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-warning" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">{formatCurrencyBR(totalReceitaPrevista)}</p>
+              <p className="text-xs text-muted-foreground">Previsto de {selectedYear}</p>
             </div>
           </div>
         </div>
@@ -211,8 +222,8 @@ export default function Historico() {
         </div>
         <div className="p-4 rounded-xl glass">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Mic2 className="w-5 h-5 text-warning" />
+            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+              <Mic2 className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{totalShows}</p>
@@ -251,16 +262,30 @@ export default function Historico() {
                     border: "1px solid hsl(var(--border))",
                     borderRadius: "8px"
                   }}
-                  formatter={(value: number, name: string) => [
-                    formatCurrencyBR(value),
-                    name === "receita" ? "Receita" : name === "despesa" ? "Despesa" : "Lucro"
-                  ]}
+                  formatter={(value: number, name: string) => {
+                    const labels: Record<string, string> = {
+                      receita: "Receita",
+                      receitaPrevista: "Previsto",
+                      despesa: "Despesa",
+                      lucro: "Lucro",
+                    };
+                    return [formatCurrencyBR(value), labels[name] || name];
+                  }}
                 />
                 <Legend 
-                  formatter={(value) => value === "receita" ? "Receita" : value === "despesa" ? "Despesa" : "Lucro"}
+                  formatter={(value) => {
+                    const labels: Record<string, string> = {
+                      receita: "Receita",
+                      receitaPrevista: "Previsto",
+                      despesa: "Despesa",
+                      lucro: "Lucro",
+                    };
+                    return labels[value] || value;
+                  }}
                 />
                 <Bar dataKey="receita" fill="#22c55e" radius={[4, 4, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
-                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={300} />
+                <Bar dataKey="receitaPrevista" fill="#eab308" radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
+                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
                 <Line
                   type="monotone"
                   dataKey="lucro"
