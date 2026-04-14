@@ -3,8 +3,7 @@ import { NavLink as RouterNavLink, useLocation, useNavigate } from "react-router
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
-import { usePendingChecklist } from "@/hooks/usePendingChecklist";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useSidebarBadges } from "@/hooks/useSidebarBadges";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { AppLogo } from "@/components/layout/AppLogo";
@@ -117,7 +116,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { isAdmin } = useAdmin();
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
-  const { pendingCount } = usePendingChecklist();
+  const { agendaBadge, checklistBadge, historicoBadge } = useSidebarBadges();
 
   const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
 
@@ -204,10 +203,15 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                         >
                           <item.icon className="w-5 h-5 shrink-0" />
                           <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
-                          {item.label === "Planejamento" && pendingCount > 0 && (
-                            <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs font-bold">
-                              {pendingCount > 99 ? "99+" : pendingCount}
-                            </Badge>
+                          {item.label === "Planejamento" && checklistBadge > 0 && (
+                            <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                              {checklistBadge > 99 ? "99+" : checklistBadge}
+                            </span>
+                          )}
+                          {item.label === "Financeiro" && historicoBadge > 0 && (
+                            <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                              {historicoBadge > 99 ? "99+" : historicoBadge}
+                            </span>
                           )}
                           <ChevronDown className="w-4 h-4" />
                         </button>
@@ -243,7 +247,17 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                               )}
                             >
                               <child.icon className="w-4 h-4" />
-                              <span className="text-sm">{child.label}</span>
+                              <span className="text-sm flex-1">{child.label}</span>
+                              {child.label === "Checklist de Show" && checklistBadge > 0 && (
+                                <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                                  {checklistBadge > 99 ? "99+" : checklistBadge}
+                                </span>
+                              )}
+                              {child.label === "Histórico Completo" && historicoBadge > 0 && (
+                                <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                                  {historicoBadge > 99 ? "99+" : historicoBadge}
+                                </span>
+                              )}
                             </RouterNavLink>
                           );
                         })}
@@ -286,6 +300,11 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="text-sm font-medium flex-1">{item.label}</span>
+                    {item.label === "Agenda de Shows" && agendaBadge > 0 && (
+                      <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                        {agendaBadge > 99 ? "99+" : agendaBadge}
+                      </span>
+                    )}
                   </RouterNavLink>
                 </li>
               );
