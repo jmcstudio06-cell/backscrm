@@ -248,7 +248,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
       // Gerar o mapeamento de palco em um container temporário offscreen
       let stageImageSrc = "";
       const tempContainer = document.createElement("div");
-      tempContainer.style.cssText = "position: absolute; left: -9999px; top: 0; width: 1000px; background: white;";
+      tempContainer.style.cssText = `position: absolute; left: -9999px; top: 0; width: ${PRINT_WIDTH}px; height: ${PRINT_HEIGHT}px; background: white;`;
       document.body.appendChild(tempContainer);
 
       try {
@@ -279,8 +279,9 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
           useCORS: true,
           allowTaint: true,
           logging: false,
-          width: 1000,
-          windowWidth: 1000,
+          width: PRINT_WIDTH,
+          height: PRINT_HEIGHT,
+          windowWidth: PRINT_WIDTH,
         });
 
         stageImageSrc = canvas.toDataURL("image/png", 1.0);
