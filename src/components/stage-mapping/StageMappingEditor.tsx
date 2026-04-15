@@ -88,17 +88,26 @@ const ELEMENT_TYPE_SIZES: Record<string, { width: number; height: number }> = {
   power220v: { width: 40, height: 45 },
 };
 
+// Canvas fixed dimensions must match StageCanvas component
+const CANVAS_WIDTH = 1100;
+const CANVAS_HEIGHT = 619;
+const PRINT_WIDTH = 1000;
+const PRINT_SCALE = PRINT_WIDTH / CANVAS_WIDTH;
+const PRINT_HEIGHT = Math.round(CANVAS_HEIGHT * PRINT_SCALE);
+
 function generateStageHtml(stageLayout: StageElement[], artistName: string): string {
   const elements = stageLayout.map((el) => {
     const image = ELEMENT_TYPE_IMAGES[el.type] || "";
     const size = ELEMENT_TYPE_SIZES[el.type] || { width: 60, height: 60 };
     const scale = el.scale || 1;
     const rotation = el.rotation || 0;
-    const width = size.width * scale;
-    const height = size.height * scale;
+    const width = size.width * scale * PRINT_SCALE;
+    const height = size.height * scale * PRINT_SCALE;
+    const x = el.x * PRINT_SCALE;
+    const y = el.y * PRINT_SCALE;
 
     return `
-      <div style="position: absolute; left: ${el.x}px; top: ${el.y}px; width: ${width}px; height: ${height}px;">
+      <div style="position: absolute; left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px;">
         <img src="${image}" style="width: 100%; height: 100%; object-fit: contain; transform: rotate(${rotation}deg);" />
         <div style="position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); white-space: nowrap;">
           <span style="font-weight: bold; font-size: 9px; color: #333; background: rgba(255,255,255,0.9); padding: 2px 4px; border-radius: 3px;">${el.name}</span>
@@ -107,17 +116,21 @@ function generateStageHtml(stageLayout: StageElement[], artistName: string): str
     `;
   }).join("");
 
+  const headerHeight = 40;
+  const dimBarHeight = 20;
+  const stageFloorHeight = PRINT_HEIGHT - headerHeight - dimBarHeight;
+
   return `
-    <div style="position: relative; width: 1000px; aspect-ratio: 16/9; background: white; border: 2px solid #555; overflow: hidden; font-family: Arial, sans-serif;">
-      <div style="background: #1a1a1a; padding: 12px 16px; text-align: center;">
+    <div style="position: relative; width: ${PRINT_WIDTH}px; height: ${PRINT_HEIGHT}px; background: white; border: 2px solid #555; overflow: hidden; font-family: Arial, sans-serif;">
+      <div style="background: #1a1a1a; padding: 8px 16px; text-align: center; height: ${headerHeight}px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <h3 style="margin: 0; color: white; font-size: 18px; letter-spacing: 2px;">MAPEAMENTO DE PALCO</h3>
-        ${artistName ? `<p style="margin: 4px 0 0; color: #ccc; font-size: 12px;">${artistName}</p>` : ""}
+        ${artistName ? `<p style="margin: 2px 0 0; color: #ccc; font-size: 11px;">${artistName}</p>` : ""}
       </div>
-      <div style="display: flex; justify-content: space-between; padding: 4px 16px; background: #f5f5f5; border-bottom: 1px solid #ddd; font-size: 10px; color: #666;">
+      <div style="display: flex; justify-content: space-between; padding: 4px 16px; background: #f5f5f5; border-bottom: 1px solid #ddd; font-size: 10px; color: #666; height: ${dimBarHeight}px;">
         <span>8M (MÍNIMO)</span>
         <span>6M (MÍNIMO)</span>
       </div>
-      <div style="position: relative; height: calc(100% - 60px); background: linear-gradient(to bottom, #fafafa, #f0f0f0);">
+      <div style="position: relative; height: ${stageFloorHeight}px; background: linear-gradient(to bottom, #fafafa, #f0f0f0);">
         ${artistName ? `<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;"><span style="font-weight: bold; color: rgba(0,0,0,0.06); font-size: 60px; text-transform: uppercase; letter-spacing: 8px;">${artistName}</span></div>` : ""}
         ${elements}
       </div>
@@ -235,7 +248,7 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
       // Gerar o mapeamento de palco em um container temporário offscreen
       let stageImageSrc = "";
       const tempContainer = document.createElement("div");
-      tempContainer.style.cssText = "position: absolute; left: -9999px; top: 0; width: 1000px; background: white;";
+      tempContainer.style.cssText = `position: absolute; left: -9999px; top: 0; width: ${PRINT_WIDTH}px; height: ${PRINT_HEIGHT}px; background: white;`;
       document.body.appendChild(tempContainer);
 
       try {
@@ -266,8 +279,9 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
           useCORS: true,
           allowTaint: true,
           logging: false,
-          width: 1000,
-          windowWidth: 1000,
+          width: PRINT_WIDTH,
+          height: PRINT_HEIGHT,
+          windowWidth: PRINT_WIDTH,
         });
 
         stageImageSrc = canvas.toDataURL("image/png", 1.0);
