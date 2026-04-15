@@ -37,6 +37,8 @@ const instruments = [
   "Sanfoneiro",
   "Tecladista",
   "DJ",
+  "Roadie",
+  "Técnico de Som",
   "Outro",
 ];
 
