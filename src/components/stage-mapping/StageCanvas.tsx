@@ -389,9 +389,9 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
 
         {/* Stage Canvas */}
         <div 
-          className="relative bg-white rounded-xl border-2 border-zinc-300 overflow-hidden shadow-xl print:shadow-none print:border-zinc-900 flex flex-col mx-auto w-full max-w-[1200px]" 
+          className="relative bg-white rounded-xl border-2 border-zinc-300 overflow-hidden shadow-xl print:shadow-none print:border-zinc-900 flex flex-col mx-auto" 
           id="stage-canvas-print" 
-          style={{ aspectRatio: '16/9', minHeight: '500px' }}
+          style={{ width: '1100px', height: '619px' }}
         >
           {/* Header */}
           <div className="bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 py-2.5 px-4">
