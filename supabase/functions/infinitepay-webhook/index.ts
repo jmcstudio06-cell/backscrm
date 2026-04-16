@@ -10,10 +10,10 @@ const corsHeaders = {
 const PLAN_MAP: Record<number, { plan: string; days: number }> = {
   1990: { plan: "mensal_starter", days: 30 },
   2490: { plan: "mensal_profissional", days: 30 },
-  3990: { plan: "mensal_completo", days: 30 },
+  3990: { plan: "mensal_empresarial", days: 30 },
   14990: { plan: "anual_starter", days: 365 },
   19990: { plan: "anual_profissional", days: 365 },
-  29880: { plan: "anual_completo", days: 365 },
+  29880: { plan: "anual_empresarial", days: 365 },
 };
 
 const SUCCESSFUL_STATUSES = new Set([
@@ -121,6 +121,9 @@ function buildFeatureBlocks(plan: string): Record<string, boolean> {
     anual_starter: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
     mensal_profissional: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "tutoriais", "configuracoes"],
     anual_profissional: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "tutoriais", "configuracoes"],
+    mensal_empresarial: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "tutoriais", "configuracoes"],
+    anual_empresarial: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "tutoriais", "configuracoes"],
+    // Legacy compatibility
     mensal_completo: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "tutoriais", "configuracoes"],
     anual_completo: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "tutoriais", "configuracoes"],
   };

@@ -16,9 +16,11 @@ const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
   mensal_starter: 30,
   mensal_profissional: 30,
+  mensal_empresarial: 30,
   mensal_completo: 30,
   anual_starter: 365,
   anual_profissional: 365,
+  anual_empresarial: 365,
   anual_completo: 365,
   // Legacy
   starter: 30, mensal: 30, inicial: 30, base: 30,
