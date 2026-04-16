@@ -26,21 +26,21 @@ import { toast } from "sonner";
 
 // InfinitePay checkout URLs
 const CHECKOUT_URLS: Record<string, string> = {
-  mensal_starter: "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH",
-  mensal_profissional: "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB",
-  mensal_completo: "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl",
-  anual_starter: "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3",
-  anual_profissional: "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP",
-  anual_completo: "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh",
+  mensal_starter: "https://checkout.infinitepay.io/backstagegroup/4wwukWEOD",
+  mensal_profissional: "https://checkout.infinitepay.io/backstagegroup/1uooJh8DXr",
+  mensal_empresarial: "https://checkout.infinitepay.io/backstagegroup/2YQQCnUiLH",
+  anual_starter: "https://checkout.infinitepay.io/backstagegroup/7fHIFnzjal",
+  anual_profissional: "https://checkout.infinitepay.io/backstagegroup/3pdeYcg1zl",
+  anual_empresarial: "https://checkout.infinitepay.io/backstagegroup/2YQRKMxAJ7",
 };
 
 const PLAN_AMOUNTS: Record<string, number> = {
   mensal_starter: 1990,
   mensal_profissional: 2490,
-  mensal_completo: 3990,
+  mensal_empresarial: 3990,
   anual_starter: 14990,
   anual_profissional: 19990,
-  anual_completo: 29880,
+  anual_empresarial: 29880,
 };
 
 const testimonials = [
@@ -133,8 +133,8 @@ const plans: PlanDef[] = [
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
-    planKeyMonthly: "mensal_completo",
-    planKeyYearly: "anual_completo",
+    planKeyMonthly: "mensal_empresarial",
+    planKeyYearly: "anual_empresarial",
     features: [
       "Tudo do Profissional +",
       "Link Agendamento Online",
@@ -242,7 +242,7 @@ export default function Planos() {
     if (!userPlan) return null;
     if (userPlan.includes("starter")) return "starter";
     if (userPlan.includes("profissional")) return "pro";
-    if (userPlan.includes("completo")) return "full";
+    if (userPlan.includes("completo") || userPlan.includes("empresarial")) return "full";
     if (userPlan === "comprou_expirado") return "comprou_expirado";
     return null;
   };
