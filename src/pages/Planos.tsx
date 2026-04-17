@@ -29,7 +29,7 @@ const CHECKOUT_URLS: Record<string, string> = {
   mensal_starter: "https://checkout.infinitepay.io/backstagegroup/xSJTvKbev",
   mensal_profissional: "https://checkout.infinitepay.io/backstagegroup/3ppHyYNBMH",
   mensal_empresarial: "https://checkout.infinitepay.io/backstagegroup/7feafZpCUB",
-  anual_starter: "https://checkout.infinitepay.io/backstagegroup/xSJTvKbev",
+  anual_starter: "https://checkout.infinitepay.io/backstagegroup/1uueQ3x5Jr",
   anual_profissional: "https://checkout.infinitepay.io/backstagegroup/1HH6RVTbeb",
   anual_empresarial: "https://checkout.infinitepay.io/backstagegroup/1uuf5FwQOf",
 };
