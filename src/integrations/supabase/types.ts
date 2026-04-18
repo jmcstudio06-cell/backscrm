@@ -1290,8 +1290,13 @@ export type Database = {
           activated_at: string | null
           amount_cents: number
           created_at: string
+          gateway_event_id: string | null
+          gateway_status: string | null
           id: string
+          payer_email: string | null
           plan_key: string
+          provider: string
+          provider_payload: Json | null
           status: string
           user_id: string
         }
@@ -1299,8 +1304,13 @@ export type Database = {
           activated_at?: string | null
           amount_cents: number
           created_at?: string
+          gateway_event_id?: string | null
+          gateway_status?: string | null
           id?: string
+          payer_email?: string | null
           plan_key: string
+          provider?: string
+          provider_payload?: Json | null
           status?: string
           user_id: string
         }
@@ -1308,8 +1318,13 @@ export type Database = {
           activated_at?: string | null
           amount_cents?: number
           created_at?: string
+          gateway_event_id?: string | null
+          gateway_status?: string | null
           id?: string
+          payer_email?: string | null
           plan_key?: string
+          provider?: string
+          provider_payload?: Json | null
           status?: string
           user_id?: string
         }
