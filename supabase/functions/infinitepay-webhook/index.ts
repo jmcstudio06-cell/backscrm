@@ -10,10 +10,10 @@ const corsHeaders = {
 const PLAN_MAP: Record<number, { plan: string; days: number }> = {
   1990: { plan: "mensal_starter", days: 30 },
   2490: { plan: "mensal_profissional", days: 30 },
-  3990: { plan: "mensal_empresarial", days: 30 },
+  3990: { plan: "mensal_completo", days: 30 },
   14990: { plan: "anual_starter", days: 365 },
   19990: { plan: "anual_profissional", days: 365 },
-  29880: { plan: "anual_empresarial", days: 365 },
+  29880: { plan: "anual_completo", days: 365 },
 };
 
 const SUCCESSFUL_STATUSES = new Set([
