@@ -133,8 +133,8 @@ const plans: PlanDef[] = [
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
-    planKeyMonthly: "mensal_empresarial",
-    planKeyYearly: "anual_empresarial",
+    planKeyMonthly: "mensal_completo",
+    planKeyYearly: "anual_completo",
     features: [
       "Tudo do Profissional +",
       "Link Agendamento Online",
@@ -265,24 +265,18 @@ export default function Planos() {
         return;
       }
 
-      // Cancel previous pending payments and create new one
-      await supabase
-        .from("pending_payments")
-        .update({ status: "cancelled" } as any)
-        .eq("user_id", user.id)
-        .eq("status", "pending");
+      const { data, error } = await supabase.functions.invoke("prepare-infinitepay-checkout", {
+        body: { plan_key: planKey },
+      });
 
-      await supabase
-        .from("pending_payments")
-        .insert({
-          user_id: user.id,
-          plan_key: planKey,
-          amount_cents: PLAN_AMOUNTS[planKey] || 0,
-        } as any);
+      if (error || !data?.checkout_url) {
+        console.error("Prepare InfinitePay checkout error:", error, data);
+        toast.error("Não foi possível preparar o checkout.");
+        return;
+      }
 
-      // Redirect to InfinitePay checkout
       toast.success("Redirecionando para pagamento...");
-      window.location.href = checkoutUrl;
+      window.location.href = data.checkout_url;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
