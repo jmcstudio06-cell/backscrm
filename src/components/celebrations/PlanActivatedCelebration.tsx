@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import Confetti from "react-confetti";
 import { Crown, Sparkles, PartyPopper, X } from "lucide-react";
 
@@ -12,11 +14,11 @@ const PLAN_LABELS: Record<string, string> = {
   anual_completo: "Completo Anual",
 };
 
-const INACTIVE_PLANS = ["trial", "expirado"];
-const STORAGE_KEY = "last_known_plan";
+const STORAGE_PREFIX = "celebrated_activation_";
 
 export function PlanActivatedCelebration() {
   const { profile } = useProfile();
+  const { user } = useAuth();
   const [showCelebration, setShowCelebration] = useState(false);
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [windowSize, setWindowSize] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -27,31 +29,37 @@ export function PlanActivatedCelebration() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Compare current plan with last known plan from localStorage
+  // Only celebrate when there's a recently approved payment we haven't celebrated yet.
   useEffect(() => {
-    if (!profile) return;
+    if (!user || !profile) return;
 
-    const currentPlan = profile.plan;
-    const lastKnown = localStorage.getItem(STORAGE_KEY);
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("pending_payments")
+        .select("id, plan_key, activated_at, status")
+        .eq("user_id", user.id)
+        .eq("status", "approved")
+        .not("activated_at", "is", null)
+        .order("activated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    // First time ever: just store current plan, never celebrate
-    if (lastKnown === null) {
-      localStorage.setItem(STORAGE_KEY, currentPlan || "");
-      return;
-    }
+      if (cancelled || error || !data) return;
 
-    // Always update stored plan
-    localStorage.setItem(STORAGE_KEY, currentPlan || "");
+      const storageKey = `${STORAGE_PREFIX}${user.id}`;
+      const lastCelebrated = localStorage.getItem(storageKey);
 
-    // Only celebrate when transitioning FROM inactive TO active
-    const wasInactive = INACTIVE_PLANS.includes(lastKnown) || lastKnown === "";
-    const isNowActive = currentPlan && !INACTIVE_PLANS.includes(currentPlan);
+      // Only celebrate if this specific payment hasn't been celebrated yet
+      if (lastCelebrated === data.id) return;
 
-    if (wasInactive && isNowActive) {
-      setActivatedPlan(currentPlan);
+      localStorage.setItem(storageKey, data.id);
+      setActivatedPlan(data.plan_key || profile.plan || "");
       setShowCelebration(true);
-    }
-  }, [profile?.plan]);
+    })();
+
+    return () => { cancelled = true; };
+  }, [user?.id, profile?.plan]);
 
   const handleClose = useCallback(() => {
     setShowCelebration(false);
