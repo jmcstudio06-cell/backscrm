@@ -172,12 +172,12 @@ export function useFeatureBlocks() {
   }, [user, processProfile]);
 
   const isBlocked = (featureKey: string): boolean => {
-    // Ranking & Selos is always available to every plan (including trial/expired)
-    if (featureKey === "ranking") return false;
     if (planExpired && featureKey !== "admin") {
       if (featureBlocks[featureKey] === false) return false;
       return true;
     }
+    // Ranking & Selos is available to every active plan (including trial)
+    if (featureKey === "ranking") return false;
     return featureBlocks[featureKey] === true;
   };
 
