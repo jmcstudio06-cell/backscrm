@@ -2332,6 +2332,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      expire_old_trials: { Args: never; Returns: number }
       get_alltime_show_totals: {
         Args: never
         Returns: {
