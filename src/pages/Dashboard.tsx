@@ -124,12 +124,18 @@ const Dashboard = () => {
   }, [profile, profileLoading]);
 
   // Show monthly goal modal if no goal set for this month (after loading)
-  // Skip during onboarding — the onboarding flow handles goal setup itself
+  // Skip during onboarding AND for users who haven't completed onboarding yet —
+  // the onboarding flow itself handles install, notifications and goal setup.
   useEffect(() => {
-    if (!isLoading && !onboardingActive && !currentShowGoal) {
+    if (
+      !isLoading &&
+      !onboardingActive &&
+      profile?.onboarding_completed &&
+      !currentShowGoal
+    ) {
       setShowGoalModal(true);
     }
-  }, [isLoading, onboardingActive, currentShowGoal]);
+  }, [isLoading, onboardingActive, currentShowGoal, profile?.onboarding_completed]);
 
   const handleGoalSet = async (target: number) => {
     await addGoal({
