@@ -10,6 +10,7 @@ import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalP
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
@@ -38,6 +39,7 @@ const Dashboard = () => {
   const { profile, loading: profileLoading } = useProfile();
   const { clients, loading: clientsLoading } = useClients();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showWelcomeVideo, setShowWelcomeVideo] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [checklistsUsed, setChecklistsUsed] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
@@ -83,7 +85,14 @@ const Dashboard = () => {
 
     // Check onboarding using already-loaded profile (no auth.getUser call)
     if (!profile.onboarding_completed) {
-      setShowWelcome(true);
+      // Show the mandatory welcome video ONLY on first signup (once per user)
+      const videoSeenKey = `welcome_video_seen_${profile.user_id}`;
+      const videoSeen = localStorage.getItem(videoSeenKey);
+      if (!videoSeen) {
+        setShowWelcomeVideo(true);
+      } else {
+        setShowWelcome(true);
+      }
     } else {
       const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
         (window.navigator as any).standalone === true;
@@ -365,6 +374,19 @@ const Dashboard = () => {
         open={showGoalModal}
         onClose={handleGoalSet}
         monthName={currentMonthName}
+      />
+
+      {/* Mandatory welcome video — only on FIRST signup, cannot be skipped */}
+      <WelcomeVideoModal
+        open={showWelcomeVideo}
+        userName={profile?.name || undefined}
+        onFinished={() => {
+          if (profile?.user_id) {
+            localStorage.setItem(`welcome_video_seen_${profile.user_id}`, "1");
+          }
+          setShowWelcomeVideo(false);
+          setShowWelcome(true);
+        }}
       />
 
       {/* Welcome/Onboarding Modal (first-time users) */}
