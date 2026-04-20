@@ -376,6 +376,19 @@ const Dashboard = () => {
         monthName={currentMonthName}
       />
 
+      {/* Mandatory welcome video — only on FIRST signup, cannot be skipped */}
+      <WelcomeVideoModal
+        open={showWelcomeVideo}
+        userName={profile?.name || undefined}
+        onFinished={() => {
+          if (profile?.user_id) {
+            localStorage.setItem(`welcome_video_seen_${profile.user_id}`, "1");
+          }
+          setShowWelcomeVideo(false);
+          setShowWelcome(true);
+        }}
+      />
+
       {/* Welcome/Onboarding Modal (first-time users) */}
       <WelcomeModal 
         open={showWelcome} 
