@@ -10,6 +10,7 @@ import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalP
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
