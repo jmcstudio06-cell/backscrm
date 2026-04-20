@@ -85,7 +85,14 @@ const Dashboard = () => {
 
     // Check onboarding using already-loaded profile (no auth.getUser call)
     if (!profile.onboarding_completed) {
-      setShowWelcome(true);
+      // Show the mandatory welcome video ONLY on first signup (once per user)
+      const videoSeenKey = `welcome_video_seen_${profile.user_id}`;
+      const videoSeen = localStorage.getItem(videoSeenKey);
+      if (!videoSeen) {
+        setShowWelcomeVideo(true);
+      } else {
+        setShowWelcome(true);
+      }
     } else {
       const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
         (window.navigator as any).standalone === true;
