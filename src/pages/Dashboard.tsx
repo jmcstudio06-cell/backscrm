@@ -9,8 +9,8 @@ import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModa
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
-import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
@@ -41,6 +41,8 @@ const Dashboard = () => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showWelcomeVideo, setShowWelcomeVideo] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  // Onboarding flow handles its own goal step — suppress legacy goal modal during onboarding
+  const onboardingActive = showWelcomeVideo || showWelcome;
   const [checklistsUsed, setChecklistsUsed] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
   // Lightweight counts instead of full data hooks
@@ -122,11 +124,12 @@ const Dashboard = () => {
   }, [profile, profileLoading]);
 
   // Show monthly goal modal if no goal set for this month (after loading)
+  // Skip during onboarding — the onboarding flow handles goal setup itself
   useEffect(() => {
-    if (!isLoading && !showWelcome && !currentShowGoal) {
+    if (!isLoading && !onboardingActive && !currentShowGoal) {
       setShowGoalModal(true);
     }
-  }, [isLoading, showWelcome, currentShowGoal]);
+  }, [isLoading, onboardingActive, currentShowGoal]);
 
   const handleGoalSet = async (target: number) => {
     await addGoal({
@@ -389,14 +392,22 @@ const Dashboard = () => {
         }}
       />
 
-      {/* Welcome/Onboarding Modal (first-time users) */}
-      <WelcomeModal 
-        open={showWelcome} 
-        onClose={() => {
+      {/* Unified onboarding flow (4 steps): Install → Notifications → Goal → Ready */}
+      <OnboardingFlow
+        open={showWelcome}
+        userName={profile?.name || undefined}
+        monthName={currentMonthName}
+        onFinish={async (goalTarget) => {
+          if (goalTarget) {
+            try {
+              await handleGoalSet(goalTarget);
+            } catch (e) {
+              console.error("Error saving goal from onboarding:", e);
+            }
+          }
           setShowWelcome(false);
           queryClient.invalidateQueries({ queryKey: ["profile"] });
         }}
-        userName={profile?.name || undefined}
       />
 
       {/* Install Prompt for returning users who haven't installed PWA */}
