@@ -11,7 +11,7 @@ import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalP
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
-import { InstallPromptModal } from "@/components/onboarding/InstallPromptModal";
+
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -40,7 +40,7 @@ const Dashboard = () => {
   const { clients, loading: clientsLoading } = useClients();
   const [showWelcome, setShowWelcome] = useState(false);
   const [showWelcomeVideo, setShowWelcomeVideo] = useState(false);
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  
   // Onboarding flow handles its own goal step — suppress legacy goal modal during onboarding
   const onboardingActive = showWelcomeVideo || showWelcome;
   const [checklistsUsed, setChecklistsUsed] = useState(false);
@@ -95,17 +95,9 @@ const Dashboard = () => {
       } else {
         setShowWelcome(true);
       }
-    } else {
-      const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true;
-      
-      if (!isStandalone) {
-        const dismissed = localStorage.getItem("install_prompt_dismissed");
-        if (!dismissed || Date.now() - parseInt(dismissed, 10) > 7 * 24 * 60 * 60 * 1000) {
-          setShowInstallPrompt(true);
-        }
-      }
     }
+    // Onboarding handles install/notifications/goal in one flow.
+    // Do NOT show extra install/notification prompts afterwards.
 
     // Batch lightweight count queries
     const fetchCounts = async () => {
@@ -416,11 +408,6 @@ const Dashboard = () => {
         }}
       />
 
-      {/* Install Prompt for returning users who haven't installed PWA */}
-      <InstallPromptModal
-        open={showInstallPrompt}
-        onClose={() => setShowInstallPrompt(false)}
-      />
 
       <div className="space-y-4 sm:space-y-6">
         {/* Gift Claim Card - shows when user has available gift */}
