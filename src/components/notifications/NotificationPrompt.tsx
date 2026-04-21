@@ -74,7 +74,7 @@ export function NotificationPrompt() {
     // Delay to not block initial render
     const timer = setTimeout(check, 2000);
     return () => clearTimeout(timer);
-  }, [user]);
+  }, [user, profile?.onboarding_completed]);
 
   const handleEnable = async () => {
     setLoading(true);
