@@ -228,12 +228,6 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
               >
                 {installed ? (
                   <SuccessNote text="O app já está instalado neste dispositivo!" />
-                ) : canAutoInstall ? (
-                  <InfoCard>
-                    <p className="text-white/90 text-sm">
-                      Toque em <strong>Instalar Agora</strong> para adicionar o Backstage Pro à tela inicial.
-                    </p>
-                  </InfoCard>
                 ) : ios ? (
                   <InfoCard>
                     <p className="font-semibold text-white mb-2 text-sm">Como instalar no iPhone:</p>
