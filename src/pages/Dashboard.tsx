@@ -40,7 +40,7 @@ const Dashboard = () => {
   const { clients, loading: clientsLoading } = useClients();
   const [showWelcome, setShowWelcome] = useState(false);
   const [showWelcomeVideo, setShowWelcomeVideo] = useState(false);
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  
   // Onboarding flow handles its own goal step — suppress legacy goal modal during onboarding
   const onboardingActive = showWelcomeVideo || showWelcome;
   const [checklistsUsed, setChecklistsUsed] = useState(false);
