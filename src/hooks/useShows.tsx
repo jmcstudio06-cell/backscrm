@@ -622,7 +622,7 @@ export function useShowsData() {
 
     (async () => {
       try {
-        const completedShows = shows.filter((show) => isCompletedShowStatus(show.status));
+        const completedShows = shows.filter((show) => isFinancialShowStatus(show.status));
         if (completedShows.length === 0) return;
 
         const showIds = completedShows.map(s => s.id);
