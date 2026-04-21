@@ -478,7 +478,7 @@ export function useShowsData() {
         await applyChecklistTemplateToShow(data.id, checklistTemplateId);
       }
 
-      if (isCompletedShowStatus(data.status)) {
+      if (isFinancialShowStatus(data.status)) {
         await createShowTransactions(data, musicians, expenses, advanceAmount);
       }
 
