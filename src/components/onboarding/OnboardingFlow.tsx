@@ -103,7 +103,10 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
 
   const handleAutoInstall = async () => {
     if (!deferredPrompt) {
-      goNext();
+      toast.info(
+        "Use o menu do navegador (⋮) e toque em 'Instalar aplicativo'.",
+        { duration: 5000 }
+      );
       return;
     }
     setInstalling(true);
@@ -114,12 +117,12 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
         setInstalled(true);
         deferredPrompt = null;
         toast.success("App instalado!");
+        goNext();
       }
     } catch (e) {
       console.error(e);
     } finally {
       setInstalling(false);
-      goNext();
     }
   };
 
