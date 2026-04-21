@@ -56,6 +56,13 @@ interface ExistingShowTransaction {
   is_advance_payment: boolean;
 }
 
+// Statuses que devem gerar transações financeiras automaticamente.
+// Inclui shows ainda por acontecer (confirmed) e já realizados (completed/finalizado),
+// para que o Resumo Mensal reflita TUDO que está na agenda.
+const FINANCIAL_SHOW_STATUSES = new Set(["confirmed", "completed", "finalizado"]);
+
+const isFinancialShowStatus = (status: string) => FINANCIAL_SHOW_STATUSES.has(status);
+
 const COMPLETED_SHOW_STATUSES = new Set(["completed", "finalizado"]);
 
 const isCompletedShowStatus = (status: string) => COMPLETED_SHOW_STATUSES.has(status);
