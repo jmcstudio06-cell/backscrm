@@ -103,7 +103,10 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
 
   const handleAutoInstall = async () => {
     if (!deferredPrompt) {
-      goNext();
+      toast.info(
+        "Use o menu do navegador (⋮) e toque em 'Instalar aplicativo'.",
+        { duration: 5000 }
+      );
       return;
     }
     setInstalling(true);
@@ -114,12 +117,12 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
         setInstalled(true);
         deferredPrompt = null;
         toast.success("App instalado!");
+        goNext();
       }
     } catch (e) {
       console.error(e);
     } finally {
       setInstalling(false);
-      goNext();
     }
   };
 
@@ -228,12 +231,6 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
               >
                 {installed ? (
                   <SuccessNote text="O app já está instalado neste dispositivo!" />
-                ) : canAutoInstall ? (
-                  <InfoCard>
-                    <p className="text-white/90 text-sm">
-                      Toque em <strong>Instalar Agora</strong> para adicionar o Backstage Pro à tela inicial.
-                    </p>
-                  </InfoCard>
                 ) : ios ? (
                   <InfoCard>
                     <p className="font-semibold text-white mb-2 text-sm">Como instalar no iPhone:</p>
@@ -286,23 +283,23 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
                       <Button onClick={goNext} className="w-full h-12 bg-white text-primary hover:bg-white/90 font-semibold">
                         Continuar <ChevronRight className="w-5 h-5 ml-1" />
                       </Button>
-                    ) : canAutoInstall ? (
+                    ) : ios ? (
+                      <Button onClick={goNext} className="w-full h-12 bg-white text-primary hover:bg-white/90 font-semibold">
+                        Já adicionei, continuar <ChevronRight className="w-5 h-5 ml-1" />
+                      </Button>
+                    ) : (
                       <Button
                         onClick={handleAutoInstall}
                         disabled={installing}
                         className="w-full h-12 bg-white text-primary hover:bg-white/90 font-semibold"
                       >
                         <Download className="w-5 h-5 mr-2" />
-                        {installing ? "Instalando..." : "Instalar Agora"}
-                      </Button>
-                    ) : (
-                      <Button onClick={goNext} className="w-full h-12 bg-white text-primary hover:bg-white/90 font-semibold">
-                        Já entendi, continuar <ChevronRight className="w-5 h-5 ml-1" />
+                        {installing ? "Instalando..." : canAutoInstall ? "Instalar App Agora" : "Instalar App"}
                       </Button>
                     )
                   }
                   secondary={
-                    !installed && !canAutoInstall ? (
+                    !installed ? (
                       <button onClick={goNext} className="text-white/70 hover:text-white text-sm">
                         Pular esta etapa
                       </button>
