@@ -583,7 +583,7 @@ export function useShowsData() {
 
     await deleteShowTransactions(show.id);
 
-    if (isCompletedShowStatus(show.status)) {
+    if (isFinancialShowStatus(show.status)) {
       await createShowTransactions(show, musicians, expenses);
     }
   };
