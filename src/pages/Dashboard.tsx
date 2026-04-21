@@ -95,17 +95,9 @@ const Dashboard = () => {
       } else {
         setShowWelcome(true);
       }
-    } else {
-      const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true;
-      
-      if (!isStandalone) {
-        const dismissed = localStorage.getItem("install_prompt_dismissed");
-        if (!dismissed || Date.now() - parseInt(dismissed, 10) > 7 * 24 * 60 * 60 * 1000) {
-          setShowInstallPrompt(true);
-        }
-      }
     }
+    // Onboarding handles install/notifications/goal in one flow.
+    // Do NOT show extra install/notification prompts afterwards.
 
     // Batch lightweight count queries
     const fetchCounts = async () => {
@@ -416,11 +408,6 @@ const Dashboard = () => {
         }}
       />
 
-      {/* Install Prompt for returning users who haven't installed PWA */}
-      <InstallPromptModal
-        open={showInstallPrompt}
-        onClose={() => setShowInstallPrompt(false)}
-      />
 
       <div className="space-y-4 sm:space-y-6">
         {/* Gift Claim Card - shows when user has available gift */}

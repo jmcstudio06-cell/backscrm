@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { isWebPushSubscribed, subscribeToWebPush } from "@/lib/webPush";
 import { Bell, X } from "lucide-react";
@@ -9,12 +10,19 @@ const PROMPT_DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export function NotificationPrompt() {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
       console.log("[NotifPrompt] No user, skipping");
+      return;
+    }
+
+    // Onboarding flow already handled the notification prompt — don't nag again.
+    if (profile?.onboarding_completed) {
+      console.log("[NotifPrompt] Onboarding completed, suppressing prompt");
       return;
     }
 
