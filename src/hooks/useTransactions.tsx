@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
@@ -124,6 +125,31 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
       toast.error("Erro ao excluir transação");
     }
   };
+
+  // Realtime: invalida cache instantaneamente em qualquer INSERT/UPDATE/DELETE
+  // (ex.: exclusão de transações criadas automaticamente por shows da Agenda).
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`transactions:${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "transactions",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["transactions", user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   const getTotalIncome = () => transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
   const getTotalExpense = () => transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
