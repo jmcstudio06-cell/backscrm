@@ -43,6 +43,7 @@ export interface ShowsContextType {
   cancelShow: (id: string) => Promise<void>;
   getConfirmedShows: () => Show[];
   getCompletedShows: () => Show[];
+  refetch: () => Promise<void>;
 }
 
 export const ShowsContext = createContext<ShowsContextType | null>(null);

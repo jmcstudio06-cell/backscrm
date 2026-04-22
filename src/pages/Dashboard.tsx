@@ -206,26 +206,56 @@ const Dashboard = () => {
 
   // Calculate revenue this month vs last month
   const revenueThisMonth = useMemo(() => {
-    return transactions
-      .filter((t) => {
-      const transactionDate = parseLocalDate(t.date);
-        return t.type === "income" && 
-               transactionDate >= currentMonthStart && 
-               transactionDate <= currentMonthEnd;
-      })
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-  }, [transactions, currentMonthStart, currentMonthEnd]);
-
-  const revenueLastMonth = useMemo(() => {
-    return transactions
+    const totalTransactions = transactions
       .filter((t) => {
         const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
-               transactionDate >= lastMonthStart && 
-               transactionDate <= lastMonthEnd;
+               transactionDate.getMonth() === now.getMonth() && 
+               transactionDate.getFullYear() === now.getFullYear();
       })
       .reduce((sum, t) => sum + Number(t.amount), 0);
-  }, [transactions, lastMonthStart, lastMonthEnd]);
+
+    // Add virtual revenue for shows this month that don't have transactions yet
+    const showsWithIncome = new Set(transactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
+    const virtualRevenue = shows
+      .filter(s => {
+        if (!s.date) return false;
+        const showDate = parseLocalDate(s.date);
+        return s.status !== "cancelled" && 
+               showDate.getMonth() === now.getMonth() && 
+               showDate.getFullYear() === now.getFullYear() &&
+               !showsWithIncome.has(s.id);
+      })
+      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
+
+    return totalTransactions + virtualRevenue;
+  }, [transactions, shows, now]);
+
+  const revenueLastMonth = useMemo(() => {
+    const lastMonth = subMonths(now, 1);
+    const totalTransactions = transactions
+      .filter((t) => {
+        const transactionDate = parseLocalDate(t.date);
+        return t.type === "income" && 
+               transactionDate.getMonth() === lastMonth.getMonth() && 
+               transactionDate.getFullYear() === lastMonth.getFullYear();
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const showsWithIncome = new Set(transactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
+    const virtualRevenue = shows
+      .filter(s => {
+        if (!s.date) return false;
+        const showDate = parseLocalDate(s.date);
+        return s.status !== "cancelled" && 
+               showDate.getMonth() === lastMonth.getMonth() && 
+               showDate.getFullYear() === lastMonth.getFullYear() &&
+               !showsWithIncome.has(s.id);
+      })
+      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
+
+    return totalTransactions + virtualRevenue;
+  }, [transactions, shows, now]);
 
   // Calculate closed sales
   const closedSales = useMemo(() => {
@@ -292,10 +322,18 @@ const Dashboard = () => {
 
   // Total revenue hero calculations
   const totalAllTimeRevenue = useMemo(() => {
-    return transactions
+    const totalTransactions = transactions
       .filter(t => t.type === "income")
       .reduce((sum, t) => sum + Number(t.amount), 0);
-  }, [transactions]);
+
+    // Add virtual revenue for completed shows that don't have transactions yet
+    const showsWithIncome = new Set(transactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
+    const virtualRevenue = shows
+      .filter(s => (s.status === "completed" || s.status === "finalizado") && !showsWithIncome.has(s.id))
+      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
+
+    return totalTransactions + virtualRevenue;
+  }, [transactions, shows]);
 
   const completedShowsAllTime = useMemo(() => {
     return shows.filter(s => s.status === "finalizado" || s.status === "completed").length;

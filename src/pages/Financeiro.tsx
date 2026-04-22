@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
@@ -43,20 +43,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
-import { useShowsData } from "@/hooks/useShows";
+import { useShows } from "@/contexts/shows/ShowsContext";
 import { shouldIncludeInProjections } from "@/lib/showStatus";
 import { TransactionModal } from "@/components/financeiro/TransactionModal";
 import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
 
 export default function Financeiro() {
-  const { transactions, loading: loadingTransactions, deleteTransaction, addTransaction } = useTransactions();
-  const { shows, loading: loadingShows } = useShowsData();
+  const { transactions, loading: loadingTransactions, deleteTransaction, addTransaction, refetch: refetchTransactions } = useTransactions({ fullHistory: true });
+  const { shows, loading: loadingShows, refetch: refetchShows } = useShows();
   const [showExpenses, setShowExpenses] = useState<any[]>([]);
   const [showMusicians, setShowMusicians] = useState<any[]>([]);
+
+  useEffect(() => {
+    refetchTransactions();
+    refetchShows();
+  }, []);
 
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
@@ -95,8 +99,14 @@ export default function Financeiro() {
 
   const currentMonthTransactions = transactions.filter(t => {
     if (!t.date) return false;
-    const transactionDate = parseLocalDate(t.date);
-    return isWithinInterval(transactionDate, { start: currentMonthStart, end: currentMonthEnd });
+    try {
+      const transactionDate = parseLocalDate(t.date);
+      if (isNaN(transactionDate.getTime())) return false;
+      const isCorrectMonth = transactionDate.getMonth() === now.getMonth() && transactionDate.getFullYear() === now.getFullYear();
+      return isCorrectMonth;
+    } catch (e) {
+      return false;
+    }
   });
 
   // Filter shows for current month only
@@ -105,7 +115,11 @@ export default function Financeiro() {
     try {
       const showDate = parseLocalDate(s.date);
       if (isNaN(showDate.getTime())) return false;
-      return isWithinInterval(showDate, { start: currentMonthStart, end: currentMonthEnd }) && shouldIncludeInProjections(s.status);
+      
+      // Manual month/year check to avoid timezone/interval issues
+      const isCorrectMonth = showDate.getMonth() === now.getMonth() && showDate.getFullYear() === now.getFullYear();
+      
+      return isCorrectMonth && shouldIncludeInProjections(s.status);
     } catch (e) {
       return false;
     }
