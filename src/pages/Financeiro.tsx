@@ -43,13 +43,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useShowsData } from "@/hooks/useShows";
+import { shouldIncludeInProjections } from "@/lib/showStatus";
 import { TransactionModal } from "@/components/financeiro/TransactionModal";
 import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 export default function Financeiro() {
-  const { transactions, loading, deleteTransaction, addTransaction } = useTransactions();
+  const { transactions, loading: loadingTransactions, deleteTransaction, addTransaction } = useTransactions();
+  const { shows, loading: loadingShows } = useShowsData();
+  const [showExpenses, setShowExpenses] = useState<any[]>([]);
+  const [showMusicians, setShowMusicians] = useState<any[]>([]);
+
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
 
@@ -86,13 +94,51 @@ export default function Financeiro() {
   const currentMonthEnd = endOfMonth(now);
 
   const currentMonthTransactions = transactions.filter(t => {
+    if (!t.date) return false;
     const transactionDate = parseLocalDate(t.date);
     return isWithinInterval(transactionDate, { start: currentMonthStart, end: currentMonthEnd });
   });
 
+  // Filter shows for current month only
+  const currentMonthShows = shows.filter(s => {
+    if (!s.date) return false;
+    const showDate = parseLocalDate(s.date);
+    return isWithinInterval(showDate, { start: currentMonthStart, end: currentMonthEnd }) && shouldIncludeInProjections(s.status);
+  });
+
   const totalIncome = currentMonthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
   const totalExpense = currentMonthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+  
+  // Projection logic
+  const projectedIncome = currentMonthShows.reduce((sum, s) => sum + (s.cachet || 0), 0);
+  
+  // Calculate expenses from shows (musicians and other expenses)
+  // We fetch these in a separate effect
+  useEffect(() => {
+    const fetchShowDetails = async () => {
+      if (currentMonthShows.length === 0) return;
+      
+      const showIds = currentMonthShows.map(s => s.id);
+      
+      const [musiciansResult, expensesResult] = await Promise.all([
+        supabase.from("show_musicians").select("*").in("show_id", showIds),
+        supabase.from("show_expenses").select("*").in("show_id", showIds)
+      ]);
+      
+      if (musiciansResult.data) setShowMusicians(musiciansResult.data);
+      if (expensesResult.data) setShowExpenses(expensesResult.data);
+    };
+    
+    fetchShowDetails();
+  }, [currentMonthShows.length]);
+
+  const projectedMusicianFees = showMusicians.reduce((sum, m) => sum + (m.fee || 0), 0);
+  const projectedOtherExpenses = showExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  const projectedTotalExpenses = projectedMusicianFees + projectedOtherExpenses;
+
   const profit = totalIncome - totalExpense;
+  const projectedProfit = projectedIncome - projectedTotalExpenses;
+
 
   // Group current month transactions by category for pie chart
   const expensesByCategory = currentMonthTransactions
@@ -108,36 +154,22 @@ export default function Financeiro() {
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
 
-  // Custo de Show - Agrupamento por categoria
-  const showCostCategories = {
-    equipe: ["Músico", "Equipe", "Cachê Músico", "Freelancer", "Banda", "Técnico"],
-    transporte: ["Transporte", "Combustível", "Gasolina", "Uber", "Táxi", "Passagem", "Estacionamento"],
-    alimentacao: ["Alimentação", "Comida", "Refeição", "Lanche", "Restaurante"],
-  };
-
-  const custoEquipe = currentMonthTransactions
-    .filter(t => t.type === "expense" && showCostCategories.equipe.some(cat => 
-      t.category.toLowerCase().includes(cat.toLowerCase()) || 
-      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
-    ))
-    .reduce((sum, t) => sum + t.amount, 0);
+  // Custo de Show - Combined Real + Projected for better visibility
+  const custoEquipe = Math.max(projectedMusicianFees, currentMonthTransactions
+    .filter(t => t.type === "expense" && (t.category === "Músicos" || t.category === "Equipe"))
+    .reduce((sum, t) => sum + t.amount, 0));
 
   const custoTransporte = currentMonthTransactions
-    .filter(t => t.type === "expense" && showCostCategories.transporte.some(cat => 
-      t.category.toLowerCase().includes(cat.toLowerCase()) || 
-      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
-    ))
+    .filter(t => t.type === "expense" && t.category === "Transporte")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoAlimentacao = currentMonthTransactions
-    .filter(t => t.type === "expense" && showCostCategories.alimentacao.some(cat => 
-      t.category.toLowerCase().includes(cat.toLowerCase()) || 
-      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
-    ))
+    .filter(t => t.type === "expense" && t.category === "Alimentação")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao;
-  const lucroRealShow = totalIncome - custoTotalShow;
+  const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao + projectedOtherExpenses;
+  const displayIncome = Math.max(totalIncome, projectedIncome);
+  const lucroRealShow = displayIncome - custoTotalShow;
 
   // Generate last 6 months data for chart
   const monthlyData = [];
@@ -148,6 +180,7 @@ export default function Financeiro() {
     const monthName = format(monthDate, "MMM", { locale: ptBR });
 
     const monthTransactions = transactions.filter(t => {
+      if (!t.date) return false;
       const transactionDate = parseLocalDate(t.date);
       return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
     });
@@ -155,12 +188,21 @@ export default function Financeiro() {
     const receita = monthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
     const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
 
-    if (receita > 0 || despesa > 0) {
-      monthlyData.push({ month: monthName, receita, despesa });
+    const monthShows = shows.filter(s => {
+      if (!s.date) return false;
+      const showDate = parseLocalDate(s.date);
+      return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && shouldIncludeInProjections(s.status);
+    });
+    const receitaPrevista = monthShows.reduce((sum, s) => sum + (s.cachet || 0), 0);
+
+    if (receita > 0 || despesa > 0 || receitaPrevista > 0) {
+      monthlyData.push({ month: monthName, receita: Math.max(receita, receitaPrevista), despesa });
     }
   }
 
   const currentMonthName = format(now, "MMMM 'de' yyyy", { locale: ptBR });
+
+  const loading = loadingTransactions || loadingShows;
 
   if (loading) {
     return (
@@ -174,6 +216,16 @@ export default function Financeiro() {
 
   return (
     <Layout title="Resumo Mensal" subtitle={`Resumo de ${currentMonthName}`}>
+      <div className="flex items-center gap-2 mb-6">
+        <Badge variant="secondary" className="px-3 py-1">
+          {currentMonthShows.length} {currentMonthShows.length === 1 ? "Show" : "Shows"} na agenda este mês
+        </Badge>
+        {projectedIncome > totalIncome && (
+          <Badge variant="outline" className="text-warning border-warning/30 bg-warning/5 px-3 py-1">
+            Agenda alimentando financeiro (+ {((projectedIncome/totalIncome - 1) * 100).toFixed(0)}% projetado)
+          </Badge>
+        )}
+      </div>
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-secondary">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
@@ -188,27 +240,31 @@ export default function Financeiro() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard
               title="Receita Mensal"
-              value={`R$ ${totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+              value={`R$ ${displayIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingUp}
               gradient="success"
+              description={projectedIncome > totalIncome ? "Incluindo shows agendados" : "Total recebido"}
             />
             <StatCard
               title="Despesas Mensais"
-              value={`R$ ${totalExpense.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+              value={`R$ ${custoTotalShow.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingDown}
               gradient="danger"
+              description="Custos de shows e outros"
             />
             <StatCard
               title="Lucro Líquido"
-              value={`R$ ${profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+              value={`R$ ${lucroRealShow.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={DollarSign}
               gradient="primary"
+              description="Resultado do mês"
             />
             <StatCard
               title="Saldo em Conta"
               value={`R$ ${profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={Wallet}
               gradient="blue"
+              description="Somente transações confirmadas"
             />
           </div>
 
@@ -388,7 +444,7 @@ export default function Financeiro() {
                 <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                   <span className="text-muted-foreground">Receita de Shows</span>
                   <span className="font-semibold text-success">
-                    R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    R$ {displayIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
 

@@ -36,3 +36,8 @@ export const isFinancialShowStatus = (status: string | null | undefined) => {
   const normalized = normalizeShowStatus(status);
   return normalized === "confirmed" || normalized === "completed";
 };
+
+export const shouldIncludeInProjections = (status: string | null | undefined) => {
+  const normalized = normalizeShowStatus(status);
+  return normalized !== "cancelled";
+};
