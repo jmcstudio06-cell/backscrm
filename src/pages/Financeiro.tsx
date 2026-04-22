@@ -159,7 +159,13 @@ export default function Financeiro() {
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
 
-  // Custo de Show - Combined Real + Projected for better visibility
+  // Smart calculation: Actual Transactions + (Completed/Scheduled Shows that DON'T have transactions yet)
+  const showsWithIncomeTransactions = new Set(currentMonthTransactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
+  const virtualShowReceita = currentMonthShows
+    .filter(s => !showsWithIncomeTransactions.has(s.id))
+    .reduce((sum, s) => sum + (s.cachet || 0), 0);
+
+  const displayIncome = totalIncome + virtualShowReceita;
   const custoEquipe = Math.max(projectedMusicianFees, currentMonthTransactions
     .filter(t => t.type === "expense" && (t.category === "Músicos" || t.category === "Equipe"))
     .reduce((sum, t) => sum + t.amount, 0));
@@ -173,7 +179,6 @@ export default function Financeiro() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao + projectedOtherExpenses;
-  const displayIncome = Math.max(totalIncome, projectedIncome);
   const lucroRealShow = displayIncome - custoTotalShow;
 
   // Generate last 6 months data for chart
@@ -195,9 +200,6 @@ export default function Financeiro() {
       }
     });
 
-    const receita = monthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-    const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
-
     const monthShows = shows.filter(s => {
       if (!s.date) return false;
       try {
@@ -208,6 +210,18 @@ export default function Financeiro() {
         return false;
       }
     });
+
+    const incomeTransactions = monthTransactions.filter(t => t.type === "income");
+    const totalReceitaTrans = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+    
+    // Add virtual revenue for shows without transactions in this month
+    const showsWithTransactions = new Set(incomeTransactions.filter(t => t.show_id).map(t => t.show_id));
+    const virtualReceita = monthShows
+      .filter(s => !showsWithTransactions.has(s.id))
+      .reduce((sum, s) => sum + (s.cachet || 0), 0);
+
+    const receita = totalReceitaTrans + virtualReceita;
+    const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
     const receitaPrevista = monthShows.reduce((sum, s) => sum + (s.cachet || 0), 0);
 
     if (receita > 0 || despesa > 0 || receitaPrevista > 0) {
