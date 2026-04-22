@@ -99,19 +99,19 @@ export default function Financeiro() {
     [transactions, shows, currentYear]
   );
   
-  const currentMonthData = yearSummary.monthlyHistory[currentMonthIndex];
-  const currentMonthTransactions = [...currentMonthData.incomeTransactions, ...currentMonthData.expenseTransactions];
-  const currentMonthShows = currentMonthData.monthShows;
+  const currentMonthData = yearSummary?.monthlyHistory?.[currentMonthIndex];
+  const currentMonthTransactions = currentMonthData ? [...currentMonthData.incomeTransactions, ...currentMonthData.expenseTransactions] : [];
+  const currentMonthShows = currentMonthData?.monthShows || [];
   
-  const receitaEfetiva = currentMonthData.receitaEfetiva;
-  const receitaConfirmada = currentMonthData.receitaConfirmada;
-  const receitaAgendada = currentMonthData.receitaAgendada;
-  const displayIncome = currentMonthData.receita;
-  const totalIncome = currentMonthData.receitaEfetiva; // For Saldo em Conta
-  const totalExpense = currentMonthData.despesa;
+  const receitaEfetiva = currentMonthData?.receitaEfetiva || 0;
+  const receitaConfirmada = currentMonthData?.receitaConfirmada || 0;
+  const receitaAgendada = currentMonthData?.receitaAgendada || 0;
+  const displayIncome = currentMonthData?.receita || 0;
+  const totalIncome = currentMonthData?.receitaEfetiva || 0; // For Saldo em Conta
+  const totalExpense = currentMonthData?.despesa || 0;
   
   // Projection logic
-  const projectedIncome = currentMonthData.receitaPrevista;
+  const projectedIncome = currentMonthData?.receitaPrevista || 0;
   
   // Calculate expenses from shows (musicians and other expenses)
   // We fetch these in a separate effect
@@ -374,9 +374,9 @@ export default function Financeiro() {
 
           <div className="space-y-6">
             <HistoricoMonthlyTable 
-              monthlyHistory={[currentMonthData]} 
+              monthlyHistory={currentMonthData ? [currentMonthData] : []} 
               selectedYear={currentYear}
-              defaultExpanded={currentMonthData.monthKey}
+              defaultExpanded={currentMonthData?.monthKey}
             />
           </div>
 

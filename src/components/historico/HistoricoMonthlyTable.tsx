@@ -169,14 +169,14 @@ function TransactionSection({
       <div>
         <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-success">
           <ArrowUpRight className="h-3.5 w-3.5" />
-          Receitas ({transactions.length + (monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions.map(t => t.show_id)).has(s.id)).length || 0)})
+          Receitas ({(transactions?.length || 0) + (monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions?.map(t => t.show_id) || []).has(s.id)).length || 0)})
         </h4>
-        {(transactions.length === 0 && (!monthShows || monthShows.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions.map(t => t.show_id)).has(s.id)).length === 0)) ? (
+        {(transactions?.length === 0 && (!monthShows || monthShows.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions?.map(t => t.show_id) || []).has(s.id)).length === 0)) ? (
           <p className="pl-5 text-xs text-muted-foreground">Nenhuma receita</p>
         ) : (
           <div className="space-y-1 pl-5">
             {/* Real Transactions */}
-            {transactions.map((t) => (
+            {transactions?.map((t) => (
               <div key={t.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -192,7 +192,7 @@ function TransactionSection({
             ))}
             
             {/* Virtual Transactions from Shows */}
-            {monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions.map(t => t.show_id)).has(s.id)).map((s) => (
+            {monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions?.map(t => t.show_id) || []).has(s.id)).map((s) => (
               <div key={s.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -216,13 +216,13 @@ function TransactionSection({
       <div>
         <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-destructive">
           <ArrowDownRight className="h-3.5 w-3.5" />
-          Despesas ({expenseTransactions.length})
+          Despesas ({expenseTransactions?.length || 0})
         </h4>
-        {expenseTransactions.length === 0 ? (
+        {expenseTransactions?.length === 0 ? (
           <p className="pl-5 text-xs text-muted-foreground">Nenhuma despesa</p>
         ) : (
           <div className="space-y-1 pl-5">
-            {expenseTransactions.map((t) => (
+            {expenseTransactions?.map((t) => (
               <div key={t.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -243,13 +243,13 @@ function TransactionSection({
       <div>
         <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-warning">
           <CalendarClock className="h-3.5 w-3.5" />
-          Receita Prevista ({projectedShows.length})
+          Receita Prevista ({projectedShows?.length || 0})
         </h4>
-        {projectedShows.length === 0 ? (
+        {projectedShows?.length === 0 ? (
           <p className="pl-5 text-xs text-muted-foreground">Nenhum show previsto</p>
         ) : (
           <div className="space-y-1 pl-5">
-            {projectedShows.map((show) => (
+            {projectedShows?.map((show) => (
               <div key={show.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -270,10 +270,10 @@ function TransactionSection({
         )}
       </div>
 
-      <div className={cn("flex items-center justify-between rounded-lg p-3", lucro >= 0 ? "bg-success/10" : "bg-destructive/10")}>
+      <div className={cn("flex items-center justify-between rounded-lg p-3", (lucro || 0) >= 0 ? "bg-success/10" : "bg-destructive/10")}>
         <span className="text-sm font-bold text-foreground">Lucro do Mês</span>
-        <span className={cn("text-sm font-bold", lucro >= 0 ? "text-success" : "text-destructive")}>
-          {formatCurrencyBR(lucro)}
+        <span className={cn("text-sm font-bold", (lucro || 0) >= 0 ? "text-success" : "text-destructive")}>
+          {formatCurrencyBR(lucro || 0)}
         </span>
       </div>
     </>
