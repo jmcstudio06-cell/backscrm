@@ -208,6 +208,7 @@ const Dashboard = () => {
   const revenueThisMonth = useMemo(() => {
     const totalTransactions = transactions
       .filter((t) => {
+        if (!t.date) return false;
         const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
                transactionDate.getMonth() === now.getMonth() && 
@@ -235,6 +236,7 @@ const Dashboard = () => {
     const lastMonth = subMonths(now, 1);
     const totalTransactions = transactions
       .filter((t) => {
+        if (!t.date) return false;
         const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
                transactionDate.getMonth() === lastMonth.getMonth() && 
@@ -286,6 +288,7 @@ const Dashboard = () => {
     
     const totalReceived = transactions
       .filter((t) => {
+        if (!t.date) return false;
         const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
                t.show_id !== null &&
@@ -323,7 +326,10 @@ const Dashboard = () => {
   // Total revenue hero calculations
   const totalAllTimeRevenue = useMemo(() => {
     const totalTransactions = transactions
-      .filter(t => t.type === "income")
+      .filter(t => {
+        if (!t.date) return false;
+        return t.type === "income";
+      })
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     // Add virtual revenue for completed shows that don't have transactions yet

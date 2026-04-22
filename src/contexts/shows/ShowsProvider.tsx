@@ -12,6 +12,7 @@ export function ShowsProvider({ children }: { children: ReactNode }) {
     cancelShow,
     getConfirmedShows,
     getCompletedShows,
+    refetch,
   } = useShowsData();
 
   const value: ShowsContextType = {
