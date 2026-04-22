@@ -53,13 +53,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 
 export default function Financeiro() {
-  const { transactions, loading: loadingTransactions, deleteTransaction, addTransaction, refetch: refetchTransactions } = useTransactions();
-  const { shows, loading: loadingShows, refetch: refetchShows } = useShowsData();
+  const { transactions, loading: loadingTransactions, deleteTransaction, addTransaction } = useTransactions();
+  const { shows, loading: loadingShows } = useShowsData();
   const [showExpenses, setShowExpenses] = useState<any[]>([]);
   const [showMusicians, setShowMusicians] = useState<any[]>([]);
-  
-  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
@@ -85,40 +82,30 @@ export default function Financeiro() {
     await addTransaction(data);
   };
 
-  const handleRefresh = () => {
-    refetchTransactions();
-    refetchShows();
-    toast.success("Dados atualizados!");
-  };
-
   const handleExportPdf = () => toast.success("Relatório exportado com sucesso!");
 
   const handleDeleteTransaction = async (id: string) => {
     await deleteTransaction(id);
   };
 
-  // Filter transactions for selected month only
-  const monthStart = startOfMonth(new Date(selectedYear, selectedMonth, 1));
-  const monthEnd = endOfMonth(new Date(selectedYear, selectedMonth, 1));
+  // Filter transactions for current month only
+  const now = new Date();
+  const currentMonthStart = startOfMonth(now);
+  const currentMonthEnd = endOfMonth(now);
 
   const currentMonthTransactions = transactions.filter(t => {
     if (!t.date) return false;
-    try {
-      const transactionDate = parseLocalDate(t.date);
-      if (isNaN(transactionDate.getTime())) return false;
-      return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
-    } catch (e) {
-      return false;
-    }
+    const transactionDate = parseLocalDate(t.date);
+    return isWithinInterval(transactionDate, { start: currentMonthStart, end: currentMonthEnd });
   });
 
-  // Filter shows for selected month only
+  // Filter shows for current month only
   const currentMonthShows = shows.filter(s => {
     if (!s.date) return false;
     try {
       const showDate = parseLocalDate(s.date);
       if (isNaN(showDate.getTime())) return false;
-      return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && shouldIncludeInProjections(s.status);
+      return isWithinInterval(showDate, { start: currentMonthStart, end: currentMonthEnd }) && shouldIncludeInProjections(s.status);
     } catch (e) {
       return false;
     }
@@ -134,11 +121,7 @@ export default function Financeiro() {
   // We fetch these in a separate effect
   useEffect(() => {
     const fetchShowDetails = async () => {
-      if (currentMonthShows.length === 0) {
-        setShowMusicians([]);
-        setShowExpenses([]);
-        return;
-      }
+      if (currentMonthShows.length === 0) return;
       
       const showIds = currentMonthShows.map(s => s.id);
       
@@ -152,7 +135,7 @@ export default function Financeiro() {
     };
     
     fetchShowDetails();
-  }, [currentMonthShows.map(s => `${s.id}-${s.status}-${s.cachet}`).join(',')]);
+  }, [currentMonthShows.map(s => `${s.id}-${s.status}-${s.cachet}-${s.date}`).join(',')]);
 
   const projectedMusicianFees = showMusicians.reduce((sum, m) => sum + (m.fee || 0), 0);
   const projectedOtherExpenses = showExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -287,47 +270,16 @@ export default function Financeiro() {
   }
 
   return (
-    <Layout title="Resumo Mensal" subtitle="Gestão financeira completa">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="px-3 py-1">
-            {currentMonthShows.length} {currentMonthShows.length === 1 ? "Show" : "Shows"} na agenda
+    <Layout title="Resumo Mensal" subtitle={`Resumo de ${currentMonthName}`}>
+      <div className="flex items-center gap-2 mb-6">
+        <Badge variant="secondary" className="px-3 py-1">
+          {currentMonthShows.length} {currentMonthShows.length === 1 ? "Show" : "Shows"} na agenda este mês
+        </Badge>
+        {projectedIncome > totalIncome && (
+          <Badge variant="outline" className="text-warning border-warning/30 bg-warning/5 px-3 py-1">
+            Agenda alimentando financeiro (+ {totalIncome > 0 ? ((projectedIncome / totalIncome - 1) * 100).toFixed(0) : "100"}% projetado)
           </Badge>
-          {projectedIncome > totalIncome && (
-            <Badge variant="outline" className="text-warning border-warning/30 bg-warning/5 px-3 py-1">
-              + {totalIncome > 0 ? ((projectedIncome / totalIncome - 1) * 100).toFixed(0) : "100"}% projetado
-            </Badge>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <select 
-            value={selectedMonth} 
-            onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="px-3 py-2 bg-background border rounded-lg text-xs sm:text-sm font-medium"
-          >
-            {Array.from({ length: 12 }).map((_, i) => (
-              <option key={i} value={i}>
-                {format(new Date(2024, i, 1), "MMMM", { locale: ptBR })}
-              </option>
-            ))}
-          </select>
-          <select 
-            value={selectedYear} 
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="px-3 py-2 bg-background border rounded-lg text-xs sm:text-sm font-medium"
-          >
-            {[2024, 2025, 2026, 2027].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleRefresh} title="Atualizar dados">
-            <TrendingUp className={cn("h-4 w-4", (loadingTransactions || loadingShows) && "animate-spin")} />
-          </Button>
-          <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleExportPdf} title="Exportar Relatório">
-            <Download className="h-4 w-4" />
-          </Button>
-        </div>
+        )}
       </div>
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-secondary w-full justify-start overflow-x-auto overflow-y-hidden flex-nowrap scrollbar-hide px-1 h-12">
@@ -792,6 +744,7 @@ export default function Financeiro() {
           </ChartCard>
         </TabsContent>
 
+        {/* Reports Tab */}
         <TabsContent value="reports" className="space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="font-semibold text-foreground">Nota Financeira do Mês</h3>
