@@ -3,10 +3,14 @@ import { ptBR } from "date-fns/locale";
 import type { Show } from "@/hooks/useShows";
 import type { Transaction } from "@/hooks/useTransactions";
 import { parseLocalDate } from "@/lib/utils";
+import {
+  isCancelledShowStatus,
+  isCompletedShowStatus,
+  isProjectedShowStatus,
+  normalizeShowStatus,
+} from "@/lib/showStatus";
 
-const COMPLETED_SHOW_STATUSES = new Set(["completed", "finalizado"]);
-const PROJECTED_SHOW_STATUSES = new Set(["confirmed", "confirmado", "pending", "pendente", "scheduled", "agendado", "negotiation"]);
-const IGNORED_SHOW_STATUSES = new Set(["cancelled"]);
+export { isCompletedShowStatus, isProjectedShowStatus };
 
 export interface ProjectedShow {
   id: string;
@@ -36,26 +40,20 @@ const getYearFromDate = (value: string) => parseLocalDate(value).getFullYear();
 
 const getMonthFromDate = (value: string) => parseLocalDate(value).getMonth();
 
-export const isCompletedShowStatus = (status: string) => COMPLETED_SHOW_STATUSES.has(status);
-
-export const isProjectedShowStatus = (status: string) => PROJECTED_SHOW_STATUSES.has(status);
-
-export const shouldIncludeShowInHistory = (status: string) => !IGNORED_SHOW_STATUSES.has(status);
+export const shouldIncludeShowInHistory = (status: string) => !isCancelledShowStatus(status);
 
 export const formatCurrencyBR = (value: number) =>
   `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export const getProjectedStatusLabel = (status: string) => {
+  const normalizedStatus = normalizeShowStatus(status);
   const labels: Record<string, string> = {
     confirmed: "Confirmado",
-    confirmado: "Confirmado",
     pending: "Pendente",
-    pendente: "Pendente",
     scheduled: "Agendado",
-    agendado: "Agendado",
     negotiation: "Negociação",
   };
-  return labels[status] || status;
+  return labels[normalizedStatus] || status;
 };
 
 export function getHistoricoAvailableYears(transactions: Transaction[], shows: Show[]) {

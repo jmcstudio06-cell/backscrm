@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { isCompletedShowStatus, isFinancialShowStatus, normalizeShowStatus } from "@/lib/showStatus";
 
 export interface Show {
   id: string;
@@ -55,17 +56,6 @@ interface ExistingShowTransaction {
   description: string | null;
   is_advance_payment: boolean;
 }
-
-// Statuses que devem gerar transações financeiras automaticamente.
-// Inclui shows ainda por acontecer (confirmed) e já realizados (completed/finalizado),
-// para que o Resumo Mensal reflita TUDO que está na agenda.
-const FINANCIAL_SHOW_STATUSES = new Set(["confirmed", "completed", "finalizado"]);
-
-const isFinancialShowStatus = (status: string) => FINANCIAL_SHOW_STATUSES.has(status);
-
-const COMPLETED_SHOW_STATUSES = new Set(["completed", "finalizado"]);
-
-const isCompletedShowStatus = (status: string) => COMPLETED_SHOW_STATUSES.has(status);
 
 const formatDateString = (date: Date) => {
   const year = date.getFullYear();
@@ -214,7 +204,7 @@ const normalizeShowRow = (row: any): Show | null => {
     address: typeof row.address === "string" ? row.address : null,
     cachet: Number.isFinite(cachetValue) ? cachetValue : 0,
     advance_amount: typeof row.advance_amount === "number" ? row.advance_amount : 0,
-    status: typeof row.status === "string" && row.status.trim() ? row.status : "scheduled",
+    status: normalizeShowStatus(typeof row.status === "string" && row.status.trim() ? row.status : "scheduled"),
     client_id: typeof row.client_id === "string" ? row.client_id : null,
     lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
     event_type: typeof row.event_type === "string" ? row.event_type : null,
@@ -333,6 +323,7 @@ export function useShowsData() {
     },
     enabled: !!user,
     staleTime: 30_000, // 30s - keeps data fresh across pages
+    refetchOnMount: "always",
   });
 
   // Create financial transactions when show is marked as completed
