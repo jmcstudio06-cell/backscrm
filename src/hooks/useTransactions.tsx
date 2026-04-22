@@ -27,29 +27,19 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
 
   const { data: transactions = [], isLoading: loading } = useQuery({
     queryKey: ["transactions", user?.id, fullHistory ? "all" : "recent"],
-
     queryFn: async () => {
-      if (!user?.id) return [];
-
       const pageSize = 1000;
       const allTransactions: Transaction[] = [];
-
-      // =============================
-      // ÚLTIMOS 6 MESES
-      // =============================
       if (!fullHistory) {
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
         const cutoff = sixMonthsAgo.toISOString().split("T")[0];
 
         let from = 0;
-
         while (true) {
           const { data, error } = await supabase
             .from("transactions")
             .select("*")
-            .eq("user_id", user.id)
             .gte("date", cutoff)
             .order("date", { ascending: false })
             .order("created_at", { ascending: false })
@@ -61,23 +51,17 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
           allTransactions.push(...(data as Transaction[]));
 
           if (data.length < pageSize) break;
-
           from += pageSize;
         }
 
         return allTransactions;
       }
 
-      // =============================
-      // HISTÓRICO COMPLETO
-      // =============================
       let from = 0;
-
       while (true) {
         const { data, error } = await supabase
           .from("transactions")
           .select("*")
-          .eq("user_id", user.id)
           .order("date", { ascending: false })
           .order("created_at", { ascending: false })
           .range(from, from + pageSize - 1);
@@ -88,23 +72,18 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
         allTransactions.push(...(data as Transaction[]));
 
         if (data.length < pageSize) break;
-
         from += pageSize;
       }
 
       return allTransactions;
     },
-
-    enabled: !!user?.id,
-    staleTime: 30000,
+    enabled: !!user,
+    staleTime: 30_000,
     refetchOnMount: "always",
   });
 
-  // =============================
-  // ADICIONAR TRANSAÇÃO
-  // =============================
   const addTransaction = async (transactionData: Partial<Transaction>) => {
-    if (!user?.id) return;
+    if (!user) return;
 
     try {
       const { data, error } = await supabase
@@ -125,13 +104,8 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
         .single();
 
       if (error) throw error;
-
-      queryClient.invalidateQueries({
-        queryKey: ["transactions"],
-      });
-
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast.success("Transação adicionada com sucesso!");
-
       return data;
     } catch (error) {
       console.error("Error adding transaction:", error);
@@ -139,21 +113,12 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
     }
   };
 
-  // =============================
-  // EXCLUIR TRANSAÇÃO
-  // =============================
   const deleteTransaction = async (id: string) => {
-    if (!user?.id) return;
-
     try {
-      const { error } = await supabase.from("transactions").delete().eq("id", id).eq("user_id", user.id);
+      const { error } = await supabase.from("transactions").delete().eq("id", id);
 
       if (error) throw error;
-
-      queryClient.invalidateQueries({
-        queryKey: ["transactions"],
-      });
-
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast.success("Transação excluída com sucesso!");
     } catch (error) {
       console.error("Error deleting transaction:", error);
@@ -161,12 +126,10 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
     }
   };
 
-  // =============================
-  // REALTIME
-  // =============================
+  // Realtime: invalida cache instantaneamente em qualquer INSERT/UPDATE/DELETE
+  // (ex.: exclusão de transações criadas automaticamente por shows da Agenda).
   useEffect(() => {
-    if (!user?.id) return;
-
+    if (!user) return;
     const channel = supabase
       .channel(`transactions:${user.id}`)
       .on(
@@ -178,9 +141,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
-          queryClient.invalidateQueries({
-            queryKey: ["transactions"],
-          });
+          queryClient.invalidateQueries({ queryKey: ["transactions"] });
         },
       )
       .subscribe();
@@ -190,25 +151,10 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
     };
   }, [user, queryClient]);
 
-  // =============================
-  // TOTAIS
-  // =============================
   const getTotalIncome = () => transactions.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-
   const getTotalExpense = () => transactions.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
 
-  const refetch = () =>
-    queryClient.invalidateQueries({
-      queryKey: ["transactions"],
-    });
+  const refetch = () => queryClient.invalidateQueries({ queryKey: ["transactions"] });
 
-  return {
-    transactions,
-    loading,
-    addTransaction,
-    deleteTransaction,
-    getTotalIncome,
-    getTotalExpense,
-    refetch,
-  };
+  return { transactions, loading, addTransaction, deleteTransaction, getTotalIncome, getTotalExpense, refetch };
 }
