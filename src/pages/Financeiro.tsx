@@ -35,13 +35,10 @@ import {
   Cell,
 } from "recharts";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  buildHistoricoYearSummary,
+  formatCurrencyBR,
+} from "@/lib/historico";
+import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useShows } from "@/contexts/shows/ShowsContext";
 import { shouldIncludeInProjections } from "@/lib/showStatus";
@@ -92,44 +89,28 @@ export default function Financeiro() {
     await deleteTransaction(id);
   };
 
-  // Filter transactions for current month only
+  // Use the shared historico helper for absolute data parity
   const now = new Date();
-  const currentMonthStart = startOfMonth(now);
-  const currentMonthEnd = endOfMonth(now);
-
-  const currentMonthTransactions = transactions.filter(t => {
-    if (!t.date) return false;
-    try {
-      const transactionDate = parseLocalDate(t.date);
-      if (isNaN(transactionDate.getTime())) return false;
-      const isCorrectMonth = transactionDate.getMonth() === now.getMonth() && transactionDate.getFullYear() === now.getFullYear();
-      return isCorrectMonth;
-    } catch (e) {
-      return false;
-    }
-  });
-
-  // Filter shows for current month only
-  const currentMonthShows = shows.filter(s => {
-    if (!s.date) return false;
-    try {
-      const showDate = parseLocalDate(s.date);
-      if (isNaN(showDate.getTime())) return false;
-      
-      // Manual month/year check to avoid timezone/interval issues
-      const isCorrectMonth = showDate.getMonth() === now.getMonth() && showDate.getFullYear() === now.getFullYear();
-      
-      return isCorrectMonth && shouldIncludeInProjections(s.status);
-    } catch (e) {
-      return false;
-    }
-  });
-
-  const totalIncome = currentMonthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-  const totalExpense = currentMonthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+  const currentYear = now.getFullYear();
+  const currentMonthIndex = now.getMonth();
+  
+  const yearSummary = useMemo(() => 
+    buildHistoricoYearSummary(transactions, shows, currentYear),
+    [transactions, shows, currentYear]
+  );
+  
+  const currentMonthData = yearSummary.monthlyHistory[currentMonthIndex];
+  
+  const receitaEfetiva = currentMonthData.receitaEfetiva;
+  const receitaConfirmada = currentMonthData.receitaConfirmada;
+  const receitaAgendada = currentMonthData.receitaAgendada;
+  const displayIncome = currentMonthData.receita;
+  const totalIncome = currentMonthData.receitaEfetiva; // For Saldo em Conta
+  const totalExpense = currentMonthData.despesa;
+  const profit = receitaEfetiva - totalExpense;
   
   // Projection logic
-  const projectedIncome = (currentMonthShows || []).reduce((sum, s) => sum + (s.cachet || 0), 0);
+  const projectedIncome = currentMonthData.receitaPrevista;
   
   // Calculate expenses from shows (musicians and other expenses)
   // We fetch these in a separate effect
@@ -173,25 +154,7 @@ export default function Financeiro() {
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
 
-  // Smart Revenue Calculation: Actual Transactions + (Completed/Scheduled Shows that DON'T have transactions yet)
-  const showsWithIncomeTransactions = new Set(currentMonthTransactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
-  
-  const receitaEfetiva = currentMonthTransactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0) +
-    currentMonthShows
-    .filter(s => s.status === "completed" && !showsWithIncomeTransactions.has(s.id))
-    .reduce((sum, s) => sum + (s.cachet || 0), 0);
-
-  const receitaConfirmada = currentMonthShows
-    .filter(s => s.status === "confirmed" && !showsWithIncomeTransactions.has(s.id))
-    .reduce((sum, s) => sum + (s.cachet || 0), 0);
-
-  const receitaPrevista = currentMonthShows
-    .filter(s => (s.status === "scheduled" || s.status === "pending" || s.status === "negotiation") && !showsWithIncomeTransactions.has(s.id))
-    .reduce((sum, s) => sum + (s.cachet || 0), 0);
-
-  const displayIncome = receitaEfetiva + receitaConfirmada + receitaPrevista;
+  const lucroRealShow = displayIncome - custoTotalShow;
 
   // Smart Expense Calculation: Actual Transactions + (Projected Expenses for shows without expense transactions)
   const showsWithExpenseTransactions = new Set(currentMonthTransactions.filter(t => t.type === "expense" && t.show_id).map(t => t.show_id));
@@ -234,55 +197,14 @@ export default function Financeiro() {
   const lucroRealShow = displayIncome - custoTotalShow;
 
   // Generate last 6 months data for chart
-  const monthlyData = [];
-  for (let i = 5; i >= 0; i--) {
-    const monthDate = subMonths(now, i);
-    const monthStart = startOfMonth(monthDate);
-    const monthEnd = endOfMonth(monthDate);
-    const monthName = format(monthDate, "MMM", { locale: ptBR });
-
-    const monthTransactions = transactions.filter(t => {
-      if (!t.date) return false;
-      try {
-        const transactionDate = parseLocalDate(t.date);
-        if (isNaN(transactionDate.getTime())) return false;
-        return transactionDate.getMonth() === monthDate.getMonth() && 
-               transactionDate.getFullYear() === monthDate.getFullYear();
-      } catch (e) {
-        return false;
-      }
-    });
-
-    const monthShows = shows.filter(s => {
-      if (!s.date) return false;
-      try {
-        const showDate = parseLocalDate(s.date);
-        if (isNaN(showDate.getTime())) return false;
-        return showDate.getMonth() === monthDate.getMonth() && 
-               showDate.getFullYear() === monthDate.getFullYear() && 
-               shouldIncludeInProjections(s.status);
-      } catch (e) {
-        return false;
-      }
-    });
-
-    const incomeTransactions = monthTransactions.filter(t => t.type === "income");
-    const totalReceitaTrans = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
-    
-    // Add virtual revenue for shows without transactions in this month
-    const showsWithTransactions = new Set(incomeTransactions.filter(t => t.show_id).map(t => t.show_id));
-    const virtualReceita = monthShows
-      .filter(s => !showsWithTransactions.has(s.id))
-      .reduce((sum, s) => sum + (s.cachet || 0), 0);
-
-    const receita = totalReceitaTrans + virtualReceita;
-    const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
-    const receitaPrevista = monthShows.reduce((sum, s) => sum + (s.cachet || 0), 0);
-
-    if (receita > 0 || despesa > 0 || receitaPrevista > 0) {
-      monthlyData.push({ month: monthName, receita: Math.max(receita, receitaPrevista), despesa });
-    }
-  }
+  // Generate last 6 months data for chart from the year summary
+  const monthlyData = yearSummary.monthlyHistory
+    .slice(Math.max(0, currentMonthIndex - 5), currentMonthIndex + 1)
+    .map(m => ({
+      month: m.month.split('/')[0], // Just the month name
+      receita: m.receita,
+      despesa: m.despesa,
+    }));
 
   const currentMonthName = format(now, "MMMM 'de' yyyy", { locale: ptBR });
 
@@ -302,11 +224,11 @@ export default function Financeiro() {
     <Layout title="Resumo Mensal" subtitle={`Resumo de ${currentMonthName}`}>
       <div className="flex items-center gap-2 mb-6">
         <Badge variant="secondary" className="px-3 py-1">
-          {currentMonthShows.length} {currentMonthShows.length === 1 ? "Show" : "Shows"} na agenda este mês
+          {currentMonthData.shows} {currentMonthData.shows === 1 ? "Show" : "Shows"} realizados este mês
         </Badge>
-        {projectedIncome > totalIncome && (
+        {receitaConfirmada + receitaAgendada > 0 && (
           <Badge variant="outline" className="text-warning border-warning/30 bg-warning/5 px-3 py-1">
-            Agenda alimentando financeiro (+ {totalIncome > 0 ? ((projectedIncome / totalIncome - 1) * 100).toFixed(0) : "100"}% projetado)
+            Agenda alimentando financeiro (+ R$ {(receitaConfirmada + receitaAgendada).toLocaleString("pt-BR")})
           </Badge>
         )}
       </div>

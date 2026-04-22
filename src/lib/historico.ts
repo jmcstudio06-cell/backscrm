@@ -24,6 +24,9 @@ export interface HistoricoMonthData {
   month: string;
   monthKey: string;
   receita: number;
+  receitaEfetiva: number;
+  receitaConfirmada: number;
+  receitaAgendada: number;
   receitaPrevista: number;
   despesa: number;
   lucro: number;
@@ -106,23 +109,46 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
 
   const monthlyHistory: HistoricoMonthData[] = Array.from({ length: maxMonth + 1 }, (_, monthIndex) => {
     const monthDate = new Date(selectedYear, monthIndex, 1);
+    
     const incomeTransactions = yearTransactions.filter(
       (transaction) => transaction.type === "income" && getMonthFromDate(transaction.date) === monthIndex,
     );
     const expenseTransactions = yearTransactions.filter(
       (transaction) => transaction.type === "expense" && getMonthFromDate(transaction.date) === monthIndex,
     );
+    
     const completedMonthShows = completedShows.filter((show) => getMonthFromDate(show.date) === monthIndex);
     const projectedMonthShows = projectedShows.filter((show) => getMonthFromDate(show.date) === monthIndex);
-    const receita = incomeTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+
+    // Smart Revenue Breakdown
+    const showsWithIncome = new Set(incomeTransactions.filter(t => t.show_id).map(t => t.show_id));
+    
+    const revenueFromTransactions = incomeTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+    const virtualEffective = completedMonthShows
+      .filter(s => !showsWithIncome.has(s.id))
+      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
+
+    const receitaEfetiva = revenueFromTransactions + virtualEffective;
+
+    const receitaConfirmada = projectedMonthShows
+      .filter(s => s.status === "confirmed" && !showsWithIncome.has(s.id))
+      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
+
+    const receitaAgendada = projectedMonthShows
+      .filter(s => (s.status === "scheduled" || s.status === "pending" || s.status === "negotiation") && !showsWithIncome.has(s.id))
+      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
+
+    const receita = receitaEfetiva + receitaConfirmada + receitaAgendada;
     const despesa = expenseTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
-    const receitaPrevista = projectedMonthShows.reduce((sum, show) => sum + Number(show.cachet || 0), 0);
 
     return {
       month: format(monthDate, "MMM/yy", { locale: ptBR }),
       monthKey: `${selectedYear}-${String(monthIndex + 1).padStart(2, "0")}`,
       receita,
-      receitaPrevista,
+      receitaEfetiva,
+      receitaConfirmada,
+      receitaAgendada,
+      receitaPrevista: receitaConfirmada + receitaAgendada,
       despesa,
       lucro: receita - despesa,
       shows: completedMonthShows.length,
@@ -138,11 +164,16 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
     };
   });
 
+  // Re-calculate totals based on monthly history to ensure consistency
+  const totalReceitaCalc = monthlyHistory.reduce((sum, m) => sum + m.receita, 0);
+  const totalReceitaPrevistaCalc = monthlyHistory.reduce((sum, m) => sum + m.receitaPrevista, 0);
+  const totalDespesaCalc = monthlyHistory.reduce((sum, m) => sum + m.despesa, 0);
+
   return {
-    totalReceita,
-    totalReceitaPrevista,
-    totalDespesa,
-    totalLucro: totalReceita - totalDespesa,
+    totalReceita: totalReceitaCalc,
+    totalReceitaPrevista: totalReceitaPrevistaCalc,
+    totalDespesa: totalDespesaCalc,
+    totalLucro: totalReceitaCalc - totalDespesaCalc,
     totalShows: completedShows.length,
     monthlyHistory,
   };

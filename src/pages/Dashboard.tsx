@@ -23,6 +23,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import {
+  buildHistoricoYearSummary,
+} from "@/lib/historico";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
@@ -204,60 +207,27 @@ const Dashboard = () => {
     }).length;
   }, [shows, lastMonthStart, lastMonthEnd]);
 
-  // Calculate revenue this month vs last month
-  const revenueThisMonth = useMemo(() => {
-    const totalTransactions = transactions
-      .filter((t) => {
-        if (!t.date) return false;
-        const transactionDate = parseLocalDate(t.date);
-        return t.type === "income" && 
-               transactionDate.getMonth() === now.getMonth() && 
-               transactionDate.getFullYear() === now.getFullYear();
-      })
-      .reduce((sum, t) => sum + Number(t.amount), 0);
+  const yearSummary = useMemo(() => 
+    buildHistoricoYearSummary(transactions, shows, now.getFullYear()),
+    [transactions, shows, now]
+  );
 
-    // Add virtual revenue for shows this month that don't have transactions yet
-    const showsWithIncome = new Set(transactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
-    const virtualRevenue = shows
-      .filter(s => {
-        if (!s.date) return false;
-        const showDate = parseLocalDate(s.date);
-        return s.status !== "cancelled" && 
-               showDate.getMonth() === now.getMonth() && 
-               showDate.getFullYear() === now.getFullYear() &&
-               !showsWithIncome.has(s.id);
-      })
-      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
+  const currentMonthData = yearSummary.monthlyHistory[now.getMonth()];
+  const lastMonthIndex = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+  const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+  
+  // If last month was in a different year, we need another summary
+  const lastMonthSummary = useMemo(() => {
+    if (now.getMonth() === 0) {
+      return buildHistoricoYearSummary(transactions, shows, lastMonthYear);
+    }
+    return yearSummary;
+  }, [transactions, shows, now, yearSummary]);
 
-    return totalTransactions + virtualRevenue;
-  }, [transactions, shows, now]);
+  const lastMonthData = lastMonthSummary.monthlyHistory[lastMonthIndex];
 
-  const revenueLastMonth = useMemo(() => {
-    const lastMonth = subMonths(now, 1);
-    const totalTransactions = transactions
-      .filter((t) => {
-        if (!t.date) return false;
-        const transactionDate = parseLocalDate(t.date);
-        return t.type === "income" && 
-               transactionDate.getMonth() === lastMonth.getMonth() && 
-               transactionDate.getFullYear() === lastMonth.getFullYear();
-      })
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-
-    const showsWithIncome = new Set(transactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
-    const virtualRevenue = shows
-      .filter(s => {
-        if (!s.date) return false;
-        const showDate = parseLocalDate(s.date);
-        return s.status !== "cancelled" && 
-               showDate.getMonth() === lastMonth.getMonth() && 
-               showDate.getFullYear() === lastMonth.getFullYear() &&
-               !showsWithIncome.has(s.id);
-      })
-      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
-
-    return totalTransactions + virtualRevenue;
-  }, [transactions, shows, now]);
+  const revenueThisMonth = currentMonthData.receita;
+  const revenueLastMonth = lastMonthData.receita;
 
   // Calculate closed sales
   const closedSales = useMemo(() => {
@@ -325,6 +295,8 @@ const Dashboard = () => {
 
   // Total revenue hero calculations
   const totalAllTimeRevenue = useMemo(() => {
+    // We can use a special summary for all time by combining all years, but for now
+    // let's just stick to the simple transaction sum + missing show revenue
     const totalTransactions = transactions
       .filter(t => {
         if (!t.date) return false;
