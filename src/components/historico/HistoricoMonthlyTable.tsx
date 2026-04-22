@@ -116,6 +116,7 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
                                 lucro={month.lucro}
                                 despesa={month.despesa}
                                 expenseTransactions={month.expenseTransactions}
+                                monthShows={month.monthShows}
                               />
                             </div>
                             {/* Compare year details */}
@@ -129,6 +130,7 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
                                   lucro={comp.lucro}
                                   despesa={comp.despesa}
                                   expenseTransactions={comp.expenseTransactions}
+                                  monthShows={comp.monthShows}
                                 />
                               </div>
                             )}
@@ -152,6 +154,7 @@ function TransactionSection({
   projectedShows,
   lucro,
   expenseTransactions,
+  monthShows,
 }: {
   type: string;
   transactions: HistoricoMonthData["incomeTransactions"];
@@ -159,18 +162,20 @@ function TransactionSection({
   lucro: number;
   despesa: number;
   expenseTransactions: HistoricoMonthData["expenseTransactions"];
+  monthShows: HistoricoMonthData["monthShows"];
 }) {
   return (
     <>
       <div>
         <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-success">
           <ArrowUpRight className="h-3.5 w-3.5" />
-          Receitas ({transactions.length})
+          Receitas ({transactions.length + (monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions.map(t => t.show_id)).has(s.id)).length || 0)})
         </h4>
-        {transactions.length === 0 ? (
+        {(transactions.length === 0 && (!monthShows || monthShows.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions.map(t => t.show_id)).has(s.id)).length === 0)) ? (
           <p className="pl-5 text-xs text-muted-foreground">Nenhuma receita</p>
         ) : (
           <div className="space-y-1 pl-5">
+            {/* Real Transactions */}
             {transactions.map((t) => (
               <div key={t.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
@@ -183,6 +188,25 @@ function TransactionSection({
                   <span className="text-foreground">{t.description || t.category}</span>
                 </div>
                 <span className="whitespace-nowrap font-medium text-success">+ {formatCurrencyBR(t.amount)}</span>
+              </div>
+            ))}
+            
+            {/* Virtual Transactions from Shows */}
+            {monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions.map(t => t.show_id)).has(s.id)).map((s) => (
+              <div key={s.id} className="flex items-center justify-between py-1 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="whitespace-nowrap text-xs text-muted-foreground">
+                    {(() => {
+                      const d = parseLocalDate(s.date);
+                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
+                    })()}
+                  </span>
+                  <span className="text-foreground">Show: {s.title}</span>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-success border-success/30 bg-success/5">
+                    Automático
+                  </Badge>
+                </div>
+                <span className="whitespace-nowrap font-medium text-success">+ {formatCurrencyBR(Number(s.cachet) || 0)}</span>
               </div>
             ))}
           </div>
