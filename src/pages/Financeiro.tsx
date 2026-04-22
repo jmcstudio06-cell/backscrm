@@ -227,11 +227,11 @@ export default function Financeiro() {
         )}
       </div>
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-secondary">
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="expenses">Despesas</TabsTrigger>
-          <TabsTrigger value="income">Receitas</TabsTrigger>
-          <TabsTrigger value="reports">Relatórios</TabsTrigger>
+        <TabsList className="bg-secondary w-full justify-start overflow-x-auto overflow-y-hidden flex-nowrap scrollbar-hide px-1 h-12">
+          <TabsTrigger value="overview" className="shrink-0">Visão Geral</TabsTrigger>
+          <TabsTrigger value="expenses" className="shrink-0">Despesas</TabsTrigger>
+          <TabsTrigger value="income" className="shrink-0">Receitas</TabsTrigger>
+          <TabsTrigger value="reports" className="shrink-0">Relatórios</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
