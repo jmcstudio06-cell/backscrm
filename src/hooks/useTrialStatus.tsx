@@ -11,6 +11,16 @@ interface TrialStatus {
   trialDays: number;
 }
 
+// Bloqueia TUDO ao expirar (sincronizado com expire_old_trials do banco)
+const ALL_BLOCKED_FEATURES: Record<string, boolean> = {
+  dashboard: true, agenda: true, crm: true, clientes: true, orcamentos: true,
+  servicos: true, contratos: true, financeiro: true, historico: true,
+  precificacao: true, checklist: true, "mapeamento-palco": true, equipe: true,
+  metas: true, repertorio: true, aulas: true, avancos: true, tutoriais: true,
+  configuracoes: true, "link-agenda": true, bonus: true, "ideias-post": true,
+  "metas-anuais": true,
+};
+
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
@@ -74,7 +84,7 @@ export function useTrialStatus(externalProfile?: ProfileLike | null) {
         if (isExpired && user) {
           await supabase
             .from("profiles")
-            .update({ plan: "expirado" })
+            .update({ plan: "expirado", feature_blocks: ALL_BLOCKED_FEATURES })
             .eq("user_id", user.id);
         }
       } else if (PLAN_DURATIONS[plan] && (trialStart || updatedAt)) {
@@ -89,7 +99,7 @@ export function useTrialStatus(externalProfile?: ProfileLike | null) {
         if (isExpired && user) {
           await supabase
             .from("profiles")
-            .update({ plan: "comprou_expirado" })
+            .update({ plan: "comprou_expirado", feature_blocks: ALL_BLOCKED_FEATURES })
             .eq("user_id", user.id);
         }
       }

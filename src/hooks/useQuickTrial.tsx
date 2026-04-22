@@ -5,6 +5,16 @@ import { useAuth } from "@/hooks/useAuth";
 const TRIAL_DURATION_MINUTES = 60;
 const TRIAL_DURATION_MS = TRIAL_DURATION_MINUTES * 60 * 1000;
 
+// Bloqueia TUDO ao expirar (mesma lógica do expire_old_trials no banco)
+const ALL_BLOCKED_FEATURES: Record<string, boolean> = {
+  dashboard: true, agenda: true, crm: true, clientes: true, orcamentos: true,
+  servicos: true, contratos: true, financeiro: true, historico: true,
+  precificacao: true, checklist: true, "mapeamento-palco": true, equipe: true,
+  metas: true, repertorio: true, aulas: true, avancos: true, tutoriais: true,
+  configuracoes: true, "link-agenda": true, bonus: true, "ideias-post": true,
+  "metas-anuais": true,
+};
+
 interface QuickTrialStatus {
   isActive: boolean;
   isExpired: boolean;
@@ -69,7 +79,9 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
       });
 
       if (timeData.isExpired && user) {
-        await supabase.from("profiles").update({ plan: "expirado" }).eq("user_id", user.id);
+        await supabase.from("profiles")
+          .update({ plan: "expirado", feature_blocks: ALL_BLOCKED_FEATURES })
+          .eq("user_id", user.id);
       }
       setLoading(false);
     }
@@ -112,7 +124,9 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
       }));
 
       if (timeData.isExpired && user) {
-        supabase.from("profiles").update({ plan: "expirado" }).eq("user_id", user.id)
+        supabase.from("profiles")
+          .update({ plan: "expirado", feature_blocks: ALL_BLOCKED_FEATURES })
+          .eq("user_id", user.id)
           .then(() => { window.location.reload(); });
       }
     }, 1000);
