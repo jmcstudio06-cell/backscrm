@@ -100,6 +100,8 @@ export default function Financeiro() {
   );
   
   const currentMonthData = yearSummary.monthlyHistory[currentMonthIndex];
+  const currentMonthTransactions = [...currentMonthData.incomeTransactions, ...currentMonthData.expenseTransactions];
+  const currentMonthShows = currentMonthData.monthShows;
   
   const receitaEfetiva = currentMonthData.receitaEfetiva;
   const receitaConfirmada = currentMonthData.receitaConfirmada;
@@ -107,7 +109,6 @@ export default function Financeiro() {
   const displayIncome = currentMonthData.receita;
   const totalIncome = currentMonthData.receitaEfetiva; // For Saldo em Conta
   const totalExpense = currentMonthData.despesa;
-  const profit = receitaEfetiva - totalExpense;
   
   // Projection logic
   const projectedIncome = currentMonthData.receitaPrevista;
@@ -153,8 +154,6 @@ export default function Financeiro() {
     value,
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
-
-  const lucroRealShow = displayIncome - custoTotalShow;
 
   // Smart Expense Calculation: Actual Transactions + (Projected Expenses for shows without expense transactions)
   const showsWithExpenseTransactions = new Set(currentMonthTransactions.filter(t => t.type === "expense" && t.show_id).map(t => t.show_id));

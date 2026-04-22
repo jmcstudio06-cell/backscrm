@@ -31,6 +31,7 @@ export interface HistoricoMonthData {
   despesa: number;
   lucro: number;
   shows: number;
+  monthShows: Show[];
   incomeTransactions: Transaction[];
   expenseTransactions: Transaction[];
   projectedShows: ProjectedShow[];
@@ -152,6 +153,7 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
       despesa,
       lucro: receita - despesa,
       shows: completedMonthShows.length,
+      monthShows: yearShows.filter((show) => getMonthFromDate(show.date) === monthIndex),
       incomeTransactions,
       expenseTransactions,
       projectedShows: projectedMonthShows.map((s) => ({
