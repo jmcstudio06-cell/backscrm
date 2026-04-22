@@ -22,10 +22,11 @@ interface HistoricoMonthlyTableProps {
   compareHistory?: HistoricoMonthData[] | null;
   compareYear?: number | null;
   selectedYear?: number;
+  defaultExpanded?: string | null;
 }
 
-export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareYear, selectedYear }: HistoricoMonthlyTableProps) {
-  const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
+export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareYear, selectedYear, defaultExpanded }: HistoricoMonthlyTableProps) {
+  const [expandedMonth, setExpandedMonth] = useState<string | null>(defaultExpanded || null);
   const hasCompare = !!compareHistory && !!compareYear;
   const isMobile = useIsMobile();
 

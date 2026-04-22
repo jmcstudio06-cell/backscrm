@@ -374,6 +374,14 @@ export default function Financeiro() {
             </ChartCard>
           </div>
 
+          <div className="space-y-6">
+            <HistoricoMonthlyTable 
+              monthlyHistory={[currentMonthData]} 
+              selectedYear={currentYear}
+              defaultExpanded={currentMonthData.monthKey}
+            />
+          </div>
+
           {/* Custo de Show */}
           <ChartCard 
             title="Custo de Show" 
