@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
@@ -35,137 +35,21 @@ import {
   Cell,
 } from "recharts";
 import {
-  buildHistoricoYearSummary,
-  formatCurrencyBR,
-} from "@/lib/historico";
-import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
-import { useShows } from "@/contexts/shows/ShowsContext";
-import { shouldIncludeInProjections } from "@/lib/showStatus";
 import { TransactionModal } from "@/components/financeiro/TransactionModal";
 import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useQueryClient } from "@tanstack/react-query";
-import { isCompletedShowStatus } from "@/lib/showStatus";
 
 export default function Financeiro() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const { transactions, loading: loadingTransactions, deleteTransaction, addTransaction, refetch: refetchTransactions } = useTransactions({ fullHistory: true });
-  const { shows, loading: loadingShows, refetch: refetchShows } = useShows();
-  const [showExpenses, setShowExpenses] = useState<any[]>([]);
-  const [showMusicians, setShowMusicians] = useState<any[]>([]);
-
-  useEffect(() => {
-    refetchTransactions();
-    refetchShows();
-  }, []);
-
-  const [repairDone, setRepairDone] = useState(false);
-
-  // Ensure completed shows have financial transactions (replicated from Historico)
-  useEffect(() => {
-    if (repairDone || !user || loadingShows || loadingTransactions || shows.length === 0) return;
-    setRepairDone(true);
-
-    (async () => {
-      try {
-        const completedShows = shows.filter((s) => isCompletedShowStatus(s.status) && s.cachet > 0);
-        if (completedShows.length === 0) return;
-
-        const showIds = completedShows.map((s) => s.id);
-        const transactionShowIds = new Set(
-          transactions.filter((t) => t.show_id).map((t) => t.show_id as string),
-        );
-
-        const missingShows = completedShows.filter((s) => !transactionShowIds.has(s.id));
-        if (missingShows.length === 0) return;
-
-        console.log(`Financeiro: creating transactions for ${missingShows.length} completed shows without financial data`);
-
-        const newTransactions = missingShows.map((show) => ({
-          user_id: user.id,
-          type: "income",
-          category: "Show",
-          amount: show.cachet,
-          description: `Cachê: ${show.title}`,
-          date: show.date,
-          show_id: show.id,
-          is_advance_payment: false,
-        })) as Array<{
-          user_id: string;
-          type: string;
-          category: string;
-          amount: number;
-          description: string;
-          date: string;
-          show_id: string;
-          is_advance_payment: boolean;
-        }>;
-
-        // Also fetch musician fees and expenses for these shows
-        const batchSize = 50;
-        for (let i = 0; i < missingShows.length; i += batchSize) {
-          const batch = missingShows.slice(i, i + batchSize);
-          const batchIds = batch.map((s) => s.id);
-
-          const [musiciansResult, expensesResult] = await Promise.all([
-            supabase.from("show_musicians").select("show_id, fee, musicians(name)").in("show_id", batchIds),
-            supabase.from("show_expenses").select("show_id, category, amount, description").in("show_id", batchIds),
-          ]);
-
-          (musiciansResult.data || []).forEach((m: any) => {
-            if (m.fee > 0) {
-              newTransactions.push({
-                user_id: user.id,
-                type: "expense",
-                category: "Músicos",
-                amount: m.fee,
-                description: `${m.musicians?.name || "Músico"} - ${batch.find((s) => s.id === m.show_id)?.title || "Show"}`,
-                date: batch.find((s) => s.id === m.show_id)?.date || "",
-                show_id: m.show_id,
-                is_advance_payment: false,
-              });
-            }
-          });
-
-          (expensesResult.data || []).forEach((e: any) => {
-            if (e.amount > 0) {
-              newTransactions.push({
-                user_id: user.id,
-                type: "expense",
-                category: e.category,
-                amount: e.amount,
-                description: `${e.description || e.category} - ${batch.find((s) => s.id === e.show_id)?.title || "Show"}`,
-                date: batch.find((s) => s.id === e.show_id)?.date || "",
-                show_id: e.show_id,
-                is_advance_payment: false,
-              });
-            }
-          });
-        }
-
-        // Insert in batches
-        for (let i = 0; i < newTransactions.length; i += 200) {
-          const batch = newTransactions.slice(i, i + 200);
-          const { error } = await supabase.from("transactions").insert(batch);
-          if (error) {
-            console.error("Financeiro repair insert error:", error);
-            return;
-          }
-        }
-
-        console.log(`Financeiro: created ${newTransactions.length} transactions for ${missingShows.length} shows`);
-        queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      } catch (err) {
-        console.error("Financeiro repair error:", err);
-      }
-    })();
-  }, [user, loadingShows, loadingTransactions, shows, transactions, repairDone, queryClient]);
-
+  const { transactions, loading, deleteTransaction, addTransaction } = useTransactions();
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
 
@@ -196,57 +80,19 @@ export default function Financeiro() {
     await deleteTransaction(id);
   };
 
-  // Use the shared historico helper for absolute data parity
+  // Filter transactions for current month only
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonthIndex = now.getMonth();
-  
-  const yearSummary = useMemo(() => 
-    buildHistoricoYearSummary(transactions, shows, currentYear),
-    [transactions, shows, currentYear]
-  );
-  
-  const currentMonthData = yearSummary?.monthlyHistory?.[currentMonthIndex];
-  const currentMonthTransactions = currentMonthData ? [...currentMonthData.incomeTransactions, ...currentMonthData.expenseTransactions] : [];
-  const currentMonthShows = currentMonthData?.monthShows || [];
-  
-  const receitaEfetiva = currentMonthData?.receitaEfetiva || 0;
-  const receitaConfirmada = currentMonthData?.receitaConfirmada || 0;
-  const receitaAgendada = currentMonthData?.receitaAgendada || 0;
-  const displayIncome = currentMonthData?.receita || 0;
-  const totalIncome = currentMonthData?.receitaEfetiva || 0; // For Saldo em Conta
-  const totalExpense = currentMonthData?.despesa || 0;
-  
-  // Projection logic
-  const projectedIncome = currentMonthData?.receitaPrevista || 0;
-  
-  // Calculate expenses from shows (musicians and other expenses)
-  // We fetch these in a separate effect
-  useEffect(() => {
-    const fetchShowDetails = async () => {
-      if (currentMonthShows.length === 0) return;
-      
-      const showIds = currentMonthShows.map(s => s.id);
-      
-      const [musiciansResult, expensesResult] = await Promise.all([
-        supabase.from("show_musicians").select("*").in("show_id", showIds),
-        supabase.from("show_expenses").select("*").in("show_id", showIds)
-      ]);
-      
-      if (musiciansResult.data) setShowMusicians(musiciansResult.data);
-      if (expensesResult.data) setShowExpenses(expensesResult.data);
-    };
-    
-    fetchShowDetails();
-  }, [currentMonthShows.map(s => `${s.id}-${s.status}-${s.cachet}-${s.date}`).join(',')]);
+  const currentMonthStart = startOfMonth(now);
+  const currentMonthEnd = endOfMonth(now);
 
-  const projectedMusicianFees = showMusicians.reduce((sum, m) => sum + (m.fee || 0), 0);
-  const projectedOtherExpenses = showExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-  const projectedTotalExpenses = projectedMusicianFees + projectedOtherExpenses;
+  const currentMonthTransactions = transactions.filter(t => {
+    const transactionDate = parseLocalDate(t.date);
+    return isWithinInterval(transactionDate, { start: currentMonthStart, end: currentMonthEnd });
+  });
 
+  const totalIncome = currentMonthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+  const totalExpense = currentMonthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
   const profit = totalIncome - totalExpense;
-  const projectedProfit = projectedIncome - projectedTotalExpenses;
-
 
   // Group current month transactions by category for pie chart
   const expensesByCategory = currentMonthTransactions
@@ -262,59 +108,61 @@ export default function Financeiro() {
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
 
-  // Smart Expense Calculation: Actual Transactions + (Projected Expenses for shows without expense transactions)
-  const showsWithExpenseTransactions = new Set(currentMonthTransactions.filter(t => t.type === "expense" && t.show_id).map(t => t.show_id));
-  
-  // Musicians
-  const musicianTransactionsAmount = currentMonthTransactions
-    .filter(t => t.type === "expense" && (t.category === "Músicos" || t.category === "Equipe"))
+  // Custo de Show - Agrupamento por categoria
+  const showCostCategories = {
+    equipe: ["Músico", "Equipe", "Cachê Músico", "Freelancer", "Banda", "Técnico"],
+    transporte: ["Transporte", "Combustível", "Gasolina", "Uber", "Táxi", "Passagem", "Estacionamento"],
+    alimentacao: ["Alimentação", "Comida", "Refeição", "Lanche", "Restaurante"],
+  };
+
+  const custoEquipe = currentMonthTransactions
+    .filter(t => t.type === "expense" && showCostCategories.equipe.some(cat => 
+      t.category.toLowerCase().includes(cat.toLowerCase()) || 
+      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
+    ))
     .reduce((sum, t) => sum + t.amount, 0);
-  
-  const virtualMusicianFees = currentMonthShows
-    .filter(s => !showsWithExpenseTransactions.has(s.id))
-    .reduce((sum, s) => {
-      const showMusiciansList = showMusicians.filter(m => m.show_id === s.id);
-      return sum + showMusiciansList.reduce((mSum, m) => mSum + (m.fee || 0), 0);
-    }, 0);
-
-  const custoEquipe = musicianTransactionsAmount + virtualMusicianFees;
-
-  // Other Expenses
-  const otherExpenseTransactionsAmount = currentMonthTransactions
-    .filter(t => t.type === "expense" && t.category === "Produção" || t.category === "Outros")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const virtualOtherExpenses = currentMonthShows
-    .filter(s => !showsWithExpenseTransactions.has(s.id))
-    .reduce((sum, s) => {
-      const showExpensesList = showExpenses.filter(e => e.show_id === s.id);
-      return sum + showExpensesList.reduce((eSum, e) => eSum + (e.amount || 0), 0);
-    }, 0);
 
   const custoTransporte = currentMonthTransactions
-    .filter(t => t.type === "expense" && t.category === "Transporte")
+    .filter(t => t.type === "expense" && showCostCategories.transporte.some(cat => 
+      t.category.toLowerCase().includes(cat.toLowerCase()) || 
+      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
+    ))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoAlimentacao = currentMonthTransactions
-    .filter(t => t.type === "expense" && t.category === "Alimentação")
+    .filter(t => t.type === "expense" && showCostCategories.alimentacao.some(cat => 
+      t.category.toLowerCase().includes(cat.toLowerCase()) || 
+      (t.description && t.description.toLowerCase().includes(cat.toLowerCase()))
+    ))
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao + otherExpenseTransactionsAmount + virtualOtherExpenses;
-  const lucroRealShow = displayIncome - custoTotalShow;
+  const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao;
+  const lucroRealShow = totalIncome - custoTotalShow;
 
   // Generate last 6 months data for chart
-  // Generate last 6 months data for chart from the year summary
-  const monthlyData = yearSummary.monthlyHistory
-    .slice(Math.max(0, currentMonthIndex - 5), currentMonthIndex + 1)
-    .map(m => ({
-      month: m.month.split('/')[0], // Just the month name
-      receita: m.receita,
-      despesa: m.despesa,
-    }));
+  const monthlyData = [];
+  for (let i = 5; i >= 0; i--) {
+    const monthDate = subMonths(now, i);
+    const monthStart = startOfMonth(monthDate);
+    const monthEnd = endOfMonth(monthDate);
+    const monthName = format(monthDate, "MMM", { locale: ptBR });
+
+    const monthTransactions = transactions.filter(t => {
+      const transactionDate = parseLocalDate(t.date);
+      return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
+    });
+
+    const receita = monthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+    const despesa = monthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+
+    if (receita > 0 || despesa > 0) {
+      monthlyData.push({ month: monthName, receita, despesa });
+    }
+  }
 
   const currentMonthName = format(now, "MMMM 'de' yyyy", { locale: ptBR });
 
-  if (loading || !currentMonthData) {
+  if (loading) {
     return (
       <Layout title="Resumo Mensal" subtitle="Gerencie suas finanças e relatórios">
         <div className="flex items-center justify-center h-64">
@@ -326,17 +174,12 @@ export default function Financeiro() {
 
   return (
     <Layout title="Resumo Mensal" subtitle={`Resumo de ${currentMonthName}`}>
-      <div className="flex items-center gap-2 mb-6">
-        <Badge variant="secondary" className="px-3 py-1">
-          {currentMonthData.shows} {currentMonthData.shows === 1 ? "Show" : "Shows"} realizados este mês
-        </Badge>
-      </div>
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-secondary w-full justify-start overflow-x-auto overflow-y-hidden flex-nowrap scrollbar-hide px-1 h-12">
-          <TabsTrigger value="overview" className="shrink-0">Visão Geral</TabsTrigger>
-          <TabsTrigger value="expenses" className="shrink-0">Despesas</TabsTrigger>
-          <TabsTrigger value="income" className="shrink-0">Receitas</TabsTrigger>
-          <TabsTrigger value="reports" className="shrink-0">Relatórios</TabsTrigger>
+        <TabsList className="bg-secondary">
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="expenses">Despesas</TabsTrigger>
+          <TabsTrigger value="income">Receitas</TabsTrigger>
+          <TabsTrigger value="reports">Relatórios</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -344,32 +187,28 @@ export default function Financeiro() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard
-              title="Receita do Mês"
-              value={`R$ ${displayIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+              title="Receita Mensal"
+              value={`R$ ${totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingUp}
               gradient="success"
-              description={`Efetiva: R$ ${receitaEfetiva.toLocaleString("pt-BR")} | Prevista: R$ ${projectedIncome.toLocaleString("pt-BR")}`}
             />
             <StatCard
               title="Despesas Mensais"
-              value={`R$ ${custoTotalShow.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+              value={`R$ ${totalExpense.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingDown}
               gradient="danger"
-              description="Custos de shows e outros"
             />
             <StatCard
               title="Lucro Líquido"
-              value={`R$ ${lucroRealShow.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+              value={`R$ ${profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={DollarSign}
               gradient="primary"
-              description="Resultado do mês"
             />
             <StatCard
               title="Saldo em Conta"
               value={`R$ ${profit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={Wallet}
               gradient="blue"
-              description="Somente transações confirmadas"
             />
           </div>
 
@@ -474,14 +313,6 @@ export default function Financeiro() {
             </ChartCard>
           </div>
 
-          <div className="space-y-6">
-            <HistoricoMonthlyTable 
-              monthlyHistory={currentMonthData ? [currentMonthData] : []} 
-              selectedYear={currentYear}
-              defaultExpanded={currentMonthData?.monthKey}
-            />
-          </div>
-
           {/* Custo de Show */}
           <ChartCard 
             title="Custo de Show" 
@@ -557,7 +388,7 @@ export default function Financeiro() {
                 <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                   <span className="text-muted-foreground">Receita de Shows</span>
                   <span className="font-semibold text-success">
-                    R$ {displayIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
 

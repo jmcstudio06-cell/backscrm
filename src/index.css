@@ -277,17 +277,7 @@
   .booking-occupied {
     @apply !bg-rose-100 dark:!bg-rose-900/40 !text-rose-500 dark:!text-rose-400 line-through cursor-not-allowed;
   }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
 }
-
 
 @keyframes floatUp {
   0%, 100% { transform: translateY(0); }

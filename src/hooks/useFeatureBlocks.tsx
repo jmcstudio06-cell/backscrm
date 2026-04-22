@@ -8,14 +8,14 @@ interface FeatureBlocks {
 }
 
 const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
-  dashboard: false,
-  agenda: false,
+  dashboard: true,
+  agenda: true,
   crm: true,
   clientes: true,
   orcamentos: true,
   servicos: true,
   contratos: true,
-  financeiro: false,
+  financeiro: true,
   historico: true,
   precificacao: true,
   checklist: true,
@@ -25,8 +25,8 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   repertorio: true,
   aulas: true,
   avancos: true,
-  tutoriais: false,
-  configuracoes: false,
+  tutoriais: true,
+  configuracoes: true,
   "link-agenda": true,
 };
 
