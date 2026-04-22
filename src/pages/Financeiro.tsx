@@ -102,8 +102,13 @@ export default function Financeiro() {
   // Filter shows for current month only
   const currentMonthShows = shows.filter(s => {
     if (!s.date) return false;
-    const showDate = parseLocalDate(s.date);
-    return isWithinInterval(showDate, { start: currentMonthStart, end: currentMonthEnd }) && shouldIncludeInProjections(s.status);
+    try {
+      const showDate = parseLocalDate(s.date);
+      if (isNaN(showDate.getTime())) return false;
+      return isWithinInterval(showDate, { start: currentMonthStart, end: currentMonthEnd }) && shouldIncludeInProjections(s.status);
+    } catch (e) {
+      return false;
+    }
   });
 
   const totalIncome = currentMonthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
@@ -181,8 +186,13 @@ export default function Financeiro() {
 
     const monthTransactions = transactions.filter(t => {
       if (!t.date) return false;
-      const transactionDate = parseLocalDate(t.date);
-      return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
+      try {
+        const transactionDate = parseLocalDate(t.date);
+        if (isNaN(transactionDate.getTime())) return false;
+        return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
+      } catch (e) {
+        return false;
+      }
     });
 
     const receita = monthTransactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
@@ -190,8 +200,13 @@ export default function Financeiro() {
 
     const monthShows = shows.filter(s => {
       if (!s.date) return false;
-      const showDate = parseLocalDate(s.date);
-      return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && shouldIncludeInProjections(s.status);
+      try {
+        const showDate = parseLocalDate(s.date);
+        if (isNaN(showDate.getTime())) return false;
+        return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && shouldIncludeInProjections(s.status);
+      } catch (e) {
+        return false;
+      }
     });
     const receitaPrevista = monthShows.reduce((sum, s) => sum + (s.cachet || 0), 0);
 

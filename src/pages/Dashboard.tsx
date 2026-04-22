@@ -73,12 +73,17 @@ const Dashboard = () => {
   const completedShowsThisMonth = useMemo(() => {
     return shows.filter((show) => {
       if (!show.date) return false;
-      const showDate = parseLocalDate(show.date);
-      return (
-        (show.status === "completed" || show.status === "confirmed") &&
-        showDate >= currentMonthStart &&
-        showDate <= currentMonthEnd
-      );
+      try {
+        const showDate = parseLocalDate(show.date);
+        if (isNaN(showDate.getTime())) return false;
+        return (
+          (show.status === "completed" || show.status === "confirmed") &&
+          showDate >= currentMonthStart &&
+          showDate <= currentMonthEnd
+        );
+      } catch (e) {
+        return false;
+      }
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
@@ -177,10 +182,16 @@ const Dashboard = () => {
   // Calculate shows this month vs last month (all statuses except cancelled)
   const showsThisMonth = useMemo(() => {
     return shows.filter((show) => {
-      const showDate = parseLocalDate(show.date);
-      return show.status !== "cancelled" && 
-             showDate >= currentMonthStart && 
-             showDate <= currentMonthEnd;
+      if (!show.date) return false;
+      try {
+        const showDate = parseLocalDate(show.date);
+        if (isNaN(showDate.getTime())) return false;
+        return show.status !== "cancelled" && 
+               showDate >= currentMonthStart && 
+               showDate <= currentMonthEnd;
+      } catch (e) {
+        return false;
+      }
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
