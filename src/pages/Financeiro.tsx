@@ -175,11 +175,23 @@ export default function Financeiro() {
 
   // Smart Revenue Calculation: Actual Transactions + (Completed/Scheduled Shows that DON'T have transactions yet)
   const showsWithIncomeTransactions = new Set(currentMonthTransactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
-  const virtualShowReceita = currentMonthShows
-    .filter(s => !showsWithIncomeTransactions.has(s.id))
+  
+  const receitaEfetiva = currentMonthTransactions
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0) +
+    currentMonthShows
+    .filter(s => s.status === "completed" && !showsWithIncomeTransactions.has(s.id))
     .reduce((sum, s) => sum + (s.cachet || 0), 0);
 
-  const displayIncome = totalIncome + virtualShowReceita;
+  const receitaConfirmada = currentMonthShows
+    .filter(s => s.status === "confirmed" && !showsWithIncomeTransactions.has(s.id))
+    .reduce((sum, s) => sum + (s.cachet || 0), 0);
+
+  const receitaPrevista = currentMonthShows
+    .filter(s => (s.status === "scheduled" || s.status === "pending" || s.status === "negotiation") && !showsWithIncomeTransactions.has(s.id))
+    .reduce((sum, s) => sum + (s.cachet || 0), 0);
+
+  const displayIncome = receitaEfetiva + receitaConfirmada + receitaPrevista;
 
   // Smart Expense Calculation: Actual Transactions + (Projected Expenses for shows without expense transactions)
   const showsWithExpenseTransactions = new Set(currentMonthTransactions.filter(t => t.type === "expense" && t.show_id).map(t => t.show_id));
@@ -234,7 +246,8 @@ export default function Financeiro() {
       try {
         const transactionDate = parseLocalDate(t.date);
         if (isNaN(transactionDate.getTime())) return false;
-        return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
+        return transactionDate.getMonth() === monthDate.getMonth() && 
+               transactionDate.getFullYear() === monthDate.getFullYear();
       } catch (e) {
         return false;
       }
@@ -245,7 +258,9 @@ export default function Financeiro() {
       try {
         const showDate = parseLocalDate(s.date);
         if (isNaN(showDate.getTime())) return false;
-        return isWithinInterval(showDate, { start: monthStart, end: monthEnd }) && shouldIncludeInProjections(s.status);
+        return showDate.getMonth() === monthDate.getMonth() && 
+               showDate.getFullYear() === monthDate.getFullYear() && 
+               shouldIncludeInProjections(s.status);
       } catch (e) {
         return false;
       }
@@ -308,11 +323,11 @@ export default function Financeiro() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard
-              title="Receita Mensal"
+              title="Receita do Mês"
               value={`R$ ${displayIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingUp}
               gradient="success"
-              description={projectedIncome > totalIncome ? "Incluindo shows agendados" : "Total recebido"}
+              description={`Efetiva: R$ ${receitaEfetiva.toLocaleString("pt-BR")} | Prevista: R$ ${(receitaConfirmada + receitaPrevista).toLocaleString("pt-BR")}`}
             />
             <StatCard
               title="Despesas Mensais"

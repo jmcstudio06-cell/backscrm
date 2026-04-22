@@ -191,7 +191,7 @@ const normalizeShowRow = (row: any): Show | null => {
     typeof row.cachet === "number"
       ? row.cachet
       : typeof row.cachet === "string"
-        ? Number(row.cachet)
+        ? Number(row.cachet.replace(/[^0-9.-]+/g, ""))
         : 0;
 
   return {
