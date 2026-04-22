@@ -10,6 +10,8 @@ import {
   normalizeShowStatus,
 } from "@/lib/showStatus";
 
+export { isCompletedShowStatus, isProjectedShowStatus };
+
 export interface ProjectedShow {
   id: string;
   title: string;

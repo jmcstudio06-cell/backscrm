@@ -29,10 +29,10 @@ import {
   buildHistoricoYearSummary,
   formatCurrencyBR,
   getHistoricoAvailableYears,
-  isCompletedShowStatus,
 } from "@/lib/historico";
 import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
 import { cn } from "@/lib/utils";
+import { isCompletedShowStatus } from "@/lib/showStatus";
 
 function ComparisonBadge({ current, previous, invertColors = false, isCount = false }: { current: number; previous: number; invertColors?: boolean; isCount?: boolean }) {
   if (previous === 0 && current === 0) return null;
