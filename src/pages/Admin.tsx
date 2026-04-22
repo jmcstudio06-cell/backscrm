@@ -317,10 +317,18 @@ export default function Admin() {
     const tierModule = PLAN_MODULES[tier as keyof typeof PLAN_MODULES];
     
     ALL_FEATURE_KEYS.forEach(key => {
-      if (plan === "expirado" || plan === "comprou_expirado") newFeatureBlocks[key] = true;
-      else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
-      else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
-      else newFeatureBlocks[key] = false;
+      if (plan === "expirado" || plan === "comprou_expirado") {
+        newFeatureBlocks[key] = true;
+      } else if (plan === "trial") {
+        newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
+      } else if (key === "financeiro" || key === "dashboard" || key === "agenda") {
+        // Core features are always unlocked for any active plan
+        newFeatureBlocks[key] = false;
+      } else if (tierModule) {
+        newFeatureBlocks[key] = !tierModule.features.includes(key);
+      } else {
+        newFeatureBlocks[key] = false;
+      }
     });
     updates.feature_blocks = newFeatureBlocks;
 
