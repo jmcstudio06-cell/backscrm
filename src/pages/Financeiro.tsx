@@ -135,7 +135,7 @@ export default function Financeiro() {
     };
     
     fetchShowDetails();
-  }, [currentMonthShows.length]);
+  }, [currentMonthShows.map(s => `${s.id}-${s.status}-${s.cachet}-${s.date}`).join(',')]);
 
   const projectedMusicianFees = showMusicians.reduce((sum, m) => sum + (m.fee || 0), 0);
   const projectedOtherExpenses = showExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -159,16 +159,42 @@ export default function Financeiro() {
     color: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(var(--muted-foreground))"][index % 5],
   }));
 
-  // Smart calculation: Actual Transactions + (Completed/Scheduled Shows that DON'T have transactions yet)
+  // Smart Revenue Calculation: Actual Transactions + (Completed/Scheduled Shows that DON'T have transactions yet)
   const showsWithIncomeTransactions = new Set(currentMonthTransactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
   const virtualShowReceita = currentMonthShows
     .filter(s => !showsWithIncomeTransactions.has(s.id))
     .reduce((sum, s) => sum + (s.cachet || 0), 0);
 
   const displayIncome = totalIncome + virtualShowReceita;
-  const custoEquipe = Math.max(projectedMusicianFees, currentMonthTransactions
+
+  // Smart Expense Calculation: Actual Transactions + (Projected Expenses for shows without expense transactions)
+  const showsWithExpenseTransactions = new Set(currentMonthTransactions.filter(t => t.type === "expense" && t.show_id).map(t => t.show_id));
+  
+  // Musicians
+  const musicianTransactionsAmount = currentMonthTransactions
     .filter(t => t.type === "expense" && (t.category === "Músicos" || t.category === "Equipe"))
-    .reduce((sum, t) => sum + t.amount, 0));
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const virtualMusicianFees = currentMonthShows
+    .filter(s => !showsWithExpenseTransactions.has(s.id))
+    .reduce((sum, s) => {
+      const showMusiciansList = showMusicians.filter(m => m.show_id === s.id);
+      return sum + showMusiciansList.reduce((mSum, m) => mSum + (m.fee || 0), 0);
+    }, 0);
+
+  const custoEquipe = musicianTransactionsAmount + virtualMusicianFees;
+
+  // Other Expenses
+  const otherExpenseTransactionsAmount = currentMonthTransactions
+    .filter(t => t.type === "expense" && t.category === "Produção" || t.category === "Outros")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const virtualOtherExpenses = currentMonthShows
+    .filter(s => !showsWithExpenseTransactions.has(s.id))
+    .reduce((sum, s) => {
+      const showExpensesList = showExpenses.filter(e => e.show_id === s.id);
+      return sum + showExpensesList.reduce((eSum, e) => eSum + (e.amount || 0), 0);
+    }, 0);
 
   const custoTransporte = currentMonthTransactions
     .filter(t => t.type === "expense" && t.category === "Transporte")
@@ -178,7 +204,7 @@ export default function Financeiro() {
     .filter(t => t.type === "expense" && t.category === "Alimentação")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao + projectedOtherExpenses;
+  const custoTotalShow = custoEquipe + custoTransporte + custoAlimentacao + otherExpenseTransactionsAmount + virtualOtherExpenses;
   const lucroRealShow = displayIncome - custoTotalShow;
 
   // Generate last 6 months data for chart
