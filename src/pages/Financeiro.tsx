@@ -47,8 +47,13 @@ import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "d
 import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
+import { isCompletedShowStatus } from "@/lib/showStatus";
 
 export default function Financeiro() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { transactions, loading: loadingTransactions, deleteTransaction, addTransaction, refetch: refetchTransactions } = useTransactions({ fullHistory: true });
   const { shows, loading: loadingShows, refetch: refetchShows } = useShows();
   const [showExpenses, setShowExpenses] = useState<any[]>([]);
@@ -58,6 +63,108 @@ export default function Financeiro() {
     refetchTransactions();
     refetchShows();
   }, []);
+
+  const [repairDone, setRepairDone] = useState(false);
+
+  // Ensure completed shows have financial transactions (replicated from Historico)
+  useEffect(() => {
+    if (repairDone || !user || loadingShows || loadingTransactions || shows.length === 0) return;
+    setRepairDone(true);
+
+    (async () => {
+      try {
+        const completedShows = shows.filter((s) => isCompletedShowStatus(s.status) && s.cachet > 0);
+        if (completedShows.length === 0) return;
+
+        const showIds = completedShows.map((s) => s.id);
+        const transactionShowIds = new Set(
+          transactions.filter((t) => t.show_id).map((t) => t.show_id as string),
+        );
+
+        const missingShows = completedShows.filter((s) => !transactionShowIds.has(s.id));
+        if (missingShows.length === 0) return;
+
+        console.log(`Financeiro: creating transactions for ${missingShows.length} completed shows without financial data`);
+
+        const newTransactions = missingShows.map((show) => ({
+          user_id: user.id,
+          type: "income",
+          category: "Show",
+          amount: show.cachet,
+          description: `Cachê: ${show.title}`,
+          date: show.date,
+          show_id: show.id,
+          is_advance_payment: false,
+        })) as Array<{
+          user_id: string;
+          type: string;
+          category: string;
+          amount: number;
+          description: string;
+          date: string;
+          show_id: string;
+          is_advance_payment: boolean;
+        }>;
+
+        // Also fetch musician fees and expenses for these shows
+        const batchSize = 50;
+        for (let i = 0; i < missingShows.length; i += batchSize) {
+          const batch = missingShows.slice(i, i + batchSize);
+          const batchIds = batch.map((s) => s.id);
+
+          const [musiciansResult, expensesResult] = await Promise.all([
+            supabase.from("show_musicians").select("show_id, fee, musicians(name)").in("show_id", batchIds),
+            supabase.from("show_expenses").select("show_id, category, amount, description").in("show_id", batchIds),
+          ]);
+
+          (musiciansResult.data || []).forEach((m: any) => {
+            if (m.fee > 0) {
+              newTransactions.push({
+                user_id: user.id,
+                type: "expense",
+                category: "Músicos",
+                amount: m.fee,
+                description: `${m.musicians?.name || "Músico"} - ${batch.find((s) => s.id === m.show_id)?.title || "Show"}`,
+                date: batch.find((s) => s.id === m.show_id)?.date || "",
+                show_id: m.show_id,
+                is_advance_payment: false,
+              });
+            }
+          });
+
+          (expensesResult.data || []).forEach((e: any) => {
+            if (e.amount > 0) {
+              newTransactions.push({
+                user_id: user.id,
+                type: "expense",
+                category: e.category,
+                amount: e.amount,
+                description: `${e.description || e.category} - ${batch.find((s) => s.id === e.show_id)?.title || "Show"}`,
+                date: batch.find((s) => s.id === e.show_id)?.date || "",
+                show_id: e.show_id,
+                is_advance_payment: false,
+              });
+            }
+          });
+        }
+
+        // Insert in batches
+        for (let i = 0; i < newTransactions.length; i += 200) {
+          const batch = newTransactions.slice(i, i + 200);
+          const { error } = await supabase.from("transactions").insert(batch);
+          if (error) {
+            console.error("Financeiro repair insert error:", error);
+            return;
+          }
+        }
+
+        console.log(`Financeiro: created ${newTransactions.length} transactions for ${missingShows.length} shows`);
+        queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      } catch (err) {
+        console.error("Financeiro repair error:", err);
+      }
+    })();
+  }, [user, loadingShows, loadingTransactions, shows, transactions, repairDone, queryClient]);
 
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
