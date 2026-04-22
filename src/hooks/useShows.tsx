@@ -323,6 +323,7 @@ export function useShowsData() {
     },
     enabled: !!user,
     staleTime: 30_000, // 30s - keeps data fresh across pages
+    refetchOnMount: "always",
   });
 
   // Create financial transactions when show is marked as completed
