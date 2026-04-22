@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
 import { 
   Calendar, 
   MapPin, 
@@ -22,6 +21,43 @@ interface ChecklistItem {
   show_id: string;
 }
 
+const DEFAULT_CHECKLIST = [
+  "Você pegou seu instrumento?",
+  "Você pegou o microfone?",
+  "Você pegou o pedestal de microfone?",
+  "Você pegou pelo menos 5 cabos P10?",
+  "Você pegou os cabos XLR do microfone?",
+  "Você pegou a pedaleira ou pedal?",
+  "Você pegou a fonte da pedaleira?",
+  "Você pegou extensões elétricas?",
+  "Você pegou filtro de linha ou régua de energia?",
+  "Você pegou adaptador de tomada?",
+  "Você conferiu se o local é 110v ou 220v? ⚡",
+  "Você pegou suporte de celular ou tablet?",
+  "Você pegou palhetas extras?",
+  "Você pegou o afinador?",
+  "Você pegou a caixa de som ou retorno (se for levar)?",
+];
+
+const localKey = (showId: string) => `checklist_local_${showId}`;
+
+function loadLocalCompleted(showId: string): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(localKey(showId));
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalCompleted(showId: string, completed: Record<string, boolean>) {
+  try {
+    localStorage.setItem(localKey(showId), JSON.stringify(completed));
+  } catch {
+    /* storage indisponível — segue o jogo */
+  }
+}
+
 const getStatusConfig = (tasksCompleted: number, totalTasks: number) => {
   const progress = totalTasks > 0 ? tasksCompleted / totalTasks : 0;
   if (progress === 1) {
@@ -35,96 +71,47 @@ const getStatusConfig = (tasksCompleted: number, totalTasks: number) => {
 export default function Checklist() {
   const { getConfirmedShows } = useShows();
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
-  const [checklistItems, setChecklistItems] = useState<Record<string, ChecklistItem[]>>({});
-  
+  // Estado puramente local — nada persiste no banco. Apenas localStorage por show.
+  const [completedMap, setCompletedMap] = useState<Record<string, Record<string, boolean>>>({});
 
   const confirmedShows = getConfirmedShows();
   const selectedShow = confirmedShows.find(s => s.id === selectedShowId);
 
+  // Carrega marcações locais salvas (se houver) ao montar / quando mudar a lista de shows
   useEffect(() => {
-    const DEFAULT_CHECKLIST = [
-      "Você pegou seu instrumento?",
-      "Você pegou o microfone?",
-      "Você pegou o pedestal de microfone?",
-      "Você pegou pelo menos 5 cabos P10?",
-      "Você pegou os cabos XLR do microfone?",
-      "Você pegou a pedaleira ou pedal?",
-      "Você pegou a fonte da pedaleira?",
-      "Você pegou extensões elétricas?",
-      "Você pegou filtro de linha ou régua de energia?",
-      "Você pegou adaptador de tomada?",
-      "Você conferiu se o local é 110v ou 220v? ⚡",
-      "Você pegou suporte de celular ou tablet?",
-      "Você pegou palhetas extras?",
-      "Você pegou o afinador?",
-      "Você pegou a caixa de som ou retorno (se for levar)?",
-    ];
-
-    const fetchChecklistItems = async () => {
-      if (confirmedShows.length === 0) return;
-      
-      const showIds = confirmedShows.map(s => s.id);
-      const { data, error } = await supabase
-        .from("show_checklist")
-        .select("*")
-        .in("show_id", showIds);
-
-      if (error) {
-        console.error("Error fetching checklist:", error);
-        return;
-      }
-
-      const grouped: Record<string, ChecklistItem[]> = {};
-      (data || []).forEach(item => {
-        if (!grouped[item.show_id]) grouped[item.show_id] = [];
-        grouped[item.show_id].push(item);
-      });
-
-      // Auto-apply default checklist to shows that have no items
-      const showsWithoutChecklist = confirmedShows.filter(s => !grouped[s.id] || grouped[s.id].length === 0);
-      
-      for (const show of showsWithoutChecklist) {
-        const itemsToInsert = DEFAULT_CHECKLIST.map(item => ({
-          show_id: show.id,
-          item,
-          completed: false,
-        }));
-
-        const { data: insertedData, error: insertError } = await supabase
-          .from("show_checklist")
-          .insert(itemsToInsert)
-          .select();
-
-        if (!insertError && insertedData) {
-          grouped[show.id] = insertedData;
+    if (confirmedShows.length === 0) return;
+    setCompletedMap((prev) => {
+      const next = { ...prev };
+      confirmedShows.forEach((show) => {
+        if (!next[show.id]) {
+          next[show.id] = loadLocalCompleted(show.id);
         }
-      }
-
-      setChecklistItems(grouped);
-    };
-
-    fetchChecklistItems();
+      });
+      return next;
+    });
   }, [confirmedShows.length]);
 
-  const getShowTasks = (showId: string) => checklistItems[showId] || [];
+  const getShowTasks = (showId: string): ChecklistItem[] => {
+    const completed = completedMap[showId] || {};
+    return DEFAULT_CHECKLIST.map((item, index) => {
+      const id = `${showId}-${index}`;
+      return {
+        id,
+        item,
+        completed: !!completed[id],
+        show_id: showId,
+      };
+    });
+  };
 
-  const handleWizardComplete = async (answers: Record<string, boolean | null>) => {
+  const handleWizardComplete = (answers: Record<string, boolean | null>) => {
     if (!selectedShowId) return;
-
-    for (const [itemId, answer] of Object.entries(answers)) {
-      await supabase
-        .from("show_checklist")
-        .update({ completed: answer === true })
-        .eq("id", itemId);
-    }
-
-    setChecklistItems(prev => ({
-      ...prev,
-      [selectedShowId]: (prev[selectedShowId] || []).map(item => ({
-        ...item,
-        completed: answers[item.id] === true,
-      })),
-    }));
+    const normalized: Record<string, boolean> = {};
+    Object.entries(answers).forEach(([id, value]) => {
+      normalized[id] = value === true;
+    });
+    saveLocalCompleted(selectedShowId, normalized);
+    setCompletedMap((prev) => ({ ...prev, [selectedShowId]: normalized }));
   };
 
   // Wizard view — go straight to toggle checklist
