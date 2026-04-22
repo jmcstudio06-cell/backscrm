@@ -207,9 +207,7 @@ export default function Financeiro() {
 
   const currentMonthName = format(now, "MMMM 'de' yyyy", { locale: ptBR });
 
-  const loading = loadingTransactions || loadingShows;
-
-  if (loading) {
+  if (loading || !currentMonthData) {
     return (
       <Layout title="Resumo Mensal" subtitle="Gerencie suas finanças e relatórios">
         <div className="flex items-center justify-center h-64">

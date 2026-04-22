@@ -175,7 +175,10 @@ function TransactionSection({
               <div key={t.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    {format(parseLocalDate(t.date), "dd/MM")}
+                    {(() => {
+                      const d = parseLocalDate(t.date);
+                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
+                    })()}
                   </span>
                   <span className="text-foreground">{t.description || t.category}</span>
                 </div>
@@ -199,7 +202,10 @@ function TransactionSection({
               <div key={t.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    {format(parseLocalDate(t.date), "dd/MM")}
+                    {(() => {
+                      const d = parseLocalDate(t.date);
+                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
+                    })()}
                   </span>
                   <span className="text-foreground">{t.description || t.category}</span>
                 </div>
@@ -223,7 +229,10 @@ function TransactionSection({
               <div key={show.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    {format(parseLocalDate(show.date), "dd/MM")}
+                    {(() => {
+                      const d = parseLocalDate(show.date);
+                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
+                    })()}
                   </span>
                   <span className="text-foreground">{show.title}</span>
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-warning border-warning/30">
