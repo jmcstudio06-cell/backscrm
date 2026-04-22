@@ -171,12 +171,8 @@ const buildTransactionSignature = (transaction: {
 const hasMatchingTransactions = (expected: ShowTransactionInput[], existing: ExistingShowTransaction[]) => {
   if (expected.length !== existing.length) return false;
 
-  const expectedSignatures = expected
-    .map((transaction) => buildTransactionSignature(transaction))
-    .sort();
-  const existingSignatures = existing
-    .map((transaction) => buildTransactionSignature(transaction))
-    .sort();
+  const expectedSignatures = expected.map((transaction) => buildTransactionSignature(transaction)).sort();
+  const existingSignatures = existing.map((transaction) => buildTransactionSignature(transaction)).sort();
 
   return expectedSignatures.every((signature, index) => signature === existingSignatures[index]);
 };
@@ -188,11 +184,7 @@ const normalizeShowRow = (row: any): Show | null => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
 
   const cachetValue =
-    typeof row.cachet === "number"
-      ? row.cachet
-      : typeof row.cachet === "string"
-        ? Number(row.cachet)
-        : 0;
+    typeof row.cachet === "number" ? row.cachet : typeof row.cachet === "string" ? Number(row.cachet) : 0;
 
   return {
     id: typeof row.id === "string" && row.id.trim() ? row.id : `fallback-${Date.now()}-${Math.random()}`,
@@ -246,17 +238,11 @@ export function useShowsData() {
       .lt("date", today)
       .eq("status", "confirmed");
 
-    const showIds = showsToComplete.map(s => s.id);
+    const showIds = showsToComplete.map((s) => s.id);
 
     const [musiciansResult, expensesResult] = await Promise.all([
-      supabase
-        .from("show_musicians")
-        .select("show_id, musician_id, fee, musicians(name)")
-        .in("show_id", showIds),
-      supabase
-        .from("show_expenses")
-        .select("*")
-        .in("show_id", showIds),
+      supabase.from("show_musicians").select("show_id, musician_id, fee, musicians(name)").in("show_id", showIds),
+      supabase.from("show_expenses").select("*").in("show_id", showIds),
     ]);
 
     const musiciansByShow: Record<string, ShowMusician[]> = {};
@@ -283,11 +269,7 @@ export function useShowsData() {
 
     for (const show of showsToComplete) {
       const completedShow = { ...show, status: "completed" } as Show;
-      await createShowTransactions(
-        completedShow,
-        musiciansByShow[show.id] || [],
-        expensesByShow[show.id] || []
-      );
+      await createShowTransactions(completedShow, musiciansByShow[show.id] || [], expensesByShow[show.id] || []);
     }
   };
 
@@ -317,9 +299,7 @@ export function useShowsData() {
         from += pageSize;
       }
 
-      return allShows
-        .map(normalizeShowRow)
-        .filter((s): s is Show => s !== null);
+      return allShows.map(normalizeShowRow).filter((s): s is Show => s !== null);
     },
     enabled: !!user,
     staleTime: 30_000, // 30s - keeps data fresh across pages
@@ -327,24 +307,21 @@ export function useShowsData() {
   });
 
   // Create financial transactions when show is marked as completed
-  const createShowTransactions = async (show: Show, musicians: ShowMusician[], expenses: ShowExpense[], advanceAmountOverride?: number) => {
+  const createShowTransactions = async (
+    show: Show,
+    musicians: ShowMusician[],
+    expenses: ShowExpense[],
+    advanceAmountOverride?: number,
+  ) => {
     if (!user) return;
 
     try {
       await supabase.from("transactions").delete().eq("show_id", show.id);
 
-      const transactionsToInsert = buildShowTransactions(
-        user.id,
-        show,
-        musicians,
-        expenses,
-        advanceAmountOverride,
-      );
+      const transactionsToInsert = buildShowTransactions(user.id, show, musicians, expenses, advanceAmountOverride);
 
       if (transactionsToInsert.length > 0) {
-        const { error } = await supabase
-          .from("transactions")
-          .insert(transactionsToInsert);
+        const { error } = await supabase.from("transactions").insert(transactionsToInsert);
 
         if (error) throw error;
         console.log("Transactions created for show:", show.title);
@@ -411,30 +388,32 @@ export function useShowsData() {
     expenses: ShowExpense[] = [],
     checklistTemplateId?: string,
     userPlan?: string | null,
-    advanceAmount = 0
+    advanceAmount = 0,
   ) => {
     if (!user) return;
 
     try {
       const { data, error } = await supabase
         .from("shows")
-        .insert([{
-          title: showData.title || "",
-          date: showData.date || formatDateString(new Date()),
-          start_time: showData.start_time || null,
-          end_time: showData.end_time || null,
-          venue: showData.venue,
-          address: showData.address,
-          cachet: showData.cachet || 0,
-          advance_amount: showData.advance_amount || advanceAmount || 0,
-          status: showData.status || "scheduled",
-          client_id: showData.client_id,
-          lead_id: showData.lead_id,
-          event_type: showData.event_type,
-          notes: showData.notes,
-          user_id: user.id,
-          checklist_template_id: checklistTemplateId || null,
-        }])
+        .insert([
+          {
+            title: showData.title || "",
+            date: showData.date || formatDateString(new Date()),
+            start_time: showData.start_time || null,
+            end_time: showData.end_time || null,
+            venue: showData.venue,
+            address: showData.address,
+            cachet: showData.cachet || 0,
+            advance_amount: showData.advance_amount || advanceAmount || 0,
+            status: showData.status || "scheduled",
+            client_id: showData.client_id,
+            lead_id: showData.lead_id,
+            event_type: showData.event_type,
+            notes: showData.notes,
+            user_id: user.id,
+            checklist_template_id: checklistTemplateId || null,
+          },
+        ])
         .select()
         .single();
 
@@ -464,7 +443,7 @@ export function useShowsData() {
     id: string,
     updates: Partial<Show>,
     musicians?: ShowMusician[],
-    expenses?: ShowExpense[]
+    expenses?: ShowExpense[],
   ) => {
     if (!user) return;
 
@@ -473,12 +452,7 @@ export function useShowsData() {
       if (sanitizedUpdates.start_time === "") sanitizedUpdates.start_time = null;
       if (sanitizedUpdates.end_time === "") sanitizedUpdates.end_time = null;
 
-      const { data, error } = await supabase
-        .from("shows")
-        .update(sanitizedUpdates)
-        .eq("id", id)
-        .select()
-        .single();
+      const { data, error } = await supabase.from("shows").update(sanitizedUpdates).eq("id", id).select().single();
 
       if (error) throw error;
 
@@ -508,10 +482,7 @@ export function useShowsData() {
       }
 
       if (expenses === undefined) {
-        const { data: savedExpenses } = await supabase
-          .from("show_expenses")
-          .select("*")
-          .eq("show_id", id);
+        const { data: savedExpenses } = await supabase.from("show_expenses").select("*").eq("show_id", id);
 
         if (savedExpenses) {
           expensesToUse = savedExpenses.map((e: any) => ({
@@ -536,10 +507,7 @@ export function useShowsData() {
 
   const deleteShowTransactions = async (showId: string) => {
     try {
-      const { error } = await supabase
-        .from("transactions")
-        .delete()
-        .eq("show_id", showId);
+      const { error } = await supabase.from("transactions").delete().eq("show_id", showId);
 
       if (error) throw error;
     } catch (error) {
@@ -563,15 +531,16 @@ export function useShowsData() {
       await supabase.from("show_musicians").delete().eq("show_id", id);
       await supabase.from("show_expenses").delete().eq("show_id", id);
 
-      const { error } = await supabase
-        .from("shows")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("shows").delete().eq("id", id);
 
       if (error) throw error;
 
       // Limpa marcações locais do checklist deste show (se houver)
-      try { localStorage.removeItem(`checklist_local_${id}`); } catch { /* noop */ }
+      try {
+        localStorage.removeItem(`checklist_local_${id}`);
+      } catch {
+        /* noop */
+      }
 
       invalidateAll();
       toast.success("Show e transações excluídos com sucesso!");
@@ -585,8 +554,8 @@ export function useShowsData() {
     await updateShow(id, { status: "cancelled" });
   };
 
-  const getConfirmedShows = () => shows.filter(s => s.status === "confirmed");
-  const getCompletedShows = () => shows.filter(s => isCompletedShowStatus(s.status));
+  const getConfirmedShows = () => shows.filter((s) => s.status === "confirmed");
+  const getCompletedShows = () => shows.filter((s) => isCompletedShowStatus(s.status));
 
   // Background repair: create missing transactions for completed shows (non-blocking)
   useEffect(() => {
@@ -598,7 +567,7 @@ export function useShowsData() {
         const completedShows = shows.filter((show) => isFinancialShowStatus(show.status));
         if (completedShows.length === 0) return;
 
-        const showIds = completedShows.map(s => s.id);
+        const showIds = completedShows.map((s) => s.id);
         const batches = chunkArray(showIds, 50);
         const existingTransactionsByShow: Record<string, ExistingShowTransaction[]> = {};
         const musiciansByShow: Record<string, ShowMusician[]> = {};
@@ -610,14 +579,8 @@ export function useShowsData() {
               .from("transactions")
               .select("show_id, type, category, amount, description, is_advance_payment")
               .in("show_id", batch),
-            supabase
-              .from("show_musicians")
-              .select("show_id, musician_id, fee, musicians(name)")
-              .in("show_id", batch),
-            supabase
-              .from("show_expenses")
-              .select("*")
-              .in("show_id", batch),
+            supabase.from("show_musicians").select("show_id, musician_id, fee, musicians(name)").in("show_id", batch),
+            supabase.from("show_expenses").select("*").in("show_id", batch),
           ]);
 
           (existingTransactionsResult.data || []).forEach((transaction) => {
@@ -671,11 +634,11 @@ export function useShowsData() {
 
         console.log(`Repairing ${showsToRepair.length} completed shows with inconsistent financial transactions`);
 
-        for (const batch of chunkArray(showsToRepair.map((show) => show.id), 50)) {
-          const { error } = await supabase
-            .from("transactions")
-            .delete()
-            .in("show_id", batch);
+        for (const batch of chunkArray(
+          showsToRepair.map((show) => show.id),
+          50,
+        )) {
+          const { error } = await supabase.from("transactions").delete().in("show_id", batch);
 
           if (error) {
             console.error("Repair delete error:", error);
@@ -684,12 +647,7 @@ export function useShowsData() {
         }
 
         const rebuiltTransactions = showsToRepair.flatMap((show) =>
-          buildShowTransactions(
-            user.id,
-            show,
-            musiciansByShow[show.id] || [],
-            expensesByShow[show.id] || [],
-          ),
+          buildShowTransactions(user.id, show, musiciansByShow[show.id] || [], expensesByShow[show.id] || []),
         );
 
         for (const batch of chunkArray(rebuiltTransactions, 200)) {
