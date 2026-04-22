@@ -101,7 +101,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
         .single();
 
       if (error) throw error;
-      queryClient.invalidateQueries({ queryKey: ["transactions", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast.success("Transação adicionada com sucesso!");
       return data;
     } catch (error) {
@@ -118,7 +118,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
         .eq("id", id);
 
       if (error) throw error;
-      queryClient.invalidateQueries({ queryKey: ["transactions", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast.success("Transação excluída com sucesso!");
     } catch (error) {
       console.error("Error deleting transaction:", error);
@@ -141,7 +141,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["transactions", user.id] });
+          queryClient.invalidateQueries({ queryKey: ["transactions"] });
         }
       )
       .subscribe();
@@ -154,7 +154,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
   const getTotalIncome = () => transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
   const getTotalExpense = () => transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
 
-  const refetch = () => queryClient.invalidateQueries({ queryKey: ["transactions", user?.id] });
+  const refetch = () => queryClient.invalidateQueries({ queryKey: ["transactions"] });
 
   return { transactions, loading, addTransaction, deleteTransaction, getTotalIncome, getTotalExpense, refetch };
 }
