@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
@@ -241,7 +241,7 @@ export default function Financeiro() {
               value={`R$ ${displayIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
               icon={TrendingUp}
               gradient="success"
-              description={`Efetiva: R$ ${receitaEfetiva.toLocaleString("pt-BR")} | Prevista: R$ ${(receitaConfirmada + receitaPrevista).toLocaleString("pt-BR")}`}
+              description={`Efetiva: R$ ${receitaEfetiva.toLocaleString("pt-BR")} | Prevista: R$ ${projectedIncome.toLocaleString("pt-BR")}`}
             />
             <StatCard
               title="Despesas Mensais"
