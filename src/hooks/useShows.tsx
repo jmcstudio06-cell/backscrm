@@ -569,6 +569,10 @@ export function useShowsData() {
         .eq("id", id);
 
       if (error) throw error;
+
+      // Limpa marcações locais do checklist deste show (se houver)
+      try { localStorage.removeItem(`checklist_local_${id}`); } catch { /* noop */ }
+
       invalidateAll();
       toast.success("Show e transações excluídos com sucesso!");
     } catch (error) {
