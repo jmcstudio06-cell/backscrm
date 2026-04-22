@@ -301,8 +301,14 @@ export default function Admin() {
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
     
     if (plan !== "expirado" && plan !== "comprou_expirado") {
-      const startDate = customStartDate || new Date().toISOString().split("T")[0];
-      updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
+      // Para trial: sempre usar agora (now) para reiniciar a contagem de 1h.
+      // Para planos pagos: respeitar data customizada ou hoje.
+      if (plan === "trial") {
+        updates.trial_start = new Date().toISOString();
+      } else {
+        const startDate = customStartDate || new Date().toISOString().split("T")[0];
+        updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
+      }
       updates.trial_days = PLAN_DURATIONS[plan] || 3;
     }
 
