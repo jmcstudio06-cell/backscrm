@@ -223,11 +223,6 @@ export default function Financeiro() {
         <Badge variant="secondary" className="px-3 py-1">
           {currentMonthData.shows} {currentMonthData.shows === 1 ? "Show" : "Shows"} realizados este mês
         </Badge>
-        {receitaConfirmada + receitaAgendada > 0 && (
-          <Badge variant="outline" className="text-warning border-warning/30 bg-warning/5 px-3 py-1">
-            Agenda alimentando financeiro (+ R$ {(receitaConfirmada + receitaAgendada).toLocaleString("pt-BR")})
-          </Badge>
-        )}
       </div>
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-secondary w-full justify-start overflow-x-auto overflow-y-hidden flex-nowrap scrollbar-hide px-1 h-12">
