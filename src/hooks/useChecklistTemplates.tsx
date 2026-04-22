@@ -125,20 +125,7 @@ export function useChecklistTemplates() {
     if (!template) return;
 
     try {
-      // Insert all tasks from template to show_checklist
-      const checklistItems = template.tasks.map(task => ({
-        show_id: showId,
-        item: task,
-        completed: false,
-      }));
-
-      const { error } = await supabase
-        .from("show_checklist")
-        .insert(checklistItems);
-
-      if (error) throw error;
-
-      // Update show with template reference
+      // Checklist é apenas local — guardamos só a referência do template no show.
       await supabase
         .from("shows")
         .update({ checklist_template_id: templateId })

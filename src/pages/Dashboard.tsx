@@ -99,15 +99,26 @@ const Dashboard = () => {
     // Onboarding handles install/notifications/goal in one flow.
     // Do NOT show extra install/notification prompts afterwards.
 
-    // Batch lightweight count queries
+    // Batch lightweight count queries (checklist agora é 100% local — sem query)
     const fetchCounts = async () => {
-      const [checklistResult, contractsResult, mappingsResult] = await Promise.all([
-        supabase.from("show_checklist").select("*", { count: "exact", head: true }),
+      const [contractsResult, mappingsResult] = await Promise.all([
         supabase.from("contracts").select("id, show_id").order("created_at", { ascending: false }).limit(5),
         supabase.from("stage_mappings").select("*", { count: "exact", head: true }),
       ]);
-      
-      setChecklistsUsed((checklistResult.count || 0) > 0);
+
+      // Checklist marcado como "usado" se há qualquer marcação local salva
+      let anyLocalChecklist = false;
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("checklist_local_")) {
+            anyLocalChecklist = true;
+            break;
+          }
+        }
+      } catch { /* ignore */ }
+
+      setChecklistsUsed(anyLocalChecklist);
       setContractsCount(contractsResult.data?.length || 0);
       setContractShowIds((contractsResult.data || []).map(c => c.show_id).filter(Boolean) as string[]);
       setStageMappingsCount(mappingsResult.count || 0);

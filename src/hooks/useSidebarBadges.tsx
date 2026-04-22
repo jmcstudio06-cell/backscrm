@@ -78,6 +78,8 @@ export function useSidebarBadges() {
     staleTime: 30_000,
   });
 
+  // Checklist é 100% local agora — usamos apenas IDs dos shows confirmados
+  // como base para sinalizar "novidades" no menu, sem consultar show_checklist.
   const { data: checklistData = EMPTY_BADGE } = useQuery({
     queryKey: checklistQueryKey,
     queryFn: async () => {
@@ -89,18 +91,10 @@ export function useSidebarBadges() {
         .eq("user_id", user.id)
         .eq("status", "confirmed");
 
-      if (!shows || shows.length === 0) return EMPTY_BADGE;
-
-      const { data } = await supabase
-        .from("show_checklist")
-        .select("id")
-        .in("show_id", shows.map((show) => show.id))
-        .eq("completed", false);
-
-      return buildBadgeData("checklist", (data ?? []).map((item) => item.id));
+      return buildBadgeData("checklist", (shows ?? []).map((show) => show.id));
     },
     enabled: !!user,
-    staleTime: 30_000,
+    staleTime: 60_000,
   });
 
   const { data: historicoData = EMPTY_BADGE } = useQuery({

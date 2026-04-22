@@ -246,13 +246,10 @@ async function handleChecklistReminder(supabase: any, _config: any, text: string
   const targetStr = in48h.toISOString().split("T")[0];
   const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmed", "scheduled"]).gte("date", todayStr).lte("date", targetStr);
   if (!upcomingShows || upcomingShows.length === 0) return 0;
-  const showIds = upcomingShows.map((s: any) => s.id);
-  const { data: incompleteItems } = await supabase.from("show_checklist").select("show_id").in("show_id", showIds).eq("completed", false);
-  if (!incompleteItems || incompleteItems.length === 0) return 0;
-  const showsWithPending = new Set(incompleteItems.map((i: any) => i.show_id));
+  // Checklist agora é 100% local — notificamos todos os usuários com shows próximos.
   const usersToNotify = new Map<string, string>();
   for (const show of upcomingShows) {
-    if (showsWithPending.has(show.id) && !usersToNotify.has(show.user_id)) {
+    if (!usersToNotify.has(show.user_id)) {
       usersToNotify.set(show.user_id, show.title);
     }
   }

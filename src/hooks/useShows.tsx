@@ -397,31 +397,9 @@ export function useShowsData() {
 
   const applyChecklistTemplateToShow = async (showId: string, templateId: string) => {
     try {
-      const { data: template, error: templateError } = await supabase
-        .from("checklist_templates")
-        .select("tasks")
-        .eq("id", templateId)
-        .single();
-
-      if (templateError || !template) {
-        console.error("Error fetching template:", templateError);
-        return;
-      }
-
-      const tasks = Array.isArray(template.tasks) ? template.tasks : [];
-      if (tasks.length === 0) return;
-
-      const checklistItems = tasks.map((task: string) => ({
-        show_id: showId,
-        item: task,
-        completed: false,
-      }));
-
-      const { error } = await supabase
-        .from("show_checklist")
-        .insert(checklistItems);
-
-      if (error) throw error;
+      // Checklist é apenas local — não persistimos itens no banco.
+      // Mantemos somente a referência ao template no próprio show (checklist_template_id).
+      return;
     } catch (error) {
       console.error("Error applying checklist template:", error);
     }
@@ -591,6 +569,10 @@ export function useShowsData() {
         .eq("id", id);
 
       if (error) throw error;
+
+      // Limpa marcações locais do checklist deste show (se houver)
+      try { localStorage.removeItem(`checklist_local_${id}`); } catch { /* noop */ }
+
       invalidateAll();
       toast.success("Show e transações excluídos com sucesso!");
     } catch (error) {
