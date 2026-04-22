@@ -110,7 +110,7 @@ export default function Financeiro() {
   const totalExpense = currentMonthTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
   
   // Projection logic
-  const projectedIncome = currentMonthShows.reduce((sum, s) => sum + (s.cachet || 0), 0);
+  const projectedIncome = (currentMonthShows || []).reduce((sum, s) => sum + (s.cachet || 0), 0);
   
   // Calculate expenses from shows (musicians and other expenses)
   // We fetch these in a separate effect
@@ -222,7 +222,7 @@ export default function Financeiro() {
         </Badge>
         {projectedIncome > totalIncome && (
           <Badge variant="outline" className="text-warning border-warning/30 bg-warning/5 px-3 py-1">
-            Agenda alimentando financeiro (+ {((projectedIncome/totalIncome - 1) * 100).toFixed(0)}% projetado)
+            Agenda alimentando financeiro (+ {totalIncome > 0 ? ((projectedIncome / totalIncome - 1) * 100).toFixed(0) : "100"}% projetado)
           </Badge>
         )}
       </div>

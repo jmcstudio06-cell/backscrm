@@ -319,9 +319,9 @@ export default function Historico() {
 
       <div className="mb-6">
         <ChartCard title="Evolução Mensal" subtitle={compareYear ? `${selectedYear} vs ${compareYear}` : `Receita, despesa e lucro reais de ${selectedYear}`}>
-          {monthlyHistory.length === 0 ? (
-            <div className="flex items-center justify-center h-[350px] text-muted-foreground">
-              Nenhum dado financeiro para exibir no ano selecionado
+          {monthlyHistory.every(m => m.receita === 0 && m.receitaPrevista === 0 && m.despesa === 0) ? (
+            <div className="flex items-center justify-center h-[350px] text-muted-foreground text-center px-4">
+              <p>Nenhum dado financeiro ou de agenda para exibir no ano de {selectedYear}.</p>
             </div>
           ) : (
             <ResponsiveContainer key={`${selectedYear}-${compareYear}`} width="100%" height={isMobile ? 280 : 350}>

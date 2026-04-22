@@ -72,7 +72,8 @@ const Dashboard = () => {
   // Count confirmed + completed shows this month (all except cancelled)
   const completedShowsThisMonth = useMemo(() => {
     return shows.filter((show) => {
-      const showDate = new Date(show.date + "T12:00:00");
+      if (!show.date) return false;
+      const showDate = parseLocalDate(show.date);
       return (
         (show.status === "completed" || show.status === "confirmed") &&
         showDate >= currentMonthStart &&
