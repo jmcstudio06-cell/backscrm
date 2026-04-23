@@ -35,7 +35,7 @@ export function WelcomeVideoModal({ open, onFinished, userName }: WelcomeVideoMo
   const playerRef = useRef<any>(null);
   const finishingRef = useRef(false);
 
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [ended, setEnded] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
