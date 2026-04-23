@@ -53,6 +53,7 @@ import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
+import { SplashScreen } from "@/components/layout/SplashScreen";
 import type { ReactNode } from "react";
 
 const queryClient = new QueryClient({
@@ -86,6 +87,7 @@ const App = () => (
   <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <SplashScreen />
       <Toaster />
       <Sonner />
       <BrowserRouter>
