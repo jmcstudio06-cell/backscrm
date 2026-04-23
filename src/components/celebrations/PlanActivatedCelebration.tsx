@@ -31,7 +31,7 @@ export function PlanActivatedCelebration() {
 
   // Only celebrate when there's a recently approved payment we haven't celebrated yet.
   useEffect(() => {
-    if (!user || !profile) return;
+    if (!user) return;
 
     let cancelled = false;
     (async () => {
@@ -53,13 +53,14 @@ export function PlanActivatedCelebration() {
       // Only celebrate if this specific payment hasn't been celebrated yet
       if (lastCelebrated === data.id) return;
 
+      // Mark as celebrated BEFORE setting state to prevent double-firing
       localStorage.setItem(storageKey, data.id);
-      setActivatedPlan(data.plan_key || profile.plan || "");
+      setActivatedPlan(data.plan_key || "");
       setShowCelebration(true);
     })();
 
     return () => { cancelled = true; };
-  }, [user?.id, profile?.plan]);
+  }, [user?.id]); // Only re-run when user ID changes, NOT on every plan change
 
   const handleClose = useCallback(() => {
     setShowCelebration(false);
