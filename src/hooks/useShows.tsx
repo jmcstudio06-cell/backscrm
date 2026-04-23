@@ -226,6 +226,9 @@ export function useShowsData() {
 
     const today = formatDateString(new Date());
 
+    const mode = localStorage.getItem(`financial_mode_${user.id}`) || "automatic";
+    if (mode === "manual") return;
+
     const { data: showsToComplete } = await supabase
       .from("shows")
       .select("*")

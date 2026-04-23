@@ -34,5 +34,5 @@ export const isCancelledShowStatus = (status: string | null | undefined) =>
 
 export const isFinancialShowStatus = (status: string | null | undefined) => {
   const normalized = normalizeShowStatus(status);
-  return normalized === "confirmed" || normalized === "completed";
+  return normalized === "completed";
 };

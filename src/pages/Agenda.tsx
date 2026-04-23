@@ -42,12 +42,12 @@ const statusColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  confirmed: "Confirmado",
-  pending: "Pendente",
+  confirmed: "Pagamento Pendente",
+  pending: "Pagamento Pendente",
   negotiation: "Negociação",
-  scheduled: "Agendado",
-  completed: "Realizado",
-  cancelled: "Cancelado",
+  scheduled: "Pagamento Pendente",
+  completed: "Pagamento Realizado",
+  cancelled: "Show Cancelado",
 };
 
 const statusBadgeStyles: Record<string, string> = {
@@ -95,6 +95,19 @@ export default function Agenda() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingShow, setEditingShow] = useState<Show | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
+  const { user } = useAuth();
+  
+  const [financialMode, setFinancialMode] = useState<"automatic" | "manual">(() => {
+    if (!user) return "automatic";
+    return (localStorage.getItem(`financial_mode_${user.id}`) as "automatic" | "manual") || "automatic";
+  });
+
+  const handleFinancialModeChange = (checked: boolean) => {
+    const mode = checked ? "automatic" : "manual";
+    setFinancialMode(mode);
+    if (user?.id) localStorage.setItem(`financial_mode_${user.id}`, mode);
+    toast.success(`Lançamento financeiro ${checked ? "automático" : "manual"} ativado.`);
+  };
 
   useEffect(() => {
     const showId = searchParams.get("show");
@@ -261,10 +274,23 @@ export default function Agenda() {
             </TabsTrigger>
           </TabsList>
         </Tabs>
-        <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Show
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-card border border-border/50 rounded-lg shadow-sm">
+            <Label htmlFor="financial-mode" className="text-xs font-semibold cursor-pointer">
+              Lançamento Automático
+            </Label>
+            <Switch
+              id="financial-mode"
+              checked={financialMode === "automatic"}
+              onCheckedChange={handleFinancialModeChange}
+              className="scale-90"
+            />
+          </div>
+          <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Show
+          </Button>
+        </div>
       </div>
 
       {viewMode === "calendar" ? (

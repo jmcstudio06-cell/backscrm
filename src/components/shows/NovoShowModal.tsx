@@ -143,10 +143,9 @@ const showTypes = [
 ];
 
 const showStatuses = [
-  { value: "scheduled", label: "Agendado", color: "bg-blue-500" },
-  { value: "confirmed", label: "Confirmado", color: "bg-primary" },
-  { value: "completed", label: "Realizado", color: "bg-green-500" },
-  { value: "cancelled", label: "Cancelado", color: "bg-destructive" },
+  { value: "confirmed", label: "Pagamento pendente", color: "bg-warning" },
+  { value: "completed", label: "Pagamento realizado", color: "bg-green-500" },
+  { value: "cancelled", label: "Show cancelado", color: "bg-destructive" },
 ];
 
 const formatCurrency = (value: number): string => {
