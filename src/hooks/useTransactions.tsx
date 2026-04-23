@@ -31,9 +31,13 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
       const pageSize = 1000;
       const allTransactions: Transaction[] = [];
       if (!fullHistory) {
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-        const cutoff = sixMonthsAgo.toISOString().split("T")[0];
+        // Use START of month 6 months ago to ensure we always get full months,
+        // never missing days due to "exact day -6 months" arithmetic.
+        const now = new Date();
+        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+        const yyyy = sixMonthsAgo.getFullYear();
+        const mm = String(sixMonthsAgo.getMonth() + 1).padStart(2, "0");
+        const cutoff = `${yyyy}-${mm}-01`;
 
         let from = 0;
         while (true) {
@@ -78,8 +82,9 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
       return allTransactions;
     },
     enabled: !!user,
-    staleTime: 30_000,
+    staleTime: 10_000,
     refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const addTransaction = async (transactionData: Partial<Transaction>) => {
