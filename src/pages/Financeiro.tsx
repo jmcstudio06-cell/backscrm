@@ -20,6 +20,7 @@ import {
   Lock,
   Download,
   Filter,
+  Plus,
 } from "lucide-react";
 import {
   AreaChart,
@@ -39,6 +40,8 @@ import { format, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useTransactions } from "@/hooks/useTransactions";
+import { TransactionModal } from "@/components/financeiro/TransactionModal";
 
 const CATEGORY_MAP: Record<string, string> = {
   musicos: "Músicos",
@@ -52,12 +55,19 @@ const CATEGORY_MAP: Record<string, string> = {
 export default function Financeiro() {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { shows, loading: loadingShows } = useShows();
+  const { transactions: dbTransactions, loading: loadingDb, addTransaction } = useTransactions({ fullHistory: true });
   const [musicians, setMusicians] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
-  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(true);
+  
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"income" | "expense">("expense");
 
   useEffect(() => {
-    if (shows.length === 0) return;
+    if (shows.length === 0) {
+      setLoadingDetails(false);
+      return;
+    }
     
     const fetchDetails = async () => {
       setLoadingDetails(true);
@@ -139,9 +149,22 @@ export default function Financeiro() {
         }
       });
     });
+
+    // Add manual transactions (avulsas, no show_id)
+    dbTransactions.filter(t => !t.show_id).forEach(t => {
+      transactions.push({
+        id: `manual-${t.id}`,
+        show_id: null,
+        type: t.type as "income" | "expense",
+        category: CATEGORY_MAP[t.category?.trim().toLowerCase()] || t.category?.trim() || "Outros",
+        description: t.description || (t.type === "income" ? "Receita Avulsa" : "Despesa Avulsa"),
+        amount: t.amount,
+        date: t.date,
+      });
+    });
     
     return transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [shows, musicians, expenses]);
+  }, [shows, musicians, expenses, dbTransactions]);
 
   const currentMonthTransactions = useMemo(() => {
     return virtualTransactions.filter(t => {
@@ -255,10 +278,28 @@ export default function Financeiro() {
 
   return (
     <Layout title="Resumo Mensal" subtitle={`RESUMO DE ${currentMonthName}`}>
-      <div className="flex items-center gap-2 mb-6">
-        <Badge variant="secondary" className="px-3 py-1 bg-secondary/50">
-          {showsThisMonth} {showsThisMonth === 1 ? "Show" : "Shows"} na agenda este mês
-        </Badge>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="px-3 py-1 bg-secondary/50">
+            {showsThisMonth} {showsThisMonth === 1 ? "Show" : "Shows"} na agenda este mês
+          </Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 border-destructive/20 hover:bg-destructive/10 text-destructive"
+            onClick={() => { setModalType("expense"); setModalOpen(true); }}
+          >
+            <Plus className="w-4 h-4" /> Despesa
+          </Button>
+          <Button
+            variant="outline"
+            className="gap-2 border-success/20 hover:bg-success/10 text-success"
+            onClick={() => { setModalType("income"); setModalOpen(true); }}
+          >
+            <Plus className="w-4 h-4" /> Receita
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
@@ -675,6 +716,15 @@ export default function Financeiro() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <TransactionModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        type={modalType}
+        onSave={async (data) => {
+          await addTransaction(data);
+        }}
+      />
     </Layout>
   );
 }
