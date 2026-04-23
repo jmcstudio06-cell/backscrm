@@ -76,7 +76,7 @@ export default function Financeiro() {
   // Filter transactions for current month only
   const now = new Date();
   const currentMonthStart = startOfMonth(now);
-  const currentMonthEnd = endOfMonth(now);
+  const currentMonthEnd = now;
 
   const currentMonthTransactions = transactions.filter((t) => {
     const transactionDate = parseLocalDate(t.date);

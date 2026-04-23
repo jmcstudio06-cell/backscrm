@@ -131,6 +131,7 @@ const buildShowTransactions = (
         description: `${musician.name} - ${show.title}`,
         date: show.date,
         show_id: show.id,
+        is_advance_payment: false,
       });
     }
   }
@@ -145,6 +146,7 @@ const buildShowTransactions = (
         description: `${expense.description} - ${show.title}`,
         date: show.date,
         show_id: show.id,
+        is_advance_payment: false,
       });
     }
   }
