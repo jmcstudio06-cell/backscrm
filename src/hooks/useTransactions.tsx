@@ -82,8 +82,9 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
       return allTransactions;
     },
     enabled: !!user,
-    staleTime: 30_000,
+    staleTime: 10_000,
     refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const addTransaction = async (transactionData: Partial<Transaction>) => {
