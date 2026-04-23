@@ -115,20 +115,42 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
     const fetchShows = async () => {
       setLoadingShows(true);
       try {
-        const { data, error } = await supabase
+        const mus = musicians.find(m => m.id === selectedMusicianId);
+        
+        // Fetch shows the musician is part of
+        const { data: showsData, error: showsError } = await supabase
           .from("show_musicians")
           .select("fee, show_id, shows(title, date)")
           .eq("musician_id", selectedMusicianId);
         
-        if (error) throw error;
+        if (showsError) throw showsError;
         
-        if (data) {
-          const formatted = data.map(d => ({
-            show_id: d.show_id,
-            fee: d.fee,
-            title: d.shows?.title || "Show",
-            date: d.shows?.date || "",
-          })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        // Fetch past transactions to see what was already paid
+        const { data: txData } = await supabase
+          .from("transactions")
+          .select("description")
+          .eq("type", "expense")
+          .eq("category", "Músicos");
+
+        const pastDescriptions = (txData || []).map(t => t.description || "");
+
+        if (showsData) {
+          const formatted = showsData
+            .map(d => ({
+              show_id: d.show_id,
+              fee: d.fee,
+              title: d.shows?.title || "Show",
+              date: d.shows?.date || "",
+            }))
+            // Filter out shows whose title appears in any past payment description for this musician
+            .filter(s => {
+              const isPaid = pastDescriptions.some(desc => 
+                desc.includes(mus?.name || "") && desc.includes(s.title)
+              );
+              return !isPaid;
+            })
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          
           setMusicianShows(formatted);
         }
       } catch (err) {
