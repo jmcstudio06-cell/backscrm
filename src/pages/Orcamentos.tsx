@@ -11,6 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useBudgets } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
+import { useMusicians } from "@/hooks/useMusicians";
 import { BudgetModal } from "@/components/orcamentos/BudgetModal";
 import { BudgetPreview } from "@/components/orcamentos/BudgetPreview";
 
@@ -29,7 +30,18 @@ const statusConfig = {
 export default function Orcamentos() {
   const { budgets, performanceTypes, loading, addBudget, updateBudget, deleteBudget, getBudgetWithItems, addPerformanceType, updatePerformanceType, deletePerformanceType } = useBudgets();
   const { clients } = useClients();
+  const { musicians } = useMusicians();
   const { settings: customization, updateSettings } = useCustomization();
+
+  // Enrich performanceTypes with total price (base + team costs)
+  const enrichedPerformanceTypes = performanceTypes.map((perf) => {
+    const musicianIds: string[] = (perf as any).musician_ids || [];
+    const teamTotal = musicianIds.reduce((sum, id) => {
+      const m = musicians.find((mu) => mu.id === id);
+      return sum + (m?.rate || 0);
+    }, 0);
+    return { ...perf, price: perf.price + teamTotal };
+  });
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -190,7 +202,7 @@ export default function Orcamentos() {
         Apenas os 5 orçamentos mais recentes são armazenados. Os mais antigos são excluídos automaticamente. Salve em PDF!
       </p>
 
-      <BudgetModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedBudget(null); }} onSave={handleSave} clients={clients} performanceTypes={performanceTypes} budget={selectedBudget} />
+      <BudgetModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedBudget(null); }} onSave={handleSave} clients={clients} performanceTypes={enrichedPerformanceTypes} budget={selectedBudget} />
       <BudgetPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} budget={selectedBudget} items={previewItems} />
       
     </Layout>
