@@ -35,42 +35,42 @@ export function SplashScreen() {
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
       )}
       style={{
-        background: "radial-gradient(circle at center, #0088ff 0%, #004499 40%, #000000 100%)"
+        background: "#FFFFFF"
       }}
     >
-      {/* Glow effect background */}
-      <div className="absolute w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
+      {/* Subtle glow effect background (soft blue) */}
+      <div className="absolute w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-pulse" />
 
       <div className="relative flex flex-col items-center">
         {/* Logo Container */}
         <div className="relative w-32 h-32 md:w-40 md:h-40 mb-8 transform transition-transform duration-1000 ease-out scale-100 hover:scale-110">
-          <div className="absolute inset-0 bg-white/10 rounded-[2rem] blur-xl animate-pulse" />
-          <div className="relative w-full h-full overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-primary/20">
+          <div className="absolute inset-0 bg-primary/10 rounded-[2rem] blur-xl animate-pulse" />
+          <div className="relative w-full h-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-2xl shadow-primary/10">
             <img 
               src={baIconImg} 
               alt="Backstage Pro" 
               className="w-full h-full object-cover"
             />
-            {/* The "Train Line" Animation (Shimmer) */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full animate-shimmer-fast" />
+            {/* The "Train Line" Animation (Shimmer) - More subtle on light bg */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-shimmer-fast" />
           </div>
         </div>
 
         {/* Text Content */}
         <div className="text-center space-y-2 px-6">
-          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tighter drop-shadow-lg">
-            BACKSTAGE <span className="text-primary-foreground/80">PRO</span>
+          <h1 className="text-3xl md:text-4xl font-black text-[#003366] tracking-tighter">
+            BACKSTAGE <span className="text-primary">PRO</span>
           </h1>
-          <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto" />
-          <p className="text-blue-100/70 text-sm md:text-base font-medium tracking-widest uppercase">
+          <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-primary/30 to-transparent mx-auto" />
+          <p className="text-gray-500 text-sm md:text-base font-medium tracking-widest uppercase">
             O coração da sua carreira!
           </p>
         </div>
       </div>
 
       {/* Simple animated loading bar at the bottom */}
-      <div className="absolute bottom-12 w-48 h-1 bg-white/10 rounded-full overflow-hidden">
-        <div className="h-full bg-white/40 animate-progress-loading" />
+      <div className="absolute bottom-12 w-48 h-1 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-full bg-primary/40 animate-progress-loading" />
       </div>
 
       <style>{`
