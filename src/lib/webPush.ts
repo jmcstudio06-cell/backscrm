@@ -31,12 +31,18 @@ function uint8ArraysEqual(a: Uint8Array, b: Uint8Array) {
 }
 
 async function getVapidPublicKey(): Promise<string> {
+  const CACHE_KEY = "push_vapid_public_key";
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) return cached;
+
+  console.log("[WebPush] Fetching new VAPID key...");
   const { data, error } = await supabase.functions.invoke("get-vapid-key");
   if (error) throw error;
 
   const publicKey = (data as { publicKey?: string } | null)?.publicKey;
   if (!publicKey) throw new Error("VAPID public key not available");
 
+  localStorage.setItem(CACHE_KEY, publicKey);
   return publicKey;
 }
 
@@ -81,11 +87,27 @@ async function upsertSubscriptionOnBackend(sub: PushSubscription) {
     throw new Error("Invalid push subscription keys");
   }
 
+  // Get current user to include in cache key (prevents cross-user caching)
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id || "anonymous";
+
+  const CACHE_KEY = `push_last_synced_${userId}`;
+  const currentSyncData = JSON.stringify({ endpoint, p256dh, auth });
+  const lastSyncedData = localStorage.getItem(CACHE_KEY);
+
+  if (lastSyncedData === currentSyncData) {
+    console.log("[WebPush] Subscription already synced for this user, skipping.");
+    return;
+  }
+
+  console.log("[WebPush] Syncing subscription with backend...");
   const { error } = await supabase.functions.invoke("upsert-push-subscription", {
     body: { endpoint, p256dh, auth },
   });
 
   if (error) throw error;
+
+  localStorage.setItem(CACHE_KEY, currentSyncData);
 }
 
 export async function subscribeToWebPush(): Promise<boolean> {
