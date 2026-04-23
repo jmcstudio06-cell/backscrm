@@ -38,6 +38,15 @@ import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
+const CATEGORY_MAP: Record<string, string> = {
+  musicos: "Músicos",
+  transporte: "Transporte",
+  equipamentos: "Equipamentos",
+  alimentacao: "Alimentação",
+  producao: "Produção",
+  outros: "Outros",
+};
+
 export default function Financeiro() {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { shows, loading: loadingShows } = useShows();
@@ -114,12 +123,13 @@ export default function Financeiro() {
       const showExpensesList = expenses.filter(e => e.show_id === show.id);
       showExpensesList.forEach(e => {
         if (e.amount > 0) {
+          const normalizedCategory = CATEGORY_MAP[e.category?.toLowerCase()] || e.category;
           transactions.push({
             id: `expense-${e.id}`,
             show_id: show.id,
             type: "expense",
-            category: e.category,
-            description: `${e.description || e.category} - ${show.title}`,
+            category: normalizedCategory,
+            description: `${e.description || normalizedCategory} - ${show.title}`,
             amount: e.amount,
             date: show.date,
           });
@@ -148,15 +158,15 @@ export default function Financeiro() {
   const lucroLiquido = receitaMensal - despesaMensal;
 
   const custoEquipe = currentMonthTransactions
-    .filter(t => t.type === "expense" && (t.category === "Músicos" || t.category === "Equipe"))
+    .filter(t => t.type === "expense" && (t.category === "Músicos" || t.category === "Produção" || t.category === "Equipe" || t.category === "Equipamentos"))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoTransporte = currentMonthTransactions
-    .filter(t => t.type === "expense" && t.category === "Transporte")
+    .filter(t => t.type === "expense" && (t.category === "Transporte" || t.category === "transporte"))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoAlimentacao = currentMonthTransactions
-    .filter(t => t.type === "expense" && t.category === "Alimentação")
+    .filter(t => t.type === "expense" && (t.category === "Alimentação" || t.category === "alimentacao"))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoTotalShows = despesaMensal;
