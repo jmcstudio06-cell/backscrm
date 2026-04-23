@@ -49,6 +49,31 @@
   <meta name="twitter:title" content="Backstage Pro - Sistema para Artistas">
   <meta property="og:description" content="O Backstage Pro é o aplicativo definitivo para quem quer ter o controle total da própria carreira. Mais que uma agenda, ele é o seu gerente digital nos bastidores, unindo organização, praticidade e gestão profissional em um só lugar.">
   <meta name="twitter:description" content="O Backstage Pro é o aplicativo definitivo para quem quer ter o controle total da própria carreira. Mais que uma agenda, ele é o seu gerente digital nos bastidores, unindo organização, praticidade e gestão profissional em um só lugar.">
+  
+  <script>
+    // Sistema de auto-update para evitar cache preso
+    (function() {
+      const APP_VERSION = '1.0.5'; // Incremente aqui a cada grande atualização
+      const lastVersion = localStorage.getItem('app_version');
+      
+      if (lastVersion && lastVersion !== APP_VERSION) {
+        console.log('Nova versão detectada (' + APP_VERSION + '). Limpando cache e atualizando...');
+        localStorage.setItem('app_version', APP_VERSION);
+        
+        // Tenta limpar caches do Service Worker antes de recarregar
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            for (let name of names) caches.delete(name);
+          });
+        }
+        
+        // Força recarregamento ignorando cache do navegador
+        window.location.reload(true);
+      } else {
+        localStorage.setItem('app_version', APP_VERSION);
+      }
+    })();
+  </script>
 </head>
 
   <body class="dark">

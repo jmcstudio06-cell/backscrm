@@ -1,4 +1,4 @@
-const CACHE_NAME = "backstage-pro-v4";
+const CACHE_NAME = "backstage-pro-v5";
 const NOTIF_TAG = "backstage-notification";
 
 // Notification assets
