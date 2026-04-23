@@ -23,9 +23,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import {
-  buildHistoricoYearSummary,
-} from "@/lib/historico";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
@@ -75,18 +72,12 @@ const Dashboard = () => {
   // Count confirmed + completed shows this month (all except cancelled)
   const completedShowsThisMonth = useMemo(() => {
     return shows.filter((show) => {
-      if (!show.date) return false;
-      try {
-        const showDate = parseLocalDate(show.date);
-        if (isNaN(showDate.getTime())) return false;
-        return (
-          (show.status === "completed" || show.status === "confirmed") &&
-          showDate >= currentMonthStart &&
-          showDate <= currentMonthEnd
-        );
-      } catch (e) {
-        return false;
-      }
+      const showDate = new Date(show.date + "T12:00:00");
+      return (
+        (show.status === "completed" || show.status === "confirmed") &&
+        showDate >= currentMonthStart &&
+        showDate <= currentMonthEnd
+      );
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
@@ -185,16 +176,10 @@ const Dashboard = () => {
   // Calculate shows this month vs last month (all statuses except cancelled)
   const showsThisMonth = useMemo(() => {
     return shows.filter((show) => {
-      if (!show.date) return false;
-      try {
-        const showDate = parseLocalDate(show.date);
-        if (isNaN(showDate.getTime())) return false;
-        return show.status !== "cancelled" && 
-               showDate >= currentMonthStart && 
-               showDate <= currentMonthEnd;
-      } catch (e) {
-        return false;
-      }
+      const showDate = parseLocalDate(show.date);
+      return show.status !== "cancelled" && 
+             showDate >= currentMonthStart && 
+             showDate <= currentMonthEnd;
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
@@ -207,27 +192,28 @@ const Dashboard = () => {
     }).length;
   }, [shows, lastMonthStart, lastMonthEnd]);
 
-  const yearSummary = useMemo(() => 
-    buildHistoricoYearSummary(transactions, shows, now.getFullYear()),
-    [transactions, shows, now]
-  );
+  // Calculate revenue this month vs last month
+  const revenueThisMonth = useMemo(() => {
+    return transactions
+      .filter((t) => {
+      const transactionDate = parseLocalDate(t.date);
+        return t.type === "income" && 
+               transactionDate >= currentMonthStart && 
+               transactionDate <= currentMonthEnd;
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions, currentMonthStart, currentMonthEnd]);
 
-  const currentMonthData = yearSummary.monthlyHistory[now.getMonth()];
-  const lastMonthIndex = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
-  const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-  
-  // If last month was in a different year, we need another summary
-  const lastMonthSummary = useMemo(() => {
-    if (now.getMonth() === 0) {
-      return buildHistoricoYearSummary(transactions, shows, lastMonthYear);
-    }
-    return yearSummary;
-  }, [transactions, shows, now, yearSummary]);
-
-  const lastMonthData = lastMonthSummary.monthlyHistory[lastMonthIndex];
-
-  const revenueThisMonth = currentMonthData.receita;
-  const revenueLastMonth = lastMonthData.receita;
+  const revenueLastMonth = useMemo(() => {
+    return transactions
+      .filter((t) => {
+        const transactionDate = parseLocalDate(t.date);
+        return t.type === "income" && 
+               transactionDate >= lastMonthStart && 
+               transactionDate <= lastMonthEnd;
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions, lastMonthStart, lastMonthEnd]);
 
   // Calculate closed sales
   const closedSales = useMemo(() => {
@@ -258,7 +244,6 @@ const Dashboard = () => {
     
     const totalReceived = transactions
       .filter((t) => {
-        if (!t.date) return false;
         const transactionDate = parseLocalDate(t.date);
         return t.type === "income" && 
                t.show_id !== null &&
@@ -295,23 +280,10 @@ const Dashboard = () => {
 
   // Total revenue hero calculations
   const totalAllTimeRevenue = useMemo(() => {
-    // We can use a special summary for all time by combining all years, but for now
-    // let's just stick to the simple transaction sum + missing show revenue
-    const totalTransactions = transactions
-      .filter(t => {
-        if (!t.date) return false;
-        return t.type === "income";
-      })
+    return transactions
+      .filter(t => t.type === "income")
       .reduce((sum, t) => sum + Number(t.amount), 0);
-
-    // Add virtual revenue for completed shows that don't have transactions yet
-    const showsWithIncome = new Set(transactions.filter(t => t.type === "income" && t.show_id).map(t => t.show_id));
-    const virtualRevenue = shows
-      .filter(s => (s.status === "completed" || s.status === "finalizado") && !showsWithIncome.has(s.id))
-      .reduce((sum, s) => sum + (Number(s.cachet) || 0), 0);
-
-    return totalTransactions + virtualRevenue;
-  }, [transactions, shows]);
+  }, [transactions]);
 
   const completedShowsAllTime = useMemo(() => {
     return shows.filter(s => s.status === "finalizado" || s.status === "completed").length;

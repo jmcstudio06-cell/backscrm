@@ -22,11 +22,10 @@ interface HistoricoMonthlyTableProps {
   compareHistory?: HistoricoMonthData[] | null;
   compareYear?: number | null;
   selectedYear?: number;
-  defaultExpanded?: string | null;
 }
 
-export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareYear, selectedYear, defaultExpanded }: HistoricoMonthlyTableProps) {
-  const [expandedMonth, setExpandedMonth] = useState<string | null>(defaultExpanded || null);
+export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareYear, selectedYear }: HistoricoMonthlyTableProps) {
+  const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
   const hasCompare = !!compareHistory && !!compareYear;
   const isMobile = useIsMobile();
 
@@ -116,7 +115,6 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
                                 lucro={month.lucro}
                                 despesa={month.despesa}
                                 expenseTransactions={month.expenseTransactions}
-                                monthShows={month.monthShows}
                               />
                             </div>
                             {/* Compare year details */}
@@ -130,7 +128,6 @@ export function HistoricoMonthlyTable({ monthlyHistory, compareHistory, compareY
                                   lucro={comp.lucro}
                                   despesa={comp.despesa}
                                   expenseTransactions={comp.expenseTransactions}
-                                  monthShows={comp.monthShows}
                                 />
                               </div>
                             )}
@@ -154,7 +151,6 @@ function TransactionSection({
   projectedShows,
   lucro,
   expenseTransactions,
-  monthShows,
 }: {
   type: string;
   transactions: HistoricoMonthData["incomeTransactions"];
@@ -162,51 +158,27 @@ function TransactionSection({
   lucro: number;
   despesa: number;
   expenseTransactions: HistoricoMonthData["expenseTransactions"];
-  monthShows: HistoricoMonthData["monthShows"];
 }) {
   return (
     <>
       <div>
         <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-success">
           <ArrowUpRight className="h-3.5 w-3.5" />
-          Receitas ({(transactions?.length || 0) + (monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions?.map(t => t.show_id) || []).has(s.id)).length || 0)})
+          Receitas ({transactions.length})
         </h4>
-        {(transactions?.length === 0 && (!monthShows || monthShows.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions?.map(t => t.show_id) || []).has(s.id)).length === 0)) ? (
+        {transactions.length === 0 ? (
           <p className="pl-5 text-xs text-muted-foreground">Nenhuma receita</p>
         ) : (
           <div className="space-y-1 pl-5">
-            {/* Real Transactions */}
-            {transactions?.map((t) => (
+            {transactions.map((t) => (
               <div key={t.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    {(() => {
-                      const d = parseLocalDate(t.date);
-                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
-                    })()}
+                    {format(parseLocalDate(t.date), "dd/MM")}
                   </span>
                   <span className="text-foreground">{t.description || t.category}</span>
                 </div>
                 <span className="whitespace-nowrap font-medium text-success">+ {formatCurrencyBR(t.amount)}</span>
-              </div>
-            ))}
-            
-            {/* Virtual Transactions from Shows */}
-            {monthShows?.filter(s => (s.status === "completed" || s.status === "finalizado") && !new Set(transactions?.map(t => t.show_id) || []).has(s.id)).map((s) => (
-              <div key={s.id} className="flex items-center justify-between py-1 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    {(() => {
-                      const d = parseLocalDate(s.date);
-                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
-                    })()}
-                  </span>
-                  <span className="text-foreground">Show: {s.title}</span>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-success border-success/30 bg-success/5">
-                    Automático
-                  </Badge>
-                </div>
-                <span className="whitespace-nowrap font-medium text-success">+ {formatCurrencyBR(Number(s.cachet) || 0)}</span>
               </div>
             ))}
           </div>
@@ -216,20 +188,17 @@ function TransactionSection({
       <div>
         <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-destructive">
           <ArrowDownRight className="h-3.5 w-3.5" />
-          Despesas ({expenseTransactions?.length || 0})
+          Despesas ({expenseTransactions.length})
         </h4>
-        {expenseTransactions?.length === 0 ? (
+        {expenseTransactions.length === 0 ? (
           <p className="pl-5 text-xs text-muted-foreground">Nenhuma despesa</p>
         ) : (
           <div className="space-y-1 pl-5">
-            {expenseTransactions?.map((t) => (
+            {expenseTransactions.map((t) => (
               <div key={t.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    {(() => {
-                      const d = parseLocalDate(t.date);
-                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
-                    })()}
+                    {format(parseLocalDate(t.date), "dd/MM")}
                   </span>
                   <span className="text-foreground">{t.description || t.category}</span>
                 </div>
@@ -243,20 +212,17 @@ function TransactionSection({
       <div>
         <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold text-warning">
           <CalendarClock className="h-3.5 w-3.5" />
-          Receita Prevista ({projectedShows?.length || 0})
+          Receita Prevista ({projectedShows.length})
         </h4>
-        {projectedShows?.length === 0 ? (
+        {projectedShows.length === 0 ? (
           <p className="pl-5 text-xs text-muted-foreground">Nenhum show previsto</p>
         ) : (
           <div className="space-y-1 pl-5">
-            {projectedShows?.map((show) => (
+            {projectedShows.map((show) => (
               <div key={show.id} className="flex items-center justify-between py-1 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    {(() => {
-                      const d = parseLocalDate(show.date);
-                      return isNaN(d.getTime()) ? "--/--" : format(d, "dd/MM");
-                    })()}
+                    {format(parseLocalDate(show.date), "dd/MM")}
                   </span>
                   <span className="text-foreground">{show.title}</span>
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-warning border-warning/30">
@@ -270,10 +236,10 @@ function TransactionSection({
         )}
       </div>
 
-      <div className={cn("flex items-center justify-between rounded-lg p-3", (lucro || 0) >= 0 ? "bg-success/10" : "bg-destructive/10")}>
+      <div className={cn("flex items-center justify-between rounded-lg p-3", lucro >= 0 ? "bg-success/10" : "bg-destructive/10")}>
         <span className="text-sm font-bold text-foreground">Lucro do Mês</span>
-        <span className={cn("text-sm font-bold", (lucro || 0) >= 0 ? "text-success" : "text-destructive")}>
-          {formatCurrencyBR(lucro || 0)}
+        <span className={cn("text-sm font-bold", lucro >= 0 ? "text-success" : "text-destructive")}>
+          {formatCurrencyBR(lucro)}
         </span>
       </div>
     </>

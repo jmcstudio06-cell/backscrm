@@ -9,8 +9,7 @@ export function cn(...inputs: ClassValue[]) {
  * Parse a YYYY-MM-DD date string as local date (not UTC).
  * Prevents the common off-by-one-day bug caused by UTC parsing.
  */
-export function parseLocalDate(dateStr: string | null | undefined): Date {
-  if (!dateStr || typeof dateStr !== 'string') return new Date(NaN);
+export function parseLocalDate(dateStr: string): Date {
   const [year, month, day] = dateStr.split("-").map(Number);
   return new Date(year, month - 1, day);
 }
