@@ -284,20 +284,18 @@ export default function Financeiro() {
             {showsThisMonth} {showsThisMonth === 1 ? "Show" : "Shows"} na agenda este mês
           </Badge>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
-            variant="outline"
-            className="gap-2 border-destructive/20 hover:bg-destructive/10 text-destructive"
+            className="gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full px-6 shadow-sm"
             onClick={() => { setModalType("expense"); setModalOpen(true); }}
           >
-            <Plus className="w-4 h-4" /> Despesa
+            <Plus className="w-4 h-4" /> Nova Despesa
           </Button>
           <Button
-            variant="outline"
-            className="gap-2 border-success/20 hover:bg-success/10 text-success"
+            className="gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 shadow-sm"
             onClick={() => { setModalType("income"); setModalOpen(true); }}
           >
-            <Plus className="w-4 h-4" /> Receita
+            <Plus className="w-4 h-4" /> Nova Receita
           </Button>
         </div>
       </div>
