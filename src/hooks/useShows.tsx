@@ -570,6 +570,16 @@ export function useShowsData() {
     (async () => {
       try {
         const completedShows = shows.filter((show) => isFinancialShowStatus(show.status));
+        const nonFinancialShows = shows.filter((show) => !isFinancialShowStatus(show.status));
+
+        // Cleanup orphaned transactions from shows that are no longer "financial" (e.g. pending/confirmed)
+        if (nonFinancialShows.length > 0) {
+          const nonFinancialShowIds = nonFinancialShows.map((s) => s.id);
+          for (const batch of chunkArray(nonFinancialShowIds, 100)) {
+            await supabase.from("transactions").delete().in("show_id", batch);
+          }
+        }
+
         if (completedShows.length === 0) return;
 
         const showIds = completedShows.map((s) => s.id);
