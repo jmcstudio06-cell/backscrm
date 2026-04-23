@@ -25,6 +25,9 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useMusicians } from "@/hooks/useMusicians";
+import { supabase } from "@/integrations/supabase/client";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const transactionSchema = z.object({
   amount: z.number().positive({ message: "Valor deve ser maior que zero" }),
@@ -78,11 +81,16 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { musicians } = useMusicians();
+  const [selectedMusicianId, setSelectedMusicianId] = useState("");
+  const [musicianShows, setMusicianShows] = useState<any[]>([]);
+  const [selectedShows, setSelectedShows] = useState<string[]>([]);
+  const [loadingShows, setLoadingShows] = useState(false);
+
   const categories = type === "income" ? incomeCategories : expenseCategories;
   const title = type === "income" ? "Nova Receita" : "Nova Despesa";
   const Icon = type === "income" ? TrendingUp : TrendingDown;
 
-  useEffect(() => {
     if (open) {
       setAmount("");
       setCategory("");
@@ -90,8 +98,84 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
       setDate(new Date());
       setIsAdvancePayment(false);
       setErrors({});
+      setSelectedMusicianId("");
+      setMusicianShows([]);
+      setSelectedShows([]);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (category !== "Músicos" || !selectedMusicianId) {
+      setMusicianShows([]);
+      setSelectedShows([]);
+      return;
+    }
+
+    const fetchShows = async () => {
+      setLoadingShows(true);
+      try {
+        const { data, error } = await supabase
+          .from("show_musicians")
+          .select("fee, show_id, shows(title, date)")
+          .eq("musician_id", selectedMusicianId);
+        
+        if (error) throw error;
+        
+        if (data) {
+          const formatted = data.map(d => ({
+            show_id: d.show_id,
+            fee: d.fee,
+            title: d.shows?.title || "Show",
+            date: d.shows?.date || "",
+          })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setMusicianShows(formatted);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingShows(false);
+      }
+    };
+    fetchShows();
+  }, [category, selectedMusicianId]);
+
+  const handleToggleShow = (showId: string, fee: number) => {
+    let newSelected = [...selectedShows];
+    if (newSelected.includes(showId)) {
+      newSelected = newSelected.filter(id => id !== showId);
+    } else {
+      newSelected.push(showId);
+    }
+    setSelectedShows(newSelected);
+
+    // Auto-calculate sum
+    const totalFee = musicianShows
+      .filter(s => newSelected.includes(s.show_id))
+      .reduce((sum, s) => sum + s.fee, 0);
+    
+    if (totalFee > 0) {
+      setAmount(totalFee.toString());
+    } else if (newSelected.length === 0) {
+      setAmount("");
+    }
+
+    // Auto-generate description
+    if (newSelected.length > 0) {
+      const mus = musicians.find(m => m.id === selectedMusicianId);
+      const showsTitles = musicianShows
+        .filter(s => newSelected.includes(s.show_id))
+        .map(s => {
+          const dateObj = new Date(s.date);
+          // Ajuste de fuso horário simples para exibição correta
+          dateObj.setMinutes(dateObj.getMinutes() + dateObj.getTimezoneOffset());
+          return `${s.title} (${format(dateObj, "dd/MM")})`;
+        })
+        .join(", ");
+      setDescription(`Pagamento: ${mus?.name || 'Músico'} - Shows: ${showsTitles}`.slice(0, 200));
+    } else {
+      setDescription("");
+    }
+  };
 
   const handleAmountChange = (value: string) => {
     // Allow only numbers and comma/dot for decimals
@@ -189,6 +273,64 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
               <p className="text-sm text-destructive">{errors.category}</p>
             )}
           </div>
+
+          {/* Seleção de Músico e Shows (Apenas se categoria for Músicos) */}
+          {type === "expense" && category === "Músicos" && (
+            <div className="space-y-4 p-4 rounded-xl bg-secondary/20 border border-border/50">
+              <div className="space-y-2">
+                <Label>Selecione o Músico</Label>
+                <Select value={selectedMusicianId} onValueChange={setSelectedMusicianId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Escolha um músico..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {musicians.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedMusicianId && (
+                <div className="space-y-2">
+                  <Label>Vincular a Shows (Opcional)</Label>
+                  {loadingShows ? (
+                    <p className="text-xs text-muted-foreground">Carregando shows do músico...</p>
+                  ) : musicianShows.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Nenhum show registrado para este músico.</p>
+                  ) : (
+                    <div className="max-h-32 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                      {musicianShows.map((s) => (
+                        <div key={s.show_id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`show-${s.show_id}`}
+                            checked={selectedShows.includes(s.show_id)}
+                            onCheckedChange={() => handleToggleShow(s.show_id, s.fee)}
+                          />
+                          <Label
+                            htmlFor={`show-${s.show_id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                          >
+                            {s.title} ({format(new Date(s.date + 'T00:00:00'), "dd/MM")})
+                          </Label>
+                          <span className="text-xs font-semibold">
+                            R$ {s.fee.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {selectedShows.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      O valor e a descrição foram preenchidos automaticamente com base nos shows selecionados.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Date */}
           <div className="space-y-2">
