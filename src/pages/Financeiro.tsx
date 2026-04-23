@@ -37,7 +37,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTransactions } from "@/hooks/useTransactions";
 import { TransactionModal } from "@/components/financeiro/TransactionModal";
-import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
+import { format, startOfMonth, subMonths, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
 
@@ -76,7 +76,7 @@ export default function Financeiro() {
   // Filter transactions for current month only
   const now = new Date();
   const currentMonthStart = startOfMonth(now);
-  const currentMonthEnd = endOfMonth(now);
+  const currentMonthEnd = now;
 
   const currentMonthTransactions = transactions.filter((t) => {
     const transactionDate = parseLocalDate(t.date);
