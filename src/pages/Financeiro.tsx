@@ -18,6 +18,8 @@ import {
   Utensils,
   Calculator,
   Lock,
+  Download,
+  Filter,
 } from "lucide-react";
 import {
   AreaChart,
@@ -261,6 +263,7 @@ export default function Financeiro() {
           <TabsTrigger value="overview" className="shrink-0 rounded-md data-[state=active]:shadow-sm">Visão Geral</TabsTrigger>
           <TabsTrigger value="expenses" className="shrink-0 rounded-md data-[state=active]:shadow-sm">Despesas</TabsTrigger>
           <TabsTrigger value="income" className="shrink-0 rounded-md data-[state=active]:shadow-sm">Receitas</TabsTrigger>
+          <TabsTrigger value="reports" className="shrink-0 rounded-md data-[state=active]:shadow-sm">Relatórios</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 animate-in fade-in-50 duration-300">
@@ -546,6 +549,127 @@ export default function Financeiro() {
               </Table>
             )}
           </ChartCard>
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-6 animate-in fade-in-50 duration-300">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-lg text-foreground">Nota Financeira do Mês</h3>
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 rounded-xl">
+              <Download className="w-4 h-4" /> Exportar PDF
+            </Button>
+          </div>
+
+          <div className="bg-card border border-border/50 rounded-2xl shadow-sm p-8 max-w-3xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-xl font-bold text-foreground">Nota Financeira</h2>
+              <p className="text-muted-foreground text-sm">{currentMonthName}</p>
+            </div>
+
+            {/* Ganhos do Mês */}
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <ArrowUpRight className="w-4 h-4 text-success" />
+                <h3 className="font-bold text-success text-sm">Ganhos do Mês</h3>
+              </div>
+              <div className="space-y-4">
+                {currentMonthTransactions.filter(t => t.type === "income").map(t => (
+                  <div key={t.id} className="flex justify-between text-sm">
+                    <span className="text-foreground">
+                      Cachê: {t.description.replace('Cachê: ', '')} <span className="text-muted-foreground text-xs ml-1">({formatDateBR(t.date)})</span>
+                    </span>
+                    <span className="text-success font-medium">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                ))}
+                {currentMonthTransactions.filter(t => t.type === "income").length === 0 && (
+                  <p className="text-muted-foreground text-sm">Nenhum ganho registrado neste mês.</p>
+                )}
+                <div className="pt-4 mt-2 border-t border-border/50 flex justify-between font-bold text-sm">
+                  <span className="text-foreground">Total de Ganhos</span>
+                  <span className="text-success">R$ {receitaMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Gastos do Mês */}
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <ArrowDownRight className="w-4 h-4 text-destructive" />
+                <h3 className="font-bold text-destructive text-sm">Gastos do Mês</h3>
+              </div>
+              <div className="space-y-4">
+                {currentMonthTransactions.filter(t => t.type === "expense").map(t => (
+                  <div key={t.id} className="flex justify-between text-sm">
+                    <span className="text-foreground">
+                      {t.description} <span className="text-muted-foreground text-xs ml-1">({formatDateBR(t.date)})</span>
+                    </span>
+                    <span className="text-destructive font-medium">- R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                ))}
+                {currentMonthTransactions.filter(t => t.type === "expense").length === 0 && (
+                  <p className="text-muted-foreground text-sm">Nenhum gasto registrado neste mês.</p>
+                )}
+                <div className="pt-4 mt-2 border-t border-border/50 flex justify-between font-bold text-sm">
+                  <span className="text-foreground">Total de Gastos</span>
+                  <span className="text-destructive">R$ {despesaMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Gastos por Categoria */}
+            {expenseCategories.length > 0 && (
+              <div className="mb-8">
+                <div className="flex items-center gap-2 mb-4 text-muted-foreground">
+                  <Filter className="w-4 h-4" />
+                  <h3 className="font-bold text-sm">Gastos por Categoria</h3>
+                </div>
+                <div className="space-y-4 pl-6">
+                  {expenseCategories.map(cat => (
+                    <div key={cat.name} className="flex justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                        <span className="text-foreground capitalize">{cat.name.toLowerCase()}</span>
+                      </div>
+                      <span className="text-destructive">- R$ {cat.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Resultado do Mês */}
+            <div className="border-t border-border/50 pt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <DollarSign className="w-4 h-4 text-foreground" />
+                <h3 className="font-bold text-foreground text-sm">Resultado do Mês</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total de Ganhos</span>
+                  <span className="text-success font-medium">R$ {receitaMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">(-) Total de Gastos</span>
+                  <span className="text-destructive font-medium">R$ {despesaMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                </div>
+                
+                <div className={`mt-6 p-4 rounded-xl flex justify-between items-center ${lucroLiquido >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                  <span className="font-bold text-foreground">Lucro Líquido</span>
+                  <span className={`text-xl font-bold ${lucroLiquido >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    R$ {lucroLiquido.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                {receitaMensal > 0 && (
+                  <div className="text-center mt-3">
+                    <p className="text-xs text-muted-foreground">
+                      Margem de lucro: <span className={`font-bold ${lucroLiquido >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {((lucroLiquido / receitaMensal) * 100).toFixed(1)}%
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </Layout>
