@@ -91,6 +91,7 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
   const title = type === "income" ? "Nova Receita" : "Nova Despesa";
   const Icon = type === "income" ? TrendingUp : TrendingDown;
 
+  useEffect(() => {
     if (open) {
       setAmount("");
       setCategory("");
