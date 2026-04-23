@@ -125,7 +125,8 @@ export default function Financeiro() {
       const showExpensesList = expenses.filter(e => e.show_id === show.id);
       showExpensesList.forEach(e => {
         if (e.amount > 0) {
-          const normalizedCategory = CATEGORY_MAP[e.category?.toLowerCase()] || e.category;
+          const rawCat = e.category?.trim().toLowerCase() || "";
+          const normalizedCategory = CATEGORY_MAP[rawCat] || e.category?.trim() || "Outros";
           transactions.push({
             id: `expense-${e.id}`,
             show_id: show.id,
@@ -159,16 +160,18 @@ export default function Financeiro() {
 
   const lucroLiquido = receitaMensal - despesaMensal;
 
+  const normalizeCat = (c: string) => c?.trim().toLowerCase() || "";
+
   const custoEquipe = currentMonthTransactions
-    .filter(t => t.type === "expense" && (t.category === "Músicos" || t.category === "Produção" || t.category === "Equipe" || t.category === "Equipamentos"))
+    .filter(t => t.type === "expense" && ["músicos", "musicos", "produção", "producao", "equipe", "equipamentos"].includes(normalizeCat(t.category)))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoTransporte = currentMonthTransactions
-    .filter(t => t.type === "expense" && (t.category === "Transporte" || t.category === "transporte"))
+    .filter(t => t.type === "expense" && ["transporte"].includes(normalizeCat(t.category)))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoAlimentacao = currentMonthTransactions
-    .filter(t => t.type === "expense" && (t.category === "Alimentação" || t.category === "alimentacao"))
+    .filter(t => t.type === "expense" && ["alimentação", "alimentacao"].includes(normalizeCat(t.category)))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const custoTotalShows = despesaMensal;
