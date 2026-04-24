@@ -553,6 +553,7 @@ export default function Financeiro() {
                     <TableHead>Categoria</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -562,6 +563,19 @@ export default function Financeiro() {
                       <TableCell><Badge variant="secondary" className="capitalize">{t.category.toLowerCase()}</Badge></TableCell>
                       <TableCell className="text-muted-foreground">{formatDateBR(t.date)}</TableCell>
                       <TableCell className="text-right text-destructive font-semibold">- R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">
+                        {typeof t.id === "string" && t.id.startsWith("manual-") && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => setDeleteId(t.id.replace("manual-", ""))}
+                            aria-label="Excluir transação"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
