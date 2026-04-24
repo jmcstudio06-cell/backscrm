@@ -21,7 +21,18 @@ import {
   Download,
   Filter,
   Plus,
+  Trash2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   AreaChart,
   Area,
@@ -55,13 +66,14 @@ const CATEGORY_MAP: Record<string, string> = {
 export default function Financeiro() {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { shows, loading: loadingShows } = useShows();
-  const { transactions: dbTransactions, loading: loadingDb, addTransaction } = useTransactions({ fullHistory: true });
+  const { transactions: dbTransactions, loading: loadingDb, addTransaction, deleteTransaction } = useTransactions({ fullHistory: true });
   const [musicians, setMusicians] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
   
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"income" | "expense">("expense");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (shows.length === 0) {
@@ -541,6 +553,7 @@ export default function Financeiro() {
                     <TableHead>Categoria</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -550,6 +563,19 @@ export default function Financeiro() {
                       <TableCell><Badge variant="secondary" className="capitalize">{t.category.toLowerCase()}</Badge></TableCell>
                       <TableCell className="text-muted-foreground">{formatDateBR(t.date)}</TableCell>
                       <TableCell className="text-right text-destructive font-semibold">- R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">
+                        {typeof t.id === "string" && t.id.startsWith("manual-") && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => setDeleteId(t.id.replace("manual-", ""))}
+                            aria-label="Excluir transação"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -576,17 +602,34 @@ export default function Financeiro() {
                     <TableHead>Origem</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {currentMonthTransactions.filter(t => t.type === "income").map(t => (
-                    <TableRow key={t.id} className="hover:bg-secondary/20">
-                      <TableCell className="font-medium text-foreground py-4">{t.description}</TableCell>
-                      <TableCell><Badge variant="secondary">Show</Badge></TableCell>
-                      <TableCell className="text-muted-foreground">{formatDateBR(t.date)}</TableCell>
-                      <TableCell className="text-right text-success font-semibold">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
-                    </TableRow>
-                  ))}
+                  {currentMonthTransactions.filter(t => t.type === "income").map(t => {
+                    const isManual = typeof t.id === "string" && t.id.startsWith("manual-");
+                    return (
+                      <TableRow key={t.id} className="hover:bg-secondary/20">
+                        <TableCell className="font-medium text-foreground py-4">{t.description}</TableCell>
+                        <TableCell><Badge variant="secondary">{isManual ? "Manual" : "Show"}</Badge></TableCell>
+                        <TableCell className="text-muted-foreground">{formatDateBR(t.date)}</TableCell>
+                        <TableCell className="text-right text-success font-semibold">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="text-right">
+                          {isManual && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => setDeleteId(t.id.replace("manual-", ""))}
+                              aria-label="Excluir transação"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
@@ -723,6 +766,31 @@ export default function Financeiro() {
           await addTransaction(data);
         }}
       />
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A transação será removida permanentemente do seu resumo financeiro.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              onClick={async () => {
+                if (deleteId) {
+                  await deleteTransaction(deleteId);
+                  setDeleteId(null);
+                }
+              }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 }
