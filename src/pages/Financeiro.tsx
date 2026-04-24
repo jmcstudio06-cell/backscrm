@@ -66,13 +66,14 @@ const CATEGORY_MAP: Record<string, string> = {
 export default function Financeiro() {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { shows, loading: loadingShows } = useShows();
-  const { transactions: dbTransactions, loading: loadingDb, addTransaction } = useTransactions({ fullHistory: true });
+  const { transactions: dbTransactions, loading: loadingDb, addTransaction, deleteTransaction } = useTransactions({ fullHistory: true });
   const [musicians, setMusicians] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
   
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"income" | "expense">("expense");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (shows.length === 0) {
