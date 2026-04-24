@@ -602,17 +602,34 @@ export default function Financeiro() {
                     <TableHead>Origem</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {currentMonthTransactions.filter(t => t.type === "income").map(t => (
-                    <TableRow key={t.id} className="hover:bg-secondary/20">
-                      <TableCell className="font-medium text-foreground py-4">{t.description}</TableCell>
-                      <TableCell><Badge variant="secondary">Show</Badge></TableCell>
-                      <TableCell className="text-muted-foreground">{formatDateBR(t.date)}</TableCell>
-                      <TableCell className="text-right text-success font-semibold">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
-                    </TableRow>
-                  ))}
+                  {currentMonthTransactions.filter(t => t.type === "income").map(t => {
+                    const isManual = typeof t.id === "string" && t.id.startsWith("manual-");
+                    return (
+                      <TableRow key={t.id} className="hover:bg-secondary/20">
+                        <TableCell className="font-medium text-foreground py-4">{t.description}</TableCell>
+                        <TableCell><Badge variant="secondary">{isManual ? "Manual" : "Show"}</Badge></TableCell>
+                        <TableCell className="text-muted-foreground">{formatDateBR(t.date)}</TableCell>
+                        <TableCell className="text-right text-success font-semibold">+ R$ {t.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="text-right">
+                          {isManual && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => setDeleteId(t.id.replace("manual-", ""))}
+                              aria-label="Excluir transação"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
