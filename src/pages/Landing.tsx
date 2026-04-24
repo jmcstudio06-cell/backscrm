@@ -29,7 +29,9 @@ import {
   MapPin,
   BarChart3,
   Receipt,
-  Target
+  Target,
+  Link2,
+  Rocket
 } from "lucide-react";
 
 // Team images
@@ -53,7 +55,7 @@ import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
 import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
 import linkAgendaMockup from "@/assets/mockups/link-agenda-mockup.jpeg";
-import heroSingerImg from "@/assets/hero-singer-clean.webp";
+import baIconImg from "@/assets/ba-icon.png";
 
 const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
 const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
@@ -305,53 +307,67 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Right Column - Singer Image with glow effect */}
-            <div className="hidden lg:flex items-end justify-center relative">
-              {/* Glow behind singer */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-400/25 rounded-full blur-[100px]" />
-              <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-white/10 rounded-full blur-[80px]" />
-              
-              {/* Singer image */}
-              <img 
-                src={heroSingerImg} 
-                alt="Artista com microfone" 
-                className="relative z-10 w-[480px] max-h-[600px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.4)] select-none pointer-events-none"
-              />
-              
-              {/* Floating stat cards around singer */}
-              <div className="absolute top-12 right-0 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3s' }}>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
-                    <DollarSign className="w-5 h-5 text-white" />
+            {/* Right Column - Feature Showcase (matching Auth page) */}
+            <div className="hidden lg:flex items-center justify-center relative">
+              {/* Glow effect */}
+              <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-400/20 rounded-full blur-[100px] m-auto" />
+
+              <div className="w-full max-w-[540px] space-y-4 relative z-10">
+                {/* Main app mockup card */}
+                <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-6 shadow-2xl shadow-black/20">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
+                      <img src={baIconImg} alt="BA" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">Backstage Pro</p>
+                      <p className="text-white/50 text-xs">Painel do Artista</p>
+                    </div>
+                    <div className="ml-auto flex gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <div className="w-2 h-2 rounded-full bg-white/20" />
+                      <div className="w-2 h-2 rounded-full bg-white/20" />
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-white/60 text-xs">Receita gerenciada</p>
-                    <p className="text-white font-bold text-lg">R$ 2.5M+</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { icon: Link2, label: "Link Agenda", desc: "Receba pedidos online", color: "from-blue-500 to-blue-600" },
+                      { icon: MapPin, label: "Mapa de Palco", desc: "Rider técnico digital", color: "from-purple-500 to-purple-600" },
+                      { icon: DollarSign, label: "Financeiro", desc: "Receitas automáticas", color: "from-emerald-500 to-emerald-600" },
+                      { icon: Calendar, label: "Agenda Rápida", desc: "Shows organizados", color: "from-orange-500 to-orange-600" },
+                      { icon: Receipt, label: "Orçamento", desc: "Propostas em 1 clique", color: "from-pink-500 to-pink-600" },
+                      { icon: FileText, label: "Contrato", desc: "Gere e envie rápido", color: "from-cyan-500 to-cyan-600" },
+                    ].map((feat, i) => (
+                      <div
+                        key={i}
+                        className="group flex items-center gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/[0.12] transition-all duration-300 cursor-default"
+                      >
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feat.color} shadow-lg`}>
+                          <feat.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white text-sm font-semibold truncate">{feat.label}</p>
+                          <p className="text-white/40 text-xs truncate">{feat.desc}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              <div className="absolute top-1/3 left-0 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white/60 text-xs">Shows organizados</p>
-                    <p className="text-white font-bold text-lg">4.200+</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-32 right-4 bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/25 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white/60 text-xs">Músicos cadastrados</p>
-                    <p className="text-white font-bold text-lg">350+</p>
-                  </div>
+                {/* Bottom stats row */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { icon: Rocket, value: "2min", label: "Setup", color: "text-cyan-300" },
+                    { icon: Music, value: "+100", label: "Artistas", color: "text-emerald-300" },
+                    { icon: ClipboardCheck, value: "100%", label: "Prático", color: "text-amber-300" },
+                  ].map((stat, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1 p-4 rounded-xl border border-white/10 bg-white/[0.06] backdrop-blur-lg">
+                      <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                      <span className="text-white font-bold text-lg">{stat.value}</span>
+                      <span className="text-white/50 text-xs">{stat.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

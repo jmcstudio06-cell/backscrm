@@ -80,23 +80,31 @@ serve(async (req) => {
     }
 
     // Upsert-like behavior (endpoint+user_id)
+    // Only UPDATE when something actually changed (saves DB writes).
     const { data: existing } = await supabaseAdmin
       .from("user_push_subscriptions")
-      .select("id")
+      .select("id, p256dh, auth, is_active")
       .eq("user_id", userId)
       .eq("endpoint", body.endpoint)
       .maybeSingle();
 
     if (existing?.id) {
-      await supabaseAdmin
-        .from("user_push_subscriptions")
-        .update({
-          p256dh: body.p256dh,
-          auth: body.auth,
-          is_active: true,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", existing.id);
+      const unchanged =
+        existing.p256dh === body.p256dh &&
+        existing.auth === body.auth &&
+        existing.is_active === true;
+
+      if (!unchanged) {
+        await supabaseAdmin
+          .from("user_push_subscriptions")
+          .update({
+            p256dh: body.p256dh,
+            auth: body.auth,
+            is_active: true,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id);
+      }
     } else {
       await supabaseAdmin.from("user_push_subscriptions").insert({
         user_id: userId,
