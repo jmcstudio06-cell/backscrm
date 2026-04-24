@@ -9,7 +9,7 @@ interface WelcomeVideoModalProps {
   userName?: string;
 }
 
-const VIDEO_ID = "ylKA2EAgexI";
+const VIDEO_ID = "BoqlPSE6B1s";
 
 // Load YouTube IFrame API once
 let ytApiPromise: Promise<void> | null = null;
