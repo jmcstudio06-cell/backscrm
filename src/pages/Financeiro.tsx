@@ -527,7 +527,7 @@ export default function Financeiro() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-bold text-lg text-foreground">Despesas do Mês (Agenda)</h3>
           </div>
-          <ChartCard className="shadow-sm border-border/50 overflow-hidden p-0">
+          <ChartCard title="" className="shadow-sm border-border/50 overflow-hidden p-0">
             {currentMonthTransactions.filter(t => t.type === "expense").length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <TrendingDown className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
@@ -562,7 +562,7 @@ export default function Financeiro() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-bold text-lg text-foreground">Receitas do Mês (Agenda)</h3>
           </div>
-          <ChartCard className="shadow-sm border-border/50 overflow-hidden p-0">
+          <ChartCard title="" className="shadow-sm border-border/50 overflow-hidden p-0">
             {currentMonthTransactions.filter(t => t.type === "income").length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <TrendingUp className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
