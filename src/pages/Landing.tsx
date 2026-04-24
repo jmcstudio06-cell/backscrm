@@ -425,7 +425,7 @@ const Landing = () => {
               <CardContent className="p-0">
                 <div className="aspect-[9/16]">
                   <iframe
-                    src={getYouTubeEmbedUrl("https://www.youtube.com/shorts/RITl3r37h0I")?.replace('?autoplay=1', '') || ''}
+                    src={getYouTubeEmbedUrl("https://www.youtube.com/shorts/ewx-MyQ3BN4")?.replace('?autoplay=1', '') || ''}
                     title="Veja o app na prática"
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
