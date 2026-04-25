@@ -170,21 +170,14 @@ serve(async (req) => {
     }
 
     const planDays = PLAN_DAYS[planName] || 30;
-    const expiresAt = new Date(Date.now() + planDays * 24 * 60 * 60 * 1000).toISOString();
-
     const featureBlocks = buildFeatureBlocks(planName);
 
     const { error } = await supabase
       .from("profiles")
       .update({
         plan: planName,
-        subscription_status: "active",
         trial_start: new Date().toISOString(),
         trial_days: planDays,
-        expires_at: expiresAt,
-        gateway_event_id: gatewayEventId,
-        payer_email: payerEmail,
-        gateway_status: status,
         feature_blocks: featureBlocks,
       })
       .eq("user_id", userId);
