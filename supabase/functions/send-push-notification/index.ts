@@ -96,7 +96,7 @@ async function encryptPayload(payload: string, p256dhB64: string, authB64: strin
   // Import client public key
   const clientPubKey = await crypto.subtle.importKey(
     "raw",
-    clientPubRaw,
+    clientPubRaw as BufferSource,
     { name: "ECDH", namedCurve: "P-256" },
     false,
     [],
@@ -136,9 +136,9 @@ async function encryptPayload(payload: string, p256dhB64: string, authB64: strin
   const padded = new Uint8Array([...plaintext, 2]);
 
   // Encrypt with AES-128-GCM
-  const aesKey = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM", length: 128 }, false, ["encrypt"]);
+  const aesKey = await crypto.subtle.importKey("raw", cek as BufferSource, { name: "AES-GCM", length: 128 }, false, ["encrypt"]);
 
-  const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, aesKey, padded));
+  const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce as BufferSource }, aesKey, padded as BufferSource));
 
   // Build aes128gcm body: salt(16) || rs(4, big-endian) || idlen(1) || keyid(65) || ciphertext
   const rs = new Uint8Array(4);
@@ -151,12 +151,12 @@ async function encryptPayload(payload: string, p256dhB64: string, authB64: strin
 // HKDF: Extract then Expand
 async function hkdf(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, length: number): Promise<Uint8Array> {
   // Extract: PRK = HMAC-SHA-256(salt, ikm)
-  const prkKey = await crypto.subtle.importKey("raw", salt, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const prk = new Uint8Array(await crypto.subtle.sign("HMAC", prkKey, ikm));
+  const prkKey = await crypto.subtle.importKey("raw", salt as BufferSource, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const prk = new Uint8Array(await crypto.subtle.sign("HMAC", prkKey, ikm as BufferSource));
 
   // Expand: OKM = HMAC-SHA-256(PRK, info || 0x01)
-  const expandKey = await crypto.subtle.importKey("raw", prk, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const expanded = new Uint8Array(await crypto.subtle.sign("HMAC", expandKey, new Uint8Array([...info, 1])));
+  const expandKey = await crypto.subtle.importKey("raw", prk as BufferSource, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const expanded = new Uint8Array(await crypto.subtle.sign("HMAC", expandKey, new Uint8Array([...info, 1]) as BufferSource));
 
   return expanded.slice(0, length);
 }
