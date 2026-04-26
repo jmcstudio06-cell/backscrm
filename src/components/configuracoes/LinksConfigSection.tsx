@@ -16,11 +16,12 @@ export function LinksConfigSection() {
   const agendaBlocked = isBlocked("link-agenda");
   const instagramBlocked = isBlocked("link-instagram");
 
+  const PUBLIC_DOMAIN = "https://backstagepro.online";
   const agendaUrl = profile?.slug
-    ? `${window.location.origin}/artista/${profile.slug}`
+    ? `${PUBLIC_DOMAIN}/artista/${profile.slug}`
     : null;
   const instagramUrl = profile?.slug
-    ? `${window.location.origin}/link/${profile.slug}`
+    ? `${PUBLIC_DOMAIN}/link/${profile.slug}`
     : null;
 
   const handleCopy = (url: string, key: string) => {
