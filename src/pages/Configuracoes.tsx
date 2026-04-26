@@ -13,11 +13,12 @@ import {
   User, Camera, Shield, LogOut, Save, Loader2, Crown, Music, FileText, 
   ExternalLink, CalendarDays, ArrowUpCircle, Palette, RotateCcw, Check, 
   Circle, Square, Type, Monitor, Smartphone, MapPin, Radio, Disc3, 
-  Guitar, Zap, Lock, Eye, Sparkles, KeyRound, Trash2
+  Guitar, Zap, Lock, Eye, Sparkles, KeyRound, Trash2, Link2
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
+import { LinksConfigSection } from "@/components/configuracoes/LinksConfigSection";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
@@ -226,6 +227,10 @@ export default function Configuracoes() {
             <Music className="w-4 h-4" />
             <span className="hidden sm:inline">Perfil Artístico</span>
             <span className="sm:hidden">Artístico</span>
+          </TabsTrigger>
+          <TabsTrigger value="links" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
+            <Link2 className="w-4 h-4" />
+            <span>Links</span>
           </TabsTrigger>
           <TabsTrigger value="customization" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
             <Palette className="w-4 h-4" />
@@ -479,6 +484,11 @@ export default function Configuracoes() {
               </Button>
             </div>
           </div>
+        </TabsContent>
+
+        {/* ════════ LINKS ════════ */}
+        <TabsContent value="links" className="space-y-6 animate-in fade-in-50 duration-300">
+          <LinksConfigSection />
         </TabsContent>
 
         {/* ════════ PERSONALIZAÇÃO ════════ */}
