@@ -44,6 +44,7 @@ import MensagensProntas from "./pages/MensagensProntas";
 import ArtesCanva from "./pages/ArtesCanva";
 import Booking from "./pages/Booking";
 import LinkInstagram from "./pages/LinkInstagram";
+import LinkInstagramConfig from "./pages/LinkInstagramConfig";
 import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
 import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
@@ -137,6 +138,7 @@ const App = () => (
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 <Route path="/sugestoes" element={<AuthPage><Sugestoes /></AuthPage>} />
+                <Route path="/link-instagram" element={<AuthPage><LinkInstagramConfig /></AuthPage>} />
                 
                 <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="/link/:slug" element={<ErrorBoundary><LinkInstagram /></ErrorBoundary>} />

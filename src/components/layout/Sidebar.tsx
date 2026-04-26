@@ -106,7 +106,7 @@ const menuItems: MenuItem[] = [
     label: "Links",
     children: [
       { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
-      { icon: Instagram, label: "Link Instagram", path: "/configuracoes?tab=links&link=instagram", featureKey: "link-instagram" },
+      { icon: Instagram, label: "Link Instagram", path: "/link-instagram", featureKey: "link-instagram" },
     ],
   },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
