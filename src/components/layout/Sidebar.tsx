@@ -36,6 +36,8 @@ import {
   Package,
   Sparkles,
   Lightbulb,
+  Link2,
+  Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
