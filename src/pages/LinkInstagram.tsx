@@ -287,7 +287,7 @@ export default function LinkInstagram() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/40 transition-colors group"
           >
-            <AppLogo collapsed className="!p-0" />
+            <AppLogo collapsed size="sm" />
             <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
               feito com <span className="font-bold text-foreground">Backstage Pro</span>
             </span>
