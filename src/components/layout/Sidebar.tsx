@@ -101,7 +101,14 @@ const menuItems: MenuItem[] = [
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
   
-  { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
+  {
+    icon: Link2,
+    label: "Links",
+    children: [
+      { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
+      { icon: Instagram, label: "Link Instagram", path: "/configuracoes?tab=links&link=instagram", featureKey: "link-instagram" },
+    ],
+  },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
   { icon: Lightbulb, label: "Sugestões", path: "/sugestoes", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
