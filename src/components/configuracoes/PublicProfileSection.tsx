@@ -37,7 +37,7 @@ export function PublicProfileSection() {
   };
 
   const publicUrl = profile?.slug 
-    ? `${window.location.origin}/booking/${profile.slug}`
+    ? `${window.location.origin}/artista/${profile.slug}`
     : "Configure seu slug primeiro";
 
   const copyPublicLink = () => {
