@@ -15,6 +15,8 @@ import {
   MapPin,
   Music,
   User as UserIcon,
+  MessageCircle,
+  X,
 } from "lucide-react";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
