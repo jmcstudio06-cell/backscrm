@@ -26,6 +26,7 @@ interface PublicProfile {
   base_city: string | null;
   music_style: string | null;
   bio: string | null;
+  phone: string | null;
   instagram_url: string | null;
   youtube_url: string | null;
   tiktok_url: string | null;
@@ -69,7 +70,7 @@ export default function LinkInstagram() {
       const { data: prof } = await supabase
         .from("profiles")
         .select(
-          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url"
+          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url"
         )
         .eq("slug", slug)
         .maybeSingle();
