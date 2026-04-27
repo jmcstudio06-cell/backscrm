@@ -65,7 +65,13 @@ export default function LinkInstagram() {
         .maybeSingle();
 
       if (pub) {
-        setProfile(pub as PublicProfile);
+        // Buscar phone separado (não está em artist_public_profiles)
+        const { data: phoneRow } = await supabase
+          .from("profiles")
+          .select("phone")
+          .eq("slug", slug)
+          .maybeSingle();
+        setProfile({ ...(pub as PublicProfile), phone: phoneRow?.phone ?? null });
         setLoading(false);
         return;
       }
