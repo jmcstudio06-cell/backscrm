@@ -18,7 +18,7 @@ import {
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
-import { LinksConfigSection } from "@/components/configuracoes/LinksConfigSection";
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
