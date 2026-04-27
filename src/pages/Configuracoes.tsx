@@ -484,10 +484,7 @@ export default function Configuracoes() {
           </div>
         </TabsContent>
 
-        {/* ════════ LINKS ════════ */}
-        <TabsContent value="links" className="space-y-6 animate-in fade-in-50 duration-300">
-          <LinksConfigSection />
-        </TabsContent>
+
 
         {/* ════════ PERSONALIZAÇÃO ════════ */}
         <TabsContent value="customization" className="space-y-5 animate-in fade-in-50 duration-300">
