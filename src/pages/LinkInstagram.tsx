@@ -50,6 +50,7 @@ export default function LinkInstagram() {
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [showBookingChoice, setShowBookingChoice] = useState(false);
 
   useEffect(() => {
     async function load() {
