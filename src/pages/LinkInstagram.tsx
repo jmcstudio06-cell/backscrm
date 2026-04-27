@@ -26,7 +26,7 @@ interface PublicProfile {
   base_city: string | null;
   music_style: string | null;
   bio: string | null;
-  phone: string | null;
+  phone?: string | null;
   instagram_url: string | null;
   youtube_url: string | null;
   tiktok_url: string | null;
