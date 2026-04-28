@@ -80,7 +80,7 @@ export default function LinkInstagram() {
       const { data: prof } = await supabase
         .from("profiles")
         .select(
-          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url"
+          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_method"
         )
         .eq("slug", slug)
         .maybeSingle();
