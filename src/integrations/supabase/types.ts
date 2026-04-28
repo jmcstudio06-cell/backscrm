@@ -253,6 +253,7 @@ export type Database = {
           bio: string | null
           booking_discount_percent: number
           booking_max_dates: number
+          booking_method: string | null
           booking_min_dates_discount: number
           booking_show_products: boolean
           created_at: string
@@ -277,6 +278,7 @@ export type Database = {
           bio?: string | null
           booking_discount_percent?: number
           booking_max_dates?: number
+          booking_method?: string | null
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           created_at?: string
@@ -301,6 +303,7 @@ export type Database = {
           bio?: string | null
           booking_discount_percent?: number
           booking_max_dates?: number
+          booking_method?: string | null
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           created_at?: string
@@ -1382,6 +1385,7 @@ export type Database = {
           bio: string | null
           booking_discount_percent: number
           booking_max_dates: number
+          booking_method: string
           booking_min_dates_discount: number
           booking_show_products: boolean
           city: string | null
@@ -1428,6 +1432,7 @@ export type Database = {
           bio?: string | null
           booking_discount_percent?: number
           booking_max_dates?: number
+          booking_method?: string
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           city?: string | null
@@ -1474,6 +1479,7 @@ export type Database = {
           bio?: string | null
           booking_discount_percent?: number
           booking_max_dates?: number
+          booking_method?: string
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           city?: string | null

@@ -16,7 +16,6 @@ import {
   Music,
   User as UserIcon,
   MessageCircle,
-  X,
 } from "lucide-react";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
@@ -37,6 +36,7 @@ interface PublicProfile {
   media_kit_url: string | null;
   show_video_url: string | null;
   repertoire_url: string | null;
+  booking_method?: string | null;
 }
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -50,7 +50,7 @@ export default function LinkInstagram() {
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [showBookingChoice, setShowBookingChoice] = useState(false);
+  
 
   useEffect(() => {
     async function load() {
@@ -79,7 +79,7 @@ export default function LinkInstagram() {
       const { data: prof } = await supabase
         .from("profiles")
         .select(
-          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url"
+          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_method"
         )
         .eq("slug", slug)
         .maybeSingle();
@@ -193,100 +193,53 @@ export default function LinkInstagram() {
           </div>
         )}
 
-        {/* CTA Agendar Show */}
-        {profile.slug && (
-          <button
-            type="button"
-            onClick={() => setShowBookingChoice(true)}
-            className="group relative block w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] hover:bg-right transition-all duration-500 shadow-xl hover:shadow-2xl hover:scale-[1.02]"
-          >
+        {/* CTA Agendar Show — vai direto para o método escolhido pelo artista */}
+        {(() => {
+          if (!profile.slug) return null;
+          const phoneDigits = profile.phone ? profile.phone.replace(/\D/g, "") : "";
+          const useWhatsapp = profile.booking_method === "whatsapp" && phoneDigits;
+          const whatsappHref = phoneDigits
+            ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
+                `Olá ${profile.artist_name || ""}! Vi seu link e quero agendar um show.`
+              )}`
+            : null;
+          const backstageHref = `/artista/${profile.slug}`;
+
+          const Icon = useWhatsapp ? MessageCircle : CalendarDays;
+          const subtitle = useWhatsapp ? "Falar agora pelo WhatsApp" : "Veja datas disponíveis";
+          const gradient = useWhatsapp
+            ? "from-green-500 via-emerald-500 to-green-500"
+            : "from-primary via-accent to-primary";
+
+          const commonClass = `group relative block w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r ${gradient} bg-[length:200%_100%] hover:bg-right transition-all duration-500 shadow-xl hover:shadow-2xl hover:scale-[1.02]`;
+          const inner = (
             <div className="relative px-6 py-5 flex items-center justify-between text-primary-foreground">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <CalendarDays className="w-6 h-6" />
+                  <Icon className="w-6 h-6" />
                 </div>
                 <div className="text-left">
                   <p className="font-bold text-lg leading-tight">Agendar Show</p>
-                  <p className="text-xs opacity-90">Escolha como prefere falar</p>
+                  <p className="text-xs opacity-90">{subtitle}</p>
                 </div>
               </div>
               <ExternalLink className="w-5 h-5 opacity-80 group-hover:translate-x-1 transition-transform" />
             </div>
-          </button>
-        )}
+          );
 
-        {/* Modal de escolha: WhatsApp ou Backstage */}
-        {showBookingChoice && profile.slug && (
-          <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-            onClick={() => setShowBookingChoice(false)}
-          >
-            <div
-              className="w-full max-w-md bg-card rounded-3xl border border-border/50 shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border/50">
-                <h3 className="font-bold text-foreground">Como prefere agendar?</h3>
-                <button
-                  type="button"
-                  onClick={() => setShowBookingChoice(false)}
-                  className="w-8 h-8 rounded-full hover:bg-secondary flex items-center justify-center text-muted-foreground"
-                  aria-label="Fechar"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="p-5 space-y-3">
-                {/* WhatsApp */}
-                {profile.phone ? (
-                  <a
-                    href={`https://wa.me/${profile.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                      `Olá ${profile.artist_name || ""}! Vi seu link e quero agendar um show.`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-4 rounded-2xl p-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md hover:shadow-xl hover:scale-[1.02] transition-all"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <MessageCircle className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-bold leading-tight">WhatsApp</p>
-                      <p className="text-xs opacity-90">Conversa direta com o artista</p>
-                    </div>
-                    <ExternalLink className="w-5 h-5 opacity-80" />
-                  </a>
-                ) : (
-                  <div className="flex items-center gap-4 rounded-2xl p-4 bg-secondary/50 text-muted-foreground">
-                    <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
-                      <MessageCircle className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-bold leading-tight">WhatsApp</p>
-                      <p className="text-xs">Indisponível no momento</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Backstage Pro - Link Agenda */}
-                <Link
-                  to={`/artista/${profile.slug}`}
-                  className="group flex items-center gap-4 rounded-2xl p-4 bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-md hover:shadow-xl hover:scale-[1.02] transition-all"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <CalendarDays className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-bold leading-tight">Agenda Online</p>
-                    <p className="text-xs opacity-90">Escolha datas e produtos disponíveis</p>
-                  </div>
-                  <ExternalLink className="w-5 h-5 opacity-80" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
+          if (useWhatsapp && whatsappHref) {
+            return (
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className={commonClass}>
+                {inner}
+              </a>
+            );
+          }
+          return (
+            <Link to={backstageHref} className={commonClass}>
+              {inner}
+            </Link>
+          );
+        })()}
 
         {/* Material / Portfólio cards */}
         {(profile.media_kit_url || profile.repertoire_url) && (
