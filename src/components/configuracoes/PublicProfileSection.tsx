@@ -13,7 +13,7 @@ type BookingMethod = "backstage" | "whatsapp";
 
 export function PublicProfileSection() {
   const { profile, updateProfile } = useProfile();
-  const [copied, setCopied] = useState<BookingMethod | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
@@ -24,6 +24,9 @@ export function PublicProfileSection() {
   const [mediaKitUrl, setMediaKitUrl] = useState(profile?.media_kit_url || "");
   const [showVideoUrl, setShowVideoUrl] = useState(profile?.show_video_url || "");
   const [repertoireUrl, setRepertoireUrl] = useState(profile?.repertoire_url || "");
+  const [bookingMethod, setBookingMethod] = useState<BookingMethod>(
+    ((profile as any)?.booking_method as BookingMethod) || "backstage"
+  );
 
   const handleSave = async () => {
     await updateProfile({
@@ -36,7 +39,8 @@ export function PublicProfileSection() {
       media_kit_url: mediaKitUrl || null,
       show_video_url: showVideoUrl || null,
       repertoire_url: repertoireUrl || null,
-    });
+      booking_method: bookingMethod,
+    } as any);
   };
 
   const backstageUrl = profile?.slug ? `${PUBLIC_DOMAIN}/artista/${profile.slug}` : null;
@@ -47,80 +51,97 @@ export function PublicProfileSection() {
       )}`
     : null;
 
-  const copy = (method: BookingMethod, url: string) => {
-    navigator.clipboard.writeText(url);
-    setCopied(method);
+  const activeUrl = bookingMethod === "whatsapp" ? whatsappUrl : backstageUrl;
+
+  const copyActive = () => {
+    if (!activeUrl) return;
+    navigator.clipboard.writeText(activeUrl);
+    setCopied(true);
     toast.success("Link copiado!");
-    setTimeout(() => setCopied(null), 2000);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const choose = async (method: BookingMethod) => {
+    setBookingMethod(method);
+    await updateProfile({ booking_method: method } as any);
+    toast.success(method === "whatsapp" ? "Botão agora abre no WhatsApp" : "Botão agora abre na Agenda Backstage");
   };
 
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-1">Link de Contratação</h3>
+        <h3 className="text-lg font-semibold mb-1">Botão "Agendar Show"</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Estas são as duas opções que aparecem para o visitante no botão "Agendar Show". Copie qualquer um para usar onde quiser.
+          Escolha para onde o visitante é levado quando clicar no botão "Agendar Show" do seu Link Instagram.
         </p>
 
-        <div className="space-y-4">
-          {/* Backstage Pro */}
-          <div className="rounded-xl border border-border/60 p-4 bg-secondary/30">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground shadow-md">
-                <CalendarDays className="w-5 h-5" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <button
+            type="button"
+            onClick={() => choose("backstage")}
+            disabled={!backstageUrl}
+            className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+              bookingMethod === "backstage"
+                ? "border-primary bg-primary/5 shadow-md"
+                : "border-border/60 bg-secondary/20 hover:border-border"
+            } ${!backstageUrl ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            {bookingMethod === "backstage" && (
+              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                <Check className="w-3 h-3 text-primary-foreground" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground">Backstage Pro — Agenda Online</p>
-                <p className="text-xs text-muted-foreground">Contratante escolhe data e produto disponível</p>
-              </div>
-            </div>
-            {backstageUrl ? (
-              <div className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/50">
-                <code className="flex-1 text-xs sm:text-sm truncate">{backstageUrl}</code>
-                <Button size="sm" variant="outline" onClick={() => copy("backstage", backstageUrl)} className="h-8 px-2.5">
-                  {copied === "backstage" ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
-                </Button>
-                <Button size="sm" variant="outline" asChild className="h-8 w-8 p-0">
-                  <a href={backstageUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </Button>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground italic">Configure seu nome artístico no Perfil para gerar o link.</p>
             )}
-          </div>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground shadow-md mb-3">
+              <CalendarDays className="w-5 h-5" />
+            </div>
+            <p className="font-semibold text-foreground">Backstage Pro</p>
+            <p className="text-xs text-muted-foreground mt-1">Agenda online: contratante escolhe data e produto</p>
+          </button>
 
-          {/* WhatsApp */}
-          <div className="rounded-xl border border-border/60 p-4 bg-secondary/30">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-md">
-                <MessageCircle className="w-5 h-5" />
+          <button
+            type="button"
+            onClick={() => choose("whatsapp")}
+            disabled={!whatsappUrl}
+            className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+              bookingMethod === "whatsapp"
+                ? "border-primary bg-primary/5 shadow-md"
+                : "border-border/60 bg-secondary/20 hover:border-border"
+            } ${!whatsappUrl ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            {bookingMethod === "whatsapp" && (
+              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                <Check className="w-3 h-3 text-primary-foreground" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground">WhatsApp Direto</p>
-                <p className="text-xs text-muted-foreground">Conversa direta com mensagem pré-preenchida</p>
-              </div>
-            </div>
-            {whatsappUrl ? (
-              <div className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/50">
-                <code className="flex-1 text-xs sm:text-sm truncate">{whatsappUrl}</code>
-                <Button size="sm" variant="outline" onClick={() => copy("whatsapp", whatsappUrl)} className="h-8 px-2.5">
-                  {copied === "whatsapp" ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
-                </Button>
-                <Button size="sm" variant="outline" asChild className="h-8 w-8 p-0">
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </Button>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground italic">
-                Cadastre seu telefone no Perfil para ativar o link do WhatsApp.
-              </p>
             )}
-          </div>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-md mb-3">
+              <MessageCircle className="w-5 h-5" />
+            </div>
+            <p className="font-semibold text-foreground">WhatsApp Direto</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {whatsappUrl ? "Conversa direta com mensagem pronta" : "Cadastre seu telefone no Perfil"}
+            </p>
+          </button>
         </div>
+
+        {activeUrl ? (
+          <div className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/50">
+            <code className="flex-1 text-xs sm:text-sm truncate">{activeUrl}</code>
+            <Button size="sm" variant="outline" onClick={copyActive} className="h-8 px-2.5">
+              {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+            </Button>
+            <Button size="sm" variant="outline" asChild className="h-8 w-8 p-0">
+              <a href={activeUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </Button>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground italic">
+            {bookingMethod === "whatsapp"
+              ? "Cadastre seu telefone no Perfil para ativar este link."
+              : "Configure seu nome artístico no Perfil para gerar o link."}
+          </p>
+        )}
       </Card>
 
       <Card className="p-6">
