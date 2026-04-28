@@ -5,12 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { ExternalLink, Copy, Check } from "lucide-react";
+import { ExternalLink, Copy, Check, CalendarDays, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+
+const PUBLIC_DOMAIN = "https://backstagepro.online";
+type BookingMethod = "backstage" | "whatsapp";
 
 export function PublicProfileSection() {
   const { profile, updateProfile } = useProfile();
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<BookingMethod | null>(null);
 
   const [bio, setBio] = useState(profile?.bio || "");
   const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url || "");
@@ -36,46 +39,88 @@ export function PublicProfileSection() {
     });
   };
 
-  const publicUrl = profile?.slug 
-    ? `${window.location.origin}/artista/${profile.slug}`
-    : "Configure seu slug primeiro";
+  const backstageUrl = profile?.slug ? `${PUBLIC_DOMAIN}/artista/${profile.slug}` : null;
+  const phoneDigits = profile?.phone ? String(profile.phone).replace(/\D/g, "") : "";
+  const whatsappUrl = phoneDigits
+    ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
+        `Olá ${profile?.artist_name || ""}! Vi seu link e quero agendar um show.`
+      )}`
+    : null;
 
-  const copyPublicLink = () => {
-    if (profile?.slug) {
-      navigator.clipboard.writeText(publicUrl);
-      setCopied(true);
-      toast.success("Link copiado!");
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const copy = (method: BookingMethod, url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopied(method);
+    toast.success("Link copiado!");
+    setTimeout(() => setCopied(null), 2000);
   };
 
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Link Público de Contratação</h3>
-        
-        {profile?.slug ? (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-              <code className="flex-1 text-sm">{publicUrl}</code>
-              <Button size="sm" variant="outline" onClick={copyPublicLink}>
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </Button>
-              <Button size="sm" variant="outline" asChild>
-                <a href={publicUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </Button>
+        <h3 className="text-lg font-semibold mb-1">Link de Contratação</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Estas são as duas opções que aparecem para o visitante no botão "Agendar Show". Copie qualquer um para usar onde quiser.
+        </p>
+
+        <div className="space-y-4">
+          {/* Backstage Pro */}
+          <div className="rounded-xl border border-border/60 p-4 bg-secondary/30">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground shadow-md">
+                <CalendarDays className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground">Backstage Pro — Agenda Online</p>
+                <p className="text-xs text-muted-foreground">Contratante escolhe data e produto disponível</p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Compartilhe este link com contratantes para receber solicitações de show.
-            </p>
+            {backstageUrl ? (
+              <div className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/50">
+                <code className="flex-1 text-xs sm:text-sm truncate">{backstageUrl}</code>
+                <Button size="sm" variant="outline" onClick={() => copy("backstage", backstageUrl)} className="h-8 px-2.5">
+                  {copied === "backstage" ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                </Button>
+                <Button size="sm" variant="outline" asChild className="h-8 w-8 p-0">
+                  <a href={backstageUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </Button>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground italic">Configure seu nome artístico no Perfil para gerar o link.</p>
+            )}
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Configure seu slug nas configurações de perfil para ativar o link público.
-          </p>
-        )}
+
+          {/* WhatsApp */}
+          <div className="rounded-xl border border-border/60 p-4 bg-secondary/30">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-md">
+                <MessageCircle className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground">WhatsApp Direto</p>
+                <p className="text-xs text-muted-foreground">Conversa direta com mensagem pré-preenchida</p>
+              </div>
+            </div>
+            {whatsappUrl ? (
+              <div className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/50">
+                <code className="flex-1 text-xs sm:text-sm truncate">{whatsappUrl}</code>
+                <Button size="sm" variant="outline" onClick={() => copy("whatsapp", whatsappUrl)} className="h-8 px-2.5">
+                  {copied === "whatsapp" ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                </Button>
+                <Button size="sm" variant="outline" asChild className="h-8 w-8 p-0">
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </Button>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground italic">
+                Cadastre seu telefone no Perfil para ativar o link do WhatsApp.
+              </p>
+            )}
+          </div>
+        </div>
       </Card>
 
       <Card className="p-6">
