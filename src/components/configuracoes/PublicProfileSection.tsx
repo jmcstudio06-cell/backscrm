@@ -5,8 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { ExternalLink, Copy, Check } from "lucide-react";
+import { ExternalLink, Copy, Check, CalendarDays, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+
+const PUBLIC_DOMAIN = "https://backstagepro.online";
+type BookingMethod = "backstage" | "whatsapp";
 
 export function PublicProfileSection() {
   const { profile, updateProfile } = useProfile();
