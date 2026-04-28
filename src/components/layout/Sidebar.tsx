@@ -99,8 +99,6 @@ const menuItems: MenuItem[] = [
       { icon: Target, label: "Meta Anual 2026", path: "/metas/anual", featureKey: "metas" },
     ],
   },
-  { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
-  
   {
     icon: Link2,
     label: "Links",
@@ -109,6 +107,7 @@ const menuItems: MenuItem[] = [
       { icon: Instagram, label: "Link Instagram", path: "/link-instagram", featureKey: "link-instagram" },
     ],
   },
+  { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
   { icon: Lightbulb, label: "Sugestões", path: "/sugestoes", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
