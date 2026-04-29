@@ -227,7 +227,11 @@ export default function Agenda() {
     const todayStr = normalizeISODate(new Date()) || "";
     return shows
       .filter((s) => s.date && s.date >= todayStr && s.status !== "cancelled" && s.status !== "completed")
-      .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
+      .sort((a, b) => {
+        const d = (a.date || "").localeCompare(b.date || "");
+        if (d !== 0) return d;
+        return (a.start_time || "").localeCompare(b.start_time || "");
+      })
       .slice(0, 5);
   }, [shows]);
 
