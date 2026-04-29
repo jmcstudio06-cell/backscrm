@@ -127,44 +127,79 @@ export default function LinkInstagram() {
   const visibleSocials = socials.filter((s) => s.url && s.url.trim().length > 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/30">
-      {/* Background blur orbs */}
+    <div className="min-h-screen relative overflow-hidden bg-[#0a0a0f] text-white">
+      {/* Cinematic backdrop: artist avatar as ambient blur */}
+      {profile.avatar_url && (
+        <div className="fixed inset-0 pointer-events-none">
+          <img
+            src={profile.avatar_url}
+            alt=""
+            aria-hidden
+            className="w-full h-full object-cover scale-125 opacity-40 blur-3xl"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/70 via-[#0a0a0f]/85 to-[#0a0a0f]" />
+        </div>
+      )}
+
+      {/* Vibrant ambient orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute top-1/2 -right-20 w-80 h-80 rounded-full bg-accent/20 blur-3xl" />
+        <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] rounded-full bg-fuchsia-500/30 blur-3xl animate-pulse" style={{ animationDuration: "6s" }} />
+        <div className="absolute top-1/3 -right-32 w-[32rem] h-[32rem] rounded-full bg-violet-500/30 blur-3xl animate-pulse" style={{ animationDuration: "8s" }} />
+        <div className="absolute bottom-0 left-1/4 w-[24rem] h-[24rem] rounded-full bg-cyan-500/20 blur-3xl animate-pulse" style={{ animationDuration: "10s" }} />
       </div>
 
-      <div className="relative max-w-2xl mx-auto px-4 py-8 sm:py-12">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center mb-8">
+      {/* Subtle grain */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.04] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        }}
+      />
+
+      <div className="relative max-w-xl mx-auto px-5 pt-10 pb-12 sm:pt-16">
+        {/* Hero */}
+        <div className="flex flex-col items-center text-center mb-10">
           <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-accent blur-xl opacity-60" />
-            <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary to-accent p-1 shadow-2xl">
-              <div className="w-full h-full rounded-full bg-background overflow-hidden flex items-center justify-center">
+            {/* Spinning conic halo */}
+            <div
+              className="absolute -inset-3 rounded-full opacity-80 blur-md"
+              style={{
+                background:
+                  "conic-gradient(from 0deg, #f0abfc, #a78bfa, #22d3ee, #f0abfc)",
+                animation: "spin 8s linear infinite",
+              }}
+            />
+            <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-full p-[3px] bg-gradient-to-br from-fuchsia-400 via-violet-400 to-cyan-400 shadow-[0_20px_60px_-15px_rgba(168,85,247,0.6)]">
+              <div className="w-full h-full rounded-full bg-[#0a0a0f] overflow-hidden flex items-center justify-center ring-4 ring-[#0a0a0f]">
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt={profile.artist_name || "Artista"} className="w-full h-full object-cover" />
                 ) : (
-                  <UserIcon className="w-14 h-14 text-muted-foreground" />
+                  <UserIcon className="w-14 h-14 text-white/50" />
                 )}
               </div>
             </div>
+            {/* Verified-style badge */}
+            <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-fuchsia-500 to-violet-600 flex items-center justify-center shadow-lg ring-4 ring-[#0a0a0f]">
+              <Music className="w-4 h-4 text-white" />
+            </div>
           </div>
 
-          <h1 className="mt-5 text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+          <h1 className="mt-6 text-4xl sm:text-5xl font-black tracking-tight bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent drop-shadow-sm">
             {profile.artist_name || "Artista"}
           </h1>
 
           {(profile.music_style || profile.base_city) && (
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
               {profile.music_style && (
-                <span className="inline-flex items-center gap-1.5">
-                  <Music className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-medium text-white/90">
+                  <Music className="w-3 h-3" />
                   {profile.music_style}
                 </span>
               )}
               {profile.base_city && (
-                <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-medium text-white/90">
+                  <MapPin className="w-3 h-3" />
                   {profile.base_city}
                 </span>
               )}
@@ -172,7 +207,7 @@ export default function LinkInstagram() {
           )}
 
           {profile.bio && (
-            <p className="mt-4 max-w-md text-sm sm:text-base text-foreground/80 leading-relaxed">
+            <p className="mt-5 max-w-md text-[15px] text-white/75 leading-relaxed">
               {profile.bio}
             </p>
           )}
