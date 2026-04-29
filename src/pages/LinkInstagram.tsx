@@ -268,7 +268,7 @@ export default function LinkInstagram() {
           const Icon = useWhatsapp ? MessageCircle : CalendarDays;
           const subtitle = useWhatsapp ? "Falar agora pelo WhatsApp" : "Veja datas disponíveis";
 
-          const commonClass = `group relative block w-full mb-4 overflow-hidden rounded-2xl shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.5)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200`;
+          const commonClass = `group relative block w-full mb-4 overflow-hidden rounded-b-2xl shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.5)] active:scale-[0.99] transition-all duration-200`;
           const inner = (
             <>
               <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/85" />
