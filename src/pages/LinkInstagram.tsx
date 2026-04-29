@@ -215,7 +215,7 @@ export default function LinkInstagram() {
 
         {/* Vídeo destaque */}
         {embedUrl && (
-          <div className="mb-6 rounded-3xl overflow-hidden border border-border/50 shadow-2xl bg-card">
+          <div className="mb-6 rounded-3xl overflow-hidden border border-white/10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] bg-black/40 backdrop-blur-xl">
             <div className="aspect-video">
               <iframe
                 src={embedUrl.replace("autoplay=1", "autoplay=0")}
@@ -228,7 +228,7 @@ export default function LinkInstagram() {
           </div>
         )}
 
-        {/* CTA Agendar Show — vai direto para o método escolhido pelo artista */}
+        {/* CTA Agendar Show */}
         {(() => {
           if (!profile.slug) return null;
           const phoneDigits = profile.phone ? profile.phone.replace(/\D/g, "") : "";
@@ -243,23 +243,32 @@ export default function LinkInstagram() {
           const Icon = useWhatsapp ? MessageCircle : CalendarDays;
           const subtitle = useWhatsapp ? "Falar agora pelo WhatsApp" : "Veja datas disponíveis";
           const gradient = useWhatsapp
-            ? "from-green-500 via-emerald-500 to-green-500"
-            : "from-primary via-accent to-primary";
+            ? "from-emerald-400 via-green-500 to-emerald-600"
+            : "from-fuchsia-500 via-violet-500 to-cyan-500";
+          const glow = useWhatsapp
+            ? "shadow-[0_20px_60px_-15px_rgba(16,185,129,0.7)]"
+            : "shadow-[0_20px_60px_-15px_rgba(168,85,247,0.7)]";
 
-          const commonClass = `group relative block w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r ${gradient} bg-[length:200%_100%] hover:bg-right transition-all duration-500 shadow-xl hover:shadow-2xl hover:scale-[1.02]`;
+          const commonClass = `group relative block w-full mb-5 overflow-hidden rounded-3xl ${glow} hover:scale-[1.02] active:scale-[0.99] transition-all duration-300`;
           const inner = (
-            <div className="relative px-6 py-5 flex items-center justify-between text-primary-foreground">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <Icon className="w-6 h-6" />
+            <>
+              <div className={`absolute inset-0 bg-gradient-to-r ${gradient} bg-[length:200%_100%] group-hover:bg-right transition-[background-position] duration-700`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              {/* shimmer */}
+              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <div className="relative px-6 py-5 flex items-center justify-between text-white">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center ring-1 ring-white/30">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-black text-xl leading-tight tracking-tight">Agendar Show</p>
+                    <p className="text-[13px] opacity-90 font-medium">{subtitle}</p>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <p className="font-bold text-lg leading-tight">Agendar Show</p>
-                  <p className="text-xs opacity-90">{subtitle}</p>
-                </div>
+                <ExternalLink className="w-5 h-5 opacity-90 group-hover:translate-x-1 transition-transform" />
               </div>
-              <ExternalLink className="w-5 h-5 opacity-80 group-hover:translate-x-1 transition-transform" />
-            </div>
+            </>
           );
 
           if (useWhatsapp && whatsappHref) {
@@ -284,17 +293,17 @@ export default function LinkInstagram() {
                 href={profile.media_kit_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-2xl bg-card border border-border/50 p-5 hover:border-primary/40 hover:shadow-lg transition-all hover:-translate-y-0.5"
+                className="group rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/10 hover:border-white/25 hover:-translate-y-0.5 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/30">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground">Mídia Kit</p>
-                    <p className="text-xs text-muted-foreground">Press kit profissional</p>
+                    <p className="font-semibold text-white">Mídia Kit</p>
+                    <p className="text-xs text-white/60">Press kit profissional</p>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
                 </div>
               </a>
             )}
@@ -303,17 +312,17 @@ export default function LinkInstagram() {
                 href={profile.repertoire_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-2xl bg-card border border-border/50 p-5 hover:border-primary/40 hover:shadow-lg transition-all hover:-translate-y-0.5"
+                className="group rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/10 hover:border-white/25 hover:-translate-y-0.5 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/30">
                     <ListMusic className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground">Repertório</p>
-                    <p className="text-xs text-muted-foreground">Lista de músicas</p>
+                    <p className="font-semibold text-white">Repertório</p>
+                    <p className="text-xs text-white/60">Lista de músicas</p>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
                 </div>
               </a>
             )}
@@ -323,7 +332,7 @@ export default function LinkInstagram() {
         {/* Redes sociais */}
         {visibleSocials.length > 0 && (
           <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground text-center mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/50 text-center mb-4">
               Redes Sociais
             </p>
             <div className="space-y-2.5">
@@ -335,15 +344,15 @@ export default function LinkInstagram() {
                     href={social.url!}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-4 rounded-2xl bg-card border border-border/50 p-4 hover:border-primary/40 hover:shadow-lg transition-all hover:-translate-y-0.5"
+                    className="group flex items-center gap-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 hover:bg-white/10 hover:border-white/25 hover:-translate-y-0.5 transition-all"
                   >
                     <div
-                      className={`w-11 h-11 rounded-xl bg-gradient-to-br ${social.color} flex items-center justify-center text-white shadow-md shrink-0`}
+                      className={`w-11 h-11 rounded-xl bg-gradient-to-br ${social.color} flex items-center justify-center text-white shadow-lg shrink-0`}
                     >
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="flex-1 font-semibold text-foreground">{social.label}</span>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="flex-1 font-semibold text-white">{social.label}</span>
+                    <ExternalLink className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
                   </a>
                 );
               })}
@@ -351,17 +360,17 @@ export default function LinkInstagram() {
           </div>
         )}
 
-        {/* Footer com marca Backstage */}
-        <div className="mt-12 pt-6 border-t border-border/30 flex flex-col items-center gap-3">
+        {/* Footer */}
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col items-center gap-3">
           <a
             href="https://backstagepro.online"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/40 transition-colors group"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/25 transition-all group"
           >
             <AppLogo collapsed size="sm" />
-            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-              feito com <span className="font-bold text-foreground">Backstage Pro</span>
+            <span className="text-xs text-white/60 group-hover:text-white transition-colors">
+              feito com <span className="font-bold text-white">Backstage Pro</span>
             </span>
           </a>
         </div>
