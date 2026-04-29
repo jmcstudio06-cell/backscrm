@@ -761,7 +761,11 @@ export default function Agenda() {
                   const [y, m] = parts.map(Number);
                   return m - 1 === currentMonth.getMonth() && y === currentMonth.getFullYear();
                 })
-                .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+                .sort((a, b) => {
+                  const d = (a.date || "").localeCompare(b.date || "");
+                  if (d !== 0) return d;
+                  return (a.start_time || "").localeCompare(b.start_time || "");
+                });
 
               if (listShows.length === 0) {
                 return (
