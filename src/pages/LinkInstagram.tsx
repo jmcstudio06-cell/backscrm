@@ -151,7 +151,7 @@ export default function LinkInstagram() {
         </div>
 
         {/* Hero: foto à esquerda + info/botões à direita */}
-        <div className="mb-4 rounded-2xl bg-white border border-slate-200 p-4 sm:p-6 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.15)]">
+        <div className="rounded-t-2xl bg-white border border-b-0 border-slate-200 p-4 sm:p-6 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.15)]">
           <div className="flex flex-row gap-4 items-start">
             {/* Foto */}
             <div className="relative shrink-0">
