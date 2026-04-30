@@ -118,7 +118,7 @@ export default function Termos() {
               <p>
                 Para dúvidas sobre estes termos, entre em contato conosco através do WhatsApp: 
                 <a 
-                  href="https://wa.me/5512981289496" 
+                  href="https://wa.me/5512991764910" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-[#0066CC] hover:underline ml-1"
