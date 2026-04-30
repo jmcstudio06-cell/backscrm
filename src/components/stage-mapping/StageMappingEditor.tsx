@@ -291,7 +291,16 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         document.body.removeChild(tempContainer);
       }
 
-      const dateFormatted = eventDate ? new Date(eventDate).toLocaleDateString("pt-BR") : "-";
+      // Parse local timezone para evitar off-by-one (YYYY-MM-DD vira UTC midnight no construtor padrão)
+      const dateFormatted = (() => {
+        if (!eventDate) return "-";
+        const m = eventDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) {
+          const local = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+          return local.toLocaleDateString("pt-BR");
+        }
+        return new Date(eventDate).toLocaleDateString("pt-BR");
+      })();
       const now = new Date();
       const generatedAt = `${now.toLocaleDateString("pt-BR")} às ${now.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}`;
       const totalChannels = inputList.length;
