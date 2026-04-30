@@ -202,7 +202,11 @@ export default function MapeamentoPalco() {
                     {mapping.event_date && (
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 flex-shrink-0" />
-                        <span>{new Date(mapping.event_date).toLocaleDateString("pt-BR")}</span>
+                        <span>{(() => {
+                          const m = mapping.event_date?.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                          if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).toLocaleDateString("pt-BR");
+                          return new Date(mapping.event_date).toLocaleDateString("pt-BR");
+                        })()}</span>
                       </div>
                     )}
                     {mapping.event_location && (
