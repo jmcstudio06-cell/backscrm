@@ -166,7 +166,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
               Instagram
             </a>
             <a
-              href="https://wa.me/5512992423317"
+              href="https://wa.me/5512991764910"
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-sidebar text-sidebar-foreground text-xs font-medium transition-colors hover:opacity-80 border border-sidebar-border"

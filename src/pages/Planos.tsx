@@ -134,8 +134,8 @@ const plans: PlanDef[] = [
     badgeText: "TUDO LIBERADO",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
-    planKeyMonthly: "mensal_completo",
-    planKeyYearly: "anual_completo",
+    planKeyMonthly: "mensal_empresarial",
+    planKeyYearly: "anual_empresarial",
     features: [
       "Tudo do Profissional +",
       "Link Agendamento Online",
