@@ -3,17 +3,31 @@ import baIconImg from "@/assets/ba-icon.png";
 import { cn } from "@/lib/utils";
 
 export function SplashScreen() {
-  const [isVisible, setIsVisible] = useState(true);
+  // Só exibe em PWA instalado (standalone) em mobile/tablet, uma vez por sessão
+  const shouldShow = (() => {
+    if (typeof window === "undefined") return false;
+
+    const isStandalone =
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true;
+    if (!isStandalone) return false;
+
+    const isMobileOrTablet = window.matchMedia?.("(max-width: 1024px)").matches;
+    if (!isMobileOrTablet) return false;
+
+    if (sessionStorage.getItem("splash_shown") === "1") return false;
+    sessionStorage.setItem("splash_shown", "1");
+    return true;
+  })();
+
+  const [isVisible, setIsVisible] = useState(shouldShow);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
-    // Bloqueia scroll durante o splash
+    if (!isVisible) return;
     document.body.style.overflow = 'hidden';
 
-    const fadeTimer = setTimeout(() => {
-      setIsFadingOut(true);
-    }, 2200);
-
+    const fadeTimer = setTimeout(() => setIsFadingOut(true), 2200);
     const hideTimer = setTimeout(() => {
       setIsVisible(false);
       document.body.style.overflow = 'auto';
@@ -24,7 +38,7 @@ export function SplashScreen() {
       clearTimeout(hideTimer);
       document.body.style.overflow = 'auto';
     };
-  }, []);
+  }, [isVisible]);
 
   if (!isVisible) return null;
 
