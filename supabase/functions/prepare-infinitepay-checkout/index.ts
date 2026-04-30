@@ -10,9 +10,11 @@ const PLAN_CONFIG: Record<string, { checkoutUrl: string; amountCents: number }> 
   mensal_starter: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/xSJTvKbev", amountCents: 1990 },
   mensal_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/3ppHyYNBMH", amountCents: 2490 },
   mensal_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/7feafZpCUB", amountCents: 3990 },
+  mensal_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/7feafZpCUB", amountCents: 3990 },
   anual_starter: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/1uueQ3x5Jr", amountCents: 14990 },
   anual_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/1HH6RVTbeb", amountCents: 19990 },
   anual_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/1uuf5FwQOf", amountCents: 29880 },
+  anual_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/1uuf5FwQOf", amountCents: 29880 },
 };
 
 serve(async (req) => {
