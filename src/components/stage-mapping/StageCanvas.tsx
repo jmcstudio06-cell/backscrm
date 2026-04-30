@@ -16,19 +16,24 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/comp
 // Importar imagens
 import drummerImg from '@/assets/stage/drummer.png';
 import guitaristImg from '@/assets/stage/guitarist.png';
-import keyboardistImg from '@/assets/stage/keyboardist.png';
+import keyboardistImg from '@/assets/stage/tecladista.png';
 import bassistImg from '@/assets/stage/bassist.png';
 import singerImg from '@/assets/stage/singer.png';
+import singerGuitarImg from '@/assets/stage/cantor_violao.png';
 import ampImg from '@/assets/stage/amp.png';
 import accordionistImg from '@/assets/stage/accordionist.png';
 import acousticImg from '@/assets/stage/acoustic-transparent.png';
 import brassImg from '@/assets/stage/brass.png';
+import percussionistImg from '@/assets/stage/percussionista.png';
 import power110vImg from '@/assets/stage/power110v.png';
 import power220vImg from '@/assets/stage/power220v.png';
 import siderImg from '@/assets/stage/sider.png';
-import rackImg from '@/assets/stage/rack.png';
+import rackImg from '@/assets/stage/tripe_instrumentos.png';
 import monitor1Img from '@/assets/stage/monitor1.png';
 import monitor2Img from '@/assets/stage/monitor2.png';
+import speakerStandImg from '@/assets/stage/caixa_tripe.png';
+import vsImg from '@/assets/stage/vs.png';
+import gabineteImg from '@/assets/stage/gabinete.png';
 import stairsImg from '@/assets/stage/stairs.png';
 import riserImg from '@/assets/stage/riser.png';
 import pedalboardImg from '@/assets/stage/pedalboard.png';
@@ -66,12 +71,14 @@ interface ElementTypeInfo {
 
 const MUSICIANS: ElementTypeInfo[] = [
   { type: 'vocal', label: 'Cantor', image: singerImg, width: 65, height: 85 },
+  { type: 'singer_guitar', label: 'Cantor c/ Violão', image: singerGuitarImg, width: 70, height: 95 },
   { type: 'backing', label: 'Backing', image: singerImg, width: 65, height: 85 },
   { type: 'guitar', label: 'Guitarrista', image: guitaristImg, width: 70, height: 85 },
   { type: 'acoustic', label: 'Violão', image: acousticImg, width: 70, height: 85 },
   { type: 'bass', label: 'Baixista', image: bassistImg, width: 70, height: 85 },
-  { type: 'keyboard', label: 'Tecladista', image: keyboardistImg, width: 90, height: 85 },
+  { type: 'keyboard', label: 'Tecladista', image: keyboardistImg, width: 95, height: 85 },
   { type: 'drums', label: 'Baterista', image: drummerImg, width: 100, height: 85 },
+  { type: 'percussion', label: 'Percussionista', image: percussionistImg, width: 90, height: 95 },
   { type: 'accordion', label: 'Sanfoneiro', image: accordionistImg, width: 70, height: 85 },
   { type: 'brass', label: 'Sopro', image: brassImg, width: 65, height: 85 },
 ];
@@ -81,8 +88,11 @@ const EQUIPMENT: ElementTypeInfo[] = [
   { type: 'pedalboard', label: 'Pedalboard', image: pedalboardImg, width: 60, height: 35 },
   { type: 'monitor1', label: 'Retorno 1', image: monitor1Img, width: 70, height: 45 },
   { type: 'monitor2', label: 'Retorno 2', image: monitor2Img, width: 65, height: 55 },
-  { type: 'rack', label: 'Rack', image: rackImg, width: 80, height: 55 },
-  { type: 'sider', label: 'Sider', image: siderImg, width: 45, height: 70 },
+  { type: 'speaker_stand', label: 'Caixa em Tripé', image: speakerStandImg, width: 60, height: 90 },
+  { type: 'vs', label: 'VS (Sub)', image: vsImg, width: 55, height: 50 },
+  { type: 'rack', label: 'Tripé Instr.', image: rackImg, width: 80, height: 70 },
+  { type: 'sider', label: 'Sider', image: siderImg, width: 60, height: 55 },
+  { type: 'gabinete', label: 'Gabinete', image: gabineteImg, width: 90, height: 60 },
 ];
 
 const STAGE_INFRA: ElementTypeInfo[] = [
@@ -102,6 +112,10 @@ const ALL_ELEMENT_TYPES = [...MUSICIANS, ...EQUIPMENT, ...STAGE_INFRA];
 
 const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: string; di: boolean }[]> = {
   vocal: [{ instrument: 'Voz Principal', micType: 'SM58', di: false }],
+  singer_guitar: [
+    { instrument: 'Voz Principal', micType: 'SM58', di: false },
+    { instrument: 'Violão', micType: '', di: true },
+  ],
   backing: [{ instrument: 'Backing Vocal', micType: 'SM58', di: false }],
   guitar: [{ instrument: 'Guitarra', micType: 'SM57', di: false }],
   acoustic: [{ instrument: 'Violão', micType: '', di: true }],
@@ -120,9 +134,14 @@ const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: stri
     { instrument: 'Overhead L', micType: 'SM81', di: false },
     { instrument: 'Overhead R', micType: 'SM81', di: false },
   ],
+  percussion: [
+    { instrument: 'Conga', micType: 'E604', di: false },
+    { instrument: 'Bongô', micType: 'E604', di: false },
+    { instrument: 'Acessórios (OH)', micType: 'SM81', di: false },
+  ],
   accordion: [{ instrument: 'Sanfona', micType: '', di: true }],
   brass: [{ instrument: 'Sopro', micType: 'SM57', di: false }],
-  amp: [], pedalboard: [], sider: [], monitor1: [], monitor2: [], rack: [], stairs: [], riser: [], power110v: [], power220v: [],
+  amp: [], pedalboard: [], sider: [], monitor1: [], monitor2: [], rack: [], stairs: [], riser: [], power110v: [], power220v: [], speaker_stand: [], vs: [], gabinete: [],
 };
 
 const GRID_SIZE = 25;
