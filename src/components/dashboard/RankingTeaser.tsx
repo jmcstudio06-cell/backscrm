@@ -66,7 +66,7 @@ export function RankingTeaser() {
             Confira no Instagram
           </p>
           <p className="text-sm font-bold text-foreground truncate">
-            TOP 3 do ranking de Abril 🏆
+            TOP 3 do ranking de Abril
           </p>
         </div>
         <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
