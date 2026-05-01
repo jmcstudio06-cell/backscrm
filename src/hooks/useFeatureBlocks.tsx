@@ -39,18 +39,18 @@ export const PLAN_MODULES = {
   },
   profissional: {
     name: "Profissional",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "link-instagram", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "link-instagram", "ideias-post", "tutoriais", "configuracoes"],
     price: "R$ 24,90/mês",
   },
   empresarial: {
     name: "Empresarial",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "link-instagram", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-instagram", "bonus", "ideias-post", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
   },
   // Legacy alias
   completo: {
     name: "Empresarial",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "link-instagram", "tutoriais", "configuracoes"],
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-instagram", "bonus", "ideias-post", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
   },
 };
