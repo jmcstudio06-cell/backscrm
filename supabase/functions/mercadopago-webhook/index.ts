@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildFeatureBlocks } from "../_shared/plan-features.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,31 +9,6 @@ const corsHeaders = {
 };
 
 const SUCCESSFUL_STATUSES = new Set(["approved", "authorized"]);
-
-function buildFeatureBlocks(plan: string): Record<string, boolean> {
-  const allFeatures = [
-    "dashboard", "agenda", "crm", "clientes", "orcamentos", "servicos",
-    "contratos", "financeiro", "historico", "precificacao", "checklist",
-    "mapeamento-palco", "equipe", "metas", "repertorio", "aulas",
-    "avancos", "tutoriais", "configuracoes", "link-agenda",
-  ];
-
-  const planFeatures: Record<string, string[]> = {
-    mensal_starter: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
-    anual_starter: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
-    mensal_profissional: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "tutoriais", "configuracoes"],
-    anual_profissional: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "tutoriais", "configuracoes"],
-    mensal_completo: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "tutoriais", "configuracoes"],
-    anual_completo: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "historico", "mapeamento-palco", "metas", "aulas", "link-agenda", "tutoriais", "configuracoes"],
-  };
-
-  const enabled = new Set(planFeatures[plan] ?? []);
-  const blocks: Record<string, boolean> = {};
-  for (const feature of allFeatures) {
-    blocks[feature] = !enabled.has(feature);
-  }
-  return blocks;
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
