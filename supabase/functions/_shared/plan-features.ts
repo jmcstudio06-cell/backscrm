@@ -37,7 +37,7 @@ const STARTER_FEATURES = [
 const PROFISSIONAL_FEATURES = [
   ...STARTER_FEATURES,
   "clientes", "repertorio", "crm", "orcamentos", "checklist",
-  "equipe", "link-instagram",
+  "equipe", "link-instagram", "ideias-post",
 ];
 
 const EMPRESARIAL_FEATURES = [
