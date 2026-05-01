@@ -27,31 +27,38 @@ import html2canvas from "html2canvas";
 // Importar imagens para o PDF
 import drummerImg from '@/assets/stage/drummer.png';
 import guitaristImg from '@/assets/stage/guitarist.png';
-import keyboardistImg from '@/assets/stage/keyboardist.png';
+import keyboardistImg from '@/assets/stage/tecladista.png';
 import bassistImg from '@/assets/stage/bassist.png';
 import singerImg from '@/assets/stage/singer.png';
+import singerGuitarImg from '@/assets/stage/cantor_violao.png';
 import ampImg from '@/assets/stage/amp.png';
 import accordionistImg from '@/assets/stage/accordionist.png';
 import acousticImg from '@/assets/stage/acoustic-transparent.png';
 import brassImg from '@/assets/stage/brass.png';
+import percussionistImg from '@/assets/stage/percussionista.png';
 import power110vImg from '@/assets/stage/power110v.png';
 import power220vImg from '@/assets/stage/power220v.png';
 import siderImg from '@/assets/stage/sider.png';
-import rackImg from '@/assets/stage/rack.png';
+import rackImg from '@/assets/stage/tripe_instrumentos.png';
 import monitor1Img from '@/assets/stage/monitor1.png';
 import monitor2Img from '@/assets/stage/monitor2.png';
+import speakerStandImg from '@/assets/stage/caixa_tripe.png';
+import vsImg from '@/assets/stage/vs.png';
+import gabineteImg from '@/assets/stage/gabinete.png';
 import stairsImg from '@/assets/stage/stairs.png';
 import riserImg from '@/assets/stage/riser.png';
 import pedalboardImg from '@/assets/stage/pedalboard.png';
 
 const ELEMENT_TYPE_IMAGES: Record<string, string> = {
   vocal: singerImg,
+  singer_guitar: singerGuitarImg,
   backing: singerImg,
   guitar: guitaristImg,
   acoustic: acousticImg,
   bass: bassistImg,
   keyboard: keyboardistImg,
   drums: drummerImg,
+  percussion: percussionistImg,
   accordion: accordionistImg,
   brass: brassImg,
   amp: ampImg,
@@ -59,6 +66,9 @@ const ELEMENT_TYPE_IMAGES: Record<string, string> = {
   sider: siderImg,
   monitor1: monitor1Img,
   monitor2: monitor2Img,
+  speaker_stand: speakerStandImg,
+  vs: vsImg,
+  gabinete: gabineteImg,
   rack: rackImg,
   stairs: stairsImg,
   riser: riserImg,
@@ -68,20 +78,25 @@ const ELEMENT_TYPE_IMAGES: Record<string, string> = {
 
 const ELEMENT_TYPE_SIZES: Record<string, { width: number; height: number }> = {
   vocal: { width: 65, height: 85 },
+  singer_guitar: { width: 70, height: 95 },
   backing: { width: 65, height: 85 },
   guitar: { width: 70, height: 85 },
   acoustic: { width: 70, height: 85 },
   bass: { width: 70, height: 85 },
-  keyboard: { width: 90, height: 85 },
+  keyboard: { width: 95, height: 85 },
   drums: { width: 100, height: 85 },
+  percussion: { width: 90, height: 95 },
   accordion: { width: 70, height: 85 },
   brass: { width: 65, height: 85 },
   amp: { width: 50, height: 40 },
   pedalboard: { width: 60, height: 35 },
-  sider: { width: 45, height: 70 },
+  sider: { width: 60, height: 55 },
   monitor1: { width: 70, height: 45 },
   monitor2: { width: 65, height: 55 },
-  rack: { width: 80, height: 55 },
+  speaker_stand: { width: 60, height: 90 },
+  vs: { width: 55, height: 50 },
+  gabinete: { width: 90, height: 60 },
+  rack: { width: 80, height: 70 },
   stairs: { width: 100, height: 80 },
   riser: { width: 100, height: 100 },
   power110v: { width: 40, height: 45 },
