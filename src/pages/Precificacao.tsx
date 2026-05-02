@@ -776,6 +776,11 @@ export default function Precificacao() {
           </CardContent>
         </Card>
       </div>
+      <FeatureBlockedDialog
+        open={blockedDialog.open}
+        onOpenChange={(open) => setBlockedDialog((prev) => ({ ...prev, open }))}
+        featureName={blockedDialog.name}
+      />
     </Layout>
   );
 }
