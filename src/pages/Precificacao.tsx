@@ -122,6 +122,10 @@ interface SelectedMusician {
 export default function Precificacao() {
   const navigate = useNavigate();
   const { musicians, loading: musiciansLoading } = useMusicians();
+  const { isBlocked } = useFeatureBlocks();
+  const [blockedDialog, setBlockedDialog] = useState<{ open: boolean; name: string }>({ open: false, name: "" });
+  const orcamentosBlocked = isBlocked("orcamentos");
+  const contratosBlocked = isBlocked("contratos");
 
   const [step, setStep] = useState(1);
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
