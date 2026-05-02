@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Lock } from "lucide-react";
+import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
