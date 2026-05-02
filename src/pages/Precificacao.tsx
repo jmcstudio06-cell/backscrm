@@ -677,12 +677,12 @@ export default function Precificacao() {
 
         {/* Ações - Hidden on mobile */}
         <div className="hidden sm:grid sm:grid-cols-3 gap-3">
-          <Button onClick={handleGerarOrcamento} variant="outline" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
+          <Button onClick={handleGerarOrcamento} variant="outline" className="flex items-center gap-2 relative">
+            {orcamentosBlocked ? <Lock className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
             Gerar Orçamento
           </Button>
-          <Button onClick={handleCriarContrato} variant="outline" className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
+          <Button onClick={handleCriarContrato} variant="outline" className="flex items-center gap-2 relative">
+            {contratosBlocked ? <Lock className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
             Criar Contrato
           </Button>
           <Button onClick={handleUsarEmMetas} variant="outline" className="flex items-center gap-2">
