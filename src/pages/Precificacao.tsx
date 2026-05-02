@@ -233,6 +233,10 @@ export default function Precificacao() {
   };
 
   const handleGerarOrcamento = () => {
+    if (orcamentosBlocked) {
+      setBlockedDialog({ open: true, name: "Orçamentos" });
+      return;
+    }
     if (valores) {
       toast.success("Redirecionando para criar orçamento...");
       navigate(`/orcamentos?valor=${valores.valorIdeal}`);
@@ -240,6 +244,10 @@ export default function Precificacao() {
   };
 
   const handleCriarContrato = () => {
+    if (contratosBlocked) {
+      setBlockedDialog({ open: true, name: "Contratos" });
+      return;
+    }
     if (valores) {
       toast.success("Redirecionando para criar contrato...");
       navigate(`/contratos?valor=${valores.valorIdeal}`);
