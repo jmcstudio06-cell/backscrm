@@ -307,8 +307,8 @@ export function useShowsData() {
       return allShows.map(normalizeShowRow).filter((s): s is Show => s !== null);
     },
     enabled: !!user,
-    staleTime: 30_000, // 30s - keeps data fresh across pages
-    refetchOnMount: "always",
+    staleTime: 3 * 60 * 1000, // 3min - cache mais longo, invalidado em mutações
+    refetchOnMount: false,
   });
 
   // Create financial transactions when show is marked as completed
