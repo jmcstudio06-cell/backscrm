@@ -123,9 +123,7 @@ export default function ServicosProdutos() {
       // Comprimir: max 1200px, 70% qualidade → arquivo leve
       const compressed = await compressImage(file, 1200, 0.7);
       const ext = compressed.name.split(".").pop();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Não autenticado");
-      const fileName = `${user.id}/service-cover-${Date.now()}.${ext}`;
+      const fileName = `service-cover-${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, compressed, { upsert: true });
       if (uploadError) throw uploadError;
       const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);

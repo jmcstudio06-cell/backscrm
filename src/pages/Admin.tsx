@@ -193,11 +193,7 @@ export default function Admin() {
       .order("created_at", { ascending: false });
     
     if (filter !== "all") query = query.eq("plan", filter);
-    if (search) {
-      // Escape PostgREST special chars to prevent query manipulation
-      const escaped = search.replace(/[\\%_,()*"]/g, (c) => `\\${c}`);
-      query = query.or(`name.ilike.%${escaped}%,email.ilike.%${escaped}%`);
-    }
+    if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
     query = query.range(from, to);
     
     const { data, error, count } = await query;
