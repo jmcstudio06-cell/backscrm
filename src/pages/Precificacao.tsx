@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock } from "lucide-react";
-import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
-import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -122,10 +119,6 @@ interface SelectedMusician {
 export default function Precificacao() {
   const navigate = useNavigate();
   const { musicians, loading: musiciansLoading } = useMusicians();
-  const { isBlocked } = useFeatureBlocks();
-  const [blockedDialog, setBlockedDialog] = useState<{ open: boolean; name: string }>({ open: false, name: "" });
-  const orcamentosBlocked = isBlocked("orcamentos");
-  const contratosBlocked = isBlocked("contratos");
 
   const [step, setStep] = useState(1);
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
@@ -233,10 +226,6 @@ export default function Precificacao() {
   };
 
   const handleGerarOrcamento = () => {
-    if (orcamentosBlocked) {
-      setBlockedDialog({ open: true, name: "Orçamentos" });
-      return;
-    }
     if (valores) {
       toast.success("Redirecionando para criar orçamento...");
       navigate(`/orcamentos?valor=${valores.valorIdeal}`);
@@ -244,10 +233,6 @@ export default function Precificacao() {
   };
 
   const handleCriarContrato = () => {
-    if (contratosBlocked) {
-      setBlockedDialog({ open: true, name: "Contratos" });
-      return;
-    }
     if (valores) {
       toast.success("Redirecionando para criar contrato...");
       navigate(`/contratos?valor=${valores.valorIdeal}`);
@@ -677,12 +662,12 @@ export default function Precificacao() {
 
         {/* Ações - Hidden on mobile */}
         <div className="hidden sm:grid sm:grid-cols-3 gap-3">
-          <Button onClick={handleGerarOrcamento} variant="outline" className="flex items-center gap-2 relative">
-            {orcamentosBlocked ? <Lock className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+          <Button onClick={handleGerarOrcamento} variant="outline" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
             Gerar Orçamento
           </Button>
-          <Button onClick={handleCriarContrato} variant="outline" className="flex items-center gap-2 relative">
-            {contratosBlocked ? <Lock className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
+          <Button onClick={handleCriarContrato} variant="outline" className="flex items-center gap-2">
+            <DollarSign className="w-4 h-4" />
             Criar Contrato
           </Button>
           <Button onClick={handleUsarEmMetas} variant="outline" className="flex items-center gap-2">
@@ -776,11 +761,6 @@ export default function Precificacao() {
           </CardContent>
         </Card>
       </div>
-      <FeatureBlockedDialog
-        open={blockedDialog.open}
-        onOpenChange={(open) => setBlockedDialog((prev) => ({ ...prev, open }))}
-        featureName={blockedDialog.name}
-      />
     </Layout>
   );
 }
