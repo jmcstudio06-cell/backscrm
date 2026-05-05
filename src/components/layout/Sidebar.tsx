@@ -108,8 +108,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
-  { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
-  { icon: Lightbulb, label: "Sugestões", path: "/sugestoes", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
