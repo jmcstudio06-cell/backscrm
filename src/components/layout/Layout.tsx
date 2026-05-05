@@ -31,6 +31,9 @@ export function Layout({ children, title, subtitle }: LayoutProps) {
 
       {/* Notification Permission Prompt */}
       <NotificationPrompt />
+
+      {/* Floating help button */}
+      <HelpFab />
     </div>
   );
 }
