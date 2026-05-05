@@ -9,6 +9,7 @@ import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModa
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
+import { RenewSoonBanner } from "@/components/dashboard/RenewSoonBanner";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
@@ -455,6 +456,9 @@ const Dashboard = () => {
 
         {/* Ranking Teaser - removido temporariamente */}
         {false && <RankingTeaser />}
+
+        {/* Aviso de renovação (mensal próximo do vencimento) */}
+        <RenewSoonBanner />
 
         {/* Total Revenue Hero */}
         <TotalRevenueHero
