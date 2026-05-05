@@ -9,6 +9,7 @@ import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModa
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
+import { RenewSoonBanner } from "@/components/dashboard/RenewSoonBanner";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
