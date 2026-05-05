@@ -327,15 +327,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
         {/* Footer */}
         <div className="px-3 pb-2 space-y-2">
-          {/* Indique e Ganhe */}
-          <RouterNavLink
-            to="/indicacoes"
-            className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            <Gift className="w-5 h-5" />
-            <span>Indique e Ganhe</span>
-          </RouterNavLink>
+          {/* Indique e Ganhe agora vive no FAB de ajuda */}
 
           <Button
             onClick={() => navigate("/planos")}
