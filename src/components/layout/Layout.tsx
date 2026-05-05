@@ -3,6 +3,7 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
+import { HelpFab } from "./HelpFab";
 
 interface LayoutProps {
   children: ReactNode;
