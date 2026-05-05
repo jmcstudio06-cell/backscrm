@@ -108,8 +108,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
-  { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", featureKey: "tutoriais" },
-  { icon: Lightbulb, label: "Sugestões", path: "/sugestoes", featureKey: "tutoriais" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
@@ -329,15 +327,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
         {/* Footer */}
         <div className="px-3 pb-2 space-y-2">
-          {/* Indique e Ganhe */}
-          <RouterNavLink
-            to="/indicacoes"
-            className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            <Gift className="w-5 h-5" />
-            <span>Indique e Ganhe</span>
-          </RouterNavLink>
+          {/* Indique e Ganhe agora vive no FAB de ajuda */}
 
           <Button
             onClick={() => navigate("/planos")}
