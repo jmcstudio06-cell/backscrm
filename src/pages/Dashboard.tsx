@@ -453,8 +453,8 @@ const Dashboard = () => {
 
 
 
-        {/* Ranking Teaser */}
-        <RankingTeaser />
+        {/* Ranking Teaser - removido temporariamente */}
+        {false && <RankingTeaser />}
 
         {/* Total Revenue Hero */}
         <TotalRevenueHero
