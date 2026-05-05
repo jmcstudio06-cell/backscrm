@@ -457,6 +457,9 @@ const Dashboard = () => {
         {/* Ranking Teaser - removido temporariamente */}
         {false && <RankingTeaser />}
 
+        {/* Aviso de renovação (mensal próximo do vencimento) */}
+        <RenewSoonBanner />
+
         {/* Total Revenue Hero */}
         <TotalRevenueHero
           totalRevenue={totalAllTimeRevenue}
