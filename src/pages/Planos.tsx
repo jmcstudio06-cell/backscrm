@@ -259,25 +259,18 @@ export default function Planos() {
         return;
       }
 
-      const checkoutUrl = CHECKOUT_URLS[planKey];
-      if (!checkoutUrl) {
-        toast.error("Plano inválido.");
-        setLoadingPlan(null);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke("prepare-infinitepay-checkout", {
-        body: { plan_key: planKey },
+      const { data, error } = await supabase.functions.invoke("stripe-create-checkout", {
+        body: { planKey },
       });
 
-      if (error || !data?.checkout_url) {
-        console.error("Prepare InfinitePay checkout error:", error, data);
+      if (error || !data?.url) {
+        console.error("Stripe checkout error:", error, data);
         toast.error("Não foi possível preparar o checkout.");
         return;
       }
 
       toast.success("Redirecionando para pagamento...");
-      window.location.href = data.checkout_url;
+      window.location.href = data.url;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
