@@ -1388,8 +1388,10 @@ export type Database = {
           booking_method: string
           booking_min_dates_discount: number
           booking_show_products: boolean
+          cancel_at_period_end: boolean | null
           city: string | null
           created_at: string
+          current_period_end: string | null
           delay_tolerance: string | null
           deposit_percentage: number | null
           email: string | null
@@ -1415,6 +1417,9 @@ export type Database = {
           slug: string | null
           spotify_url: string | null
           start_time_limit: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
           tiktok_url: string | null
           trial_days: number | null
           trial_start: string | null
@@ -1435,8 +1440,10 @@ export type Database = {
           booking_method?: string
           booking_min_dates_discount?: number
           booking_show_products?: boolean
+          cancel_at_period_end?: boolean | null
           city?: string | null
           created_at?: string
+          current_period_end?: string | null
           delay_tolerance?: string | null
           deposit_percentage?: number | null
           email?: string | null
@@ -1462,6 +1469,9 @@ export type Database = {
           slug?: string | null
           spotify_url?: string | null
           start_time_limit?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           tiktok_url?: string | null
           trial_days?: number | null
           trial_start?: string | null
@@ -1482,8 +1492,10 @@ export type Database = {
           booking_method?: string
           booking_min_dates_discount?: number
           booking_show_products?: boolean
+          cancel_at_period_end?: boolean | null
           city?: string | null
           created_at?: string
+          current_period_end?: string | null
           delay_tolerance?: string | null
           deposit_percentage?: number | null
           email?: string | null
@@ -1509,6 +1521,9 @@ export type Database = {
           slug?: string | null
           spotify_url?: string | null
           start_time_limit?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           tiktok_url?: string | null
           trial_days?: number | null
           trial_start?: string | null
