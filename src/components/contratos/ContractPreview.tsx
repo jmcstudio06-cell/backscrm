@@ -21,65 +21,249 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
 
   const handlePrint = () => {
     const printContent = printRef.current;
+
     if (!printContent) return;
+
     const printWindow = window.open("", "_blank");
+
     if (!printWindow) {
       toast.error("Não foi possível abrir a janela de impressão");
       return;
     }
+
     printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
+    <!DOCTYPE html>
+    <html>
       <head>
         <title>Contrato ${contract.contract_number}</title>
+
         <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: Arial, sans-serif; padding: 40px 50px; background: #fff; color: #333; line-height: 1.6; font-size: 12px; }
-          .contract-container { max-width: 800px; margin: 0 auto; }
-          .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
-          .logo-section { display: flex; align-items: center; gap: 15px; }
-          .logo { width: 80px; height: 80px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #666; overflow: hidden; }
-          .logo img { width: 100%; height: 100%; object-fit: cover; }
-          .company-details { font-size: 11px; color: #666; }
-          .company-name { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 4px; }
-          .page-number { font-size: 11px; color: #999; }
-          .title-section { background: #333; color: #fff; text-align: center; padding: 12px 20px; margin: 20px 0; font-size: 16px; font-weight: bold; letter-spacing: 1px; }
-          .subtitle { font-size: 13px; font-weight: bold; margin: 15px 0 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-          .party-section { margin-bottom: 15px; text-align: justify; }
-          .party-label { font-weight: bold; }
-          .separator { text-align: center; margin: 15px 0; font-style: italic; }
-          .clause { margin: 15px 0; text-align: justify; }
-          .clause-title { font-weight: bold; background: #f5f5f5; padding: 8px 12px; margin-bottom: 8px; border-left: 4px solid #333; }
-          .clause-content { padding: 0 12px; white-space: pre-wrap; }
-          .clause-content ul { margin: 10px 0 10px 20px; }
-          .clause-content li { margin-bottom: 5px; }
-          .event-details { margin: 10px 0 10px 20px; }
-          .event-details li { margin-bottom: 3px; }
-          .signature-section { margin-top: 40px; text-align: center; }
-          .signature-date { margin-bottom: 50px; }
-          .signatures { display: flex; justify-content: space-between; margin-top: 30px; }
-          .signature-box { width: 45%; text-align: center; }
-          .signature-line { border-top: 1px solid #333; padding-top: 10px; margin-top: 50px; }
-          .signature-name { font-weight: bold; }
-          .signature-doc { font-size: 11px; color: #666; }
-          .footer-logo { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; }
-          .footer-logo .logo { margin: 0 auto; }
-          @media print { body { padding: 30px 40px; } }
+          @page {
+            size: A4;
+            margin: 12mm;
+          }
+
+          html,
+          body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+
+          body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            font-size: 12px;
+          }
+
+          .contract-container {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+
+          .header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+          }
+
+          .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+          }
+
+          .logo {
+            width: 80px;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+            overflow: hidden;
+          }
+
+          .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .company-details {
+            font-size: 11px;
+            color: #666;
+          }
+
+          .company-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+          }
+
+          .page-number {
+            font-size: 11px;
+            color: #999;
+          }
+
+          .title-section {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+          }
+
+          .subtitle {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 15px 0 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+          }
+
+          .party-section {
+            margin-bottom: 15px;
+            text-align: justify;
+          }
+
+          .party-label {
+            font-weight: bold;
+          }
+
+          .separator {
+            text-align: center;
+            margin: 15px 0;
+            font-style: italic;
+          }
+
+          .clause {
+            margin: 15px 0;
+            text-align: justify;
+          }
+
+          .clause-title {
+            font-weight: bold;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #333;
+          }
+
+          .clause-content {
+            padding: 0 12px;
+            white-space: pre-wrap;
+          }
+
+          .clause-content ul {
+            margin: 10px 0 10px 20px;
+          }
+
+          .clause-content li {
+            margin-bottom: 5px;
+          }
+
+          .event-details {
+            margin: 10px 0 10px 20px;
+          }
+
+          .event-details li {
+            margin-bottom: 3px;
+          }
+
+          .signature-section {
+            margin-top: 40px;
+            text-align: center;
+          }
+
+          .signature-date {
+            margin-bottom: 50px;
+          }
+
+          .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+          }
+
+          .signature-box {
+            width: 45%;
+            text-align: center;
+          }
+
+          .signature-line {
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            margin-top: 50px;
+          }
+
+          .signature-name {
+            font-weight: bold;
+          }
+
+          .signature-doc {
+            font-size: 11px;
+            color: #666;
+          }
+
+          .footer-logo {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+          }
+
+          .footer-logo .logo {
+            margin: 0 auto;
+          }
+
+          @media print {
+            html,
+            body {
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          }
         </style>
       </head>
+
       <body>
         ${printContent.innerHTML}
       </body>
-      </html>
-    `);
+    </html>
+  `);
+
     printWindow.document.close();
     printWindow.focus();
+
     setTimeout(() => {
       printWindow.print();
-      printWindow.close();
-    }, 250);
+    }, 300);
   };
-
   const handleWhatsApp = () => {
     const message = encodeURIComponent(
       `Olá ${contract.client_name}!\n\nSegue o contrato ${contract.contract_number} referente ao evento do dia ${
