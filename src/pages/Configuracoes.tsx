@@ -179,9 +179,12 @@ export default function Configuracoes() {
       const originalSize = formatFileSize(file.size);
       const newSize = formatFileSize(processedFile.size);
       const extension = processedFile.type === 'image/webp' ? 'webp' : 'jpg';
-      const fileName = `${profile.id}_${Date.now()}.${extension}`;
+      const fileName = `${profile.user_id}/${Date.now()}.${extension}`;
 
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, processedFile, { upsert: true });
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, processedFile, {
+        upsert: true,
+        contentType: processedFile.type,
+      });
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
