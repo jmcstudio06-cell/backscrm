@@ -396,7 +396,6 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               maxWidth: 800,
               margin: "0 auto",
               padding: "30px 35px",
-              border: "2px solid #333",
               background: "#fff",
               boxSizing: "border-box",
             }}
