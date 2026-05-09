@@ -531,9 +531,9 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               <div style={{ width: "45%", textAlign: "center" }}>
                 <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 50 }}>
                   <strong>CONTRATANTE:</strong>
-                  <br />[{contract.client_name.toUpperCase()}]<br />
+                  <br />{contract.client_name.toUpperCase()}<br />
                   <span style={{ fontSize: 11, color: "#666" }}>
-                    CPF: {contract.client_document || "XXX.XXX.XXX-XX"} | RG: XX.XXX.XXX-X
+                    CPF: {contract.client_document || "XXX.XXX.XXX-XX"}
                   </span>
                 </div>
               </div>
@@ -546,7 +546,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                   <span style={{ fontSize: 11, color: "#666" }}>
                     Responsável: CPF {artistDocument || "XXX.XXX.XXX-XX"}
                     <br />
-                    Representante da carreira do artista [{artistName.toUpperCase()}]
+                    Representante da carreira do artista {artistName.toUpperCase()}
                   </span>
                 </div>
               </div>
