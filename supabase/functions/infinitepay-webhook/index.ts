@@ -169,7 +169,7 @@ serve(async (req) => {
       await supabase
         .from("pending_payments")
         .update({
-          status: "activated",
+          status: "approved",
           gateway_status: status,
           gateway_event_id: gatewayEventId,
           activated_at: new Date().toISOString(),
