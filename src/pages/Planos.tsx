@@ -229,6 +229,8 @@ export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [selectedPlanKey, setSelectedPlanKey] = useState<string | null>(null);
+  const [paymentMethodOpen, setPaymentMethodOpen] = useState(false);
 
   useEffect(() => {
     async function fetchPlan() {
@@ -252,28 +254,61 @@ export default function Planos() {
   };
   const userTier = getUserPlanTier();
 
-  const handleSubscribe = async (planKey: string) => {
+  const openPaymentMethod = (planKey: string) => {
+    setSelectedPlanKey(planKey);
+    setPaymentMethodOpen(true);
+  };
+
+  const handlePayWithCard = async () => {
+    if (!selectedPlanKey) return;
+    const planKey = selectedPlanKey;
     setLoadingPlan(planKey);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error("Você precisa estar logado para assinar um plano.");
-        setLoadingPlan(null);
         return;
       }
-
       const { data, error } = await supabase.functions.invoke("stripe-create-checkout", {
         body: { planKey },
       });
-
       if (error || !data?.url) {
         console.error("Stripe checkout error:", error, data);
         toast.error("Não foi possível preparar o checkout.");
         return;
       }
-
+      setPaymentMethodOpen(false);
       toast.success("Redirecionando para pagamento...");
       window.location.href = data.url;
+    } catch (err) {
+      console.error("Subscribe error:", err);
+      toast.error("Erro inesperado. Tente novamente.");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const handlePayWithPix = async () => {
+    if (!selectedPlanKey) return;
+    const planKey = selectedPlanKey;
+    setLoadingPlan(planKey);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Você precisa estar logado para assinar um plano.");
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke("prepare-infinitepay-checkout", {
+        body: { plan_key: planKey },
+      });
+      if (error || !data?.checkout_url) {
+        console.error("InfinitePay checkout error:", error, data);
+        toast.error("Não foi possível preparar o checkout PIX.");
+        return;
+      }
+      setPaymentMethodOpen(false);
+      toast.success("Redirecionando para pagamento PIX...");
+      window.location.href = data.checkout_url;
     } catch (err) {
       console.error("Subscribe error:", err);
       toast.error("Erro inesperado. Tente novamente.");
