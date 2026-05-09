@@ -17,7 +17,10 @@ import {
   CalendarDays,
   CalendarRange,
   Loader2,
+  CreditCard,
+  QrCode,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
