@@ -375,16 +375,20 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
           </div>
         </DialogHeader>
 
-        <div className="p-8 bg-white" ref={printRef}>
+        <div className="p-8 bg-white">
           <div
+            ref={printRef}
             className="contract-container"
             style={{
               fontFamily: "Arial, sans-serif",
               fontSize: 12,
               color: "#333",
               lineHeight: 1.6,
-              maxWidth: 800,
+              width: 720,
+              padding: "40px 50px",
               margin: "0 auto",
+              background: "#fff",
+              boxSizing: "content-box",
             }}
           >
             {/* Header */}
