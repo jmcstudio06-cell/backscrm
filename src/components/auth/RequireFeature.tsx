@@ -19,7 +19,7 @@ export function RequireFeature({ featureKey, children }: Props) {
   }
 
   if (isBlocked(featureKey)) {
-    return <Navigate to="/dashboard" replace state={{ blockedFeature: featureKey }} />;
+    return <Navigate to="/planos" replace state={{ blockedFeature: featureKey }} />;
   }
 
   return <>{children}</>;
