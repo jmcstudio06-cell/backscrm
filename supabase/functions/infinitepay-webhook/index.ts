@@ -97,17 +97,28 @@ serve(async (req) => {
         if (!planName) planName = byEvent.plan_key;
       }
     }
-    if (!pendingPaymentId && userId && planName) {
-      const { data: byUser } = await supabase
+    // Fallback by payer email -> most recent pending payment
+    if (!userId && payerEmail) {
+      const { data: byEmail } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("email", payerEmail)
+        .maybeSingle();
+      if (byEmail?.user_id) userId = byEmail.user_id;
+    }
+    if (!pendingPaymentId && userId) {
+      const query = supabase
         .from("pending_payments")
-        .select("id")
+        .select("id, plan_key")
         .eq("user_id", userId)
-        .eq("plan_key", planName)
         .eq("status", "pending")
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (byUser) pendingPaymentId = byUser.id;
+        .limit(1);
+      const { data: byUser } = await query.maybeSingle();
+      if (byUser) {
+        pendingPaymentId = byUser.id;
+        if (!planName) planName = byUser.plan_key;
+      }
     }
 
     if (!status || !SUCCESSFUL_STATUSES.has(status)) {
