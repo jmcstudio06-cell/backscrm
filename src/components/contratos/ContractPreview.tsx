@@ -85,24 +85,23 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
         <title>Contrato ${contract.contract_number}</title>
 
         <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+
           @page {
             size: A4;
-            margin: 0;
+            margin: 2cm;
           }
 
           html,
           body {
             margin: 0;
-            padding: 12mm;
             background: #fff;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-          }
-
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
           }
 
           body {
@@ -113,12 +112,21 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
           }
 
           .contract-container {
-            max-width: 800px;
             width: 100%;
             margin: 0 auto;
-            border: 2px solid #333;
-            padding: 30px 35px;
             background: #fff;
+          }
+
+          /* Borda de segurança fixa que repete em toda página A4 */
+          .page-border {
+            position: fixed;
+            top: 1cm;
+            left: 1cm;
+            right: 1cm;
+            bottom: 1cm;
+            border: 1.5px solid #333;
+            pointer-events: none;
+            z-index: 0;
           }
 
           .header {
