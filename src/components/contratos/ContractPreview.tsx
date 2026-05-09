@@ -40,13 +40,13 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
         <style>
           @page {
             size: A4;
-            margin: 12mm;
+            margin: 0;
           }
 
           html,
           body {
             margin: 0;
-            padding: 0;
+            padding: 12mm;
             background: #fff;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -379,7 +379,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 </div>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: "bold", color: "#333", marginBottom: 2 }}>
-                    [{artistName.toUpperCase()}]
+                    {artistName.toUpperCase()}
                   </div>
                   <div style={{ fontSize: 11, color: "#666" }}>
                     Escritório de vendas de shows e músicas
@@ -427,16 +427,15 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               <span style={{ fontWeight: "bold" }}>CONTRATADA:</span> {artistName}, representada por seu responsável,
               portador do CPF nº {artistDocument || "XXX.XXX.XXX-XX"}, com endereço na {artistAddress || "[XXXX]"},
               doravante denominada EMPRESA REPRESENTANTE, responsável pela gestão, agenciamento e administração da
-              carreira do artista [{artistName.toUpperCase()}].
+              carreira do artista {artistName.toUpperCase()}.
             </div>
 
             <p style={{ marginBottom: 15 }}>E de outro lado:</p>
 
             {/* Contratante */}
             <div style={{ marginBottom: 15, textAlign: "justify" }}>
-              <span style={{ fontWeight: "bold" }}>CONTRATANTE:</span> [{contract.client_name.toUpperCase()}], portador
-              do CPF nº {contract.client_document || "XXX.XXX.XXX-XX"} e RG nº XX.XXX.XXX-X, residente em [
-              {contract.client_address || "CIDADE E UF"}].
+              <span style={{ fontWeight: "bold" }}>CONTRATANTE:</span> {contract.client_name.toUpperCase()}, portador
+              do CPF nº {contract.client_document || "XXX.XXX.XXX-XX"}, residente em {contract.client_address || "CIDADE E UF"}.
             </div>
 
             <p style={{ textAlign: "center", fontStyle: "italic", margin: "20px 0" }}>
@@ -532,9 +531,9 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               <div style={{ width: "45%", textAlign: "center" }}>
                 <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 50 }}>
                   <strong>CONTRATANTE:</strong>
-                  <br />[{contract.client_name.toUpperCase()}]<br />
+                  <br />{contract.client_name.toUpperCase()}<br />
                   <span style={{ fontSize: 11, color: "#666" }}>
-                    CPF: {contract.client_document || "XXX.XXX.XXX-XX"} | RG: XX.XXX.XXX-X
+                    CPF: {contract.client_document || "XXX.XXX.XXX-XX"}
                   </span>
                 </div>
               </div>
@@ -547,7 +546,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                   <span style={{ fontSize: 11, color: "#666" }}>
                     Responsável: CPF {artistDocument || "XXX.XXX.XXX-XX"}
                     <br />
-                    Representante da carreira do artista [{artistName.toUpperCase()}]
+                    Representante da carreira do artista {artistName.toUpperCase()}
                   </span>
                 </div>
               </div>
