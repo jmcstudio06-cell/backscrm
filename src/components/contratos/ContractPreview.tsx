@@ -303,7 +303,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
       </head>
 
       <body>
-        ${printContent.innerHTML}
+        ${printContent.outerHTML}
       </body>
     </html>
   `);
