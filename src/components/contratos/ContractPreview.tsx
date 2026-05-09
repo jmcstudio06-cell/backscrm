@@ -364,8 +364,8 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 <Send className="w-4 h-4 mr-2" />
                 Email
               </Button>
-              <Button variant="gradient" size="sm" onClick={handlePrint}>
-                <Download className="w-4 h-4 mr-2" />
+              <Button variant="gradient" size="sm" onClick={handlePrint} disabled={generating}>
+                {generating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
                 PDF
               </Button>
               <Button variant="ghost" size="icon" onClick={onClose}>
