@@ -141,6 +141,39 @@ const Dashboard = () => {
     }
   }, [isLoading, onboardingActive, currentShowGoal, profile?.onboarding_completed]);
 
+  // Verify Stripe checkout return: ?checkout=success after redirect.
+  // Polls our verify function so the plan activates even if the webhook is delayed/missing.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") !== "success") return;
+
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 8;
+
+    const poll = async () => {
+      while (!cancelled && attempts < maxAttempts) {
+        attempts++;
+        try {
+          const { data } = await supabase.functions.invoke("stripe-verify-checkout");
+          if (data?.activated) {
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            window.history.replaceState({}, "", "/dashboard");
+            return;
+          }
+        } catch (e) {
+          console.error("[verify-checkout] error", e);
+        }
+        await new Promise((r) => setTimeout(r, 2500));
+      }
+      if (!cancelled) {
+        window.history.replaceState({}, "", "/dashboard");
+      }
+    };
+    poll();
+    return () => { cancelled = true; };
+  }, [queryClient]);
+
   const handleGoalSet = async (target: number) => {
     await addGoal({
       title: `Meta de Shows - ${format(now, "MMMM yyyy", { locale: ptBR })}`,
