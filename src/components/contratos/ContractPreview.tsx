@@ -427,16 +427,15 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               <span style={{ fontWeight: "bold" }}>CONTRATADA:</span> {artistName}, representada por seu responsável,
               portador do CPF nº {artistDocument || "XXX.XXX.XXX-XX"}, com endereço na {artistAddress || "[XXXX]"},
               doravante denominada EMPRESA REPRESENTANTE, responsável pela gestão, agenciamento e administração da
-              carreira do artista [{artistName.toUpperCase()}].
+              carreira do artista {artistName.toUpperCase()}.
             </div>
 
             <p style={{ marginBottom: 15 }}>E de outro lado:</p>
 
             {/* Contratante */}
             <div style={{ marginBottom: 15, textAlign: "justify" }}>
-              <span style={{ fontWeight: "bold" }}>CONTRATANTE:</span> [{contract.client_name.toUpperCase()}], portador
-              do CPF nº {contract.client_document || "XXX.XXX.XXX-XX"} e RG nº XX.XXX.XXX-X, residente em [
-              {contract.client_address || "CIDADE E UF"}].
+              <span style={{ fontWeight: "bold" }}>CONTRATANTE:</span> {contract.client_name.toUpperCase()}, portador
+              do CPF nº {contract.client_document || "XXX.XXX.XXX-XX"}, residente em {contract.client_address || "CIDADE E UF"}.
             </div>
 
             <p style={{ textAlign: "center", fontStyle: "italic", margin: "20px 0" }}>
