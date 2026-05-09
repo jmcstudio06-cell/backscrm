@@ -40,13 +40,13 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
         <style>
           @page {
             size: A4;
-            margin: 12mm;
+            margin: 0;
           }
 
           html,
           body {
             margin: 0;
-            padding: 0;
+            padding: 12mm;
             background: #fff;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
