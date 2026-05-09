@@ -457,7 +457,7 @@ export default function Planos() {
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
-                        onClick={() => handleSubscribe(finalPlanKey)}
+                        onClick={() => openPaymentMethod(finalPlanKey)}
                       >
                         <span className="flex items-center justify-center gap-2">
                           {isLoading ? (
