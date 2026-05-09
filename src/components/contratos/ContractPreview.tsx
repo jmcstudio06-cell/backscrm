@@ -388,11 +388,12 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               fontSize: 12,
               color: "#333",
               lineHeight: 1.6,
-              width: 720,
-              padding: "40px 50px",
+              maxWidth: 800,
               margin: "0 auto",
+              padding: "30px 35px",
+              border: "2px solid #333",
               background: "#fff",
-              boxSizing: "content-box",
+              boxSizing: "border-box",
             }}
           >
             {/* Header */}
