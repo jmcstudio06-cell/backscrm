@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import { AuthProvider } from "@/hooks/useAuth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { RequireFeature } from "@/components/auth/RequireFeature";
 import { ShowsProvider } from "@/contexts/shows/ShowsProvider";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { CustomizationProvider } from "@/hooks/useCustomization";
@@ -75,11 +76,16 @@ const queryClient = new QueryClient({
 /** Wraps a page with ShowsProvider + RequireAuth + ErrorBoundary.
  *  ShowsProvider is now scoped here instead of wrapping the whole app,
  *  so unauthenticated/landing pages don't trigger shows queries. */
-function AuthPage({ children }: { children: ReactNode }) {
+function AuthPage({ children, featureKey }: { children: ReactNode; featureKey?: string }) {
+  const content = featureKey ? (
+    <RequireFeature featureKey={featureKey}>{children}</RequireFeature>
+  ) : (
+    children
+  );
   return (
     <RequireAuth>
       <ShowsProvider>
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ErrorBoundary>{content}</ErrorBoundary>
       </ShowsProvider>
     </RequireAuth>
   );
@@ -103,30 +109,30 @@ const App = () => (
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<AuthPage><Dashboard /></AuthPage>} />
-                <Route path="/agenda" element={<AuthPage><Agenda /></AuthPage>} />
+                <Route path="/dashboard" element={<AuthPage featureKey="dashboard"><Dashboard /></AuthPage>} />
+                <Route path="/agenda" element={<AuthPage featureKey="agenda"><Agenda /></AuthPage>} />
                 <Route path="/ranking" element={<AuthPage><Ranking /></AuthPage>} />
-                <Route path="/tutoriais" element={<AuthPage><Tutoriais /></AuthPage>} />
-                <Route path="/crm" element={<AuthPage><CRM /></AuthPage>} />
-                <Route path="/clientes" element={<AuthPage><Clientes /></AuthPage>} />
-                <Route path="/financeiro" element={<AuthPage><Financeiro /></AuthPage>} />
-                <Route path="/historico" element={<AuthPage><Historico /></AuthPage>} />
-                <Route path="/checklist" element={<AuthPage><Checklist /></AuthPage>} />
-                <Route path="/mapeamento-palco" element={<AuthPage><MapeamentoPalco /></AuthPage>} />
-                <Route path="/precificacao" element={<AuthPage><Precificacao /></AuthPage>} />
-                <Route path="/avancos" element={<AuthPage><Avancos /></AuthPage>} />
+                <Route path="/tutoriais" element={<AuthPage featureKey="tutoriais"><Tutoriais /></AuthPage>} />
+                <Route path="/crm" element={<AuthPage featureKey="crm"><CRM /></AuthPage>} />
+                <Route path="/clientes" element={<AuthPage featureKey="clientes"><Clientes /></AuthPage>} />
+                <Route path="/financeiro" element={<AuthPage featureKey="financeiro"><Financeiro /></AuthPage>} />
+                <Route path="/historico" element={<AuthPage featureKey="historico"><Historico /></AuthPage>} />
+                <Route path="/checklist" element={<AuthPage featureKey="checklist"><Checklist /></AuthPage>} />
+                <Route path="/mapeamento-palco" element={<AuthPage featureKey="mapeamento-palco"><MapeamentoPalco /></AuthPage>} />
+                <Route path="/precificacao" element={<AuthPage featureKey="precificacao"><Precificacao /></AuthPage>} />
+                <Route path="/avancos" element={<AuthPage featureKey="avancos"><Avancos /></AuthPage>} />
                 <Route path="/indicacoes" element={<AuthPage><Indicacoes /></AuthPage>} />
-                <Route path="/equipe" element={<AuthPage><Equipe /></AuthPage>} />
-                <Route path="/metas" element={<AuthPage><Metas /></AuthPage>} />
-                <Route path="/metas/anual" element={<AuthPage><MetasAnuais /></AuthPage>} />
+                <Route path="/equipe" element={<AuthPage featureKey="equipe"><Equipe /></AuthPage>} />
+                <Route path="/metas" element={<AuthPage featureKey="metas"><Metas /></AuthPage>} />
+                <Route path="/metas/anual" element={<AuthPage featureKey="metas-anuais"><MetasAnuais /></AuthPage>} />
                 <Route path="/planos" element={<AuthPage><Planos /></AuthPage>} />
-                <Route path="/configuracoes" element={<AuthPage><Configuracoes /></AuthPage>} />
-                <Route path="/orcamentos" element={<AuthPage><Orcamentos /></AuthPage>} />
-                <Route path="/servicos" element={<AuthPage><ServicosProdutos /></AuthPage>} />
-                <Route path="/planejamento-conteudo" element={<AuthPage><PlanejamentoConteudo /></AuthPage>} />
+                <Route path="/configuracoes" element={<AuthPage featureKey="configuracoes"><Configuracoes /></AuthPage>} />
+                <Route path="/orcamentos" element={<AuthPage featureKey="orcamentos"><Orcamentos /></AuthPage>} />
+                <Route path="/servicos" element={<AuthPage featureKey="servicos"><ServicosProdutos /></AuthPage>} />
+                <Route path="/planejamento-conteudo" element={<AuthPage featureKey="ideias-post"><PlanejamentoConteudo /></AuthPage>} />
                 
-                <Route path="/contratos" element={<AuthPage><Contratos /></AuthPage>} />
-                <Route path="/repertorio" element={<AuthPage><Repertorio /></AuthPage>} />
+                <Route path="/contratos" element={<AuthPage featureKey="contratos"><Contratos /></AuthPage>} />
+                <Route path="/repertorio" element={<AuthPage featureKey="repertorio"><Repertorio /></AuthPage>} />
                 <Route path="/admin" element={<AuthPage><Admin /></AuthPage>} />
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
@@ -138,7 +144,7 @@ const App = () => (
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 <Route path="/sugestoes" element={<AuthPage><Sugestoes /></AuthPage>} />
-                <Route path="/link-instagram" element={<AuthPage><LinkInstagramConfig /></AuthPage>} />
+                <Route path="/link-instagram" element={<AuthPage featureKey="link-instagram"><LinkInstagramConfig /></AuthPage>} />
                 
                 <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="/link/:slug" element={<ErrorBoundary><LinkInstagram /></ErrorBoundary>} />
