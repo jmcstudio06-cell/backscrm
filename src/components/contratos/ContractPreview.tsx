@@ -116,11 +116,8 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             max-width: 800px;
             width: 100%;
             margin: 0 auto;
-            border: 2px solid #333;
             padding: 30px 35px;
             background: #fff;
-            box-decoration-break: clone;
-            -webkit-box-decoration-break: clone;
           }
 
           .header {
