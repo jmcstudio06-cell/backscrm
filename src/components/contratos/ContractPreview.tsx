@@ -118,6 +118,18 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             margin: 0 auto;
             padding: 30px 35px;
             background: #fff;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+          }
+
+          .contract-clause {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+
+          .contract-clause-title {
+            break-after: avoid;
+            page-break-after: avoid;
           }
 
           .header {
@@ -301,7 +313,19 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             .contract-container {
               max-width: none;
               width: 100%;
-              padding: 0;
+              padding: 14mm 12mm !important;
+              box-decoration-break: clone;
+              -webkit-box-decoration-break: clone;
+            }
+
+            .contract-clause {
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
+
+            .contract-clause-title {
+              break-after: avoid;
+              page-break-after: avoid;
             }
           }
         </style>
@@ -504,8 +528,9 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
 
             {/* Clauses */}
             {contract.clauses.map((clause, index) => (
-              <div key={index} style={{ margin: "15px 0" }}>
+              <div key={index} className="contract-clause" style={{ margin: "15px 0" }}>
                 <div
+                  className="contract-clause-title"
                   style={{
                     fontWeight: "bold",
                     background: "#f5f5f5",
