@@ -1,11 +1,13 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Send, MessageCircle, X } from "lucide-react";
+import { Download, Send, MessageCircle, X, Loader2 } from "lucide-react";
 import { Contract } from "@/hooks/useContracts";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface ContractPreviewProps {
   isOpen: boolean;
