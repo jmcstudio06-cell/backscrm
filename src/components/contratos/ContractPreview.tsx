@@ -118,6 +118,8 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             margin: 0 auto;
             padding: 30px 35px;
             background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             box-decoration-break: clone;
             -webkit-box-decoration-break: clone;
           }
@@ -314,6 +316,8 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               max-width: none;
               width: 100%;
               padding: 14mm 12mm !important;
+              border: 1px solid #ddd !important;
+              border-radius: 4px !important;
               box-decoration-break: clone;
               -webkit-box-decoration-break: clone;
             }
@@ -421,6 +425,8 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               margin: "0 auto",
               padding: "30px 35px",
               background: "#fff",
+              border: "1px solid #ddd",
+              borderRadius: 4,
               boxSizing: "border-box",
             }}
           >
