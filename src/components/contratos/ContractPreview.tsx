@@ -311,7 +311,8 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
       </head>
 
       <body>
-        ${printContent.outerHTML}
+        <div class="page-border"></div>
+        ${printContent.outerHTML.replace(/border:\s*2px solid #333\s*;?/gi, "").replace(/padding:\s*30px 35px\s*;?/gi, "padding:0;")}
       </body>
     </html>
   `);
