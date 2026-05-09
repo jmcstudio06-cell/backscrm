@@ -76,11 +76,16 @@ const queryClient = new QueryClient({
 /** Wraps a page with ShowsProvider + RequireAuth + ErrorBoundary.
  *  ShowsProvider is now scoped here instead of wrapping the whole app,
  *  so unauthenticated/landing pages don't trigger shows queries. */
-function AuthPage({ children }: { children: ReactNode }) {
+function AuthPage({ children, featureKey }: { children: ReactNode; featureKey?: string }) {
+  const content = featureKey ? (
+    <RequireFeature featureKey={featureKey}>{children}</RequireFeature>
+  ) : (
+    children
+  );
   return (
     <RequireAuth>
       <ShowsProvider>
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ErrorBoundary>{content}</ErrorBoundary>
       </ShowsProvider>
     </RequireAuth>
   );
