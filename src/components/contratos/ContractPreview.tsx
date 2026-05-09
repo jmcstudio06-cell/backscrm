@@ -18,10 +18,55 @@ interface ContractPreviewProps {
 export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
   const { profile } = useProfile();
+  const [generating, setGenerating] = useState(false);
 
   if (!contract) return null;
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const printContent = printRef.current;
+    if (!printContent) return;
+
+    setGenerating(true);
+    try {
+      const canvas = await html2canvas(printContent, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`Contrato-${contract.contract_number}.pdf`);
+      toast.success("PDF gerado com sucesso!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao gerar PDF");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handlePrintLegacy = () => {
     const printContent = printRef.current;
 
     if (!printContent) return;
