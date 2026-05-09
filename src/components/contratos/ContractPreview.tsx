@@ -425,6 +425,8 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               margin: "0 auto",
               padding: "30px 35px",
               background: "#fff",
+              border: "1px solid #ddd",
+              borderRadius: 4,
               boxSizing: "border-box",
             }}
           >
