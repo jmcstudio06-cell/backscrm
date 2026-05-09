@@ -301,9 +301,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             .contract-container {
               max-width: none;
               width: 100%;
-              min-height: calc(297mm - 24mm);
-              box-decoration-break: clone;
-              -webkit-box-decoration-break: clone;
+              padding: 0;
             }
           }
         </style>
