@@ -55,7 +55,6 @@ interface UserProfile {
   created_at: string;
   last_seen: string | null;
   feature_blocks?: Json | null;
-  pix_disabled?: boolean | null;
 }
 
 const parseFeatureBlocks = (blocks: Json | null | undefined): Record<string, boolean> => {

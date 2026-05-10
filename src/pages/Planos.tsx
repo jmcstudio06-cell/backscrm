@@ -17,10 +17,7 @@ import {
   CalendarDays,
   CalendarRange,
   Loader2,
-  CreditCard,
-  QrCode,
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
@@ -229,19 +226,13 @@ export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
-  const [pixDisabled, setPixDisabled] = useState(false);
-  const [selectedPlanKey, setSelectedPlanKey] = useState<string | null>(null);
-  const [paymentMethodOpen, setPaymentMethodOpen] = useState(false);
 
   useEffect(() => {
     async function fetchPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("plan, pix_disabled").eq("user_id", user.id).maybeSingle();
-      if (data) {
-        setUserPlan(data.plan);
-        setPixDisabled(!!data.pix_disabled);
-      }
+      const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
+      if (data) setUserPlan(data.plan);
     }
     fetchPlan();
   }, []);
@@ -258,43 +249,7 @@ export default function Planos() {
   };
   const userTier = getUserPlanTier();
 
-  const openPaymentMethod = (planKey: string) => {
-    setSelectedPlanKey(planKey);
-    setPaymentMethodOpen(true);
-  };
-
-  const handlePayWithCard = async () => {
-    if (!selectedPlanKey) return;
-    const planKey = selectedPlanKey;
-    setLoadingPlan(planKey);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("Você precisa estar logado para assinar um plano.");
-        return;
-      }
-      const { data, error } = await supabase.functions.invoke("stripe-create-checkout", {
-        body: { planKey },
-      });
-      if (error || !data?.url) {
-        console.error("Stripe checkout error:", error, data);
-        toast.error("Não foi possível preparar o checkout.");
-        return;
-      }
-      setPaymentMethodOpen(false);
-      toast.success("Redirecionando para pagamento...");
-      window.location.href = data.url;
-    } catch (err) {
-      console.error("Subscribe error:", err);
-      toast.error("Erro inesperado. Tente novamente.");
-    } finally {
-      setLoadingPlan(null);
-    }
-  };
-
-  const handlePayWithPix = async () => {
-    if (!selectedPlanKey) return;
-    const planKey = selectedPlanKey;
+  const handleSubscribe = async (planKey: string) => {
     setLoadingPlan(planKey);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -307,11 +262,10 @@ export default function Planos() {
       });
       if (error || !data?.checkout_url) {
         console.error("InfinitePay checkout error:", error, data);
-        toast.error("Não foi possível preparar o checkout PIX.");
+        toast.error("Não foi possível preparar o checkout.");
         return;
       }
-      setPaymentMethodOpen(false);
-      toast.success("Redirecionando para pagamento PIX...");
+      toast.success("Redirecionando para pagamento...");
       window.location.href = data.checkout_url;
     } catch (err) {
       console.error("Subscribe error:", err);
@@ -461,7 +415,7 @@ export default function Planos() {
                             ? "bg-gradient-to-r from-blue-600 to-cyan-500"
                             : "bg-gradient-to-r from-primary to-blue-600",
                         )}
-                        onClick={() => openPaymentMethod(finalPlanKey)}
+                        onClick={() => handleSubscribe(finalPlanKey)}
                       >
                         <span className="flex items-center justify-center gap-2">
                           {isLoading ? (
@@ -501,73 +455,6 @@ export default function Planos() {
         <ReassurancesBar />
       </div>
 
-      <Dialog open={paymentMethodOpen} onOpenChange={setPaymentMethodOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Como você quer pagar?</DialogTitle>
-            <DialogDescription>
-              Escolha a forma de pagamento para ativar seu plano.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-3 mt-2">
-            <button
-              type="button"
-              disabled={!!loadingPlan}
-              onClick={handlePayWithCard}
-              className="group flex items-center gap-4 rounded-2xl border-2 border-border hover:border-blue-500 bg-gradient-to-br from-white to-blue-50/50 p-4 text-left transition-all hover:shadow-md disabled:opacity-50"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shrink-0">
-                {loadingPlan && selectedPlanKey ? (
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
-                ) : (
-                  <CreditCard className="w-6 h-6 text-white" />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-sm">Cartão de crédito ou débito</p>
-                <p className="text-xs text-muted-foreground font-medium">
-                  Renovação automática. Sem se preocupar com vencimentos.
-                </p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            {!pixDisabled && (
-              <button
-                type="button"
-                disabled={!!loadingPlan}
-                onClick={handlePayWithPix}
-                className="group flex items-center gap-4 rounded-2xl border-2 border-border hover:border-emerald-500 bg-gradient-to-br from-white to-emerald-50/50 p-4 text-left transition-all hover:shadow-md disabled:opacity-50"
-              >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-500 flex items-center justify-center shrink-0">
-                  {loadingPlan && selectedPlanKey ? (
-                    <Loader2 className="w-6 h-6 text-white animate-spin" />
-                  ) : (
-                    <QrCode className="w-6 h-6 text-white" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-sm">PIX</p>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Pagamento instantâneo via InfinitePay.
-                  </p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-              </button>
-            )}
-
-            {!pixDisabled && (
-              <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 mt-1">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-800 font-medium leading-relaxed">
-                  <strong>Atenção:</strong> ao pagar com PIX, a renovação não é automática. Se atrasar o pagamento na próxima cobrança, você perde o acesso às funcionalidades do plano até regularizar.
-                </p>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </Layout>
   );
 }

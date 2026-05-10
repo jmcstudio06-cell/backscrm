@@ -141,8 +141,8 @@ const Dashboard = () => {
     }
   }, [isLoading, onboardingActive, currentShowGoal, profile?.onboarding_completed]);
 
-  // Verify Stripe checkout return: ?checkout=success after redirect.
-  // Polls our verify function so the plan activates even if the webhook is delayed/missing.
+  // Refresh profile after returning from external checkout (?checkout=success).
+  // The InfinitePay webhook activates the plan; we just re-fetch a few times to pick it up.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") !== "success") return;
@@ -154,16 +154,7 @@ const Dashboard = () => {
     const poll = async () => {
       while (!cancelled && attempts < maxAttempts) {
         attempts++;
-        try {
-          const { data } = await supabase.functions.invoke("stripe-verify-checkout");
-          if (data?.activated) {
-            queryClient.invalidateQueries({ queryKey: ["profile"] });
-            window.history.replaceState({}, "", "/dashboard");
-            return;
-          }
-        } catch (e) {
-          console.error("[verify-checkout] error", e);
-        }
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
         await new Promise((r) => setTimeout(r, 2500));
       }
       if (!cancelled) {
