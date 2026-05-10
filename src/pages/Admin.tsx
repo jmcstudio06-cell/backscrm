@@ -670,7 +670,7 @@ export default function Admin() {
                       <div>
                         <Label className="text-xs font-bold uppercase text-muted-foreground mb-3 block">Módulos do Plano</Label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          {Object.entries(PLAN_MODULES).map(([moduleId, mod]) => {
+                          {Object.entries(PLAN_MODULES).filter(([id]) => id !== "completo").map(([moduleId, mod]) => {
                             const blocks = parseFeatureBlocks(userProfile.feature_blocks);
                             const allUnlocked = mod.features.every(f => blocks[f] === false);
                             return (
