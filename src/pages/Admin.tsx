@@ -55,6 +55,7 @@ interface UserProfile {
   created_at: string;
   last_seen: string | null;
   feature_blocks?: Json | null;
+  pix_disabled?: boolean | null;
 }
 
 const parseFeatureBlocks = (blocks: Json | null | undefined): Record<string, boolean> => {
@@ -643,6 +644,23 @@ export default function Admin() {
                         </select>
                       </div>
 
+                      {/* PIX Payment Block */}
+                      <div className={`flex items-center justify-between p-3 border rounded-xl ${userProfile.pix_disabled ? "bg-red-500/5 border-red-500/30" : "bg-background"}`}>
+                        <div>
+                          <p className="text-sm font-semibold">Bloquear pagamento via PIX</p>
+                          <p className="text-xs text-muted-foreground">Quando ativado, este usuário só poderá pagar com cartão.</p>
+                        </div>
+                        <Switch
+                          checked={!!userProfile.pix_disabled}
+                          onCheckedChange={async (checked) => {
+                            const { error } = await supabase.from("profiles").update({ pix_disabled: checked }).eq("user_id", userProfile.user_id);
+                            if (error) { toast.error("Erro ao atualizar"); return; }
+                            setUsers(prev => prev.map(u => u.user_id === userProfile.user_id ? { ...u, pix_disabled: checked } : u));
+                            toast.success(checked ? "PIX bloqueado para este usuário" : "PIX liberado");
+                          }}
+                        />
+                      </div>
+
                       {/* Plan Summary */}
                       {userProfile.plan && userProfile.plan !== "expirado" && userProfile.plan !== "comprou_expirado" && userProfile.plan !== "trial" && userProfile.trial_start && (
                         <div className="grid grid-cols-3 gap-3">
@@ -669,7 +687,7 @@ export default function Admin() {
                       <div>
                         <Label className="text-xs font-bold uppercase text-muted-foreground mb-3 block">Módulos do Plano</Label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          {Object.entries(PLAN_MODULES).map(([moduleId, mod]) => {
+                          {Object.entries(PLAN_MODULES).filter(([id]) => id !== "completo").map(([moduleId, mod]) => {
                             const blocks = parseFeatureBlocks(userProfile.feature_blocks);
                             const allUnlocked = mod.features.every(f => blocks[f] === false);
                             return (

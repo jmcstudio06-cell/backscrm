@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS pix_disabled boolean NOT NULL DEFAULT false;
