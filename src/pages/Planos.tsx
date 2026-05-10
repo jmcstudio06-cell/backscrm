@@ -533,34 +533,38 @@ export default function Planos() {
               <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
             </button>
 
-            <button
-              type="button"
-              disabled={!!loadingPlan}
-              onClick={handlePayWithPix}
-              className="group flex items-center gap-4 rounded-2xl border-2 border-border hover:border-emerald-500 bg-gradient-to-br from-white to-emerald-50/50 p-4 text-left transition-all hover:shadow-md disabled:opacity-50"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-500 flex items-center justify-center shrink-0">
-                {loadingPlan && selectedPlanKey ? (
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
-                ) : (
-                  <QrCode className="w-6 h-6 text-white" />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-sm">PIX</p>
-                <p className="text-xs text-muted-foreground font-medium">
-                  Pagamento instantâneo via InfinitePay.
+            {!pixDisabled && (
+              <button
+                type="button"
+                disabled={!!loadingPlan}
+                onClick={handlePayWithPix}
+                className="group flex items-center gap-4 rounded-2xl border-2 border-border hover:border-emerald-500 bg-gradient-to-br from-white to-emerald-50/50 p-4 text-left transition-all hover:shadow-md disabled:opacity-50"
+              >
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-500 flex items-center justify-center shrink-0">
+                  {loadingPlan && selectedPlanKey ? (
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  ) : (
+                    <QrCode className="w-6 h-6 text-white" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">PIX</p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Pagamento instantâneo via InfinitePay.
+                  </p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
+
+            {!pixDisabled && (
+              <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 mt-1">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800 font-medium leading-relaxed">
+                  <strong>Atenção:</strong> ao pagar com PIX, a renovação não é automática. Se atrasar o pagamento na próxima cobrança, você perde o acesso às funcionalidades do plano até regularizar.
                 </p>
               </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 mt-1">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-800 font-medium leading-relaxed">
-                <strong>Atenção:</strong> ao pagar com PIX, a renovação não é automática. Se atrasar o pagamento na próxima cobrança, você perde o acesso às funcionalidades do plano até regularizar.
-              </p>
-            </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
