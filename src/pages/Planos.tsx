@@ -229,6 +229,7 @@ export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [pixDisabled, setPixDisabled] = useState(false);
   const [selectedPlanKey, setSelectedPlanKey] = useState<string | null>(null);
   const [paymentMethodOpen, setPaymentMethodOpen] = useState(false);
 
@@ -236,8 +237,11 @@ export default function Planos() {
     async function fetchPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
-      if (data) setUserPlan(data.plan);
+      const { data } = await supabase.from("profiles").select("plan, pix_disabled").eq("user_id", user.id).maybeSingle();
+      if (data) {
+        setUserPlan(data.plan);
+        setPixDisabled(!!data.pix_disabled);
+      }
     }
     fetchPlan();
   }, []);
