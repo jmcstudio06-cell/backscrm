@@ -1408,7 +1408,6 @@ export type Database = {
           onboarding_completed: boolean | null
           payment_deadline: string | null
           phone: string | null
-          pix_disabled: boolean
           plan: string | null
           project_type: string | null
           repertoire_url: string | null
@@ -1461,7 +1460,6 @@ export type Database = {
           onboarding_completed?: boolean | null
           payment_deadline?: string | null
           phone?: string | null
-          pix_disabled?: boolean
           plan?: string | null
           project_type?: string | null
           repertoire_url?: string | null
@@ -1514,7 +1512,6 @@ export type Database = {
           onboarding_completed?: boolean | null
           payment_deadline?: string | null
           phone?: string | null
-          pix_disabled?: boolean
           plan?: string | null
           project_type?: string | null
           repertoire_url?: string | null
