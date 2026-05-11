@@ -26,6 +26,7 @@ export interface Contract {
   artist_email: string | null;
   client_name: string;
   client_document: string | null;
+  client_rg: string | null;
   client_address: string | null;
   client_phone: string | null;
   client_email: string | null;
