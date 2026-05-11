@@ -26,6 +26,7 @@ export interface Contract {
   artist_email: string | null;
   client_name: string;
   client_document: string | null;
+  client_rg: string | null;
   client_address: string | null;
   client_phone: string | null;
   client_email: string | null;
@@ -198,6 +199,7 @@ export function useContracts() {
           artist_email: contractData.artist_email,
           client_name: contractData.client_name || "",
           client_document: contractData.client_document,
+          client_rg: contractData.client_rg,
           client_address: contractData.client_address,
           client_phone: contractData.client_phone,
           client_email: contractData.client_email,
@@ -248,6 +250,7 @@ export function useContracts() {
       if (contractData.artist_email !== undefined) updateData.artist_email = contractData.artist_email;
       if (contractData.client_name !== undefined) updateData.client_name = contractData.client_name;
       if (contractData.client_document !== undefined) updateData.client_document = contractData.client_document;
+      if (contractData.client_rg !== undefined) updateData.client_rg = contractData.client_rg;
       if (contractData.client_address !== undefined) updateData.client_address = contractData.client_address;
       if (contractData.client_phone !== undefined) updateData.client_phone = contractData.client_phone;
       if (contractData.client_email !== undefined) updateData.client_email = contractData.client_email;
