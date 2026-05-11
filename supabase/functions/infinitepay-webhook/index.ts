@@ -40,10 +40,21 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
+    console.log("Webhook payload bruto:", JSON.stringify(body));
 
-    const status = normalizeStatus(
+    let status = normalizeStatus(
       body?.status || body?.payment_status || body?.data?.status || body?.transaction?.status || null,
     );
+
+    // InfinitePay usa o boolean `paid: true` em vez de campo status
+    const isPaidBoolean =
+      body?.paid === true ||
+      body?.data?.paid === true ||
+      body?.transaction?.paid === true ||
+      body?.payment?.paid === true;
+    if (!status && isPaidBoolean) {
+      status = "paid";
+    }
 
     // Suporte a múltiplos formatos de metadata da InfinitePay
     const metadata =
