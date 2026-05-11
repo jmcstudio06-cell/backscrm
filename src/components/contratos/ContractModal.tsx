@@ -58,7 +58,7 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
       setArtistEmail(contract.artist_email || "");
       setClientName(contract.client_name);
       setClientDocument(contract.client_document || "");
-      setClientRg("");
+      setClientRg((contract as Contract & { client_rg?: string | null }).client_rg || "");
       setClientAddress(contract.client_address || "");
       setClientPhone(contract.client_phone || "");
       setClientEmail(contract.client_email || "");
