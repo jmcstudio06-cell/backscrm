@@ -250,6 +250,7 @@ export function useContracts() {
       if (contractData.artist_email !== undefined) updateData.artist_email = contractData.artist_email;
       if (contractData.client_name !== undefined) updateData.client_name = contractData.client_name;
       if (contractData.client_document !== undefined) updateData.client_document = contractData.client_document;
+      if (contractData.client_rg !== undefined) updateData.client_rg = contractData.client_rg;
       if (contractData.client_address !== undefined) updateData.client_address = contractData.client_address;
       if (contractData.client_phone !== undefined) updateData.client_phone = contractData.client_phone;
       if (contractData.client_email !== undefined) updateData.client_email = contractData.client_email;
