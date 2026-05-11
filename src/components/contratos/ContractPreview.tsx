@@ -393,14 +393,6 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
           <div className="flex items-center justify-between">
             <DialogTitle>Pré-visualização do Contrato</DialogTitle>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleWhatsApp}>
-                <MessageCircle className="w-4 h-4 mr-2" />
-                WhatsApp
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleEmail}>
-                <Send className="w-4 h-4 mr-2" />
-                Email
-              </Button>
               <Button variant="gradient" size="sm" onClick={handlePrintLegacy}>
                 <Download className="w-4 h-4 mr-2" />
                 Imprimir
