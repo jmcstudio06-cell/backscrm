@@ -199,6 +199,7 @@ export function useContracts() {
           artist_email: contractData.artist_email,
           client_name: contractData.client_name || "",
           client_document: contractData.client_document,
+          client_rg: contractData.client_rg,
           client_address: contractData.client_address,
           client_phone: contractData.client_phone,
           client_email: contractData.client_email,
