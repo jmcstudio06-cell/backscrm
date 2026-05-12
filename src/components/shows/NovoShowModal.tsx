@@ -139,6 +139,7 @@ const showTypes = [
   "Formatura",
   "Festival",
   "Bar/Restaurante",
+  "Festa Junina",
   "Outro",
 ];
 
