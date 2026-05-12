@@ -50,6 +50,7 @@ export function BudgetKanbanView({ budgets, onView, onEdit, onDelete, onChangeSt
       {stages.map((stage) => {
         const list = getByStage(stage.id);
         const StageIcon = stage.Icon;
+        const stageTotal = list.reduce((sum, b) => sum + Number(b.total || 0), 0);
         return (
           <div
             key={stage.id}
@@ -57,7 +58,7 @@ export function BudgetKanbanView({ budgets, onView, onEdit, onDelete, onChangeSt
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, stage.id)}
           >
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
                 <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center text-white", stage.color)}>
                   <StageIcon className="w-3.5 h-3.5" />
@@ -66,6 +67,12 @@ export function BudgetKanbanView({ budgets, onView, onEdit, onDelete, onChangeSt
               </div>
               <Badge variant="secondary" className="h-5 min-w-5 text-[10px]">{list.length}</Badge>
             </div>
+            {stage.id !== "archived" && (
+              <p className={cn("text-[10px] font-semibold mb-3", stage.textColor)}>
+                {formatBRL(stageTotal)} parado
+              </p>
+            )}
+            {stage.id === "archived" && <div className="mb-3" />}
 
             <div className="flex-1 space-y-2">
               {list.length === 0 ? (
