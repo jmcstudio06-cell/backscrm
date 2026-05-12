@@ -183,7 +183,7 @@ export function BudgetModal({
       notes,
       terms_conditions: termsConditions,
       valid_until: validUntil || null,
-      status: "draft",
+      status: "created",
     };
 
     const budgetItems: Partial<BudgetItem>[] = items.map((item, index) => ({
