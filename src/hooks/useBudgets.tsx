@@ -36,6 +36,7 @@ export interface Budget {
   valid_until: string | null;
   created_at: string;
   updated_at: string;
+  stage_changed_at: string;
   items?: BudgetItem[];
 }
 
@@ -65,17 +66,28 @@ export function useBudgets() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
-      const allBudgets = data || [];
 
-      // Auto-delete budgets beyond the 5 most recent (batch)
-      if (allBudgets.length > 5) {
-        const idsToDelete = allBudgets.slice(5).map(b => b.id);
-        await supabase.from("budget_items").delete().in("budget_id", idsToDelete);
-        await supabase.from("budgets").delete().in("id", idsToDelete);
+      const allBudgets = (data || []) as Budget[];
+
+      // Auto-archive: anything not archived & parado >30 dias na etapa
+      const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+      const now = Date.now();
+      const toArchive = allBudgets.filter(
+        (b) => b.status !== "archived" && now - new Date(b.stage_changed_at || b.created_at).getTime() > THIRTY_DAYS
+      );
+      if (toArchive.length > 0) {
+        const ids = toArchive.map((b) => b.id);
+        await supabase
+          .from("budgets")
+          .update({ status: "archived", stage_changed_at: new Date().toISOString() })
+          .in("id", ids);
+        toArchive.forEach((b) => {
+          b.status = "archived";
+          b.stage_changed_at = new Date().toISOString();
+        });
       }
 
-      setBudgets(allBudgets.slice(0, 5));
+      setBudgets(allBudgets);
     } catch (error) {
       console.error("Error fetching budgets:", error);
       toast.error("Erro ao carregar orçamentos");
@@ -195,8 +207,9 @@ export function useBudgets() {
           payment_conditions: budgetData.payment_conditions,
           notes: budgetData.notes,
           terms_conditions: budgetData.terms_conditions,
-          status: budgetData.status || "draft",
+          status: budgetData.status || "created",
           valid_until: budgetData.valid_until,
+          stage_changed_at: new Date().toISOString(),
           user_id: user.id,
         }])
         .select()
@@ -234,26 +247,30 @@ export function useBudgets() {
 
   const updateBudget = async (id: string, budgetData: Partial<Budget>, items?: Partial<BudgetItem>[]) => {
     try {
+      const current = budgets.find((b) => b.id === id);
+      const stageChanged = budgetData.status && current && budgetData.status !== current.status;
+      const updatePayload: any = {
+        client_name: budgetData.client_name,
+        client_email: budgetData.client_email,
+        client_phone: budgetData.client_phone,
+        client_company: budgetData.client_company,
+        client_address: budgetData.client_address,
+        client_id: budgetData.client_id,
+        logo_url: budgetData.logo_url,
+        subtotal: budgetData.subtotal,
+        discount: budgetData.discount,
+        tax: budgetData.tax,
+        total: budgetData.total,
+        payment_conditions: budgetData.payment_conditions,
+        notes: budgetData.notes,
+        terms_conditions: budgetData.terms_conditions,
+        status: budgetData.status,
+        valid_until: budgetData.valid_until,
+      };
+      if (stageChanged) updatePayload.stage_changed_at = new Date().toISOString();
       const { data: budget, error: budgetError } = await supabase
         .from("budgets")
-        .update({
-          client_name: budgetData.client_name,
-          client_email: budgetData.client_email,
-          client_phone: budgetData.client_phone,
-          client_company: budgetData.client_company,
-          client_address: budgetData.client_address,
-          client_id: budgetData.client_id,
-          logo_url: budgetData.logo_url,
-          subtotal: budgetData.subtotal,
-          discount: budgetData.discount,
-          tax: budgetData.tax,
-          total: budgetData.total,
-          payment_conditions: budgetData.payment_conditions,
-          notes: budgetData.notes,
-          terms_conditions: budgetData.terms_conditions,
-          status: budgetData.status,
-          valid_until: budgetData.valid_until,
-        })
+        .update(updatePayload)
         .eq("id", id)
         .select()
         .single();
