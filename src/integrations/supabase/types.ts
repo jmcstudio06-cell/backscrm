@@ -498,6 +498,7 @@ export type Database = {
           logo_url: string | null
           notes: string | null
           payment_conditions: string | null
+          stage_changed_at: string
           status: string
           subtotal: number
           tax: number
@@ -521,6 +522,7 @@ export type Database = {
           logo_url?: string | null
           notes?: string | null
           payment_conditions?: string | null
+          stage_changed_at?: string
           status?: string
           subtotal?: number
           tax?: number
@@ -544,6 +546,7 @@ export type Database = {
           logo_url?: string | null
           notes?: string | null
           payment_conditions?: string | null
+          stage_changed_at?: string
           status?: string
           subtotal?: number
           tax?: number
@@ -2345,6 +2348,7 @@ export type Database = {
     }
     Functions: {
       archive_monthly_ranking: { Args: never; Returns: number }
+      auto_archive_old_budgets: { Args: never; Returns: number }
       auto_complete_past_shows: { Args: never; Returns: number }
       cleanup_old_landing_visits: { Args: never; Returns: number }
       cleanup_old_notifications: { Args: never; Returns: number }
