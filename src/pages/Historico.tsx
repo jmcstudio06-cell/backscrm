@@ -31,6 +31,9 @@ import {
   getHistoricoAvailableYears,
 } from "@/lib/historico";
 import { HistoricoMonthlyTable } from "@/components/historico/HistoricoMonthlyTable";
+import { ShowCostBreakdownDialog } from "@/components/historico/ShowCostBreakdownDialog";
+import { Button } from "@/components/ui/button";
+import { Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isCompletedShowStatus } from "@/lib/showStatus";
 
