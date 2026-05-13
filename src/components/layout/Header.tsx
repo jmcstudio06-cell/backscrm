@@ -2,6 +2,7 @@ import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
+import { NotificationBell } from "./NotificationBell";
 
 interface HeaderProps {
   title: string;
