@@ -60,6 +60,7 @@ export default function Historico() {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [compareYear, setCompareYear] = useState<number | null>(null);
   const [repairDone, setRepairDone] = useState(false);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
 
   const comparableYears = availableYears.filter((y) => y !== selectedYear);
 
