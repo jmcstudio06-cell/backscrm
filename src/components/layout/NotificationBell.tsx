@@ -28,6 +28,7 @@ export function NotificationBell() {
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const { isAdmin } = useAdmin();
+  const [createOpen, setCreateOpen] = useState(false);
 
   const recent = notifications.slice(0, 6);
 
@@ -38,6 +39,7 @@ export function NotificationBell() {
   };
 
   return (
+    <>
     <Popover>
       <PopoverTrigger asChild>
         <Button
