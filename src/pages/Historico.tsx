@@ -249,7 +249,20 @@ export default function Historico() {
             </Select>
           </div>
         )}
+        <div className="ml-auto">
+          <Button onClick={() => setBreakdownOpen(true)} variant="outline" className="gap-2">
+            <Calculator className="w-4 h-4" />
+            Ver Detalhamento de Custos
+          </Button>
+        </div>
       </div>
+
+      <ShowCostBreakdownDialog
+        open={breakdownOpen}
+        onOpenChange={setBreakdownOpen}
+        monthlyHistory={monthlyHistory}
+        selectedYear={selectedYear}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div className="p-4 rounded-xl glass">
