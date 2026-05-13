@@ -78,7 +78,7 @@ export function NotificationBell() {
                 variant="default"
                 size="sm"
                 className="h-8 px-2 text-xs"
-                onClick={() => navigate("/admin?tab=notifications")}
+                onClick={() => setCreateOpen(true)}
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
                 Nova
