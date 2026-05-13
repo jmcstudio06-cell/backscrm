@@ -141,5 +141,7 @@ export function NotificationBell() {
         </div>
       </PopoverContent>
     </Popover>
+    <AdminNotificationQuickModal open={createOpen} onOpenChange={setCreateOpen} onSent={refetch} />
+    </>
   );
 }
