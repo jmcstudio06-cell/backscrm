@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell, Plus, CheckCheck, Sparkles, Gift, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AdminNotificationQuickModal } from "./AdminNotificationQuickModal";
 
 const TYPE_ICON: Record<string, React.ElementType> = {
   update: Sparkles,
