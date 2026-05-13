@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell, Plus, CheckCheck, Sparkles, Gift, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AdminNotificationQuickModal } from "./AdminNotificationQuickModal";
 
 const TYPE_ICON: Record<string, React.ElementType> = {
   update: Sparkles,
@@ -24,8 +26,9 @@ const TYPE_COLOR: Record<string, string> = {
 
 export function NotificationBell() {
   const navigate = useNavigate();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, refetch } = useNotifications();
   const { isAdmin } = useAdmin();
+  const [createOpen, setCreateOpen] = useState(false);
 
   const recent = notifications.slice(0, 6);
 
@@ -36,6 +39,7 @@ export function NotificationBell() {
   };
 
   return (
+    <>
     <Popover>
       <PopoverTrigger asChild>
         <Button
@@ -74,7 +78,7 @@ export function NotificationBell() {
                 variant="default"
                 size="sm"
                 className="h-8 px-2 text-xs"
-                onClick={() => navigate("/admin?tab=notifications")}
+                onClick={() => setCreateOpen(true)}
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
                 Nova
@@ -137,5 +141,7 @@ export function NotificationBell() {
         </div>
       </PopoverContent>
     </Popover>
+    <AdminNotificationQuickModal open={createOpen} onOpenChange={setCreateOpen} onSent={refetch} />
+    </>
   );
 }
