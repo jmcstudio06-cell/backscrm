@@ -26,7 +26,7 @@ const TYPE_COLOR: Record<string, string> = {
 
 export function NotificationBell() {
   const navigate = useNavigate();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, refetch } = useNotifications();
   const { isAdmin } = useAdmin();
   const [createOpen, setCreateOpen] = useState(false);
 
