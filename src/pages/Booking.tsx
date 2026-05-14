@@ -344,7 +344,7 @@ export default function Booking() {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h1 className="text-xl font-bold text-foreground truncate">{artist?.artist_name || "Artista"}</h1>
+              <h1 className="text-xl font-bold text-foreground truncate">Contratar {artist?.artist_name || "Artista"}</h1>
               <div className="flex items-center gap-2 mt-1 text-sm flex-wrap">
                 {artist?.music_style && <Badge variant="outline" className="text-xs">{artist.music_style}</Badge>}
                 {artist?.base_city && (

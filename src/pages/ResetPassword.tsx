@@ -108,7 +108,7 @@ const ResetPassword = () => {
           <div className="w-16 h-16 bg-gradient-to-br from-[#0066CC] to-[#00B4D8] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <KeyRound className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">Nova senha</h3>
+          <h1 className="text-2xl font-bold text-slate-800">Redefinir senha — Backstage Pro</h1>
           <p className="text-slate-500 mt-2">Defina sua nova senha abaixo</p>
         </div>
 
@@ -127,6 +127,7 @@ const ResetPassword = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

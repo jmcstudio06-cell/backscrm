@@ -203,7 +203,7 @@ export default function LinkInstagram() {
             {/* Info + botões */}
             <div className="flex-1 min-w-0 text-center sm:text-left w-full">
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent drop-shadow-sm">
-                {profile.artist_name || "Artista"}
+                {profile.artist_name || "Artista"} — Press Kit Oficial
               </h1>
 
               {(profile.music_style || profile.base_city) && (

@@ -317,7 +317,7 @@ const Landing = () => {
                 <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-6 shadow-2xl shadow-black/20">
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
-                      <img src={baIconImg} alt="BA" className="w-full h-full object-cover" />
+                      <img src={baIconImg} alt="Logotipo Backstage Pro" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <p className="text-white font-bold text-sm">Backstage Pro</p>
