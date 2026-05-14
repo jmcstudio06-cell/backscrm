@@ -192,6 +192,14 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>Backstage Pro — Sistema de Gestão para Artistas e Músicos</title>
+        <meta name="description" content="Plataforma completa para artistas: agenda de shows, financeiro, CRM de leads, contratos, orçamentos e equipe. Comece grátis." />
+        <link rel="canonical" href="https://backstagepro.online/landing" />
+        <meta property="og:title" content="Backstage Pro — Sistema de Gestão para Artistas" />
+        <meta property="og:description" content="Agenda, financeiro, CRM, contratos e equipe num só lugar para artistas e músicos." />
+        <meta property="og:url" content="https://backstagepro.online/landing" />
+      </Helmet>
 
       {/* Header */}
       <header className="fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm transition-all duration-300 top-0">
