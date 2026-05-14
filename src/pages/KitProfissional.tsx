@@ -248,11 +248,12 @@ export default function KitProfissional() {
             {/* Form */}
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                <label htmlFor="kit-name" className="text-sm font-medium text-foreground flex items-center gap-2">
                   <User className="w-4 h-4 text-muted-foreground" />
                   Nome e sobrenome
                 </label>
                 <Input
+                  id="kit-name"
                   placeholder="Ex: João Silva"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -261,11 +262,12 @@ export default function KitProfissional() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                <label htmlFor="kit-phone" className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Phone className="w-4 h-4 text-muted-foreground" />
                   WhatsApp (com DDD)
                 </label>
                 <Input
+                  id="kit-phone"
                   placeholder="(11) 98765-4321"
                   value={phone}
                   onChange={(e) => setPhone(formatPhone(e.target.value))}
