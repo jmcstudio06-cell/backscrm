@@ -329,6 +329,14 @@ export default function Booking() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <Helmet>
+        <title>{artist?.artist_name ? `Contratar ${artist.artist_name} — Backstage Pro` : "Contratar Artista — Backstage Pro"}</title>
+        <meta name="description" content={artist?.artist_name ? `Solicite uma proposta de show com ${artist.artist_name}. Verifique disponibilidade na agenda e envie seu pedido em poucos cliques.` : "Solicite uma proposta de show. Verifique disponibilidade e envie seu pedido em poucos cliques."} />
+        <link rel="canonical" href={`https://backstagepro.online/artista/${slug ?? ""}`} />
+        <meta property="og:title" content={artist?.artist_name ? `Contratar ${artist.artist_name}` : "Contratar Artista"} />
+        <meta property="og:description" content={artist?.artist_name ? `Reserve um show com ${artist.artist_name} pelo Backstage Pro.` : "Reserve um show pelo Backstage Pro."} />
+        <meta property="og:url" content={`https://backstagepro.online/artista/${slug ?? ""}`} />
+      </Helmet>
       {/* Header do Artista - Compacto */}
       <div className="bg-gradient-to-br from-primary/10 via-background to-accent/5 border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-6">
