@@ -1,12 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 export default function Termos() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8]">
+      <Helmet>
+        <title>Termos de Uso — Backstage Pro</title>
+        <meta name="description" content="Termos e condições de uso do Backstage Pro: regras de assinatura, conta, pagamentos e responsabilidades da plataforma." />
+        <link rel="canonical" href="https://backstagepro.online/termos" />
+        <meta property="og:title" content="Termos de Uso — Backstage Pro" />
+        <meta property="og:description" content="Regras de uso, assinatura e responsabilidades do Backstage Pro." />
+        <meta property="og:url" content="https://backstagepro.online/termos" />
+      </Helmet>
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 md:px-12">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
