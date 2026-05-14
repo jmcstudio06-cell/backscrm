@@ -234,12 +234,12 @@ const Landing = () => {
                 <span className="text-white/90 text-sm font-medium">A plataforma que artistas usam para profissionalizar a carreira</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 drop-shadow-lg">
-                Seu talento é no palco.
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+                Backstage Pro — <span className="text-cyan-300">Sistema de Gestão para Artistas e Músicos</span>
               </h1>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-cyan-300 mb-6 drop-shadow-lg">
-                A organização deixa com a gente.
-              </h2>
+              <p className="text-white/80 text-lg md:text-xl max-w-xl mb-2 italic">
+                Seu talento é no palco. A organização deixa com a gente.
+              </p>
 
               <p className="text-white/90 text-lg md:text-xl max-w-xl mb-4">
                 Shows, contratos, cachês e finanças em um só lugar.
