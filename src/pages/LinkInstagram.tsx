@@ -129,6 +129,14 @@ export default function LinkInstagram() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0a0a0f] text-white">
+      <Helmet>
+        <title>{profile.artist_name ? `${profile.artist_name} — Press Kit Oficial` : "Press Kit — Backstage Pro"}</title>
+        <meta name="description" content={profile.artist_name ? `Press kit oficial de ${profile.artist_name}: estilo, cidade, redes sociais e contato direto para shows.` : "Press kit do artista: estilo, redes sociais e contato direto para shows."} />
+        <link rel="canonical" href={`https://backstagepro.online/link/${slug ?? ""}`} />
+        <meta property="og:title" content={profile.artist_name ? `${profile.artist_name} — Press Kit` : "Press Kit"} />
+        <meta property="og:description" content={profile.artist_name ? `Conheça ${profile.artist_name} e contrate seu show pelo Backstage Pro.` : "Press kit do artista no Backstage Pro."} />
+        <meta property="og:url" content={`https://backstagepro.online/link/${slug ?? ""}`} />
+      </Helmet>
       {/* Cinematic backdrop: artist avatar as ambient blur */}
       {profile.avatar_url && (
         <div className="fixed inset-0 pointer-events-none">
