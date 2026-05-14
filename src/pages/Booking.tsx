@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -328,6 +329,14 @@ export default function Booking() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <Helmet>
+        <title>{artist?.artist_name ? `Contratar ${artist.artist_name} — Backstage Pro` : "Contratar Artista — Backstage Pro"}</title>
+        <meta name="description" content={artist?.artist_name ? `Solicite uma proposta de show com ${artist.artist_name}. Verifique disponibilidade na agenda e envie seu pedido em poucos cliques.` : "Solicite uma proposta de show. Verifique disponibilidade e envie seu pedido em poucos cliques."} />
+        <link rel="canonical" href={`https://backstagepro.online/artista/${slug ?? ""}`} />
+        <meta property="og:title" content={artist?.artist_name ? `Contratar ${artist.artist_name}` : "Contratar Artista"} />
+        <meta property="og:description" content={artist?.artist_name ? `Reserve um show com ${artist.artist_name} pelo Backstage Pro.` : "Reserve um show pelo Backstage Pro."} />
+        <meta property="og:url" content={`https://backstagepro.online/artista/${slug ?? ""}`} />
+      </Helmet>
       {/* Header do Artista - Compacto */}
       <div className="bg-gradient-to-br from-primary/10 via-background to-accent/5 border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-6">
@@ -344,7 +353,7 @@ export default function Booking() {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h1 className="text-xl font-bold text-foreground truncate">{artist?.artist_name || "Artista"}</h1>
+              <h1 className="text-xl font-bold text-foreground truncate">Contratar {artist?.artist_name || "Artista"}</h1>
               <div className="flex items-center gap-2 mt-1 text-sm flex-wrap">
                 {artist?.music_style && <Badge variant="outline" className="text-xs">{artist.music_style}</Badge>}
                 {artist?.base_city && (
@@ -714,10 +723,11 @@ export default function Booking() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Nome completo *</Label>
+                  <Label htmlFor="booking-name">Nome completo *</Label>
                   <div className="relative mt-1">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-name"
                       className="pl-9"
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
@@ -727,10 +737,11 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <Label>WhatsApp *</Label>
+                  <Label htmlFor="booking-phone">WhatsApp *</Label>
                   <div className="relative mt-1">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-phone"
                       className="pl-9"
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
@@ -743,8 +754,9 @@ export default function Booking() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Tipo de Evento</Label>
+                  <Label htmlFor="booking-event-type">Tipo de Evento</Label>
                   <Input
+                    id="booking-event-type"
                     className="mt-1"
                     value={eventType}
                     onChange={(e) => setEventType(e.target.value)}
@@ -752,10 +764,11 @@ export default function Booking() {
                   />
                 </div>
                 <div>
-                  <Label>Horário</Label>
+                  <Label htmlFor="booking-event-time">Horário</Label>
                   <div className="relative mt-1">
                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-event-time"
                       className="pl-9"
                       type="time"
                       value={eventTime}
@@ -767,10 +780,11 @@ export default function Booking() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Cidade</Label>
+                  <Label htmlFor="booking-city">Cidade</Label>
                   <div className="relative mt-1">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-city"
                       className="pl-9"
                       value={eventCity}
                       onChange={(e) => setEventCity(e.target.value)}
@@ -779,8 +793,9 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <Label>Local</Label>
+                  <Label htmlFor="booking-location">Local</Label>
                   <Input
+                    id="booking-location"
                     className="mt-1"
                     value={eventLocation}
                     onChange={(e) => setEventLocation(e.target.value)}
@@ -790,8 +805,9 @@ export default function Booking() {
               </div>
 
               <div>
-                <Label>Observações</Label>
+                <Label htmlFor="booking-observations">Observações</Label>
                 <Textarea
+                  id="booking-observations"
                   className="mt-1"
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}

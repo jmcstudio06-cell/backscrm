@@ -1,12 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 export default function Privacidade() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0066CC] via-[#0088DD] to-[#00B4D8]">
+      <Helmet>
+        <title>Política de Privacidade — Backstage Pro</title>
+        <meta name="description" content="Como o Backstage Pro coleta, usa e protege os dados pessoais de artistas conforme a LGPD: direitos, retenção e segurança." />
+        <link rel="canonical" href="https://backstagepro.online/privacidade" />
+        <meta property="og:title" content="Política de Privacidade — Backstage Pro" />
+        <meta property="og:description" content="Como tratamos dados pessoais conforme a LGPD no Backstage Pro." />
+        <meta property="og:url" content="https://backstagepro.online/privacidade" />
+      </Helmet>
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 md:px-12">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>

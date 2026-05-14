@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -191,6 +192,14 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>Backstage Pro — Sistema de Gestão para Artistas e Músicos</title>
+        <meta name="description" content="Plataforma completa para artistas: agenda de shows, financeiro, CRM de leads, contratos, orçamentos e equipe. Comece grátis." />
+        <link rel="canonical" href="https://backstagepro.online/landing" />
+        <meta property="og:title" content="Backstage Pro — Sistema de Gestão para Artistas" />
+        <meta property="og:description" content="Agenda, financeiro, CRM, contratos e equipe num só lugar para artistas e músicos." />
+        <meta property="og:url" content="https://backstagepro.online/landing" />
+      </Helmet>
 
       {/* Header */}
       <header className="fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-sm transition-all duration-300 top-0">
@@ -234,12 +243,12 @@ const Landing = () => {
                 <span className="text-white/90 text-sm font-medium">A plataforma que artistas usam para profissionalizar a carreira</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 drop-shadow-lg">
-                Seu talento é no palco.
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+                Backstage Pro — <span className="text-cyan-300">Sistema de Gestão para Artistas e Músicos</span>
               </h1>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-cyan-300 mb-6 drop-shadow-lg">
-                A organização deixa com a gente.
-              </h2>
+              <p className="text-white/80 text-lg md:text-xl max-w-xl mb-2 italic">
+                Seu talento é no palco. A organização deixa com a gente.
+              </p>
 
               <p className="text-white/90 text-lg md:text-xl max-w-xl mb-4">
                 Shows, contratos, cachês e finanças em um só lugar.
@@ -317,7 +326,7 @@ const Landing = () => {
                 <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-6 shadow-2xl shadow-black/20">
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
-                      <img src={baIconImg} alt="BA" className="w-full h-full object-cover" />
+                      <img src={baIconImg} alt="Logotipo Backstage Pro" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <p className="text-white font-bold text-sm">Backstage Pro</p>

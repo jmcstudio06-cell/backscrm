@@ -1,0 +1,14 @@
+# Backstage Pro
+
+> Backstage Pro é um sistema completo de gestão de carreira para artistas e músicos: agenda de shows, controle financeiro, CRM de leads, contratos, orçamentos e equipe.
+
+## Pages
+
+- [Início / Login](/): Acesso à plataforma e visão geral do produto.
+- [Landing](/landing): Página institucional com recursos, planos e depoimentos.
+- [Termos de Uso](/termos): Termos e condições de uso da plataforma.
+- [Política de Privacidade](/privacidade): Como tratamos dados pessoais (LGPD).
+
+## Optional
+
+- [Reset de Senha](/reset-password): Fluxo de recuperação de senha.

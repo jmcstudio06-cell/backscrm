@@ -12,3 +12,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /configuracoes
+
+Sitemap: https://backstagepro.online/sitemap.xml

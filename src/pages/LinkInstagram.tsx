@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLogo } from "@/components/layout/AppLogo";
 import {
@@ -128,6 +129,14 @@ export default function LinkInstagram() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0a0a0f] text-white">
+      <Helmet>
+        <title>{profile.artist_name ? `${profile.artist_name} — Press Kit Oficial` : "Press Kit — Backstage Pro"}</title>
+        <meta name="description" content={profile.artist_name ? `Press kit oficial de ${profile.artist_name}: estilo, cidade, redes sociais e contato direto para shows.` : "Press kit do artista: estilo, redes sociais e contato direto para shows."} />
+        <link rel="canonical" href={`https://backstagepro.online/link/${slug ?? ""}`} />
+        <meta property="og:title" content={profile.artist_name ? `${profile.artist_name} — Press Kit` : "Press Kit"} />
+        <meta property="og:description" content={profile.artist_name ? `Conheça ${profile.artist_name} e contrate seu show pelo Backstage Pro.` : "Press kit do artista no Backstage Pro."} />
+        <meta property="og:url" content={`https://backstagepro.online/link/${slug ?? ""}`} />
+      </Helmet>
       {/* Cinematic backdrop: artist avatar as ambient blur */}
       {profile.avatar_url && (
         <div className="fixed inset-0 pointer-events-none">
@@ -203,7 +212,7 @@ export default function LinkInstagram() {
             {/* Info + botões */}
             <div className="flex-1 min-w-0 text-center sm:text-left w-full">
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent drop-shadow-sm">
-                {profile.artist_name || "Artista"}
+                {profile.artist_name || "Artista"} — Press Kit Oficial
               </h1>
 
               {(profile.music_style || profile.base_city) && (

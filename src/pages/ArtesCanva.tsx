@@ -51,6 +51,7 @@ export default function ArtesCanva() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => navigate("/kit-profissional")}
+            aria-label="Voltar ao Kit Profissional"
             className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

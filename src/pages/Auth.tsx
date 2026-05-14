@@ -271,11 +271,9 @@ const Auth = () => {
 
             <div className={`${showForm ? 'space-y-2 lg:space-y-4' : 'space-y-4'}`}>
               <h1 className={`font-bold leading-tight text-white ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
-                Sua carreira,
+                <span className="block">Backstage Pro</span>
+                <span className="block text-cyan-300">Gestão de Carreira para Artistas</span>
               </h1>
-              <h2 className={`font-bold leading-tight text-cyan-300 ${showForm ? 'text-2xl md:text-4xl lg:text-5xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
-                sob controle
-              </h2>
               <p className={`text-white/80 max-w-lg ${showForm ? 'text-sm lg:text-lg mt-2 lg:mt-6' : 'text-lg mt-6'}`}>
                 O jeito mais fácil de gerenciar shows, controlar finanças, 
                 organizar sua banda e converter leads em contratos.
@@ -351,7 +349,7 @@ const Auth = () => {
                 <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-4 md:p-6 shadow-2xl shadow-black/20">
                   <div className="flex items-center gap-3 mb-4 md:mb-5">
                     <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
-                      <img src={baIconImg} alt="BA" className="w-full h-full object-cover" />
+                      <img src={baIconImg} alt="Logotipo Backstage Pro" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <p className="text-white font-bold text-sm">Backstage Pro</p>
@@ -413,7 +411,7 @@ const Auth = () => {
               {/* Form Header */}
               <div className="mb-8 text-center">
                 <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-4 shadow-lg">
-                  <img src={baIconImg} alt="BA" className="w-full h-full object-cover" />
+                  <img src={baIconImg} alt="Logotipo Backstage Pro" className="w-full h-full object-cover" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800">{getFormTitle()}</h3>
                 <p className="text-slate-500 mt-2">{getFormSubtitle()}</p>
