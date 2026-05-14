@@ -714,10 +714,11 @@ export default function Booking() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Nome completo *</Label>
+                  <Label htmlFor="booking-name">Nome completo *</Label>
                   <div className="relative mt-1">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-name"
                       className="pl-9"
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
@@ -727,10 +728,11 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <Label>WhatsApp *</Label>
+                  <Label htmlFor="booking-phone">WhatsApp *</Label>
                   <div className="relative mt-1">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-phone"
                       className="pl-9"
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
@@ -743,8 +745,9 @@ export default function Booking() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Tipo de Evento</Label>
+                  <Label htmlFor="booking-event-type">Tipo de Evento</Label>
                   <Input
+                    id="booking-event-type"
                     className="mt-1"
                     value={eventType}
                     onChange={(e) => setEventType(e.target.value)}
@@ -752,10 +755,11 @@ export default function Booking() {
                   />
                 </div>
                 <div>
-                  <Label>Horário</Label>
+                  <Label htmlFor="booking-event-time">Horário</Label>
                   <div className="relative mt-1">
                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-event-time"
                       className="pl-9"
                       type="time"
                       value={eventTime}
@@ -767,10 +771,11 @@ export default function Booking() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Cidade</Label>
+                  <Label htmlFor="booking-city">Cidade</Label>
                   <div className="relative mt-1">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="booking-city"
                       className="pl-9"
                       value={eventCity}
                       onChange={(e) => setEventCity(e.target.value)}
@@ -779,8 +784,9 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <Label>Local</Label>
+                  <Label htmlFor="booking-location">Local</Label>
                   <Input
+                    id="booking-location"
                     className="mt-1"
                     value={eventLocation}
                     onChange={(e) => setEventLocation(e.target.value)}
@@ -790,8 +796,9 @@ export default function Booking() {
               </div>
 
               <div>
-                <Label>Observações</Label>
+                <Label htmlFor="booking-observations">Observações</Label>
                 <Textarea
+                  id="booking-observations"
                   className="mt-1"
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
