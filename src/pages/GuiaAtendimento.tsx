@@ -418,11 +418,12 @@ export default function GuiaAtendimento() {
 
                 <div className="p-6 space-y-4">
                   <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                    <label htmlFor="guia-lead-name" className="text-sm font-semibold text-foreground mb-1.5 block">
                       <User className="w-3.5 h-3.5 inline mr-1.5" />
                       Nome e sobrenome
                     </label>
                     <Input
+                      id="guia-lead-name"
                       placeholder="Ex: João Silva"
                       value={leadName}
                       onChange={(e) => setLeadName(e.target.value)}
@@ -436,11 +437,12 @@ export default function GuiaAtendimento() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                    <label htmlFor="guia-lead-phone" className="text-sm font-semibold text-foreground mb-1.5 block">
                       <Phone className="w-3.5 h-3.5 inline mr-1.5" />
                       WhatsApp (com DDD)
                     </label>
                     <Input
+                      id="guia-lead-phone"
                       placeholder="(11) 98765-4321"
                       value={leadPhone}
                       onChange={(e) => setLeadPhone(handlePhoneMaskChange(e.target.value))}
