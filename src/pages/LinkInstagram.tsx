@@ -38,6 +38,7 @@ interface PublicProfile {
   show_video_url: string | null;
   repertoire_url: string | null;
   booking_method?: string | null;
+  booking_whatsapp?: string | null;
 }
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -80,7 +81,7 @@ export default function LinkInstagram() {
       const { data: prof } = await supabase
         .from("profiles")
         .select(
-          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_method"
+          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_method, booking_whatsapp"
         )
         .eq("slug", slug)
         .maybeSingle();
@@ -311,7 +312,9 @@ export default function LinkInstagram() {
         {/* CTA Agendar Show */}
         {(() => {
           if (!profile.slug) return null;
-          const phoneDigits = profile.phone ? profile.phone.replace(/\D/g, "") : "";
+          const customWa = profile.booking_whatsapp ? profile.booking_whatsapp.replace(/\D/g, "") : "";
+          const fallbackWa = profile.phone ? profile.phone.replace(/\D/g, "") : "";
+          const phoneDigits = customWa || fallbackWa;
           const useWhatsapp = profile.booking_method === "whatsapp" && phoneDigits;
           const whatsappHref = phoneDigits
             ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(

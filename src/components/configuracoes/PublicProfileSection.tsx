@@ -27,6 +27,9 @@ export function PublicProfileSection() {
   const [bookingMethod, setBookingMethod] = useState<BookingMethod>(
     ((profile as any)?.booking_method as BookingMethod) || "backstage"
   );
+  const [bookingWhatsapp, setBookingWhatsapp] = useState<string>(
+    (profile as any)?.booking_whatsapp || ""
+  );
 
   const handleSave = async () => {
     await updateProfile({
@@ -40,11 +43,13 @@ export function PublicProfileSection() {
       show_video_url: showVideoUrl || null,
       repertoire_url: repertoireUrl || null,
       booking_method: bookingMethod,
+      booking_whatsapp: bookingWhatsapp.replace(/\D/g, "") || null,
     } as any);
   };
 
   const backstageUrl = profile?.slug ? `${PUBLIC_DOMAIN}/artista/${profile.slug}` : null;
-  const phoneDigits = profile?.phone ? String(profile.phone).replace(/\D/g, "") : "";
+  const customDigits = bookingWhatsapp.replace(/\D/g, "");
+  const phoneDigits = customDigits || (profile?.phone ? String(profile.phone).replace(/\D/g, "") : "");
   const whatsappUrl = phoneDigits
     ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
         `Olá ${profile?.artist_name || ""}! Vi seu link e quero agendar um show.`
@@ -101,12 +106,11 @@ export function PublicProfileSection() {
           <button
             type="button"
             onClick={() => choose("whatsapp")}
-            disabled={!whatsappUrl}
-            className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+            className={`relative text-left rounded-xl border-2 p-4 transition-all cursor-pointer ${
               bookingMethod === "whatsapp"
                 ? "border-primary bg-primary/5 shadow-md"
                 : "border-border/60 bg-secondary/20 hover:border-border"
-            } ${!whatsappUrl ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            }`}
           >
             {bookingMethod === "whatsapp" && (
               <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -118,10 +122,33 @@ export function PublicProfileSection() {
             </div>
             <p className="font-semibold text-foreground">WhatsApp Direto</p>
             <p className="text-xs text-muted-foreground mt-1">
-              {whatsappUrl ? "Conversa direta com mensagem pronta" : "Cadastre seu telefone no Perfil"}
+              Conversa direta com número personalizado
             </p>
           </button>
         </div>
+
+        {bookingMethod === "whatsapp" && (
+          <div className="mb-4 p-4 rounded-xl border border-border/60 bg-secondary/20">
+            <Label htmlFor="booking-whatsapp">Número de WhatsApp para receber contatos</Label>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-sm text-muted-foreground font-mono shrink-0">https://wa.me/</span>
+              <Input
+                id="booking-whatsapp"
+                inputMode="numeric"
+                value={bookingWhatsapp}
+                onChange={(e) => setBookingWhatsapp(e.target.value.replace(/\D/g, ""))}
+                onBlur={() =>
+                  updateProfile({ booking_whatsapp: bookingWhatsapp.replace(/\D/g, "") || null } as any)
+                }
+                placeholder="5511999999999"
+                maxLength={15}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Inclua o código do país e DDD (ex: 55 + 11 + número). Deixe em branco para usar o telefone do seu perfil.
+            </p>
+          </div>
+        )}
 
         {activeUrl ? (
           <div className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/50">
