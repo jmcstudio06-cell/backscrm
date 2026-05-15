@@ -38,6 +38,7 @@ interface PublicProfile {
   show_video_url: string | null;
   repertoire_url: string | null;
   booking_method?: string | null;
+  booking_whatsapp?: string | null;
 }
 
 const TikTokIcon = ({ className }: { className?: string }) => (
