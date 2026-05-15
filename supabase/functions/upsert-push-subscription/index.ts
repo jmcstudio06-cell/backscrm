@@ -79,6 +79,16 @@ serve(async (req) => {
       });
     }
 
+    // CRITICAL: a single device endpoint can only belong to one user at a time.
+    // If another user previously registered this same endpoint (e.g. logged out
+    // and a different account logged in on the same device), deactivate their
+    // row so they don't keep receiving push notifications meant for someone else.
+    await supabaseAdmin
+      .from("user_push_subscriptions")
+      .update({ is_active: false, updated_at: new Date().toISOString() })
+      .eq("endpoint", body.endpoint)
+      .neq("user_id", userId);
+
     // Upsert-like behavior (endpoint+user_id)
     // Only UPDATE when something actually changed (saves DB writes).
     const { data: existing } = await supabaseAdmin
