@@ -43,12 +43,18 @@ export function PublicProfileSection() {
       show_video_url: showVideoUrl || null,
       repertoire_url: repertoireUrl || null,
       booking_method: bookingMethod,
+      booking_whatsapp: bookingWhatsapp.replace(/\D/g, "") || null,
     } as any);
   };
 
   const backstageUrl = profile?.slug ? `${PUBLIC_DOMAIN}/artista/${profile.slug}` : null;
-  const phoneDigits = profile?.phone ? String(profile.phone).replace(/\D/g, "") : "";
+  const customDigits = bookingWhatsapp.replace(/\D/g, "");
+  const phoneDigits = customDigits || (profile?.phone ? String(profile.phone).replace(/\D/g, "") : "");
   const whatsappUrl = phoneDigits
+    ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
+        `Olá ${profile?.artist_name || ""}! Vi seu link e quero agendar um show.`
+      )}`
+    : null;
     ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
         `Olá ${profile?.artist_name || ""}! Vi seu link e quero agendar um show.`
       )}`
