@@ -256,6 +256,7 @@ export type Database = {
           booking_method: string | null
           booking_min_dates_discount: number
           booking_show_products: boolean
+          booking_whatsapp: string | null
           created_at: string
           instagram_url: string | null
           media_kit_url: string | null
@@ -281,6 +282,7 @@ export type Database = {
           booking_method?: string | null
           booking_min_dates_discount?: number
           booking_show_products?: boolean
+          booking_whatsapp?: string | null
           created_at?: string
           instagram_url?: string | null
           media_kit_url?: string | null
@@ -306,6 +308,7 @@ export type Database = {
           booking_method?: string | null
           booking_min_dates_discount?: number
           booking_show_products?: boolean
+          booking_whatsapp?: string | null
           created_at?: string
           instagram_url?: string | null
           media_kit_url?: string | null
