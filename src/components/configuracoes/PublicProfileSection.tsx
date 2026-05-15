@@ -106,12 +106,11 @@ export function PublicProfileSection() {
           <button
             type="button"
             onClick={() => choose("whatsapp")}
-            disabled={!whatsappUrl}
-            className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+            className={`relative text-left rounded-xl border-2 p-4 transition-all cursor-pointer ${
               bookingMethod === "whatsapp"
                 ? "border-primary bg-primary/5 shadow-md"
                 : "border-border/60 bg-secondary/20 hover:border-border"
-            } ${!whatsappUrl ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            }`}
           >
             {bookingMethod === "whatsapp" && (
               <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
