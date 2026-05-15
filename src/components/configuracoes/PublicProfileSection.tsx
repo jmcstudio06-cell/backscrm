@@ -55,10 +55,6 @@ export function PublicProfileSection() {
         `Olá ${profile?.artist_name || ""}! Vi seu link e quero agendar um show.`
       )}`
     : null;
-    ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
-        `Olá ${profile?.artist_name || ""}! Vi seu link e quero agendar um show.`
-      )}`
-    : null;
 
   const activeUrl = bookingMethod === "whatsapp" ? whatsappUrl : backstageUrl;
 
