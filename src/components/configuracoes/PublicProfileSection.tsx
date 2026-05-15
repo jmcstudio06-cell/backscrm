@@ -27,6 +27,9 @@ export function PublicProfileSection() {
   const [bookingMethod, setBookingMethod] = useState<BookingMethod>(
     ((profile as any)?.booking_method as BookingMethod) || "backstage"
   );
+  const [bookingWhatsapp, setBookingWhatsapp] = useState<string>(
+    (profile as any)?.booking_whatsapp || ""
+  );
 
   const handleSave = async () => {
     await updateProfile({
