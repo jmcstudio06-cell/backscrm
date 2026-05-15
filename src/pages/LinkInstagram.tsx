@@ -312,7 +312,9 @@ export default function LinkInstagram() {
         {/* CTA Agendar Show */}
         {(() => {
           if (!profile.slug) return null;
-          const phoneDigits = profile.phone ? profile.phone.replace(/\D/g, "") : "";
+          const customWa = profile.booking_whatsapp ? profile.booking_whatsapp.replace(/\D/g, "") : "";
+          const fallbackWa = profile.phone ? profile.phone.replace(/\D/g, "") : "";
+          const phoneDigits = customWa || fallbackWa;
           const useWhatsapp = profile.booking_method === "whatsapp" && phoneDigits;
           const whatsappHref = phoneDigits
             ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
