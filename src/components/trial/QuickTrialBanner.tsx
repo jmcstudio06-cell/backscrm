@@ -5,15 +5,18 @@ import { Button } from "@/components/ui/button";
 
 export function QuickTrialBanner() {
   const navigate = useNavigate();
-  const { isActive, isExpired, minutesLeft, secondsLeft, loading } = useQuickTrial();
+  const { isActive, isExpired, daysLeft, hoursLeft, minutesLeft, loading } = useQuickTrial();
 
   // Don't show if loading or neither active nor expired
   if (loading || (!isActive && !isExpired)) {
     return null;
   }
 
-  const formatTime = (num: number) => num.toString().padStart(2, "0");
-  const isUrgent = minutesLeft < 5;
+  const isUrgent = daysLeft === 0 && hoursLeft < 6;
+  const primaryValue = daysLeft > 0 ? daysLeft : hoursLeft;
+  const primaryLabel = daysLeft > 0 ? (daysLeft === 1 ? "dia" : "dias") : (hoursLeft === 1 ? "hora" : "horas");
+  const secondaryValue = daysLeft > 0 ? hoursLeft : minutesLeft;
+  const secondaryLabel = daysLeft > 0 ? "h" : "min";
 
   if (isExpired) {
     return (
