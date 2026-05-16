@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const TRIAL_DURATION_MINUTES = 60;
-const TRIAL_DURATION_MS = TRIAL_DURATION_MINUTES * 60 * 1000;
+const TRIAL_DURATION_DAYS = 3;
+const TRIAL_DURATION_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
+const TRIAL_DURATION_MINUTES = TRIAL_DURATION_DAYS * 24 * 60;
 
 // Bloqueia TUDO ao expirar (mesma lógica do expire_old_trials no banco)
 const ALL_BLOCKED_FEATURES: Record<string, boolean> = {
@@ -19,6 +20,8 @@ interface QuickTrialStatus {
   isActive: boolean;
   isExpired: boolean;
   timeRemaining: number;
+  daysLeft: number;
+  hoursLeft: number;
   minutesLeft: number;
   secondsLeft: number;
   startedAt: Date | null;
@@ -40,6 +43,8 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
     isActive: false,
     isExpired: false,
     timeRemaining: TRIAL_DURATION_MS,
+    daysLeft: TRIAL_DURATION_DAYS,
+    hoursLeft: 0,
     minutesLeft: TRIAL_DURATION_MINUTES,
     secondsLeft: 0,
     startedAt: null,
@@ -52,10 +57,23 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
     const expiresAt = new Date(startedAt.getTime() + TRIAL_DURATION_MS);
     const timeRemaining = Math.max(0, expiresAt.getTime() - now.getTime());
     const totalSecondsLeft = Math.floor(timeRemaining / 1000);
-    const minutesLeft = Math.floor(totalSecondsLeft / 60);
+    const totalMinutesLeft = Math.floor(totalSecondsLeft / 60);
+    const totalHoursLeft = Math.floor(totalMinutesLeft / 60);
+    const daysLeft = Math.floor(totalHoursLeft / 24);
+    const hoursLeft = totalHoursLeft % 24;
+    const minutesLeft = totalMinutesLeft % 60;
     const secondsLeft = totalSecondsLeft % 60;
 
-    return { timeRemaining, minutesLeft, secondsLeft, expiresAt, isExpired: timeRemaining <= 0 };
+    return {
+      timeRemaining,
+      daysLeft,
+      hoursLeft,
+      minutesLeft,
+      secondsLeft,
+      totalMinutesLeft,
+      expiresAt,
+      isExpired: timeRemaining <= 0,
+    };
   }, []);
 
   useEffect(() => {
@@ -63,7 +81,8 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
       if (profile.plan !== "trial") {
         setStatus({
           isActive: false, isExpired: false, timeRemaining: 0,
-          minutesLeft: 0, secondsLeft: 0, startedAt: null, expiresAt: null,
+          daysLeft: 0, hoursLeft: 0, minutesLeft: 0, secondsLeft: 0,
+          startedAt: null, expiresAt: null,
         });
         setLoading(false);
         return;
@@ -74,8 +93,10 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
 
       setStatus({
         isActive: !timeData.isExpired, isExpired: timeData.isExpired,
-        timeRemaining: timeData.timeRemaining, minutesLeft: timeData.minutesLeft,
-        secondsLeft: timeData.secondsLeft, startedAt, expiresAt: timeData.expiresAt,
+        timeRemaining: timeData.timeRemaining,
+        daysLeft: timeData.daysLeft, hoursLeft: timeData.hoursLeft,
+        minutesLeft: timeData.minutesLeft, secondsLeft: timeData.secondsLeft,
+        startedAt, expiresAt: timeData.expiresAt,
       });
 
       if (timeData.isExpired && user) {
@@ -95,7 +116,6 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
         return;
       }
 
-      // Fallback fetch
       try {
         const { data: profile, error } = await supabase
           .from("profiles")
@@ -111,7 +131,7 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
     init();
   }, [user, externalProfile, calculateTimeRemaining]);
 
-  // Countdown timer
+  // Countdown timer (update every minute is enough for 3-day trial)
   useEffect(() => {
     if (!status.startedAt || status.isExpired || !status.isActive) return;
 
@@ -119,8 +139,10 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
       const timeData = calculateTimeRemaining(status.startedAt!);
       setStatus((prev) => ({
         ...prev, isActive: !timeData.isExpired, isExpired: timeData.isExpired,
-        timeRemaining: timeData.timeRemaining, minutesLeft: timeData.minutesLeft,
-        secondsLeft: timeData.secondsLeft, expiresAt: timeData.expiresAt,
+        timeRemaining: timeData.timeRemaining,
+        daysLeft: timeData.daysLeft, hoursLeft: timeData.hoursLeft,
+        minutesLeft: timeData.minutesLeft, secondsLeft: timeData.secondsLeft,
+        expiresAt: timeData.expiresAt,
       }));
 
       if (timeData.isExpired && user) {
@@ -129,7 +151,7 @@ export function useQuickTrial(externalProfile?: ProfileLike | null) {
           .eq("user_id", user.id)
           .then(() => { window.location.reload(); });
       }
-    }, 1000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [status.startedAt, status.isExpired, status.isActive, user, calculateTimeRemaining]);
