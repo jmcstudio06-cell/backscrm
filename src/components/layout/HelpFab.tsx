@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Lightbulb, Gift, X } from "lucide-react";
+import { BookOpen, Lightbulb, Gift, Palette, X } from "lucide-react";
 import backstageIcon from "@/assets/backstage-icon.png";
 
 const items = [
   { icon: BookOpen, label: "Tutoriais", path: "/tutoriais", desc: "Aprenda a usar a plataforma" },
   { icon: Lightbulb, label: "Sugestões", path: "/sugestoes", desc: "Envie ideias e feedback" },
   { icon: Gift, label: "Indique e Ganhe", path: "/indicacoes", desc: "Indique amigos e ganhe" },
+  { icon: Palette, label: "Brindes", path: "/kit-profissional/artes", desc: "Artes editáveis no Canva" },
 ];
 
 export function HelpFab() {
