@@ -84,13 +84,12 @@ export function QuickTrialBanner() {
                 <div className="flex items-center gap-1">
                   <div className="bg-white/20 backdrop-blur rounded px-2 py-0.5">
                     <span className="text-white font-mono font-bold text-lg">
-                      {formatTime(minutesLeft)}
+                      {primaryValue}{daysLeft > 0 ? "d" : "h"}
                     </span>
                   </div>
-                  <span className="text-white font-bold animate-pulse">:</span>
                   <div className="bg-white/20 backdrop-blur rounded px-2 py-0.5">
                     <span className="text-white font-mono font-bold text-lg">
-                      {formatTime(secondsLeft)}
+                      {secondaryValue}{secondaryLabel}
                     </span>
                   </div>
                 </div>
