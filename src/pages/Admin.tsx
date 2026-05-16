@@ -627,7 +627,7 @@ export default function Admin() {
                           }}
                           className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
                         >
-                          <option value="trial">Trial (1 hora)</option>
+                          <option value="trial">Trial (3 dias)</option>
                           <optgroup label="Mensal (30 dias)">
                             <option value="mensal_starter">Mensal Starter</option>
                             <option value="mensal_profissional">Mensal Profissional</option>

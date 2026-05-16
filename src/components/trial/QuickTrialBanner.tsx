@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 
 export function QuickTrialBanner() {
   const navigate = useNavigate();
-  const { isActive, isExpired, minutesLeft, secondsLeft, loading } = useQuickTrial();
+  const { isActive, isExpired, daysLeft, hoursLeft, minutesLeft, loading } = useQuickTrial();
 
   // Don't show if loading or neither active nor expired
   if (loading || (!isActive && !isExpired)) {
     return null;
   }
 
-  const formatTime = (num: number) => num.toString().padStart(2, "0");
-  const isUrgent = minutesLeft < 5;
+  const isUrgent = daysLeft === 0 && hoursLeft < 6;
+  const primaryValue = daysLeft > 0 ? daysLeft : hoursLeft;
+  const secondaryValue = daysLeft > 0 ? hoursLeft : minutesLeft;
+  const secondaryLabel = daysLeft > 0 ? "h" : "min";
 
   if (isExpired) {
     return (
@@ -81,13 +83,12 @@ export function QuickTrialBanner() {
                 <div className="flex items-center gap-1">
                   <div className="bg-white/20 backdrop-blur rounded px-2 py-0.5">
                     <span className="text-white font-mono font-bold text-lg">
-                      {formatTime(minutesLeft)}
+                      {primaryValue}{daysLeft > 0 ? "d" : "h"}
                     </span>
                   </div>
-                  <span className="text-white font-bold animate-pulse">:</span>
                   <div className="bg-white/20 backdrop-blur rounded px-2 py-0.5">
                     <span className="text-white font-mono font-bold text-lg">
-                      {formatTime(secondsLeft)}
+                      {secondaryValue}{secondaryLabel}
                     </span>
                   </div>
                 </div>

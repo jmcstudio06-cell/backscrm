@@ -5,14 +5,16 @@ import { Button } from "@/components/ui/button";
 
 export function TrialCountdownCard() {
   const navigate = useNavigate();
-  const { isActive, isExpired, minutesLeft, secondsLeft, loading } = useQuickTrial();
+  const { isActive, isExpired, daysLeft, hoursLeft, minutesLeft, loading } = useQuickTrial();
 
   if (loading || (!isActive && !isExpired)) {
     return null;
   }
 
-  const formatTime = (num: number) => num.toString().padStart(2, "0");
-  const isUrgent = minutesLeft < 10;
+  const isUrgent = daysLeft === 0 && hoursLeft < 6;
+  const primaryValue = daysLeft > 0 ? daysLeft : hoursLeft;
+  const secondaryValue = daysLeft > 0 ? hoursLeft : minutesLeft;
+  const secondaryLabel = daysLeft > 0 ? "h" : "min";
 
   if (isExpired) {
     return (
@@ -75,13 +77,12 @@ export function TrialCountdownCard() {
             <div className="flex items-center gap-1">
               <div className="bg-foreground/10 backdrop-blur rounded px-2 py-0.5">
                 <span className="font-mono font-bold text-xl text-foreground">
-                  {formatTime(minutesLeft)}
+                  {primaryValue}{daysLeft > 0 ? "d" : "h"}
                 </span>
               </div>
-              <span className="font-bold text-foreground animate-pulse">:</span>
               <div className="bg-foreground/10 backdrop-blur rounded px-2 py-0.5">
                 <span className="font-mono font-bold text-xl text-foreground">
-                  {formatTime(secondsLeft)}
+                  {secondaryValue}{secondaryLabel}
                 </span>
               </div>
             </div>
