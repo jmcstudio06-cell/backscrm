@@ -77,13 +77,12 @@ export function TrialCountdownCard() {
             <div className="flex items-center gap-1">
               <div className="bg-foreground/10 backdrop-blur rounded px-2 py-0.5">
                 <span className="font-mono font-bold text-xl text-foreground">
-                  {formatTime(minutesLeft)}
+                  {primaryValue}{daysLeft > 0 ? "d" : "h"}
                 </span>
               </div>
-              <span className="font-bold text-foreground animate-pulse">:</span>
               <div className="bg-foreground/10 backdrop-blur rounded px-2 py-0.5">
                 <span className="font-mono font-bold text-xl text-foreground">
-                  {formatTime(secondsLeft)}
+                  {secondaryValue}{secondaryLabel}
                 </span>
               </div>
             </div>
