@@ -82,12 +82,6 @@ export function HelpFab() {
             mask: "radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))",
           }}
         />
-        {/* Pulse halo */}
-        <span
-          aria-hidden
-          className="absolute inset-0 rounded-full animate-ping pointer-events-none"
-          style={{ background: "hsl(0 100% 80% / 0.35)" }}
-        />
         <button
           onClick={() => setOpen((v) => !v)}
           className="relative w-14 h-14 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-transform overflow-hidden ring-2 ring-primary/30 p-0"
