@@ -25,7 +25,7 @@ import { processImage, formatFileSize } from "@/lib/imageUtils";
 import { useCustomization, COLOR_PRESETS } from "@/hooks/useCustomization";
 
 const planLabels: Record<string, string> = {
-  trial: "Teste Rápido (1 hora)",
+  trial: "Teste Grátis (3 dias)",
   mensal_starter: "Mensal Starter",
   mensal_profissional: "Mensal Profissional",
   mensal_completo: "Mensal Completo",
@@ -263,7 +263,7 @@ export default function Configuracoes() {
                       {(plan === "expirado" || plan === "comprou_expirado")
                         ? "Plano expirado — renove para continuar" 
                         : plan === "trial"
-                          ? "Teste gratuito de 1 hora"
+                          ? "Teste gratuito de 3 dias"
                           : `${daysRemaining} dias restantes`
                       }
                     </p>
