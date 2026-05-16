@@ -7,6 +7,10 @@ import canvaArte2 from "@/assets/canva-arte-2.png";
 import canvaArte3 from "@/assets/canva-arte-3.png";
 import canvaArte4 from "@/assets/canva-arte-4.png";
 import canvaArte5 from "@/assets/canva-arte-5.png";
+import canvaArte6 from "@/assets/canva-arte-6.png";
+import canvaArte7 from "@/assets/canva-arte-7.png";
+import canvaArte8 from "@/assets/canva-arte-8.png";
+import canvaArte9 from "@/assets/canva-arte-9.png";
 
 const CANVA_LINKS = [
   {
@@ -38,6 +42,30 @@ const CANVA_LINKS = [
     description: "Arte para divulgar festivais e eventos de grande porte",
     image: canvaArte5,
     url: "https://www.canva.com/design/DAF6vHMgct0/lPLuoXSOxMscjhZdwmgJdg/view?utm_content=DAF6vHMgct0&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink&mode=preview",
+  },
+  {
+    title: "Save the Date",
+    description: "Anuncie suas próximas datas com visual moderno e impactante",
+    image: canvaArte6,
+    url: "https://www.canva.com/design/DAGvUes2uog/cphyxJ3UbkDf5OOPiJVhnA/view?utm_content=DAGvUes2uog&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink&mode=preview",
+  },
+  {
+    title: "Show com Convidados",
+    description: "Modelo vibrante para divulgar shows com artistas convidados",
+    image: canvaArte7,
+    url: "https://www.canva.com/design/DAGeQNpKjqg/2gkZarkInz7YPATDc6MeGw/view?utm_content=DAGeQNpKjqg&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink&mode=preview",
+  },
+  {
+    title: "Show Sertanejo",
+    description: "Arte rústica perfeita para shows e eventos sertanejos",
+    image: canvaArte8,
+    url: "https://www.canva.com/design/DAGDXT_pVK4/I8J-MZvqEVxyptKMMrmGkQ/view?utm_content=DAGDXT_pVK4&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink&mode=preview",
+  },
+  {
+    title: "Data do Show",
+    description: "Layout moderno e neon para destacar a data do seu próximo show",
+    image: canvaArte9,
+    url: "https://www.canva.com/design/DAF9di9KJTc/WGJb_uYhJ8J20QnEy7l9fw/view?utm_content=DAF9di9KJTc&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink&mode=preview",
   },
 ];
 
