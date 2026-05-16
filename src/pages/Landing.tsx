@@ -263,7 +263,7 @@ const Landing = () => {
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-bold px-8 py-6 text-lg shadow-xl shadow-black/20 transition-all duration-200"
                 >
-                  Começar grátis
+                  Teste grátis 3 dias
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button 
@@ -522,7 +522,7 @@ const Landing = () => {
                 className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
                 onClick={() => navigate("/auth")}
               >
-                Criar conta grátis
+                Teste grátis 3 dias
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
