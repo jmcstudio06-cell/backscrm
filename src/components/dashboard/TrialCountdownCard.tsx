@@ -5,14 +5,16 @@ import { Button } from "@/components/ui/button";
 
 export function TrialCountdownCard() {
   const navigate = useNavigate();
-  const { isActive, isExpired, minutesLeft, secondsLeft, loading } = useQuickTrial();
+  const { isActive, isExpired, daysLeft, hoursLeft, minutesLeft, loading } = useQuickTrial();
 
   if (loading || (!isActive && !isExpired)) {
     return null;
   }
 
-  const formatTime = (num: number) => num.toString().padStart(2, "0");
-  const isUrgent = minutesLeft < 10;
+  const isUrgent = daysLeft === 0 && hoursLeft < 6;
+  const primaryValue = daysLeft > 0 ? daysLeft : hoursLeft;
+  const secondaryValue = daysLeft > 0 ? hoursLeft : minutesLeft;
+  const secondaryLabel = daysLeft > 0 ? "h" : "min";
 
   if (isExpired) {
     return (
