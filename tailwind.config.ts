@@ -118,6 +118,7 @@ export default {
         "scale-in": "scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
         "pulse-soft": "pulse-soft 3s ease-in-out infinite",
         "float": "float 4s ease-in-out infinite",
+        "spin-slow": "spin 3s linear infinite",
       },
     },
   },
