@@ -115,18 +115,18 @@ export default function LinkInstagram() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
-        <Loader2 className="w-8 h-8 animate-spin text-fuchsia-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
+        <Loader2 className="w-8 h-8 animate-spin text-sky-300" />
       </div>
     );
   }
 
   if (notFound || !profile) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] p-6 text-center text-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029] p-6 text-center text-white">
         <h1 className="text-2xl font-bold mb-2">Link não encontrado</h1>
         <p className="text-white/60 mb-6">Este link de artista não existe ou foi removido.</p>
-        <Link to="/" className="text-fuchsia-400 underline">Voltar</Link>
+        <Link to="/" className="text-sky-300 underline">Voltar</Link>
       </div>
     );
   }
@@ -144,7 +144,7 @@ export default function LinkInstagram() {
   const { first, rest } = splitName(fullName);
 
   return (
-    <div className="min-h-screen w-full bg-[#050505] text-white selection:bg-fuchsia-500/30 overflow-x-hidden">
+    <div className="relative min-h-screen w-full text-white selection:bg-sky-400/30 overflow-x-hidden bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
       <Helmet>
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
         <title>{`${fullName} — Press Kit Oficial`}</title>
@@ -155,24 +155,37 @@ export default function LinkInstagram() {
         <meta property="og:url" content={`https://backstagepro.online/link/${slug ?? ""}`} />
       </Helmet>
 
-      {/* Ambient avatar backdrop */}
+      {/* Ambient avatar backdrop — foto do artista extensa no fundo */}
       {profile.avatar_url && (
         <div className="fixed inset-0 pointer-events-none">
           <img
             src={profile.avatar_url}
             alt=""
             aria-hidden
-            className="w-full h-full object-cover scale-125 opacity-25 blur-3xl"
+            className="w-full h-full object-cover scale-110 opacity-30 blur-2xl"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/85 via-[#050505]/95 to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1a3a]/70 via-[#0d2557]/85 to-[#061029]/95" />
         </div>
       )}
 
-      {/* Floating glows */}
+      {/* Nome em watermark gigante atrás de tudo */}
+      <div
+        aria-hidden
+        className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden select-none"
+      >
+        <span
+          style={{ fontFamily: "'Syne', sans-serif" }}
+          className="text-[28vw] md:text-[20vw] font-extrabold uppercase tracking-tighter text-white/[0.04] whitespace-nowrap leading-none"
+        >
+          {fullName}
+        </span>
+      </div>
+
+      {/* Floating glows azuis */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-fuchsia-600/25 blur-[140px]" />
-        <div className="absolute top-1/2 -right-32 w-[32rem] h-[32rem] rounded-full bg-cyan-500/20 blur-[120px]" />
-        <div className="absolute -bottom-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-violet-600/20 blur-[120px]" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-sky-500/25 blur-[140px]" />
+        <div className="absolute top-1/2 -right-32 w-[32rem] h-[32rem] rounded-full bg-blue-500/25 blur-[120px]" />
+        <div className="absolute -bottom-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-cyan-400/20 blur-[120px]" />
       </div>
 
       {/* Subtle grain */}
@@ -208,7 +221,7 @@ export default function LinkInstagram() {
               className="absolute -inset-1 rounded-[2.5rem] blur opacity-50 group-hover:opacity-80 transition duration-1000"
               style={{
                 background:
-                  "conic-gradient(from 0deg, #d946ef, #8b5cf6, #22d3ee, #d946ef)",
+                  "conic-gradient(from 0deg, #38bdf8, #ffffff, #0ea5e9, #38bdf8)",
                 animation: "spin 10s linear infinite",
               }}
             />
@@ -221,7 +234,7 @@ export default function LinkInstagram() {
                 </div>
               )}
             </div>
-            <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-gradient-to-br from-fuchsia-500 to-violet-700 rounded-2xl flex items-center justify-center border-4 border-[#050505] shadow-2xl">
+            <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center border-4 border-[#0a1a3a] shadow-2xl">
               <Music className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -253,7 +266,7 @@ export default function LinkInstagram() {
             {rest && (
               <>
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 via-violet-400 to-cyan-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-white to-cyan-200">
                   {rest}
                 </span>
               </>
@@ -295,7 +308,7 @@ export default function LinkInstagram() {
                   rel="noopener noreferrer"
                   className="group flex items-center gap-2.5 pl-3 pr-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 rounded-2xl transition-all hover:-translate-y-0.5"
                 >
-                  <span className="w-2 h-2 rounded-full bg-violet-400" />
+                  <span className="w-2 h-2 rounded-full bg-sky-300" />
                   <FileText className="w-3.5 h-3.5 text-white/80" />
                   <span className="text-[11px] font-bold tracking-widest uppercase">Mídia Kit</span>
                 </a>
@@ -320,7 +333,7 @@ export default function LinkInstagram() {
         {/* VIDEO SPOTLIGHT */}
         {embedUrl && (
           <section className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-b from-transparent via-violet-600/10 to-transparent blur-3xl pointer-events-none" />
+            <div className="absolute -inset-4 bg-gradient-to-b from-transparent via-sky-500/15 to-transparent blur-3xl pointer-events-none" />
 
             <div className="flex items-end justify-between mb-4 px-1">
               <h2
@@ -363,7 +376,7 @@ export default function LinkInstagram() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl border border-white/20 group-hover/play:bg-fuchsia-600 group-hover/play:scale-110 transition-all duration-500 shadow-[0_0_60px_-10px_rgba(217,70,239,0.7)]">
+                      <span className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl border border-white/20 group-hover/play:bg-sky-500 group-hover/play:scale-110 transition-all duration-500 shadow-[0_0_60px_-10px_rgba(56,189,248,0.7)]">
                         <Play className="w-9 h-9 md:w-10 md:h-10 fill-white text-white ml-1" />
                       </span>
                     </div>
@@ -404,7 +417,7 @@ export default function LinkInstagram() {
           const inner = (
             <span className="relative group block overflow-hidden rounded-[2rem] active:scale-[0.98] transition-transform">
               {/* gradient liquid bg */}
-              <span className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-violet-600 to-cyan-500 bg-[length:200%_100%] group-hover:bg-right transition-[background-position] duration-700" />
+              <span className="absolute inset-0 bg-gradient-to-r from-sky-500 via-blue-500 to-cyan-400 bg-[length:200%_100%] group-hover:bg-right transition-[background-position] duration-700" />
               {/* shimmer */}
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               <span className="relative flex items-center justify-between gap-4 px-6 md:px-8 py-5 md:py-6">
@@ -424,14 +437,14 @@ export default function LinkInstagram() {
                     </span>
                   </span>
                 </span>
-                <span className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center group-hover:bg-white group-hover:text-fuchsia-700 transition-all duration-300">
+                <span className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center group-hover:bg-white group-hover:text-blue-700 transition-all duration-300">
                   <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
                 </span>
               </span>
             </span>
           );
 
-          const wrapper = "block shadow-[0_30px_80px_-20px_rgba(168,85,247,0.45)] rounded-[2rem]";
+          const wrapper = "block shadow-[0_30px_80px_-20px_rgba(56,189,248,0.45)] rounded-[2rem]";
 
           if (useWhatsapp && whatsappHref) {
             return (
