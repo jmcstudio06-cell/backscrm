@@ -144,7 +144,7 @@ export default function LinkInstagram() {
   const { first, rest } = splitName(fullName);
 
   return (
-    <div className="min-h-screen w-full bg-[#050505] text-white selection:bg-fuchsia-500/30 overflow-x-hidden">
+    <div className="relative min-h-screen w-full text-white selection:bg-sky-400/30 overflow-x-hidden bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
       <Helmet>
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
         <title>{`${fullName} — Press Kit Oficial`}</title>
@@ -155,24 +155,37 @@ export default function LinkInstagram() {
         <meta property="og:url" content={`https://backstagepro.online/link/${slug ?? ""}`} />
       </Helmet>
 
-      {/* Ambient avatar backdrop */}
+      {/* Ambient avatar backdrop — foto do artista extensa no fundo */}
       {profile.avatar_url && (
         <div className="fixed inset-0 pointer-events-none">
           <img
             src={profile.avatar_url}
             alt=""
             aria-hidden
-            className="w-full h-full object-cover scale-125 opacity-25 blur-3xl"
+            className="w-full h-full object-cover scale-110 opacity-30 blur-2xl"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/85 via-[#050505]/95 to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1a3a]/70 via-[#0d2557]/85 to-[#061029]/95" />
         </div>
       )}
 
-      {/* Floating glows */}
+      {/* Nome em watermark gigante atrás de tudo */}
+      <div
+        aria-hidden
+        className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden select-none"
+      >
+        <span
+          style={{ fontFamily: "'Syne', sans-serif" }}
+          className="text-[28vw] md:text-[20vw] font-extrabold uppercase tracking-tighter text-white/[0.04] whitespace-nowrap leading-none"
+        >
+          {fullName}
+        </span>
+      </div>
+
+      {/* Floating glows azuis */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-fuchsia-600/25 blur-[140px]" />
-        <div className="absolute top-1/2 -right-32 w-[32rem] h-[32rem] rounded-full bg-cyan-500/20 blur-[120px]" />
-        <div className="absolute -bottom-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-violet-600/20 blur-[120px]" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-sky-500/25 blur-[140px]" />
+        <div className="absolute top-1/2 -right-32 w-[32rem] h-[32rem] rounded-full bg-blue-500/25 blur-[120px]" />
+        <div className="absolute -bottom-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-cyan-400/20 blur-[120px]" />
       </div>
 
       {/* Subtle grain */}
