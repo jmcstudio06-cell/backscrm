@@ -115,18 +115,18 @@ export default function LinkInstagram() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
-        <Loader2 className="w-8 h-8 animate-spin text-fuchsia-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
+        <Loader2 className="w-8 h-8 animate-spin text-sky-300" />
       </div>
     );
   }
 
   if (notFound || !profile) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] p-6 text-center text-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029] p-6 text-center text-white">
         <h1 className="text-2xl font-bold mb-2">Link não encontrado</h1>
         <p className="text-white/60 mb-6">Este link de artista não existe ou foi removido.</p>
-        <Link to="/" className="text-fuchsia-400 underline">Voltar</Link>
+        <Link to="/" className="text-sky-300 underline">Voltar</Link>
       </div>
     );
   }
