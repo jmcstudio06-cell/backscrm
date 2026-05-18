@@ -27,7 +27,7 @@ export default function LinkInstagramConfig() {
   };
 
   return (
-    <Layout title="Link Instagram" subtitle="Press kit visual com vídeo, redes, mídia kit e botão de agenda">
+    <Layout title="Link na bio" subtitle="Press kit visual com vídeo, redes, mídia kit e botão de agenda">
       <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
         {/* Card do Link */}
         <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
@@ -38,7 +38,7 @@ export default function LinkInstagramConfig() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-bold text-foreground">Link Instagram</h3>
+                  <h3 className="font-bold text-foreground">Link na bio</h3>
                   {blocked && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-warning/15 text-warning">
                       <Crown className="w-3 h-3" />
