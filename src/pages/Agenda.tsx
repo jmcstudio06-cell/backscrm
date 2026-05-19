@@ -98,6 +98,7 @@ export default function Agenda() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingShow, setEditingShow] = useState<Show | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const { user } = useAuth();
