@@ -269,6 +269,7 @@ export default function Agenda() {
         editingShow={editingShow}
         presetDate={selectedDate}
       />
+      <ImportShowsModal open={isImportOpen} onOpenChange={setIsImportOpen} />
 
       {/* Header Actions */}
       <div className="flex items-center justify-between mb-3 lg:mb-2">
