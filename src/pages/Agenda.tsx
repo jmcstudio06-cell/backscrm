@@ -296,6 +296,10 @@ export default function Agenda() {
               className="scale-90"
             />
           </div>
+          <Button size="sm" variant="outline" onClick={() => setIsImportOpen(true)}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Importar
+          </Button>
           <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Show
