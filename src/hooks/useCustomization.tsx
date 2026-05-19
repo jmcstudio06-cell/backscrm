@@ -8,6 +8,7 @@ export interface CustomizationSettings {
   fontSize: "small" | "medium" | "large";
   sidebarPosition: "left" | "right";
   compactMode: boolean;
+  liteMode: boolean;
   budgetTemplate: BudgetTemplate;
 }
 
@@ -17,6 +18,7 @@ const DEFAULT_SETTINGS: CustomizationSettings = {
   fontSize: "medium",
   sidebarPosition: "left",
   compactMode: false,
+  liteMode: false,
   budgetTemplate: "classico",
 };
 
@@ -82,6 +84,7 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
     applyFontSize(s.fontSize);
     document.documentElement.classList.toggle("icon-filled", s.iconStyle === "filled");
     document.documentElement.classList.toggle("compact-mode", s.compactMode);
+    document.documentElement.classList.toggle("lite-mode", s.liteMode);
   }, []);
 
   useEffect(() => {

@@ -637,6 +637,28 @@ export default function Configuracoes() {
               </div>
             </div>
 
+            {/* Modo Compatibilidade (Lite) */}
+            <div className="p-6 border-t border-border/30">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400/20 to-orange-500/20 flex items-center justify-center shrink-0">
+                    <Zap className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                      Modo Compatibilidade
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 uppercase tracking-wide">Beta</span>
+                    </h4>
+                    <p className="text-xs text-muted-foreground">Ative se seu celular for antigo ou estiver com tela bugada/quebrada. Desliga efeitos pesados (blur, animações).</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={customization.liteMode}
+                  onCheckedChange={(checked) => updateSettings({ liteMode: checked })}
+                />
+              </div>
+            </div>
+
             {/* Footer - Reset */}
             <div className="px-6 py-4 bg-secondary/20 border-t border-border/30 flex justify-center">
               <Button variant="ghost" size="sm" onClick={handleResetCustomization} className="gap-2 text-muted-foreground hover:text-foreground">
