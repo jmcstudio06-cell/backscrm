@@ -84,6 +84,7 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
     applyFontSize(s.fontSize);
     document.documentElement.classList.toggle("icon-filled", s.iconStyle === "filled");
     document.documentElement.classList.toggle("compact-mode", s.compactMode);
+    document.documentElement.classList.toggle("lite-mode", s.liteMode);
   }, []);
 
   useEffect(() => {
