@@ -31,6 +31,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, parseLocalDate } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
+import { ImportShowsModal } from "@/components/shows/ImportShowsModal";
+import { FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { useGoals } from "@/hooks/useGoals";
@@ -96,6 +98,7 @@ export default function Agenda() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingShow, setEditingShow] = useState<Show | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const { user } = useAuth();
@@ -266,6 +269,7 @@ export default function Agenda() {
         editingShow={editingShow}
         presetDate={selectedDate}
       />
+      <ImportShowsModal open={isImportOpen} onOpenChange={setIsImportOpen} />
 
       {/* Header Actions */}
       <div className="flex items-center justify-between mb-3 lg:mb-2">
@@ -293,6 +297,10 @@ export default function Agenda() {
               className="scale-90"
             />
           </div>
+          <Button size="sm" variant="outline" onClick={() => setIsImportOpen(true)}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Importar
+          </Button>
           <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Show
