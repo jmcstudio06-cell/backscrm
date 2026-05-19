@@ -31,6 +31,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, parseLocalDate } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
+import { ImportShowsModal } from "@/components/shows/ImportShowsModal";
+import { FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { useGoals } from "@/hooks/useGoals";
