@@ -8,6 +8,7 @@ export interface CustomizationSettings {
   fontSize: "small" | "medium" | "large";
   sidebarPosition: "left" | "right";
   compactMode: boolean;
+  liteMode: boolean;
   budgetTemplate: BudgetTemplate;
 }
 
@@ -17,6 +18,7 @@ const DEFAULT_SETTINGS: CustomizationSettings = {
   fontSize: "medium",
   sidebarPosition: "left",
   compactMode: false,
+  liteMode: false,
   budgetTemplate: "classico",
 };
 
