@@ -30,6 +30,17 @@ export default function LinkInstagramConfig() {
   return (
     <Layout title="Link na bio" subtitle="Press kit visual com vídeo, redes, mídia kit e botão de agenda">
       <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
+        {/* Prévia ao vivo no topo */}
+        {!blocked && (
+          <LivePreviewFrame
+            url={instagramUrl}
+            title="Sua página Link na bio"
+            subtitle="Veja como seu link aparece para os fãs e contratantes"
+            refreshKey={(profile as any)?.updated_at}
+          />
+        )}
+
+
         {/* Card do Link */}
         <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
           <div className="p-5 sm:p-6">
