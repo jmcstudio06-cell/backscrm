@@ -27,6 +27,7 @@ import {
   AlertDialogTitle, AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { LivePreviewFrame } from "@/components/configuracoes/LivePreviewFrame";
 
 export default function Solicitacoes() {
   const { requests, loading: loadingRequests, updateRequestStatus, deleteRequest, sendToAgenda } = useBookingRequests();
