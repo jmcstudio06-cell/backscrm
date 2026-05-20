@@ -155,8 +155,9 @@ export function LivePreviewFrame({
 
       {/* Dica */}
       <div className="px-5 py-3 border-t border-border/50 bg-secondary/20">
-        <p className="text-[11px] text-muted-foreground text-center">
-          💡 As alterações são salvas automaticamente. Clique em <span className="font-semibold text-foreground">Atualizar</span> para recarregar a prévia.
+        <p className="text-[11px] text-muted-foreground text-center flex items-center justify-center gap-1.5">
+          <Lightbulb className="w-3 h-3 text-warning" />
+          As alterações são salvas automaticamente. Clique em <span className="font-semibold text-foreground">Atualizar</span> para recarregar a prévia.
         </p>
       </div>
     </div>
