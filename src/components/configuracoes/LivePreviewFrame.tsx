@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, ExternalLink, Smartphone, Monitor, Eye } from "lucide-react";
+import { RefreshCw, ExternalLink, Smartphone, Monitor, Eye, Lightbulb } from "lucide-react";
 
 interface LivePreviewFrameProps {
   url: string | null;
