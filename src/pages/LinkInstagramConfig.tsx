@@ -5,6 +5,7 @@ import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
+import { LivePreviewFrame } from "@/components/configuracoes/LivePreviewFrame";
 import { Copy, Check, ExternalLink, Instagram, Lock, Crown } from "lucide-react";
 import { toast } from "sonner";
 
