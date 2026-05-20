@@ -27,6 +27,7 @@ import {
   AlertDialogTitle, AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { LivePreviewFrame } from "@/components/configuracoes/LivePreviewFrame";
 
 export default function Solicitacoes() {
   const { requests, loading: loadingRequests, updateRequestStatus, deleteRequest, sendToAgenda } = useBookingRequests();
@@ -205,6 +206,15 @@ export default function Solicitacoes() {
 
         {/* ---- ABA: Configuração do Link ---- */}
         <TabsContent value="config" className="space-y-6">
+          {/* Prévia ao vivo da página pública */}
+          <LivePreviewFrame
+            url={publicUrl}
+            title="Sua página Link Agenda"
+            subtitle="Veja como contratantes enxergam seu link de agendamento"
+            refreshKey={(profile as any)?.updated_at}
+          />
+
+
           {/* Seu Link Público */}
           <Card className="p-6">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
