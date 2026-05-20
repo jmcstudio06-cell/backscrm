@@ -633,11 +633,11 @@ export default function Booking() {
                         row: "flex w-full mt-0.5",
                         cell: "flex-1 text-center text-sm p-0 relative aspect-square flex items-center justify-center",
                         day: cn(
-                          "h-7 w-7 mx-auto p-0 font-normal rounded-full text-xs transition-all inline-flex items-center justify-center",
+                          "h-9 w-9 aspect-square p-0 font-normal rounded-full text-xs transition-all inline-flex items-center justify-center shrink-0",
                           "hover:bg-primary/10 hover:text-primary"
                         ),
-                        day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary/90 font-semibold shadow-sm",
-                        day_today: "bg-primary/15 text-primary font-bold ring-2 ring-primary/30",
+                        day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary/90 font-semibold shadow-sm !rounded-full",
+                        day_today: "bg-primary/15 text-primary font-bold ring-2 ring-primary/30 !rounded-full",
                         day_outside: "text-muted-foreground/25",
                         day_disabled: "text-muted-foreground/20 cursor-not-allowed hover:!bg-transparent",
                       }}
