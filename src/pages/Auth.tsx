@@ -206,7 +206,7 @@ const Auth = () => {
       toast({ title: "E-mail enviado!", description: "Verifique sua caixa de entrada e spam." });
       setView("reset-sent");
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Falha ao enviar e-mail.", variant: "destructive" });
+      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
