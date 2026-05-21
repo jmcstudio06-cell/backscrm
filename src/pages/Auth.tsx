@@ -63,6 +63,28 @@ const Auth = () => {
   const isForgot = view === "forgot";
   const isResetSent = view === "reset-sent";
 
+  // Password validation
+  const passwordHasMinLength = formData.password.length >= 6;
+  const passwordHasUpperOrNumber = /[A-Z]/.test(formData.password) || /\d/.test(formData.password);
+  const passwordIsStrong = passwordHasMinLength && passwordHasUpperOrNumber;
+  const passwordsMatch = formData.password === formData.confirmPassword;
+  const showPasswordMismatch = !isLogin && formData.confirmPassword.length > 0 && !passwordsMatch;
+  const canSubmit = isLogin || (passwordIsStrong && passwordsMatch);
+
+  const translateError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("password is known to be weak") || (m.includes("weak") && m.includes("password"))) {
+      return "Essa senha é muito comum e fácil de adivinhar. Use uma senha diferente (com letra maiúscula ou número).";
+    }
+    if (m.includes("password should be at least")) return "A senha deve ter pelo menos 6 caracteres.";
+    if (m.includes("invalid login credentials")) return "Email ou senha incorretos.";
+    if (m.includes("already registered") || m.includes("user already")) return "Este email já está cadastrado. Tente fazer login.";
+    if (m.includes("email not confirmed")) return "Confirme seu email antes de entrar.";
+    if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas. Aguarde alguns instantes e tente novamente.";
+    if (m.includes("network") || m.includes("failed to fetch")) return "Erro de conexão. Verifique sua internet.";
+    return "Não foi possível concluir. Verifique os dados e tente novamente.";
+  };
+
   // Check if user is already logged in
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
