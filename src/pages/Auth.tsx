@@ -186,7 +186,7 @@ const Auth = () => {
         toast({ title: "Conta criada!", description: "Sua conta foi criada com sucesso!" });
       }
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Ocorreu um erro. Tente novamente.", variant: "destructive" });
+      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
