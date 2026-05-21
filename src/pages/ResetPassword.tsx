@@ -59,14 +59,37 @@ const ResetPassword = () => {
     }
   }, []);
 
+  const passwordHasMinLength = newPassword.length >= 6;
+  const passwordHasUpperOrNumber = /[A-Z]/.test(newPassword) || /\d/.test(newPassword);
+  const passwordIsStrong = passwordHasMinLength && passwordHasUpperOrNumber;
+  const passwordsMatch = newPassword === confirmPassword;
+  const showMismatch = confirmPassword.length > 0 && !passwordsMatch;
+  const canSubmit = passwordIsStrong && passwordsMatch;
+
+  const translateError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("password is known to be weak") || (m.includes("weak") && m.includes("password"))) {
+      return "Essa senha é muito comum e fácil de adivinhar. Use uma senha diferente (com letra maiúscula ou número).";
+    }
+    if (m.includes("password should be at least")) return "A senha deve ter pelo menos 6 caracteres.";
+    if (m.includes("same password")) return "A nova senha precisa ser diferente da atual.";
+    if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas. Aguarde e tente novamente.";
+    if (m.includes("network") || m.includes("failed to fetch")) return "Erro de conexão. Verifique sua internet.";
+    return "Não foi possível atualizar a senha. Tente novamente.";
+  };
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!newPassword || newPassword.length < 6) {
+    if (!passwordHasMinLength) {
       toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
       return;
     }
-    if (newPassword !== confirmPassword) {
+    if (!passwordHasUpperOrNumber) {
+      toast({ title: "Senha fraca", description: "Inclua pelo menos uma letra maiúscula ou um número.", variant: "destructive" });
+      return;
+    }
+    if (!passwordsMatch) {
       toast({ title: "Erro", description: "As senhas não coincidem.", variant: "destructive" });
       return;
     }
@@ -79,7 +102,7 @@ const ResetPassword = () => {
       await supabase.auth.signOut();
       navigate("/auth");
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Falha ao atualizar senha.", variant: "destructive" });
+      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -133,6 +156,21 @@ const ResetPassword = () => {
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
+            {newPassword.length > 0 && (
+              <div className="space-y-1.5 pt-1">
+                <div className="flex gap-1.5">
+                  <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordHasMinLength ? (passwordIsStrong ? "bg-emerald-500" : "bg-amber-500") : "bg-slate-200"}`} />
+                  <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordIsStrong ? "bg-emerald-500" : "bg-slate-200"}`} />
+                </div>
+                <p className={`text-xs font-medium ${passwordIsStrong ? "text-emerald-600" : passwordHasMinLength ? "text-amber-600" : "text-slate-500"}`}>
+                  {passwordIsStrong
+                    ? "✓ Senha forte"
+                    : !passwordHasMinLength
+                      ? "Use pelo menos 6 caracteres"
+                      : "Adicione 1 letra maiúscula ou 1 número"}
+                </p>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirmar nova senha</Label>
@@ -142,12 +180,15 @@ const ResetPassword = () => {
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+              className={`h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:ring-[#0066CC]/20 rounded-xl transition-all ${showMismatch ? "border-red-400 focus:border-red-500" : "focus:border-[#0066CC]"}`}
             />
+            {showMismatch && (
+              <p className="text-xs text-red-600 font-medium">⚠ As senhas não coincidem</p>
+            )}
           </div>
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !canSubmit}
             className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300"
           >
             {isLoading ? (

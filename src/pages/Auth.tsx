@@ -63,6 +63,28 @@ const Auth = () => {
   const isForgot = view === "forgot";
   const isResetSent = view === "reset-sent";
 
+  // Password validation
+  const passwordHasMinLength = formData.password.length >= 6;
+  const passwordHasUpperOrNumber = /[A-Z]/.test(formData.password) || /\d/.test(formData.password);
+  const passwordIsStrong = passwordHasMinLength && passwordHasUpperOrNumber;
+  const passwordsMatch = formData.password === formData.confirmPassword;
+  const showPasswordMismatch = !isLogin && formData.confirmPassword.length > 0 && !passwordsMatch;
+  const canSubmit = isLogin || (passwordIsStrong && passwordsMatch);
+
+  const translateError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("password is known to be weak") || (m.includes("weak") && m.includes("password"))) {
+      return "Essa senha é muito comum e fácil de adivinhar. Use uma senha diferente (com letra maiúscula ou número).";
+    }
+    if (m.includes("password should be at least")) return "A senha deve ter pelo menos 6 caracteres.";
+    if (m.includes("invalid login credentials")) return "Email ou senha incorretos.";
+    if (m.includes("already registered") || m.includes("user already")) return "Este email já está cadastrado. Tente fazer login.";
+    if (m.includes("email not confirmed")) return "Confirme seu email antes de entrar.";
+    if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas. Aguarde alguns instantes e tente novamente.";
+    if (m.includes("network") || m.includes("failed to fetch")) return "Erro de conexão. Verifique sua internet.";
+    return "Não foi possível concluir. Verifique os dados e tente novamente.";
+  };
+
   // Check if user is already logged in
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -113,7 +135,16 @@ const Auth = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (!isLogin) {
+      if (!passwordHasMinLength) {
+        toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
+        return;
+      }
+      if (!passwordHasUpperOrNumber) {
+        toast({ title: "Senha fraca", description: "Inclua pelo menos uma letra maiúscula ou um número.", variant: "destructive" });
+        return;
+      }
+    } else if (formData.password.length < 6) {
       toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
       return;
     }
@@ -155,7 +186,7 @@ const Auth = () => {
         toast({ title: "Conta criada!", description: "Sua conta foi criada com sucesso!" });
       }
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Ocorreu um erro. Tente novamente.", variant: "destructive" });
+      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -175,7 +206,7 @@ const Auth = () => {
       toast({ title: "E-mail enviado!", description: "Verifique sua caixa de entrada e spam." });
       setView("reset-sent");
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Falha ao enviar e-mail.", variant: "destructive" });
+      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -574,6 +605,21 @@ const Auth = () => {
                           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
+                      {!isLogin && formData.password.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          <div className="flex gap-1.5">
+                            <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordHasMinLength ? (passwordIsStrong ? "bg-emerald-500" : "bg-amber-500") : "bg-slate-200"}`} />
+                            <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordIsStrong ? "bg-emerald-500" : "bg-slate-200"}`} />
+                          </div>
+                          <p className={`text-xs font-medium ${passwordIsStrong ? "text-emerald-600" : passwordHasMinLength ? "text-amber-600" : "text-slate-500"}`}>
+                            {passwordIsStrong
+                              ? "✓ Senha forte"
+                              : !passwordHasMinLength
+                                ? "Use pelo menos 6 caracteres"
+                                : "Adicione 1 letra maiúscula ou 1 número"}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {!isLogin && (
@@ -586,8 +632,13 @@ const Auth = () => {
                             placeholder="••••••••"
                             value={formData.confirmPassword}
                             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                            className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                            className={`h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:ring-[#0066CC]/20 pr-3 rounded-xl transition-all ${showPasswordMismatch ? "border-red-400 focus:border-red-500" : "focus:border-[#0066CC]"}`}
                           />
+                          {showPasswordMismatch && (
+                            <p className="text-xs text-red-600 font-medium flex items-center gap-1">
+                              ⚠ As senhas não coincidem
+                            </p>
+                          )}
                         </div>
 
                         <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
@@ -644,7 +695,7 @@ const Auth = () => {
 
                     <Button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={isLoading || !canSubmit}
                       className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30"
                     >
                       {isLoading ? (
