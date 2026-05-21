@@ -135,7 +135,16 @@ const Auth = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (!isLogin) {
+      if (!passwordHasMinLength) {
+        toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
+        return;
+      }
+      if (!passwordHasUpperOrNumber) {
+        toast({ title: "Senha fraca", description: "Inclua pelo menos uma letra maiúscula ou um número.", variant: "destructive" });
+        return;
+      }
+    } else if (formData.password.length < 6) {
       toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
       return;
     }
