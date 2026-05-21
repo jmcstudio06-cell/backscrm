@@ -605,6 +605,21 @@ const Auth = () => {
                           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
+                      {!isLogin && formData.password.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          <div className="flex gap-1.5">
+                            <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordHasMinLength ? (passwordIsStrong ? "bg-emerald-500" : "bg-amber-500") : "bg-slate-200"}`} />
+                            <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordIsStrong ? "bg-emerald-500" : "bg-slate-200"}`} />
+                          </div>
+                          <p className={`text-xs font-medium ${passwordIsStrong ? "text-emerald-600" : passwordHasMinLength ? "text-amber-600" : "text-slate-500"}`}>
+                            {passwordIsStrong
+                              ? "✓ Senha forte"
+                              : !passwordHasMinLength
+                                ? "Use pelo menos 6 caracteres"
+                                : "Adicione 1 letra maiúscula ou 1 número"}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {!isLogin && (
@@ -617,8 +632,13 @@ const Auth = () => {
                             placeholder="••••••••"
                             value={formData.confirmPassword}
                             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                            className="h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#0066CC] focus:ring-[#0066CC]/20 rounded-xl transition-all"
+                            className={`h-12 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:ring-[#0066CC]/20 pr-3 rounded-xl transition-all ${showPasswordMismatch ? "border-red-400 focus:border-red-500" : "focus:border-[#0066CC]"}`}
                           />
+                          {showPasswordMismatch && (
+                            <p className="text-xs text-red-600 font-medium flex items-center gap-1">
+                              ⚠ As senhas não coincidem
+                            </p>
+                          )}
                         </div>
 
                         <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
