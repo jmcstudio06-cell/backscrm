@@ -59,14 +59,37 @@ const ResetPassword = () => {
     }
   }, []);
 
+  const passwordHasMinLength = newPassword.length >= 6;
+  const passwordHasUpperOrNumber = /[A-Z]/.test(newPassword) || /\d/.test(newPassword);
+  const passwordIsStrong = passwordHasMinLength && passwordHasUpperOrNumber;
+  const passwordsMatch = newPassword === confirmPassword;
+  const showMismatch = confirmPassword.length > 0 && !passwordsMatch;
+  const canSubmit = passwordIsStrong && passwordsMatch;
+
+  const translateError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("password is known to be weak") || (m.includes("weak") && m.includes("password"))) {
+      return "Essa senha é muito comum e fácil de adivinhar. Use uma senha diferente (com letra maiúscula ou número).";
+    }
+    if (m.includes("password should be at least")) return "A senha deve ter pelo menos 6 caracteres.";
+    if (m.includes("same password")) return "A nova senha precisa ser diferente da atual.";
+    if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas. Aguarde e tente novamente.";
+    if (m.includes("network") || m.includes("failed to fetch")) return "Erro de conexão. Verifique sua internet.";
+    return "Não foi possível atualizar a senha. Tente novamente.";
+  };
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!newPassword || newPassword.length < 6) {
+    if (!passwordHasMinLength) {
       toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
       return;
     }
-    if (newPassword !== confirmPassword) {
+    if (!passwordHasUpperOrNumber) {
+      toast({ title: "Senha fraca", description: "Inclua pelo menos uma letra maiúscula ou um número.", variant: "destructive" });
+      return;
+    }
+    if (!passwordsMatch) {
       toast({ title: "Erro", description: "As senhas não coincidem.", variant: "destructive" });
       return;
     }
@@ -79,7 +102,7 @@ const ResetPassword = () => {
       await supabase.auth.signOut();
       navigate("/auth");
     } catch (error: any) {
-      toast({ title: "Erro", description: error.message || "Falha ao atualizar senha.", variant: "destructive" });
+      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
