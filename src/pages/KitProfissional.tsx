@@ -70,8 +70,6 @@ const cards = [
 export default function KitProfissional() {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [showLeadForm, setShowLeadForm] = useState(false);
-  const [pendingPath, setPendingPath] = useState<{ path: string; external: boolean } | null>(null);
   const [isLeadRegistered, setIsLeadRegistered] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -94,13 +92,6 @@ export default function KitProfissional() {
       window.location.href = card.path;
       return;
     }
-
-    if (card.requiresLead && !isLeadRegistered) {
-      setPendingPath({ path: card.path, external: false });
-      setShowLeadForm(true);
-      return;
-    }
-
     navigate(card.path);
   };
 
@@ -121,18 +112,9 @@ export default function KitProfissional() {
     try {
       await supabase.from("guide_leads").insert({ name: trimmedName, phone: digits });
       localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify({ name: trimmedName, phone: digits }));
+      localStorage.setItem("guia_lead_captured", "true");
       setIsLeadRegistered(true);
-      setShowLeadForm(false);
       toast.success("Acesso liberado! 🎉");
-
-      if (pendingPath) {
-        if (pendingPath.external) {
-          window.location.href = pendingPath.path;
-        } else {
-          navigate(pendingPath.path);
-        }
-        setPendingPath(null);
-      }
     } catch {
       toast.error("Erro ao salvar. Tente novamente.");
     } finally {
@@ -231,7 +213,7 @@ export default function KitProfissional() {
       </section>
 
       {/* Lead capture modal */}
-      {showLeadForm && (
+      {!isLeadRegistered && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="w-full max-w-md rounded-2xl bg-card border border-border shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
