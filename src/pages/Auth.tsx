@@ -695,7 +695,7 @@ const Auth = () => {
 
                     <Button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={isLoading || !canSubmit}
                       className="w-full h-14 bg-gradient-to-r from-[#0066CC] to-[#0088DD] hover:from-[#0055AA] hover:to-[#0077CC] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30"
                     >
                       {isLoading ? (
