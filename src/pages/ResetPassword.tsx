@@ -59,9 +59,13 @@ const ResetPassword = () => {
     }
   }, []);
 
-  const passwordHasMinLength = newPassword.length >= 6;
-  const passwordHasUpperOrNumber = /[A-Z]/.test(newPassword) || /\d/.test(newPassword);
-  const passwordIsStrong = passwordHasMinLength && passwordHasUpperOrNumber;
+  const passwordHasMinLength = newPassword.length >= 8;
+  const passwordHasUpper = /[A-Z]/.test(newPassword);
+  const passwordHasLower = /[a-z]/.test(newPassword);
+  const passwordHasNumber = /\d/.test(newPassword);
+  const passwordHasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+  const passwordIsStrong =
+    passwordHasMinLength && passwordHasUpper && passwordHasLower && passwordHasNumber && passwordHasSpecial;
   const passwordsMatch = newPassword === confirmPassword;
   const showMismatch = confirmPassword.length > 0 && !passwordsMatch;
   const canSubmit = passwordIsStrong && passwordsMatch;
@@ -69,9 +73,12 @@ const ResetPassword = () => {
   const translateError = (msg: string): string => {
     const m = (msg || "").toLowerCase();
     if (m.includes("password is known to be weak") || (m.includes("weak") && m.includes("password"))) {
-      return "Essa senha é muito comum e fácil de adivinhar. Use uma senha diferente (com letra maiúscula ou número).";
+      return "Essa senha é muito comum e fácil de adivinhar. Use uma combinação diferente.";
     }
-    if (m.includes("password should be at least")) return "A senha deve ter pelo menos 6 caracteres.";
+    if (m.includes("password should contain") || m.includes("password must contain") || m.includes("special character")) {
+      return "A senha precisa ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número e caractere especial.";
+    }
+    if (m.includes("password should be at least")) return "A senha deve ter pelo menos 8 caracteres.";
     if (m.includes("same password")) return "A nova senha precisa ser diferente da atual.";
     if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas. Aguarde e tente novamente.";
     if (m.includes("network") || m.includes("failed to fetch")) return "Erro de conexão. Verifique sua internet.";
@@ -81,12 +88,12 @@ const ResetPassword = () => {
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!passwordHasMinLength) {
-      toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
-      return;
-    }
-    if (!passwordHasUpperOrNumber) {
-      toast({ title: "Senha fraca", description: "Inclua pelo menos uma letra maiúscula ou um número.", variant: "destructive" });
+    if (!passwordIsStrong) {
+      toast({
+        title: "Senha fraca",
+        description: "Use no mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial.",
+        variant: "destructive",
+      });
       return;
     }
     if (!passwordsMatch) {
@@ -157,18 +164,30 @@ const ResetPassword = () => {
               </button>
             </div>
             {newPassword.length > 0 && (
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-2 pt-1">
                 <div className="flex gap-1.5">
-                  <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordHasMinLength ? (passwordIsStrong ? "bg-emerald-500" : "bg-amber-500") : "bg-slate-200"}`} />
-                  <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordIsStrong ? "bg-emerald-500" : "bg-slate-200"}`} />
+                  {[passwordHasMinLength, passwordHasUpper, passwordHasLower, passwordHasNumber, passwordHasSpecial].map((ok, i) => (
+                    <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${ok ? (passwordIsStrong ? "bg-emerald-500" : "bg-amber-500") : "bg-slate-200"}`} />
+                  ))}
                 </div>
-                <p className={`text-xs font-medium ${passwordIsStrong ? "text-emerald-600" : passwordHasMinLength ? "text-amber-600" : "text-slate-500"}`}>
-                  {passwordIsStrong
-                    ? "✓ Senha forte"
-                    : !passwordHasMinLength
-                      ? "Use pelo menos 6 caracteres"
-                      : "Adicione 1 letra maiúscula ou 1 número"}
-                </p>
+                {passwordIsStrong ? (
+                  <p className="text-xs font-semibold text-emerald-600">✓ Senha forte</p>
+                ) : (
+                  <ul className="grid grid-cols-1 gap-1 text-xs">
+                    {[
+                      { ok: passwordHasMinLength, label: "Pelo menos 8 caracteres" },
+                      { ok: passwordHasUpper, label: "1 letra maiúscula (A-Z)" },
+                      { ok: passwordHasLower, label: "1 letra minúscula (a-z)" },
+                      { ok: passwordHasNumber, label: "1 número (0-9)" },
+                      { ok: passwordHasSpecial, label: "1 caractere especial (!@#$...)" },
+                    ].map((r, i) => (
+                      <li key={i} className={`flex items-center gap-1.5 ${r.ok ? "text-emerald-600" : "text-slate-500"}`}>
+                        <span>{r.ok ? "✓" : "•"}</span>
+                        <span>{r.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
           </div>
