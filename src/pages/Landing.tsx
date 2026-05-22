@@ -191,7 +191,8 @@ const Landing = () => {
   const whatsappLink = "https://web.whatsapp.com/send?phone=5512991764910&text=Olá! Tenho uma dúvida sobre o Backstage Pro";
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pb-20 lg:pb-0">
+
       <Helmet>
         <title>Backstage Pro — Sistema de Gestão para Artistas e Músicos</title>
         <meta name="description" content="Plataforma completa para artistas: agenda de shows, financeiro, CRM de leads, contratos, orçamentos e equipe. Comece grátis." />
@@ -219,113 +220,116 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pb-20 bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden transition-all duration-300 pt-32 min-h-[90vh] flex items-center">
+      <section className="pb-16 sm:pb-20 bg-gradient-to-br from-[#0033AA] via-[#0066CC] to-[#00B4D8] relative overflow-hidden transition-all duration-300 pt-24 sm:pt-32 min-h-[88vh] lg:min-h-[90vh] flex items-center">
         {/* Animated background elements */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,rgba(0,180,216,0.3),transparent_60%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,rgba(0,51,170,0.4),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(0,180,216,0.2),transparent_40%)]" />
-          {/* Subtle grid pattern */}
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
-        
+
         {/* Floating light orbs */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-40 right-20 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }} />
-        
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
+
+        <div className="container mx-auto px-5 sm:px-6 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
             {/* Left Column - Text */}
             <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-8 border border-white/20">
-                <Sparkles className="w-4 h-4 text-cyan-300" />
-                <span className="text-white/90 text-sm font-medium">A plataforma que artistas usam para profissionalizar a carreira</span>
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 mb-5 sm:mb-8 border border-white/20">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-300" />
+                <span className="text-white/90 text-[11px] sm:text-sm font-medium">Profissionalize sua carreira musical</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-lg">
-                Backstage Pro — <span className="text-cyan-300">Sistema de Gestão para Artistas e Músicos</span>
+              <h1 className="text-[2rem] leading-[1.1] sm:text-5xl lg:text-6xl font-extrabold text-white mb-4 sm:mb-6 drop-shadow-lg tracking-tight">
+                Sua carreira musical,<br className="hidden sm:block" />
+                <span className="text-cyan-300">organizada como um negócio.</span>
               </h1>
-              <p className="text-white/80 text-lg md:text-xl max-w-xl mb-2 italic">
+              <p className="text-white/85 text-base sm:text-xl max-w-xl mx-auto lg:mx-0 mb-3 sm:mb-2 italic">
                 Seu talento é no palco. A organização deixa com a gente.
               </p>
-
-              <p className="text-white/90 text-lg md:text-xl max-w-xl mb-4">
-                Shows, contratos, cachês e finanças em um só lugar.
+              <p className="text-white/95 text-sm sm:text-xl max-w-xl mx-auto lg:mx-0 mb-2 sm:mb-4">
+                Agenda, contratos, cachês e finanças em um só app.
               </p>
-              <p className="text-white/70 text-base max-w-xl mb-8">
+              <p className="hidden sm:block text-white/70 text-base max-w-xl mb-8">
                 Pare de perder oportunidades por falta de controle.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mb-6">
-                <Button 
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 sm:gap-4 mb-5 sm:mb-6 mt-6">
+                <Button
                   onClick={() => navigate('/auth')}
                   size="lg"
-                  className="bg-white text-[#0066CC] hover:bg-white/90 hover:scale-105 font-bold px-8 py-6 text-lg shadow-xl shadow-black/20 transition-all duration-200"
+                  className="bg-white text-[#0066CC] hover:bg-white/95 hover:scale-[1.02] font-bold px-6 sm:px-8 py-6 text-base sm:text-lg shadow-2xl shadow-black/30 transition-all duration-200 w-full sm:w-auto"
                 >
-                  Teste grátis 3 dias
+                  Começar grátis por 3 dias
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button 
+                <Button
                   onClick={() => navigate('/auth')}
                   size="lg"
                   variant="ghost"
-                  className="text-white/80 hover:text-white hover:bg-white/10 font-medium px-6 py-6 text-lg"
+                  className="text-white/90 hover:text-white hover:bg-white/10 font-medium px-4 sm:px-6 py-5 sm:py-6 text-base sm:text-lg w-full sm:w-auto"
                 >
-                  Fazer login
+                  Já tenho conta
                 </Button>
               </div>
 
-              {/* Trust signals below CTA */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-white/70 text-sm mb-8">
+              {/* Trust signals */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 text-white/80 text-xs sm:text-sm mb-6 sm:mb-8">
                 <div className="flex items-center gap-1">
                   <Check className="w-4 h-4 text-cyan-300" />
                   <span>Sem cartão de crédito</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Check className="w-4 h-4 text-cyan-300" />
-                  <span>Leva menos de 2 minutos</span>
+                  <span>Cadastro em 2 minutos</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Check className="w-4 h-4 text-cyan-300" />
+                  <span>Cancele quando quiser</span>
                 </div>
               </div>
 
               {/* Social proof */}
-              <div className="mt-4 flex items-center gap-4">
+              <div className="mt-3 flex items-center justify-center lg:justify-start gap-3 sm:gap-4">
                 <div className="flex -space-x-3">
                   {userAvatars.map((avatar, i) => (
-                    <img 
-                      key={i} 
+                    <img
+                      key={i}
                       src={avatar}
                       alt={`Artista ${i + 1}`}
-                      className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-lg"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white object-cover shadow-lg"
                     />
                   ))}
                 </div>
                 <div className="text-left">
-                  <div className="flex items-center gap-1 mb-1">
+                  <div className="flex items-center gap-0.5 mb-0.5">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-white font-bold text-xl md:text-2xl">
+                  <p className="text-white font-bold text-lg sm:text-2xl leading-tight">
                     +90 Artistas
                   </p>
-                  <p className="text-white/90 text-sm md:text-base">
-                    se organizando com o Backstage Pro
+                  <p className="text-white/85 text-xs sm:text-base leading-tight">
+                    já organizam a carreira aqui
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Feature Showcase (matching Auth page) */}
-            <div className="hidden lg:flex items-center justify-center relative">
+            {/* Right Column - Feature Showcase */}
+            <div className="flex items-center justify-center relative mt-4 lg:mt-0">
               {/* Glow effect */}
-              <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-400/20 rounded-full blur-[100px] m-auto" />
+              <div className="absolute inset-0 left-1/2 -translate-x-1/2 w-[280px] sm:w-[500px] h-[280px] sm:h-[500px] bg-cyan-400/20 rounded-full blur-[100px] m-auto" />
 
-              <div className="w-full max-w-[540px] space-y-4 relative z-10">
+              <div className="w-full max-w-[540px] space-y-3 sm:space-y-4 relative z-10">
                 {/* Main app mockup card */}
-                <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-6 shadow-2xl shadow-black/20">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
+                <div className="rounded-2xl border border-white/15 bg-white/[0.08] backdrop-blur-xl p-4 sm:p-6 shadow-2xl shadow-black/20">
+                  <div className="flex items-center gap-3 mb-4 sm:mb-5">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-lg">
                       <img src={baIconImg} alt="Logotipo Backstage Pro" className="w-full h-full object-cover" />
                     </div>
                     <div>
@@ -339,25 +343,25 @@ const Landing = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                     {[
-                      { icon: Link2, label: "Link Agenda", desc: "Receba pedidos online", color: "from-blue-500 to-blue-600" },
-                      { icon: MapPin, label: "Mapa de Palco", desc: "Rider técnico digital", color: "from-purple-500 to-purple-600" },
-                      { icon: DollarSign, label: "Financeiro", desc: "Receitas automáticas", color: "from-emerald-500 to-emerald-600" },
-                      { icon: Calendar, label: "Agenda Rápida", desc: "Shows organizados", color: "from-orange-500 to-orange-600" },
-                      { icon: Receipt, label: "Orçamento", desc: "Propostas em 1 clique", color: "from-pink-500 to-pink-600" },
-                      { icon: FileText, label: "Contrato", desc: "Gere e envie rápido", color: "from-cyan-500 to-cyan-600" },
+                      { icon: Link2, label: "Link Agenda", desc: "Pedidos online", color: "from-blue-500 to-blue-600" },
+                      { icon: MapPin, label: "Mapa de Palco", desc: "Rider digital", color: "from-purple-500 to-purple-600" },
+                      { icon: DollarSign, label: "Financeiro", desc: "Receita auto", color: "from-emerald-500 to-emerald-600" },
+                      { icon: Calendar, label: "Agenda", desc: "Shows no jeito", color: "from-orange-500 to-orange-600" },
+                      { icon: Receipt, label: "Orçamento", desc: "1 clique", color: "from-pink-500 to-pink-600" },
+                      { icon: FileText, label: "Contrato", desc: "Envio rápido", color: "from-cyan-500 to-cyan-600" },
                     ].map((feat, i) => (
                       <div
                         key={i}
-                        className="group flex items-center gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/[0.12] transition-all duration-300 cursor-default"
+                        className="group flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/[0.12] transition-all duration-300 cursor-default"
                       >
-                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feat.color} shadow-lg`}>
-                          <feat.icon className="h-5 w-5 text-white" />
+                        <div className={`flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br ${feat.color} shadow-lg`}>
+                          <feat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-white text-sm font-semibold truncate">{feat.label}</p>
-                          <p className="text-white/40 text-xs truncate">{feat.desc}</p>
+                          <p className="text-white text-xs sm:text-sm font-semibold truncate">{feat.label}</p>
+                          <p className="text-white/40 text-[10px] sm:text-xs truncate">{feat.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -365,16 +369,16 @@ const Landing = () => {
                 </div>
 
                 {/* Bottom stats row */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {[
                     { icon: Rocket, value: "2min", label: "Setup", color: "text-cyan-300" },
                     { icon: Music, value: "+100", label: "Artistas", color: "text-emerald-300" },
                     { icon: ClipboardCheck, value: "100%", label: "Prático", color: "text-amber-300" },
                   ].map((stat, i) => (
-                    <div key={i} className="flex flex-col items-center gap-1 p-4 rounded-xl border border-white/10 bg-white/[0.06] backdrop-blur-lg">
-                      <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                      <span className="text-white font-bold text-lg">{stat.value}</span>
-                      <span className="text-white/50 text-xs">{stat.label}</span>
+                    <div key={i} className="flex flex-col items-center gap-0.5 sm:gap-1 p-3 sm:p-4 rounded-xl border border-white/10 bg-white/[0.06] backdrop-blur-lg">
+                      <stat.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.color}`} />
+                      <span className="text-white font-bold text-base sm:text-lg">{stat.value}</span>
+                      <span className="text-white/60 text-[10px] sm:text-xs">{stat.label}</span>
                     </div>
                   ))}
                 </div>
@@ -390,6 +394,19 @@ const Landing = () => {
           </svg>
         </div>
       </section>
+
+      {/* Sticky mobile CTA */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">
+        <Button
+          onClick={() => navigate('/auth')}
+          size="lg"
+          className="w-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] hover:from-[#0055BB] hover:to-[#00A0C4] text-white font-bold py-5 text-base shadow-lg shadow-blue-500/30"
+        >
+          Começar grátis por 3 dias
+          <ArrowRight className="ml-2 w-5 h-5" />
+        </Button>
+      </div>
+
 
       {/* How It Works - 3 Steps */}
       <section className="py-16 bg-white">
