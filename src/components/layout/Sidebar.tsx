@@ -38,6 +38,7 @@ import {
   Lightbulb,
   Link2,
   Instagram,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -108,6 +109,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
+  { icon: GraduationCap, label: "Consultoria", path: "/consultoria" },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
