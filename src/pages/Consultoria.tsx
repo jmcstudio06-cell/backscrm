@@ -98,7 +98,7 @@ export default function Consultoria() {
 
   if (adminLoading) {
     return (
-      <Layout>
+      <Layout title="Consultoria">
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
@@ -107,7 +107,7 @@ export default function Consultoria() {
   }
 
   return (
-    <Layout>
+    <Layout title="Consultoria" subtitle={isAdmin ? "Painel de acompanhamento dos cantores" : "Acompanhamento da sua carreira"}>
       <div className="p-4 sm:p-6 max-w-6xl mx-auto">
         <header className="mb-6">
           <div className="flex items-center gap-3 mb-2">
