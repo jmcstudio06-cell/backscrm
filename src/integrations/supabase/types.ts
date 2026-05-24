@@ -647,6 +647,84 @@ export type Database = {
         }
         Relationships: []
       }
+      consultoria_sessions: {
+        Row: {
+          anotacoes_admin: string | null
+          created_at: string
+          despesas: number | null
+          faturamento: number | null
+          id: string
+          leads_convertidos: number | null
+          leads_recebidos: number | null
+          meta_faturamento: number | null
+          meta_shows: number | null
+          month: number
+          observacoes_cantor: string | null
+          pontos_fortes: string | null
+          pontos_melhoria: string | null
+          principais_cidades: string | null
+          proximos_passos: string | null
+          published_at: string | null
+          shows_realizados: number | null
+          status: string
+          submitted_at: string | null
+          ticket_medio: number | null
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          anotacoes_admin?: string | null
+          created_at?: string
+          despesas?: number | null
+          faturamento?: number | null
+          id?: string
+          leads_convertidos?: number | null
+          leads_recebidos?: number | null
+          meta_faturamento?: number | null
+          meta_shows?: number | null
+          month: number
+          observacoes_cantor?: string | null
+          pontos_fortes?: string | null
+          pontos_melhoria?: string | null
+          principais_cidades?: string | null
+          proximos_passos?: string | null
+          published_at?: string | null
+          shows_realizados?: number | null
+          status?: string
+          submitted_at?: string | null
+          ticket_medio?: number | null
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          anotacoes_admin?: string | null
+          created_at?: string
+          despesas?: number | null
+          faturamento?: number | null
+          id?: string
+          leads_convertidos?: number | null
+          leads_recebidos?: number | null
+          meta_faturamento?: number | null
+          meta_shows?: number | null
+          month?: number
+          observacoes_cantor?: string | null
+          pontos_fortes?: string | null
+          pontos_melhoria?: string | null
+          principais_cidades?: string | null
+          proximos_passos?: string | null
+          published_at?: string | null
+          shows_realizados?: number | null
+          status?: string
+          submitted_at?: string | null
+          ticket_medio?: number | null
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       content_plan_entries: {
         Row: {
           created_at: string
