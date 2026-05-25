@@ -163,7 +163,10 @@ function AdminView() {
   async function loadArtists() {
     setLoading(true);
     const [{ data: profiles }, { data: sessions }] = await Promise.all([
-      supabase.from("profiles").select("user_id, name, email, artist_name, avatar_url"),
+      supabase
+        .from("profiles")
+        .select("user_id, name, email, artist_name, avatar_url, consultoria_day_of_week, consultoria_time, consultoria_activated_at, consultoria_active")
+        .eq("consultoria_active", true),
       supabase.from("consultoria_sessions").select("user_id, created_at"),
     ]);
 
@@ -183,6 +186,9 @@ function AdminView() {
       avatar_url: p.avatar_url,
       sessions_count: counts.get(p.user_id)?.count || 0,
       last_session_at: counts.get(p.user_id)?.last || null,
+      consultoria_day_of_week: p.consultoria_day_of_week,
+      consultoria_time: p.consultoria_time,
+      consultoria_activated_at: p.consultoria_activated_at,
     }));
 
     rows.sort((a, b) => {
