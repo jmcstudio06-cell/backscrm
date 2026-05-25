@@ -36,6 +36,20 @@ const MONTH_NAMES = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
+const DAYS_OF_WEEK = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+function nextDateForWeekday(weekday: number, time: string | null): Date {
+  const now = new Date();
+  const result = new Date(now);
+  const diff = (weekday - now.getDay() + 7) % 7;
+  result.setDate(now.getDate() + (diff === 0 ? 7 : diff));
+  if (time) {
+    const [h, m] = time.split(":").map(Number);
+    result.setHours(h || 0, m || 0, 0, 0);
+  }
+  return result;
+}
+
 const STATUS_META: Record<string, { label: string; color: string; icon: any }> = {
   draft: { label: "Rascunho", color: "bg-muted text-muted-foreground", icon: Clock },
   submitted: { label: "Enviado", color: "bg-blue-500/15 text-blue-600 dark:text-blue-400", icon: Send },
