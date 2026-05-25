@@ -279,7 +279,10 @@ function ArtistSessionsPanel({
   const [sessions, setSessions] = useState<ConsultoriaSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ConsultoriaSession | null>(null);
-  const [creatingMonth, setCreatingMonth] = useState<{ month: number; year: number } | null>(null);
+  const [creating, setCreating] = useState(false);
+  const _now = new Date();
+  const [newMonth, setNewMonth] = useState<number>(_now.getMonth() + 1);
+  const [newYear, setNewYear] = useState<number>(_now.getFullYear());
 
   useEffect(() => {
     load();
@@ -298,19 +301,17 @@ function ArtistSessionsPanel({
     setLoading(false);
   }
 
-  async function createForCurrentMonth() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
-    // check exists
-    const existing = sessions.find((s) => s.month === month && s.year === year);
+  async function createSession() {
+    const existing = sessions.find((s) => s.month === newMonth && s.year === newYear);
     if (existing) {
+      toast.info("Já existe uma consultoria nesse mês — abrindo.");
       setEditing(existing);
+      setCreating(false);
       return;
     }
     const { data, error } = await supabase
       .from("consultoria_sessions")
-      .insert({ user_id: userId, month, year, status: "draft" })
+      .insert({ user_id: userId, month: newMonth, year: newYear, status: "draft" })
       .select("*")
       .single();
     if (error) {
@@ -319,14 +320,15 @@ function ArtistSessionsPanel({
     }
     setSessions((prev) => [data as any, ...prev]);
     setEditing(data as any);
+    setCreating(false);
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <h2 className="text-lg font-bold">{displayName}</h2>
-        {!isAdmin && (
-          <Button onClick={createForCurrentMonth} className="gap-2">
+        {isAdmin && (
+          <Button onClick={() => setCreating(true)} className="gap-2">
             <Plus className="w-4 h-4" /> Nova consultoria
           </Button>
         )}
@@ -343,11 +345,11 @@ function ArtistSessionsPanel({
             <p className="text-muted-foreground mb-4">
               {isAdmin
                 ? "Este cantor ainda não tem nenhuma consultoria registrada."
-                : "Você ainda não iniciou nenhuma consultoria."}
+                : "Nenhuma consultoria publicada ainda. Quando o admin publicar, aparecerá aqui."}
             </p>
-            {!isAdmin && (
-              <Button onClick={createForCurrentMonth} className="gap-2">
-                <Plus className="w-4 h-4" /> Começar a primeira
+            {isAdmin && (
+              <Button onClick={() => setCreating(true)} className="gap-2">
+                <Plus className="w-4 h-4" /> Criar primeira consultoria
               </Button>
             )}
           </CardContent>
@@ -358,6 +360,44 @@ function ArtistSessionsPanel({
             <SessionRow key={s.id} session={s} onOpen={() => setEditing(s)} isAdmin={isAdmin} />
           ))}
         </div>
+      )}
+
+      {creating && (
+        <Dialog open onOpenChange={(o) => !o && setCreating(false)}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Nova consultoria</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Selecione o mês/ano da consultoria para <strong>{displayName}</strong>.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs">Mês</Label>
+                  <Select value={String(newMonth)} onValueChange={(v) => setNewMonth(Number(v))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {MONTH_NAMES.map((m, i) => (
+                        <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Ano</Label>
+                  <Input type="number" value={newYear} onChange={(e) => setNewYear(Number(e.target.value))} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setCreating(false)}>Cancelar</Button>
+                <Button onClick={createSession} className="gap-2">
+                  <Plus className="w-4 h-4" /> Criar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       {editing && (
