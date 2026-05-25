@@ -91,6 +91,9 @@ type ArtistRow = {
   avatar_url: string | null;
   sessions_count: number;
   last_session_at: string | null;
+  consultoria_day_of_week: number | null;
+  consultoria_time: string | null;
+  consultoria_activated_at: string | null;
 };
 
 const fmtBR = (v: number) =>
