@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   GraduationCap,
   Plus,
@@ -35,6 +35,20 @@ const MONTH_NAMES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
+
+const DAYS_OF_WEEK = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+function nextDateForWeekday(weekday: number, time: string | null): Date {
+  const now = new Date();
+  const result = new Date(now);
+  const diff = (weekday - now.getDay() + 7) % 7;
+  result.setDate(now.getDate() + (diff === 0 ? 7 : diff));
+  if (time) {
+    const [h, m] = time.split(":").map(Number);
+    result.setHours(h || 0, m || 0, 0, 0);
+  }
+  return result;
+}
 
 const STATUS_META: Record<string, { label: string; color: string; icon: any }> = {
   draft: { label: "Rascunho", color: "bg-muted text-muted-foreground", icon: Clock },
@@ -77,6 +91,9 @@ type ArtistRow = {
   avatar_url: string | null;
   sessions_count: number;
   last_session_at: string | null;
+  consultoria_day_of_week: number | null;
+  consultoria_time: string | null;
+  consultoria_activated_at: string | null;
 };
 
 const fmtBR = (v: number) =>
@@ -146,7 +163,10 @@ function AdminView() {
   async function loadArtists() {
     setLoading(true);
     const [{ data: profiles }, { data: sessions }] = await Promise.all([
-      supabase.from("profiles").select("user_id, name, email, artist_name, avatar_url"),
+      supabase
+        .from("profiles")
+        .select("user_id, name, email, artist_name, avatar_url, consultoria_day_of_week, consultoria_time, consultoria_activated_at, consultoria_active")
+        .eq("consultoria_active", true),
       supabase.from("consultoria_sessions").select("user_id, created_at"),
     ]);
 
@@ -166,6 +186,9 @@ function AdminView() {
       avatar_url: p.avatar_url,
       sessions_count: counts.get(p.user_id)?.count || 0,
       last_session_at: counts.get(p.user_id)?.last || null,
+      consultoria_day_of_week: p.consultoria_day_of_week,
+      consultoria_time: p.consultoria_time,
+      consultoria_activated_at: p.consultoria_activated_at,
     }));
 
     rows.sort((a, b) => {
@@ -221,12 +244,19 @@ function AdminView() {
         </div>
       ) : filtered.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">Nenhum cantor encontrado.</CardContent>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            <GraduationCap className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+            Nenhum cantor ativou a consultoria mensal ainda.
+          </CardContent>
         </Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {filtered.map((a) => {
             const display = a.artist_name || a.name || "Artista";
+            const dayLabel =
+              a.consultoria_day_of_week !== null && a.consultoria_day_of_week !== undefined
+                ? DAYS_OF_WEEK[a.consultoria_day_of_week]
+                : null;
             return (
               <button
                 key={a.user_id}
@@ -244,6 +274,12 @@ function AdminView() {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold truncate">{display}</p>
                     <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+                    {(dayLabel || a.consultoria_time) && (
+                      <p className="text-xs text-primary font-medium mt-1 flex items-center gap-1">
+                        <CalendarIcon className="w-3 h-3" />
+                        {dayLabel}{a.consultoria_time ? ` • ${a.consultoria_time}` : ""}
+                      </p>
+                    )}
                   </div>
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground">Sessões</div>
@@ -262,8 +298,214 @@ function AdminView() {
 /* -------------------- ARTIST VIEW -------------------- */
 
 function ArtistView({ userId }: { userId: string }) {
-  return <ArtistSessionsPanel userId={userId} displayName="Minhas consultorias" isAdmin={false} />;
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [sessions, setSessions] = useState<ConsultoriaSession[]>([]);
+  const [viewing, setViewing] = useState<ConsultoriaSession | null>(null);
+  const [day, setDay] = useState<number>(1);
+  const [time, setTime] = useState<string>("19:00");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const [{ data: prof }, { data: sess }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("consultoria_active, consultoria_day_of_week, consultoria_time, consultoria_activated_at")
+          .eq("user_id", userId)
+          .maybeSingle(),
+        supabase
+          .from("consultoria_sessions")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("status", "published")
+          .order("year", { ascending: false })
+          .order("month", { ascending: false }),
+      ]);
+      setProfile(prof);
+      if (prof?.consultoria_day_of_week !== null && prof?.consultoria_day_of_week !== undefined) setDay(prof.consultoria_day_of_week);
+      if (prof?.consultoria_time) setTime(prof.consultoria_time);
+      setSessions((sess as any) || []);
+      setLoading(false);
+    })();
+  }, [userId]);
+
+  async function activate() {
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        consultoria_active: true,
+        consultoria_day_of_week: day,
+        consultoria_time: time,
+        consultoria_activated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+    setSaving(false);
+    if (error) {
+      toast.error("Não foi possível ativar a consultoria");
+      return;
+    }
+    toast.success("Consultoria mensal ativada! 🎉");
+    setProfile({ ...profile, consultoria_active: true, consultoria_day_of_week: day, consultoria_time: time, consultoria_activated_at: new Date().toISOString() });
+  }
+
+  async function deactivate() {
+    if (!confirm("Deseja realmente desativar a consultoria mensal?")) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ consultoria_active: false })
+      .eq("user_id", userId);
+    if (error) {
+      toast.error("Erro ao desativar");
+      return;
+    }
+    toast.success("Consultoria desativada");
+    setProfile({ ...profile, consultoria_active: false });
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // NÃO ATIVADO → tela de ativação
+  if (!profile?.consultoria_active) {
+    return (
+      <Card className="max-w-2xl mx-auto border-primary/30">
+        <CardHeader>
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mb-3">
+            <GraduationCap className="w-7 h-7 text-primary-foreground" />
+          </div>
+          <CardTitle className="text-xl">Quero ter consultoria mensal</CardTitle>
+          <CardDescription>
+            Uma vez por mês, analisamos sua carreira em conjunto: shows, faturamento, leads, pontos de melhoria e próximos passos.
+            Escolha o melhor dia da semana e horário para te ligar.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Dia da semana preferido</Label>
+              <Select value={String(day)} onValueChange={(v) => setDay(Number(v))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {DAYS_OF_WEEK.map((d, i) => (
+                    <SelectItem key={i} value={String(i)}>{d}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Horário preferido</Label>
+              <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            </div>
+          </div>
+          <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-muted-foreground">
+            ✦ Você poderá alterar dia e horário depois. A consultoria é gratuita para assinantes.
+          </div>
+          <Button onClick={activate} disabled={saving} className="w-full gap-2" size="lg">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+            Ativar consultoria mensal
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // ATIVADO → próxima consultoria + histórico
+  const nextDate = nextDateForWeekday(profile.consultoria_day_of_week ?? 1, profile.consultoria_time);
+  const nextStr = nextDate.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
+
+  return (
+    <div className="space-y-6">
+      {/* PRÓXIMA CONSULTORIA */}
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+        <CardContent className="p-5">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <div className="text-xs uppercase tracking-wider text-primary font-semibold mb-1">Próxima consultoria</div>
+              <div className="text-2xl font-bold capitalize">{nextStr}</div>
+              <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                {profile.consultoria_time || "Horário a combinar"}
+                <span className="mx-1">•</span>
+                Toda {DAYS_OF_WEEK[profile.consultoria_day_of_week ?? 1]}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">Alterar horário</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-sm">
+                  <DialogHeader><DialogTitle>Alterar preferência</DialogTitle></DialogHeader>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Dia</Label>
+                        <Select value={String(day)} onValueChange={(v) => setDay(Number(v))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {DAYS_OF_WEEK.map((d, i) => <SelectItem key={i} value={String(i)}>{d}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Horário</Label>
+                        <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+                      </div>
+                    </div>
+                    <Button onClick={activate} disabled={saving} className="w-full">
+                      Salvar
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Button variant="ghost" size="sm" className="text-destructive" onClick={deactivate}>
+                Desativar
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* HISTÓRICO */}
+      <div>
+        <h2 className="text-lg font-bold mb-3">Relatórios de consultorias</h2>
+        {sessions.length === 0 ? (
+          <Card>
+            <CardContent className="py-10 text-center text-muted-foreground">
+              <Sparkles className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+              Nenhum relatório publicado ainda. Após a sua primeira consultoria, ele aparecerá aqui.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {sessions.map((s) => (
+              <SessionRow key={s.id} session={s} onOpen={() => setViewing(s)} isAdmin={false} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {viewing && (
+        <SessionEditor
+          session={viewing}
+          isAdmin={false}
+          onClose={() => setViewing(null)}
+          onSaved={(u) => { setSessions((p) => p.map((x) => x.id === u.id ? u : x)); setViewing(u); }}
+          onDeleted={(id) => { setSessions((p) => p.filter((x) => x.id !== id)); setViewing(null); }}
+        />
+      )}
+    </div>
+  );
 }
+
 
 /* -------------------- SHARED SESSIONS PANEL -------------------- */
 

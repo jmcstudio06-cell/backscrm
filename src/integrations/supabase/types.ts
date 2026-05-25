@@ -1478,6 +1478,10 @@ export type Database = {
           booking_whatsapp: string | null
           cancel_at_period_end: boolean | null
           city: string | null
+          consultoria_activated_at: string | null
+          consultoria_active: boolean
+          consultoria_day_of_week: number | null
+          consultoria_time: string | null
           created_at: string
           current_period_end: string | null
           delay_tolerance: string | null
@@ -1531,6 +1535,10 @@ export type Database = {
           booking_whatsapp?: string | null
           cancel_at_period_end?: boolean | null
           city?: string | null
+          consultoria_activated_at?: string | null
+          consultoria_active?: boolean
+          consultoria_day_of_week?: number | null
+          consultoria_time?: string | null
           created_at?: string
           current_period_end?: string | null
           delay_tolerance?: string | null
@@ -1584,6 +1592,10 @@ export type Database = {
           booking_whatsapp?: string | null
           cancel_at_period_end?: boolean | null
           city?: string | null
+          consultoria_activated_at?: string | null
+          consultoria_active?: boolean
+          consultoria_day_of_week?: number | null
+          consultoria_time?: string | null
           created_at?: string
           current_period_end?: string | null
           delay_tolerance?: string | null
