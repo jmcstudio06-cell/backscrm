@@ -13,6 +13,10 @@ import {
   BookOpen,
   Gift,
   Trophy,
+  Clock,
+  Flame,
+  ArrowLeft,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +24,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import baIcon from "@/assets/ba-icon.png";
 import kitErros from "@/assets/kit-erros.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
@@ -28,7 +33,7 @@ import kitBackstage from "@/assets/kit-backstage.png";
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
 const VIDEO_COMPLETED_KEY = "manual_artista_video_completed";
 const YT_VIDEO_ID = "xKQ8Dajx7x4";
-const UNLOCK_THRESHOLD = 0.92; // 92% watched unlocks bonuses
+const UNLOCK_THRESHOLD = 0.92;
 
 type Material = {
   id: string;
@@ -37,7 +42,7 @@ type Material = {
   image: string;
   path: string;
   external: boolean;
-  type: "main" | "bonus" | "support";
+  type: "bonus" | "support";
 };
 
 const materials: Material[] = [
@@ -61,7 +66,7 @@ const materials: Material[] = [
   },
   {
     id: "erros-escrito",
-    title: "Erros que fazem você perder shows (Material escrito)",
+    title: "Erros que fazem você perder shows (material escrito)",
     description: "Versão em texto do conteúdo — leve para qualquer lugar",
     image: kitErros,
     path: "/guia-atendimento",
@@ -86,9 +91,12 @@ declare global {
   }
 }
 
+type View = "academy" | "course";
+
 export default function KitProfissional() {
   const navigate = useNavigate();
   const [isLeadRegistered, setIsLeadRegistered] = useState(false);
+  const [view, setView] = useState<View>("academy");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -98,26 +106,24 @@ export default function KitProfissional() {
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem(LEAD_STORAGE_KEY);
-    if (stored) setIsLeadRegistered(true);
+    if (localStorage.getItem(LEAD_STORAGE_KEY)) setIsLeadRegistered(true);
     if (localStorage.getItem(VIDEO_COMPLETED_KEY) === "true") {
       setVideoCompleted(true);
       setProgress(100);
     }
   }, []);
 
-  // Load YouTube IFrame API once lead is registered
+  // YouTube IFrame API — only inside course view
   useEffect(() => {
-    if (!isLeadRegistered || videoCompleted) return;
+    if (view !== "course" || !isLeadRegistered || videoCompleted) return;
 
     const initPlayer = () => {
-      if (!window.YT?.Player) return;
+      if (!window.YT?.Player || !document.getElementById("yt-player")) return;
       playerRef.current = new window.YT.Player("yt-player", {
         videoId: YT_VIDEO_ID,
-        playerVars: { rel: 0, modestbranding: 1 },
+        playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
         events: {
           onStateChange: (e: any) => {
-            // 1 = playing
             if (e.data === 1) {
               if (intervalRef.current) window.clearInterval(intervalRef.current);
               intervalRef.current = window.setInterval(() => {
@@ -128,16 +134,13 @@ export default function KitProfissional() {
                 if (dur > 0) {
                   const pct = Math.min(100, Math.round((cur / dur) * 100));
                   setProgress(pct);
-                  if (cur / dur >= UNLOCK_THRESHOLD) {
-                    markCompleted();
-                  }
+                  if (cur / dur >= UNLOCK_THRESHOLD) markCompleted();
                 }
               }, 1000);
             } else if (intervalRef.current) {
               window.clearInterval(intervalRef.current);
               intervalRef.current = null;
             }
-            // 0 = ended
             if (e.data === 0) markCompleted();
           },
         },
@@ -150,14 +153,14 @@ export default function KitProfissional() {
       document.body.appendChild(tag);
       window.onYouTubeIframeAPIReady = initPlayer;
     } else {
-      initPlayer();
+      setTimeout(initPlayer, 50);
     }
 
     return () => {
       if (intervalRef.current) window.clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLeadRegistered, videoCompleted]);
+  }, [view, isLeadRegistered, videoCompleted]);
 
   const markCompleted = () => {
     localStorage.setItem(VIDEO_COMPLETED_KEY, "true");
@@ -192,15 +195,8 @@ export default function KitProfissional() {
   const handleSubmitLead = async () => {
     const trimmedName = name.trim();
     const digits = phone.replace(/\D/g, "");
-
-    if (!trimmedName || trimmedName.length < 2) {
-      toast.error("Digite seu nome completo");
-      return;
-    }
-    if (digits.length < 10 || digits.length > 11) {
-      toast.error("Digite um WhatsApp válido com DDD");
-      return;
-    }
+    if (!trimmedName || trimmedName.length < 2) return toast.error("Digite seu nome completo");
+    if (digits.length < 10 || digits.length > 11) return toast.error("Digite um WhatsApp válido com DDD");
 
     setSubmitting(true);
     try {
@@ -208,7 +204,7 @@ export default function KitProfissional() {
       localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify({ name: trimmedName, phone: digits }));
       localStorage.setItem("guia_lead_captured", "true");
       setIsLeadRegistered(true);
-      toast.success("Acesso liberado! 🎉");
+      toast.success("Bem-vindo à Backstage Academy! 🎓");
     } catch {
       toast.error("Erro ao salvar. Tente novamente.");
     } finally {
@@ -227,39 +223,140 @@ export default function KitProfissional() {
       <div className="pointer-events-none absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-25"
         style={{ background: "radial-gradient(circle, hsl(220 90% 60% / 0.5), transparent 70%)" }} />
 
-      {/* Hero */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-6 sm:pb-10 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm font-semibold mb-5 backdrop-blur">
-          <Trophy className="w-4 h-4 text-amber-400" />
-          <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">
-            Acesso premium liberado
-          </span>
+      {/* Header */}
+      <header className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <img src={baIcon} alt="Backstage" className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-cover ring-1 ring-white/10" />
+          <div className="flex flex-col leading-tight">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white/40 font-bold">Backstage</span>
+            <span className="font-black text-base sm:text-lg bg-gradient-to-r from-violet-300 via-fuchsia-300 to-amber-200 bg-clip-text text-transparent -mt-0.5">
+              Academy
+            </span>
+          </div>
         </div>
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.05] mb-4">
-          Manual do
-          <br />
-          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent">
-            Artista Contratado
-          </span>
-        </h1>
-        <p className="text-sm sm:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
-          Um mini-curso completo para você nunca mais perder um show por falhas no atendimento
-        </p>
-      </section>
+        {isLeadRegistered && view === "course" && (
+          <button
+            onClick={() => setView("academy")}
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white/70 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition"
+          >
+            <ArrowLeft className="w-4 h-4" /> Academy
+          </button>
+        )}
+      </header>
 
-      {/* Course area — only after lead */}
-      {isLeadRegistered && (
-        <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pb-20 space-y-10">
-          {/* Main video */}
+      {/* ACADEMY VIEW */}
+      {isLeadRegistered && view === "academy" && (
+        <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-14">
+          <div className="text-center mb-8 sm:mb-12">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] sm:text-xs font-semibold mb-4 backdrop-blur">
+              <GraduationCap className="w-3.5 h-3.5 text-amber-300" />
+              <span className="text-white/80">Plataforma de cursos para artistas</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05] mb-3">
+              Bem-vindo à <br className="sm:hidden" />
+              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent">
+                Backstage Academy
+              </span>
+            </h1>
+            <p className="text-sm sm:text-base text-white/55 max-w-xl mx-auto">
+              Conteúdos premium feitos para acelerar a carreira de quem vive de música.
+            </p>
+          </div>
+
+          {/* Course card */}
+          <div className="max-w-3xl mx-auto">
+            <button
+              onClick={() => setView("course")}
+              className="group block w-full text-left rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] hover:border-fuchsia-400/40 hover:shadow-[0_30px_100px_-30px_rgba(217,70,239,0.5)] hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="grid sm:grid-cols-[1.1fr_1fr]">
+                <div className="relative aspect-video sm:aspect-auto overflow-hidden">
+                  <img src={kitErros} alt="Manual do Artista Contratado" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black via-black/50 to-transparent" />
+                  <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur text-[10px] sm:text-xs font-bold uppercase tracking-wide">
+                    <Flame className="w-3 h-3" /> Limitado
+                  </div>
+                  <div className="absolute bottom-3 left-3 sm:hidden">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 backdrop-blur text-[10px] font-semibold">
+                      <PlayCircle className="w-3 h-3" /> Minicurso
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 sm:p-7 flex flex-col">
+                  <span className="hidden sm:inline-flex w-fit items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-wider text-white/60 mb-3">
+                    <PlayCircle className="w-3 h-3" /> Minicurso
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-black leading-tight mb-2">
+                    Manual do Artista Contratado
+                  </h2>
+                  <p className="text-sm text-white/55 mb-5 line-clamp-3">
+                    Os erros silenciosos que fazem você perder shows — e como atender contratantes de forma profissional para fechar mais.
+                  </p>
+
+                  <div className="flex items-end gap-3 mb-4">
+                    <div>
+                      <p className="text-[11px] sm:text-xs text-white/40 line-through">De R$ 99,90</p>
+                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-amber-300 font-bold">Por</p>
+                      <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent leading-none">
+                        R$ 0,00
+                      </p>
+                    </div>
+                    <span className="ml-auto inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/50 font-medium">
+                      <Clock className="w-3 h-3" /> Acesso imediato
+                    </span>
+                  </div>
+
+                  <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 group-hover:from-violet-500 group-hover:to-fuchsia-500 font-bold text-sm sm:text-base shadow-[0_10px_30px_-10px_rgba(168,85,247,0.6)] transition">
+                    Acessar curso agora <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-4 text-[10px] sm:text-xs text-white/40">
+                    <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Vídeo principal</span>
+                    <span className="inline-flex items-center gap-1"><Sparkles className="w-3 h-3 text-amber-300" /> 2 bônus</span>
+                    <span className="inline-flex items-center gap-1"><BookOpen className="w-3 h-3 text-violet-300" /> Apoio</span>
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            <p className="text-center text-[11px] sm:text-xs text-white/35 mt-6">
+              Mais cursos chegando em breve na Backstage Academy 🎓
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* COURSE VIEW */}
+      {isLeadRegistered && view === "course" && (
+        <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-20 space-y-8 sm:space-y-10">
+          {/* Course header */}
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] sm:text-xs font-semibold mb-4">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-white/80">Acesso liberado</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+              Manual do{" "}
+              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent">
+                Artista Contratado
+              </span>
+            </h1>
+            <p className="text-sm text-white/55 mt-2 max-w-xl mx-auto">
+              Aula principal + bônus exclusivos para você nunca mais perder um show
+            </p>
+          </div>
+
+          {/* Main video — vertical/story format, side-cropped to remove black bars */}
           <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.02] shadow-[0_20px_80px_-20px_rgba(168,85,247,0.35)]">
-            <div className="p-4 sm:p-6 flex flex-wrap items-center justify-between gap-3 border-b border-white/10">
+            <div className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0">
                   <PlayCircle className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] sm:text-xs uppercase tracking-widest text-white/40 font-bold">Aula principal</p>
-                  <h2 className="font-bold text-base sm:text-lg truncate">Erros que fazem você perder shows</h2>
+                  <h2 className="font-bold text-sm sm:text-base truncate">Erros que fazem você perder shows</h2>
                 </div>
               </div>
               {videoCompleted ? (
@@ -271,18 +368,21 @@ export default function KitProfissional() {
               )}
             </div>
 
-            <div className="aspect-video bg-black relative">
-              {videoCompleted ? (
-                <iframe
-                  className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1`}
-                  title="Manual do Artista Contratado"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <div id="yt-player" className="w-full h-full" />
-              )}
+            {/* Vertical video container — no more black bars */}
+            <div className="bg-black flex justify-center py-4 sm:py-6 px-3">
+              <div className="relative w-full max-w-[380px] aspect-[9/16] rounded-xl overflow-hidden ring-1 ring-white/10 shadow-2xl bg-black">
+                {videoCompleted ? (
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
+                    title="Manual do Artista Contratado"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div id="yt-player" className="absolute inset-0 w-full h-full" />
+                )}
+              </div>
             </div>
 
             {!videoCompleted && (
@@ -294,7 +394,7 @@ export default function KitProfissional() {
                   />
                 </div>
                 <p className="text-[11px] sm:text-xs text-white/50 mt-2 text-center">
-                  Assista o vídeo até o final para desbloquear os bônus
+                  Assista até o final para desbloquear os bônus
                 </p>
               </div>
             )}
@@ -403,17 +503,16 @@ export default function KitProfissional() {
               <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3 backdrop-blur">
                 <Gift className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-white">Acesso Exclusivo</h2>
+              <h2 className="text-xl font-bold text-white">Backstage Academy</h2>
               <p className="text-white/85 text-sm mt-1">
-                Preencha para liberar o Manual do Artista Contratado
+                Preencha para entrar na plataforma e liberar seu acesso
               </p>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
                 <label htmlFor="kit-name" className="text-sm font-medium text-white/80 flex items-center gap-2">
-                  <User className="w-4 h-4 text-white/50" />
-                  Nome e sobrenome
+                  <User className="w-4 h-4 text-white/50" /> Nome e sobrenome
                 </label>
                 <Input
                   id="kit-name"
@@ -427,8 +526,7 @@ export default function KitProfissional() {
 
               <div className="space-y-1.5">
                 <label htmlFor="kit-phone" className="text-sm font-medium text-white/80 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-white/50" />
-                  WhatsApp (com DDD)
+                  <Phone className="w-4 h-4 text-white/50" /> WhatsApp (com DDD)
                 </label>
                 <Input
                   id="kit-phone"
@@ -446,7 +544,7 @@ export default function KitProfissional() {
                 onClick={handleSubmitLead}
                 disabled={submitting}
               >
-                {submitting ? "Liberando..." : "Liberar Acesso"}
+                {submitting ? "Liberando..." : "Entrar na Academy"}
                 <ArrowRight className="w-4 h-4" />
               </Button>
 
