@@ -957,54 +957,164 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                     {musiciansLoading ? (
                       <p className="text-sm text-muted-foreground">Carregando equipe...</p>
                     ) : musicians.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        Nenhum músico cadastrado. Cadastre sua equipe em Logística → Equipe & Freelancer.
-                      </p>
-                    ) : (
                       <div className="space-y-3">
-                        {musicians.map((musician) => {
-                          const selected = selectedMusicians.find((m) => m.musicianId === musician.id);
+                        <p className="text-sm text-muted-foreground">
+                          Nenhum músico cadastrado ainda.
+                        </p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setMusicianModalOpen(true)}
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Cadastrar novo músico
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Search + filter + sort + new */}
+                        <div className="flex flex-col sm:flex-row gap-2 mb-3">
+                          <div className="relative flex-1">
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Buscar músico..."
+                              value={teamSearch}
+                              onChange={(e) => setTeamSearch(e.target.value)}
+                              className="pl-8 h-9 bg-background"
+                            />
+                          </div>
+                          {(() => {
+                            const uniqueInstruments = Array.from(
+                              new Set(
+                                musicians
+                                  .map((m) => m.instrument)
+                                  .filter((i): i is string => !!i && i.trim().length > 0)
+                              )
+                            ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+                            return (
+                              <Select
+                                value={teamInstrumentFilter}
+                                onValueChange={setTeamInstrumentFilter}
+                              >
+                                <SelectTrigger className="h-9 sm:w-44 bg-background">
+                                  <SelectValue placeholder="Função" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="all">Todas funções</SelectItem>
+                                  {uniqueInstruments.map((inst) => (
+                                    <SelectItem key={inst} value={inst}>
+                                      {inst}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            );
+                          })()}
+                          <Button
+                            type="button"
+                            variant={teamSortByRating ? "secondary" : "outline"}
+                            size="sm"
+                            className="h-9"
+                            onClick={() => setTeamSortByRating((v) => !v)}
+                            title="Ordenar por melhor avaliação"
+                          >
+                            <Star className={cn("w-4 h-4 mr-1", teamSortByRating && "fill-yellow-500 text-yellow-500")} />
+                            Melhor avaliado
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-9"
+                            onClick={() => setMusicianModalOpen(true)}
+                          >
+                            <UserPlus className="w-4 h-4 mr-1" />
+                            Novo
+                          </Button>
+                        </div>
+
+                        {(() => {
+                          const term = teamSearch.trim().toLowerCase();
+                          const filtered = musicians
+                            .filter((m) => {
+                              if (teamInstrumentFilter !== "all" && m.instrument !== teamInstrumentFilter) return false;
+                              if (term && !m.name.toLowerCase().includes(term)) return false;
+                              return true;
+                            })
+                            .sort((a, b) => {
+                              if (teamSortByRating) {
+                                const diff = (b.rating || 0) - (a.rating || 0);
+                                if (diff !== 0) return diff;
+                              }
+                              return a.name.localeCompare(b.name, "pt-BR");
+                            });
+
+                          if (filtered.length === 0) {
+                            return (
+                              <p className="text-sm text-muted-foreground py-4 text-center">
+                                Nenhum músico encontrado com esses filtros.
+                              </p>
+                            );
+                          }
+
                           return (
-                            <div
-                              key={musician.id}
-                              className={cn(
-                                "flex items-center justify-between p-3 rounded-lg transition-colors",
-                                selected ? "bg-primary/10" : "bg-secondary/50"
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <Checkbox
-                                  checked={!!selected}
-                                  onCheckedChange={(checked) =>
-                                    handleToggleMusician(musician, checked as boolean)
-                                  }
-                                />
-                                <div>
-                                  <p className="text-sm font-medium text-foreground">{musician.name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {musician.instrument || "Músico"} • Cachê padrão: R${formatCurrency(musician.rate || 0)}
-                                  </p>
-                                </div>
-                              </div>
-                              {selected && (
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm text-muted-foreground">R$</span>
-                                  <Input
-                                    type="number"
-                                    className="w-24 h-8 text-right"
-                                    value={selected.fee || ""}
-                                    onChange={(e) =>
-                                      handleUpdateMusicianFee(musician.id, Number(e.target.value))
-                                    }
-                                  />
-                                </div>
-                              )}
+                            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                              {filtered.map((musician) => {
+                                const selected = selectedMusicians.find((m) => m.musicianId === musician.id);
+                                return (
+                                  <div
+                                    key={musician.id}
+                                    className={cn(
+                                      "flex items-center justify-between p-3 rounded-lg transition-colors",
+                                      selected ? "bg-primary/10" : "bg-secondary/50"
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <Checkbox
+                                        checked={!!selected}
+                                        onCheckedChange={(checked) =>
+                                          handleToggleMusician(musician, checked as boolean)
+                                        }
+                                      />
+                                      <div>
+                                        <div className="flex items-center gap-2">
+                                          <p className="text-sm font-medium text-foreground">{musician.name}</p>
+                                          {musician.rating ? (
+                                            <span className="flex items-center gap-0.5 text-[10px] font-semibold text-yellow-600">
+                                              <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                                              {musician.rating}
+                                            </span>
+                                          ) : null}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">
+                                          {musician.instrument || "Músico"} • Cachê padrão: R${formatCurrency(musician.rate || 0)}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {selected && (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-muted-foreground">R$</span>
+                                        <Input
+                                          type="number"
+                                          className="w-24 h-8 text-right"
+                                          value={selected.fee || ""}
+                                          onChange={(e) =>
+                                            handleUpdateMusicianFee(musician.id, Number(e.target.value))
+                                          }
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           );
-                        })}
-                      </div>
+                        })()}
+                      </>
                     )}
                   </CollapsibleContent>
+
                   
                   {selectedMusicians.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-border flex justify-between items-center">
