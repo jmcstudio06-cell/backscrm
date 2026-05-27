@@ -52,6 +52,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
+import { MusicianModal } from "@/components/equipe/MusicianModal";
 import { useClients, Client } from "@/hooks/useClients";
 import { useChecklistTemplates } from "@/hooks/useChecklistTemplates";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
@@ -178,7 +179,11 @@ const initialRecurringConfig: RecurringConfig = {
 };
 
 export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate }: NovoShowModalProps) {
-  const { musicians, loading: musiciansLoading } = useMusicians();
+  const { musicians, loading: musiciansLoading, addMusician } = useMusicians();
+  const [musicianModalOpen, setMusicianModalOpen] = useState(false);
+  const [teamSearch, setTeamSearch] = useState("");
+  const [teamInstrumentFilter, setTeamInstrumentFilter] = useState<string>("all");
+  const [teamSortByRating, setTeamSortByRating] = useState(false);
   const { clients, loading: clientsLoading, addClient } = useClients();
   const { templates: checklistTemplates, loading: templatesLoading } = useChecklistTemplates();
   const { isBlocked } = useFeatureBlocks();
