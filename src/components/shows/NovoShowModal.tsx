@@ -1420,7 +1420,17 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
             toast.success("Despesa de transporte adicionada");
           }}
         />
+
+        {/* Quick-add musician modal */}
+        <MusicianModal
+          open={musicianModalOpen}
+          onOpenChange={setMusicianModalOpen}
+          onSave={async (data) => {
+            await addMusician(data);
+          }}
+        />
       </DialogContent>
     </Dialog>
+
   );
 }
