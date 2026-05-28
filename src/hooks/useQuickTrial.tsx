@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const TRIAL_DURATION_DAYS = 3;
-const TRIAL_DURATION_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
-const TRIAL_DURATION_MINUTES = TRIAL_DURATION_DAYS * 24 * 60;
+const TRIAL_DURATION_HOURS = 4;
+const TRIAL_DURATION_DAYS = 0;
+const TRIAL_DURATION_MS = TRIAL_DURATION_HOURS * 60 * 60 * 1000;
+const TRIAL_DURATION_MINUTES = TRIAL_DURATION_HOURS * 60;
 
 // Bloqueia TUDO ao expirar (mesma lógica do expire_old_trials no banco)
 const ALL_BLOCKED_FEATURES: Record<string, boolean> = {

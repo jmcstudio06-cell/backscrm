@@ -23,7 +23,7 @@ const ALL_BLOCKED_FEATURES: Record<string, boolean> = {
 
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
-  trial: 3,
+  trial: 0, // trial is hours-based (4h), handled separately
   mensal_starter: 30,
   mensal_profissional: 30,
   mensal_empresarial: 30,
@@ -76,10 +76,11 @@ export function useTrialStatus(externalProfile?: ProfileLike | null) {
       } else if (plan === "trial" && trialStart) {
         const startDate = new Date(trialStart);
         const now = new Date();
-        const diffTime = now.getTime() - startDate.getTime();
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        daysRemaining = Math.max(0, trialDays - diffDays);
-        isExpired = daysRemaining <= 0;
+        const TRIAL_HOURS = 4;
+        const diffHours = (now.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+        const hoursRemaining = Math.max(0, TRIAL_HOURS - diffHours);
+        daysRemaining = hoursRemaining > 0 ? 1 : 0;
+        isExpired = hoursRemaining <= 0;
 
         if (isExpired && user) {
           await supabase
