@@ -23,7 +23,7 @@ const ALL_BLOCKED_FEATURES: Record<string, boolean> = {
 
 // Plan durations in days
 const PLAN_DURATIONS: Record<string, number> = {
-  trial: 3,
+  trial: 0, // trial is hours-based (4h), handled separately
   mensal_starter: 30,
   mensal_profissional: 30,
   mensal_empresarial: 30,
