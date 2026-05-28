@@ -39,6 +39,7 @@ import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
+import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
 
 import type { Json } from "@/integrations/supabase/types";
 import { PLAN_MODULES } from "@/hooks/useFeatureBlocks";
@@ -527,6 +528,9 @@ export default function Admin() {
           <TabsTrigger value="improvements" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Lightbulb className="h-3.5 w-3.5" /> Melhorias
           </TabsTrigger>
+          <TabsTrigger value="ranking" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Trophy className="h-3.5 w-3.5" /> Ranking
+          </TabsTrigger>
           <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <PartyPopper className="h-3.5 w-3.5" /> Marco
           </TabsTrigger>
@@ -803,6 +807,8 @@ export default function Admin() {
         <TabsContent value="improvements"><ImprovementsPanel /></TabsContent>
 
         {/* Marco Tab */}
+        <TabsContent value="ranking"><MonthlyShowRankingPanel /></TabsContent>
+
         <TabsContent value="marco">
           <Card className="overflow-hidden border-0 shadow-xl">
             <div className="bg-gradient-to-br from-primary via-blue-600 to-purple-600 p-8 md:p-12 text-white text-center relative overflow-hidden">

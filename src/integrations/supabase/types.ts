@@ -2481,6 +2481,15 @@ export type Database = {
           price: number
         }[]
       }
+      get_full_monthly_show_ranking: {
+        Args: { target_month: number; target_year: number }
+        Returns: {
+          show_count: number
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       get_monthly_show_ranking: {
         Args: never
         Returns: {
