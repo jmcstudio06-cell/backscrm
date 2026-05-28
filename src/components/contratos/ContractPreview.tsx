@@ -625,7 +625,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 50 }}>
                   <strong>CONTRATADA / REPRESENTANTE:</strong>
                   <br />
-                  {artistName.toUpperCase()}
+                  {companyName.toUpperCase()}
                   <br />
                   <span style={{ fontSize: 11, color: "#666" }}>
                     Responsável: CPF {artistDocument || "XXX.XXX.XXX-XX"}
