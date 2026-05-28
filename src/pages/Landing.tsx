@@ -401,11 +401,11 @@ const Landing = () => {
       {/* Sticky mobile CTA */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">
         <Button
-          onClick={() => navigate('/auth')}
+          onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
           size="lg"
           className="w-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] hover:from-[#0055BB] hover:to-[#00A0C4] text-white font-bold py-5 text-base shadow-lg shadow-blue-500/30"
         >
-          Começar grátis por 3 dias
+          Solicitar demo
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
