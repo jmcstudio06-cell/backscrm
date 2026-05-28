@@ -39,6 +39,7 @@ import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
+import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
 
 import type { Json } from "@/integrations/supabase/types";
 import { PLAN_MODULES } from "@/hooks/useFeatureBlocks";
