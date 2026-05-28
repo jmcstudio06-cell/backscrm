@@ -102,8 +102,8 @@ export function MonthlyShowRankingPanel() {
                 className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm flex-shrink-0">
-                    {medal(i) ?? `${i + 1}º`}
+                  <div className={`w-9 h-9 rounded-full font-bold flex items-center justify-center text-sm flex-shrink-0 ${medalColor(i)}`}>
+                    {i + 1}º
                   </div>
                   <div className="min-w-0">
                     <div className="font-medium truncate">{r.user_name}</div>
