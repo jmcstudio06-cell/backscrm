@@ -51,11 +51,11 @@ export function MonthlyShowRankingPanel() {
     } else setMonth(month + 1);
   };
 
-  const medal = (i: number) => {
-    if (i === 0) return "🥇";
-    if (i === 1) return "🥈";
-    if (i === 2) return "🥉";
-    return null;
+  const medalColor = (i: number) => {
+    if (i === 0) return "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400";
+    if (i === 1) return "bg-slate-400/20 text-slate-500 dark:text-slate-300";
+    if (i === 2) return "bg-orange-600/20 text-orange-600 dark:text-orange-400";
+    return "bg-primary/10 text-primary";
   };
 
   return (
