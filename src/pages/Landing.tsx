@@ -807,10 +807,10 @@ const Landing = () => {
 
               <Button 
                 size="lg"
-                onClick={() => navigate('/auth')}
+                onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
                 className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
-                Quero Começar Agora
+                Solicitar demo
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
