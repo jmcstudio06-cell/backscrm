@@ -543,7 +543,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 <div style={{ padding: "0 12px", whiteSpace: "pre-wrap", textAlign: "justify" }}>
                   {clause.content
                     .replace("[VALOR]", `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`)
-                    .replace("[NOME DA EMPRESA]", artistName)
+                    .replace("[NOME DA EMPRESA]", companyName)
                     .replace("[NOME DO ARTISTA]", artistName)
                     .replace("[CIDADE]", contract.event_location?.split(",")[0] || "CIDADE")
                     .replace("[ESTADO]", "UF")
