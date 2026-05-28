@@ -462,7 +462,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 </div>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: "bold", color: "#333", marginBottom: 2 }}>
-                    {artistName.toUpperCase()}
+                    {companyName.toUpperCase()}
                   </div>
                   <div style={{ fontSize: 11, color: "#666" }}>
                     Escritório de vendas de shows e músicas
