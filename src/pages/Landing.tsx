@@ -66,6 +66,9 @@ const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
 const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP";
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
 
+const DEMO_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Gostaria de solicitar uma demo do Backstage Pro.");
+
+
 const plans = [
   {
     id: "starter",
