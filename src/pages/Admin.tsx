@@ -807,6 +807,8 @@ export default function Admin() {
         <TabsContent value="improvements"><ImprovementsPanel /></TabsContent>
 
         {/* Marco Tab */}
+        <TabsContent value="ranking"><MonthlyShowRankingPanel /></TabsContent>
+
         <TabsContent value="marco">
           <Card className="overflow-hidden border-0 shadow-xl">
             <div className="bg-gradient-to-br from-primary via-blue-600 to-purple-600 p-8 md:p-12 text-white text-center relative overflow-hidden">
