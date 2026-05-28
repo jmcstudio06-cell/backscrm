@@ -372,13 +372,14 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
   };
 
   const finalValue = contract.total_value - contract.discount;
-  const artistName = profile?.name || contract.artist_name || "NOME DO ARTISTA";
+  const companyName = profile?.name || contract.artist_name || "NOME DA EMPRESA";
+  const artistName = profile?.artist_name || profile?.name || contract.artist_name || "NOME DO ARTISTA";
   const artistEmail = profile?.email || contract.artist_email || "";
   const artistPhone = profile?.phone || contract.artist_phone || "";
   const artistCity = profile?.city || "";
   const artistAddress = contract.artist_address || "";
   const artistDocument = contract.artist_document || "";
-  const artistInitial = artistName.charAt(0).toUpperCase();
+  const artistInitial = (artistName || companyName).charAt(0).toUpperCase();
 
   // Format contract creation date
   const creationDate = new Date(contract.created_at);
@@ -461,7 +462,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 </div>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: "bold", color: "#333", marginBottom: 2 }}>
-                    {artistName.toUpperCase()}
+                    {companyName.toUpperCase()}
                   </div>
                   <div style={{ fontSize: 11, color: "#666" }}>
                     Escritório de vendas de shows e músicas
@@ -506,7 +507,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
 
             {/* Contratada */}
             <div style={{ marginBottom: 15, textAlign: "justify" }}>
-              <span style={{ fontWeight: "bold" }}>CONTRATADA:</span> {artistName}, representada por seu responsável,
+              <span style={{ fontWeight: "bold" }}>CONTRATADA:</span> {companyName}, representada por seu responsável,
               portador do CPF nº {artistDocument || "XXX.XXX.XXX-XX"}, com endereço na {artistAddress || "[XXXX]"},
               doravante denominada EMPRESA REPRESENTANTE, responsável pela gestão, agenciamento e administração da
               carreira do artista {artistName.toUpperCase()}.
@@ -542,7 +543,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 <div style={{ padding: "0 12px", whiteSpace: "pre-wrap", textAlign: "justify" }}>
                   {clause.content
                     .replace("[VALOR]", `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`)
-                    .replace("[NOME DA EMPRESA]", artistName)
+                    .replace("[NOME DA EMPRESA]", companyName)
                     .replace("[NOME DO ARTISTA]", artistName)
                     .replace("[CIDADE]", contract.event_location?.split(",")[0] || "CIDADE")
                     .replace("[ESTADO]", "UF")
@@ -624,7 +625,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 50 }}>
                   <strong>CONTRATADA / REPRESENTANTE:</strong>
                   <br />
-                  {artistName.toUpperCase()}
+                  {companyName.toUpperCase()}
                   <br />
                   <span style={{ fontSize: 11, color: "#666" }}>
                     Responsável: CPF {artistDocument || "XXX.XXX.XXX-XX"}
