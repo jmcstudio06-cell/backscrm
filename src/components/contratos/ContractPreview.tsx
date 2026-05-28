@@ -372,13 +372,14 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
   };
 
   const finalValue = contract.total_value - contract.discount;
-  const artistName = profile?.name || contract.artist_name || "NOME DO ARTISTA";
+  const companyName = profile?.name || contract.artist_name || "NOME DA EMPRESA";
+  const artistName = profile?.artist_name || profile?.name || contract.artist_name || "NOME DO ARTISTA";
   const artistEmail = profile?.email || contract.artist_email || "";
   const artistPhone = profile?.phone || contract.artist_phone || "";
   const artistCity = profile?.city || "";
   const artistAddress = contract.artist_address || "";
   const artistDocument = contract.artist_document || "";
-  const artistInitial = artistName.charAt(0).toUpperCase();
+  const artistInitial = (artistName || companyName).charAt(0).toUpperCase();
 
   // Format contract creation date
   const creationDate = new Date(contract.created_at);
