@@ -477,6 +477,52 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* App Showcase Section */}
+      <section className="py-20 bg-gradient-to-b from-white via-blue-50/40 to-white overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0066CC]/10 mb-4">
+              <Sparkles className="w-4 h-4 text-[#0066CC]" />
+              <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-xs">Como funciona</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-4">
+              Tudo o que você precisa para gerenciar sua{" "}
+              <span className="text-[#0066CC]">carreira artística</span>
+            </h2>
+            <p className="text-slate-500 text-lg">
+              Acesse o Backstage Pro de qualquer dispositivo — celular, tablet ou computador.
+              Agenda, financeiro, CRM, contratos e muito mais, tudo em um só lugar.
+            </p>
+          </div>
+
+          <div className="relative max-w-5xl mx-auto">
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#0066CC]/20 via-transparent to-cyan-400/20 blur-3xl -z-10" />
+            <img
+              src={appShowcaseImg}
+              alt="Backstage Pro em celular, notebook e tablet"
+              className="w-full h-auto drop-shadow-2xl"
+              loading="lazy"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-12">
+            {[
+              { icon: Calendar, title: "Agenda inteligente", desc: "Organize shows, ensaios e compromissos com lembretes automáticos." },
+              { icon: DollarSign, title: "Financeiro completo", desc: "Acompanhe cachês, despesas e lucros em tempo real." },
+              { icon: TrendingUp, title: "CRM & Metas", desc: "Gerencie leads, contratos e bata suas metas mensais." },
+            ].map((item, i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 rounded-xl bg-[#0066CC]/10 flex items-center justify-center mb-4">
+                  <item.icon className="w-6 h-6 text-[#0066CC]" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-lg mb-2">{item.title}</h3>
+                <p className="text-slate-500 text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Link Agenda Mockup Section */}
       <section className="py-20 bg-gradient-to-b from-white to-blue-50/50">
         <div className="container mx-auto px-6">
