@@ -57,6 +57,7 @@ import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from
 import { AppLogo } from "@/components/layout/AppLogo";
 import linkAgendaMockup from "@/assets/mockups/link-agenda-mockup.jpeg";
 import baIconImg from "@/assets/ba-icon.png";
+import appShowcaseImg from "@/assets/landing-app-showcase.png";
 
 const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
 const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
