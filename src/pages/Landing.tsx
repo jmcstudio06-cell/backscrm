@@ -55,7 +55,7 @@ import { getYouTubeEmbedUrl } from "@/lib/youtube";
 import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
 import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
-import linkAgendaMockup from "@/assets/mockups/link-agenda-mockup.jpeg";
+import linkAgendaMockup from "@/assets/mockups/link-agenda-mockup-v2.png";
 import baIconImg from "@/assets/ba-icon.png";
 import appShowcaseImg from "@/assets/landing-app-showcase.png";
 
@@ -530,24 +530,14 @@ const Landing = () => {
             {/* Phone Mockup */}
             <div className="flex-shrink-0 flex justify-center lg:justify-start">
               <div className="relative">
-                {/* iPhone-style frame - tall & slim (19.5:9 aspect ratio) */}
-                <div className="w-[240px] md:w-[270px] rounded-[2.5rem] border-[6px] border-[#1a1a1a] bg-[#1a1a1a] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.35)] overflow-hidden relative">
-                  {/* Dynamic Island */}
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-[#1a1a1a] rounded-full z-10" />
-                  {/* Screen */}
-                  <div className="rounded-[2rem] overflow-hidden bg-white aspect-[9/19.5]">
-                    <img
-                      src={linkAgendaMockup}
-                      alt="Mockup do Link Agenda - página de agendamento online do artista"
-                      className="w-full h-full object-cover object-top"
-                      loading="lazy"
-                    />
-                  </div>
-                </div>
-                {/* Subtle reflection */}
-                <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+                <img
+                  src={linkAgendaMockup}
+                  alt="Mockup do Link Agenda - página de agendamento online do artista"
+                  className="w-[260px] md:w-[300px] h-auto drop-shadow-2xl relative z-10"
+                  loading="lazy"
+                />
                 {/* Glow effect */}
-                <div className="absolute -inset-6 bg-[#0066CC]/8 rounded-[4rem] blur-3xl -z-10" />
+                <div className="absolute -inset-6 bg-[#0066CC]/10 rounded-[4rem] blur-3xl -z-0" />
               </div>
             </div>
 
