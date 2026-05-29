@@ -269,14 +269,6 @@ const Landing = () => {
                   Solicitar demo
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button
-                  onClick={() => navigate('/auth')}
-                  size="lg"
-                  variant="ghost"
-                  className="text-white/90 hover:text-white hover:bg-white/10 font-medium px-4 sm:px-6 py-5 sm:py-6 text-base sm:text-lg w-full sm:w-auto"
-                >
-                  Já tenho conta
-                </Button>
               </div>
 
               {/* Trust signals */}
