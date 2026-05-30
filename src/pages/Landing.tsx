@@ -267,7 +267,7 @@ const Landing = () => {
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/95 hover:scale-[1.02] font-bold px-6 sm:px-8 py-6 text-base sm:text-lg shadow-2xl shadow-black/30 transition-all duration-200 w-full sm:w-auto"
                 >
-                  Solicitar demo
+                  Agendar demo
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
@@ -398,7 +398,7 @@ const Landing = () => {
           size="lg"
           className="w-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] hover:from-[#0055BB] hover:to-[#00A0C4] text-white font-bold py-5 text-base shadow-lg shadow-blue-500/30"
         >
-          Solicitar demo
+          Agendar demo
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
@@ -571,7 +571,7 @@ const Landing = () => {
                 className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
                 onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
               >
-                Solicitar demo
+                Agendar demo
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
@@ -840,7 +840,7 @@ const Landing = () => {
                 onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
                 className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
-                Solicitar demo
+                Agendar demo
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
