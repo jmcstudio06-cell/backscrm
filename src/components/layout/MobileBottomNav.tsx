@@ -20,7 +20,7 @@ export function MobileBottomNav({ onMenuClick }: MobileBottomNavProps) {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
-      <div className="bg-sidebar backdrop-blur-2xl border-t border-sidebar-border pb-[env(safe-area-inset-bottom)]">
+      <div className="bg-primary backdrop-blur-2xl border-t border-primary-foreground/10 pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around h-16 px-1">
           {navItems.map((item) => {
             const isMenu = item.path === "__menu__";
@@ -35,7 +35,7 @@ export function MobileBottomNav({ onMenuClick }: MobileBottomNavProps) {
                   onClick={onMenuClick}
                   className="flex flex-col items-center justify-center gap-0.5 flex-1 -mt-5 focus-visible:outline-none"
                 >
-                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-white text-sidebar shadow-lg shadow-black/20 transition-transform active:scale-95">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary-foreground text-primary shadow-lg shadow-black/20 transition-transform active:scale-95">
                     <Menu className="w-6 h-6" />
                   </div>
                   <span className="text-[10px] font-medium text-primary-foreground/70 mt-0.5">
