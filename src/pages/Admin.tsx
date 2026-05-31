@@ -129,21 +129,21 @@ const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "
 const USERS_PER_PAGE = 10;
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
-  trial:                 { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
-  mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
-  mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
-  mensal_completo:       { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
-  anual_starter:         { bg: "bg-teal-500/10", text: "text-teal-600", border: "border-teal-500/20", icon: <Shield className="h-5 w-5" /> },
-  anual_profissional:    { bg: "bg-indigo-500/10", text: "text-indigo-600", border: "border-indigo-500/20", icon: <Zap className="h-5 w-5" /> },
-  anual_completo:        { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
+  trial:                 { bg: "bg-orange-900/15", text: "text-orange-800", border: "border-orange-800/30", icon: <Calendar className="h-5 w-5" /> },
+  mensal_starter:        { bg: "bg-cyan-900/15", text: "text-cyan-800", border: "border-cyan-800/30", icon: <Shield className="h-5 w-5" /> },
+  mensal_profissional:   { bg: "bg-blue-900/15", text: "text-blue-800", border: "border-blue-800/30", icon: <Zap className="h-5 w-5" /> },
+  mensal_completo:       { bg: "bg-purple-900/15", text: "text-purple-800", border: "border-purple-800/30", icon: <Heart className="h-5 w-5" /> },
+  anual_starter:         { bg: "bg-teal-900/15", text: "text-teal-800", border: "border-teal-800/30", icon: <Shield className="h-5 w-5" /> },
+  anual_profissional:    { bg: "bg-indigo-900/15", text: "text-indigo-800", border: "border-indigo-800/30", icon: <Zap className="h-5 w-5" /> },
+  anual_completo:        { bg: "bg-amber-900/15", text: "text-amber-800", border: "border-amber-800/30", icon: <Trophy className="h-5 w-5" /> },
   // Legacy
-  base:      { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
-  mensal:    { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
-  essencial: { bg: "bg-green-500/10", text: "text-green-600", border: "border-green-500/20", icon: <UsersIcon className="h-5 w-5" /> },
-  completo:  { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
-  anual:     { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
-  expirado:  { bg: "bg-red-500/10", text: "text-red-600", border: "border-red-500/20", icon: <AlertCircle className="h-5 w-5" /> },
-  comprou_expirado: { bg: "bg-rose-500/10", text: "text-rose-600", border: "border-rose-500/20", icon: <Crown className="h-5 w-5" /> },
+  base:      { bg: "bg-cyan-900/15", text: "text-cyan-800", border: "border-cyan-800/30", icon: <Shield className="h-5 w-5" /> },
+  mensal:    { bg: "bg-blue-900/15", text: "text-blue-800", border: "border-blue-800/30", icon: <Zap className="h-5 w-5" /> },
+  essencial: { bg: "bg-green-900/15", text: "text-green-800", border: "border-green-800/30", icon: <UsersIcon className="h-5 w-5" /> },
+  completo:  { bg: "bg-purple-900/15", text: "text-purple-800", border: "border-purple-800/30", icon: <Heart className="h-5 w-5" /> },
+  anual:     { bg: "bg-amber-900/15", text: "text-amber-800", border: "border-amber-800/30", icon: <Trophy className="h-5 w-5" /> },
+  expirado:  { bg: "bg-red-900/15", text: "text-red-800", border: "border-red-800/30", icon: <AlertCircle className="h-5 w-5" /> },
+  comprou_expirado: { bg: "bg-rose-900/15", text: "text-rose-800", border: "border-rose-800/30", icon: <Crown className="h-5 w-5" /> },
 };
 
 export default function Admin() {
