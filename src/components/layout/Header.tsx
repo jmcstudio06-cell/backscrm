@@ -14,7 +14,7 @@ export function Header({ title, subtitle }: HeaderProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-30 bg-sidebar lg:bg-background/70 backdrop-blur-2xl border-b border-sidebar-border lg:border-border/50 pt-[env(safe-area-inset-top)]">
+    <header className="sticky top-0 z-30 bg-primary lg:bg-background/70 backdrop-blur-2xl border-b border-primary/20 lg:border-border/50 pt-[env(safe-area-inset-top)]">
       <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 md:px-6">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="min-w-0">
