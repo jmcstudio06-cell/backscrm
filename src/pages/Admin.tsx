@@ -458,7 +458,7 @@ export default function Admin() {
   return (
     <Layout title="Painel Admin" subtitle="Controle total da plataforma">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-[hsl(var(--sidebar-background))] p-6 md:p-8 mb-6">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-6 md:p-8 mb-6">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
