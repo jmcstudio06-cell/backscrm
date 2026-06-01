@@ -277,10 +277,10 @@ export default function RankingPage() {
             <div className="grid grid-cols-3 gap-3 items-end max-w-sm mx-auto">
               {/* 2nd place */}
               <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-500/10 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-500/20 shadow-lg">
+                <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-500/10 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-500/20 shadow-lg">
                   <Medal className="w-6 h-6" />
                 </div>
-                <div className="w-full h-24 bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-500/20 dark:to-slate-500/10 rounded-t-lg flex items-center justify-center">
+                <div className="w-full h-24 bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-500/20 dark:to-slate-500/10 rounded-t-xl flex items-center justify-center">
                   <span className="text-2xl font-black text-slate-500">2º</span>
                 </div>
                 <p className="text-[10px] font-bold text-center truncate w-full px-1">
@@ -290,10 +290,10 @@ export default function RankingPage() {
 
               {/* 1st place */}
               <div className="flex flex-col items-center gap-2">
-                <div className="w-16 h-16 rounded-lg bg-yellow-100 dark:bg-yellow-500/10 flex items-center justify-center text-yellow-600 border border-yellow-200 dark:border-yellow-500/20 shadow-xl scale-110">
+                <div className="w-16 h-16 rounded-xl bg-yellow-100 dark:bg-yellow-500/10 flex items-center justify-center text-yellow-600 border border-yellow-200 dark:border-yellow-500/20 shadow-xl scale-110">
                   <Crown className="w-8 h-8" />
                 </div>
-                <div className="w-full h-32 bg-gradient-to-t from-yellow-200 to-yellow-100 dark:from-yellow-500/20 dark:to-yellow-500/10 rounded-t-lg flex items-center justify-center border-x border-t border-yellow-200/50">
+                <div className="w-full h-32 bg-gradient-to-t from-yellow-200 to-yellow-100 dark:from-yellow-500/20 dark:to-yellow-500/10 rounded-t-xl flex items-center justify-center border-x border-t border-yellow-200/50">
                   <span className="text-3xl font-black text-yellow-600">1º</span>
                 </div>
                 <p className="text-[10px] font-black text-center truncate w-full px-1">
@@ -303,10 +303,10 @@ export default function RankingPage() {
 
               {/* 3rd place */}
               <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center text-amber-700 border border-orange-200 dark:border-orange-500/20 shadow-lg">
+                <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center text-amber-700 border border-orange-200 dark:border-orange-500/20 shadow-lg">
                   <Award className="w-6 h-6" />
                 </div>
-                <div className="w-full h-20 bg-gradient-to-t from-orange-200 to-orange-100 dark:from-orange-500/20 dark:to-orange-500/10 rounded-t-lg flex items-center justify-center">
+                <div className="w-full h-20 bg-gradient-to-t from-orange-200 to-orange-100 dark:from-orange-500/20 dark:to-orange-500/10 rounded-t-xl flex items-center justify-center">
                   <span className="text-2xl font-black text-amber-700">3º</span>
                 </div>
                 <p className="text-[10px] font-bold text-center truncate w-full px-1">
@@ -525,8 +525,8 @@ function ListItem({ entry, position, isMe }: { entry: RankingEntry; position: nu
   ][position - 1] || { text: "text-muted-foreground", bg: "bg-muted/50" };
 
   return (
-    <div className={`flex items-center gap-3 rounded-xl bg-card border px-4 py-3 transition-all ${isMe ? "border-primary/30 shadow-md" : "border-border/50 shadow-sm"}`}>
-      <div className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0`}>
+    <div className={`flex items-center gap-3 rounded-2xl bg-card border px-4 py-3 transition-all ${isMe ? "border-primary/30 shadow-md" : "border-border/50 shadow-sm"}`}>
+      <div className={`w-8 h-8 rounded-xl ${config.bg} flex items-center justify-center flex-shrink-0`}>
         <span className={`text-sm font-black ${config.text}`}>{position}</span>
       </div>
       <p className="flex-1 text-sm font-semibold text-foreground truncate">
