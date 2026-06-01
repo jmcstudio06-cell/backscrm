@@ -443,9 +443,10 @@ function ArtistView({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<ConsultoriaSession[]>([]);
   const [viewing, setViewing] = useState<ConsultoriaSession | null>(null);
-  const [day, setDay] = useState<number>(1);
-  const [time, setTime] = useState<string>("19:00");
+  const [prefDays, setPrefDays] = useState<number[]>([1, 2, 3]);
+  const [prefPeriod, setPrefPeriod] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -453,7 +454,7 @@ function ArtistView({ userId }: { userId: string }) {
       const [{ data: prof }, { data: sess }] = await Promise.all([
         supabase
           .from("profiles")
-          .select("consultoria_active, consultoria_day_of_week, consultoria_time, consultoria_activated_at")
+          .select("consultoria_active, consultoria_preferred_days, consultoria_preferred_period, consultoria_activated_at, next_consultoria_at, next_consultoria_type, next_consultoria_notes")
           .eq("user_id", userId)
           .maybeSingle(),
         supabase
@@ -465,31 +466,37 @@ function ArtistView({ userId }: { userId: string }) {
           .order("month", { ascending: false }),
       ]);
       setProfile(prof);
-      if (prof?.consultoria_day_of_week !== null && prof?.consultoria_day_of_week !== undefined) setDay(prof.consultoria_day_of_week);
-      if (prof?.consultoria_time) setTime(prof.consultoria_time);
+      if (Array.isArray(prof?.consultoria_preferred_days) && prof!.consultoria_preferred_days!.length > 0) {
+        setPrefDays(prof!.consultoria_preferred_days as number[]);
+      }
+      if (prof?.consultoria_preferred_period) setPrefPeriod(prof.consultoria_preferred_period);
       setSessions((sess as any) || []);
       setLoading(false);
     })();
   }, [userId]);
 
+  function toggleDay(i: number) {
+    setPrefDays((prev) => prev.includes(i) ? prev.filter((d) => d !== i) : [...prev, i].sort());
+  }
+
   async function activate() {
-    setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        consultoria_active: true,
-        consultoria_day_of_week: day,
-        consultoria_time: time,
-        consultoria_activated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId);
-    setSaving(false);
-    if (error) {
-      toast.error("Não foi possível ativar a consultoria");
+    if (prefDays.length === 0) {
+      toast.error("Selecione ao menos 1 dia da semana");
       return;
     }
-    toast.success("Consultoria mensal ativada! 🎉");
-    setProfile({ ...profile, consultoria_active: true, consultoria_day_of_week: day, consultoria_time: time, consultoria_activated_at: new Date().toISOString() });
+    setSaving(true);
+    const payload = {
+      consultoria_active: true,
+      consultoria_preferred_days: prefDays,
+      consultoria_preferred_period: prefPeriod || null,
+      consultoria_activated_at: new Date().toISOString(),
+    };
+    const { error } = await supabase.from("profiles").update(payload).eq("user_id", userId);
+    setSaving(false);
+    if (error) { toast.error("Não foi possível salvar"); return; }
+    toast.success("Disponibilidade salva! Em breve agendaremos sua consultoria.");
+    setProfile({ ...profile, ...payload });
+    setEditOpen(false);
   }
 
   async function deactivate() {
@@ -498,10 +505,7 @@ function ArtistView({ userId }: { userId: string }) {
       .from("profiles")
       .update({ consultoria_active: false })
       .eq("user_id", userId);
-    if (error) {
-      toast.error("Erro ao desativar");
-      return;
-    }
+    if (error) { toast.error("Erro ao desativar"); return; }
     toast.success("Consultoria desativada");
     setProfile({ ...profile, consultoria_active: false });
   }
@@ -514,6 +518,29 @@ function ArtistView({ userId }: { userId: string }) {
     );
   }
 
+  const DayChips = () => (
+    <div className="flex flex-wrap gap-2">
+      {DAYS_OF_WEEK.map((d, i) => {
+        const active = prefDays.includes(i);
+        return (
+          <button
+            key={i}
+            type="button"
+            onClick={() => toggleDay(i)}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
+              active
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background text-muted-foreground border-border hover:border-primary/50"
+            )}
+          >
+            {d}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   // NÃO ATIVADO → tela de ativação
   if (!profile?.consultoria_active) {
     return (
@@ -524,84 +551,98 @@ function ArtistView({ userId }: { userId: string }) {
           </div>
           <CardTitle className="text-xl">Quero ter consultoria mensal</CardTitle>
           <CardDescription>
-            Uma vez por mês, analisamos sua carreira em conjunto: shows, faturamento, leads, pontos de melhoria e próximos passos.
-            Escolha o melhor dia da semana e horário para te ligar.
+            Uma vez por mês analisamos sua carreira juntos. Marque os dias da semana e o período que ficam melhores pra você —
+            a equipe entra em contato e agenda a data e horário.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs">Dia da semana preferido</Label>
-              <Select value={String(day)} onValueChange={(v) => setDay(Number(v))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {DAYS_OF_WEEK.map((d, i) => (
-                    <SelectItem key={i} value={String(i)}>{d}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs">Horário preferido</Label>
-              <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-            </div>
+          <div>
+            <Label className="text-xs mb-2 block">Dias da semana que ficam melhores</Label>
+            <DayChips />
+          </div>
+          <div>
+            <Label className="text-xs">Período / horário preferido</Label>
+            <Input
+              value={prefPeriod}
+              onChange={(e) => setPrefPeriod(e.target.value)}
+              placeholder="Ex.: manhã (9h–12h) ou após as 18h"
+            />
           </div>
           <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-muted-foreground">
-            ✦ Você poderá alterar dia e horário depois. A consultoria é gratuita para assinantes.
+            ✦ Você só sinaliza sua disponibilidade. A equipe agenda a data exata e te avisa aqui no app.
           </div>
           <Button onClick={activate} disabled={saving} className="w-full gap-2" size="lg">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-            Ativar consultoria mensal
+            Salvar disponibilidade
           </Button>
         </CardContent>
       </Card>
     );
   }
 
-  // ATIVADO → próxima consultoria + histórico
-  const nextDate = nextDateForWeekday(profile.consultoria_day_of_week ?? 1, profile.consultoria_time);
-  const nextStr = nextDate.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
+  // ATIVADO
+  const scheduled = profile.next_consultoria_at ? new Date(profile.next_consultoria_at) : null;
+  const hasScheduled = scheduled && scheduled.getTime() > Date.now() - 1000 * 60 * 60;
+  const isApresentacao = profile.next_consultoria_type === "apresentacao";
 
   return (
     <div className="space-y-6">
-      {/* PRÓXIMA CONSULTORIA */}
+      {/* PRÓXIMA CONSULTORIA / AGUARDANDO */}
       <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <div className="text-xs uppercase tracking-wider text-primary font-semibold mb-1">Próxima consultoria</div>
-              <div className="text-2xl font-bold capitalize">{nextStr}</div>
-              <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                {profile.consultoria_time || "Horário a combinar"}
-                <span className="mx-1">•</span>
-                Toda {DAYS_OF_WEEK[profile.consultoria_day_of_week ?? 1]}
+            <div className="min-w-0">
+              <div className="text-xs uppercase tracking-wider text-primary font-semibold mb-1">
+                {hasScheduled ? (isApresentacao ? "Próxima apresentação" : "Próxima consultoria") : "Aguardando agendamento"}
               </div>
+              {hasScheduled ? (
+                <>
+                  <div className="text-2xl font-bold capitalize">
+                    {scheduled!.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    {scheduled!.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                  {profile.next_consultoria_notes && (
+                    <p className="text-sm mt-2 text-foreground/80">{profile.next_consultoria_notes}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="text-base font-semibold">Em breve a equipe agenda sua próxima consultoria</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Sua disponibilidade:{" "}
+                    <span className="capitalize">
+                      {(profile.consultoria_preferred_days || []).map((d: number) => DAYS_OF_WEEK[d]).join(", ") || "—"}
+                    </span>
+                    {profile.consultoria_preferred_period ? ` • ${profile.consultoria_preferred_period}` : ""}
+                  </div>
+                </>
+              )}
             </div>
             <div className="flex gap-2">
-              <Dialog>
+              <Dialog open={editOpen} onOpenChange={setEditOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">Alterar horário</Button>
+                  <Button variant="outline" size="sm">Alterar disponibilidade</Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-sm">
-                  <DialogHeader><DialogTitle>Alterar preferência</DialogTitle></DialogHeader>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs">Dia</Label>
-                        <Select value={String(day)} onValueChange={(v) => setDay(Number(v))}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {DAYS_OF_WEEK.map((d, i) => <SelectItem key={i} value={String(i)}>{d}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Horário</Label>
-                        <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-                      </div>
+                <DialogContent className="max-w-md">
+                  <DialogHeader><DialogTitle>Minha disponibilidade</DialogTitle></DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-xs mb-2 block">Dias da semana</Label>
+                      <DayChips />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Período / horário</Label>
+                      <Input
+                        value={prefPeriod}
+                        onChange={(e) => setPrefPeriod(e.target.value)}
+                        placeholder="Ex.: tarde, após 18h…"
+                      />
                     </div>
                     <Button onClick={activate} disabled={saving} className="w-full">
+                      {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                       Salvar
                     </Button>
                   </div>
