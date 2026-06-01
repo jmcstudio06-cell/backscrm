@@ -184,6 +184,7 @@ function AdminView() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<ArtistRow | null>(null);
+  const [manualScheduleOpen, setManualScheduleOpen] = useState(false);
 
   useEffect(() => {
     loadArtists();
@@ -248,6 +249,8 @@ function AdminView() {
         (a.email || "").toLowerCase().includes(q),
     );
   }, [artists, search]);
+  const requestedArtists = filtered.filter((a) => a.consultoria_active === true);
+  const manualArtists = filtered.filter((a) => a.consultoria_active !== true);
 
   if (selectedUser) {
     return (
@@ -266,98 +269,146 @@ function AdminView() {
 
   return (
     <div>
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar cantor por nome, artista ou email…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar cantor por nome, artista ou email…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Dialog open={manualScheduleOpen} onOpenChange={setManualScheduleOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Agendar sem pedido
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Agendar para quem ainda não pediu consultoria</DialogTitle>
+            </DialogHeader>
+            {manualArtists.length === 0 ? (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                Nenhum cantor disponível nessa lista.
+              </div>
+            ) : (
+              <div className="grid gap-3 max-h-[70vh] overflow-y-auto pr-1 sm:grid-cols-2">
+                {manualArtists.map((artist) => (
+                  <AdminArtistCard
+                    key={artist.user_id}
+                    artist={artist}
+                    onSelect={setSelectedUser}
+                    onUpdated={loadArtists}
+                    showRequestHint
+                  />
+                ))}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : requestedArtists.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
             <GraduationCap className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-            Nenhum cantor encontrado.
+            Nenhum cantor pediu consultoria ainda.
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          {filtered.map((a) => {
-            const display = a.artist_name || a.name || "Artista";
-            const prefDays = (a.consultoria_preferred_days || []).map((d) => DAYS_OF_WEEK[d]?.slice(0, 3)).filter(Boolean).join(", ");
-            const scheduled = a.next_consultoria_at ? new Date(a.next_consultoria_at) : null;
-            const isApresentacao = a.next_consultoria_type === "apresentacao";
-            const hasRequestedConsultoria = a.consultoria_active === true;
-            return (
-              <div key={a.user_id} className="rounded-xl border bg-card p-4 hover:shadow-md hover:border-primary/50 transition-all">
-                <button onClick={() => setSelectedUser(a)} className="w-full text-left">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
-                      {a.avatar_url ? (
-                        <img src={a.avatar_url} alt={display} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-sm font-bold text-primary">{display.charAt(0).toUpperCase()}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{display}</p>
-                      <p className="text-xs text-muted-foreground truncate">{a.email}</p>
-                      {!hasRequestedConsultoria && (
-                        <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
-                          Ainda nao pediu consultoria
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground">Sessões</div>
-                      <div className="text-lg font-bold text-primary">{a.sessions_count}</div>
-                    </div>
-                  </div>
-                </button>
-
-                {/* preferências do artista */}
-                {(prefDays || a.consultoria_preferred_period) && (
-                  <div className="mt-3 rounded-lg bg-muted/40 p-2 text-xs">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">Disponibilidade</div>
-                    {prefDays && <div className="capitalize">{prefDays}</div>}
-                    {a.consultoria_preferred_period && (
-                      <div className="text-muted-foreground">{a.consultoria_preferred_period}</div>
-                    )}
-                  </div>
-                )}
-
-                {/* agendamento atual */}
-                {scheduled && scheduled.getTime() > Date.now() - 1000 * 60 * 60 && (
-                  <div className={cn(
-                    "mt-2 rounded-lg p-2 text-xs border",
-                    isApresentacao ? "bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300"
-                                   : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
-                  )}>
-                    <div className="font-semibold">
-                      {isApresentacao ? "Apresentação" : "Consultoria"} agendada
-                    </div>
-                    <div className="capitalize">
-                      {scheduled.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-                      {" • "}
-                      {scheduled.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                    </div>
-                  </div>
-                )}
-
-                {/* botão agendar */}
-                <ScheduleConsultoriaButton artist={a} onUpdated={loadArtists} />
-              </div>
-            );
-          })}
+          {requestedArtists.map((artist) => (
+            <AdminArtistCard
+              key={artist.user_id}
+              artist={artist}
+              onSelect={setSelectedUser}
+              onUpdated={loadArtists}
+            />
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function AdminArtistCard({
+  artist,
+  onSelect,
+  onUpdated,
+  showRequestHint = false,
+}: {
+  artist: ArtistRow;
+  onSelect: (artist: ArtistRow) => void;
+  onUpdated: () => void;
+  showRequestHint?: boolean;
+}) {
+  const display = artist.artist_name || artist.name || "Artista";
+  const prefDays = (artist.consultoria_preferred_days || []).map((d) => DAYS_OF_WEEK[d]?.slice(0, 3)).filter(Boolean).join(", ");
+  const scheduled = artist.next_consultoria_at ? new Date(artist.next_consultoria_at) : null;
+  const isApresentacao = artist.next_consultoria_type === "apresentacao";
+
+  return (
+    <div className="rounded-xl border bg-card p-4 hover:shadow-md hover:border-primary/50 transition-all">
+      <button onClick={() => onSelect(artist)} className="w-full text-left">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+            {artist.avatar_url ? (
+              <img src={artist.avatar_url} alt={display} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-sm font-bold text-primary">{display.charAt(0).toUpperCase()}</span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold truncate">{display}</p>
+            <p className="text-xs text-muted-foreground truncate">{artist.email}</p>
+            {showRequestHint && (
+              <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                Ainda nao pediu consultoria
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-muted-foreground">Sessões</div>
+            <div className="text-lg font-bold text-primary">{artist.sessions_count}</div>
+          </div>
+        </div>
+      </button>
+
+      {(prefDays || artist.consultoria_preferred_period) && (
+        <div className="mt-3 rounded-lg bg-muted/40 p-2 text-xs">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">Disponibilidade</div>
+          {prefDays && <div className="capitalize">{prefDays}</div>}
+          {artist.consultoria_preferred_period && (
+            <div className="text-muted-foreground">{artist.consultoria_preferred_period}</div>
+          )}
+        </div>
+      )}
+
+      {scheduled && scheduled.getTime() > Date.now() - 1000 * 60 * 60 && (
+        <div className={cn(
+          "mt-2 rounded-lg p-2 text-xs border",
+          isApresentacao ? "bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300"
+                         : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+        )}>
+          <div className="font-semibold">
+            {isApresentacao ? "Apresentação" : "Consultoria"} agendada
+          </div>
+          <div className="capitalize">
+            {scheduled.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+            {" • "}
+            {scheduled.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          </div>
+        </div>
+      )}
+
+      <ScheduleConsultoriaButton artist={artist} onUpdated={onUpdated} />
     </div>
   );
 }
