@@ -15,13 +15,20 @@ interface Show {
 
 interface UpcomingShowsCardProps {
   shows: Show[];
+  monthTotal?: number;
+  monthCount?: number;
+  monthName?: string;
 }
 
-export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
+export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: UpcomingShowsCardProps) {
   const navigate = useNavigate();
 
   const handleShowClick = (showId: string) => {
     navigate(`/agenda?show=${showId}`);
+  };
+
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
 
   const getStatusConfig = (status: Show["status"]) => {
@@ -69,33 +76,55 @@ export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
+    <div className="relative overflow-hidden rounded-3xl bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-60" />
       <div className="absolute -top-20 -left-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl group-hover:opacity-70 opacity-40 transition-opacity duration-700" />
 
       <div className="relative">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-foreground">Próximos Shows</h3>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{shows.length} show{shows.length !== 1 ? 's' : ''} agendado{shows.length !== 1 ? 's' : ''}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{shows.length} agendados no momento</p>
             </div>
           </div>
           <Link
             to="/agenda"
-            className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors group/link px-3 py-1.5 rounded-full bg-primary/5 hover:bg-primary/10"
+            className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors group/link px-4 py-2 rounded-xl bg-primary/5 hover:bg-primary/10"
           >
             Ver agenda
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5" />
           </Link>
         </div>
 
+        {/* Month Summary Header */}
+        {monthName && (
+          <div className="flex items-center justify-between p-4 mb-6 rounded-2xl bg-secondary/30 border border-border/40 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-background flex items-center justify-center text-primary font-black text-[10px]">
+                {monthName.substring(0, 3).toUpperCase()}
+              </div>
+              <p className="text-xs font-black uppercase tracking-widest text-foreground">{monthName}</p>
+            </div>
+            <div className="flex gap-6">
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Shows</p>
+                <p className="text-sm font-black text-foreground">{monthCount || 0}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Previsto</p>
+                <p className="text-sm font-black text-success">R$ {formatCurrency(monthTotal || 0)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {shows.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {shows.map((show, index) => {
               const [day, month] = show.date.split(" ");
               const statusConfig = getStatusConfig(show.status);
