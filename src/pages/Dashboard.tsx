@@ -10,6 +10,7 @@ import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalP
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { RenewSoonBanner } from "@/components/dashboard/RenewSoonBanner";
+import { NextConsultoriaCard } from "@/components/dashboard/NextConsultoriaCard";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
@@ -483,6 +484,9 @@ const Dashboard = () => {
 
         {/* Aviso de renovação (mensal próximo do vencimento) */}
         <RenewSoonBanner />
+
+        {/* Próxima consultoria / apresentação agendada pelo admin */}
+        <NextConsultoriaCard />
 
         {/* Total Revenue Hero */}
         <TotalRevenueHero

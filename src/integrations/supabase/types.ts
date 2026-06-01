@@ -1481,6 +1481,8 @@ export type Database = {
           consultoria_activated_at: string | null
           consultoria_active: boolean
           consultoria_day_of_week: number | null
+          consultoria_preferred_days: Json | null
+          consultoria_preferred_period: string | null
           consultoria_time: string | null
           created_at: string
           current_period_end: string | null
@@ -1497,6 +1499,9 @@ export type Database = {
           min_fee: number | null
           music_style: string | null
           name: string | null
+          next_consultoria_at: string | null
+          next_consultoria_notes: string | null
+          next_consultoria_type: string | null
           onboarding_completed: boolean | null
           payment_deadline: string | null
           phone: string | null
@@ -1538,6 +1543,8 @@ export type Database = {
           consultoria_activated_at?: string | null
           consultoria_active?: boolean
           consultoria_day_of_week?: number | null
+          consultoria_preferred_days?: Json | null
+          consultoria_preferred_period?: string | null
           consultoria_time?: string | null
           created_at?: string
           current_period_end?: string | null
@@ -1554,6 +1561,9 @@ export type Database = {
           min_fee?: number | null
           music_style?: string | null
           name?: string | null
+          next_consultoria_at?: string | null
+          next_consultoria_notes?: string | null
+          next_consultoria_type?: string | null
           onboarding_completed?: boolean | null
           payment_deadline?: string | null
           phone?: string | null
@@ -1595,6 +1605,8 @@ export type Database = {
           consultoria_activated_at?: string | null
           consultoria_active?: boolean
           consultoria_day_of_week?: number | null
+          consultoria_preferred_days?: Json | null
+          consultoria_preferred_period?: string | null
           consultoria_time?: string | null
           created_at?: string
           current_period_end?: string | null
@@ -1611,6 +1623,9 @@ export type Database = {
           min_fee?: number | null
           music_style?: string | null
           name?: string | null
+          next_consultoria_at?: string | null
+          next_consultoria_notes?: string | null
+          next_consultoria_type?: string | null
           onboarding_completed?: boolean | null
           payment_deadline?: string | null
           phone?: string | null
