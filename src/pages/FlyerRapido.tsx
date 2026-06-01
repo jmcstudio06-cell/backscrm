@@ -398,136 +398,78 @@ export default function FlyerRapido() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-4 flex justify-center bg-black/40 overflow-hidden h-[500px]">
-                        <div className="scale-[0.6] origin-top">
+                        <div className="scale-[0.4] origin-top">
                           <div
                             ref={flyerRef}
-                            className="relative w-[400px] h-[711px] overflow-hidden bg-[#111111] shadow-2xl"
+                            className="relative w-[1000px] h-[1000px] overflow-hidden bg-[#111111] shadow-2xl"
+                            style={{ fontFamily: "'Inter', sans-serif" }}
                           >
-                            {selectedTemplate === "modern" ? (
-                              <div className="relative w-full h-full">
-                                <div
-                                  className="absolute inset-0"
-                                  style={{
-                                    backgroundImage: `radial-gradient(circle at center, ${accentColor}40, transparent 36%), linear-gradient(180deg, #151515 0%, #0f0f0f 22%, #1a050a 60%, #111111 100%)`,
-                                  }}
-                                />
-                                <div
-                                  className="absolute inset-x-0 top-0 h-[18%] opacity-25"
-                                  style={{
-                                    backgroundImage:
-                                      "repeating-radial-gradient(circle at 0 0, transparent 0 13px, rgba(255,255,255,0.8) 14px 16px)",
-                                    backgroundSize: "48px 48px",
-                                  }}
-                                />
-                                <div
-                                  className="absolute inset-x-0 bottom-0 h-[17%] opacity-20"
-                                  style={{
-                                    backgroundImage:
-                                      "repeating-radial-gradient(circle at 0 100%, transparent 0 13px, rgba(255,255,255,0.7) 14px 16px)",
-                                    backgroundSize: "48px 48px",
-                                  }}
-                                />
+                            {/* Background Pattern - Wavy Lines */}
+                            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                  <pattern id="waves" x="0" y="0" width="100" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M0 10 Q 25 0, 50 10 T 100 10" fill="none" stroke="white" strokeWidth="1" />
+                                  </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#waves)" />
+                              </svg>
+                            </div>
+                            
+                            {/* Dark Gradient Overlays */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-10" />
 
-                                <div className="absolute inset-x-[4%] top-[3%] z-20 leading-none tracking-tight uppercase font-black" style={{ color: accentColor }}>
-                                  <div className="text-[72px]">{headline}</div>
-                                  <div className="text-[72px] -mt-[10%] opacity-50">{headline}</div>
-                                </div>
+                            {/* Headline (Double) */}
+                            <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center leading-[0.85] tracking-tighter uppercase font-black italic" style={{ color: accentColor }}>
+                              <div className="text-[160px]">{headline}</div>
+                              <div className="text-[160px] -mt-[20px]">{headline}</div>
+                            </div>
 
-                                <div className="absolute left-[6%] top-[42%] z-20 font-black leading-none uppercase" style={{ color: accentColor }}>
-                                  <div className="text-[52px]">{flyerDate.day}/</div>
-                                  <div className="text-[42px] -mt-[10%]">{flyerDate.month}</div>
-                                  <div className="text-[22px] mt-[6%]">AS {flyerTime}</div>
-                                </div>
-
-                                <div className="absolute inset-x-[12%] top-[15%] bottom-[18%] flex items-end justify-center">
-                                  <div className="absolute inset-0 rounded-[28px] blur-2xl opacity-50" style={{ background: `radial-gradient(circle at center, ${accentColor}, transparent 78%)` }} />
-                                  {artistPhoto ? (
-                                    <img
-                                      src={artistPhoto}
-                                      alt={artistName}
-                                      crossOrigin="anonymous"
-                                      className="relative z-10 h-full w-full object-cover rounded-[28px] border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
-                                    />
-                                  ) : (
-                                    <div className="relative z-10 h-full w-full rounded-[28px] border border-white/10 bg-gradient-to-b from-zinc-700 to-zinc-950 flex items-center justify-center shadow-[0_30px_60px_rgba(0,0,0,0.45)]">
-                                      <div className="text-white text-[80px] font-black">
-                                        {artistName.charAt(0).toUpperCase()}
-                                      </div>
-                                    </div>
-                                  )}
-                                  <div className="absolute inset-0 rounded-[28px] bg-gradient-to-t from-black/55 via-transparent to-transparent z-20" />
-                                </div>
-
-                                <div className="absolute right-[8%] bottom-[28%] z-20 max-w-[45%] text-right font-extrabold uppercase leading-none" style={{ color: accentColor }}>
-                                  <div className="text-[24px] break-words">{artistName}</div>
-                                </div>
-
-                                <div className="absolute inset-x-[12%] bottom-[11%] z-20 px-[4%] py-[2.6%] shadow-[0_18px_35px_rgba(0,0,0,0.35)]" style={{ backgroundColor: accentColor }}>
-                                  <div className="text-center text-black font-black uppercase leading-[0.88] text-[48px] break-words">
-                                    {venueName}
-                                  </div>
-                                </div>
+                            {/* Date & Time (Left Side) */}
+                            <div className="absolute left-[5%] top-[45%] z-20 flex flex-col font-black leading-none" style={{ color: accentColor }}>
+                              <div className="text-[130px] flex items-start">
+                                {flyerDate.day}<span className="text-[80px] mt-4">/</span>
                               </div>
-                            ) : (
-                              <div className="relative w-full h-full">
-                                <div className="absolute inset-0 bg-[#0a0a0a]" />
-                                <div className="absolute inset-0 opacity-40">
-                                  {artistPhoto && (
-                                    <img
-                                      src={artistPhoto}
-                                      alt=""
-                                      className="w-full h-full object-cover blur-xl scale-110"
-                                    />
-                                  )}
-                                </div>
-                                
-                                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/90 z-10" />
+                              <div className="text-[100px] -mt-4">{flyerDate.month}</div>
+                              <div className="text-[42px] mt-6 tracking-tight italic">ÀS {flyerTime}</div>
+                            </div>
 
-                                <div className="absolute inset-[5%] border border-white/10 z-0" />
-
-                                <div className="absolute inset-x-0 top-[8%] z-20 text-center">
-                                  <div className="text-[16px] font-bold tracking-[0.3em] text-white/60 uppercase mb-2">Apresenta</div>
-                                  <div className="text-[42px] font-black text-white uppercase leading-none px-4 break-words">
-                                    {artistName}
-                                  </div>
-                                  <div className="h-1 w-12 bg-white/40 mx-auto mt-4" style={{ backgroundColor: accentColor }} />
+                            {/* Artist Photo / Placeholder */}
+                            <div className="absolute inset-0 z-0 flex items-center justify-center">
+                              {artistPhoto ? (
+                                <img
+                                  src={artistPhoto}
+                                  alt={artistName}
+                                  crossOrigin="anonymous"
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="h-full w-full bg-zinc-900 flex items-center justify-center">
+                                  <User className="w-[400px] h-[400px] text-white/10" />
                                 </div>
+                              )}
+                            </div>
 
-                                <div className="absolute inset-x-[10%] top-[30%] bottom-[25%] z-20">
-                                  {artistPhoto ? (
-                                    <img
-                                      src={artistPhoto}
-                                      alt={artistName}
-                                      crossOrigin="anonymous"
-                                      className="h-full w-full object-cover border-4 border-white/10 shadow-2xl"
-                                    />
-                                  ) : (
-                                    <div className="h-full w-full bg-zinc-800 flex items-center justify-center border-4 border-white/10">
-                                      <User className="w-24 h-24 text-white/20" />
-                                    </div>
-                                  )}
-                                </div>
+                            {/* Artist Name (Above Venue Box) */}
+                            <div className="absolute right-[8%] bottom-[32%] z-20 font-black uppercase tracking-widest" style={{ color: accentColor }}>
+                              <div className="text-[34px]">{artistName}</div>
+                            </div>
 
-                                <div className="absolute inset-x-0 bottom-[10%] z-30 text-center space-y-2">
-                                  <div className="inline-block px-4 py-1 text-[18px] font-black text-black uppercase tracking-tighter" style={{ backgroundColor: accentColor }}>
-                                    {headline}
-                                  </div>
-                                  <div className="text-[32px] font-black text-white uppercase leading-none">
-                                    {venueName}
-                                  </div>
-                                  <div className="text-[18px] font-bold text-white/80 uppercase">
-                                    {flyerDate.day} {flyerDate.month} • {flyerTime}
-                                  </div>
-                                </div>
+                            {/* Venue Box */}
+                            <div className="absolute inset-x-[10%] bottom-[12%] z-30 px-8 py-10 shadow-[0_25px_50px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center" style={{ backgroundColor: accentColor }}>
+                              <div className="text-black font-black uppercase leading-[0.9] text-center italic" style={{ fontSize: venueName.length > 15 ? '80px' : '110px' }}>
+                                {venueName.split(' ').map((word, i) => (
+                                  <div key={i}>{word}</div>
+                                ))}
                               </div>
-                            )}
+                            </div>
 
-                            {/* Logo footer fixo para todos */}
-                            <div className="absolute inset-x-0 bottom-[2.8%] z-40 text-center">
-                              <div className="text-white/95 font-black leading-none text-[32px]">
-                                backstage<span className="text-white/80 text-[0.58em] align-[0.18em]">pro</span>
+                            {/* Footer Logo */}
+                            <div className="absolute inset-x-0 bottom-[3%] z-40 text-center opacity-80">
+                              <div className="text-white font-black leading-none text-[48px]">
+                                backstage<span className="text-white/70 text-[0.6em] align-[0.2em] font-bold">pro</span>
                               </div>
-                              <div className="text-white/70 uppercase tracking-[0.22em] text-[8px] mt-1">
+                              <div className="text-white/60 uppercase tracking-[0.3em] text-[12px] mt-2 font-bold">
                                 gestão para cantores
                               </div>
                             </div>
