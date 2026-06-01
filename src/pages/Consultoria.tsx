@@ -266,45 +266,173 @@ function AdminView() {
         <div className="grid gap-3 sm:grid-cols-2">
           {filtered.map((a) => {
             const display = a.artist_name || a.name || "Artista";
-            const dayLabel =
-              a.consultoria_day_of_week !== null && a.consultoria_day_of_week !== undefined
-                ? DAYS_OF_WEEK[a.consultoria_day_of_week]
-                : null;
+            const prefDays = (a.consultoria_preferred_days || []).map((d) => DAYS_OF_WEEK[d]?.slice(0, 3)).filter(Boolean).join(", ");
+            const scheduled = a.next_consultoria_at ? new Date(a.next_consultoria_at) : null;
+            const isApresentacao = a.next_consultoria_type === "apresentacao";
             return (
-              <button
-                key={a.user_id}
-                onClick={() => setSelectedUser(a)}
-                className="text-left rounded-xl border bg-card p-4 hover:shadow-md hover:border-primary/50 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    {a.avatar_url ? (
-                      <img src={a.avatar_url} alt={display} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-sm font-bold text-primary">{display.charAt(0).toUpperCase()}</span>
+              <div key={a.user_id} className="rounded-xl border bg-card p-4 hover:shadow-md hover:border-primary/50 transition-all">
+                <button onClick={() => setSelectedUser(a)} className="w-full text-left">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {a.avatar_url ? (
+                        <img src={a.avatar_url} alt={display} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-sm font-bold text-primary">{display.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate">{display}</p>
+                      <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground">Sessões</div>
+                      <div className="text-lg font-bold text-primary">{a.sessions_count}</div>
+                    </div>
+                  </div>
+                </button>
+
+                {/* preferências do artista */}
+                {(prefDays || a.consultoria_preferred_period) && (
+                  <div className="mt-3 rounded-lg bg-muted/40 p-2 text-xs">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">Disponibilidade</div>
+                    {prefDays && <div className="capitalize">{prefDays}</div>}
+                    {a.consultoria_preferred_period && (
+                      <div className="text-muted-foreground">{a.consultoria_preferred_period}</div>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">{display}</p>
-                    <p className="text-xs text-muted-foreground truncate">{a.email}</p>
-                    {(dayLabel || a.consultoria_time) && (
-                      <p className="text-xs text-primary font-medium mt-1 flex items-center gap-1">
-                        <CalendarIcon className="w-3 h-3" />
-                        {dayLabel}{a.consultoria_time ? ` • ${a.consultoria_time}` : ""}
-                      </p>
-                    )}
+                )}
+
+                {/* agendamento atual */}
+                {scheduled && scheduled.getTime() > Date.now() - 1000 * 60 * 60 && (
+                  <div className={cn(
+                    "mt-2 rounded-lg p-2 text-xs border",
+                    isApresentacao ? "bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300"
+                                   : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                  )}>
+                    <div className="font-semibold">
+                      {isApresentacao ? "Apresentação" : "Consultoria"} agendada
+                    </div>
+                    <div className="capitalize">
+                      {scheduled.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+                      {" • "}
+                      {scheduled.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xs text-muted-foreground">Sessões</div>
-                    <div className="text-lg font-bold text-primary">{a.sessions_count}</div>
-                  </div>
-                </div>
-              </button>
+                )}
+
+                {/* botão agendar */}
+                <ScheduleConsultoriaButton artist={a} onUpdated={loadArtists} />
+              </div>
             );
           })}
         </div>
       )}
     </div>
+  );
+}
+
+function ScheduleConsultoriaButton({ artist, onUpdated }: { artist: ArtistRow; onUpdated: () => void }) {
+  const [open, setOpen] = useState(false);
+  const initialDate = artist.next_consultoria_at
+    ? new Date(artist.next_consultoria_at).toISOString().slice(0, 10)
+    : "";
+  const initialTime = artist.next_consultoria_at
+    ? new Date(artist.next_consultoria_at).toTimeString().slice(0, 5)
+    : "14:00";
+  const [date, setDate] = useState(initialDate);
+  const [time, setTime] = useState(initialTime);
+  const [type, setType] = useState(artist.next_consultoria_type || "consultoria");
+  const [notes, setNotes] = useState(artist.next_consultoria_notes || "");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (!date || !time) {
+      toast.error("Selecione data e horário");
+      return;
+    }
+    setSaving(true);
+    const [y, m, d] = date.split("-").map(Number);
+    const [hh, mm] = time.split(":").map(Number);
+    const dt = new Date(y, m - 1, d, hh, mm, 0);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        next_consultoria_at: dt.toISOString(),
+        next_consultoria_type: type,
+        next_consultoria_notes: notes || null,
+      })
+      .eq("user_id", artist.user_id);
+    setSaving(false);
+    if (error) {
+      toast.error("Erro ao agendar");
+      return;
+    }
+    toast.success("Agendado!");
+    setOpen(false);
+    onUpdated();
+  }
+
+  async function clearSchedule() {
+    if (!confirm("Remover agendamento?")) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ next_consultoria_at: null, next_consultoria_notes: null })
+      .eq("user_id", artist.user_id);
+    if (error) { toast.error("Erro"); return; }
+    toast.success("Agendamento removido");
+    setOpen(false);
+    onUpdated();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full mt-3 gap-2">
+          <CalendarIcon className="w-3.5 h-3.5" />
+          {artist.next_consultoria_at ? "Reagendar" : "Agendar próxima"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Agendar para {artist.artist_name || artist.name}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label className="text-xs">Tipo</Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="consultoria">Consultoria</SelectItem>
+                <SelectItem value="apresentacao">Apresentação do app</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Data</Label>
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs">Horário</Label>
+              <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Observação (opcional)</Label>
+            <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Link da chamada, etc." />
+          </div>
+          <div className="flex gap-2 justify-end pt-2">
+            {artist.next_consultoria_at && (
+              <Button variant="ghost" className="text-destructive" onClick={clearSchedule}>Remover</Button>
+            )}
+            <Button onClick={save} disabled={saving}>
+              {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
