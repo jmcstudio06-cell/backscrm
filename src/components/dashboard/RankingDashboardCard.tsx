@@ -23,10 +23,10 @@ const monthNames = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", 
 
 export function RankingDashboardCard({ position, badges }: RankingDashboardCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-card border border-border/50 p-6 shadow-card group">
+    <div className="relative overflow-hidden rounded-xl bg-card border border-border/50 p-6 shadow-card group">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-yellow-400/10 flex items-center justify-center text-yellow-600">
+          <div className="w-10 h-10 rounded-md bg-yellow-400/10 flex items-center justify-center text-yellow-600">
             <Trophy className="w-5 h-5" />
           </div>
           <div>
@@ -34,14 +34,14 @@ export function RankingDashboardCard({ position, badges }: RankingDashboardCardP
             <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Seu prestígio na comunidade</p>
           </div>
         </div>
-        <Link to="/ranking" className="p-2 rounded-xl hover:bg-muted transition-colors">
+        <Link to="/ranking" className="p-2 rounded-md hover:bg-muted transition-colors">
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </Link>
       </div>
 
       <div className="space-y-6">
         {/* Current Position */}
-        <div className="relative p-4 rounded-2xl bg-gradient-to-br from-yellow-400/5 to-transparent border border-yellow-400/10 overflow-hidden group/pos">
+        <div className="relative p-4 rounded-xl bg-gradient-to-br from-yellow-400/5 to-transparent border border-yellow-400/10 overflow-hidden group/pos">
           <div className="absolute top-0 right-0 p-3 opacity-10 group-hover/pos:opacity-20 transition-opacity">
             <Trophy className="w-16 h-16 text-yellow-600 rotate-12" />
           </div>
@@ -71,7 +71,7 @@ export function RankingDashboardCard({ position, badges }: RankingDashboardCardP
                   <div 
                     key={idx}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-xl border transition-all hover:scale-105 cursor-default",
+                      "flex items-center gap-2 px-3 py-2 rounded-md border transition-all hover:scale-105 cursor-default",
                       config.bg, config.border
                     )}
                   >
@@ -88,7 +88,7 @@ export function RankingDashboardCard({ position, badges }: RankingDashboardCardP
                 );
               })
             ) : (
-              <div className="w-full py-4 text-center border border-dashed border-border rounded-2xl">
+              <div className="w-full py-4 text-center border border-dashed border-border rounded-xl">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">Nenhum selo ainda</p>
                 <p className="text-[9px] text-muted-foreground mt-1 px-4">Feche mais shows para ganhar selos de consistência!</p>
               </div>
