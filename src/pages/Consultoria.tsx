@@ -112,6 +112,7 @@ type ArtistRow = {
   email: string | null;
   artist_name: string | null;
   avatar_url: string | null;
+  consultoria_active: boolean | null;
   sessions_count: number;
   last_session_at: string | null;
   consultoria_day_of_week: number | null;
@@ -194,7 +195,7 @@ function AdminView() {
       supabase
         .from("profiles")
         .select("user_id, name, email, artist_name, avatar_url, consultoria_day_of_week, consultoria_time, consultoria_activated_at, consultoria_active, consultoria_preferred_days, consultoria_preferred_period, next_consultoria_at, next_consultoria_type, next_consultoria_notes")
-        .eq("consultoria_active", true),
+        .order("name"),
       supabase.from("consultoria_sessions").select("user_id, created_at"),
     ]);
 
@@ -212,6 +213,7 @@ function AdminView() {
       email: p.email,
       artist_name: p.artist_name,
       avatar_url: p.avatar_url,
+      consultoria_active: p.consultoria_active,
       sessions_count: counts.get(p.user_id)?.count || 0,
       last_session_at: counts.get(p.user_id)?.last || null,
       consultoria_day_of_week: p.consultoria_day_of_week,
@@ -282,7 +284,7 @@ function AdminView() {
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
             <GraduationCap className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-            Nenhum cantor ativou a consultoria mensal ainda.
+            Nenhum cantor encontrado.
           </CardContent>
         </Card>
       ) : (
@@ -292,6 +294,7 @@ function AdminView() {
             const prefDays = (a.consultoria_preferred_days || []).map((d) => DAYS_OF_WEEK[d]?.slice(0, 3)).filter(Boolean).join(", ");
             const scheduled = a.next_consultoria_at ? new Date(a.next_consultoria_at) : null;
             const isApresentacao = a.next_consultoria_type === "apresentacao";
+            const hasRequestedConsultoria = a.consultoria_active === true;
             return (
               <div key={a.user_id} className="rounded-xl border bg-card p-4 hover:shadow-md hover:border-primary/50 transition-all">
                 <button onClick={() => setSelectedUser(a)} className="w-full text-left">
@@ -306,6 +309,11 @@ function AdminView() {
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold truncate">{display}</p>
                       <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+                      {!hasRequestedConsultoria && (
+                        <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                          Ainda nao pediu consultoria
+                        </p>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">Sessões</div>
@@ -380,6 +388,8 @@ function ScheduleConsultoriaButton({ artist, onUpdated }: { artist: ArtistRow; o
     const { error } = await supabase
       .from("profiles")
       .update({
+        consultoria_active: true,
+        consultoria_activated_at: artist.consultoria_active ? artist.consultoria_activated_at : new Date().toISOString(),
         next_consultoria_at: dt.toISOString(),
         next_consultoria_type: type,
         next_consultoria_notes: notes || null,
