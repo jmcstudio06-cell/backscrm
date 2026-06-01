@@ -170,7 +170,7 @@ function AdminView() {
     const [{ data: profiles }, { data: sessions }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("user_id, name, email, artist_name, avatar_url, consultoria_day_of_week, consultoria_time, consultoria_activated_at, consultoria_active")
+        .select("user_id, name, email, artist_name, avatar_url, consultoria_day_of_week, consultoria_time, consultoria_activated_at, consultoria_active, consultoria_preferred_days, consultoria_preferred_period, next_consultoria_at, next_consultoria_type, next_consultoria_notes")
         .eq("consultoria_active", true),
       supabase.from("consultoria_sessions").select("user_id, created_at"),
     ]);
@@ -194,9 +194,17 @@ function AdminView() {
       consultoria_day_of_week: p.consultoria_day_of_week,
       consultoria_time: p.consultoria_time,
       consultoria_activated_at: p.consultoria_activated_at,
+      consultoria_preferred_days: Array.isArray(p.consultoria_preferred_days) ? p.consultoria_preferred_days : [],
+      consultoria_preferred_period: p.consultoria_preferred_period,
+      next_consultoria_at: p.next_consultoria_at,
+      next_consultoria_type: p.next_consultoria_type,
+      next_consultoria_notes: p.next_consultoria_notes,
     }));
 
     rows.sort((a, b) => {
+      // próximos agendados primeiro
+      if (a.next_consultoria_at && !b.next_consultoria_at) return -1;
+      if (!a.next_consultoria_at && b.next_consultoria_at) return 1;
       if (a.sessions_count !== b.sessions_count) return b.sessions_count - a.sessions_count;
       return (a.artist_name || a.name).localeCompare(b.artist_name || b.name);
     });
