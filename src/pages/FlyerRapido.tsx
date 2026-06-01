@@ -397,41 +397,62 @@ export default function FlyerRapido() {
                           <Sparkles className="w-3 h-3" /> Pré-visualização
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-4 flex justify-center bg-black/40 overflow-hidden h-[500px]">
-                        <div className="scale-[0.4] origin-top">
+                      <CardContent className="p-0 flex justify-center bg-[#1a1a1a] overflow-hidden h-[600px] relative">
+                        <div className="scale-[0.55] sm:scale-[0.58] origin-top mt-4">
                           <div
                             ref={flyerRef}
-                            className="relative w-[1000px] h-[1000px] overflow-hidden bg-[#111111] shadow-2xl"
+                            className="relative w-[1000px] h-[1000px] overflow-hidden bg-[#050505] shadow-[0_0_100px_rgba(0,0,0,0.8)]"
                             style={{ fontFamily: "'Inter', sans-serif" }}
                           >
-                            {/* Background Pattern - Wavy Lines */}
-                            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                            {/* Background Pattern - Elegant Wavy Lines */}
+                            <div className="absolute inset-0 opacity-30 pointer-events-none z-0">
                               <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
-                                  <pattern id="waves" x="0" y="0" width="100" height="20" patternUnits="userSpaceOnUse">
-                                    <path d="M0 10 Q 25 0, 50 10 T 100 10" fill="none" stroke="white" strokeWidth="1" />
+                                  <pattern id="waves-pattern" x="0" y="0" width="1000" height="200" patternUnits="userSpaceOnUse">
+                                    <path 
+                                      d="M0 100 C 250 50, 250 150, 500 100 C 750 50, 750 150, 1000 100" 
+                                      fill="none" 
+                                      stroke={accentColor} 
+                                      strokeWidth="0.5" 
+                                      opacity="0.3"
+                                    />
+                                    <path 
+                                      d="M0 120 C 250 70, 250 170, 500 120 C 750 70, 750 170, 1000 120" 
+                                      fill="none" 
+                                      stroke={accentColor} 
+                                      strokeWidth="0.5" 
+                                      opacity="0.2"
+                                    />
+                                    <path 
+                                      d="M0 80 C 250 30, 250 130, 500 80 C 750 30, 750 130, 1000 80" 
+                                      fill="none" 
+                                      stroke={accentColor} 
+                                      strokeWidth="0.5" 
+                                      opacity="0.2"
+                                    />
                                   </pattern>
                                 </defs>
-                                <rect width="100%" height="100%" fill="url(#waves)" />
+                                <rect width="100%" height="100%" fill="url(#waves-pattern)" />
                               </svg>
                             </div>
                             
-                            {/* Dark Gradient Overlays */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-10" />
+                            {/* Lighting Effects */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 z-10" />
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[40%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.1),transparent_70%)] z-10" />
 
                             {/* Headline (Double) */}
-                            <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center leading-[0.85] tracking-tighter uppercase font-black italic" style={{ color: accentColor }}>
-                              <div className="text-[160px]">{headline}</div>
-                              <div className="text-[160px] -mt-[20px]">{headline}</div>
+                            <div className="absolute inset-x-0 top-[5%] z-20 flex flex-col items-center leading-[0.82] tracking-[-0.05em] uppercase font-[1000] italic" style={{ color: accentColor }}>
+                              <div className="text-[170px] drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">{headline}</div>
+                              <div className="text-[170px] -mt-[15px] drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">{headline}</div>
                             </div>
 
                             {/* Date & Time (Left Side) */}
-                            <div className="absolute left-[5%] top-[45%] z-20 flex flex-col font-black leading-none" style={{ color: accentColor }}>
-                              <div className="text-[130px] flex items-start">
-                                {flyerDate.day}<span className="text-[80px] mt-4">/</span>
+                            <div className="absolute left-[6%] top-[48%] z-20 flex flex-col font-[1000] leading-none" style={{ color: accentColor }}>
+                              <div className="text-[140px] flex items-start drop-shadow-lg">
+                                {flyerDate.day}<span className="text-[80px] mt-6 ml-1 opacity-80">/</span>
                               </div>
-                              <div className="text-[100px] -mt-4">{flyerDate.month}</div>
-                              <div className="text-[42px] mt-6 tracking-tight italic">ÀS {flyerTime}</div>
+                              <div className="text-[110px] -mt-6 drop-shadow-lg">{flyerDate.month}</div>
+                              <div className="text-[46px] mt-8 tracking-tighter italic font-black bg-black/40 px-3 py-1 self-start rounded-sm">ÀS {flyerTime}</div>
                             </div>
 
                             {/* Artist Photo / Placeholder */}
@@ -441,23 +462,25 @@ export default function FlyerRapido() {
                                   src={artistPhoto}
                                   alt={artistName}
                                   crossOrigin="anonymous"
-                                  className="h-full w-full object-cover"
+                                  className="h-full w-full object-cover grayscale-[0.2] contrast-[1.1]"
                                 />
                               ) : (
                                 <div className="h-full w-full bg-zinc-900 flex items-center justify-center">
-                                  <User className="w-[400px] h-[400px] text-white/10" />
+                                  <User className="w-[400px] h-[400px] text-white/5" />
                                 </div>
                               )}
+                              {/* Overlay for better text legibility */}
+                              <div className="absolute inset-0 bg-black/20 z-[1]" />
                             </div>
 
-                            {/* Artist Name (Above Venue Box) */}
-                            <div className="absolute right-[8%] bottom-[32%] z-20 font-black uppercase tracking-widest" style={{ color: accentColor }}>
-                              <div className="text-[34px]">{artistName}</div>
+                            {/* Artist Name (Floating Right) */}
+                            <div className="absolute right-[8%] bottom-[33%] z-30 font-black uppercase tracking-[0.2em] italic" style={{ color: accentColor }}>
+                              <div className="text-[32px] drop-shadow-md bg-black/60 px-4 py-2 rounded-sm border-r-4" style={{ borderColor: accentColor }}>{artistName}</div>
                             </div>
 
                             {/* Venue Box */}
-                            <div className="absolute inset-x-[10%] bottom-[12%] z-30 px-8 py-10 shadow-[0_25px_50px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center" style={{ backgroundColor: accentColor }}>
-                              <div className="text-black font-black uppercase leading-[0.9] text-center italic" style={{ fontSize: venueName.length > 15 ? '80px' : '110px' }}>
+                            <div className="absolute inset-x-[8%] bottom-[10%] z-40 px-8 py-12 shadow-[0_30px_60px_rgba(0,0,0,0.6)] flex flex-col items-center justify-center transform skew-x-[-2deg]" style={{ backgroundColor: accentColor }}>
+                              <div className="text-black font-[1000] uppercase leading-[0.85] text-center italic tracking-tighter" style={{ fontSize: venueName.length > 15 ? '90px' : '120px' }}>
                                 {venueName.split(' ').map((word, i) => (
                                   <div key={i}>{word}</div>
                                 ))}
@@ -465,11 +488,11 @@ export default function FlyerRapido() {
                             </div>
 
                             {/* Footer Logo */}
-                            <div className="absolute inset-x-0 bottom-[3%] z-40 text-center opacity-80">
-                              <div className="text-white font-black leading-none text-[48px]">
-                                backstage<span className="text-white/70 text-[0.6em] align-[0.2em] font-bold">pro</span>
+                            <div className="absolute inset-x-0 bottom-[2.5%] z-50 text-center">
+                              <div className="text-white font-black leading-none text-[42px] tracking-tighter">
+                                backstage<span className="text-white/80 text-[0.6em] align-[0.15em] font-bold ml-1">pro</span>
                               </div>
-                              <div className="text-white/60 uppercase tracking-[0.3em] text-[12px] mt-2 font-bold">
+                              <div className="text-white/50 uppercase tracking-[0.4em] text-[11px] mt-2 font-black">
                                 gestão para cantores
                               </div>
                             </div>
