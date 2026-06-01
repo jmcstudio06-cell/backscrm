@@ -42,7 +42,7 @@ export function CareerVideogameHeader({
 
   const fmt = (val: number) => val.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-  if (loading) return <Skeleton className="h-48 w-full rounded-3xl" />;
+  if (loading) return <Skeleton className="h-48 w-full rounded-xl" />;
 
   return (
     <div className="relative overflow-hidden rounded-xl bg-card border border-border/50 p-6 sm:p-8 shadow-card group animate-fade-in">

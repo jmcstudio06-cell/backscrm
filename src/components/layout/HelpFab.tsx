@@ -36,7 +36,7 @@ export function HelpFab() {
     >
       {open && (
         <div
-          className="mb-3 w-[260px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden origin-bottom-right animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200"
+          className="mb-3 w-[260px] max-w-[calc(100vw-2rem)] rounded-xl border border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden origin-bottom-right animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200"
         >
           <div className="px-4 py-3 border-b border-border/60 bg-gradient-to-r from-primary/10 to-primary/5 flex items-center justify-between">
             <div>
@@ -56,9 +56,9 @@ export function HelpFab() {
               <button
                 key={it.path}
                 onClick={() => go(it.path)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/70 transition-colors text-left group"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/70 transition-colors text-left group"
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform shrink-0">
                   <it.icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -75,7 +75,7 @@ export function HelpFab() {
         {/* Rotating gradient ring */}
         <span
           aria-hidden
-          className="absolute -inset-1 rounded-full animate-spin-slow pointer-events-none"
+          className="absolute -inset-1 rounded-lg animate-spin-slow pointer-events-none"
           style={{
             background: "conic-gradient(from 0deg, transparent 0deg, transparent 200deg, hsl(0 100% 75%) 300deg, hsl(0 100% 85%) 360deg)",
             WebkitMask: "radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))",
@@ -84,13 +84,13 @@ export function HelpFab() {
         />
         <button
           onClick={() => setOpen((v) => !v)}
-          className="relative w-14 h-14 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-transform overflow-hidden ring-2 ring-primary/30 p-0"
+          className="relative w-14 h-14 rounded-lg shadow-2xl hover:scale-105 active:scale-95 transition-transform overflow-hidden ring-2 ring-primary/30 p-0"
           aria-label="Abrir central de ajuda"
         >
           <img
             src={backstageIcon}
             alt="Backstage"
-            className="w-full h-full object-cover rounded-full block"
+            className="w-full h-full object-cover rounded-none block"
           />
         </button>
       </div>

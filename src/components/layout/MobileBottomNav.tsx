@@ -35,7 +35,7 @@ export function MobileBottomNav({ onMenuClick }: MobileBottomNavProps) {
                   onClick={onMenuClick}
                   className="flex flex-col items-center justify-center gap-0.5 flex-1 -mt-5 focus-visible:outline-none"
                 >
-                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary-foreground text-primary shadow-lg shadow-black/20 transition-transform active:scale-95">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-primary-foreground text-primary shadow-lg shadow-black/20 transition-transform active:scale-95">
                     <Menu className="w-6 h-6" />
                   </div>
                   <span className="text-[10px] font-medium text-primary-foreground/70 mt-0.5">
@@ -54,7 +54,7 @@ export function MobileBottomNav({ onMenuClick }: MobileBottomNavProps) {
               >
                 <div
                   className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200",
+                    "flex items-center justify-center w-10 h-10 rounded-md transition-all duration-200",
                     isActive
                       ? "bg-primary-foreground/20 text-primary-foreground"
                       : "text-primary-foreground/60"

@@ -45,12 +45,12 @@ export function NotificationBell() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative rounded-xl h-9 w-9 sm:h-10 sm:w-10 text-primary-foreground lg:text-foreground hover:bg-primary-foreground/10 lg:hover:bg-secondary"
+          className="relative rounded-md h-9 w-9 sm:h-10 sm:w-10 text-primary-foreground lg:text-foreground hover:bg-primary-foreground/10 lg:hover:bg-secondary"
           aria-label="Notificações"
         >
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-primary lg:ring-background">
+            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-sm bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-primary lg:ring-background">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -90,7 +90,7 @@ export function NotificationBell() {
         <div className="max-h-[420px] overflow-y-auto">
           {recent.length === 0 ? (
             <div className="px-4 py-10 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center mx-auto mb-3">
                 <Bell className="w-6 h-6 text-muted-foreground" />
               </div>
               <p className="text-sm font-medium">Sem notificações</p>
@@ -112,7 +112,7 @@ export function NotificationBell() {
                       !n.is_read && "bg-primary/[0.03]"
                     )}
                   >
-                    <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", color)}>
+                    <div className={cn("w-9 h-9 rounded-md flex items-center justify-center shrink-0", color)}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -120,7 +120,7 @@ export function NotificationBell() {
                         <p className={cn("text-sm truncate", !n.is_read ? "font-semibold" : "font-medium text-muted-foreground")}>
                           {n.title}
                         </p>
-                        {!n.is_read && <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />}
+                        {!n.is_read && <span className="w-2 h-2 rounded-sm bg-red-500 shrink-0" />}
                       </div>
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{n.message}</p>
                       <p className="text-[10px] text-muted-foreground mt-1">

@@ -27,15 +27,15 @@ export function Header({ title, subtitle }: HeaderProps) {
         <div className="flex items-center gap-1 sm:gap-2">
           <NotificationBell />
           {/* Profile */}
-          <Button variant="ghost" size="icon" className="rounded-xl overflow-hidden shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => navigate("/configuracoes")}>
+          <Button variant="ghost" size="icon" className="rounded-md overflow-hidden shrink-0 h-9 w-9 sm:h-10 sm:w-10 hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => navigate("/configuracoes")}>
             {profile?.avatar_url ? (
               <img 
                 src={profile.avatar_url} 
                 alt="Avatar" 
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-sm object-cover"
               />
             ) : (
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-sm bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
                 <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
             )}

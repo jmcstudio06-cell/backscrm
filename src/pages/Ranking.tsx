@@ -246,44 +246,74 @@ export default function RankingPage() {
 
         {/* Podium with month navigation */}
         {loading ? (
-          <Skeleton className="h-64 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-lg" />
         ) : (
-          <div className="rounded-2xl bg-card border border-border/50 shadow-card p-5 sm:p-6">
-            {/* Month Navigator */}
-            <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="relative overflow-hidden rounded-lg bg-card border border-border/50 p-6 shadow-card">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+            
+            <div className="relative flex items-center justify-between mb-8">
               <button
                 onClick={goToPrevMonth}
-                className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors disabled:opacity-30"
-                disabled={selectedMonth === 1 && selectedYear <= 2026}
+                disabled={selectedMonth === 1 && selectedYear === 2026}
+                className="p-2 rounded-md hover:bg-secondary disabled:opacity-30"
               >
-                <ChevronLeft className="w-4 h-4 text-foreground" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground capitalize min-w-[140px] text-center">
-                {monthNames[selectedMonth]} {selectedYear}
-              </p>
+              <div className="text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Ranking Mensal</p>
+                <h3 className="text-lg font-bold text-foreground">
+                  {monthNames[selectedMonth]} {selectedYear}
+                </h3>
+              </div>
               <button
                 onClick={goToNextMonth}
-                className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors disabled:opacity-30"
                 disabled={isCurrentMonth}
+                className="p-2 rounded-md hover:bg-secondary disabled:opacity-30"
               >
-                <ChevronRight className="w-4 h-4 text-foreground" />
+                <ChevronRight className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Podium */}
-            {rankingLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+            <div className="grid grid-cols-3 gap-3 items-end max-w-sm mx-auto">
+              {/* 2nd place */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-500/10 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-500/20 shadow-lg">
+                  <Medal className="w-6 h-6" />
+                </div>
+                <div className="w-full h-24 bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-500/20 dark:to-slate-500/10 rounded-t-lg flex items-center justify-center">
+                  <span className="text-2xl font-black text-slate-500">2º</span>
+                </div>
+                <p className="text-[10px] font-bold text-center truncate w-full px-1">
+                  {ranking[1]?.user_name ? toTitleCase(ranking[1].user_name) : "—"}
+                </p>
               </div>
-            ) : ranking.length === 0 ? (
-              <div className="text-center py-10">
-                <Trophy className="w-6 h-6 text-muted-foreground/40 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-foreground mb-1">Nenhum show neste mês</p>
-                <p className="text-xs text-muted-foreground">O ranking aparecerá quando houver shows confirmados</p>
+
+              {/* 1st place */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-16 h-16 rounded-lg bg-yellow-100 dark:bg-yellow-500/10 flex items-center justify-center text-yellow-600 border border-yellow-200 dark:border-yellow-500/20 shadow-xl scale-110">
+                  <Crown className="w-8 h-8" />
+                </div>
+                <div className="w-full h-32 bg-gradient-to-t from-yellow-200 to-yellow-100 dark:from-yellow-500/20 dark:to-yellow-500/10 rounded-t-lg flex items-center justify-center border-x border-t border-yellow-200/50">
+                  <span className="text-3xl font-black text-yellow-600">1º</span>
+                </div>
+                <p className="text-[10px] font-black text-center truncate w-full px-1">
+                  {ranking[0]?.user_name ? toTitleCase(ranking[0].user_name) : "—"}
+                </p>
               </div>
-            ) : (
-              <PodiumContent ranking={ranking} currentUserId={user?.id} />
-            )}
+
+              {/* 3rd place */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center text-amber-700 border border-orange-200 dark:border-orange-500/20 shadow-lg">
+                  <Award className="w-6 h-6" />
+                </div>
+                <div className="w-full h-20 bg-gradient-to-t from-orange-200 to-orange-100 dark:from-orange-500/20 dark:to-orange-500/10 rounded-t-lg flex items-center justify-center">
+                  <span className="text-2xl font-black text-amber-700">3º</span>
+                </div>
+                <p className="text-[10px] font-bold text-center truncate w-full px-1">
+                  {ranking[2]?.user_name ? toTitleCase(ranking[2].user_name) : "—"}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
