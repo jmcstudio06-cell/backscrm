@@ -37,6 +37,12 @@ const MONTH_NAMES = [
 ];
 
 const DAYS_OF_WEEK = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+const CONSULTORIA_ALLOWED_DAYS = [1, 2, 3];
+
+function sanitizePreferredDays(days: number[] | null | undefined): number[] {
+  if (!Array.isArray(days)) return [];
+  return days.filter((day) => CONSULTORIA_ALLOWED_DAYS.includes(day));
+}
 
 function nextDateForWeekday(weekday: number, time: string | null): Date {
   const now = new Date();
@@ -194,7 +200,7 @@ function AdminView() {
       consultoria_day_of_week: p.consultoria_day_of_week,
       consultoria_time: p.consultoria_time,
       consultoria_activated_at: p.consultoria_activated_at,
-      consultoria_preferred_days: Array.isArray(p.consultoria_preferred_days) ? p.consultoria_preferred_days : [],
+      consultoria_preferred_days: sanitizePreferredDays(p.consultoria_preferred_days),
       consultoria_preferred_period: p.consultoria_preferred_period,
       next_consultoria_at: p.next_consultoria_at,
       next_consultoria_type: p.next_consultoria_type,
@@ -465,29 +471,37 @@ function ArtistView({ userId }: { userId: string }) {
           .order("year", { ascending: false })
           .order("month", { ascending: false }),
       ]);
-      setProfile(prof);
-      if (Array.isArray(prof?.consultoria_preferred_days) && prof!.consultoria_preferred_days!.length > 0) {
-        setPrefDays(prof!.consultoria_preferred_days as number[]);
+      const sanitizedProfile = prof
+        ? {
+            ...prof,
+            consultoria_preferred_days: sanitizePreferredDays(prof.consultoria_preferred_days),
+          }
+        : prof;
+      setProfile(sanitizedProfile);
+      if (sanitizedProfile?.consultoria_preferred_days?.length > 0) {
+        setPrefDays(sanitizedProfile.consultoria_preferred_days as number[]);
       }
-      if (prof?.consultoria_preferred_period) setPrefPeriod(prof.consultoria_preferred_period);
+      if (sanitizedProfile?.consultoria_preferred_period) setPrefPeriod(sanitizedProfile.consultoria_preferred_period);
       setSessions((sess as any) || []);
       setLoading(false);
     })();
   }, [userId]);
 
   function toggleDay(i: number) {
+    if (!CONSULTORIA_ALLOWED_DAYS.includes(i)) return;
     setPrefDays((prev) => prev.includes(i) ? prev.filter((d) => d !== i) : [...prev, i].sort());
   }
 
   async function activate() {
-    if (prefDays.length === 0) {
+    const sanitizedDays = sanitizePreferredDays(prefDays);
+    if (sanitizedDays.length === 0) {
       toast.error("Selecione ao menos 1 dia da semana");
       return;
     }
     setSaving(true);
     const payload = {
       consultoria_active: true,
-      consultoria_preferred_days: prefDays,
+      consultoria_preferred_days: sanitizedDays,
       consultoria_preferred_period: prefPeriod || null,
       consultoria_activated_at: new Date().toISOString(),
     };
@@ -520,7 +534,8 @@ function ArtistView({ userId }: { userId: string }) {
 
   const DayChips = () => (
     <div className="flex flex-wrap gap-2">
-      {DAYS_OF_WEEK.map((d, i) => {
+      {CONSULTORIA_ALLOWED_DAYS.map((i) => {
+        const d = DAYS_OF_WEEK[i];
         const active = prefDays.includes(i);
         return (
           <button
