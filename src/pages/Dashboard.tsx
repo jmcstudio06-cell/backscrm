@@ -485,6 +485,9 @@ const Dashboard = () => {
         {/* Aviso de renovação (mensal próximo do vencimento) */}
         <RenewSoonBanner />
 
+        {/* Próxima consultoria / apresentação agendada pelo admin */}
+        <NextConsultoriaCard />
+
         {/* Total Revenue Hero */}
         <TotalRevenueHero
           totalRevenue={totalAllTimeRevenue}
