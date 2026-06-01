@@ -466,7 +466,7 @@ function ArtistView({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<ConsultoriaSession[]>([]);
   const [viewing, setViewing] = useState<ConsultoriaSession | null>(null);
-  const [prefDays, setPrefDays] = useState<number[]>([1, 2, 3]);
+  const [prefDays, setPrefDays] = useState<number[]>([]);
   const [prefPeriod, setPrefPeriod] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -495,11 +495,15 @@ function ArtistView({ userId }: { userId: string }) {
           }
         : prof;
       setProfile(sanitizedProfile);
-      if (sanitizedProfile?.consultoria_preferred_days?.length > 0) {
+      if (sanitizedProfile?.consultoria_active && sanitizedProfile.consultoria_preferred_days?.length > 0) {
         setPrefDays(sanitizedProfile.consultoria_preferred_days as number[]);
+      } else {
+        setPrefDays([]);
       }
-      if (sanitizedProfile?.consultoria_preferred_period) {
+      if (sanitizedProfile?.consultoria_active && sanitizedProfile.consultoria_preferred_period) {
         setPrefPeriod(sanitizePreferredTime(sanitizedProfile.consultoria_preferred_period));
+      } else {
+        setPrefPeriod("");
       }
       setSessions((sess as any) || []);
       setLoading(false);
