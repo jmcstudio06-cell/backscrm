@@ -94,6 +94,11 @@ type ArtistRow = {
   consultoria_day_of_week: number | null;
   consultoria_time: string | null;
   consultoria_activated_at: string | null;
+  consultoria_preferred_days: number[] | null;
+  consultoria_preferred_period: string | null;
+  next_consultoria_at: string | null;
+  next_consultoria_type: string | null;
+  next_consultoria_notes: string | null;
 };
 
 const fmtBR = (v: number) =>
