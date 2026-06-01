@@ -179,15 +179,15 @@ export function RecommendedActionCard({
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
+    <div className="relative overflow-hidden rounded-none bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-60" />
-      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl group-hover:opacity-70 opacity-40 transition-opacity duration-700" />
+      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-none blur-3xl group-hover:opacity-70 opacity-40 transition-opacity duration-700" />
 
       <div className="relative">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-md bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
+            <div className="p-2.5 rounded-none bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -206,7 +206,7 @@ export function RecommendedActionCard({
                   key={index}
                   onClick={(e) => handleActionClick(e as any, action.path)}
                   className={cn(
-                    "w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group/action",
+                    "w-full flex items-center justify-between p-4 rounded-none border transition-all duration-300 group/action",
                     action.isBlocked 
                       ? "bg-muted/30 border-border opacity-60 cursor-not-allowed" 
                       : "bg-secondary/30 border-border/50 hover:bg-secondary/50 hover:border-primary/30"
@@ -214,7 +214,7 @@ export function RecommendedActionCard({
                 >
                   <div className="flex items-center gap-4">
                     <div className={cn(
-                      "w-10 h-10 rounded-md flex items-center justify-center transition-colors shadow-inner bg-gradient-to-br",
+                      "w-10 h-10 rounded-none flex items-center justify-center transition-colors shadow-inner bg-gradient-to-br",
                       action.isBlocked ? "from-muted to-muted-foreground/50" : action.gradient
                     )}>
                       {action.isBlocked ? (
@@ -238,7 +238,7 @@ export function RecommendedActionCard({
               );
             })
           ) : (
-            <div className="text-center py-10 bg-secondary/20 rounded-xl border border-dashed border-border">
+            <div className="text-center py-10 bg-secondary/20 rounded-none border border-dashed border-border">
               <Sparkles className="w-8 h-8 text-primary mx-auto mb-3 opacity-50" />
               <p className="text-sm font-bold text-foreground">Tudo em dia!</p>
               <p className="text-xs text-muted-foreground mt-1">Você está seguindo todos os passos recomendados.</p>

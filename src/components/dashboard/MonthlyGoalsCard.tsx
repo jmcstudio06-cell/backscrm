@@ -77,14 +77,14 @@ export function MonthlyGoalsCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">
+    <div className="relative overflow-hidden rounded-none bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-violet-500/10 to-transparent rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/20 to-transparent rounded-none blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-violet-500/10 to-transparent rounded-none blur-2xl translate-y-1/2 -translate-x-1/2" />
 
       <div className="relative">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30">
+          <div className="p-2.5 rounded-none bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30">
             <Flame className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -98,67 +98,35 @@ export function MonthlyGoalsCard({
         <div className="space-y-5">
           {goals.map((goal, index) => {
             const progress = getProgress(goal.current, goal.target);
-            const Icon = goal.icon;
             const ProgressIcon = getProgressIcon(progress);
-            const displayCurrent = goal.formatValue ? goal.formatValue(goal.current) : goal.current;
-            const displayTarget = goal.formatValue ? goal.formatValue(goal.target) : goal.target;
 
             return (
-              <div
-                key={goal.label}
-                className="group relative"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-lg transition-transform group-hover:scale-110",
-                      goal.gradient
-                    )}
-                  >
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-white">{goal.label}</span>
-                      <div className="flex items-center gap-2">
-                        <ProgressIcon className={cn("w-4 h-4", getProgressIconColor(progress))} />
-                        <span className="text-sm font-bold text-white">
-                          {displayCurrent} / {displayTarget}
-                        </span>
-                      </div>
+              <div key={index} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={cn("p-1.5 rounded-none bg-slate-800 border border-slate-700", getProgressIconColor(progress))}>
+                      <ProgressIcon className="w-3.5 h-3.5" />
                     </div>
+                    <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">{goal.label}</span>
                   </div>
+                  <span className="text-sm font-black text-white">
+                    {goal.formatValue ? goal.formatValue(goal.current) : goal.current} 
+                    <span className="text-slate-500 text-[10px] font-medium ml-1">
+                      / {goal.formatValue ? goal.formatValue(goal.target) : goal.target}
+                    </span>
+                  </span>
                 </div>
-
-                {/* Progress bar */}
-                <div className="ml-[52px]">
-                  <div className="relative h-3 bg-slate-700/50 rounded-full overflow-hidden">
-                    <div
-                      className={cn(
-                        "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out",
-                        goal.gradient
-                      )}
-                      style={{ width: `${progress}%` }}
+                <div className="relative h-2.5 bg-slate-800 rounded-none overflow-hidden border border-slate-700/50">
+                  <div 
+                    className={cn("h-full bg-gradient-to-r transition-all duration-1000 shadow-[0_0_10px_rgba(0,0,0,0.5)]", goal.gradient)}
+                    style={{ width: `${progress}%` }}
+                  />
+                  {progress > 0 && (
+                    <div 
+                      className="absolute top-0 bottom-0 right-0 w-1 bg-white/20 blur-[1px]"
+                      style={{ left: `${progress}%` }}
                     />
-                    {/* Shimmer effect */}
-                    {progress > 0 && (
-                      <div
-                        className="absolute inset-y-0 left-0 w-full animate-pulse"
-                        style={{
-                          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)",
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div className="flex justify-between mt-1.5">
-                    <span className="text-xs text-slate-400">{progress}% concluído</span>
-                    {progress >= 100 && (
-                      <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium">
-                        <Sparkles className="w-3 h-3" /> Meta batida!
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             );

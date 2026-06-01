@@ -36,13 +36,13 @@ export function StatCard({ title, value, icon: Icon, trend, gradient = "primary"
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 shadow-card group hover:shadow-elevated transition-all duration-500 hover:-translate-y-0.5",
+        "relative overflow-hidden rounded-none p-5 bg-card border border-border/50 shadow-card group hover:shadow-elevated transition-all duration-500 hover:-translate-y-0.5",
         className
       )}
     >
       {/* Background glow */}
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50", bgGlowMap[gradient])} />
-      <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full blur-3xl opacity-30 bg-gradient-to-br group-hover:opacity-50 transition-opacity duration-500" style={{ background: `var(--gradient-${gradient})` }} />
+      <div className="absolute -top-16 -right-16 w-32 h-32 rounded-none blur-3xl opacity-30 bg-gradient-to-br group-hover:opacity-50 transition-opacity duration-500" style={{ background: `var(--gradient-${gradient})` }} />
       
       <div className="relative flex items-start justify-between">
         <div className="space-y-3">
@@ -50,7 +50,7 @@ export function StatCard({ title, value, icon: Icon, trend, gradient = "primary"
           <p className="text-3xl font-bold text-foreground tracking-tight">{value}</p>
           {trend && (
             <div className={cn(
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold",
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-xs font-semibold",
               trend.isPositive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
             )}>
               {trend.isPositive ? (
@@ -63,7 +63,7 @@ export function StatCard({ title, value, icon: Icon, trend, gradient = "primary"
           )}
         </div>
         <div
-          className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg bg-gradient-to-br", gradientMap[gradient])}
+          className={cn("w-12 h-12 rounded-none flex items-center justify-center shadow-lg bg-gradient-to-br", gradientMap[gradient])}
         >
           <Icon className="w-5 h-5 text-white" />
         </div>

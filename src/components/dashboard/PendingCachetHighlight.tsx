@@ -16,10 +16,10 @@ export function PendingCachetHighlight({ totalPending }: PendingCachetHighlightP
     <div className="animate-fade-in">
       <Link 
         to="/financeiro"
-        className="group relative flex items-center justify-between w-full overflow-hidden rounded-xl bg-gradient-to-r from-success/20 to-success/10 border border-success/30 p-4 transition-all hover:shadow-lg hover:border-success/50"
+        className="group relative flex items-center justify-between w-full overflow-hidden rounded-none bg-gradient-to-r from-success/20 to-success/10 border border-success/30 p-4 transition-all hover:shadow-lg hover:border-success/50"
       >
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-success flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+          <div className="w-12 h-12 rounded-none bg-success flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <Wallet className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -31,7 +31,7 @@ export function PendingCachetHighlight({ totalPending }: PendingCachetHighlightP
           </div>
         </div>
         
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-success/20 text-success text-xs font-bold group-hover:gap-3 transition-all">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-none bg-success/20 text-success text-xs font-bold group-hover:gap-3 transition-all">
           Ver detalhes
           <ArrowRight className="w-3.5 h-3.5" />
         </div>

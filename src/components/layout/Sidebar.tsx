@@ -151,7 +151,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         <div className="p-4 border-b border-sidebar-border pt-[calc(1rem+env(safe-area-inset-top))]">
           <div className="flex items-center justify-between">
             <AppLogo collapsed={false} />
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={onCloseMobile}>
+            <Button variant="ghost" size="icon" className="lg:hidden rounded-none" onClick={onCloseMobile}>
               <X className="w-5 h-5 text-sidebar-foreground" />
             </Button>
           </div>

@@ -71,7 +71,7 @@ export function QuickAccessActions() {
               >
                 <div
                   className={cn(
-                    "relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-200",
+                    "relative flex h-12 w-12 items-center justify-center rounded-none border border-border/60 bg-card shadow-sm transition-all duration-200",
                     blocked
                       ? "opacity-60"
                       : "group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-md",
@@ -79,7 +79,7 @@ export function QuickAccessActions() {
                 >
                   <Icon className="h-5 w-5 text-foreground/80" />
                   {blocked && (
-                    <span className="absolute -right-1 -top-1 rounded-full border border-border/70 bg-background p-0.5 text-muted-foreground shadow-sm">
+                    <span className="absolute -right-1 -top-1 rounded-none border border-border/70 bg-background p-0.5 text-muted-foreground shadow-sm">
                       <Lock className="h-2.5 w-2.5" />
                     </span>
                   )}
