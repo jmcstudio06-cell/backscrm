@@ -37,29 +37,6 @@ const MONTH_NAMES = [
 ];
 
 const DAYS_OF_WEEK = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-const CONSULTORIA_ALLOWED_DAYS = [1, 2, 3];
-const CONSULTORIA_ALLOWED_TIMES = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-];
-
-function sanitizePreferredDays(days: number[] | null | undefined): number[] {
-  if (!Array.isArray(days)) return [];
-  return days.filter((day) => CONSULTORIA_ALLOWED_DAYS.includes(day));
-}
-
-function sanitizePreferredTime(time: string | null | undefined): string {
-  if (!time) return "";
-  return CONSULTORIA_ALLOWED_TIMES.includes(time) ? time : "";
-}
 
 function nextDateForWeekday(weekday: number, time: string | null): Date {
   const now = new Date();
@@ -112,7 +89,6 @@ type ArtistRow = {
   email: string | null;
   artist_name: string | null;
   avatar_url: string | null;
-  consultoria_active: boolean | null;
   sessions_count: number;
   last_session_at: string | null;
   consultoria_day_of_week: number | null;
@@ -184,7 +160,6 @@ function AdminView() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<ArtistRow | null>(null);
-  const [manualScheduleOpen, setManualScheduleOpen] = useState(false);
 
   useEffect(() => {
     loadArtists();
@@ -196,7 +171,7 @@ function AdminView() {
       supabase
         .from("profiles")
         .select("user_id, name, email, artist_name, avatar_url, consultoria_day_of_week, consultoria_time, consultoria_activated_at, consultoria_active, consultoria_preferred_days, consultoria_preferred_period, next_consultoria_at, next_consultoria_type, next_consultoria_notes")
-        .order("name"),
+        .eq("consultoria_active", true),
       supabase.from("consultoria_sessions").select("user_id, created_at"),
     ]);
 
@@ -214,13 +189,12 @@ function AdminView() {
       email: p.email,
       artist_name: p.artist_name,
       avatar_url: p.avatar_url,
-      consultoria_active: p.consultoria_active,
       sessions_count: counts.get(p.user_id)?.count || 0,
       last_session_at: counts.get(p.user_id)?.last || null,
       consultoria_day_of_week: p.consultoria_day_of_week,
       consultoria_time: p.consultoria_time,
       consultoria_activated_at: p.consultoria_activated_at,
-      consultoria_preferred_days: sanitizePreferredDays(p.consultoria_preferred_days),
+      consultoria_preferred_days: Array.isArray(p.consultoria_preferred_days) ? p.consultoria_preferred_days : [],
       consultoria_preferred_period: p.consultoria_preferred_period,
       next_consultoria_at: p.next_consultoria_at,
       next_consultoria_type: p.next_consultoria_type,
@@ -249,8 +223,6 @@ function AdminView() {
         (a.email || "").toLowerCase().includes(q),
     );
   }, [artists, search]);
-  const requestedArtists = filtered.filter((a) => a.consultoria_active === true);
-  const manualArtists = filtered.filter((a) => a.consultoria_active !== true);
 
   if (selectedUser) {
     return (
@@ -269,146 +241,92 @@ function AdminView() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar cantor por nome, artista ou email…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Dialog open={manualScheduleOpen} onOpenChange={setManualScheduleOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Agendar sem pedido
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Agendar para quem ainda não pediu consultoria</DialogTitle>
-            </DialogHeader>
-            {manualArtists.length === 0 ? (
-              <div className="py-8 text-center text-sm text-muted-foreground">
-                Nenhum cantor disponível nessa lista.
-              </div>
-            ) : (
-              <div className="grid gap-3 max-h-[70vh] overflow-y-auto pr-1 sm:grid-cols-2">
-                {manualArtists.map((artist) => (
-                  <AdminArtistCard
-                    key={artist.user_id}
-                    artist={artist}
-                    onSelect={setSelectedUser}
-                    onUpdated={loadArtists}
-                    showRequestHint
-                  />
-                ))}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar cantor por nome, artista ou email…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9"
+        />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
-      ) : requestedArtists.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
             <GraduationCap className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-            Nenhum cantor pediu consultoria ainda.
+            Nenhum cantor ativou a consultoria mensal ainda.
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          {requestedArtists.map((artist) => (
-            <AdminArtistCard
-              key={artist.user_id}
-              artist={artist}
-              onSelect={setSelectedUser}
-              onUpdated={loadArtists}
-            />
-          ))}
+          {filtered.map((a) => {
+            const display = a.artist_name || a.name || "Artista";
+            const prefDays = (a.consultoria_preferred_days || []).map((d) => DAYS_OF_WEEK[d]?.slice(0, 3)).filter(Boolean).join(", ");
+            const scheduled = a.next_consultoria_at ? new Date(a.next_consultoria_at) : null;
+            const isApresentacao = a.next_consultoria_type === "apresentacao";
+            return (
+              <div key={a.user_id} className="rounded-xl border bg-card p-4 hover:shadow-md hover:border-primary/50 transition-all">
+                <button onClick={() => setSelectedUser(a)} className="w-full text-left">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {a.avatar_url ? (
+                        <img src={a.avatar_url} alt={display} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-sm font-bold text-primary">{display.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate">{display}</p>
+                      <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground">Sessões</div>
+                      <div className="text-lg font-bold text-primary">{a.sessions_count}</div>
+                    </div>
+                  </div>
+                </button>
+
+                {/* preferências do artista */}
+                {(prefDays || a.consultoria_preferred_period) && (
+                  <div className="mt-3 rounded-lg bg-muted/40 p-2 text-xs">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">Disponibilidade</div>
+                    {prefDays && <div className="capitalize">{prefDays}</div>}
+                    {a.consultoria_preferred_period && (
+                      <div className="text-muted-foreground">{a.consultoria_preferred_period}</div>
+                    )}
+                  </div>
+                )}
+
+                {/* agendamento atual */}
+                {scheduled && scheduled.getTime() > Date.now() - 1000 * 60 * 60 && (
+                  <div className={cn(
+                    "mt-2 rounded-lg p-2 text-xs border",
+                    isApresentacao ? "bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300"
+                                   : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                  )}>
+                    <div className="font-semibold">
+                      {isApresentacao ? "Apresentação" : "Consultoria"} agendada
+                    </div>
+                    <div className="capitalize">
+                      {scheduled.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+                      {" • "}
+                      {scheduled.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                )}
+
+                {/* botão agendar */}
+                <ScheduleConsultoriaButton artist={a} onUpdated={loadArtists} />
+              </div>
+            );
+          })}
         </div>
       )}
-    </div>
-  );
-}
-
-function AdminArtistCard({
-  artist,
-  onSelect,
-  onUpdated,
-  showRequestHint = false,
-}: {
-  artist: ArtistRow;
-  onSelect: (artist: ArtistRow) => void;
-  onUpdated: () => void;
-  showRequestHint?: boolean;
-}) {
-  const display = artist.artist_name || artist.name || "Artista";
-  const prefDays = (artist.consultoria_preferred_days || []).map((d) => DAYS_OF_WEEK[d]?.slice(0, 3)).filter(Boolean).join(", ");
-  const scheduled = artist.next_consultoria_at ? new Date(artist.next_consultoria_at) : null;
-  const isApresentacao = artist.next_consultoria_type === "apresentacao";
-
-  return (
-    <div className="rounded-xl border bg-card p-4 hover:shadow-md hover:border-primary/50 transition-all">
-      <button onClick={() => onSelect(artist)} className="w-full text-left">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
-            {artist.avatar_url ? (
-              <img src={artist.avatar_url} alt={display} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-sm font-bold text-primary">{display.charAt(0).toUpperCase()}</span>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold truncate">{display}</p>
-            <p className="text-xs text-muted-foreground truncate">{artist.email}</p>
-            {showRequestHint && (
-              <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
-                Ainda nao pediu consultoria
-              </p>
-            )}
-          </div>
-          <div className="text-right">
-            <div className="text-xs text-muted-foreground">Sessões</div>
-            <div className="text-lg font-bold text-primary">{artist.sessions_count}</div>
-          </div>
-        </div>
-      </button>
-
-      {(prefDays || artist.consultoria_preferred_period) && (
-        <div className="mt-3 rounded-lg bg-muted/40 p-2 text-xs">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">Disponibilidade</div>
-          {prefDays && <div className="capitalize">{prefDays}</div>}
-          {artist.consultoria_preferred_period && (
-            <div className="text-muted-foreground">{artist.consultoria_preferred_period}</div>
-          )}
-        </div>
-      )}
-
-      {scheduled && scheduled.getTime() > Date.now() - 1000 * 60 * 60 && (
-        <div className={cn(
-          "mt-2 rounded-lg p-2 text-xs border",
-          isApresentacao ? "bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300"
-                         : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
-        )}>
-          <div className="font-semibold">
-            {isApresentacao ? "Apresentação" : "Consultoria"} agendada
-          </div>
-          <div className="capitalize">
-            {scheduled.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-            {" • "}
-            {scheduled.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-          </div>
-        </div>
-      )}
-
-      <ScheduleConsultoriaButton artist={artist} onUpdated={onUpdated} />
     </div>
   );
 }
@@ -439,8 +357,6 @@ function ScheduleConsultoriaButton({ artist, onUpdated }: { artist: ArtistRow; o
     const { error } = await supabase
       .from("profiles")
       .update({
-        consultoria_active: true,
-        consultoria_activated_at: artist.consultoria_active ? artist.consultoria_activated_at : new Date().toISOString(),
         next_consultoria_at: dt.toISOString(),
         next_consultoria_type: type,
         next_consultoria_notes: notes || null,
@@ -527,7 +443,7 @@ function ArtistView({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<ConsultoriaSession[]>([]);
   const [viewing, setViewing] = useState<ConsultoriaSession | null>(null);
-  const [prefDays, setPrefDays] = useState<number[]>([]);
+  const [prefDays, setPrefDays] = useState<number[]>([1, 2, 3]);
   const [prefPeriod, setPrefPeriod] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -549,49 +465,30 @@ function ArtistView({ userId }: { userId: string }) {
           .order("year", { ascending: false })
           .order("month", { ascending: false }),
       ]);
-      const sanitizedProfile = prof
-        ? {
-            ...prof,
-            consultoria_preferred_days: sanitizePreferredDays(prof.consultoria_preferred_days),
-          }
-        : prof;
-      setProfile(sanitizedProfile);
-      if (sanitizedProfile?.consultoria_active && sanitizedProfile.consultoria_preferred_days?.length > 0) {
-        setPrefDays(sanitizedProfile.consultoria_preferred_days as number[]);
-      } else {
-        setPrefDays([]);
+      setProfile(prof);
+      if (Array.isArray(prof?.consultoria_preferred_days) && prof!.consultoria_preferred_days!.length > 0) {
+        setPrefDays(prof!.consultoria_preferred_days as number[]);
       }
-      if (sanitizedProfile?.consultoria_active && sanitizedProfile.consultoria_preferred_period) {
-        setPrefPeriod(sanitizePreferredTime(sanitizedProfile.consultoria_preferred_period));
-      } else {
-        setPrefPeriod("");
-      }
+      if (prof?.consultoria_preferred_period) setPrefPeriod(prof.consultoria_preferred_period);
       setSessions((sess as any) || []);
       setLoading(false);
     })();
   }, [userId]);
 
   function toggleDay(i: number) {
-    if (!CONSULTORIA_ALLOWED_DAYS.includes(i)) return;
     setPrefDays((prev) => prev.includes(i) ? prev.filter((d) => d !== i) : [...prev, i].sort());
   }
 
   async function activate() {
-    const sanitizedDays = sanitizePreferredDays(prefDays);
-    if (sanitizedDays.length === 0) {
+    if (prefDays.length === 0) {
       toast.error("Selecione ao menos 1 dia da semana");
-      return;
-    }
-    const sanitizedTime = sanitizePreferredTime(prefPeriod);
-    if (!sanitizedTime) {
-      toast.error("Selecione um horário entre 09:00 e 18:00");
       return;
     }
     setSaving(true);
     const payload = {
       consultoria_active: true,
-      consultoria_preferred_days: sanitizedDays,
-      consultoria_preferred_period: sanitizedTime,
+      consultoria_preferred_days: prefDays,
+      consultoria_preferred_period: prefPeriod || null,
       consultoria_activated_at: new Date().toISOString(),
     };
     const { error } = await supabase.from("profiles").update(payload).eq("user_id", userId);
@@ -623,8 +520,7 @@ function ArtistView({ userId }: { userId: string }) {
 
   const DayChips = () => (
     <div className="flex flex-wrap gap-2">
-      {CONSULTORIA_ALLOWED_DAYS.map((i) => {
-        const d = DAYS_OF_WEEK[i];
+      {DAYS_OF_WEEK.map((d, i) => {
         const active = prefDays.includes(i);
         return (
           <button
@@ -665,19 +561,12 @@ function ArtistView({ userId }: { userId: string }) {
             <DayChips />
           </div>
           <div>
-            <Label className="text-xs">Horário preferido</Label>
-            <Select value={prefPeriod} onValueChange={setPrefPeriod}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um horário" />
-              </SelectTrigger>
-              <SelectContent>
-                {CONSULTORIA_ALLOWED_TIMES.map((time) => (
-                  <SelectItem key={time} value={time}>
-                    {time}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label className="text-xs">Período / horário preferido</Label>
+            <Input
+              value={prefPeriod}
+              onChange={(e) => setPrefPeriod(e.target.value)}
+              placeholder="Ex.: manhã (9h–12h) ou após as 18h"
+            />
           </div>
           <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-muted-foreground">
             ✦ Você só sinaliza sua disponibilidade. A equipe agenda a data exata e te avisa aqui no app.
@@ -745,19 +634,12 @@ function ArtistView({ userId }: { userId: string }) {
                       <DayChips />
                     </div>
                     <div>
-                      <Label className="text-xs">Horário</Label>
-                      <Select value={prefPeriod} onValueChange={setPrefPeriod}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um horário" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {CONSULTORIA_ALLOWED_TIMES.map((time) => (
-                            <SelectItem key={time} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label className="text-xs">Período / horário</Label>
+                      <Input
+                        value={prefPeriod}
+                        onChange={(e) => setPrefPeriod(e.target.value)}
+                        placeholder="Ex.: tarde, após 18h…"
+                      />
                     </div>
                     <Button onClick={activate} disabled={saving} className="w-full">
                       {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}

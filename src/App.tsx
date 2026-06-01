@@ -29,6 +29,7 @@ import MetasAnuais from "./pages/MetasAnuais";
 import Planos from "./pages/Planos";
 import Configuracoes from "./pages/Configuracoes";
 import Orcamentos from "./pages/Orcamentos";
+import Contratos from "./pages/Contratos";
 import Repertorio from "./pages/Repertorio";
 import MapeamentoPalco from "./pages/MapeamentoPalco";
 import Precificacao from "./pages/Precificacao";
@@ -48,7 +49,6 @@ import LinkInstagramConfig from "./pages/LinkInstagramConfig";
 import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
 import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
-import Contratos from "./pages/Contratos";
 import Selos from "./pages/Selos";
 import Notificacoes from "./pages/Notificacoes";
 import Sugestoes from "./pages/Sugestoes";
@@ -131,6 +131,7 @@ const App = () => (
                 <Route path="/orcamentos" element={<AuthPage featureKey="orcamentos"><Orcamentos /></AuthPage>} />
                 <Route path="/servicos" element={<AuthPage featureKey="servicos"><ServicosProdutos /></AuthPage>} />
                 <Route path="/planejamento-conteudo" element={<AuthPage featureKey="ideias-post"><PlanejamentoConteudo /></AuthPage>} />
+                
                 <Route path="/contratos" element={<AuthPage featureKey="contratos"><Contratos /></AuthPage>} />
                 <Route path="/repertorio" element={<AuthPage featureKey="repertorio"><Repertorio /></AuthPage>} />
                 <Route path="/admin" element={<AuthPage><Admin /></AuthPage>} />

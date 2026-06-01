@@ -1,14 +1,14 @@
 import { Layout } from "@/components/layout/Layout";
-import { CareerVideogameHeader } from "@/components/dashboard/CareerVideogameHeader";
-import { PendingCachetHighlight } from "@/components/dashboard/PendingCachetHighlight";
-import { MonthlyEvolutionChart } from "@/components/dashboard/MonthlyEvolutionChart";
-import { RankingDashboardCard } from "@/components/dashboard/RankingDashboardCard";
+import { CareerStatusCard } from "@/components/dashboard/CareerStatusCard";
 import { RecommendedActionCard } from "@/components/dashboard/RecommendedActionCard";
+import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
+import { TotalRevenueHero } from "@/components/dashboard/TotalRevenueHero";
+import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
-import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
 
+import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { RenewSoonBanner } from "@/components/dashboard/RenewSoonBanner";
 import { NextConsultoriaCard } from "@/components/dashboard/NextConsultoriaCard";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
@@ -22,7 +22,7 @@ import { useShows } from "@/contexts/shows/ShowsContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useClients } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
@@ -51,8 +51,6 @@ const Dashboard = () => {
   const [contractsCount, setContractsCount] = useState(0);
   const [contractShowIds, setContractShowIds] = useState<string[]>([]);
   const [stageMappingsCount, setStageMappingsCount] = useState(0);
-  const [rankingPosition, setRankingPosition] = useState<number | null>(null);
-  const [myBadges, setMyBadges] = useState<{ badge_type: string; month: number; year: number }[]>([]);
 
   // Unified loading state - only show content when main data is ready
   const isLoading = leadsLoading || transactionsLoading || showsLoading || profileLoading || clientsLoading || goalsLoading;
@@ -65,6 +63,25 @@ const Dashboard = () => {
   const currentMonthEnd = endOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
   const lastMonthEnd = endOfMonth(subMonths(now, 1));
+
+  // Find current month's show goal
+  const currentShowGoal = useMemo(() => {
+    return goals.find(
+      (g) => g.type === "shows" && g.month === currentMonth && g.year === currentYear
+    );
+  }, [goals, currentMonth, currentYear]);
+
+  // Count confirmed + completed shows this month (all except cancelled)
+  const completedShowsThisMonth = useMemo(() => {
+    return shows.filter((show) => {
+      const showDate = new Date(show.date + "T12:00:00");
+      return (
+        (show.status === "completed" || show.status === "confirmed") &&
+        showDate >= currentMonthStart &&
+        showDate <= currentMonthEnd
+      );
+    }).length;
+  }, [shows, currentMonthStart, currentMonthEnd]);
 
   // Check if user should see onboarding, checklists, and fetch lightweight counts
   useEffect(() => {
@@ -86,31 +103,10 @@ const Dashboard = () => {
 
     // Batch lightweight count queries (checklist agora é 100% local — sem query)
     const fetchCounts = async () => {
-      const [contractsResult, mappingsResult, rankingResult] = await Promise.all([
+      const [contractsResult, mappingsResult] = await Promise.all([
         supabase.from("contracts").select("id, show_id").order("created_at", { ascending: false }).limit(5),
         supabase.from("stage_mappings").select("*", { count: "exact", head: true }),
-        supabase.rpc("get_monthly_show_ranking_for_month", {
-          target_month: currentMonth,
-          target_year: currentYear,
-        }),
       ]);
-
-      // Process ranking
-      if (rankingResult.data) {
-        const typedRanking = rankingResult.data as any[];
-        const position = typedRanking.findIndex((r) => r.user_id === profile.user_id);
-        setRankingPosition(position !== -1 ? position + 1 : null);
-      }
-
-      // Fetch badges (simplified version for dashboard)
-      const { data: badgesData } = await supabase
-        .from("user_badges")
-        .select("*")
-        .eq("user_id", profile.user_id)
-        .order("created_at", { ascending: false })
-        .limit(3);
-      
-      setMyBadges(badgesData || []);
 
       // Checklist marcado como "usado" se há qualquer marcação local salva
       let anyLocalChecklist = false;
@@ -130,52 +126,7 @@ const Dashboard = () => {
       setStageMappingsCount(mappingsResult.count || 0);
     };
     fetchCounts();
-  }, [profile, profileLoading, currentMonth, currentYear]);
-
-  // Find current month's show goal
-  const currentShowGoal = useMemo(() => {
-    return goals.find(
-      (g) => g.type === "shows" && g.month === currentMonth && g.year === currentYear
-    );
-  }, [goals, currentMonth, currentYear]);
-
-  // Count confirmed + completed shows this month (all except cancelled)
-  const completedShowsThisMonth = useMemo(() => {
-    return shows.filter((show) => {
-      const showDate = parseLocalDate(show.date);
-      return (
-        (show.status === "completed" || show.status === "confirmed") &&
-        showDate >= currentMonthStart &&
-        showDate <= currentMonthEnd
-      );
-    }).length;
-  }, [shows, currentMonthStart, currentMonthEnd]);
-
-  // Monthly evolution data (last 4 months)
-  const monthlyEvolution = useMemo(() => {
-    const months = [];
-    for (let i = 3; i >= 0; i--) {
-      const date = subMonths(now, i);
-      const mStart = startOfMonth(date);
-      const mEnd = endOfMonth(date);
-      const mName = format(date, "MMMM", { locale: ptBR });
-      
-      const count = shows.filter(s => {
-        const sDate = parseLocalDate(s.date);
-        return s.status !== "cancelled" && sDate >= mStart && sDate <= mEnd;
-      }).length;
-      
-      const revenue = transactions
-        .filter(t => {
-          const tDate = parseLocalDate(t.date);
-          return t.type === "income" && tDate >= mStart && tDate <= mEnd;
-        })
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-        
-      months.push({ name: mName, count, revenue });
-    }
-    return months;
-  }, [shows, transactions, now]);
+  }, [profile, profileLoading]);
 
   // Show monthly goal modal if no goal set for this month (after loading)
   // Skip during onboarding AND for users who haven't completed onboarding yet —
@@ -328,11 +279,11 @@ const Dashboard = () => {
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     return { pendingShows, totalPending, totalReceived };
-  }, [shows, transactions, currentMonthStart, currentMonthEnd]);
+  }, [shows, transactions, now, currentMonthStart, currentMonthEnd]);
 
   // Upcoming shows with enhanced data
   const upcomingShows = useMemo(() => {
-    const showsData = shows
+    return shows
       .filter((show) => parseISO(show.date) >= now && show.status !== "cancelled")
       .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
       .slice(0, 3)
@@ -351,21 +302,7 @@ const Dashboard = () => {
           hasContract,
         };
       });
-
-    // Calculate current month totals for upcoming section
-    const monthlyShows = shows.filter(s => {
-      const sDate = parseLocalDate(s.date);
-      return s.status !== "cancelled" && sDate >= currentMonthStart && sDate <= currentMonthEnd;
-    });
-    const monthlyRevenue = monthlyShows.reduce((sum, s) => sum + Number(s.cachet || 0), 0);
-
-    return {
-      shows: showsData,
-      monthTotal: monthlyRevenue,
-      monthCount: monthlyShows.length,
-      monthName: currentMonthName
-    };
-  }, [shows, clients, contractShowIds, now, currentMonthStart, currentMonthEnd, currentMonthName]);
+  }, [shows, clients, contractShowIds, now]);
 
   // Total revenue hero calculations
   const totalAllTimeRevenue = useMemo(() => {
@@ -391,10 +328,58 @@ const Dashboard = () => {
     return { value: Number(best.cachet), showTitle: best.title };
   }, [shows]);
 
+  // Annual projection: média de shows/mês × 12 × cachê médio
+  const annualProjection = useMemo(() => {
+    // Shows completados neste ano
+    const completedThisYear = shows.filter(s => 
+      s.status === "completed" && s.date.startsWith(String(currentYear))
+    );
+    if (completedThisYear.length === 0) return 0;
+
+    // Quantos meses já se passaram no ano (mínimo 1)
+    const currentMonth = now.getMonth() + 1; // 1-12
+    const monthsElapsed = Math.max(currentMonth, 1);
+
+    // Média de shows por mês
+    const avgShowsPerMonth = completedThisYear.length / monthsElapsed;
+
+    // Cachê médio dos shows completados neste ano
+    const totalCachet = completedThisYear.reduce((sum, s) => sum + Number(s.cachet || 0), 0);
+    const avgCachet = totalCachet / completedThisYear.length;
+
+    // Projeção: média mensal × 12 × cachê médio
+    return Math.round(avgShowsPerMonth * 12 * avgCachet * 100) / 100;
+  }, [shows, currentYear, now]);
+
+  // Best month ever (by income transactions)
+  const bestMonth = useMemo(() => {
+    const incomeTransactions = transactions.filter(t => t.type === "income");
+    if (incomeTransactions.length === 0) return null;
+    
+    const byMonth: Record<string, number> = {};
+    incomeTransactions.forEach(t => {
+      const key = t.date.substring(0, 7); // YYYY-MM
+      byMonth[key] = (byMonth[key] || 0) + Number(t.amount);
+    });
+
+    const bestKey = Object.entries(byMonth).reduce((best, [key, val]) => 
+      val > best[1] ? [key, val] : best, ["", 0]);
+    
+    if (!bestKey[0]) return null;
+    const [year, month] = (bestKey[0] as string).split("-");
+    const monthName = format(new Date(Number(year), Number(month) - 1), "MMMM", { locale: ptBR });
+    return { month: monthName, value: bestKey[1] as number };
+  }, [transactions]);
+
+  // Check if user has data for recommended actions
   const hasLeads = leads.length > 0;
   const hasShows = shows.length > 0;
   const hasContracts = contractsCount > 0;
   const hasGoals = goals.length > 0;
+
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   // Loading skeleton
   if (isLoading) {
@@ -461,41 +446,67 @@ const Dashboard = () => {
       />
 
 
-      <div className="space-y-6 sm:space-y-8 pb-10">
-        {/* Gift & Trial Banners */}
-        <div className="space-y-4">
-          <GiftClaimCard />
-          <TrialCountdownCard />
-          <RenewSoonBanner />
+      <div className="space-y-4 sm:space-y-6">
+        {/* Gift Claim Card - shows when user has available gift */}
+        <GiftClaimCard />
+
+        {/* Trial Countdown Card */}
+        <TrialCountdownCard />
+
+        {/* Welcome Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 animate-fade-in">
+          <div className="relative">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+              <span className="text-foreground">Olá, </span>
+              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+                {profile?.name || 'Artista'}!
+              </span>
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate("/tutoriais")}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-colors text-left sm:text-right shrink-0"
+          >
+            <Lightbulb className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-xs font-medium text-foreground">Aproveite 100% do seu plano</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+          </button>
         </div>
 
-        {/* Videogame Header Section */}
-        <CareerVideogameHeader
-          completedShowsThisMonth={completedShowsThisMonth}
-          currentShowGoalTarget={currentShowGoal?.target_value || 0}
-          totalAllTimeRevenue={totalAllTimeRevenue}
-          completedShowsAllTime={completedShowsAllTime}
-          revenueGrowth={revenueGrowth}
-          rankingPosition={rankingPosition}
-          myBadgesCount={myBadges.length}
+
+
+
+        {/* Ranking Teaser - removido temporariamente */}
+        {false && <RankingTeaser />}
+
+        {/* Aviso de renovação (mensal próximo do vencimento) */}
+        <RenewSoonBanner />
+
+        {/* Próxima consultoria / apresentação agendada pelo admin */}
+        <NextConsultoriaCard />
+
+        {/* Total Revenue Hero */}
+        <TotalRevenueHero
+          totalRevenue={totalAllTimeRevenue}
+          completedShowsCount={completedShowsAllTime}
+          growthPercentage={revenueGrowth}
+          bestFee={bestFeeShow}
+          bestMonth={bestMonth}
+          annualProjection={annualProjection}
         />
 
-        {/* Pending Cachet Highlight (Very Top Visibility) */}
-        <PendingCachetHighlight totalPending={pendingCachetData.totalPending} />
-
-        {/* Main Stats Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MonthlyEvolutionChart data={monthlyEvolution} />
-          <RankingDashboardCard position={rankingPosition} badges={myBadges} />
-        </div>
-
-        {/* Secondary Rows */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <UpcomingShowsCard 
-            shows={upcomingShows.shows} 
-            monthTotal={upcomingShows.monthTotal}
-            monthCount={upcomingShows.monthCount}
-            monthName={upcomingShows.monthName}
+        {/* Main Status Cards Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <CareerStatusCard
+            leadsThisMonth={leadsThisMonth}
+            leadsLastMonth={leadsLastMonth}
+            showsThisMonth={showsThisMonth}
+            showsLastMonth={showsLastMonth}
+            revenueThisMonth={revenueThisMonth}
+            revenueLastMonth={revenueLastMonth}
           />
           <RecommendedActionCard
             hasLeads={hasLeads}
@@ -503,16 +514,23 @@ const Dashboard = () => {
             hasContracts={hasContracts}
             hasGoals={hasGoals}
             pendingCachet={pendingCachetData.totalPending}
-            upcomingShowsCount={upcomingShows.shows.length}
+            upcomingShowsCount={upcomingShows.length}
           />
         </div>
 
-        {/* Admin content / Consultoria */}
-        <NextConsultoriaCard />
+        {/* Financial & Shows Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <PendingCachetCard
+            pendingShows={pendingCachetData.pendingShows}
+            totalPending={pendingCachetData.totalPending}
+            totalReceived={pendingCachetData.totalReceived}
+          />
+          <UpcomingShowsCard shows={upcomingShows} />
+        </div>
 
-        {/* Monthly Show Goal Progress - optional at bottom if they want more detail */}
+        {/* Monthly Show Goal Progress - at the end */}
         {currentShowGoal && (
-          <div className="animate-fade-in opacity-50 hover:opacity-100 transition-opacity">
+          <div className="animate-fade-in">
             <MonthlyShowGoalProgress
               current={completedShowsThisMonth}
               target={currentShowGoal.target_value}
@@ -520,18 +538,6 @@ const Dashboard = () => {
             />
           </div>
         )}
-
-        {/* Tutorials link */}
-        <div className="flex justify-center">
-          <button
-            onClick={() => navigate("/tutoriais")}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-all group"
-          >
-            <Lightbulb className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-            <span className="text-sm font-bold text-foreground">Dicas para evoluir sua carreira</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </button>
-        </div>
 
       </div>
     </Layout>
