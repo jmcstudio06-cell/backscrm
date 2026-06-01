@@ -38,10 +38,27 @@ const MONTH_NAMES = [
 
 const DAYS_OF_WEEK = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 const CONSULTORIA_ALLOWED_DAYS = [1, 2, 3];
+const CONSULTORIA_ALLOWED_TIMES = [
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+];
 
 function sanitizePreferredDays(days: number[] | null | undefined): number[] {
   if (!Array.isArray(days)) return [];
   return days.filter((day) => CONSULTORIA_ALLOWED_DAYS.includes(day));
+}
+
+function sanitizePreferredTime(time: string | null | undefined): string {
+  if (!time) return "";
+  return CONSULTORIA_ALLOWED_TIMES.includes(time) ? time : "";
 }
 
 function nextDateForWeekday(weekday: number, time: string | null): Date {
@@ -481,7 +498,9 @@ function ArtistView({ userId }: { userId: string }) {
       if (sanitizedProfile?.consultoria_preferred_days?.length > 0) {
         setPrefDays(sanitizedProfile.consultoria_preferred_days as number[]);
       }
-      if (sanitizedProfile?.consultoria_preferred_period) setPrefPeriod(sanitizedProfile.consultoria_preferred_period);
+      if (sanitizedProfile?.consultoria_preferred_period) {
+        setPrefPeriod(sanitizePreferredTime(sanitizedProfile.consultoria_preferred_period));
+      }
       setSessions((sess as any) || []);
       setLoading(false);
     })();
@@ -498,11 +517,16 @@ function ArtistView({ userId }: { userId: string }) {
       toast.error("Selecione ao menos 1 dia da semana");
       return;
     }
+    const sanitizedTime = sanitizePreferredTime(prefPeriod);
+    if (!sanitizedTime) {
+      toast.error("Selecione um horário entre 09:00 e 18:00");
+      return;
+    }
     setSaving(true);
     const payload = {
       consultoria_active: true,
       consultoria_preferred_days: sanitizedDays,
-      consultoria_preferred_period: prefPeriod || null,
+      consultoria_preferred_period: sanitizedTime,
       consultoria_activated_at: new Date().toISOString(),
     };
     const { error } = await supabase.from("profiles").update(payload).eq("user_id", userId);
@@ -576,12 +600,19 @@ function ArtistView({ userId }: { userId: string }) {
             <DayChips />
           </div>
           <div>
-            <Label className="text-xs">Período / horário preferido</Label>
-            <Input
-              value={prefPeriod}
-              onChange={(e) => setPrefPeriod(e.target.value)}
-              placeholder="Ex.: manhã (9h–12h) ou após as 18h"
-            />
+            <Label className="text-xs">Horário preferido</Label>
+            <Select value={prefPeriod} onValueChange={setPrefPeriod}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um horário" />
+              </SelectTrigger>
+              <SelectContent>
+                {CONSULTORIA_ALLOWED_TIMES.map((time) => (
+                  <SelectItem key={time} value={time}>
+                    {time}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-muted-foreground">
             ✦ Você só sinaliza sua disponibilidade. A equipe agenda a data exata e te avisa aqui no app.
@@ -649,12 +680,19 @@ function ArtistView({ userId }: { userId: string }) {
                       <DayChips />
                     </div>
                     <div>
-                      <Label className="text-xs">Período / horário</Label>
-                      <Input
-                        value={prefPeriod}
-                        onChange={(e) => setPrefPeriod(e.target.value)}
-                        placeholder="Ex.: tarde, após 18h…"
-                      />
+                      <Label className="text-xs">Horário</Label>
+                      <Select value={prefPeriod} onValueChange={setPrefPeriod}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um horário" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CONSULTORIA_ALLOWED_TIMES.map((time) => (
+                            <SelectItem key={time} value={time}>
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <Button onClick={activate} disabled={saving} className="w-full">
                       {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
