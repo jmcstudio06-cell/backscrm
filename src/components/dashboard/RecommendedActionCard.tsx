@@ -152,9 +152,9 @@ export function RecommendedActionCard({
     return actions.sort((a, b) => a.priority - b.priority);
   };
 
-  const actions = getRecommendedActions();
-  const primaryAction = actions[0];
-  const secondaryActions = actions.slice(1, 3);
+  const rawActions = getRecommendedActions();
+  const primaryAction = rawActions[0];
+  const secondaryActions = rawActions.slice(1, 3);
   const Icon = primaryAction.icon;
   const primaryFeatureKey = routeToFeatureKey[primaryAction.link];
   const isPrimaryBlocked = primaryFeatureKey ? isBlocked(primaryFeatureKey) : false;
