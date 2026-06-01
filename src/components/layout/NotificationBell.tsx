@@ -56,7 +56,7 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[360px] p-0 overflow-hidden rounded-2xl">
+      <PopoverContent align="end" className="w-[360px] p-0 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <div>
             <p className="font-semibold text-sm">Notificações</p>
@@ -90,7 +90,7 @@ export function NotificationBell() {
         <div className="max-h-[420px] overflow-y-auto">
           {recent.length === 0 ? (
             <div className="px-4 py-10 text-center">
-              <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-3">
                 <Bell className="w-6 h-6 text-muted-foreground" />
               </div>
               <p className="text-sm font-medium">Sem notificações</p>

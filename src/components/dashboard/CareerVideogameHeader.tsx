@@ -42,21 +42,21 @@ export function CareerVideogameHeader({
 
   const fmt = (val: number) => val.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-  if (loading) return <Skeleton className="h-48 w-full rounded-none" />;
+  if (loading) return <Skeleton className="h-48 w-full rounded-3xl" />;
 
   return (
-    <div className="relative overflow-hidden rounded-none bg-card border border-border/50 p-6 sm:p-8 shadow-card group animate-fade-in">
+    <div className="relative overflow-hidden rounded-xl bg-card border border-border/50 p-6 sm:p-8 shadow-card group animate-fade-in">
       {/* Background Video-gamey effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-60" />
-      <div className="absolute -top-24 -right-24 w-64 h-64 rounded-none blur-[100px] opacity-20 bg-primary animate-pulse" />
-      <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-none blur-[100px] opacity-20 bg-accent animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-20 bg-primary animate-pulse" />
+      <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-[100px] opacity-20 bg-accent animate-pulse" style={{ animationDelay: '1s' }} />
 
       <div className="relative z-10">
         {/* Top Header: Profile & Career Level */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-5">
             <div className="relative">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border-2 border-primary/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-primary/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt={profile.name} className="w-full h-full object-cover" />
                 ) : (
@@ -66,7 +66,7 @@ export function CareerVideogameHeader({
                 )}
               </div>
               {rankingPosition && rankingPosition <= 10 && (
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-none bg-yellow-400 flex items-center justify-center shadow-lg ring-2 ring-background animate-bounce-soft">
+                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-md bg-yellow-400 flex items-center justify-center shadow-lg ring-2 ring-background animate-bounce-soft">
                   <Trophy className="w-4 h-4 text-yellow-900" />
                 </div>
               )}
@@ -78,12 +78,12 @@ export function CareerVideogameHeader({
                 <CheckCircle2 className="w-5 h-5 text-primary fill-primary/10" />
               </h1>
               <div className="flex flex-wrap items-center gap-3 mt-2">
-                <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold border", level.bg, level.color, level.border)}>
+                <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold border", level.bg, level.color, level.border)}>
                   <LevelIcon className="w-3.5 h-3.5" />
                   Nível: {level.label}
                 </div>
                 {rankingPosition && (
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold bg-yellow-400/10 text-yellow-600 border border-yellow-400/20">
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold bg-yellow-400/10 text-yellow-600 border border-yellow-400/20">
                     <Trophy className="w-3.5 h-3.5" />
                     #{rankingPosition} Regional
                   </div>
@@ -93,12 +93,12 @@ export function CareerVideogameHeader({
           </div>
 
           {/* Monthly Goal Progress (Simplified) */}
-          <div className="bg-secondary/40 backdrop-blur-md border border-border/50 rounded-none p-4 min-w-[240px]">
+          <div className="bg-secondary/40 backdrop-blur-md border border-border/50 rounded-xl p-4 min-w-[240px]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Meta Mensal</span>
               <span className="text-xs font-bold text-foreground">{progress}%</span>
             </div>
-            <div className="h-2.5 bg-muted rounded-none overflow-hidden mb-2">
+            <div className="h-2.5 bg-muted rounded-md overflow-hidden mb-2">
               <div 
                 className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 ease-out"
                 style={{ width: `${progress}%` }}
@@ -144,8 +144,8 @@ export function CareerVideogameHeader({
 
 function GameStat({ icon, label, value, sublabel }: { icon: React.ReactNode, label: string, value: string, sublabel: string }) {
   return (
-    <div className="bg-secondary/30 hover:bg-secondary/50 border border-border/40 rounded-none p-4 transition-all duration-300 group/stat">
-      <div className="w-8 h-8 rounded-none bg-background flex items-center justify-center mb-3 shadow-inner text-primary group-hover/stat:scale-110 transition-transform">
+    <div className="bg-secondary/30 hover:bg-secondary/50 border border-border/40 rounded-xl p-4 transition-all duration-300 group/stat">
+      <div className="w-8 h-8 rounded-md bg-background flex items-center justify-center mb-3 shadow-inner text-primary group-hover/stat:scale-110 transition-transform">
         {icon}
       </div>
       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">{label}</p>

@@ -57,17 +57,17 @@ export function SmartStatCard({
   if (shouldShowEmpty && emptyMessage && emptyLink) {
     return (
       <Link to={emptyLink} className={cn("group block", className)}>
-        <div className="relative overflow-hidden rounded-none bg-card border border-border/50 p-5 h-full hover:border-primary/30 hover:shadow-elevated transition-all duration-500 hover:-translate-y-0.5">
+        <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 h-full hover:border-primary/30 hover:shadow-elevated transition-all duration-500 hover:-translate-y-0.5">
           {/* Subtle gradient background */}
           <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50", bgMap[gradient])} />
-          <div className={cn("absolute -top-12 -right-12 w-24 h-24 rounded-none blur-3xl opacity-30 bg-gradient-to-br", gradientMap[gradient])} />
+          <div className={cn("absolute -top-12 -right-12 w-24 h-24 rounded-full blur-3xl opacity-30 bg-gradient-to-br", gradientMap[gradient])} />
 
           <div className="relative">
             <div className="flex items-start justify-between mb-4">
-              <div className={cn("p-2.5 rounded-none bg-gradient-to-br shadow-lg", gradientMap[gradient])}>
+              <div className={cn("p-2.5 rounded-xl bg-gradient-to-br shadow-lg", gradientMap[gradient])}>
                 <Icon className="w-4 h-4 text-white" />
               </div>
-              <div className="p-1.5 rounded-none bg-muted/50 group-hover:bg-primary/10 transition-colors">
+              <div className="p-1.5 rounded-full bg-muted/50 group-hover:bg-primary/10 transition-colors">
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>
             </div>
@@ -85,16 +85,16 @@ export function SmartStatCard({
 
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-none bg-card border border-border/50 p-5 shadow-card group hover:shadow-elevated transition-all duration-500 hover:-translate-y-0.5",
+      "relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card group hover:shadow-elevated transition-all duration-500 hover:-translate-y-0.5",
       className
     )}>
       {/* Background gradient glow */}
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-40", bgMap[gradient])} />
-      <div className={cn("absolute -top-12 -right-12 w-24 h-24 rounded-none blur-3xl opacity-20 group-hover:opacity-40 transition-opacity bg-gradient-to-br", gradientMap[gradient])} />
+      <div className={cn("absolute -top-12 -right-12 w-24 h-24 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity bg-gradient-to-br", gradientMap[gradient])} />
 
       <div className="relative">
         <div className="flex items-start justify-between mb-4">
-          <div className={cn("p-2.5 rounded-none bg-gradient-to-br shadow-lg", gradientMap[gradient])}>
+          <div className={cn("p-2.5 rounded-xl bg-gradient-to-br shadow-lg", gradientMap[gradient])}>
             <Icon className="w-4 h-4 text-white" />
           </div>
         </div>

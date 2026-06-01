@@ -32,10 +32,10 @@ export function Header({ title, subtitle }: HeaderProps) {
               <img 
                 src={profile.avatar_url} 
                 alt="Avatar" 
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl object-cover"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover"
               />
             ) : (
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
                 <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
             )}

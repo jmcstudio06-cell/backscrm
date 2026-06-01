@@ -12,7 +12,7 @@ interface ChartCardProps {
 export function ChartCard({ title, subtitle, children, action, className }: ChartCardProps) {
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-none p-5 bg-card border border-border/50 shadow-card group hover:shadow-elevated transition-all duration-500",
+      "relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 shadow-card group hover:shadow-elevated transition-all duration-500",
       className
     )}>
       {/* Subtle background decoration */}

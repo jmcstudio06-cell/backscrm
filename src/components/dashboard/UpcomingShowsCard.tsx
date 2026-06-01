@@ -76,15 +76,15 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
   };
 
   return (
-    <div className="relative overflow-hidden rounded-none bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
+    <div className="relative overflow-hidden rounded-3xl bg-card border border-border/50 p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-60" />
-      <div className="absolute -top-20 -left-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-none blur-3xl group-hover:opacity-70 opacity-40 transition-opacity duration-700" />
+      <div className="absolute -top-20 -left-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl group-hover:opacity-70 opacity-40 transition-opacity duration-700" />
 
       <div className="relative">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-none bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -94,7 +94,7 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
           </div>
           <Link
             to="/agenda"
-            className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors group/link px-4 py-2 rounded-none bg-primary/5 hover:bg-primary/10"
+            className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors group/link px-4 py-2 rounded-xl bg-primary/5 hover:bg-primary/10"
           >
             Ver agenda
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5" />
@@ -103,9 +103,9 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
 
         {/* Month Summary Header */}
         {monthName && (
-          <div className="flex items-center justify-between p-4 mb-6 rounded-none bg-secondary/30 border border-border/40 backdrop-blur-sm">
+          <div className="flex items-center justify-between p-4 mb-6 rounded-2xl bg-secondary/30 border border-border/40 backdrop-blur-sm">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-none bg-background flex items-center justify-center text-primary font-black text-[10px]">
+              <div className="w-8 h-8 rounded-lg bg-background flex items-center justify-center text-primary font-black text-[10px]">
                 {monthName.substring(0, 3).toUpperCase()}
               </div>
               <p className="text-xs font-black uppercase tracking-widest text-foreground">{monthName}</p>
@@ -134,7 +134,7 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
                 <div
                   key={show.id || index}
                   onClick={() => handleShowClick(show.id)}
-                  className="group/show relative overflow-hidden rounded-none bg-secondary/20 border border-border/50 hover:border-primary/30 hover:bg-secondary/40 transition-all duration-300 hover:shadow-card cursor-pointer animate-fade-in"
+                  className="group/show relative overflow-hidden rounded-2xl bg-secondary/20 border border-border/50 hover:border-primary/30 hover:bg-secondary/40 transition-all duration-300 hover:shadow-card cursor-pointer animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex flex-col">
@@ -162,7 +162,7 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
                           
                           {/* Value badge */}
                           <div className="flex-shrink-0">
-                            <div className="px-3 py-1.5 rounded-none bg-success/10 border border-success/20 inline-block">
+                            <div className="px-3 py-1.5 rounded-xl bg-success/10 border border-success/20 inline-block">
                               <span className="text-sm font-bold text-success">{show.value}</span>
                             </div>
                           </div>
@@ -172,11 +172,11 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
                           {/* Status badge */}
                           <div className={cn(
-                            "flex items-center gap-1.5 px-2.5 py-1 rounded-none border",
+                            "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border",
                             statusConfig.bg,
                             statusConfig.border
                           )}>
-                            <StatusIcon className="w-3 h-3" />
+                            <StatusIcon className={cn("w-3 h-3", statusConfig.color)} />
                             <span className={cn("text-xs font-medium", statusConfig.color)}>
                               {statusConfig.label}
                             </span>
@@ -190,7 +190,7 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
                                   e.stopPropagation();
                                   handleWhatsApp(show.clientPhone, show.title);
                                 }}
-                                className="p-2 rounded-none bg-success/10 hover:bg-success/20 transition-colors border border-success/20"
+                                className="p-2 rounded-lg bg-success/10 hover:bg-success/20 transition-colors border border-success/20"
                                 title="Falar com contratante"
                               >
                                 <MessageCircle className="w-3.5 h-3.5 text-success" />
@@ -207,13 +207,13 @@ export function UpcomingShowsCard({ shows, monthTotal, monthCount, monthName }: 
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-10 text-center">
-            <div className="w-16 h-16 rounded-none bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center mb-4">
               <Calendar className="w-7 h-7 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground text-sm mb-2">Nenhum show agendado</p>
             <Link
               to="/agenda"
-              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors px-4 py-2 rounded-none bg-primary/5 hover:bg-primary/10"
+              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors px-4 py-2 rounded-full bg-primary/5 hover:bg-primary/10"
             >
               Agendar um show →
             </Link>

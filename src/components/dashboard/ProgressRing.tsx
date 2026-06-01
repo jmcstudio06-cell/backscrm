@@ -30,6 +30,7 @@ export function ProgressRing({ progress, size = 120, strokeWidth = 8, className 
           stroke="url(#progressGradient)"
           strokeWidth={strokeWidth}
           fill="none"
+          strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           className="transition-all duration-500 ease-out"

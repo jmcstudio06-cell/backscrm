@@ -20,10 +20,10 @@ export function QuickTrialBanner() {
   if (isExpired) {
     return (
       <div className="fixed bottom-0 left-0 right-0 z-50 md:left-64">
-        <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 shadow-2xl border-t border-red-500 rounded-none">
+        <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 shadow-2xl border-t border-red-500">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-none bg-white/20 flex items-center justify-center animate-pulse">
+              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
                 <Lock className="w-6 h-6 text-white" />
               </div>
               <div className="text-center sm:text-left">
@@ -39,7 +39,7 @@ export function QuickTrialBanner() {
             <Button
               onClick={() => navigate("/planos")}
               size="lg"
-              className="bg-white text-red-600 hover:bg-white/90 font-bold shadow-lg gap-2 rounded-none"
+              className="bg-white text-red-600 hover:bg-white/90 font-bold shadow-lg gap-2"
             >
               <Sparkles className="w-5 h-5" />
               Ver Planos
@@ -55,7 +55,7 @@ export function QuickTrialBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-50 md:left-64">
       <div
         className={`
-          p-3 shadow-2xl border-t transition-colors duration-300 rounded-none
+          p-3 shadow-2xl border-t transition-colors duration-300
           ${isUrgent 
             ? "bg-gradient-to-r from-red-600 to-orange-500 border-red-400" 
             : "bg-gradient-to-r from-primary to-accent border-primary/50"
@@ -67,7 +67,7 @@ export function QuickTrialBanner() {
           <div className="flex items-center gap-3">
             <div 
               className={`
-                w-10 h-10 rounded-none flex items-center justify-center
+                w-10 h-10 rounded-full flex items-center justify-center
                 ${isUrgent ? "bg-white/20 animate-pulse" : "bg-white/10"}
               `}
             >
@@ -81,12 +81,12 @@ export function QuickTrialBanner() {
               <div className="flex items-center gap-2">
                 <span className="text-white font-bold text-sm">Restam:</span>
                 <div className="flex items-center gap-1">
-                  <div className="bg-white/20 backdrop-blur rounded-none px-2 py-0.5">
+                  <div className="bg-white/20 backdrop-blur rounded px-2 py-0.5">
                     <span className="text-white font-mono font-bold text-lg">
                       {primaryValue}{daysLeft > 0 ? "d" : "h"}
                     </span>
                   </div>
-                  <div className="bg-white/20 backdrop-blur rounded-none px-2 py-0.5">
+                  <div className="bg-white/20 backdrop-blur rounded px-2 py-0.5">
                     <span className="text-white font-mono font-bold text-lg">
                       {secondaryValue}{secondaryLabel}
                     </span>

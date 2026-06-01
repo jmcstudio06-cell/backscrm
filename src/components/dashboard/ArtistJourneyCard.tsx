@@ -127,15 +127,15 @@ export function ArtistJourneyCard({
   const activeCTAStep = journeySteps.find(step => step.ctaText && step.ctaLink);
 
   return (
-    <div className="relative overflow-hidden rounded-none bg-card border border-border/50 p-5 sm:p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 sm:p-6 shadow-card group hover:shadow-elevated transition-all duration-500">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/3 via-transparent to-accent/3 opacity-70" />
-      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-none blur-3xl opacity-50" />
+      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl opacity-50" />
       
       <div className="relative">
         {/* Header */}
         <div className="flex items-center gap-2.5 mb-6">
-          <div className="p-2 rounded-none bg-gradient-to-br from-primary to-accent shadow-lg">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
             <LayoutDashboard className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -159,14 +159,14 @@ export function ArtistJourneyCard({
                   <div className="flex flex-col items-center text-center flex-1">
                     {/* Icon Circle */}
                     <div className={cn(
-                      "relative w-12 h-12 rounded-none flex items-center justify-center transition-all duration-300 shadow-lg",
+                      "relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg",
                       step.completed 
                         ? "bg-gradient-to-br from-primary to-accent text-white" 
                         : "bg-muted/50 text-muted-foreground border border-border/50"
                     )}>
                       <Icon className="w-5 h-5" />
                       {step.completed && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-success rounded-none border-2 border-card flex items-center justify-center">
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-success rounded-lg border-2 border-card flex items-center justify-center">
                           <span className="text-[8px] text-white font-bold">✓</span>
                         </div>
                       )}
@@ -196,7 +196,7 @@ export function ArtistJourneyCard({
                     {isActive && step.ctaLink && (
                       <Link
                         to={step.ctaLink}
-                        className="mt-2 inline-flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold text-primary hover:text-primary/80 transition-colors px-2 py-1 rounded-none bg-primary/5 hover:bg-primary/10"
+                        className="mt-2 inline-flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold text-primary hover:text-primary/80 transition-colors px-2 py-1 rounded-full bg-primary/5 hover:bg-primary/10"
                       >
                         {step.ctaText}
                         <ChevronRight className="w-3 h-3" />
@@ -208,7 +208,7 @@ export function ArtistJourneyCard({
                   {!isLast && (
                     <div className="flex items-center h-12 flex-shrink-0 px-1">
                       <div className={cn(
-                        "w-8 sm:w-12 h-1 rounded-none transition-all duration-500",
+                        "w-8 sm:w-12 h-1 rounded-full transition-all duration-500",
                         step.completed 
                           ? "bg-gradient-to-r from-primary to-accent" 
                           : "bg-border"

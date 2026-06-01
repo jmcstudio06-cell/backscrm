@@ -525,7 +525,7 @@ const Dashboard = () => {
         <div className="flex justify-center">
           <button
             onClick={() => navigate("/tutoriais")}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-all group"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-all group"
           >
             <Lightbulb className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
             <span className="text-sm font-bold text-foreground">Dicas para evoluir sua carreira</span>

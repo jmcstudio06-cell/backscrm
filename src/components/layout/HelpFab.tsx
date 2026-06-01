@@ -45,7 +45,7 @@ export function HelpFab() {
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="p-1 rounded-lg hover:bg-muted transition-colors"
+              className="p-1 rounded-md hover:bg-muted transition-colors"
               aria-label="Fechar"
             >
               <X className="w-4 h-4 text-muted-foreground" />
@@ -75,7 +75,7 @@ export function HelpFab() {
         {/* Rotating gradient ring */}
         <span
           aria-hidden
-          className="absolute -inset-1 rounded-2xl animate-spin-slow pointer-events-none"
+          className="absolute -inset-1 rounded-full animate-spin-slow pointer-events-none"
           style={{
             background: "conic-gradient(from 0deg, transparent 0deg, transparent 200deg, hsl(0 100% 75%) 300deg, hsl(0 100% 85%) 360deg)",
             WebkitMask: "radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))",
@@ -84,13 +84,13 @@ export function HelpFab() {
         />
         <button
           onClick={() => setOpen((v) => !v)}
-          className="relative w-14 h-14 rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-transform overflow-hidden ring-2 ring-primary/30 p-0"
+          className="relative w-14 h-14 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-transform overflow-hidden ring-2 ring-primary/30 p-0"
           aria-label="Abrir central de ajuda"
         >
           <img
             src={backstageIcon}
             alt="Backstage"
-            className="w-full h-full object-cover rounded-none block"
+            className="w-full h-full object-cover rounded-full block"
           />
         </button>
       </div>

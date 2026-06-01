@@ -18,8 +18,8 @@ const variantStyles = {
 
 export function ActivityItem({ icon: Icon, title, description, time, variant = "default" }: ActivityItemProps) {
   return (
-    <div className="flex items-start gap-3 p-3 rounded-none hover:bg-secondary/50 transition-colors">
-      <div className={cn("w-9 h-9 rounded-none flex items-center justify-center shrink-0", variantStyles[variant])}>
+    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/50 transition-colors">
+      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", variantStyles[variant])}>
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
