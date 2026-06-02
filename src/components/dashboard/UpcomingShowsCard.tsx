@@ -15,6 +15,11 @@ interface Show {
 
 interface UpcomingShowsCardProps {
   shows: Show[];
+  monthlySummary?: {
+    monthName: string;
+    showsCount: number;
+    totalValue: number;
+  };
 }
 
 export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
