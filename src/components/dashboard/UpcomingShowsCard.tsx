@@ -22,7 +22,7 @@ interface UpcomingShowsCardProps {
   };
 }
 
-export function UpcomingShowsCard({ shows }: UpcomingShowsCardProps) {
+export function UpcomingShowsCard({ shows, monthlySummary }: UpcomingShowsCardProps) {
   const navigate = useNavigate();
 
   const handleShowClick = (showId: string) => {
