@@ -99,6 +99,21 @@ export function UpcomingShowsCard({ shows, monthlySummary }: UpcomingShowsCardPr
           </Link>
         </div>
 
+        {/* Monthly summary chips */}
+        {monthlySummary && (
+          <div className="mb-4 flex items-center gap-2 flex-wrap">
+            <div className="px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary capitalize">
+              🎤 {monthlySummary.monthName}
+            </div>
+            <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs font-bold text-foreground">
+              {monthlySummary.showsCount} show{monthlySummary.showsCount !== 1 ? "s" : ""}
+            </div>
+            <div className="px-3 py-1.5 rounded-full bg-success/10 border border-success/20 text-xs font-bold text-success">
+              R$ {monthlySummary.totalValue.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })} previstos
+            </div>
+          </div>
+        )}
+
         {shows.length > 0 ? (
           <div className="space-y-3">
             {shows.map((show, index) => {
