@@ -492,15 +492,45 @@ const Dashboard = () => {
         {/* Próxima consultoria / apresentação agendada pelo admin */}
         <NextConsultoriaCard />
 
-        {/* Total Revenue Hero */}
-        <TotalRevenueHero
+        {/* #3 Cachês a receber - destaque no topo */}
+        <PendingCachetBanner
+          totalPending={pendingCachetData.totalPending}
+          pendingCount={pendingCachetData.pendingShows.length}
+        />
+
+        {/* #1 + #7 Hero compacto estilo videogame da carreira */}
+        <CompactCareerHero
+          artistName={profile?.name || "Artista"}
           totalRevenue={totalAllTimeRevenue}
           completedShowsCount={completedShowsAllTime}
-          growthPercentage={revenueGrowth}
           bestFee={bestFeeShow}
-          bestMonth={bestMonth}
+          monthlyGoalProgress={
+            currentShowGoal && currentShowGoal.target_value > 0
+              ? (completedShowsThisMonth / currentShowGoal.target_value) * 100
+              : 0
+          }
           annualProjection={annualProjection}
         />
+
+        {/* #2 Termômetro da carreira */}
+        <CareerThermometerCard
+          showsThisMonth={showsThisMonth}
+          showsLastMonth={showsLastMonth}
+          monthlyGoal={currentShowGoal?.target_value || 0}
+          monthlyGoalProgress={
+            currentShowGoal && currentShowGoal.target_value > 0
+              ? (completedShowsThisMonth / currentShowGoal.target_value) * 100
+              : 0
+          }
+          revenueThisMonth={revenueThisMonth}
+          revenueLastMonth={revenueLastMonth}
+        />
+
+        {/* #5 Ranking e selos na dashboard */}
+        <DashboardAchievementsCard />
+
+        {/* #4 Evolução mensal em barras */}
+        <MonthlyEvolutionCard transactions={transactions} />
 
         {/* Main Status Cards Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -522,14 +552,29 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Financial & Shows Row */}
+        {/* Financial & Shows Row - #6 próximos shows com resumo do mês */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <PendingCachetCard
             pendingShows={pendingCachetData.pendingShows}
             totalPending={pendingCachetData.totalPending}
             totalReceived={pendingCachetData.totalReceived}
           />
-          <UpcomingShowsCard shows={upcomingShows} />
+          <UpcomingShowsCard
+            shows={upcomingShows}
+            monthlySummary={{
+              monthName: `${currentMonthName} ${currentYear}`,
+              showsCount: showsThisMonth,
+              totalValue: pendingCachetData.pendingShows
+                .filter((s) => {
+                  // pending shows that fall in current month
+                  const showRaw = shows.find((sh) => sh.id === s.id);
+                  if (!showRaw) return false;
+                  const d = parseLocalDate(showRaw.date);
+                  return d >= currentMonthStart && d <= currentMonthEnd;
+                })
+                .reduce((sum, s) => sum + s.cachet, 0),
+            }}
+          />
         </div>
 
         {/* Monthly Show Goal Progress - at the end */}
