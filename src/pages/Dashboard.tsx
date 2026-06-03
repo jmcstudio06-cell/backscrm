@@ -498,7 +498,7 @@ const Dashboard = () => {
           pendingCount={pendingCachetData.pendingShows.length}
         />
 
-        {/* #1 + #7 Hero compacto estilo videogame da carreira */}
+        {/* #1 Hero compacto: nome, nível, 4 stats inline, meta mensal */}
         <CompactCareerHero
           artistName={profile?.name || "Artista"}
           totalRevenue={totalAllTimeRevenue}
@@ -509,6 +509,8 @@ const Dashboard = () => {
               ? (completedShowsThisMonth / currentShowGoal.target_value) * 100
               : 0
           }
+          monthlyGoalTarget={currentShowGoal?.target_value || 0}
+          monthlyGoalAchieved={completedShowsThisMonth}
           annualProjection={annualProjection}
         />
 
@@ -526,11 +528,12 @@ const Dashboard = () => {
           revenueLastMonth={revenueLastMonth}
         />
 
-        {/* #5 Ranking e selos na dashboard */}
-        <DashboardAchievementsCard />
+        {/* Evolução mensal + Ranking lado a lado */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <MonthlyEvolutionCard transactions={transactions} />
+          <DashboardAchievementsCard />
+        </div>
 
-        {/* #4 Evolução mensal em barras */}
-        <MonthlyEvolutionCard transactions={transactions} />
 
         {/* Main Status Cards Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

@@ -56,57 +56,50 @@ export function DashboardAchievementsCard() {
   return (
     <Link
       to="/ranking"
-      className="block relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-orange-500/10 p-5 shadow-card hover:shadow-elevated transition-all animate-fade-in group"
+      className="block relative overflow-hidden rounded-lg border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-orange-500/10 p-5 shadow-sm hover:shadow-md transition-all animate-fade-in group h-full"
     >
       <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full blur-3xl bg-amber-500/20" />
       <div className="relative">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center shadow-md">
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-amber-700 dark:text-amber-400 leading-none">
-                Conquistas
-              </p>
-              <h3 className="text-base sm:text-lg font-extrabold text-foreground leading-tight mt-1">
-                Sua posição na comunidade
+              <h3 className="text-sm font-bold text-foreground leading-none">
+                Ranking e Selos
               </h3>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-amber-700 dark:text-amber-400 mt-1">
+                Seu prestígio na comunidade
+              </p>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-amber-600 group-hover:translate-x-1 transition-transform shrink-0" />
+          <ArrowRight className="w-4 h-4 text-amber-600 group-hover:translate-x-1 transition-transform shrink-0" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          {/* Position */}
-          <div className="rounded-xl bg-background/60 backdrop-blur border border-amber-500/20 p-3">
+        <div className="space-y-3">
+          <div className="rounded-md bg-background/60 backdrop-blur border border-amber-500/20 p-3">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">
-              Ranking deste mês
+              Posição mensal
             </p>
             {position ? (
-              <>
-                <div className="flex items-baseline gap-1.5 mt-1">
-                  <span className="text-2xl font-extrabold text-foreground">#{position}</span>
-                  {totalArtists > 0 && (
-                    <span className="text-xs text-muted-foreground">de {totalArtists}</span>
-                  )}
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {showCount} show{showCount !== 1 ? "s" : ""} no mês
-                </p>
-              </>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-2xl font-bold text-foreground">#{position}</span>
+                {totalArtists > 0 && (
+                  <span className="text-xs text-muted-foreground">de {totalArtists} · {showCount} show{showCount !== 1 ? "s" : ""}</span>
+                )}
+              </div>
             ) : (
-              <p className="text-sm font-bold text-muted-foreground mt-1">Sem dados ainda</p>
+              <p className="text-sm font-semibold text-muted-foreground mt-1">— no ranking de shows</p>
             )}
           </div>
 
-          {/* Badges */}
-          <div className="rounded-xl bg-background/60 backdrop-blur border border-amber-500/20 p-3">
+          <div className="rounded-md bg-background/60 backdrop-blur border border-amber-500/20 p-3">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">
-              Selos conquistados
+              Conquistas Recentes
             </p>
             {badges.length > 0 ? (
-              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                 {(["gold", "silver", "bronze"] as const).map((t) => {
                   const count = badgeCounts[t] || 0;
                   if (count === 0) return null;
@@ -116,20 +109,20 @@ export function DashboardAchievementsCard() {
                     <div
                       key={t}
                       className={cn(
-                        "flex items-center gap-1 px-2 py-1 rounded-lg text-white text-xs font-bold bg-gradient-to-br shadow-sm",
+                        "flex items-center gap-1 px-2 py-1 rounded text-white text-xs font-bold bg-gradient-to-br shadow-sm",
                         cfg.color
                       )}
                     >
                       <Icon className="w-3 h-3" />
-                      <span>{count}</span>
+                      <span>{count} {cfg.label}</span>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 mt-1.5">
+              <div className="flex items-center gap-2 mt-1.5">
                 <Star className="w-4 h-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Nenhum ainda</span>
+                <span className="text-xs text-muted-foreground">Nenhum selo ainda. Feche mais shows para conquistar.</span>
               </div>
             )}
           </div>
@@ -138,3 +131,4 @@ export function DashboardAchievementsCard() {
     </Link>
   );
 }
+
