@@ -42,8 +42,8 @@ export default function MapeamentoPalco() {
   };
 
   const handleDuplicate = async (mapping: StageMapping) => {
-    if (mappings.length >= 3) {
-      toast.error("Limite de 3 mapeamentos atingido.");
+    if (mappings.length >= 10) {
+      toast.error("Limite de 10 mapeamentos atingido.");
       return;
     }
 
@@ -118,11 +118,11 @@ export default function MapeamentoPalco() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Badge variant="secondary" className="text-xs font-medium">
-              {mappings.length}/3 mapeamentos
+              {mappings.length}/10 mapeamentos
             </Badge>
           </div>
 
-          <Button onClick={handleCreateMapping} disabled={mappings.length >= 3} className="gap-2">
+          <Button onClick={handleCreateMapping} disabled={mappings.length >= 10} className="gap-2">
             <Plus className="w-4 h-4" />
             Novo Mapeamento
           </Button>

@@ -100,8 +100,8 @@ export function useStageMappings() {
   const addMapping = async (mappingData: Partial<StageMapping>) => {
     if (!user) return;
 
-    if (mappings.length >= 3) {
-      toast.error("Limite de 3 mapeamentos atingido. Exclua um existente para criar outro.");
+    if (mappings.length >= 10) {
+      toast.error("Limite de 10 mapeamentos atingido. Exclua um existente para criar outro.");
       return;
     }
 
