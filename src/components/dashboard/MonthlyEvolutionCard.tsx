@@ -46,68 +46,84 @@ export function MonthlyEvolutionCard({ transactions }: MonthlyEvolutionCardProps
   const max = Math.max(...months.map((m) => m.value), 1);
   const totalSemester = months.reduce((s, m) => s + m.value, 0);
   const fmt = (v: number) =>
-    v.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  const fmtShort = (v: number) => {
-    if (v >= 1000) return `R$ ${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k`;
-    return `R$ ${Math.round(v)}`;
-  };
+    `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  if (totalSemester === 0) return null;
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5 shadow-card animate-fade-in">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-50" />
-      <div className="relative">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
-              <BarChart3 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-foreground">Evolução Mensal</h3>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                Últimos 6 meses · R$ {fmt(totalSemester)}
-              </p>
-            </div>
+  if (totalSemester === 0) {
+    return (
+      <div className="relative overflow-hidden rounded-lg bg-card border border-border p-5 shadow-sm animate-fade-in">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 rounded-md bg-muted">
+            <BarChart3 className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-foreground">Evolução Mensal</h3>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              Desempenho dos últimos meses
+            </p>
           </div>
         </div>
+        <div className="flex items-center justify-center h-32 text-xs text-muted-foreground">
+          Sem dados ainda. Registre shows para começar a evolução.
+        </div>
+      </div>
+    );
+  }
 
-        <div className="space-y-2.5">
-          {months.map((m, idx) => {
-            const pct = (m.value / max) * 100;
-            return (
-              <div
-                key={m.key}
-                className="flex items-center gap-3 animate-fade-in"
-                style={{ animationDelay: `${idx * 60}ms` }}
-              >
-                <div className="w-10 text-[11px] font-bold text-muted-foreground uppercase tracking-wider shrink-0">
-                  {m.label}
-                </div>
-                <div className="flex-1 h-7 rounded-lg bg-muted/40 overflow-hidden relative">
-                  <div
-                    className={cn(
-                      "h-full rounded-lg bg-gradient-to-r transition-all duration-700",
-                      m.isCurrent
-                        ? "from-primary to-accent shadow-md"
-                        : "from-primary/40 to-accent/40"
-                    )}
-                    style={{ width: `${Math.max(pct, m.value > 0 ? 4 : 0)}%` }}
-                  />
-                  <div className="absolute inset-0 flex items-center px-2.5">
-                    <span className={cn(
-                      "text-[11px] font-bold",
-                      pct > 35 ? "text-white" : "text-foreground"
-                    )}>
-                      {m.value > 0 ? fmtShort(m.value) : "—"}
-                    </span>
-                  </div>
+  return (
+    <div className="relative overflow-hidden rounded-lg bg-card border border-border p-5 shadow-sm animate-fade-in h-full">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-md bg-primary/10">
+            <BarChart3 className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-foreground">Evolução Mensal</h3>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              Desempenho dos últimos meses
+            </p>
+          </div>
+        </div>
+        <span className="text-[11px] font-semibold text-muted-foreground">
+          Total: <span className="text-foreground">{fmt(totalSemester)}</span>
+        </span>
+      </div>
+
+      <div className="space-y-2">
+        {months.map((m, idx) => {
+          const pct = (m.value / max) * 100;
+          return (
+            <div
+              key={m.key}
+              className="flex items-center gap-3 animate-fade-in"
+              style={{ animationDelay: `${idx * 40}ms` }}
+            >
+              <div className="w-10 text-[10px] font-bold text-muted-foreground uppercase tracking-wider shrink-0">
+                {m.label}
+              </div>
+              <div className="flex-1 h-7 rounded-md bg-muted/40 overflow-hidden relative">
+                <div
+                  className={cn(
+                    "h-full rounded-md bg-gradient-to-r transition-all duration-700",
+                    m.isCurrent
+                      ? "from-primary to-accent"
+                      : "from-primary/30 to-accent/30"
+                  )}
+                  style={{ width: `${Math.max(pct, m.value > 0 ? 4 : 0)}%` }}
+                />
+                <div className="absolute inset-0 flex items-center px-2.5">
+                  <span className={cn(
+                    "text-[11px] font-bold",
+                    pct > 50 ? "text-white" : "text-foreground"
+                  )}>
+                    {m.value > 0 ? fmt(m.value) : "—"}
+                  </span>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
+
