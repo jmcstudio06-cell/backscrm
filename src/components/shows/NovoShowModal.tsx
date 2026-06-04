@@ -183,6 +183,10 @@ const initialFormData = {
   name: "",
   date: "",
   time: "",
+  endTime: "",
+  durationPreset: "",
+  durationMinutes: 0,
+  performanceFormat: "",
   venue: "",
   address: "",
   client: "",
@@ -194,6 +198,7 @@ const initialFormData = {
   notes: "",
   cachet: 0,
 };
+
 
 const initialRecurringConfig: RecurringConfig = {
   enabled: false,
