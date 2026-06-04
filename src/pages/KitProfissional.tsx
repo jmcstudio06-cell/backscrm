@@ -19,6 +19,11 @@ import {
   GraduationCap,
   MapPin,
   Music,
+  Search,
+  Filter,
+  LayoutGrid,
+  Wrench,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -107,6 +112,8 @@ export default function KitProfissional() {
   const navigate = useNavigate();
   const [isLeadRegistered, setIsLeadRegistered] = useState(false);
   const [view, setView] = useState<View>("academy");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState("todos");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
@@ -278,7 +285,7 @@ export default function KitProfissional() {
 
       {/* ACADEMY VIEW */}
       {isLeadRegistered && view === "academy" && (
-        <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-14">
+        <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-14 space-y-12">
           <div className="text-center mb-8 sm:mb-12">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] sm:text-xs font-semibold mb-4 backdrop-blur">
               <GraduationCap className="w-3.5 h-3.5 text-amber-300" />
@@ -295,67 +302,186 @@ export default function KitProfissional() {
             </p>
           </div>
 
-          {/* Course card */}
-          <div className="max-w-3xl mx-auto">
-            <button
-              onClick={() => setView("course")}
-              className="group block w-full text-left rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] hover:border-blue-400/40 hover:shadow-[0_30px_100px_-30px_rgba(37,99,235,0.5)] hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="grid sm:grid-cols-[1.1fr_1fr]">
-                <div className="relative aspect-video sm:aspect-auto overflow-hidden">
-                  <img src={kitManual} alt="Manual do Artista Contratado" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black via-black/50 to-transparent" />
-                  <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur text-[10px] sm:text-xs font-bold uppercase tracking-wide">
-                    <Flame className="w-3 h-3" /> Limitado
-                  </div>
-                  <div className="absolute bottom-3 left-3 sm:hidden">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 backdrop-blur text-[10px] font-semibold">
-                      <PlayCircle className="w-3 h-3" /> Minicurso
-                    </span>
-                  </div>
+          {/* Search and Filters */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white/[0.03] p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <div className="relative w-full sm:max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Input 
+                placeholder="Pesquisar curso ou ferramenta..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl h-11"
+              />
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto scrollbar-hide">
+              <button 
+                onClick={() => setActiveCategory("todos")}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0",
+                  activeCategory === "todos" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "bg-white/5 text-white/50 hover:bg-white/10"
+                )}
+              >
+                Todos
+              </button>
+              <button 
+                onClick={() => setActiveCategory("vendas")}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 flex items-center gap-2",
+                  activeCategory === "vendas" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "bg-white/5 text-white/50 hover:bg-white/10"
+                )}
+              >
+                <TrendingUp className="w-3.5 h-3.5" /> Vendas
+              </button>
+              <button 
+                onClick={() => setActiveCategory("ferramentas")}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 flex items-center gap-2",
+                  activeCategory === "ferramentas" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "bg-white/5 text-white/50 hover:bg-white/10"
+                )}
+              >
+                <Wrench className="w-3.5 h-3.5" /> Ferramentas
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-16">
+            {/* Categoria: Vendas */}
+            {(activeCategory === "todos" || activeCategory === "vendas") && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-6 bg-blue-500 rounded-full" />
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Vendas e Estratégia</h2>
                 </div>
+                
+                <div className="max-w-4xl">
+                  <button
+                    onClick={() => setView("course")}
+                    className="group block w-full text-left rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] hover:border-blue-400/40 hover:shadow-[0_30px_100px_-30px_rgba(37,99,235,0.5)] hover:-translate-y-1 transition-all duration-300"
+                  >
+                    <div className="grid sm:grid-cols-[1.1fr_1fr]">
+                      <div className="relative aspect-video sm:aspect-auto overflow-hidden">
+                        <img src={kitManual} alt="Manual do Artista Contratado" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black via-black/50 to-transparent" />
+                        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur text-[10px] sm:text-xs font-bold uppercase tracking-wide">
+                          <Flame className="w-3 h-3" /> Limitado
+                        </div>
+                        <div className="absolute bottom-3 left-3 sm:hidden">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 backdrop-blur text-[10px] font-semibold">
+                            <PlayCircle className="w-3 h-3" /> Minicurso
+                          </span>
+                        </div>
+                      </div>
 
-                <div className="p-5 sm:p-7 flex flex-col">
-                  <span className="hidden sm:inline-flex w-fit items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-wider text-white/60 mb-3">
-                    <PlayCircle className="w-3 h-3" /> Minicurso
-                  </span>
-                  <h2 className="text-xl sm:text-2xl font-black leading-tight mb-2">
-                    Manual do Artista Contratado
-                  </h2>
-                  <p className="text-sm text-white/55 mb-5 line-clamp-3">
-                    Os erros silenciosos que fazem você perder shows — e como atender contratantes de forma profissional para fechar mais.
-                  </p>
+                      <div className="p-5 sm:p-7 flex flex-col">
+                        <span className="hidden sm:inline-flex w-fit items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-wider text-white/60 mb-3">
+                          <PlayCircle className="w-3 h-3" /> Minicurso
+                        </span>
+                        <h2 className="text-xl sm:text-2xl font-black leading-tight mb-2">
+                          Manual do Artista Contratado
+                        </h2>
+                        <p className="text-sm text-white/55 mb-5 line-clamp-3">
+                          Os erros silenciosos que fazem você perder shows — e como atender contratantes de forma profissional para fechar mais.
+                        </p>
 
-                  <div className="flex items-end gap-3 mb-4">
-                    <div>
-                      <p className="text-[11px] sm:text-xs text-white/40 line-through">De R$ 99,90</p>
-                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-amber-300 font-bold">Por</p>
-                      <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent leading-none">
-                        R$ 0,00
-                      </p>
+                        <div className="flex items-end gap-3 mb-4">
+                          <div>
+                            <p className="text-[11px] sm:text-xs text-white/40 line-through">De R$ 99,90</p>
+                            <p className="text-[10px] sm:text-xs uppercase tracking-widest text-amber-300 font-bold">Por</p>
+                            <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent leading-none">
+                              R$ 0,00
+                            </p>
+                          </div>
+                          <span className="ml-auto inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/50 font-medium">
+                            <Clock className="w-3 h-3" /> Acesso imediato
+                          </span>
+                        </div>
+
+                        <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:from-blue-500 group-hover:to-cyan-500 font-bold text-sm sm:text-base shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transition">
+                          Acessar curso agora <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </div>
+
+                        <div className="flex items-center gap-3 mt-4 text-[10px] sm:text-xs text-white/40">
+                          <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Vídeo principal</span>
+                          <span className="inline-flex items-center gap-1"><Sparkles className="w-3 h-3 text-amber-300" /> 2 bônus</span>
+                          <span className="inline-flex items-center gap-1"><BookOpen className="w-3 h-3 text-blue-300" /> Apoio</span>
+                        </div>
+                      </div>
                     </div>
-                    <span className="ml-auto inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/50 font-medium">
-                      <Clock className="w-3 h-3" /> Acesso imediato
-                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Categoria: Ferramentas */}
+            {(activeCategory === "todos" || activeCategory === "ferramentas") && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-6 bg-cyan-500 rounded-full" />
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Ferramentas e Apps</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Card do App Sistema */}
+                  <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-cyan-400/40 transition-all duration-300">
+                    <div className="aspect-video overflow-hidden">
+                      <img src={kitBackstage} alt="Sistema Backstage Pro" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f18] via-transparent to-transparent" />
+                    </div>
+                    <div className="p-6 space-y-4">
+                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400">
+                        <LayoutGrid className="w-3.5 h-3.5" /> App & Sistema
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black group-hover:text-cyan-400 transition-colors">Sistema para Artistas</h3>
+                      <p className="text-sm text-white/50">
+                        O sistema completo para organizar sua carreira, gerenciar shows, contratos e escalar suas vendas com profissionalismo.
+                      </p>
+                      <Button
+                        onClick={() => window.open("https://backstagepro.online/landing", "_blank")}
+                        className="w-full gap-2 py-6 bg-blue-600 hover:bg-blue-500 text-white border-0 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20"
+                      >
+                        Acessar App
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
 
-                  <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:from-blue-500 group-hover:to-cyan-500 font-bold text-sm sm:text-base shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transition">
-                    Acessar curso agora <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-
-                  <div className="flex items-center gap-3 mt-4 text-[10px] sm:text-xs text-white/40">
-                    <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Vídeo principal</span>
-                    <span className="inline-flex items-center gap-1"><Sparkles className="w-3 h-3 text-amber-300" /> 2 bônus</span>
-                    <span className="inline-flex items-center gap-1"><BookOpen className="w-3 h-3 text-blue-300" /> Apoio</span>
+                  {/* Artes e Mensagens (Resumo) */}
+                  <div className="grid grid-cols-1 gap-4">
+                    <button
+                      onClick={() => navigate("/kit-profissional/artes")}
+                      className="group flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-blue-400/30 transition-all"
+                    >
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                        <img src={kitArtes} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="font-bold text-sm">Artes Editáveis</h4>
+                        <p className="text-xs text-white/40 mt-1">Modelos no Canva para seus shows</p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 ml-auto text-white/20 group-hover:text-blue-400 transition-colors" />
+                    </button>
+                    <button
+                      onClick={() => navigate("/kit-profissional/mensagens")}
+                      className="group flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-blue-400/30 transition-all"
+                    >
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                        <img src={kitMensagens} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="font-bold text-sm">Mensagens Prontas</h4>
+                        <p className="text-xs text-white/40 mt-1">Scripts para fechar com contratantes</p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 ml-auto text-white/20 group-hover:text-blue-400 transition-colors" />
+                    </button>
                   </div>
                 </div>
               </div>
-            </button>
-
-            <p className="text-center text-[11px] sm:text-xs text-white/35 mt-6">
-              Mais cursos chegando em breve na Backstage Academy 🎓
-            </p>
+            )}
           </div>
+
+          <p className="text-center text-[11px] sm:text-xs text-white/35 mt-6">
+            Mais cursos chegando em breve na Backstage Academy 🎓
+          </p>
         </section>
       )}
 
