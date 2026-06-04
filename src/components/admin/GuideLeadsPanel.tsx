@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Phone, User, Trash2, Loader2, CalendarDays } from "lucide-react";
+import { BookOpen, Phone, User, Trash2, Loader2, CalendarDays, MapPin, Music } from "lucide-react";
 import { toast } from "sonner";
 import { format, startOfDay, subDays, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -11,6 +11,8 @@ interface GuideLead {
   id: string;
   name: string;
   phone: string;
+  city?: string;
+  shows_per_month?: string;
   created_at: string;
 }
 
@@ -141,10 +143,24 @@ export function GuideLeadsPanel() {
                         </div>
                         <div>
                           <p className="font-medium text-sm text-foreground">{lead.name}</p>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {lead.phone}
-                          </p>
+                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                              <Phone className="w-3 h-3 text-primary/60" />
+                              {lead.phone}
+                            </p>
+                            {lead.city && (
+                              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-primary/60" />
+                                {lead.city}
+                              </p>
+                            )}
+                            {lead.shows_per_month && (
+                              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                <Music className="w-3 h-3 text-primary/60" />
+                                {lead.shows_per_month} shows/mês
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

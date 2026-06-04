@@ -17,12 +17,21 @@ import {
   Flame,
   ArrowLeft,
   GraduationCap,
+  MapPin,
+  Music,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import baIcon from "@/assets/ba-icon.png";
 import kitErros from "@/assets/kit-erros.png";
@@ -99,6 +108,8 @@ export default function KitProfissional() {
   const [view, setView] = useState<View>("academy");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [showsPerMonth, setShowsPerMonth] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [videoCompleted, setVideoCompleted] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -195,17 +206,37 @@ export default function KitProfissional() {
   const handleSubmitLead = async () => {
     const trimmedName = name.trim();
     const digits = phone.replace(/\D/g, "");
-    if (!trimmedName || trimmedName.length < 2) return toast.error("Digite seu nome completo");
+    
+    // Validação de nome e sobrenome
+    const nameParts = trimmedName.split(/\s+/);
+    if (nameParts.length < 2) return toast.error("Digite seu nome e sobrenome");
+    
+    // Validação de telefone
     if (digits.length < 10 || digits.length > 11) return toast.error("Digite um WhatsApp válido com DDD");
+    
+    // Evitar números repetidos (ex: 000000000)
+    const isRepetitive = /^(.)\1+$/.test(digits);
+    if (isRepetitive) return toast.error("Por favor, insira um número de WhatsApp válido");
+
+    if (!city.trim()) return toast.error("Digite sua cidade");
+    if (!showsPerMonth) return toast.error("Selecione a quantidade de shows");
 
     setSubmitting(true);
     try {
-      await supabase.from("guide_leads").insert({ name: trimmedName, phone: digits });
-      localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify({ name: trimmedName, phone: digits }));
+      const leadData = { 
+        name: trimmedName, 
+        phone: digits,
+        city: city.trim(),
+        shows_per_month: showsPerMonth
+      };
+      
+      await supabase.from("guide_leads").insert(leadData);
+      localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify(leadData));
       localStorage.setItem("guia_lead_captured", "true");
       setIsLeadRegistered(true);
       toast.success("Bem-vindo à Backstage Academy! 🎓");
-    } catch {
+    } catch (error) {
+      console.error("Error saving lead:", error);
       toast.error("Erro ao salvar. Tente novamente.");
     } finally {
       setSubmitting(false);
@@ -537,6 +568,37 @@ export default function KitProfissional() {
                   inputMode="tel"
                   className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
                 />
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="kit-city" className="text-sm font-medium text-white/80 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-white/50" /> De qual cidade você é?
+                </label>
+                <Input
+                  id="kit-city"
+                  placeholder="Ex: São Paulo - SP"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  maxLength={100}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-white/80 flex items-center gap-2">
+                  <Music className="w-4 h-4 text-white/50" /> Quantos shows você faz por mês?
+                </label>
+                <Select value={showsPerMonth} onValueChange={setShowsPerMonth}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue placeholder="Selecione uma opção" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0f0f18] border-white/10 text-white">
+                    <SelectItem value="0-3">0 a 3 shows</SelectItem>
+                    <SelectItem value="3-5">3 a 5 shows</SelectItem>
+                    <SelectItem value="5-10">5 a 10 shows</SelectItem>
+                    <SelectItem value="10+">Mais de 10 shows</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button
