@@ -306,7 +306,7 @@ const Dashboard = () => {
           title: show.title,
           location: show.venue || "Local a definir",
           value: `R$ ${Number(show.cachet).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-          status: show.status as "confirmed" | "pending" | "completed",
+          status: show.status as any,
           clientPhone: client?.phone || undefined,
           hasContract,
         };
