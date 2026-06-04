@@ -178,10 +178,10 @@ function Reveal({
 // ─── Steps config ─────────────────────────────────────────────────────────────
 const STEPS = [
   { id: 1, title: "Primeiro Contato", icon: MessageCircle, color: "from-blue-500 to-indigo-600" },
-  { id: 2, title: "Envio do Orçamento", icon: FileText, color: "from-violet-500 to-purple-600" },
+  { id: 2, title: "Envio do Orçamento", icon: FileText, color: "from-blue-400 to-cyan-500" },
   { id: 3, title: "Follow-up", icon: Clock, color: "from-orange-500 to-amber-600" },
   { id: 4, title: "Confirmação", icon: CheckCircle, color: "from-emerald-500 to-teal-600" },
-  { id: 5, title: "Organização Interna", icon: FolderOpen, color: "from-rose-500 to-pink-600" },
+  { id: 5, title: "Organização Interna", icon: FolderOpen, color: "from-blue-600 to-indigo-700" },
   { id: 6, title: "Mapeamento de Palco", icon: MapPin, color: "from-cyan-500 to-sky-600" },
 ];
 
@@ -346,7 +346,7 @@ export default function GuiaAtendimento() {
         />
         <div
           className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-10"
-          style={{ background: "var(--gradient-purple)" }}
+          style={{ background: "var(--gradient-blue)" }}
         />
         <div
           className="absolute inset-0 opacity-[0.03]"

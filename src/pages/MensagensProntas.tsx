@@ -183,9 +183,15 @@ export default function MensagensProntas() {
   const filtered = MESSAGES.filter((m) => m.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Ambient glow */}
+      <div className="pointer-events-none absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-3xl opacity-30"
+        style={{ background: "radial-gradient(circle, hsl(220 90% 60% / 0.5), transparent 70%)" }} />
+      <div className="pointer-events-none absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-25"
+        style={{ background: "radial-gradient(circle, hsl(200 90% 60% / 0.5), transparent 70%)" }} />
+
       {/* Header */}
-      <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-20">
+      <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-20 relative z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => navigate("/kit-profissional")}
@@ -196,7 +202,9 @@ export default function MensagensProntas() {
           </button>
           <div className="flex items-center gap-2">
             <MessageSquareText className="w-5 h-5 text-primary" />
-            <h1 className="text-lg font-bold">Mensagens Prontas</h1>
+            <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-300 bg-clip-text text-transparent">
+              Mensagens Prontas
+            </h1>
           </div>
         </div>
       </div>

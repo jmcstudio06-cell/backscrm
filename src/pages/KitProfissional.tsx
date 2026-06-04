@@ -250,9 +250,9 @@ export default function KitProfissional() {
     <div className="min-h-screen bg-[#07070d] text-white relative overflow-hidden">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-3xl opacity-30"
-        style={{ background: "radial-gradient(circle, hsl(265 90% 60% / 0.5), transparent 70%)" }} />
-      <div className="pointer-events-none absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-25"
         style={{ background: "radial-gradient(circle, hsl(220 90% 60% / 0.5), transparent 70%)" }} />
+      <div className="pointer-events-none absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-25"
+        style={{ background: "radial-gradient(circle, hsl(200 90% 60% / 0.5), transparent 70%)" }} />
 
       {/* Header */}
       <header className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 flex items-center justify-between">
@@ -260,7 +260,7 @@ export default function KitProfissional() {
           <img src={baIcon} alt="Backstage" className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-cover ring-1 ring-white/10" />
           <div className="flex flex-col leading-tight">
             <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white/40 font-bold">Backstage</span>
-            <span className="font-black text-base sm:text-lg bg-gradient-to-r from-violet-300 via-fuchsia-300 to-amber-200 bg-clip-text text-transparent -mt-0.5">
+            <span className="font-black text-base sm:text-lg bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-300 bg-clip-text text-transparent -mt-0.5">
               Academy
             </span>
           </div>
@@ -285,7 +285,7 @@ export default function KitProfissional() {
             </div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05] mb-3">
               Bem-vindo à <br className="sm:hidden" />
-              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
                 Backstage Academy
               </span>
             </h1>
@@ -298,7 +298,7 @@ export default function KitProfissional() {
           <div className="max-w-3xl mx-auto">
             <button
               onClick={() => setView("course")}
-              className="group block w-full text-left rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] hover:border-fuchsia-400/40 hover:shadow-[0_30px_100px_-30px_rgba(217,70,239,0.5)] hover:-translate-y-1 transition-all duration-300"
+              className="group block w-full text-left rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] hover:border-blue-400/40 hover:shadow-[0_30px_100px_-30px_rgba(37,99,235,0.5)] hover:-translate-y-1 transition-all duration-300"
             >
               <div className="grid sm:grid-cols-[1.1fr_1fr]">
                 <div className="relative aspect-video sm:aspect-auto overflow-hidden">
@@ -338,14 +338,14 @@ export default function KitProfissional() {
                     </span>
                   </div>
 
-                  <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 group-hover:from-violet-500 group-hover:to-fuchsia-500 font-bold text-sm sm:text-base shadow-[0_10px_30px_-10px_rgba(168,85,247,0.6)] transition">
+                  <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:from-blue-500 group-hover:to-cyan-500 font-bold text-sm sm:text-base shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transition">
                     Acessar curso agora <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </div>
 
                   <div className="flex items-center gap-3 mt-4 text-[10px] sm:text-xs text-white/40">
                     <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Vídeo principal</span>
                     <span className="inline-flex items-center gap-1"><Sparkles className="w-3 h-3 text-amber-300" /> 2 bônus</span>
-                    <span className="inline-flex items-center gap-1"><BookOpen className="w-3 h-3 text-violet-300" /> Apoio</span>
+                    <span className="inline-flex items-center gap-1"><BookOpen className="w-3 h-3 text-blue-300" /> Apoio</span>
                   </div>
                 </div>
               </div>
@@ -369,7 +369,7 @@ export default function KitProfissional() {
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
               Manual do{" "}
-              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-300 bg-clip-text text-transparent">
                 Artista Contratado
               </span>
             </h1>
@@ -379,10 +379,10 @@ export default function KitProfissional() {
           </div>
 
           {/* Main video — vertical/story format, side-cropped to remove black bars */}
-          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.02] shadow-[0_20px_80px_-20px_rgba(168,85,247,0.35)]">
+          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.02] shadow-[0_20px_80px_-20px_rgba(37,99,235,0.35)]">
             <div className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
                   <PlayCircle className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
@@ -420,7 +420,7 @@ export default function KitProfissional() {
               <div className="px-4 sm:px-6 py-3 border-t border-white/10">
                 <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-amber-400 transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-400 transition-all duration-500"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -453,7 +453,7 @@ export default function KitProfissional() {
                       "group relative rounded-2xl overflow-hidden text-left border transition-all duration-300 bg-white/[0.03]",
                       locked
                         ? "border-white/10 cursor-not-allowed"
-                        : "border-white/10 hover:border-fuchsia-400/50 hover:shadow-[0_20px_60px_-20px_rgba(217,70,239,0.45)] hover:-translate-y-1"
+                        : "border-white/10 hover:border-blue-400/50 hover:shadow-[0_20px_60px_-20px_rgba(37,99,235,0.45)] hover:-translate-y-1"
                     )}
                   >
                     <div className="relative aspect-[16/9] overflow-hidden">
@@ -481,7 +481,7 @@ export default function KitProfissional() {
                       <h4 className="font-bold text-sm sm:text-base leading-tight">{m.title}</h4>
                       <p className="text-xs sm:text-sm text-white/55 mt-1.5 line-clamp-2">{m.description}</p>
                       {!locked && (
-                        <div className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-fuchsia-300">
+                        <div className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-cyan-300">
                           Acessar bônus <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                         </div>
                       )}
@@ -495,7 +495,7 @@ export default function KitProfissional() {
           {/* Material de apoio */}
           <div>
             <div className="flex items-center gap-3 mb-4 sm:mb-5">
-              <BookOpen className="w-5 h-5 text-violet-300" />
+              <BookOpen className="w-5 h-5 text-blue-300" />
               <h3 className="font-bold text-lg sm:text-xl">Material de apoio</h3>
               <span className="ml-auto text-[10px] sm:text-xs px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-semibold">
                 <CheckCircle2 className="w-3 h-3 inline mr-1" /> Liberado
@@ -506,7 +506,7 @@ export default function KitProfissional() {
                 <button
                   key={m.id}
                   onClick={() => handleClick(m, false)}
-                  className="group relative rounded-2xl overflow-hidden text-left border border-white/10 bg-white/[0.03] hover:border-violet-400/50 hover:shadow-[0_20px_60px_-20px_rgba(139,92,246,0.45)] hover:-translate-y-1 transition-all duration-300"
+                  className="group relative rounded-2xl overflow-hidden text-left border border-white/10 bg-white/[0.03] hover:border-blue-400/50 hover:shadow-[0_20px_60px_-20px_rgba(37,99,235,0.45)] hover:-translate-y-1 transition-all duration-300"
                 >
                   <div className="relative aspect-[16/9] overflow-hidden">
                     <img src={m.image} alt={m.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -515,7 +515,7 @@ export default function KitProfissional() {
                   <div className="p-4 sm:p-5">
                     <h4 className="font-bold text-sm sm:text-base leading-tight">{m.title}</h4>
                     <p className="text-xs sm:text-sm text-white/55 mt-1.5 line-clamp-2">{m.description}</p>
-                    <div className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-violet-300">
+                    <div className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-300">
                       {m.external ? (<>Começar agora <ExternalLink className="w-3.5 h-3.5" /></>) : (<>Acessar <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" /></>)}
                     </div>
                   </div>
@@ -530,7 +530,7 @@ export default function KitProfissional() {
       {!isLeadRegistered && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-4">
           <div className="w-full max-w-md rounded-2xl bg-[#0f0f18] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="bg-gradient-to-br from-violet-600 via-fuchsia-600 to-amber-500 p-6 text-center">
+            <div className="bg-gradient-to-br from-blue-600 via-cyan-600 to-emerald-500 p-6 text-center">
               <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3 backdrop-blur">
                 <Gift className="w-6 h-6 text-white" />
               </div>
@@ -602,7 +602,7 @@ export default function KitProfissional() {
               </div>
 
               <Button
-                className="w-full gap-2 text-base py-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 border-0"
+                className="w-full gap-2 text-base py-6 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 border-0"
                 onClick={handleSubmitLead}
                 disabled={submitting}
               >
