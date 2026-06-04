@@ -697,7 +697,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
               <div className="space-y-2">
                 <Label htmlFor="time" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" /> Horário
+                  <Clock className="w-4 h-4" /> Horário de Início
                 </Label>
                 <Input
                   id="time"
@@ -706,6 +706,60 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" /> Duração
+                </Label>
+                <Select
+                  value={formData.durationPreset}
+                  onValueChange={(value) => {
+                    if (value === "custom") {
+                      setFormData({ ...formData, durationPreset: value, durationMinutes: 0 });
+                    } else {
+                      const mins = Number(value);
+                      setFormData({ ...formData, durationPreset: value, durationMinutes: mins, endTime: "" });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Quanto tempo dura?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {durationOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.durationPreset === "custom" && (
+                  <Input
+                    type="time"
+                    placeholder="Horário de término"
+                    value={formData.endTime}
+                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Mic2 className="w-4 h-4" /> Formato da Apresentação
+                </Label>
+                <Select
+                  value={formData.performanceFormat}
+                  onValueChange={(value) => setFormData({ ...formData, performanceFormat: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Solo, dupla, banda..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {performanceFormats.map((fmt) => (
+                      <SelectItem key={fmt} value={fmt}>{fmt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="venue" className="flex items-center gap-2">
