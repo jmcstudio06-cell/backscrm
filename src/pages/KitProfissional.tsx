@@ -302,19 +302,25 @@ export default function KitProfissional() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="flex flex-col gap-8 max-w-4xl mx-auto">
             {/* Card do Curso */}
             <button
               onClick={() => setView("course")}
-              className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-blue-400/40 transition-all duration-300 hover:scale-[1.02] shadow-2xl flex flex-col h-full"
+              className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-blue-400/40 transition-all duration-300 hover:scale-[1.01] shadow-2xl flex flex-col sm:flex-row text-left"
             >
-              <div className="aspect-video overflow-hidden relative">
+              <div className="w-full sm:w-[40%] aspect-[3/4] sm:aspect-auto overflow-hidden relative shrink-0">
                 <img src={kitManual} alt="Manual do Artista" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f18] via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/80 via-transparent to-transparent" />
                 <div className="absolute top-4 left-4 px-3 py-1 rounded-md bg-blue-600 text-[10px] font-bold text-white shadow-lg uppercase tracking-wider">CURSO</div>
               </div>
-              <div className="p-6 sm:p-8 text-left flex flex-col flex-grow">
-                <h3 className="text-2xl font-black group-hover:text-blue-400 transition-colors leading-tight mb-3">Manual do Artista Contratado</h3>
+              
+              <div className="p-6 sm:p-8 flex flex-col justify-center flex-grow">
+                <div className="flex items-center gap-2 mb-3 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                  <div className="w-8 h-[1px] bg-white/20" />
+                  <span className="flex items-center gap-1.5"><PlayCircle className="w-3.5 h-3.5 text-blue-400" /> Minicurso</span>
+                </div>
+                
+                <h3 className="text-2xl sm:text-3xl font-black group-hover:text-blue-400 transition-colors leading-tight mb-3">Manual do Artista <br className="hidden sm:block" /> Contratado</h3>
                 <p className="text-sm text-white/50 line-clamp-3 mb-6">Os erros silenciosos que fazem você perder shows e como fechar mais contratos de forma profissional.</p>
                 
                 <div className="mt-auto space-y-5">
@@ -331,7 +337,7 @@ export default function KitProfissional() {
                     </span>
                   </div>
 
-                  <div className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-all shadow-lg shadow-blue-600/20">
+                  <div className="inline-flex items-center justify-center gap-2 w-full sm:w-fit px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-all shadow-lg shadow-blue-600/20">
                     Acessar curso <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>
@@ -339,20 +345,26 @@ export default function KitProfissional() {
             </button>
 
             {/* Card do App Sistema */}
-            <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-cyan-400/40 transition-all duration-300 hover:scale-[1.02] shadow-2xl flex flex-col h-full">
-              <div className="aspect-video overflow-hidden relative">
+            <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-cyan-400/40 transition-all duration-300 hover:scale-[1.01] shadow-2xl flex flex-col sm:flex-row text-left">
+              <div className="w-full sm:w-[40%] aspect-[3/4] sm:aspect-auto overflow-hidden relative shrink-0">
                 <img src={kitBackstage} alt="Sistema Backstage Pro" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f18] via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/80 via-transparent to-transparent" />
                 <div className="absolute top-4 left-4 px-3 py-1 rounded-md bg-cyan-500 text-[10px] font-bold text-white shadow-lg uppercase tracking-wider">SISTEMA</div>
               </div>
-              <div className="p-6 sm:p-8 text-left flex flex-col flex-grow">
-                <h3 className="text-2xl font-black group-hover:text-cyan-400 transition-colors leading-tight mb-3">Sistema Backstage Pro</h3>
-                <p className="text-sm text-white/50 line-clamp-3 mb-6">Gerencie sua carreira, shows e contratos em um só lugar com o sistema oficial do Backstage Pro.</p>
+
+              <div className="p-6 sm:p-8 flex flex-col justify-center flex-grow">
+                <div className="flex items-center gap-2 mb-3 text-[10px] font-bold uppercase tracking-widest text-cyan-400">
+                  <div className="w-8 h-[1px] bg-cyan-500/30" />
+                  <span className="flex items-center gap-1.5"><LayoutGrid className="w-3.5 h-3.5" /> Gestão Musical</span>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl font-black group-hover:text-cyan-400 transition-colors leading-tight mb-3">Sistema <br className="hidden sm:block" /> Backstage Pro</h3>
+                <p className="text-sm text-white/50 line-clamp-3 mb-6">A ferramenta completa para organizar sua carreira, gerenciar shows e contratos em um só lugar.</p>
                 
                 <div className="mt-auto">
                   <Button
                     onClick={() => window.open("https://backstagepro.online/landing", "_blank")}
-                    className="w-full gap-2 py-7 bg-white/5 hover:bg-cyan-600 text-white border border-white/10 rounded-xl font-bold text-base transition-all group-hover:border-cyan-400/50"
+                    className="w-full sm:w-fit px-8 py-7 bg-white/5 hover:bg-cyan-600 text-white border border-white/10 rounded-xl font-bold text-base transition-all group-hover:border-cyan-400/50 shadow-lg shadow-cyan-600/10"
                   >
                     Acessar App
                     <ExternalLink className="w-4 h-4" />
