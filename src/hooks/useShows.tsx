@@ -422,9 +422,12 @@ export function useShowsData() {
             lead_id: showData.lead_id,
             event_type: showData.event_type,
             notes: showData.notes,
+            duration_minutes: (showData as any).duration_minutes ?? null,
+            performance_format: (showData as any).performance_format ?? null,
             user_id: user.id,
             checklist_template_id: checklistTemplateId || null,
           },
+
         ])
         .select()
         .single();
