@@ -1966,11 +1966,13 @@ export type Database = {
           client_id: string | null
           created_at: string
           date: string
+          duration_minutes: number | null
           end_time: string | null
           event_type: string | null
           id: string
           lead_id: string | null
           notes: string | null
+          performance_format: string | null
           start_time: string | null
           status: string
           title: string
@@ -1986,11 +1988,13 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date: string
+          duration_minutes?: number | null
           end_time?: string | null
           event_type?: string | null
           id?: string
           lead_id?: string | null
           notes?: string | null
+          performance_format?: string | null
           start_time?: string | null
           status?: string
           title: string
@@ -2006,11 +2010,13 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date?: string
+          duration_minutes?: number | null
           end_time?: string | null
           event_type?: string | null
           id?: string
           lead_id?: string | null
           notes?: string | null
+          performance_format?: string | null
           start_time?: string | null
           status?: string
           title?: string
