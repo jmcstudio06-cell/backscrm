@@ -20,9 +20,12 @@ export interface Show {
   lead_id: string | null;
   event_type: string | null;
   notes: string | null;
+  duration_minutes: number | null;
+  performance_format: string | null;
   created_at: string;
   updated_at: string;
 }
+
 
 interface ShowMusician {
   musicianId: string;
