@@ -193,7 +193,7 @@ export function useBudgets() {
         .from("budgets")
         .insert([{
           budget_number: budgetNumber,
-          client_name: budgetData.client_name || "",
+          client_name: budgetData.client_name || "Cliente sem nome",
           client_email: budgetData.client_email,
           client_phone: budgetData.client_phone,
           client_company: budgetData.client_company,
