@@ -78,7 +78,10 @@ interface EditingShow {
   event_type: string | null;
   notes: string | null;
   client_id?: string | null;
+  duration_minutes?: number | null;
+  performance_format?: string | null;
 }
+
 
 interface NovoShowModalProps {
   open: boolean;
@@ -101,6 +104,9 @@ export interface ShowData {
   name: string;
   date: string;
   time: string;
+  endTime?: string;
+  durationMinutes?: number | null;
+  performanceFormat?: string | null;
   venue: string;
   address: string;
   client: string;
@@ -147,11 +153,27 @@ const showTypes = [
   "Outro",
 ];
 
+const performanceFormats = ["Solo", "Dupla", "Trio", "Banda", "Outro"];
+
+const durationOptions = [
+  { value: "60", label: "1 hora" },
+  { value: "90", label: "1h30" },
+  { value: "120", label: "2 horas" },
+  { value: "150", label: "2h30" },
+  { value: "180", label: "3 horas" },
+  { value: "240", label: "4 horas" },
+  { value: "300", label: "5 horas" },
+  { value: "360", label: "6 horas" },
+  { value: "custom", label: "Personalizado (horário fim)" },
+];
+
 const showStatuses = [
   { value: "confirmed", label: "Pagamento pendente", color: "bg-warning" },
+  { value: "partial", label: "Pagamento parcial (entrada)", color: "bg-primary" },
   { value: "completed", label: "Pagamento realizado", color: "bg-green-500" },
   { value: "cancelled", label: "Show cancelado", color: "bg-destructive" },
 ];
+
 
 const formatCurrency = (value: number): string => {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -161,6 +183,10 @@ const initialFormData = {
   name: "",
   date: "",
   time: "",
+  endTime: "",
+  durationPreset: "",
+  durationMinutes: 0,
+  performanceFormat: "",
   venue: "",
   address: "",
   client: "",
@@ -172,6 +198,7 @@ const initialFormData = {
   notes: "",
   cachet: 0,
 };
+
 
 const initialRecurringConfig: RecurringConfig = {
   enabled: false,
@@ -376,6 +403,10 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         name: editingShow.title || "",
         date: editingShow.date || "",
         time: editingShow.start_time || "",
+        endTime: editingShow.end_time || "",
+        durationPreset: editingShow.duration_minutes ? String(editingShow.duration_minutes) : "",
+        durationMinutes: editingShow.duration_minutes || 0,
+        performanceFormat: editingShow.performance_format || "",
         venue: editingShow.venue || "",
         address: editingShow.address || "",
         client: existingClient?.name || "",
@@ -387,6 +418,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         notes: editingShow.notes || "",
         cachet: editingShow.cachet || 0,
       });
+
       setClientMode("existing");
       setSelectedClientId(editingShow.client_id || "");
       setActiveTab("info");
@@ -513,11 +545,24 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         return;
       }
 
+      // Compute end_time from duration when applicable
+      let computedEndTime = formData.endTime || "";
+      if (formData.time && formData.durationMinutes > 0 && formData.durationPreset !== "custom") {
+        const [hh, mm] = formData.time.split(":").map(Number);
+        const total = hh * 60 + mm + formData.durationMinutes;
+        const eh = String(Math.floor((total / 60) % 24)).padStart(2, "0");
+        const em = String(total % 60).padStart(2, "0");
+        computedEndTime = `${eh}:${em}`;
+      }
+
       // Create multiple shows
       for (let i = 0; i < dates.length; i++) {
         const showData: ShowData = {
           id: crypto.randomUUID(),
           ...formData,
+          endTime: computedEndTime,
+          durationMinutes: formData.durationMinutes || null,
+          performanceFormat: formData.performanceFormat || null,
           date: dates[i],
           clientId,
           isAdvancePayment,
@@ -533,10 +578,23 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
       toast.success(`${dates.length} shows recorrentes criados com sucesso!`);
     } else {
+      // Compute end_time from duration when applicable
+      let computedEndTime = formData.endTime || "";
+      if (formData.time && formData.durationMinutes > 0 && formData.durationPreset !== "custom") {
+        const [hh, mm] = formData.time.split(":").map(Number);
+        const total = hh * 60 + mm + formData.durationMinutes;
+        const eh = String(Math.floor((total / 60) % 24)).padStart(2, "0");
+        const em = String(total % 60).padStart(2, "0");
+        computedEndTime = `${eh}:${em}`;
+      }
+
       // Single show
       const showData: ShowData = {
         id: editingShow?.id || crypto.randomUUID(),
         ...formData,
+        endTime: computedEndTime,
+        durationMinutes: formData.durationMinutes || null,
+        performanceFormat: formData.performanceFormat || null,
         clientId,
         isAdvancePayment,
         advanceAmount: computedAdvance,
@@ -550,6 +608,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       onShowCreated?.(showData);
       toast.success(editingShow ? "Show atualizado com sucesso!" : "Show lançado com sucesso!");
     }
+
     
     // Clear form and storage
     clearFormAndStorage();
@@ -665,7 +724,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
               <div className="space-y-2">
                 <Label htmlFor="time" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" /> Horário
+                  <Clock className="w-4 h-4" /> Horário de Início
                 </Label>
                 <Input
                   id="time"
@@ -674,6 +733,60 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" /> Duração
+                </Label>
+                <Select
+                  value={formData.durationPreset}
+                  onValueChange={(value) => {
+                    if (value === "custom") {
+                      setFormData({ ...formData, durationPreset: value, durationMinutes: 0 });
+                    } else {
+                      const mins = Number(value);
+                      setFormData({ ...formData, durationPreset: value, durationMinutes: mins, endTime: "" });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Quanto tempo dura?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {durationOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.durationPreset === "custom" && (
+                  <Input
+                    type="time"
+                    placeholder="Horário de término"
+                    value={formData.endTime}
+                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Mic2 className="w-4 h-4" /> Formato da Apresentação
+                </Label>
+                <Select
+                  value={formData.performanceFormat}
+                  onValueChange={(value) => setFormData({ ...formData, performanceFormat: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Solo, dupla, banda..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {performanceFormats.map((fmt) => (
+                      <SelectItem key={fmt} value={fmt}>{fmt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="venue" className="flex items-center gap-2">

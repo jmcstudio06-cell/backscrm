@@ -20,9 +20,12 @@ export interface Show {
   lead_id: string | null;
   event_type: string | null;
   notes: string | null;
+  duration_minutes: number | null;
+  performance_format: string | null;
   created_at: string;
   updated_at: string;
 }
+
 
 interface ShowMusician {
   musicianId: string;
@@ -203,8 +206,11 @@ const normalizeShowRow = (row: any): Show | null => {
     lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
     event_type: typeof row.event_type === "string" ? row.event_type : null,
     notes: typeof row.notes === "string" ? row.notes : null,
+    duration_minutes: typeof row.duration_minutes === "number" ? row.duration_minutes : null,
+    performance_format: typeof row.performance_format === "string" ? row.performance_format : null,
     created_at: typeof row.created_at === "string" ? row.created_at : new Date().toISOString(),
     updated_at: typeof row.updated_at === "string" ? row.updated_at : new Date().toISOString(),
+
   };
 };
 
@@ -416,9 +422,12 @@ export function useShowsData() {
             lead_id: showData.lead_id,
             event_type: showData.event_type,
             notes: showData.notes,
+            duration_minutes: (showData as any).duration_minutes ?? null,
+            performance_format: (showData as any).performance_format ?? null,
             user_id: user.id,
             checklist_template_id: checklistTemplateId || null,
           },
+
         ])
         .select()
         .single();

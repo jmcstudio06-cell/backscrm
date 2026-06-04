@@ -287,26 +287,32 @@ const Dashboard = () => {
 
   // Upcoming shows with enhanced data
   const upcomingShows = useMemo(() => {
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     return shows
-      .filter((show) => parseISO(show.date) >= now && show.status !== "cancelled")
-      .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
+      .filter((show) => {
+        const d = parseLocalDate(show.date);
+        if (!d) return false;
+        return d >= todayStart && show.status !== "cancelled";
+      })
+      .sort((a, b) => (parseLocalDate(a.date)?.getTime() ?? 0) - (parseLocalDate(b.date)?.getTime() ?? 0))
       .slice(0, 3)
       .map((show) => {
         const client = clients.find(c => c.id === show.client_id);
         const hasContract = contractShowIds.includes(show.id);
-        
+        const localDate = parseLocalDate(show.date) ?? new Date(show.date);
         return {
           id: show.id,
-          date: format(parseISO(show.date), "dd MMM", { locale: ptBR }),
+          date: format(localDate, "dd MMM", { locale: ptBR }),
           title: show.title,
           location: show.venue || "Local a definir",
           value: `R$ ${Number(show.cachet).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-          status: show.status as "confirmed" | "pending" | "completed",
+          status: show.status as any,
           clientPhone: client?.phone || undefined,
           hasContract,
         };
       });
   }, [shows, clients, contractShowIds, now]);
+
 
   // Total revenue hero calculations
   const totalAllTimeRevenue = useMemo(() => {

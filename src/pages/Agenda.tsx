@@ -139,20 +139,27 @@ export default function Agenda() {
     if (editingShow) {
       updateShow(editingShow.id, {
         title: newShow.name, date: safeDate, start_time: newShow.time || null,
+        end_time: newShow.endTime || null,
+        duration_minutes: newShow.durationMinutes ?? null,
+        performance_format: newShow.performanceFormat ?? null,
         venue: newShow.venue || null, address: newShow.address || null, cachet: newShow.cachet,
         status: newShow.status, event_type: newShow.type || null, client_id: newShow.clientId || null,
         advance_amount: newShow.advanceAmount || 0,
-      }, musicians, expenses);
+      } as any, musicians, expenses);
       setEditingShow(null);
     } else {
       addShow({
         title: newShow.name, date: safeDate, start_time: newShow.time || null,
+        end_time: newShow.endTime || null,
+        duration_minutes: newShow.durationMinutes ?? null,
+        performance_format: newShow.performanceFormat ?? null,
         venue: newShow.venue || null, address: newShow.address || null, cachet: newShow.cachet,
         status: newShow.status, event_type: newShow.type || null, client_id: newShow.clientId || null,
         advance_amount: newShow.advanceAmount || 0,
-      }, musicians, expenses, newShow.checklistTemplateId, undefined, newShow.advanceAmount || 0);
+      } as any, musicians, expenses, newShow.checklistTemplateId, undefined, newShow.advanceAmount || 0);
     }
   };
+
 
   const handleDeleteShow = (showId: string) => {
     const s = shows.find((s) => s.id === showId);

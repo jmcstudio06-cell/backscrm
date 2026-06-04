@@ -8,10 +8,11 @@ interface Show {
   title: string;
   location: string;
   value: string;
-  status: "confirmed" | "pending" | "completed";
+  status: "confirmed" | "pending" | "completed" | "partial" | "scheduled";
   clientPhone?: string;
   hasContract?: boolean;
 }
+
 
 interface UpcomingShowsCardProps {
   shows: Show[];
@@ -50,11 +51,20 @@ export function UpcomingShowsCard({ shows, monthlySummary }: UpcomingShowsCardPr
       case "completed":
         return {
           icon: CheckCircle2,
-          label: "Realizado",
-          color: "text-muted-foreground",
-          bg: "bg-muted",
-          border: "border-border",
+          label: "Pago",
+          color: "text-success",
+          bg: "bg-success/10",
+          border: "border-success/20",
         };
+      case "partial":
+        return {
+          icon: Clock,
+          label: "Pagamento parcial",
+          color: "text-primary",
+          bg: "bg-primary/10",
+          border: "border-primary/20",
+        };
+
       default:
         return {
           icon: AlertCircle,
