@@ -545,11 +545,24 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         return;
       }
 
+      // Compute end_time from duration when applicable
+      let computedEndTime = formData.endTime || "";
+      if (formData.time && formData.durationMinutes > 0 && formData.durationPreset !== "custom") {
+        const [hh, mm] = formData.time.split(":").map(Number);
+        const total = hh * 60 + mm + formData.durationMinutes;
+        const eh = String(Math.floor((total / 60) % 24)).padStart(2, "0");
+        const em = String(total % 60).padStart(2, "0");
+        computedEndTime = `${eh}:${em}`;
+      }
+
       // Create multiple shows
       for (let i = 0; i < dates.length; i++) {
         const showData: ShowData = {
           id: crypto.randomUUID(),
           ...formData,
+          endTime: computedEndTime,
+          durationMinutes: formData.durationMinutes || null,
+          performanceFormat: formData.performanceFormat || null,
           date: dates[i],
           clientId,
           isAdvancePayment,
@@ -565,10 +578,23 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
       toast.success(`${dates.length} shows recorrentes criados com sucesso!`);
     } else {
+      // Compute end_time from duration when applicable
+      let computedEndTime = formData.endTime || "";
+      if (formData.time && formData.durationMinutes > 0 && formData.durationPreset !== "custom") {
+        const [hh, mm] = formData.time.split(":").map(Number);
+        const total = hh * 60 + mm + formData.durationMinutes;
+        const eh = String(Math.floor((total / 60) % 24)).padStart(2, "0");
+        const em = String(total % 60).padStart(2, "0");
+        computedEndTime = `${eh}:${em}`;
+      }
+
       // Single show
       const showData: ShowData = {
         id: editingShow?.id || crypto.randomUUID(),
         ...formData,
+        endTime: computedEndTime,
+        durationMinutes: formData.durationMinutes || null,
+        performanceFormat: formData.performanceFormat || null,
         clientId,
         isAdvancePayment,
         advanceAmount: computedAdvance,
@@ -582,6 +608,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       onShowCreated?.(showData);
       toast.success(editingShow ? "Show atualizado com sucesso!" : "Show lançado com sucesso!");
     }
+
     
     // Clear form and storage
     clearFormAndStorage();
