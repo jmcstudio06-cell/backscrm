@@ -38,7 +38,7 @@ import kitManual from "@/assets/kit-manual.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
 import kitBackstage from "@/assets/kit-backstage.png";
-import logoBranca from "@/assets/logo-branca.png";
+import logoAzul from "@/assets/logo-azul.png";
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
 const VIDEO_COMPLETED_KEY = "manual_artista_video_completed";
@@ -380,17 +380,19 @@ export default function KitProfissional() {
           </div>
 
           {/* Main video — vertical/story format, side-cropped to remove black bars */}
-          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-[#0a0a0f] shadow-[0_20px_80px_-20px_rgba(37,99,235,0.35)]">
-            {/* Logo background watermark */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.25] overflow-hidden">
-              <img 
-                src={logoBranca} 
-                alt="" 
-                className="w-[90%] sm:w-[70%] object-contain"
-              />
-            </div>
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-[#07070a] shadow-[0_20px_80px_-20px_rgba(37,99,235,0.35)]">
+            {/* Logo background pattern (infinite repeat) */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-[0.06]"
+              style={{ 
+                backgroundImage: `url(${logoAzul})`,
+                backgroundSize: '120px',
+                backgroundRepeat: 'repeat',
+                transform: 'rotate(-15deg) scale(1.5)',
+              }}
+            />
 
-            <div className="relative z-10 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02]">
+            <div className="relative z-10 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02] backdrop-blur-sm">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
                   <PlayCircle className="w-5 h-5" />
