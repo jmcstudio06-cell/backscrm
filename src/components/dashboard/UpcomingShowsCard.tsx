@@ -8,10 +8,11 @@ interface Show {
   title: string;
   location: string;
   value: string;
-  status: "confirmed" | "pending" | "completed";
+  status: "confirmed" | "pending" | "completed" | "partial" | "scheduled";
   clientPhone?: string;
   hasContract?: boolean;
 }
+
 
 interface UpcomingShowsCardProps {
   shows: Show[];
