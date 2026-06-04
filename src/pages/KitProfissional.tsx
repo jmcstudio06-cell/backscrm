@@ -38,6 +38,7 @@ import kitManual from "@/assets/kit-manual.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
 import kitBackstage from "@/assets/kit-backstage.png";
+import logoBranca from "@/assets/logo branca.png";
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
 const VIDEO_COMPLETED_KEY = "manual_artista_video_completed";
@@ -379,8 +380,17 @@ export default function KitProfissional() {
           </div>
 
           {/* Main video — vertical/story format, side-cropped to remove black bars */}
-          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.02] shadow-[0_20px_80px_-20px_rgba(37,99,235,0.35)]">
-            <div className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10">
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-[#0a0a0f] shadow-[0_20px_80px_-20px_rgba(37,99,235,0.35)]">
+            {/* Logo background watermark */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] overflow-hidden">
+              <img 
+                src={logoBranca} 
+                alt="" 
+                className="w-[80%] sm:w-[60%] object-contain"
+              />
+            </div>
+
+            <div className="relative z-10 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02]">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
                   <PlayCircle className="w-5 h-5" />
