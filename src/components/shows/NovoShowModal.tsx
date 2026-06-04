@@ -104,6 +104,9 @@ export interface ShowData {
   name: string;
   date: string;
   time: string;
+  endTime?: string;
+  durationMinutes?: number | null;
+  performanceFormat?: string | null;
   venue: string;
   address: string;
   client: string;
@@ -150,11 +153,27 @@ const showTypes = [
   "Outro",
 ];
 
+const performanceFormats = ["Solo", "Dupla", "Trio", "Banda", "Outro"];
+
+const durationOptions = [
+  { value: "60", label: "1 hora" },
+  { value: "90", label: "1h30" },
+  { value: "120", label: "2 horas" },
+  { value: "150", label: "2h30" },
+  { value: "180", label: "3 horas" },
+  { value: "240", label: "4 horas" },
+  { value: "300", label: "5 horas" },
+  { value: "360", label: "6 horas" },
+  { value: "custom", label: "Personalizado (horário fim)" },
+];
+
 const showStatuses = [
   { value: "confirmed", label: "Pagamento pendente", color: "bg-warning" },
+  { value: "partial", label: "Pagamento parcial (entrada)", color: "bg-primary" },
   { value: "completed", label: "Pagamento realizado", color: "bg-green-500" },
   { value: "cancelled", label: "Show cancelado", color: "bg-destructive" },
 ];
+
 
 const formatCurrency = (value: number): string => {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
