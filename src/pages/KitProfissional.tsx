@@ -38,7 +38,7 @@ import kitManual from "@/assets/kit-manual.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
 import kitBackstage from "@/assets/kit-backstage.png";
-import logoAzul from "@/assets/logo-azul.png";
+import logoPattern from "@/assets/logo-pattern.png";
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
 const VIDEO_COMPLETED_KEY = "manual_artista_video_completed";
@@ -383,12 +383,12 @@ export default function KitProfissional() {
           <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-[#07070a] shadow-[0_20px_80px_-20px_rgba(37,99,235,0.35)]">
             {/* Logo background pattern (infinite repeat) */}
             <div 
-              className="absolute inset-0 pointer-events-none opacity-[0.06]"
+              className="absolute inset-0 pointer-events-none opacity-[0.08]"
               style={{ 
-                backgroundImage: `url(${logoAzul})`,
-                backgroundSize: '120px',
+                backgroundImage: `url(${logoPattern})`,
+                backgroundSize: '100px',
                 backgroundRepeat: 'repeat',
-                transform: 'rotate(-15deg) scale(1.5)',
+                transform: 'rotate(-15deg) scale(1.6)',
               }}
             />
 
