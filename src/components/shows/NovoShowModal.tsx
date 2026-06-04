@@ -403,6 +403,10 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         name: editingShow.title || "",
         date: editingShow.date || "",
         time: editingShow.start_time || "",
+        endTime: editingShow.end_time || "",
+        durationPreset: editingShow.duration_minutes ? String(editingShow.duration_minutes) : "",
+        durationMinutes: editingShow.duration_minutes || 0,
+        performanceFormat: editingShow.performance_format || "",
         venue: editingShow.venue || "",
         address: editingShow.address || "",
         client: existingClient?.name || "",
@@ -414,6 +418,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         notes: editingShow.notes || "",
         cachet: editingShow.cachet || 0,
       });
+
       setClientMode("existing");
       setSelectedClientId(editingShow.client_id || "");
       setActiveTab("info");
