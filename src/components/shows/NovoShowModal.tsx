@@ -78,7 +78,10 @@ interface EditingShow {
   event_type: string | null;
   notes: string | null;
   client_id?: string | null;
+  duration_minutes?: number | null;
+  performance_format?: string | null;
 }
+
 
 interface NovoShowModalProps {
   open: boolean;
