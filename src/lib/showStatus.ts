@@ -11,6 +11,8 @@ const SHOW_STATUS_ALIASES: Record<string, string> = {
   realizado: "completed",
   finalizado: "completed",
   completed: "completed",
+  parcial: "partial",
+  partial: "partial",
   cancelado: "cancelled",
   cancelled: "cancelled",
 };
@@ -26,7 +28,13 @@ export const isCompletedShowStatus = (status: string | null | undefined) =>
 
 export const isProjectedShowStatus = (status: string | null | undefined) => {
   const normalized = normalizeShowStatus(status);
-  return normalized === "confirmed" || normalized === "pending" || normalized === "scheduled" || normalized === "negotiation";
+  return (
+    normalized === "confirmed" ||
+    normalized === "pending" ||
+    normalized === "scheduled" ||
+    normalized === "negotiation" ||
+    normalized === "partial"
+  );
 };
 
 export const isCancelledShowStatus = (status: string | null | undefined) =>
@@ -34,5 +42,5 @@ export const isCancelledShowStatus = (status: string | null | undefined) =>
 
 export const isFinancialShowStatus = (status: string | null | undefined) => {
   const normalized = normalizeShowStatus(status);
-  return normalized === "completed";
+  return normalized === "completed" || normalized === "partial";
 };
