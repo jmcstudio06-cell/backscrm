@@ -345,135 +345,114 @@ export default function KitProfissional() {
           </div>
 
           <div className="space-y-16">
-            {/* Categoria: Vendas */}
+            {/* Categoria: Vendas (Trilha Horizontal) */}
             {(activeCategory === "todos" || activeCategory === "vendas") && (
               <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-6 bg-blue-500 rounded-full" />
-                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Vendas e Estratégia</h2>
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-6 bg-blue-500 rounded-full" />
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Cursos e Vendas</h2>
+                  </div>
                 </div>
                 
-                <div className="max-w-4xl">
+                <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide px-2">
+                  {/* Card Principal Netflix Style */}
                   <button
                     onClick={() => setView("course")}
-                    className="group block w-full text-left rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] hover:border-blue-400/40 hover:shadow-[0_30px_100px_-30px_rgba(37,99,235,0.5)] hover:-translate-y-1 transition-all duration-300"
+                    className="group relative flex-shrink-0 w-[300px] sm:w-[450px] aspect-video rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:border-blue-400/50 transition-all duration-300 hover:scale-[1.02] shadow-xl"
                   >
-                    <div className="grid sm:grid-cols-[1.1fr_1fr]">
-                      <div className="relative aspect-video sm:aspect-auto overflow-hidden">
-                        <img src={kitManual} alt="Manual do Artista Contratado" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black via-black/50 to-transparent" />
-                        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur text-[10px] sm:text-xs font-bold uppercase tracking-wide">
-                          <Flame className="w-3 h-3" /> Limitado
-                        </div>
-                        <div className="absolute bottom-3 left-3 sm:hidden">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 backdrop-blur text-[10px] font-semibold">
-                            <PlayCircle className="w-3 h-3" /> Minicurso
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="p-5 sm:p-7 flex flex-col">
-                        <span className="hidden sm:inline-flex w-fit items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-wider text-white/60 mb-3">
+                    <img src={kitManual} alt="Manual do Artista" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 rounded bg-blue-600 text-[10px] font-bold uppercase tracking-wider">Novo</span>
+                        <span className="text-[10px] font-bold text-white/70 flex items-center gap-1">
                           <PlayCircle className="w-3 h-3" /> Minicurso
                         </span>
-                        <h2 className="text-xl sm:text-2xl font-black leading-tight mb-2">
-                          Manual do Artista Contratado
-                        </h2>
-                        <p className="text-sm text-white/55 mb-5 line-clamp-3">
-                          Os erros silenciosos que fazem você perder shows — e como atender contratantes de forma profissional para fechar mais.
-                        </p>
-
-                        <div className="flex items-end gap-3 mb-4">
-                          <div>
-                            <p className="text-[11px] sm:text-xs text-white/40 line-through">De R$ 99,90</p>
-                            <p className="text-[10px] sm:text-xs uppercase tracking-widest text-amber-300 font-bold">Por</p>
-                            <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent leading-none">
-                              R$ 0,00
-                            </p>
-                          </div>
-                          <span className="ml-auto inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/50 font-medium">
-                            <Clock className="w-3 h-3" /> Acesso imediato
-                          </span>
-                        </div>
-
-                        <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:from-blue-500 group-hover:to-cyan-500 font-bold text-sm sm:text-base shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transition">
-                          Acessar curso agora <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </div>
-
-                        <div className="flex items-center gap-3 mt-4 text-[10px] sm:text-xs text-white/40">
-                          <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Vídeo principal</span>
-                          <span className="inline-flex items-center gap-1"><Sparkles className="w-3 h-3 text-amber-300" /> 2 bônus</span>
-                          <span className="inline-flex items-center gap-1"><BookOpen className="w-3 h-3 text-blue-300" /> Apoio</span>
-                        </div>
                       </div>
+                      <h3 className="text-xl font-black text-white group-hover:text-blue-400 transition-colors">Manual do Artista Contratado</h3>
                     </div>
                   </button>
+
+                  {/* Placeholder para novos cursos no futuro */}
+                  <div className="flex-shrink-0 w-[300px] sm:w-[450px] aspect-video rounded-2xl border border-white/5 bg-white/[0.02] flex items-center justify-center text-white/20">
+                    <div className="text-center">
+                      <PlayCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                      <p className="text-sm font-bold uppercase tracking-widest">Em breve</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Categoria: Ferramentas */}
+            {/* Categoria: Ferramentas (Trilha Horizontal) */}
             {(activeCategory === "todos" || activeCategory === "ferramentas") && (
               <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-6 bg-cyan-500 rounded-full" />
-                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Ferramentas e Apps</h2>
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-6 bg-cyan-500 rounded-full" />
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Apps e Ferramentas</h2>
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide px-2">
                   {/* Card do App Sistema */}
-                  <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-cyan-400/40 transition-all duration-300">
-                    <div className="aspect-video overflow-hidden">
-                      <img src={kitBackstage} alt="Sistema Backstage Pro" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f18] via-transparent to-transparent" />
+                  <div className="group relative flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-cyan-400/40 transition-all duration-300 hover:scale-[1.02] shadow-xl">
+                    <div className="aspect-[4/3] overflow-hidden relative">
+                      <img src={kitBackstage} alt="Sistema Backstage Pro" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f18] via-black/20 to-transparent" />
+                      <div className="absolute top-3 right-3 px-2 py-1 rounded-md bg-cyan-500 text-[10px] font-bold text-white shadow-lg">SISTEMA</div>
                     </div>
-                    <div className="p-6 space-y-4">
-                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400">
-                        <LayoutGrid className="w-3.5 h-3.5" /> App & Sistema
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-black group-hover:text-cyan-400 transition-colors">Sistema para Artistas</h3>
-                      <p className="text-sm text-white/50">
-                        O sistema completo para organizar sua carreira, gerenciar shows, contratos e escalar suas vendas com profissionalismo.
-                      </p>
+                    <div className="p-5 space-y-4">
+                      <h3 className="text-lg font-black group-hover:text-cyan-400 transition-colors">Backstage Pro</h3>
+                      <p className="text-xs text-white/50 line-clamp-2">O sistema completo para gerenciar sua carreira e shows.</p>
                       <Button
                         onClick={() => window.open("https://backstagepro.online/landing", "_blank")}
-                        className="w-full gap-2 py-6 bg-blue-600 hover:bg-blue-500 text-white border-0 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20"
+                        className="w-full gap-2 py-5 bg-blue-600 hover:bg-blue-500 text-white border-0 rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20"
                       >
                         Acessar App
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Artes e Mensagens (Resumo) */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <button
-                      onClick={() => navigate("/kit-profissional/artes")}
-                      className="group flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-blue-400/30 transition-all"
-                    >
-                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                        <img src={kitArtes} alt="" className="w-full h-full object-cover" />
+                  {/* Card Artes Canva */}
+                  <button
+                    onClick={() => navigate("/kit-profissional/artes")}
+                    className="group relative flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-blue-400/40 transition-all duration-300 hover:scale-[1.02] shadow-xl"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden relative">
+                      <img src={kitArtes} alt="Artes Editáveis" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f18] via-black/20 to-transparent" />
+                      <div className="absolute top-3 right-3 px-2 py-1 rounded-md bg-blue-500 text-[10px] font-bold text-white shadow-lg">CANVA</div>
+                    </div>
+                    <div className="p-5 text-left">
+                      <h3 className="text-lg font-black group-hover:text-blue-400 transition-colors">Artes Editáveis</h3>
+                      <p className="text-xs text-white/50 mt-1 line-clamp-2">Modelos profissionais prontos para seus shows.</p>
+                      <div className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-blue-400">
+                        Começar agora <ArrowRight className="w-3.5 h-3.5" />
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-bold text-sm">Artes Editáveis</h4>
-                        <p className="text-xs text-white/40 mt-1">Modelos no Canva para seus shows</p>
+                    </div>
+                  </button>
+
+                  {/* Card Mensagens Prontas */}
+                  <button
+                    onClick={() => navigate("/kit-profissional/mensagens")}
+                    className="group relative flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-blue-400/40 transition-all duration-300 hover:scale-[1.02] shadow-xl"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden relative">
+                      <img src={kitMensagens} alt="Mensagens Prontas" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f18] via-black/20 to-transparent" />
+                      <div className="absolute top-3 right-3 px-2 py-1 rounded-md bg-emerald-500 text-[10px] font-bold text-white shadow-lg">SCRIPTS</div>
+                    </div>
+                    <div className="p-5 text-left">
+                      <h3 className="text-lg font-black group-hover:text-emerald-400 transition-colors">Mensagens Prontas</h3>
+                      <p className="text-xs text-white/50 mt-1 line-clamp-2">Scripts validados para fechar com contratantes.</p>
+                      <div className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-emerald-400">
+                        Acessar scripts <ArrowRight className="w-3.5 h-3.5" />
                       </div>
-                      <ArrowRight className="w-4 h-4 ml-auto text-white/20 group-hover:text-blue-400 transition-colors" />
-                    </button>
-                    <button
-                      onClick={() => navigate("/kit-profissional/mensagens")}
-                      className="group flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-blue-400/30 transition-all"
-                    >
-                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                        <img src={kitMensagens} alt="" className="w-full h-full object-cover" />
-                      </div>
-                      <div className="text-left">
-                        <h4 className="font-bold text-sm">Mensagens Prontas</h4>
-                        <p className="text-xs text-white/40 mt-1">Scripts para fechar com contratantes</p>
-                      </div>
-                      <ArrowRight className="w-4 h-4 ml-auto text-white/20 group-hover:text-blue-400 transition-colors" />
-                    </button>
-                  </div>
+                    </div>
+                  </button>
                 </div>
               </div>
             )}
