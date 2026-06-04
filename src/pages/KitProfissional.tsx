@@ -382,11 +382,11 @@ export default function KitProfissional() {
           {/* Main video — vertical/story format, side-cropped to remove black bars */}
           <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-[#0a0a0f] shadow-[0_20px_80px_-20px_rgba(37,99,235,0.35)]">
             {/* Logo background watermark */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.25] overflow-hidden">
               <img 
                 src={logoBranca} 
                 alt="" 
-                className="w-[80%] sm:w-[60%] object-contain"
+                className="w-[90%] sm:w-[70%] object-contain"
               />
             </div>
 
