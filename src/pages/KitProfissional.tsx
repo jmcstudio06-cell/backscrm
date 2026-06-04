@@ -38,7 +38,7 @@ import kitManual from "@/assets/kit-manual.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
 import kitBackstage from "@/assets/kit-backstage.png";
-import logoBranca from "@/assets/logo branca.png";
+import logoBranca from "@/assets/logo-branca.png";
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
 const VIDEO_COMPLETED_KEY = "manual_artista_video_completed";
