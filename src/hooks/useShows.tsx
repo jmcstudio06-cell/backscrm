@@ -206,8 +206,11 @@ const normalizeShowRow = (row: any): Show | null => {
     lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
     event_type: typeof row.event_type === "string" ? row.event_type : null,
     notes: typeof row.notes === "string" ? row.notes : null,
+    duration_minutes: typeof row.duration_minutes === "number" ? row.duration_minutes : null,
+    performance_format: typeof row.performance_format === "string" ? row.performance_format : null,
     created_at: typeof row.created_at === "string" ? row.created_at : new Date().toISOString(),
     updated_at: typeof row.updated_at === "string" ? row.updated_at : new Date().toISOString(),
+
   };
 };
 
