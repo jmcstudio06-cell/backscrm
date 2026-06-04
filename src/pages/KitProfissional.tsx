@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select";
 
 import baIcon from "@/assets/ba-icon.png";
-import kitErros from "@/assets/kit-erros.png";
+import kitManual from "@/assets/kit-manual.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
 import kitBackstage from "@/assets/kit-backstage.png";
@@ -77,7 +77,7 @@ const materials: Material[] = [
     id: "erros-escrito",
     title: "Erros que fazem você perder shows (material escrito)",
     description: "Versão em texto do conteúdo — leve para qualquer lugar",
-    image: kitErros,
+    image: kitManual,
     path: "/guia-atendimento",
     external: false,
     type: "support",
@@ -302,7 +302,7 @@ export default function KitProfissional() {
             >
               <div className="grid sm:grid-cols-[1.1fr_1fr]">
                 <div className="relative aspect-video sm:aspect-auto overflow-hidden">
-                  <img src={kitErros} alt="Manual do Artista Contratado" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={kitManual} alt="Manual do Artista Contratado" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black via-black/50 to-transparent" />
                   <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur text-[10px] sm:text-xs font-bold uppercase tracking-wide">
                     <Flame className="w-3 h-3" /> Limitado
