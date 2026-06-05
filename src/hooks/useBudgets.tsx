@@ -50,6 +50,33 @@ export interface PerformanceType {
   created_at: string;
 }
 
+const getBudgetErrorMessage = (error: unknown) => {
+  const fallback = "Erro ao salvar orçamento";
+  if (!error || typeof error !== "object") return fallback;
+
+  const err = error as { message?: string; details?: string; hint?: string; code?: string };
+  const rawMessage = [err.message, err.details, err.hint].filter(Boolean).join(" ");
+  const normalized = rawMessage.toLowerCase();
+
+  if (normalized.includes("invalid input syntax for type uuid")) {
+    return "Erro: cliente inválido. Selecione um cliente válido ou use a opção Novo cliente.";
+  }
+  if (normalized.includes("row-level security")) {
+    return "Erro de permissão: sua conta não tem autorização para salvar este orçamento agora.";
+  }
+  if (normalized.includes("permission denied")) {
+    return "Erro de permissão no banco de dados ao salvar orçamento.";
+  }
+  if (normalized.includes("duplicate key")) {
+    return "Erro: já existe um orçamento com esses dados. Tente novamente.";
+  }
+  if (normalized.includes("not-null") || normalized.includes("null value")) {
+    return "Erro: existe um campo obrigatório vazio no orçamento.";
+  }
+
+  return err.message ? `Erro ao salvar orçamento: ${err.message}` : fallback;
+};
+
 export function useBudgets() {
   const { user } = useAuth();
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -198,7 +225,7 @@ export function useBudgets() {
           client_phone: budgetData.client_phone,
           client_company: budgetData.client_company,
           client_address: budgetData.client_address,
-          client_id: budgetData.client_id,
+          client_id: budgetData.client_id || null,
           logo_url: budgetData.logo_url,
           subtotal: budgetData.subtotal || 0,
           discount: budgetData.discount || 0,
@@ -241,7 +268,7 @@ export function useBudgets() {
       return budget;
     } catch (error) {
       console.error("Error adding budget:", error);
-      toast.error("Erro ao criar orçamento");
+      toast.error(getBudgetErrorMessage(error));
     }
   };
 
@@ -255,7 +282,7 @@ export function useBudgets() {
         client_phone: budgetData.client_phone,
         client_company: budgetData.client_company,
         client_address: budgetData.client_address,
-        client_id: budgetData.client_id,
+        client_id: budgetData.client_id || null,
         logo_url: budgetData.logo_url,
         subtotal: budgetData.subtotal,
         discount: budgetData.discount,
@@ -307,7 +334,7 @@ export function useBudgets() {
       return budget;
     } catch (error) {
       console.error("Error updating budget:", error);
-      toast.error("Erro ao atualizar orçamento");
+      toast.error(getBudgetErrorMessage(error));
     }
   };
 
