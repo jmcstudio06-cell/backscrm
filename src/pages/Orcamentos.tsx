@@ -48,12 +48,17 @@ export default function Orcamentos() {
   );
 
   const handleSave = async (budgetData: Partial<Budget>, items: Partial<BudgetItem>[]) => {
+    let savedBudget: Budget | void;
     if (selectedBudget) {
-      await updateBudget(selectedBudget.id, budgetData, items);
+      savedBudget = await updateBudget(selectedBudget.id, budgetData, items);
     } else {
-      await addBudget(budgetData, items);
+      savedBudget = await addBudget(budgetData, items);
     }
-    setSelectedBudget(null);
+
+    if (savedBudget) {
+      setSelectedBudget(null);
+    }
+    return savedBudget;
   };
 
   const handleView = async (budget: Budget) => {
