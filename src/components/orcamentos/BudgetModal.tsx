@@ -202,11 +202,13 @@ export function BudgetModal({
       sort_order: index,
     }));
 
-    const savedBudget = await onSave(budgetData, budgetItems);
-    setSaving(false);
-
-    if (savedBudget) {
-      onClose();
+    try {
+      const savedBudget = await onSave(budgetData, budgetItems);
+      if (savedBudget) {
+        onClose();
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
