@@ -50,6 +50,33 @@ export interface PerformanceType {
   created_at: string;
 }
 
+const getBudgetErrorMessage = (error: unknown) => {
+  const fallback = "Erro ao salvar orçamento";
+  if (!error || typeof error !== "object") return fallback;
+
+  const err = error as { message?: string; details?: string; hint?: string; code?: string };
+  const rawMessage = [err.message, err.details, err.hint].filter(Boolean).join(" ");
+  const normalized = rawMessage.toLowerCase();
+
+  if (normalized.includes("invalid input syntax for type uuid")) {
+    return "Erro: cliente inválido. Selecione um cliente válido ou use a opção Novo cliente.";
+  }
+  if (normalized.includes("row-level security")) {
+    return "Erro de permissão: sua conta não tem autorização para salvar este orçamento agora.";
+  }
+  if (normalized.includes("permission denied")) {
+    return "Erro de permissão no banco de dados ao salvar orçamento.";
+  }
+  if (normalized.includes("duplicate key")) {
+    return "Erro: já existe um orçamento com esses dados. Tente novamente.";
+  }
+  if (normalized.includes("not-null") || normalized.includes("null value")) {
+    return "Erro: existe um campo obrigatório vazio no orçamento.";
+  }
+
+  return err.message ? `Erro ao salvar orçamento: ${err.message}` : fallback;
+};
+
 export function useBudgets() {
   const { user } = useAuth();
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -116,14 +143,15 @@ export function useBudgets() {
     if (!user) return;
 
     try {
+      const performancePayload = typeData as Partial<PerformanceType> & { icon?: string; musician_ids?: string[] };
       const { data, error } = await supabase
         .from("performance_types")
         .insert([{
           name: typeData.name || "",
           description: typeData.description,
           price: typeData.price || 0,
-          icon: (typeData as any).icon || "music",
-          musician_ids: (typeData as any).musician_ids || [],
+          icon: performancePayload.icon || "music",
+          musician_ids: performancePayload.musician_ids || [],
           user_id: user.id,
         }])
         .select()
@@ -141,7 +169,7 @@ export function useBudgets() {
 
   const updatePerformanceType = async (id: string, updates: Partial<PerformanceType>) => {
     try {
-      const updatePayload: any = { ...updates };
+      const updatePayload: Record<string, unknown> = { ...updates };
       const { data, error } = await supabase
         .from("performance_types")
         .update(updatePayload)
@@ -198,7 +226,7 @@ export function useBudgets() {
           client_phone: budgetData.client_phone,
           client_company: budgetData.client_company,
           client_address: budgetData.client_address,
-          client_id: budgetData.client_id,
+          client_id: budgetData.client_id || null,
           logo_url: budgetData.logo_url,
           subtotal: budgetData.subtotal || 0,
           discount: budgetData.discount || 0,
@@ -241,7 +269,7 @@ export function useBudgets() {
       return budget;
     } catch (error) {
       console.error("Error adding budget:", error);
-      toast.error("Erro ao criar orçamento");
+      toast.error(getBudgetErrorMessage(error));
     }
   };
 
@@ -249,13 +277,13 @@ export function useBudgets() {
     try {
       const current = budgets.find((b) => b.id === id);
       const stageChanged = budgetData.status && current && budgetData.status !== current.status;
-      const updatePayload: any = {
+      const updatePayload: Record<string, unknown> = {
         client_name: budgetData.client_name,
         client_email: budgetData.client_email,
         client_phone: budgetData.client_phone,
         client_company: budgetData.client_company,
         client_address: budgetData.client_address,
-        client_id: budgetData.client_id,
+        client_id: budgetData.client_id || null,
         logo_url: budgetData.logo_url,
         subtotal: budgetData.subtotal,
         discount: budgetData.discount,
@@ -307,7 +335,7 @@ export function useBudgets() {
       return budget;
     } catch (error) {
       console.error("Error updating budget:", error);
-      toast.error("Erro ao atualizar orçamento");
+      toast.error(getBudgetErrorMessage(error));
     }
   };
 

@@ -26,7 +26,8 @@ export default function Orcamentos() {
   const { isBlocked } = useFeatureBlocks();
 
   const enrichedPerformanceTypes = performanceTypes.map((perf) => {
-    const musicianIds: string[] = (perf as any).musician_ids || [];
+    const performanceWithTeam = perf as typeof perf & { musician_ids?: string[] };
+    const musicianIds: string[] = performanceWithTeam.musician_ids || [];
     const teamTotal = musicianIds.reduce((sum, id) => {
       const m = musicians.find((mu) => mu.id === id);
       return sum + (m?.rate || 0);
@@ -48,12 +49,17 @@ export default function Orcamentos() {
   );
 
   const handleSave = async (budgetData: Partial<Budget>, items: Partial<BudgetItem>[]) => {
+    let savedBudget: Budget | void;
     if (selectedBudget) {
-      await updateBudget(selectedBudget.id, budgetData, items);
+      savedBudget = await updateBudget(selectedBudget.id, budgetData, items);
     } else {
-      await addBudget(budgetData, items);
+      savedBudget = await addBudget(budgetData, items);
     }
-    setSelectedBudget(null);
+
+    if (savedBudget) {
+      setSelectedBudget(null);
+    }
+    return savedBudget;
   };
 
   const handleView = async (budget: Budget) => {
