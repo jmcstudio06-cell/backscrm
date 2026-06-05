@@ -26,7 +26,7 @@ export default function Orcamentos() {
   const { isBlocked } = useFeatureBlocks();
 
   const enrichedPerformanceTypes = performanceTypes.map((perf) => {
-    const performanceWithTeam = perf as Budget["items"] extends never ? never : typeof perf & { musician_ids?: string[] };
+    const performanceWithTeam = perf as typeof perf & { musician_ids?: string[] };
     const musicianIds: string[] = performanceWithTeam.musician_ids || [];
     const teamTotal = musicianIds.reduce((sum, id) => {
       const m = musicians.find((mu) => mu.id === id);
