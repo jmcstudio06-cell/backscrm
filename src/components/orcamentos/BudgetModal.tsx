@@ -20,11 +20,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { Client } from "@/hooks/useClients";
 import { Budget, BudgetItem, PerformanceType } from "@/hooks/useBudgets";
+import { toast } from "sonner";
 
 interface BudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (budget: Partial<Budget>, items: Partial<BudgetItem>[]) => void;
+  onSave: (budget: Partial<Budget>, items: Partial<BudgetItem>[]) => Promise<Budget | void> | Budget | void;
   clients: Client[];
   performanceTypes: PerformanceType[];
   budget?: Budget | null;
@@ -60,6 +61,7 @@ export function BudgetModal({
   const [notes, setNotes] = useState("");
   const [termsConditions, setTermsConditions] = useState("");
   const [validUntil, setValidUntil] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (budget) {
@@ -167,10 +169,16 @@ export function BudgetModal({
   const taxAmount = subtotal * (tax / 100);
   const total = subtotal + taxAmount - discount;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!clientName.trim()) {
+      toast.error("Informe o nome do cliente para criar o orçamento.");
+      return;
+    }
+
+    setSaving(true);
     const budgetData: Partial<Budget> = {
-      client_id: clientMode === "existing" ? selectedClientId : null,
-      client_name: clientName,
+      client_id: clientMode === "existing" ? selectedClientId || null : null,
+      client_name: clientName.trim(),
       client_email: clientEmail,
       client_phone: clientPhone,
       client_company: clientCompany,
@@ -194,8 +202,12 @@ export function BudgetModal({
       sort_order: index,
     }));
 
-    onSave(budgetData, budgetItems);
-    onClose();
+    const savedBudget = await onSave(budgetData, budgetItems);
+    setSaving(false);
+
+    if (savedBudget) {
+      onClose();
+    }
   };
 
   return (
@@ -475,8 +487,8 @@ export function BudgetModal({
             <Button variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <Button variant="gradient" onClick={handleSave}>
-              {budget ? "Atualizar" : "Criar Orçamento"}
+            <Button variant="gradient" onClick={handleSave} disabled={saving}>
+              {saving ? "Salvando..." : budget ? "Atualizar" : "Criar Orçamento"}
             </Button>
           </div>
         </div>
