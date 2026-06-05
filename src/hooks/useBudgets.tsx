@@ -143,14 +143,15 @@ export function useBudgets() {
     if (!user) return;
 
     try {
+      const performancePayload = typeData as Partial<PerformanceType> & { icon?: string; musician_ids?: string[] };
       const { data, error } = await supabase
         .from("performance_types")
         .insert([{
           name: typeData.name || "",
           description: typeData.description,
           price: typeData.price || 0,
-          icon: (typeData as any).icon || "music",
-          musician_ids: (typeData as any).musician_ids || [],
+          icon: performancePayload.icon || "music",
+          musician_ids: performancePayload.musician_ids || [],
           user_id: user.id,
         }])
         .select()
@@ -168,7 +169,7 @@ export function useBudgets() {
 
   const updatePerformanceType = async (id: string, updates: Partial<PerformanceType>) => {
     try {
-      const updatePayload: any = { ...updates };
+      const updatePayload: Record<string, unknown> = { ...updates };
       const { data, error } = await supabase
         .from("performance_types")
         .update(updatePayload)
@@ -276,7 +277,7 @@ export function useBudgets() {
     try {
       const current = budgets.find((b) => b.id === id);
       const stageChanged = budgetData.status && current && budgetData.status !== current.status;
-      const updatePayload: any = {
+      const updatePayload: Record<string, unknown> = {
         client_name: budgetData.client_name,
         client_email: budgetData.client_email,
         client_phone: budgetData.client_phone,
