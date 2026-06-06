@@ -78,6 +78,14 @@ const materials: Material[] = [
     image: kitMensagens,
     path: "/kit-profissional/mensagens",
     external: false,
+  },
+  {
+    id: "planilha",
+    title: "Planilha de controle do artista",
+    description: "Organize cachês, despesas e shows em uma planilha pronta",
+    image: kitPlanilha,
+    path: "https://drive.google.com/drive/folders/1iz32lmHUy7PfvrmcYJgn7kd49gYzx2j_?usp=sharing",
+    external: true,
     type: "bonus",
   },
   {
