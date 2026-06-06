@@ -78,6 +78,7 @@ const materials: Material[] = [
     image: kitMensagens,
     path: "/kit-profissional/mensagens",
     external: false,
+    type: "bonus",
   },
   {
     id: "planilha",
