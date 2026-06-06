@@ -53,7 +53,7 @@ import fabioGoogle from "@/assets/testimonials/fabio-google.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
-import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown, Gift } from "lucide-react";
+import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
 import linkAgendaMockup from "@/assets/mockups/link-agenda-mockup-v2.png";
 import baIconImg from "@/assets/ba-icon.png";
