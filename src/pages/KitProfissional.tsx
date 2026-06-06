@@ -527,6 +527,15 @@ export default function KitProfissional() {
                     <div className="p-4 sm:p-5">
                       <h4 className="font-bold text-sm sm:text-base leading-tight">{m.title}</h4>
                       <p className="text-xs sm:text-sm text-white/55 mt-1.5 line-clamp-2">{m.description}</p>
+                      {!locked && m.price && (
+                        <div className="mt-3 flex items-baseline gap-2">
+                          {m.oldPrice && (
+                            <span className="text-xs text-white/40 line-through">De {m.oldPrice}</span>
+                          )}
+                          <span className="text-[10px] font-semibold text-white/50 uppercase">Por</span>
+                          <span className="text-lg sm:text-xl font-bold text-emerald-400">{m.price}</span>
+                        </div>
+                      )}
                       {!locked && (
                         <div className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-cyan-300">
                           Acessar bônus <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
