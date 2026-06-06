@@ -90,8 +90,6 @@ const materials: Material[] = [
     path: "https://drive.google.com/drive/folders/1iz32lmHUy7PfvrmcYJgn7kd49gYzx2j_?usp=sharing",
     external: true,
     type: "bonus",
-    oldPrice: "R$ 249,90",
-    price: "R$ 9,90",
   },
   {
     id: "erros-escrito",
@@ -340,10 +338,10 @@ export default function KitProfissional() {
                 <div className="mt-auto space-y-5">
                   <div className="flex items-end gap-3">
                     <div>
-                      <p className="text-[11px] text-white/30 line-through">De R$ 99,90</p>
+                      <p className="text-[11px] text-white/30 line-through">De R$ 249,90</p>
                       <p className="text-[10px] uppercase tracking-widest text-amber-300 font-bold">Por</p>
                       <p className="text-3xl font-black bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent leading-none">
-                        R$ 0,00
+                        R$ 9,90
                       </p>
                     </div>
                     <span className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/40 font-medium bg-white/5 px-2 py-1 rounded">
