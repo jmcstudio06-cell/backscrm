@@ -90,8 +90,6 @@ const materials: Material[] = [
     path: "https://drive.google.com/drive/folders/1iz32lmHUy7PfvrmcYJgn7kd49gYzx2j_?usp=sharing",
     external: true,
     type: "bonus",
-    oldPrice: "R$ 249,90",
-    price: "R$ 9,90",
   },
   {
     id: "erros-escrito",
