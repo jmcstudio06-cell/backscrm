@@ -59,6 +59,8 @@ type Material = {
   path: string;
   external: boolean;
   type: "bonus" | "support";
+  oldPrice?: string;
+  price?: string;
 };
 
 const materials: Material[] = [
