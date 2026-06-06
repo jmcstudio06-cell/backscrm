@@ -43,6 +43,7 @@ import kitManual from "@/assets/kit-manual.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
 import kitBackstage from "@/assets/kit-backstage.png";
+import kitPlanilha from "@/assets/kit-planilha.jpg";
 import logoPattern from "@/assets/logo-pattern.png";
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
