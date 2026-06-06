@@ -216,9 +216,15 @@ const Landing = () => {
           
           <nav className="hidden md:flex items-center gap-8">
             <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
-            
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
             <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
+            <a
+              href="/kit-profissional"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0066CC] to-[#00B4D8] text-white font-semibold px-4 py-2 rounded-lg shadow hover:shadow-lg hover:opacity-95 transition-all"
+            >
+              <Gift className="w-4 h-4" />
+              Kit Profissional Grátis
+            </a>
           </nav>
         </div>
       </header>
