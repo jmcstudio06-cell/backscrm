@@ -43,6 +43,7 @@ import kitManual from "@/assets/kit-manual.png";
 import kitArtes from "@/assets/kit-artes.png";
 import kitMensagens from "@/assets/kit-mensagens.png";
 import kitBackstage from "@/assets/kit-backstage.png";
+import kitPlanilha from "@/assets/kit-planilha.jpg";
 import logoPattern from "@/assets/logo-pattern.png";
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
@@ -77,6 +78,15 @@ const materials: Material[] = [
     image: kitMensagens,
     path: "/kit-profissional/mensagens",
     external: false,
+    type: "bonus",
+  },
+  {
+    id: "planilha",
+    title: "Planilha de controle do artista",
+    description: "Organize cachês, despesas e shows em uma planilha pronta",
+    image: kitPlanilha,
+    path: "https://drive.google.com/drive/folders/1iz32lmHUy7PfvrmcYJgn7kd49gYzx2j_?usp=sharing",
+    external: true,
     type: "bonus",
   },
   {
