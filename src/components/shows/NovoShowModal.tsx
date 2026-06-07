@@ -211,6 +211,7 @@ const initialRecurringConfig: RecurringConfig = {
 
 export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading, addMusician } = useMusicians();
+  const { performanceTypes } = useBudgets();
   const [musicianModalOpen, setMusicianModalOpen] = useState(false);
   const [teamSearch, setTeamSearch] = useState("");
   const [teamInstrumentFilter, setTeamInstrumentFilter] = useState<string>("all");
