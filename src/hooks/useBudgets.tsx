@@ -47,6 +47,8 @@ export interface PerformanceType {
   description: string | null;
   price: number;
   cover_url: string | null;
+  musician_ids?: string[] | null;
+  icon?: string | null;
   created_at: string;
 }
 
