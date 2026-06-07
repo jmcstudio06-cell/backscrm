@@ -777,9 +777,15 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                 <Select
                   value={formData.performanceFormat}
                   onValueChange={(value) => {
-                    setFormData({ ...formData, performanceFormat: value });
-                    // If selected value matches a Service/Product, auto-add its musicians
                     const matched = performanceTypes.find((p) => p.name === value);
+                    setFormData({
+                      ...formData,
+                      performanceFormat: value,
+                      // Auto-fill cachet from service price if present and current cachet is empty/zero
+                      cachet: matched && matched.price && (!formData.cachet || formData.cachet === 0)
+                        ? Number(matched.price)
+                        : formData.cachet,
+                    });
                     if (matched) {
                       const ids: string[] = Array.isArray(matched.musician_ids)
                         ? (matched.musician_ids as string[])
@@ -798,26 +804,24 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Solo, dupla, banda..." />
+                    <SelectValue placeholder={performanceTypes.length === 0 ? "Cadastre em Serviços e Produtos" : "Selecione um serviço"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {performanceTypes.length > 0 && (
-                      <>
-                        {performanceTypes.map((pt) => (
-                          <SelectItem key={pt.id} value={pt.name}>
-                            {pt.name}
-                          </SelectItem>
-                        ))}
-                      </>
+                    {performanceTypes.length === 0 ? (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">
+                        Nenhum serviço cadastrado. Vá em "Serviços e Produtos" para cadastrar.
+                      </div>
+                    ) : (
+                      performanceTypes.map((pt) => (
+                        <SelectItem key={pt.id} value={pt.name}>
+                          {pt.name}
+                        </SelectItem>
+                      ))
                     )}
-                    {performanceFormats
-                      .filter((fmt) => !performanceTypes.some((pt) => pt.name === fmt))
-                      .map((fmt) => (
-                        <SelectItem key={fmt} value={fmt}>{fmt}</SelectItem>
-                      ))}
                   </SelectContent>
                 </Select>
               </div>
+
 
 
 
