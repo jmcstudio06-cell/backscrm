@@ -50,7 +50,9 @@ export interface PerformanceType {
   musician_ids?: string[] | null;
   icon?: string | null;
   created_at: string;
+  musician_ids?: any;
 }
+
 
 const getBudgetErrorMessage = (error: unknown) => {
   const fallback = "Erro ao salvar orçamento";
