@@ -55,6 +55,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
+import { useBudgets } from "@/hooks/useBudgets";
 import { MusicianModal } from "@/components/equipe/MusicianModal";
 import { useClients, Client } from "@/hooks/useClients";
 import { useChecklistTemplates } from "@/hooks/useChecklistTemplates";
@@ -210,6 +211,7 @@ const initialRecurringConfig: RecurringConfig = {
 
 export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading, addMusician } = useMusicians();
+  const { performanceTypes } = useBudgets();
   const [musicianModalOpen, setMusicianModalOpen] = useState(false);
   const [teamSearch, setTeamSearch] = useState("");
   const [teamInstrumentFilter, setTeamInstrumentFilter] = useState<string>("all");
@@ -774,18 +776,49 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                 </Label>
                 <Select
                   value={formData.performanceFormat}
-                  onValueChange={(value) => setFormData({ ...formData, performanceFormat: value })}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, performanceFormat: value });
+                    // If selected value matches a Service/Product, auto-add its musicians
+                    const matched = performanceTypes.find((p) => p.name === value);
+                    if (matched) {
+                      const ids: string[] = Array.isArray(matched.musician_ids)
+                        ? (matched.musician_ids as string[])
+                        : [];
+                      if (ids.length > 0) {
+                        const toAdd = musicians
+                          .filter((m) => ids.includes(m.id))
+                          .filter((m) => !selectedMusicians.some((s) => s.musicianId === m.id))
+                          .map((m) => ({ musicianId: m.id, name: m.name, fee: m.rate || 0 }));
+                        if (toAdd.length > 0) {
+                          setSelectedMusicians([...selectedMusicians, ...toAdd]);
+                          toast.success(`${toAdd.length} músico(s) adicionado(s) automaticamente`);
+                        }
+                      }
+                    }
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Solo, dupla, banda..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {performanceFormats.map((fmt) => (
-                      <SelectItem key={fmt} value={fmt}>{fmt}</SelectItem>
-                    ))}
+                    {performanceTypes.length > 0 && (
+                      <>
+                        {performanceTypes.map((pt) => (
+                          <SelectItem key={pt.id} value={pt.name}>
+                            {pt.name}
+                          </SelectItem>
+                        ))}
+                      </>
+                    )}
+                    {performanceFormats
+                      .filter((fmt) => !performanceTypes.some((pt) => pt.name === fmt))
+                      .map((fmt) => (
+                        <SelectItem key={fmt} value={fmt}>{fmt}</SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
+
 
 
               <div className="space-y-2">
