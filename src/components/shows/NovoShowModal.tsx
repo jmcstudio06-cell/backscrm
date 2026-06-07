@@ -55,6 +55,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
+import { useBudgets } from "@/hooks/useBudgets";
 import { MusicianModal } from "@/components/equipe/MusicianModal";
 import { useClients, Client } from "@/hooks/useClients";
 import { useChecklistTemplates } from "@/hooks/useChecklistTemplates";
