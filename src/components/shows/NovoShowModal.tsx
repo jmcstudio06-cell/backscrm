@@ -1019,8 +1019,64 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                 Carregando dados financeiros...
               </div>
             )}
-            
+
+            {/* Seção: Formato da Apresentação */}
+            <section className="rounded-2xl border border-border/60 bg-card/60 p-4 sm:p-5 space-y-3">
+              <header className="flex items-center gap-2 pb-1 border-b border-border/50">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Music className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-sm font-semibold text-foreground">Formato da apresentação</h3>
+              </header>
+              <Select
+                value={formData.performanceFormat}
+                onValueChange={(value) => {
+                  const matched = performanceTypes.find((p) => p.name === value);
+                  setFormData({
+                    ...formData,
+                    performanceFormat: value,
+                    cachet: matched && matched.price && (!formData.cachet || formData.cachet === 0)
+                      ? Number(matched.price)
+                      : formData.cachet,
+                  });
+                  if (matched) {
+                    const ids: string[] = Array.isArray(matched.musician_ids)
+                      ? (matched.musician_ids as string[])
+                      : [];
+                    if (ids.length > 0) {
+                      const toAdd = musicians
+                        .filter((m) => ids.includes(m.id))
+                        .filter((m) => !selectedMusicians.some((s) => s.musicianId === m.id))
+                        .map((m) => ({ musicianId: m.id, name: m.name, fee: m.rate || 0 }));
+                      if (toAdd.length > 0) {
+                        setSelectedMusicians([...selectedMusicians, ...toAdd]);
+                        toast.success(`${toAdd.length} músico(s) adicionado(s) automaticamente`);
+                      }
+                    }
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={performanceTypes.length === 0 ? "Cadastre em Serviços e Produtos" : "Selecione um serviço"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {performanceTypes.length === 0 ? (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      Nenhum serviço cadastrado. Vá em "Serviços e Produtos" para cadastrar.
+                    </div>
+                  ) : (
+                    performanceTypes.map((pt) => (
+                      <SelectItem key={pt.id} value={pt.name}>
+                        {pt.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </section>
+
             {/* Cachê */}
+
             <div className="p-4 rounded-xl bg-success/10 border border-success/20">
               <Label htmlFor="cachet" className="flex items-center gap-2 text-success mb-2">
                 <DollarSign className="w-5 h-5" />
