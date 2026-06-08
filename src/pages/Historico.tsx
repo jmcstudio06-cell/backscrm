@@ -399,16 +399,16 @@ export default function Historico() {
                     return labels[value] || value;
                   }}
                 />
-                {/* Current year bars */}
-                <Bar dataKey="receita" stackId="revenue" fill="#22c55e" radius={[0, 0, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
-                <Bar dataKey="receitaPrevista" stackId="revenue" fill="#eab308" radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
-                <Bar dataKey="despesa" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
+                {/* Current year bars - vivid */}
+                <Bar dataKey="receita" stackId="revenue" fill="#16a34a" fillOpacity={1} radius={[0, 0, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
+                <Bar dataKey="receitaPrevista" stackId="revenue" fill="#f59e0b" fillOpacity={1} radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
+                <Bar dataKey="despesa" fill="#dc2626" fillOpacity={1} radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
                 {/* Comparison year bars (semi-transparent) */}
                 {compareYear && (
                   <>
-                    <Bar dataKey="receitaPrev" stackId="revenuePrev" fill="#22c55e" fillOpacity={0.35} radius={[0, 0, 0, 0]} name="receitaPrev" animationDuration={1200} animationBegin={0} />
-                    <Bar dataKey="receitaPrevistaPrev" stackId="revenuePrev" fill="#eab308" fillOpacity={0.35} radius={[4, 4, 0, 0]} name="receitaPrevistaPrev" animationDuration={1200} animationBegin={200} />
-                    <Bar dataKey="despesaPrev" fill="#ef4444" fillOpacity={0.35} radius={[4, 4, 0, 0]} name="despesaPrev" animationDuration={1200} animationBegin={400} />
+                    <Bar dataKey="receitaPrev" stackId="revenuePrev" fill="#16a34a" fillOpacity={0.5} radius={[0, 0, 0, 0]} name="receitaPrev" animationDuration={1200} animationBegin={0} />
+                    <Bar dataKey="receitaPrevistaPrev" stackId="revenuePrev" fill="#f59e0b" fillOpacity={0.5} radius={[4, 4, 0, 0]} name="receitaPrevistaPrev" animationDuration={1200} animationBegin={200} />
+                    <Bar dataKey="despesaPrev" fill="#dc2626" fillOpacity={0.5} radius={[4, 4, 0, 0]} name="despesaPrev" animationDuration={1200} animationBegin={400} />
                   </>
                 )}
                 <Line
