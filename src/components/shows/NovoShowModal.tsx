@@ -81,6 +81,9 @@ interface EditingShow {
   client_id?: string | null;
   duration_minutes?: number | null;
   performance_format?: string | null;
+  advance_amount?: number | null;
+  advance_received_date?: string | null;
+  balance_due_date?: string | null;
 }
 
 
