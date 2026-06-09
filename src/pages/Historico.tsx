@@ -393,11 +393,16 @@ export default function Historico() {
                       receitaPrevista: `Previsto ${selectedYear}`,
                       despesa: `Despesa ${selectedYear}`,
                       lucro: `Lucro ${selectedYear}`,
+                      margem: `Margem ${selectedYear}`,
                       receitaPrev: `Receita ${compareYear}`,
                       receitaPrevistaPrev: `Previsto ${compareYear}`,
                       despesaPrev: `Despesa ${compareYear}`,
                       lucroPrev: `Lucro ${compareYear}`,
+                      margemPrev: `Margem ${compareYear}`,
                     };
+                    if (name === "margem" || name === "margemPrev") {
+                      return [`${value}%`, labels[name] || name];
+                    }
                     return [formatCurrencyBR(value), labels[name] || name];
                   }}
                 />
@@ -410,27 +415,30 @@ export default function Historico() {
                       receitaPrevista: `Previsto ${compareYear ? selectedYear : ""}`,
                       despesa: `Despesa ${compareYear ? selectedYear : ""}`,
                       lucro: `Lucro ${compareYear ? selectedYear : ""}`,
+                      margem: `Margem % ${compareYear ? selectedYear : ""}`,
                       receitaPrev: `Receita ${compareYear}`,
                       receitaPrevistaPrev: `Previsto ${compareYear}`,
                       despesaPrev: `Despesa ${compareYear}`,
                       lucroPrev: `Lucro ${compareYear}`,
+                      margemPrev: `Margem % ${compareYear}`,
                     };
                     return labels[value] || value;
                   }}
                 />
                 {/* Current year bars - vivid */}
-                <Bar dataKey="receita" stackId="revenue" fill="#16a34a" fillOpacity={1} radius={[0, 0, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
-                <Bar dataKey="receitaPrevista" stackId="revenue" fill="#f59e0b" fillOpacity={1} radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
-                <Bar dataKey="despesa" fill="#dc2626" fillOpacity={1} radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
+                <Bar yAxisId="left" dataKey="receita" stackId="revenue" fill="#16a34a" fillOpacity={1} radius={[0, 0, 0, 0]} name="receita" animationDuration={1200} animationBegin={0} />
+                <Bar yAxisId="left" dataKey="receitaPrevista" stackId="revenue" fill="#f59e0b" fillOpacity={1} radius={[4, 4, 0, 0]} name="receitaPrevista" animationDuration={1200} animationBegin={200} />
+                <Bar yAxisId="left" dataKey="despesa" fill="#dc2626" fillOpacity={1} radius={[4, 4, 0, 0]} name="despesa" animationDuration={1200} animationBegin={400} />
                 {/* Comparison year bars (semi-transparent) */}
                 {compareYear && (
                   <>
-                    <Bar dataKey="receitaPrev" stackId="revenuePrev" fill="#16a34a" fillOpacity={0.5} radius={[0, 0, 0, 0]} name="receitaPrev" animationDuration={1200} animationBegin={0} />
-                    <Bar dataKey="receitaPrevistaPrev" stackId="revenuePrev" fill="#f59e0b" fillOpacity={0.5} radius={[4, 4, 0, 0]} name="receitaPrevistaPrev" animationDuration={1200} animationBegin={200} />
-                    <Bar dataKey="despesaPrev" fill="#dc2626" fillOpacity={0.5} radius={[4, 4, 0, 0]} name="despesaPrev" animationDuration={1200} animationBegin={400} />
+                    <Bar yAxisId="left" dataKey="receitaPrev" stackId="revenuePrev" fill="#16a34a" fillOpacity={0.5} radius={[0, 0, 0, 0]} name="receitaPrev" animationDuration={1200} animationBegin={0} />
+                    <Bar yAxisId="left" dataKey="receitaPrevistaPrev" stackId="revenuePrev" fill="#f59e0b" fillOpacity={0.5} radius={[4, 4, 0, 0]} name="receitaPrevistaPrev" animationDuration={1200} animationBegin={200} />
+                    <Bar yAxisId="left" dataKey="despesaPrev" fill="#dc2626" fillOpacity={0.5} radius={[4, 4, 0, 0]} name="despesaPrev" animationDuration={1200} animationBegin={400} />
                   </>
                 )}
                 <Line
+                  yAxisId="left"
                   type="monotone"
                   dataKey="lucro"
                   stroke="#3b82f6"
@@ -441,20 +449,49 @@ export default function Historico() {
                   animationDuration={1500}
                   animationBegin={600}
                 />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="margem"
+                  stroke="#a855f7"
+                  strokeWidth={isMobile ? 2 : 3}
+                  dot={{ fill: "#a855f7", strokeWidth: 2, r: isMobile ? 3 : 5 }}
+                  activeDot={{ r: isMobile ? 5 : 7, strokeWidth: 2 }}
+                  name="margem"
+                  animationDuration={1500}
+                  animationBegin={800}
+                />
                 {compareYear && (
-                  <Line
-                    type="monotone"
-                    dataKey="lucroPrev"
-                    stroke="#3b82f6"
-                    strokeWidth={isMobile ? 1 : 2}
-                    strokeDasharray="6 3"
-                    strokeOpacity={0.45}
-                    dot={{ fill: "#3b82f6", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
-                    name="lucroPrev"
-                    animationDuration={1500}
-                    animationBegin={600}
-                  />
+                  <>
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="lucroPrev"
+                      stroke="#3b82f6"
+                      strokeWidth={isMobile ? 1 : 2}
+                      strokeDasharray="6 3"
+                      strokeOpacity={0.45}
+                      dot={{ fill: "#3b82f6", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
+                      name="lucroPrev"
+                      animationDuration={1500}
+                      animationBegin={600}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="margemPrev"
+                      stroke="#a855f7"
+                      strokeWidth={isMobile ? 1 : 2}
+                      strokeDasharray="6 3"
+                      strokeOpacity={0.45}
+                      dot={{ fill: "#a855f7", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
+                      name="margemPrev"
+                      animationDuration={1500}
+                      animationBegin={800}
+                    />
+                  </>
                 )}
+
               </ComposedChart>
             </ResponsiveContainer>
           )}
