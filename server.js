@@ -39,17 +39,25 @@ app.post('/api/auth/login', (req, res) => {
     const { email } = req.body;
     console.log(`Login recebido: ${email}`);
     
+    // Retornando exatamente o que a extensão espera para autorizar o login
     res.json({
         success: true,
         bearer_token: "token-backs-crm-full-access",
+        token: "token-backs-crm-full-access",
         user: {
             id: 1,
             name: "Administrador Backs",
             email: email || "admin@backscrm.com.br",
             role: "admin",
-            premium: true
+            premium: true,
+            status: "active"
         }
     });
+});
+
+// Adicionando rota de validação de licença caso a extensão use esse endpoint
+app.all('/api/auth/license/*', (req, res) => {
+    res.json({ success: true, status: "active", type: "premium" });
 });
 
 // Validação de Token (Sempre autoriza)
