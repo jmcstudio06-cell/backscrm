@@ -98,7 +98,7 @@ const buildShowTransactions = (
         category: "Show",
         amount: advance,
         description: `Cachê antecipado: ${show.title}`,
-        date: show.date,
+        date: show.advance_received_date || show.date,
         show_id: show.id,
         is_advance_payment: true,
       });
@@ -108,7 +108,7 @@ const buildShowTransactions = (
         category: "Show",
         amount: show.cachet - advance,
         description: `Cachê pendente: ${show.title}`,
-        date: show.date,
+        date: show.balance_due_date || show.date,
         show_id: show.id,
         is_advance_payment: false,
       });
