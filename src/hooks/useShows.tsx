@@ -15,6 +15,8 @@ export interface Show {
   address: string | null;
   cachet: number;
   advance_amount: number;
+  advance_received_date: string | null;
+  balance_due_date: string | null;
   status: string;
   client_id: string | null;
   lead_id: string | null;
