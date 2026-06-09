@@ -362,12 +362,24 @@ export default function Historico() {
                   height={isMobile ? 50 : 30}
                 />
                 <YAxis 
+                  yAxisId="left"
                   stroke="#000" 
                   tick={{ fill: "#000", fontWeight: 600 }} 
                   fontSize={isMobile ? 9 : 13}
                   tickFormatter={isMobile ? (v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v) : undefined}
                   width={isMobile ? 35 : 60}
                 />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="#a855f7"
+                  tick={{ fill: "#a855f7", fontWeight: 600 }}
+                  fontSize={isMobile ? 9 : 13}
+                  tickFormatter={(v: number) => `${v}%`}
+                  width={isMobile ? 35 : 50}
+                  domain={[0, 100]}
+                />
+
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
