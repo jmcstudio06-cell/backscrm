@@ -34,12 +34,11 @@ app.get('/config.json', (req, res) => {
 });
 
 // LOGIN LIBERADO (Modo Desenvolvedor)
-// Esta rota aceita qualquer e-mail e senha para você entrar agora
-app.post('/api/auth/login', (req, res) => {
-    const { email } = req.body;
-    console.log(`Login recebido: ${email}`);
+// Aceita qualquer e-mail e senha, e ignora o ID da extensão no final da URL
+app.all('/api/auth/login*', (req, res) => {
+    const { email } = req.body || {};
+    console.log(`Tentativa de login recebida para: ${email}`);
     
-    // Retornando exatamente o que a extensão espera para autorizar o login
     res.json({
         success: true,
         bearer_token: "token-backs-crm-full-access",
