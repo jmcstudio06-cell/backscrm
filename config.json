@@ -1,0 +1,14 @@
+{
+  "remote_code": "https://code.backscrm.com.br/",
+  "selectors": {
+    "app": "#app",
+    "main": "#main",
+    "side": "#side",
+    "pane_side": "#pane-side"
+  },
+  "features": {
+    "crm": true,
+    "flow": true,
+    "funnil": true
+  }
+}
