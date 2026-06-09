@@ -1176,21 +1176,24 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                 </div>
                 <Switch
                   checked={isAdvancePayment}
+                  disabled={formData.status !== "partial"}
                   onCheckedChange={(v) => {
+                    if (formData.status !== "partial") {
+                      toast.info("Disponível apenas com status 'Pagamento parcial (entrada)'", {
+                        description: "Altere o Status do Show para Pagamento parcial para configurar o adiantamento.",
+                      });
+                      return;
+                    }
                     setIsAdvancePayment(v);
-                    if (v) {
-                      setFormData({ ...formData, status: "partial" });
-                    } else {
+                    if (!v) {
                       setAdvanceAmount(0);
                       setAdvanceReceivedDate("");
                       setBalanceDueMode("show_date");
                       setBalanceDueDate("");
-                      if (formData.status === "partial") {
-                        setFormData({ ...formData, status: "confirmed" });
-                      }
                     }
                   }}
                 />
+
               </header>
 
               {isAdvancePayment && (
