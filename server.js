@@ -5,49 +5,50 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 7860;
 
-// Middlewares
-app.use(cors());
+// Configuração de CORS mais permissiva para extensões Chrome
+app.use(cors({
+    origin: '*', // Permite qualquer origem para evitar bloqueios no WhatsApp Web
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 app.use(express.json());
-app.use(morgan('dev')); // Logs de requisições no console
+app.use(morgan('dev'));
+
+// Rota raiz
+app.get('/', (req, res) => {
+    res.send('Backs CRM Backend is running!');
+});
 
 // Rota de saúde (Health Check)
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Rota para o arquivo de configuração que a extensão busca
+// Rota para o arquivo de configuração
 app.get('/config.json', (req, res) => {
     res.sendFile(path.join(__dirname, 'config.json'));
 });
 
-// Exemplo de rota de autenticação
-app.post('/api/auth/login', (req, res) => {
-    const { email, password } = req.body;
-    // Aqui você implementaria a lógica real de banco de dados
-    console.log(`Tentativa de login: ${email}`);
-    res.json({
-        success: true,
-        bearer_token: "token-de-teste-backs-crm",
-        user: {
-            name: "Usuário Backs",
-            email: email
-        }
-    });
+// Mock de rotas de serviço para evitar erros 404 no console
+app.all('/api/services/update', (req, res) => {
+    res.json({ success: true, message: "Update service mock active" });
 });
 
-// Rota de instalação (chamada no onInstalled)
-app.get('/api/urls/install/:id', (req, res) => {
-    const extensionId = req.params.id;
-    console.log(`Extensão instalada: ${extensionId}`);
-    res.json({
-        success: true,
-        url: "https://backscrm.com.br/welcome"
-    });
+app.all('/api/urls/update', (req, res) => {
+    res.json({ success: true, message: "URL update mock active" });
+});
+
+app.all('/api/auth/validation/*', (req, res) => {
+    res.json({ success: true, status: "authorized" });
+});
+
+app.all('/api/urls/install/*', (req, res) => {
+    res.json({ success: true });
 });
 
 app.listen(PORT, () => {
     console.log(`Servidor Backs CRM rodando na porta ${PORT}`);
-    console.log(`Endpoint de config: http://localhost:${PORT}/config.json`);
 });
