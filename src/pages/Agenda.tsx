@@ -203,15 +203,19 @@ export default function Agenda() {
 
   const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
 
+  const sortByStartTime = (a: { start_time?: string | null }, b: { start_time?: string | null }) =>
+    (a.start_time || "99:99").localeCompare(b.start_time || "99:99");
+
   const getShowsForDate = (day: number) => {
     const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return shows.filter((show) => show.date === dateStr);
+    return shows.filter((show) => show.date === dateStr).sort(sortByStartTime);
   };
 
   const getSelectedDayShows = () => {
     const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
-    return shows.filter((show) => show.date === dateStr);
+    return shows.filter((show) => show.date === dateStr).sort(sortByStartTime);
   };
+
 
   const selectedDayShows = getSelectedDayShows();
 
