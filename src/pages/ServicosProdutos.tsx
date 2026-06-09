@@ -208,20 +208,33 @@ export default function ServicosProdutos() {
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar serviço ou produto..."
-            className="pl-9 bg-card border-border/50"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:flex-1">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar serviço ou produto..."
+              className="pl-9 bg-card border-border/50"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+            <SelectTrigger className="w-full sm:w-56 bg-card border-border/50">
+              <SelectValue placeholder="Ordenar por" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="price_asc">Valor: menor para maior</SelectItem>
+              <SelectItem value="price_desc">Valor: maior para menor</SelectItem>
+              <SelectItem value="name_asc">Nome (A-Z)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button className="bg-primary hover:bg-primary/90 shadow-lg" onClick={handleOpenNew}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Serviço
         </Button>
       </div>
+
 
       {/* Catalog Grid */}
       {filtered.length === 0 ? (
