@@ -93,14 +93,14 @@ app.all('/api/services/update', (req, res) => {
 
 // Redirecionamento de Registro/Cadastro
 app.all('/redirect-plugin-register', (req, res) => {
-    // Aqui você pode colocar o link da sua página de vendas ou checkout
-    res.redirect('https://backscrm.com.br/checkout');
+    // Redirecionando para sua página no Lovable
+    res.redirect('https://backscrm.lovable.app/');
 });
 
 // Redirecionamento do Painel do Cliente
 app.all('/redirect-plugin-panel', (req, res) => {
-    // Aqui você pode colocar o link do seu painel administrativo futuro
-    res.redirect('https://backscrm.com.br/dashboard');
+    // Redirecionando para sua página no Lovable (ou outra página se preferir)
+    res.redirect('https://backscrm.lovable.app/dashboard');
 });
 
 app.all('/api/urls/update', (req, res) => {
