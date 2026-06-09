@@ -1179,7 +1179,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">Adiantamento</h3>
-                    <p className="text-xs text-muted-foreground">Recebeu parte do cachê antecipado?</p>
+                    <p className="text-xs text-muted-foreground">{formData.status === "partial" ? "Recebeu parte do cachê antecipado?" : "Disponível apenas com status 'Pagamento parcial'"}</p>
                   </div>
                 </div>
                 <Switch
