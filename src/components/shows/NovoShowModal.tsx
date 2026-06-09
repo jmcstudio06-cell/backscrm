@@ -906,9 +906,17 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                         setIsAdvancePayment(true);
                         setActiveTab("financial");
                         toast.info("Configure o valor adiantado na aba Financeiro");
+                      } else {
+                        // Adiantamento só vale para Pagamento parcial
+                        setIsAdvancePayment(false);
+                        setAdvanceAmount(0);
+                        setAdvanceReceivedDate("");
+                        setBalanceDueMode("show_date");
+                        setBalanceDueDate("");
                       }
                     }}
                   >
+
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
