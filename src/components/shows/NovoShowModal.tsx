@@ -554,6 +554,20 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       return;
     }
 
+    if (formData.status === "partial" && (!isAdvancePayment || computedAdvance <= 0)) {
+      setActiveTab("financial");
+      toast.error("Informe o valor adiantado para o Pagamento Parcial", {
+        description: "Ative o Adiantamento na aba Financeiro e preencha o valor recebido.",
+      });
+      return;
+    }
+
+    if (formData.status === "partial" && computedAdvance >= formData.cachet) {
+      toast.error("O adiantamento não pode ser igual ou maior que o cachê total");
+      return;
+    }
+
+
     let clientId = selectedClientId || undefined;
 
     // If creating a new client, save it first
