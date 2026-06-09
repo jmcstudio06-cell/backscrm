@@ -518,6 +518,12 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
     setActiveTab("info");
     setShowTeamSelector(false);
     setShowRestoredBanner(false);
+    setIsAdvancePayment(false);
+    setAdvanceAmount(0);
+    setAdvanceMode("value");
+    setAdvanceReceivedDate("");
+    setBalanceDueMode("show_date");
+    setBalanceDueDate("");
   };
 
   const handleSubmit = async () => {
