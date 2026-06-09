@@ -118,15 +118,39 @@ export default function Financeiro() {
       if (show.status === "cancelled") return;
 
       if (show.cachet > 0) {
-        transactions.push({
-          id: `show-${show.id}`,
-          show_id: show.id,
-          type: "income",
-          category: "Show",
-          description: `Cachê: ${show.title}`,
-          amount: show.cachet,
-          date: show.date,
-        });
+        const adv = Number((show as any).advance_amount) || 0;
+        const advDate = (show as any).advance_received_date || show.date;
+        const balDate = (show as any).balance_due_date || show.date;
+        if (adv > 0 && adv < show.cachet) {
+          transactions.push({
+            id: `show-adv-${show.id}`,
+            show_id: show.id,
+            type: "income",
+            category: "Show",
+            description: `Cachê antecipado: ${show.title}`,
+            amount: adv,
+            date: advDate,
+          });
+          transactions.push({
+            id: `show-bal-${show.id}`,
+            show_id: show.id,
+            type: "income",
+            category: "Show",
+            description: `Cachê pendente: ${show.title}`,
+            amount: show.cachet - adv,
+            date: balDate,
+          });
+        } else {
+          transactions.push({
+            id: `show-${show.id}`,
+            show_id: show.id,
+            type: "income",
+            category: "Show",
+            description: `Cachê: ${show.title}`,
+            amount: show.cachet,
+            date: show.date,
+          });
+        }
       }
 
       const showMusicians = musicians.filter(m => m.show_id === show.id);
