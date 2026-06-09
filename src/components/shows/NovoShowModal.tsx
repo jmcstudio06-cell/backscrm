@@ -1295,6 +1295,9 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                 </div>
               )}
             </section>
+            )}
+
+
 
 
             {isBlocked("checklist") ? (
