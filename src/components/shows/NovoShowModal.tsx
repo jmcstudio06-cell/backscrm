@@ -886,7 +886,14 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   <Label htmlFor="status">Status do Show</Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, status: value });
+                      if (value === "partial") {
+                        setIsAdvancePayment(true);
+                        setActiveTab("financial");
+                        toast.info("Configure o valor adiantado na aba Financeiro");
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
