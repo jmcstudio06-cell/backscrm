@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import {
   Dialog,
   DialogContent,
@@ -85,15 +87,21 @@ export default function ServicosProdutos() {
   const [selectedMusicians, setSelectedMusicians] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"price_asc" | "price_desc" | "name_asc">("price_asc");
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [musicianPickerOpen, setMusicianPickerOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
-  const filtered = performanceTypes.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = performanceTypes
+    .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === "price_asc") return (a.price || 0) - (b.price || 0);
+      if (sortBy === "price_desc") return (b.price || 0) - (a.price || 0);
+      return a.name.localeCompare(b.name, "pt-BR");
+    });
+
 
   const toggleMusician = (id: string) => {
     setSelectedMusicians(prev =>
@@ -200,20 +208,33 @@ export default function ServicosProdutos() {
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar serviço ou produto..."
-            className="pl-9 bg-card border-border/50"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:flex-1">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar serviço ou produto..."
+              className="pl-9 bg-card border-border/50"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+            <SelectTrigger className="w-full sm:w-56 bg-card border-border/50">
+              <SelectValue placeholder="Ordenar por" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="price_asc">Valor: menor para maior</SelectItem>
+              <SelectItem value="price_desc">Valor: maior para menor</SelectItem>
+              <SelectItem value="name_asc">Nome (A-Z)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button className="bg-primary hover:bg-primary/90 shadow-lg" onClick={handleOpenNew}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Serviço
         </Button>
       </div>
+
 
       {/* Catalog Grid */}
       {filtered.length === 0 ? (
