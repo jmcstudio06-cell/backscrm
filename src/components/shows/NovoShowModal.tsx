@@ -434,7 +434,29 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       setActiveTab("info");
       setShowTeamSelector(false);
       setRecurringConfig(initialRecurringConfig);
-      
+
+      // Load advance payment fields
+      const editAdvance = Number(editingShow.advance_amount || 0);
+      if (editAdvance > 0) {
+        setIsAdvancePayment(true);
+        setAdvanceAmount(editAdvance);
+        setAdvanceMode("value");
+        setAdvanceReceivedDate(editingShow.advance_received_date || "");
+        if (editingShow.balance_due_date && editingShow.balance_due_date !== editingShow.date) {
+          setBalanceDueMode("specific");
+          setBalanceDueDate(editingShow.balance_due_date);
+        } else {
+          setBalanceDueMode("show_date");
+          setBalanceDueDate("");
+        }
+      } else {
+        setIsAdvancePayment(false);
+        setAdvanceAmount(0);
+        setAdvanceReceivedDate("");
+        setBalanceDueMode("show_date");
+        setBalanceDueDate("");
+      }
+
       // Load financial data
       loadShowFinancialData(editingShow.id);
     } else if (open && !editingShow && presetDate && !formData.date) {
