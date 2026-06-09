@@ -906,9 +906,17 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                         setIsAdvancePayment(true);
                         setActiveTab("financial");
                         toast.info("Configure o valor adiantado na aba Financeiro");
+                      } else {
+                        // Adiantamento só vale para Pagamento parcial
+                        setIsAdvancePayment(false);
+                        setAdvanceAmount(0);
+                        setAdvanceReceivedDate("");
+                        setBalanceDueMode("show_date");
+                        setBalanceDueDate("");
                       }
                     }}
                   >
+
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
@@ -1171,26 +1179,29 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">Adiantamento</h3>
-                    <p className="text-xs text-muted-foreground">Recebeu parte do cachê antecipado?</p>
+                    <p className="text-xs text-muted-foreground">{formData.status === "partial" ? "Recebeu parte do cachê antecipado?" : "Disponível apenas com status 'Pagamento parcial'"}</p>
                   </div>
                 </div>
                 <Switch
                   checked={isAdvancePayment}
+                  disabled={formData.status !== "partial"}
                   onCheckedChange={(v) => {
+                    if (formData.status !== "partial") {
+                      toast.info("Disponível apenas com status 'Pagamento parcial (entrada)'", {
+                        description: "Altere o Status do Show para Pagamento parcial para configurar o adiantamento.",
+                      });
+                      return;
+                    }
                     setIsAdvancePayment(v);
-                    if (v) {
-                      setFormData({ ...formData, status: "partial" });
-                    } else {
+                    if (!v) {
                       setAdvanceAmount(0);
                       setAdvanceReceivedDate("");
                       setBalanceDueMode("show_date");
                       setBalanceDueDate("");
-                      if (formData.status === "partial") {
-                        setFormData({ ...formData, status: "confirmed" });
-                      }
                     }
                   }}
                 />
+
               </header>
 
               {isAdvancePayment && (

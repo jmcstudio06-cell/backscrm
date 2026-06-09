@@ -75,12 +75,12 @@ const Dashboard = () => {
     );
   }, [goals, currentMonth, currentYear]);
 
-  // Count confirmed + completed shows this month (all except cancelled)
+  // Count confirmed + completed + partial shows this month (all except cancelled)
   const completedShowsThisMonth = useMemo(() => {
     return shows.filter((show) => {
       const showDate = new Date(show.date + "T12:00:00");
       return (
-        (show.status === "completed" || show.status === "confirmed") &&
+        (show.status === "completed" || show.status === "confirmed" || show.status === "partial") &&
         showDate >= currentMonthStart &&
         showDate <= currentMonthEnd
       );
@@ -322,7 +322,7 @@ const Dashboard = () => {
   }, [transactions]);
 
   const completedShowsAllTime = useMemo(() => {
-    return shows.filter(s => s.status === "finalizado" || s.status === "completed").length;
+    return shows.filter(s => s.status === "finalizado" || s.status === "completed" || s.status === "partial").length;
   }, [shows]);
 
   const revenueGrowth = useMemo(() => {
@@ -332,7 +332,7 @@ const Dashboard = () => {
 
   // Best fee ever received (highest cachet from completed shows)
   const bestFeeShow = useMemo(() => {
-    const completed = shows.filter(s => s.status === "finalizado" || s.status === "completed");
+    const completed = shows.filter(s => s.status === "finalizado" || s.status === "completed" || s.status === "partial");
     if (completed.length === 0) return null;
     const best = completed.reduce((max, s) => Number(s.cachet) > Number(max.cachet) ? s : max, completed[0]);
     return { value: Number(best.cachet), showTitle: best.title };
@@ -342,7 +342,7 @@ const Dashboard = () => {
   const annualProjection = useMemo(() => {
     // Shows completados neste ano
     const completedThisYear = shows.filter(s => 
-      s.status === "completed" && s.date.startsWith(String(currentYear))
+      (s.status === "completed" || s.status === "partial") && s.date.startsWith(String(currentYear))
     );
     if (completedThisYear.length === 0) return 0;
 
