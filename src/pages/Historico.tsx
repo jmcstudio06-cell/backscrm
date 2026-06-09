@@ -463,6 +463,7 @@ export default function Historico() {
                   <Line
                     yAxisId="left"
                     type="monotone"
+                    fill="none"
                     dataKey="lucro"
                     stroke="#3b82f6"
                     strokeWidth={isMobile ? 2 : 3}
@@ -477,6 +478,7 @@ export default function Historico() {
                   <Line
                     yAxisId="right"
                     type="monotone"
+                    fill="none"
                     dataKey="margem"
                     stroke="#a855f7"
                     strokeWidth={isMobile ? 2 : 3}
@@ -493,6 +495,7 @@ export default function Historico() {
                       <Line
                         yAxisId="left"
                         type="monotone"
+                    fill="none"
                         dataKey="lucroPrev"
                         stroke="#3b82f6"
                         strokeWidth={isMobile ? 1 : 2}
@@ -508,6 +511,7 @@ export default function Historico() {
                       <Line
                         yAxisId="right"
                         type="monotone"
+                    fill="none"
                         dataKey="margemPrev"
                         stroke="#a855f7"
                         strokeWidth={isMobile ? 1 : 2}
