@@ -1164,11 +1164,16 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   checked={isAdvancePayment}
                   onCheckedChange={(v) => {
                     setIsAdvancePayment(v);
-                    if (!v) {
+                    if (v) {
+                      setFormData({ ...formData, status: "partial" });
+                    } else {
                       setAdvanceAmount(0);
                       setAdvanceReceivedDate("");
                       setBalanceDueMode("show_date");
                       setBalanceDueDate("");
+                      if (formData.status === "partial") {
+                        setFormData({ ...formData, status: "confirmed" });
+                      }
                     }
                   }}
                 />
