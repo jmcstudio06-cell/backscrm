@@ -421,6 +421,8 @@ export function useShowsData() {
             address: showData.address,
             cachet: showData.cachet || 0,
             advance_amount: showData.advance_amount || advanceAmount || 0,
+            advance_received_date: (showData as any).advance_received_date ?? null,
+            balance_due_date: (showData as any).balance_due_date ?? null,
             status: showData.status || "scheduled",
             client_id: showData.client_id,
             lead_id: showData.lead_id,
