@@ -1170,7 +1170,8 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
             </div>
 
-            {/* Adiantamento */}
+            {/* Adiantamento — só aparece quando status = Pagamento parcial */}
+            {formData.status === "partial" && (
             <section className="rounded-2xl border border-border/60 bg-card/60 p-4 sm:p-5 space-y-3">
               <header className="flex items-center justify-between gap-3 pb-2 border-b border-border/50">
                 <div className="flex items-center gap-2">
@@ -1294,6 +1295,9 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                 </div>
               )}
             </section>
+            )}
+
+
 
 
             {isBlocked("checklist") ? (
