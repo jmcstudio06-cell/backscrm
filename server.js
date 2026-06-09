@@ -7,9 +7,8 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 7860;
 
-// Configuração de CORS mais permissiva para extensões Chrome
 app.use(cors({
-    origin: '*', // Permite qualquer origem para evitar bloqueios no WhatsApp Web
+    origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
@@ -17,12 +16,13 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Rota raiz
+// Rota raiz - Retorna um script JS válido para não travar a extensão
 app.get('/', (req, res) => {
-    res.send('Backs CRM Backend is running!');
+    res.type('application/javascript');
+    res.send('console.log("Backs CRM: Remote code loaded (placeholder).");');
 });
 
-// Rota de saúde (Health Check)
+// Rota de saúde
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
@@ -32,7 +32,7 @@ app.get('/config.json', (req, res) => {
     res.sendFile(path.join(__dirname, 'config.json'));
 });
 
-// Mock de rotas de serviço para evitar erros 404 no console
+// Mock de rotas de serviço
 app.all('/api/services/update', (req, res) => {
     res.json({ success: true, message: "Update service mock active" });
 });
