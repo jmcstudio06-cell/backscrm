@@ -15,6 +15,8 @@ export interface Show {
   address: string | null;
   cachet: number;
   advance_amount: number;
+  advance_received_date: string | null;
+  balance_due_date: string | null;
   status: string;
   client_id: string | null;
   lead_id: string | null;
@@ -96,7 +98,7 @@ const buildShowTransactions = (
         category: "Show",
         amount: advance,
         description: `Cachê antecipado: ${show.title}`,
-        date: show.date,
+        date: show.advance_received_date || show.date,
         show_id: show.id,
         is_advance_payment: true,
       });
@@ -106,7 +108,7 @@ const buildShowTransactions = (
         category: "Show",
         amount: show.cachet - advance,
         description: `Cachê pendente: ${show.title}`,
-        date: show.date,
+        date: show.balance_due_date || show.date,
         show_id: show.id,
         is_advance_payment: false,
       });
@@ -201,6 +203,8 @@ const normalizeShowRow = (row: any): Show | null => {
     address: typeof row.address === "string" ? row.address : null,
     cachet: Number.isFinite(cachetValue) ? cachetValue : 0,
     advance_amount: typeof row.advance_amount === "number" ? row.advance_amount : 0,
+    advance_received_date: typeof row.advance_received_date === "string" ? row.advance_received_date : null,
+    balance_due_date: typeof row.balance_due_date === "string" ? row.balance_due_date : null,
     status: normalizeShowStatus(typeof row.status === "string" && row.status.trim() ? row.status : "scheduled"),
     client_id: typeof row.client_id === "string" ? row.client_id : null,
     lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
@@ -417,6 +421,8 @@ export function useShowsData() {
             address: showData.address,
             cachet: showData.cachet || 0,
             advance_amount: showData.advance_amount || advanceAmount || 0,
+            advance_received_date: (showData as any).advance_received_date ?? null,
+            balance_due_date: (showData as any).balance_due_date ?? null,
             status: showData.status || "scheduled",
             client_id: showData.client_id,
             lead_id: showData.lead_id,

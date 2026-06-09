@@ -81,6 +81,9 @@ interface EditingShow {
   client_id?: string | null;
   duration_minutes?: number | null;
   performance_format?: string | null;
+  advance_amount?: number | null;
+  advance_received_date?: string | null;
+  balance_due_date?: string | null;
 }
 
 
@@ -121,6 +124,8 @@ export interface ShowData {
   cachet: number;
   advanceAmount: number;
   isAdvancePayment: boolean;
+  advanceReceivedDate?: string | null;
+  balanceDueDate?: string | null;
   expenses: Expense[];
   totalExpenses: number;
   netProfit: number;
@@ -232,6 +237,9 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   const [isAdvancePayment, setIsAdvancePayment] = useState(false);
   const [advanceAmount, setAdvanceAmount] = useState(0);
   const [advanceMode, setAdvanceMode] = useState<"value" | "percent">("value");
+  const [advanceReceivedDate, setAdvanceReceivedDate] = useState<string>("");
+  const [balanceDueMode, setBalanceDueMode] = useState<"show_date" | "specific">("show_date");
+  const [balanceDueDate, setBalanceDueDate] = useState<string>("");
 
   // Form persistence - only for new shows, not editing
   const isEditing = !!editingShow;
@@ -426,7 +434,29 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       setActiveTab("info");
       setShowTeamSelector(false);
       setRecurringConfig(initialRecurringConfig);
-      
+
+      // Load advance payment fields
+      const editAdvance = Number(editingShow.advance_amount || 0);
+      if (editAdvance > 0) {
+        setIsAdvancePayment(true);
+        setAdvanceAmount(editAdvance);
+        setAdvanceMode("value");
+        setAdvanceReceivedDate(editingShow.advance_received_date || "");
+        if (editingShow.balance_due_date && editingShow.balance_due_date !== editingShow.date) {
+          setBalanceDueMode("specific");
+          setBalanceDueDate(editingShow.balance_due_date);
+        } else {
+          setBalanceDueMode("show_date");
+          setBalanceDueDate("");
+        }
+      } else {
+        setIsAdvancePayment(false);
+        setAdvanceAmount(0);
+        setAdvanceReceivedDate("");
+        setBalanceDueMode("show_date");
+        setBalanceDueDate("");
+      }
+
       // Load financial data
       loadShowFinancialData(editingShow.id);
     } else if (open && !editingShow && presetDate && !formData.date) {
@@ -510,6 +540,12 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
     setActiveTab("info");
     setShowTeamSelector(false);
     setShowRestoredBanner(false);
+    setIsAdvancePayment(false);
+    setAdvanceAmount(0);
+    setAdvanceMode("value");
+    setAdvanceReceivedDate("");
+    setBalanceDueMode("show_date");
+    setBalanceDueDate("");
   };
 
   const handleSubmit = async () => {
@@ -569,6 +605,8 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
           clientId,
           isAdvancePayment,
           advanceAmount: computedAdvance,
+          advanceReceivedDate: isAdvancePayment && computedAdvance > 0 ? (advanceReceivedDate || null) : null,
+          balanceDueDate: isAdvancePayment && computedAdvance > 0 && balanceDueMode === "specific" ? (balanceDueDate || null) : null,
           expenses,
           totalExpenses,
           netProfit,
@@ -600,6 +638,8 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
         clientId,
         isAdvancePayment,
         advanceAmount: computedAdvance,
+        advanceReceivedDate: isAdvancePayment && computedAdvance > 0 ? (advanceReceivedDate || null) : null,
+        balanceDueDate: isAdvancePayment && computedAdvance > 0 && balanceDueMode === "specific" ? (balanceDueDate || null) : null,
         expenses,
         totalExpenses,
         netProfit,
@@ -1101,7 +1141,124 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
             </div>
 
-            {/* Select Team Members - Collapsible */}
+            {/* Adiantamento */}
+            <section className="rounded-2xl border border-border/60 bg-card/60 p-4 sm:p-5 space-y-3">
+              <header className="flex items-center justify-between gap-3 pb-2 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <DollarSign className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Adiantamento</h3>
+                    <p className="text-xs text-muted-foreground">Recebeu parte do cachê antecipado?</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={isAdvancePayment}
+                  onCheckedChange={(v) => {
+                    setIsAdvancePayment(v);
+                    if (!v) {
+                      setAdvanceAmount(0);
+                      setAdvanceReceivedDate("");
+                      setBalanceDueMode("show_date");
+                      setBalanceDueDate("");
+                    }
+                  }}
+                />
+              </header>
+
+              {isAdvancePayment && (
+                <div className="space-y-4">
+                  {/* Valor + modo */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Valor adiantado</Label>
+                    <div className="flex gap-2">
+                      <div className="flex rounded-md border border-input overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setAdvanceMode("value")}
+                          className={cn(
+                            "px-3 text-xs font-semibold transition-colors",
+                            advanceMode === "value" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"
+                          )}
+                        >
+                          R$
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAdvanceMode("percent")}
+                          className={cn(
+                            "px-3 text-xs font-semibold transition-colors border-l border-input",
+                            advanceMode === "percent" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"
+                          )}
+                        >
+                          %
+                        </button>
+                      </div>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={advanceMode === "percent" ? 100 : undefined}
+                        placeholder={advanceMode === "percent" ? "Ex: 50" : "0,00"}
+                        value={advanceAmount || ""}
+                        onChange={(e) => setAdvanceAmount(Number(e.target.value))}
+                        className="flex-1 bg-background"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Datas */}
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Recebido em</Label>
+                      <Input
+                        type="date"
+                        value={advanceReceivedDate}
+                        onChange={(e) => setAdvanceReceivedDate(e.target.value)}
+                        className="bg-background"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Deixe em branco para usar a data do show.</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Restante a receber até</Label>
+                      <Select value={balanceDueMode} onValueChange={(v) => setBalanceDueMode(v as "show_date" | "specific")}>
+                        <SelectTrigger className="bg-background">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="show_date">Data do show</SelectItem>
+                          <SelectItem value="specific">Data específica</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {balanceDueMode === "specific" && (
+                        <Input
+                          type="date"
+                          value={balanceDueDate}
+                          onChange={(e) => setBalanceDueDate(e.target.value)}
+                          className="bg-background"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Resumo */}
+                  {formData.cachet > 0 && (
+                    <div className="rounded-lg bg-muted/40 border border-border/50 p-3 space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-success font-medium">✓ Recebido (entra no financeiro)</span>
+                        <span className="font-bold text-success">R$ {formatCurrency(computedAdvance)}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-warning font-medium">⏳ Pendente até {balanceDueMode === "specific" && balanceDueDate ? new Date(balanceDueDate + "T00:00:00").toLocaleDateString("pt-BR") : (formData.date ? new Date(formData.date + "T00:00:00").toLocaleDateString("pt-BR") : "a data do show")}</span>
+                        <span className="font-bold text-warning">R$ {formatCurrency(pendingAmount)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
+
             {isBlocked("checklist") ? (
               <button
                 type="button"

@@ -145,6 +145,8 @@ export default function Agenda() {
         venue: newShow.venue || null, address: newShow.address || null, cachet: newShow.cachet,
         status: newShow.status, event_type: newShow.type || null, client_id: newShow.clientId || null,
         advance_amount: newShow.advanceAmount || 0,
+        advance_received_date: newShow.advanceReceivedDate ?? null,
+        balance_due_date: newShow.balanceDueDate ?? null,
       } as any, musicians, expenses);
       setEditingShow(null);
     } else {
@@ -156,6 +158,8 @@ export default function Agenda() {
         venue: newShow.venue || null, address: newShow.address || null, cachet: newShow.cachet,
         status: newShow.status, event_type: newShow.type || null, client_id: newShow.clientId || null,
         advance_amount: newShow.advanceAmount || 0,
+        advance_received_date: newShow.advanceReceivedDate ?? null,
+        balance_due_date: newShow.balanceDueDate ?? null,
       } as any, musicians, expenses, newShow.checklistTemplateId, undefined, newShow.advanceAmount || 0);
     }
   };
