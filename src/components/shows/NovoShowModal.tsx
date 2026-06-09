@@ -124,6 +124,8 @@ export interface ShowData {
   cachet: number;
   advanceAmount: number;
   isAdvancePayment: boolean;
+  advanceReceivedDate?: string | null;
+  balanceDueDate?: string | null;
   expenses: Expense[];
   totalExpenses: number;
   netProfit: number;
