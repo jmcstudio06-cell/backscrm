@@ -341,7 +341,7 @@ export default function KitProfissional() {
                       <p className="text-[11px] text-white/30 line-through">De R$ 249,90</p>
                       <p className="text-[10px] uppercase tracking-widest text-amber-300 font-bold">Grátis por tempo limitado</p>
                       <p className="text-3xl font-black bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent leading-none">
-                        R$ 0,00
+                        R$ 9,90
                       </p>
                     </div>
                     <span className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/40 font-medium bg-white/5 px-2 py-1 rounded">
