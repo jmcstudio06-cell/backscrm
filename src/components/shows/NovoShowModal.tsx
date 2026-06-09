@@ -554,6 +554,20 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       return;
     }
 
+    if (formData.status === "partial" && (!isAdvancePayment || computedAdvance <= 0)) {
+      setActiveTab("financial");
+      toast.error("Informe o valor adiantado para o Pagamento Parcial", {
+        description: "Ative o Adiantamento na aba Financeiro e preencha o valor recebido.",
+      });
+      return;
+    }
+
+    if (formData.status === "partial" && computedAdvance >= formData.cachet) {
+      toast.error("O adiantamento não pode ser igual ou maior que o cachê total");
+      return;
+    }
+
+
     let clientId = selectedClientId || undefined;
 
     // If creating a new client, save it first
@@ -886,7 +900,14 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   <Label htmlFor="status">Status do Show</Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, status: value });
+                      if (value === "partial") {
+                        setIsAdvancePayment(true);
+                        setActiveTab("financial");
+                        toast.info("Configure o valor adiantado na aba Financeiro");
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
@@ -1157,11 +1178,16 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                   checked={isAdvancePayment}
                   onCheckedChange={(v) => {
                     setIsAdvancePayment(v);
-                    if (!v) {
+                    if (v) {
+                      setFormData({ ...formData, status: "partial" });
+                    } else {
                       setAdvanceAmount(0);
                       setAdvanceReceivedDate("");
                       setBalanceDueMode("show_date");
                       setBalanceDueDate("");
+                      if (formData.status === "partial") {
+                        setFormData({ ...formData, status: "confirmed" });
+                      }
                     }
                   }}
                 />
