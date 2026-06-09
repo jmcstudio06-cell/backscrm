@@ -1032,26 +1032,31 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                 value={formData.performanceFormat}
                 onValueChange={(value) => {
                   const matched = performanceTypes.find((p) => p.name === value);
+                  const ids: string[] = matched && Array.isArray(matched.musician_ids)
+                    ? (matched.musician_ids as string[])
+                    : [];
+                  const matchedMusicians = matched
+                    ? musicians.filter((m) => ids.includes(m.id))
+                    : [];
+                  const musiciansTotal = matchedMusicians.reduce(
+                    (sum, m) => sum + (m.rate || 0),
+                    0,
+                  );
+                  const totalPrice = matched ? Number(matched.price || 0) + musiciansTotal : 0;
                   setFormData({
                     ...formData,
                     performanceFormat: value,
-                    cachet: matched && matched.price && (!formData.cachet || formData.cachet === 0)
-                      ? Number(matched.price)
+                    cachet: matched && totalPrice > 0 && (!formData.cachet || formData.cachet === 0)
+                      ? totalPrice
                       : formData.cachet,
                   });
-                  if (matched) {
-                    const ids: string[] = Array.isArray(matched.musician_ids)
-                      ? (matched.musician_ids as string[])
-                      : [];
-                    if (ids.length > 0) {
-                      const toAdd = musicians
-                        .filter((m) => ids.includes(m.id))
-                        .filter((m) => !selectedMusicians.some((s) => s.musicianId === m.id))
-                        .map((m) => ({ musicianId: m.id, name: m.name, fee: m.rate || 0 }));
-                      if (toAdd.length > 0) {
-                        setSelectedMusicians([...selectedMusicians, ...toAdd]);
-                        toast.success(`${toAdd.length} músico(s) adicionado(s) automaticamente`);
-                      }
+                  if (matched && matchedMusicians.length > 0) {
+                    const toAdd = matchedMusicians
+                      .filter((m) => !selectedMusicians.some((s) => s.musicianId === m.id))
+                      .map((m) => ({ musicianId: m.id, name: m.name, fee: m.rate || 0 }));
+                    if (toAdd.length > 0) {
+                      setSelectedMusicians([...selectedMusicians, ...toAdd]);
+                      toast.success(`${toAdd.length} músico(s) adicionado(s) automaticamente`);
                     }
                   }
                 }}
