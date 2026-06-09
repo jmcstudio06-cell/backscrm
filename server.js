@@ -88,7 +88,19 @@ app.all('/api/notify/get/premium/*', (req, res) => {
 });
 
 app.all('/api/services/update', (req, res) => {
-    res.json({ success: true });
+    res.json({ success: true, message: "Update service mock active" });
+});
+
+// Redirecionamento de Registro/Cadastro
+app.all('/redirect-plugin-register', (req, res) => {
+    // Aqui você pode colocar o link da sua página de vendas ou checkout
+    res.redirect('https://backscrm.com.br/checkout');
+});
+
+// Redirecionamento do Painel do Cliente
+app.all('/redirect-plugin-panel', (req, res) => {
+    // Aqui você pode colocar o link do seu painel administrativo futuro
+    res.redirect('https://backscrm.com.br/dashboard');
 });
 
 app.all('/api/urls/update', (req, res) => {
