@@ -61,6 +61,8 @@ export default function Historico() {
   const [compareYear, setCompareYear] = useState<number | null>(null);
   const [repairDone, setRepairDone] = useState(false);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [showLucro, setShowLucro] = useState(true);
+  const [showMargem, setShowMargem] = useState(false);
 
   const comparableYears = availableYears.filter((y) => y !== selectedYear);
 
@@ -342,6 +344,26 @@ export default function Historico() {
       </div>
 
       <div className="mb-6">
+        <div className="mb-3 flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant={showLucro ? "default" : "outline"}
+            onClick={() => setShowLucro((v) => !v)}
+            className="gap-2"
+          >
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "#3b82f6" }} />
+            Lucro
+          </Button>
+          <Button
+            size="sm"
+            variant={showMargem ? "default" : "outline"}
+            onClick={() => setShowMargem((v) => !v)}
+            className="gap-2"
+          >
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "#a855f7" }} />
+            Margem %
+          </Button>
+        </div>
         <ChartCard title="Evolução Mensal" subtitle={compareYear ? `${selectedYear} vs ${compareYear}` : `Receita, despesa e lucro reais de ${selectedYear}`}>
           {monthlyHistory.length === 0 ? (
             <div className="flex items-center justify-center h-[350px] text-muted-foreground">
@@ -437,58 +459,66 @@ export default function Historico() {
                     <Bar yAxisId="left" dataKey="despesaPrev" fill="#dc2626" fillOpacity={0.5} radius={[4, 4, 0, 0]} name="despesaPrev" animationDuration={1200} animationBegin={400} />
                   </>
                 )}
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="lucro"
-                  stroke="#3b82f6"
-                  strokeWidth={isMobile ? 2 : 3}
-                  dot={{ fill: "#3b82f6", strokeWidth: 2, r: isMobile ? 3 : 5 }}
-                  activeDot={{ r: isMobile ? 5 : 7, strokeWidth: 2 }}
-                  name="lucro"
-                  animationDuration={1500}
-                  animationBegin={600}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="margem"
-                  stroke="#a855f7"
-                  strokeWidth={isMobile ? 2 : 3}
-                  dot={{ fill: "#a855f7", strokeWidth: 2, r: isMobile ? 3 : 5 }}
-                  activeDot={{ r: isMobile ? 5 : 7, strokeWidth: 2 }}
-                  name="margem"
-                  animationDuration={1500}
-                  animationBegin={800}
-                />
+                {showLucro && (
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="lucro"
+                    stroke="#3b82f6"
+                    strokeWidth={isMobile ? 2 : 3}
+                    dot={{ fill: "#3b82f6", strokeWidth: 2, r: isMobile ? 3 : 5 }}
+                    activeDot={{ r: isMobile ? 5 : 7, strokeWidth: 2 }}
+                    name="lucro"
+                    animationDuration={1500}
+                    animationBegin={600}
+                  />
+                )}
+                {showMargem && (
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="margem"
+                    stroke="#a855f7"
+                    strokeWidth={isMobile ? 2 : 3}
+                    dot={{ fill: "#a855f7", strokeWidth: 2, r: isMobile ? 3 : 5 }}
+                    activeDot={{ r: isMobile ? 5 : 7, strokeWidth: 2 }}
+                    name="margem"
+                    animationDuration={1500}
+                    animationBegin={800}
+                  />
+                )}
                 {compareYear && (
                   <>
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="lucroPrev"
-                      stroke="#3b82f6"
-                      strokeWidth={isMobile ? 1 : 2}
-                      strokeDasharray="6 3"
-                      strokeOpacity={0.45}
-                      dot={{ fill: "#3b82f6", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
-                      name="lucroPrev"
-                      animationDuration={1500}
-                      animationBegin={600}
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="margemPrev"
-                      stroke="#a855f7"
-                      strokeWidth={isMobile ? 1 : 2}
-                      strokeDasharray="6 3"
-                      strokeOpacity={0.45}
-                      dot={{ fill: "#a855f7", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
-                      name="margemPrev"
-                      animationDuration={1500}
-                      animationBegin={800}
-                    />
+                    {showLucro && (
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="lucroPrev"
+                        stroke="#3b82f6"
+                        strokeWidth={isMobile ? 1 : 2}
+                        strokeDasharray="6 3"
+                        strokeOpacity={0.45}
+                        dot={{ fill: "#3b82f6", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
+                        name="lucroPrev"
+                        animationDuration={1500}
+                        animationBegin={600}
+                      />
+                    )}
+                    {showMargem && (
+                      <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="margemPrev"
+                        stroke="#a855f7"
+                        strokeWidth={isMobile ? 1 : 2}
+                        strokeDasharray="6 3"
+                        strokeOpacity={0.45}
+                        dot={{ fill: "#a855f7", strokeWidth: 1, r: isMobile ? 2 : 3, fillOpacity: 0.45 }}
+                        name="margemPrev"
+                        animationDuration={1500}
+                        animationBegin={800}
+                      />
+                    )}
                   </>
                 )}
 
