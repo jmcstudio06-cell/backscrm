@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 7860;
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'access-token']
 }));
 
 app.use(express.json());
@@ -43,6 +43,14 @@ app.all('/api/urls/update', (req, res) => {
 
 app.all('/api/auth/validation/*', (req, res) => {
     res.json({ success: true, status: "authorized" });
+});
+
+app.all('/api/services/initial-data/*', (req, res) => {
+    res.json({ success: true, data: {} });
+});
+
+app.all('/api/notify/get/premium/*', (req, res) => {
+    res.json({ success: true, notifications: [] });
 });
 
 app.all('/api/urls/install/*', (req, res) => {
