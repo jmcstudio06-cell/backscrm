@@ -237,6 +237,9 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   const [isAdvancePayment, setIsAdvancePayment] = useState(false);
   const [advanceAmount, setAdvanceAmount] = useState(0);
   const [advanceMode, setAdvanceMode] = useState<"value" | "percent">("value");
+  const [advanceReceivedDate, setAdvanceReceivedDate] = useState<string>("");
+  const [balanceDueMode, setBalanceDueMode] = useState<"show_date" | "specific">("show_date");
+  const [balanceDueDate, setBalanceDueDate] = useState<string>("");
 
   // Form persistence - only for new shows, not editing
   const isEditing = !!editingShow;
