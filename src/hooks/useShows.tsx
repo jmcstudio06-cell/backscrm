@@ -203,6 +203,8 @@ const normalizeShowRow = (row: any): Show | null => {
     address: typeof row.address === "string" ? row.address : null,
     cachet: Number.isFinite(cachetValue) ? cachetValue : 0,
     advance_amount: typeof row.advance_amount === "number" ? row.advance_amount : 0,
+    advance_received_date: typeof row.advance_received_date === "string" ? row.advance_received_date : null,
+    balance_due_date: typeof row.balance_due_date === "string" ? row.balance_due_date : null,
     status: normalizeShowStatus(typeof row.status === "string" && row.status.trim() ? row.status : "scheduled"),
     client_id: typeof row.client_id === "string" ? row.client_id : null,
     lead_id: typeof row.lead_id === "string" ? row.lead_id : null,
