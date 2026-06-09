@@ -344,6 +344,26 @@ export default function Historico() {
       </div>
 
       <div className="mb-6">
+        <div className="mb-3 flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant={showLucro ? "default" : "outline"}
+            onClick={() => setShowLucro((v) => !v)}
+            className="gap-2"
+          >
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "#3b82f6" }} />
+            Lucro
+          </Button>
+          <Button
+            size="sm"
+            variant={showMargem ? "default" : "outline"}
+            onClick={() => setShowMargem((v) => !v)}
+            className="gap-2"
+          >
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "#a855f7" }} />
+            Margem %
+          </Button>
+        </div>
         <ChartCard title="Evolução Mensal" subtitle={compareYear ? `${selectedYear} vs ${compareYear}` : `Receita, despesa e lucro reais de ${selectedYear}`}>
           {monthlyHistory.length === 0 ? (
             <div className="flex items-center justify-center h-[350px] text-muted-foreground">
