@@ -85,15 +85,21 @@ export default function ServicosProdutos() {
   const [selectedMusicians, setSelectedMusicians] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"price_asc" | "price_desc" | "name_asc">("price_asc");
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [musicianPickerOpen, setMusicianPickerOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
-  const filtered = performanceTypes.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = performanceTypes
+    .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === "price_asc") return (a.price || 0) - (b.price || 0);
+      if (sortBy === "price_desc") return (b.price || 0) - (a.price || 0);
+      return a.name.localeCompare(b.name, "pt-BR");
+    });
+
 
   const toggleMusician = (id: string) => {
     setSelectedMusicians(prev =>
