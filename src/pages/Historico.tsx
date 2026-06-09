@@ -186,20 +186,27 @@ export default function Historico() {
     [compareYear, selectedYear, shows, transactions],
   );
 
-  // Merge chart data for comparison
+  // Merge chart data for comparison + compute margem (%)
   const mergedChartData = useMemo(() => {
-    if (!compareYearSummary) return monthlyHistory;
-    return monthlyHistory.map((m, i) => {
+    const withMargem = monthlyHistory.map((m) => ({
+      ...m,
+      margem: m.receita > 0 ? Number(((m.lucro / m.receita) * 100).toFixed(1)) : 0,
+    }));
+    if (!compareYearSummary) return withMargem;
+    return withMargem.map((m, i) => {
       const prev = compareYearSummary.monthlyHistory[i];
+      const margemPrev = prev && prev.receita > 0 ? Number(((prev.lucro / prev.receita) * 100).toFixed(1)) : 0;
       return {
         ...m,
         receitaPrev: prev?.receita ?? 0,
         receitaPrevistaPrev: prev?.receitaPrevista ?? 0,
         despesaPrev: prev?.despesa ?? 0,
         lucroPrev: prev?.lucro ?? 0,
+        margemPrev,
       };
     });
   }, [monthlyHistory, compareYearSummary]);
+
 
   const loading = loadingTransactions || loadingShows;
 
