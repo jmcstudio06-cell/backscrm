@@ -151,11 +151,39 @@ app.get('*', (req, res) => {
         return res.status(500).send('Erro: Pasta "dist" do frontend não foi encontrada no servidor.');
     }
     
+    // Tentar encontrar o index.html ou um arquivo index-*.js que o TanStack Start possa ter gerado
     const indexPath = path.join(frontendPath, 'index.html');
+    
     if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
     } else {
-        res.status(404).send(`Erro: Arquivo index.html não encontrado em: ${indexPath}`);
+        // Se for TanStack Start/Nitro, ele pode não ter um index.html estático.
+        // Vamos tentar servir uma página básica que carrega o JS principal se o index.html sumiu.
+        const files = fs.readdirSync(frontendPath);
+        const mainJs = files.find(f => f.startsWith('index-') && f.endsWith('.js')) || 
+                       (fs.existsSync(path.join(frontendPath, 'assets')) && 
+                        fs.readdirSync(path.join(frontendPath, 'assets')).find(f => f.startsWith('index-') && f.endsWith('.js')));
+
+        if (mainJs) {
+            const jsPath = mainJs.includes('/') ? mainJs : `assets/${mainJs}`;
+            res.send(`
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Backs ZapCRM</title>
+                    <link rel="stylesheet" href="/assets/styles-B3umSPvN.css">
+                </head>
+                <body class="dark">
+                    <div id="root"></div>
+                    <script type="module" src="/${jsPath}"></script>
+                </body>
+                </html>
+            `);
+        } else {
+            res.status(404).send(`Erro: Nem index.html nem script principal encontrados em: ${frontendPath}. Arquivos: ${files.join(', ')}`);
+        }
     }
 });
 
