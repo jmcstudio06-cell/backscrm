@@ -3,4 +3,4 @@ services:
     name: backscrm
     env: node
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    startCommand: node server.cjs
