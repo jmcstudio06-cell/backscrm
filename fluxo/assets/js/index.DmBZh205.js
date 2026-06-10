@@ -1,0 +1,2 @@
+import{j as r}from"./ec7ae47a-e89c-4f20-a861-f0608ae6ff19.BjZ4j9fy.js";import{u as n,s as a}from"../../index.js";import"./5b02413a-e3cd-48e9-b817-28e545cc7c65.DcrJEDvz.js";import"./7a7c18c0-1c45-4cd8-a537-860439bce06f.DIR3-bJs.js";function l({id:e}){const o=n(t=>t.getContainer(e))(t=>t.emojiArea);return r.jsx("input",{id:e,type:"text",placeholder:o.placeholder,onClick:t=>t.stopPropagation(),value:o.text,onChange:t=>a(e,t.target.value),className:"input input-bordered w-full input-sm pr-8"})}export{l as default};
+

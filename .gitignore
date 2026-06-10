@@ -1,0 +1,13 @@
+node_modules/
+.env
+dist/
+.DS_Store
+*.log
+frontend/dist/
+frontend/node_modules/
+backend/node_modules/
+.lovable/
+bun.lock
+bunfig.toml
+frontend/bun.lock
+frontend/bunfig.toml

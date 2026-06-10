@@ -1,0 +1,2 @@
+import{_ as s}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0288.js";import{j as r}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0286.js";import{a as t}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0282.js";const i=t.lazy(() => __vitePreload(()=>import(chrome.runtime.getURL("content/assets/js/v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b028206.js")),[]));function _({acaoModel:o,openCollapse:a=!0,placement:e="left-end"}){return r.jsx(t.Suspense,{fallback:r.jsx(r.Fragment,{}),children:r.jsx(i,{acaoModel:o,openCollapse:a,placement:e})})}export{_ as A};
+

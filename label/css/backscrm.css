@@ -1,0 +1,31 @@
+:root {
+    --primaria: #00C2FF !important;
+    --secundaria: #0085FF !important;
+    --terciaria: #0047FF !important;
+    --letra: #ffffff !important;
+}
+
+.dark {
+    --primaria: #00C2FF !important;
+    --secundaria: #0056b3 !important;
+    --terciaria: #003366 !important;
+    --letra: #ffffff !important;
+}
+
+.icons_primary_stroke {
+    stroke: var(--primaria) !important;
+}
+
+.icons_primary_color {
+    color: var(--primaria) !important;
+}
+
+/* Forçar cores em elementos comuns do CRM que podem estar verdes */
+[class*="aba"], [class*="tab"], [class*="filter"] {
+    border-color: var(--primaria) !important;
+}
+
+.active, [aria-selected="true"] {
+    background-color: var(--primaria) !important;
+    color: var(--letra) !important;
+}

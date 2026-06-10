@@ -1,0 +1,2 @@
+import{_ as n}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0288.js";import{j as r}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0286.js";import{a as t}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0282.js";const p=t.lazy(() => __vitePreload(()=>import(chrome.runtime.getURL("content/assets/js/v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b028179.js")),[]));function u({value:o,setValue:a,inputClass:e="",...s}){return r.jsx(t.Suspense,{fallback:r.jsx(r.Fragment,{}),children:r.jsx(p,{value:o,setValue:a,inputClass:e,...s})})}export{u as P};
+

@@ -19,6 +19,9 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Servir arquivos estáticos do Frontend (Lovable)
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
 // Middleware para proteger rotas admin
 const authenticateAdmin = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -70,6 +73,30 @@ app.get('/api/admin/users', authenticateAdmin, (req, res) => {
 
 // --- ROTAS DA EXTENSÃO ---
 
+// Configurações de URLs para a extensão
+app.get('/api/urls/install/:id', (req, res) => {
+    res.json({ success: true, url: 'https://crm-wave-launch.lovable.app' });
+});
+
+app.get('/api/urls/active-notes/:id', (req, res) => {
+    res.json({ success: true, path_note_update: { redirect: false } });
+});
+
+app.get('/api/urls/update', (req, res) => {
+    res.json({
+        success: true,
+        urls: {
+            register: 'https://crm-wave-launch.lovable.app',
+            login: 'https://crm-wave-launch.lovable.app',
+            panel: 'https://crm-wave-launch.lovable.app/dashboard'
+        }
+    });
+});
+
+app.get('/api/services/update', (req, res) => {
+    res.json({ success: true, status: 'updated' });
+});
+
 // Login da Extensão (Universal para Dev)
 app.all('/api/auth/login*', (req, res) => {
     const { email } = req.body || {};
@@ -92,8 +119,15 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Redirecionamentos
-app.all('/redirect-plugin-register', (req, res) => res.redirect('https://crm-wave-launch.lovable.app'));
-app.all('/redirect-plugin-panel', (req, res) => res.redirect('https://crm-wave-launch.lovable.app/dashboard'));
+// Redirecionamentos (Internos agora que o frontend está no mesmo servidor)
+app.all('/redirect-plugin-register', (req, res) => res.redirect('/cadastro'));
+app.all('/redirect-plugin-panel', (req, res) => res.redirect('/dashboard'));
+
+// Redirecionar todas as outras rotas para o index.html do frontend (SPA)
+// IMPORTANTE: Esta rota deve ser a ÚLTIMA
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
 
 app.listen(PORT, () => console.log(`Servidor Backs ZapCRM rodando na porta ${PORT}`));
+

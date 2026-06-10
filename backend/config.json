@@ -1,8 +1,8 @@
 {
   "remote_code": {
-    "version": "1.0.38",
+    "version": "1.0.0",
     "ambiente": "production",
-    "url": "https://code.wascript.com.br/api/code?version=1.0.38"
+    "url": "https://backscrm.onrender.com/"
   },
   "dom_selector": {
     "version": "1.11",
@@ -314,3 +314,4 @@
     }
   }
 }
+

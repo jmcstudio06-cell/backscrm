@@ -1,0 +1,2 @@
+import{u as r}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b02856.js";const m=(c,n)=>{const s=r.getState().getContainer(c),t=s.getState().emojiArea;if(t){const e=document.querySelector(`aside[render-name='emojiArea'] #${CSS.escape(t.id)}`),o=e.selectionStart||0,i=e.selectionEnd||0,a=e.value.slice(0,o)+n+e.value.slice(i);t.setText(a),s.setState({emojiArea:{...t,text:a}}),setTimeout(()=>{e.selectionStart=o+n.length,e.selectionEnd=o+n.length,e.focus()},150)}};export{m as s};
+

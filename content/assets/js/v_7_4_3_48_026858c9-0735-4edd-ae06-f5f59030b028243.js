@@ -1,0 +1,2 @@
+import{j as s}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0286.js";import{d4 as e,aG as r,aH as t}from"./v_7_4_3_48_026858c9-0735-4edd-ae06-f5f59030b0288.js";const c=({id:a})=>s.jsx("span",{children:a.includes("@lid")?s.jsx(e,{className:"h-5 w-5 text-[var(--icon)]"}):a.length>19?s.jsx(r,{className:"h-5 w-5 text-[var(--icon)]"}):s.jsx(t,{className:"h-5 w-5 text-[var(--icon)]"})});export{c as V};
+
