@@ -19,8 +19,10 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Servir arquivos estáticos do Frontend (Lovable)
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// Servir arquivos estáticos do Frontend
+const frontendPath = path.join(__dirname, '../frontend/dist');
+console.log('Servindo frontend de:', frontendPath);
+app.use(express.static(frontendPath));
 
 // Middleware para proteger rotas admin
 const authenticateAdmin = (req, res, next) => {
