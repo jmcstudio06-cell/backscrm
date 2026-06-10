@@ -120,8 +120,8 @@ app.get('/health', (req, res) => {
 });
 
 // Redirecionamentos (Aceita opcionalmente o ID da extensão no caminho)
-app.all(['/redirect-plugin-register', '/:extId/redirect-plugin-register'], (req, res) => res.redirect('/cadastro'));
-app.all(['/redirect-plugin-panel', '/:extId/redirect-plugin-panel'], (req, res) => res.redirect('/dashboard'));
+app.all(['/redirect-plugin-register', '/:extId/redirect-plugin-register', '*/redirect-plugin-register'], (req, res) => res.redirect('/cadastro'));
+app.all(['/redirect-plugin-panel', '/:extId/redirect-plugin-panel', '*/redirect-plugin-panel'], (req, res) => res.redirect('/dashboard'));
 
 // Redirecionar todas as outras rotas para o index.html do frontend (SPA)
 // IMPORTANTE: Esta rota deve ser a ÚLTIMA
