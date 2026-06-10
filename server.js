@@ -93,7 +93,7 @@ app.get('/health', (req, res) => {
 });
 
 // Redirecionamentos
-app.all('/redirect-plugin-register', (req, res) => res.redirect('https://backscrm.lovable.app/'));
-app.all('/redirect-plugin-panel', (req, res) => res.redirect('https://backscrm.lovable.app/dashboard'));
+app.all('/redirect-plugin-register', (req, res) => res.redirect('https://crm-wave-launch.lovable.app'));
+app.all('/redirect-plugin-panel', (req, res) => res.redirect('https://crm-wave-launch.lovable.app/dashboard'));
 
 app.listen(PORT, () => console.log(`Servidor Backs ZapCRM rodando na porta ${PORT}`));
