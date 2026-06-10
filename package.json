@@ -8,9 +8,9 @@
     "morgan": "^1.10.0",
     "jsonwebtoken": "^9.0.0"
   },
+  "type": "module",
   "scripts": {
-    "build": "cd frontend && npm install --legacy-peer-deps && npm run build",
-    "start": "cd frontend && npm run start",
-    "dev": "cd frontend && npm run dev"
+    "build": "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && rm -rf .output && cp -r frontend/.output .",
+    "start": "node server.js"
   }
 }
