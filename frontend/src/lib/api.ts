@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-export const API_BASE_URL = "https://backscrm.onrender.com";
+export const API_BASE_URL = "";
 const TOKEN_KEY = "bzc_token";
 const USER_KEY = "bzc_user";
 

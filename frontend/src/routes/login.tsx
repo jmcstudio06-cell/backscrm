@@ -28,14 +28,25 @@ function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const mutation = useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      apiFetch<AuthResponse>("/api/auth/login", { method: "POST", body: JSON.stringify(data) }),
+    mutationFn: (data: { email: string; password: string }) => {
+      console.log('Enviando dados para login:', data);
+      return apiFetch("/api/auth/login", { method: "POST", body: JSON.stringify(data) });
+    },
     onSuccess: (res) => {
-      if (res && res.token && res.user) {
-        setAuth(res.token, res.user);
+      console.log('Resposta recebida do servidor:', res);
+      
+      // Tenta identificar onde estão os dados, caso venha em estrutura diferente
+      let authData = res;
+      if (authData && authData.data) authData = authData.data;
+      if (authData && authData.result) authData = authData.result;
+      
+      if (authData && authData.token && authData.user) {
+        console.log('Dados válidos encontrados! Autenticando...');
+        setAuth(authData.token, authData.user);
         toast.success("Bem-vindo de volta!");
-        navigate({ to: res.user.role === "admin" ? "/dashboard" : "/app" });
+        navigate({ to: authData.user.role === "admin" ? "/dashboard" : "/app" });
       } else {
+        console.error('Dados inválidos na resposta:', authData);
         toast.error("Resposta do servidor inválida.");
       }
     },
