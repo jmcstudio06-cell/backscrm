@@ -1,24 +1,16 @@
 # Build stage for Frontend
-FROM node:20 AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm install --legacy-peer-deps
-COPY frontend/ ./
-RUN npm run build
+FROM node:20 AS builder
+WORKDIR /app
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install --legacy-peer-deps
+COPY frontend/ ./frontend/
+RUN cd frontend && npm run build
 
-# Final stage for Backend
+# Final stage
 FROM node:20
 WORKDIR /app
-# Copy backend files
-COPY backend/package*.json ./
-RUN npm install
-COPY backend/ ./
-# Copy frontend public assets to a folder named 'public' next to server.js
-COPY --from=frontend-builder /app/frontend/.output/public ./public
-
+COPY --from=builder /app/frontend/.output ./
 EXPOSE 7860
 ENV PORT=7860
 ENV NODE_ENV=production
-
-# Now server.js is at the root
-CMD ["node", "server.js"]
+CMD ["node", "server/index.mjs"]

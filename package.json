@@ -11,6 +11,6 @@
   "scripts": {
     "build": "cd frontend && npm install --legacy-peer-deps && npm run build",
     "start": "cd frontend && npm run start",
-    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+    "dev": "cd frontend && npm run dev"
   }
 }
