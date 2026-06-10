@@ -10,7 +10,8 @@
   },
   "type": "module",
   "scripts": {
-    "build": "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && rm -rf .output && cp -r frontend/.output .",
-    "start": "node server.js"
+    "build": "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && rm -rf .output && cp -rv frontend/.output .",
+    "start": "node server.js",
+    "postinstall": "npm run build"
   }
 }
