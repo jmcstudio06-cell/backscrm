@@ -1,52 +1,56 @@
 import { json } from '@tanstack/react-start'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 
+const adminAccount = {
+  email: 'mariooliveira.ctt@gmail.com',
+  password: 'M@eeuteamo1',
+  userData: {
+    id: "777",
+    name: "Mário Oliveira",
+    email: "mariooliveira.ctt@gmail.com",
+    role: "admin" as const,
+    premium: true,
+    status: "active" as const,
+    createdAt: new Date().toISOString()
+  }
+}
+
 export const APIRoute = createAPIFileRoute('/api/auth/login')({
   POST: async ({ request }) => {
+    console.log('[API LOGIN] Rota /api/auth/login chamada com sucesso!')
     try {
       const body = await request.json()
+      console.log('[API LOGIN] Dados recebidos:', body)
       const { email, password } = body || {}
       
-      console.log(`Tentativa de login: ${email}`)
+      if (!email || !password) {
+        return json({ error: "E-mail e senha são obrigatórios" }, { status: 400 })
+      }
 
-      // Resposta padrão de admin se for o seu email
-      if (email === 'mariooliveira.ctt@gmail.com' && password === 'M@eeuteamo1') {
-        const adminData = {
+      if (email === adminAccount.email && password === adminAccount.password) {
+        console.log('[API LOGIN] ADMINISTRADOR AUTORIZADO!')
+        return json({
           token: "admin-master-token-" + Date.now(),
-          user: { 
-            id: "777", 
-            name: "Mário Oliveira", 
-            email: email, 
-            role: "admin", 
-            premium: true, 
-            status: "active" 
-          }
-        }
-        return new Response(JSON.stringify(adminData), {
-          headers: { 'Content-Type': 'application/json' }
+          user: adminAccount.userData
         })
       }
 
-      // Resposta para usuários comuns
-      const userData = {
-        token: "token-user-" + Date.now(),
-        user: { 
-          id: "1", 
-          name: "Usuário", 
-          email: email || "user@backscrm.com.br", 
-          role: "user", 
-          premium: true, 
-          status: "active" 
+      return json({
+        token: "token-usuario-" + Date.now(),
+        user: {
+          id: "1",
+          name: "Usuário Comum",
+          email: email,
+          role: "user" as const,
+          premium: true,
+          status: "active" as const,
+          createdAt: new Date().toISOString()
         }
-      }
-      return new Response(JSON.stringify(userData), {
-        headers: { 'Content-Type': 'application/json' }
       })
+
     } catch (error) {
-      return new Response(JSON.stringify({ error: "Erro ao processar login" }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      })
+      console.error('[API LOGIN] ERRO:', error)
+      return json({ error: "Falha interna do servidor" }, { status: 500 })
     }
   },
 })
