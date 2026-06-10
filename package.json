@@ -9,7 +9,7 @@
     "jsonwebtoken": "^9.0.0"
   },
   "scripts": {
-    "build": "cd frontend && npm install --legacy-peer-deps && npm run build && cd ../backend && npm install",
+    "build": "cd frontend && npm install --legacy-peer-deps && npm run build && rm -rf ../backend/dist && mv dist ../backend/dist && cd ../backend && npm install",
     "start": "node backend/server.js",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   }
