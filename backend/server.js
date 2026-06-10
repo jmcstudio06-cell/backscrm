@@ -145,6 +145,15 @@ app.get('/health', (req, res) => {
 app.all(/.*redirect-plugin-register$/, (req, res) => res.redirect('/cadastro'));
 app.all(/.*redirect-plugin-panel$/, (req, res) => res.redirect('/dashboard'));
 
+// Tentar carregar o handler do Nitro (TanStack Start) se disponível
+const nitroPath = path.join(__dirname, 'server', 'index.mjs');
+if (fs.existsSync(nitroPath)) {
+    console.log('Integrando handler do Nitro para SSR...');
+    // No Render/Linux, podemos usar o handler do Nitro como middleware
+    // Por ora, vamos garantir que os arquivos estáticos de manifesto sejam servidos
+    app.use('/_server', express.static(path.join(__dirname, 'server')));
+}
+
 // Redirecionar todas as outras rotas para o index.html do frontend (SPA)
 app.get('*', (req, res) => {
     if (!frontendPath) {
@@ -157,15 +166,20 @@ app.get('*', (req, res) => {
     if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
     } else {
-        // Se for TanStack Start/Nitro, ele pode não ter um index.html estático.
-        // Vamos tentar servir uma página básica que carrega o JS principal se o index.html sumiu.
+        // Encontrar os arquivos necessários para o TanStack Start
         const files = fs.readdirSync(frontendPath);
         const mainJs = files.find(f => f.startsWith('index-') && f.endsWith('.js')) || 
                        (fs.existsSync(path.join(frontendPath, 'assets')) && 
                         fs.readdirSync(path.join(frontendPath, 'assets')).find(f => f.startsWith('index-') && f.endsWith('.js')));
+        
+        const manifestJs = files.find(f => f.includes('manifest')) || 
+                           (fs.existsSync(path.join(frontendPath, 'assets')) && 
+                            fs.readdirSync(path.join(frontendPath, 'assets')).find(f => f.includes('manifest')));
 
         if (mainJs) {
             const jsPath = mainJs.includes('/') ? mainJs : `assets/${mainJs}`;
+            const manifestTag = manifestJs ? `<script type="module" src="/${manifestJs.includes('/') ? manifestJs : `assets/${manifestJs}`}"></script>` : '';
+            
             res.send(`
                 <!DOCTYPE html>
                 <html lang="pt-BR">
@@ -174,9 +188,11 @@ app.get('*', (req, res) => {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Backs ZapCRM</title>
                     <link rel="stylesheet" href="/assets/styles-B3umSPvN.css">
+                    <script>window.__TSR_DEHYDRATED__ = { data: [] };</script>
                 </head>
                 <body class="dark">
                     <div id="root"></div>
+                    ${manifestTag}
                     <script type="module" src="/${jsPath}"></script>
                 </body>
                 </html>
