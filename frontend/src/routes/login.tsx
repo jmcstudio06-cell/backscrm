@@ -31,9 +31,13 @@ function LoginPage() {
     mutationFn: (data: { email: string; password: string }) =>
       apiFetch<AuthResponse>("/api/auth/login", { method: "POST", body: JSON.stringify(data) }),
     onSuccess: (res) => {
-      setAuth(res.token, res.user);
-      toast.success("Bem-vindo de volta!");
-      navigate({ to: res.user.role === "admin" ? "/dashboard" : "/app" });
+      if (res && res.token && res.user) {
+        setAuth(res.token, res.user);
+        toast.success("Bem-vindo de volta!");
+        navigate({ to: res.user.role === "admin" ? "/dashboard" : "/app" });
+      } else {
+        toast.error("Resposta do servidor inválida.");
+      }
     },
     onError: (e) => showApiError(e, "Não foi possível entrar"),
   });
