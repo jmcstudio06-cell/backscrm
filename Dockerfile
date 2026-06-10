@@ -10,12 +10,16 @@ RUN cd frontend && npm run build
 FROM node:20
 WORKDIR /app
 # Copy the entire .output folder which contains server and public
-COPY --from=builder /app/frontend/.output ./
+COPY --from=builder /app/frontend/.output ./.output
+# Copy server.js and package.json to root
+COPY package*.json ./
+COPY server.js ./
+RUN npm install --production
 
 EXPOSE 7860
 ENV PORT=7860
 ENV HOST=0.0.0.0
 ENV NODE_ENV=production
 
-# The standard TanStack Start entry point
-CMD ["node", "server/index.mjs"]
+# The standard TanStack Start entry point through our wrapper
+CMD ["node", "server.js"]
