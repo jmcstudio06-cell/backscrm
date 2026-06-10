@@ -2,25 +2,23 @@
 FROM node:20 AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-# Usar --legacy-peer-deps para evitar conflitos de versões do Lovable
 RUN npm install --legacy-peer-deps
 COPY frontend/ ./
 RUN npm run build
-# Listar arquivos para debug
-RUN ls -la dist || echo "Pasta dist não encontrada!"
 
 # Final stage for Backend
 FROM node:20
 WORKDIR /app
-COPY backend/package*.json ./backend/
-RUN cd backend && npm install
-COPY backend/ ./backend/
-# Garantir que o diretório de destino existe
-RUN mkdir -p frontend/dist
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+# Copy backend files
+COPY backend/package*.json ./
+RUN npm install
+COPY backend/ ./
+# Copy frontend dist to the root of the app where server.js is
+COPY --from=frontend-builder /app/frontend/dist ./dist
 
 EXPOSE 7860
 ENV PORT=7860
 ENV NODE_ENV=production
 
-CMD ["node", "backend/server.js"]
+# Now server.js is at the root
+CMD ["node", "server.js"]

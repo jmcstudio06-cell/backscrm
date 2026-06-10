@@ -20,9 +20,15 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Servir arquivos estáticos do Frontend
-const frontendPath = path.join(__dirname, '../frontend/dist');
-console.log('Servindo frontend de:', frontendPath);
-app.use(express.static(frontendPath));
+const frontendPath = path.join(__dirname, 'dist');
+const fs = require('fs');
+
+if (fs.existsSync(frontendPath)) {
+    console.log('Servindo frontend de:', frontendPath);
+    app.use(express.static(frontendPath));
+} else {
+    console.log('AVISO: Diretório dist não encontrado em:', frontendPath);
+}
 
 // Middleware para proteger rotas admin
 const authenticateAdmin = (req, res, next) => {
@@ -126,10 +132,26 @@ app.all(/.*redirect-plugin-register$/, (req, res) => res.redirect('/cadastro'));
 app.all(/.*redirect-plugin-panel$/, (req, res) => res.redirect('/dashboard'));
 
 // Redirecionar todas as outras rotas para o index.html do frontend (SPA)
-// IMPORTANTE: Esta rota deve ser a ÚLTIMA
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    const indexPath = path.join(frontendPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send('Frontend não encontrado. Verifique o build.');
+    }
 });
 
-app.listen(PORT, () => console.log(`Servidor Backs ZapCRM rodando na porta ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor Backs ZapCRM rodando na porta ${PORT}`);
+    console.log('Ambiente:', process.env.NODE_ENV);
+});
+
+// Tratamento de erros não capturados
+process.on('uncaughtException', (err) => {
+    console.error('ERRO NÃO CAPTURADO:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('PROMESSA NÃO TRATADA:', reason);
+});
 
