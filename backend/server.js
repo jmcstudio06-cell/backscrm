@@ -144,11 +144,15 @@ app.all(/.*redirect-plugin-panel$/, (req, res) => res.redirect('/dashboard'));
 
 // Redirecionar todas as outras rotas para o index.html do frontend (SPA)
 app.get('*', (req, res) => {
+    if (!frontendPath) {
+        return res.status(500).send('Erro: Pasta "dist" do frontend não foi encontrada no servidor.');
+    }
+    
     const indexPath = path.join(frontendPath, 'index.html');
     if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
     } else {
-        res.status(404).send('Frontend não encontrado. Verifique o build.');
+        res.status(404).send(`Erro: Arquivo index.html não encontrado em: ${indexPath}`);
     }
 });
 
