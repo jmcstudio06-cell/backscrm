@@ -3,7 +3,6 @@ node_modules/
 dist/
 .DS_Store
 *.log
-frontend/dist/
 frontend/node_modules/
 backend/node_modules/
 .lovable/

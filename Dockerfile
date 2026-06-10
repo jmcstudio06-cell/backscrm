@@ -13,8 +13,8 @@ WORKDIR /app
 COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
-# Copy frontend dist to the root of the app where server.js is
-COPY --from=frontend-builder /app/frontend/dist ./dist
+# Copy frontend public assets to a folder named 'public' next to server.js
+COPY --from=frontend-builder /app/frontend/.output/public ./public
 
 EXPOSE 7860
 ENV PORT=7860

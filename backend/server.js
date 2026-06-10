@@ -21,18 +21,15 @@ app.use(morgan('dev'));
 
 // Servir arquivos estáticos do Frontend
 const fs = require('fs');
-const { execSync } = require('child_process');
-
 const paths = [
-    path.join(__dirname, 'dist'),
-    path.join(__dirname, '../frontend/dist'),
-    path.join(process.cwd(), 'frontend/dist'),
-    path.join(process.cwd(), 'dist')
+    path.join(__dirname, 'dist'),           // Localização no Docker (legado)
+    path.join(__dirname, 'public'),         // Localização no Docker (Nitro public)
+    path.join(__dirname, '../frontend/.output/public'), // Localização no Render Nativo
+    path.join(process.cwd(), 'frontend/.output/public'),
+    path.join(process.cwd(), '.output/public')
 ];
 
 let frontendPath = null;
-
-// Tentar encontrar a pasta dist
 for (const p of paths) {
     if (fs.existsSync(p)) {
         frontendPath = p;
@@ -40,29 +37,11 @@ for (const p of paths) {
     }
 }
 
-// Se não encontrou, tentar construir na hora (apenas se estiver no Render/Produção)
-if (!frontendPath && process.env.NODE_ENV === 'production') {
-    try {
-        console.log('Pasta dist não encontrada. Tentando construir o frontend...');
-        const frontendSrc = path.join(__dirname, '../frontend');
-        if (fs.existsSync(frontendSrc)) {
-            execSync('npm install --legacy-peer-deps && npm run build', { cwd: frontendSrc, stdio: 'inherit' });
-            frontendPath = path.join(frontendSrc, 'dist');
-        }
-    } catch (e) {
-        console.error('Falha ao construir frontend dinamicamente:', e);
-    }
-}
-
 if (frontendPath) {
     console.log('Servindo frontend de:', frontendPath);
     app.use(express.static(frontendPath));
 } else {
-    console.log('AVISO: Diretório dist não encontrado após todas as tentativas.');
-    // Listar diretórios para debug
-    try {
-        console.log('Estrutura de arquivos atual:', execSync('ls -R | grep ":$" | head -n 20').toString());
-    } catch (e) {}
+    console.log('AVISO: Pasta do frontend não encontrada após todas as tentativas.');
 }
 
 // Middleware para proteger rotas admin
