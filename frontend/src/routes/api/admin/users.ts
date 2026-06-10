@@ -1,45 +1,59 @@
 import { json } from '@tanstack/react-start'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 
-// Mock de dados de usuários para o painel admin
-let mockUsers = [
-  { 
-    id: '1', 
-    email: 'cliente1@exemplo.com', 
-    plan: 'mensal', 
-    status: 'active', 
-    expiresAt: '2026-07-10T00:00:00.000Z', 
-    createdAt: '2026-06-10T00:00:00.000Z' 
+interface User {
+  id: string
+  email: string
+  name?: string
+  plan?: 'mensal' | 'trimestral' | 'anual' | null
+  status?: 'active' | 'trial' | 'expired'
+  expiresAt?: string
+  createdAt?: string
+}
+
+let mockUsers: User[] = [
+  {
+    id: '1',
+    email: 'cliente1@exemplo.com',
+    name: 'Cliente 1',
+    plan: 'mensal',
+    status: 'active',
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
   },
-  { 
-    id: '2', 
-    email: 'teste@exemplo.com', 
-    plan: null, 
-    status: 'trial', 
-    expiresAt: '2026-06-17T00:00:00.000Z', 
-    createdAt: '2026-06-10T00:00:00.000Z' 
+  {
+    id: '2',
+    email: 'cliente2@exemplo.com',
+    name: 'Cliente 2',
+    plan: 'anual',
+    status: 'active',
+    expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
   },
-  { 
-    id: '3', 
-    email: 'antigo@exemplo.com', 
-    plan: 'anual', 
-    status: 'expired', 
-    expiresAt: '2026-06-01T00:00:00.000Z', 
-    createdAt: '2025-06-01T00:00:00.000Z' 
+  {
+    id: '3',
+    email: 'cliente3@exemplo.com',
+    name: 'Cliente 3',
+    plan: null,
+    status: 'trial',
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
   }
-];
+]
 
 export const APIRoute = createAPIFileRoute('/api/admin/users')({
   GET: ({ request }) => {
-    // Verificação básica de admin via token no header (opcional para mock)
-    const auth = request.headers.get('Authorization')
-    return json({ users: mockUsers })
+    return json(mockUsers)
   },
   POST: async ({ request }) => {
     const body = await request.json()
-    const newUser = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...body,
+    const newUser: User = {
+      id: Date.now().toString(),
+      email: body.email,
+      name: body.name,
+      plan: body.plan || null,
+      status: body.status || 'trial',
+      expiresAt: body.expiresAt,
       createdAt: new Date().toISOString()
     }
     mockUsers.push(newUser)

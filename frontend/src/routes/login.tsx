@@ -1,14 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { apiFetch, setAuth, showApiError, type AuthResponse } from "@/lib/api";
+import { setAuth } from "@/lib/api";
 import { toast } from "sonner";
 import { Zap } from "lucide-react";
 
@@ -22,36 +21,14 @@ const schema = z.object({
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(100),
 });
 
+const ADMIN_EMAIL = "mariooliveira.ctt@gmail.com";
+const ADMIN_PASSWORD = "M@eeuteamo1";
+
 function LoginPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const mutation = useMutation({
-    mutationFn: (data: { email: string; password: string }) => {
-      console.log('Enviando dados para login:', data);
-      return apiFetch("/api/auth/login", { method: "POST", body: JSON.stringify(data) });
-    },
-    onSuccess: (res) => {
-      console.log('Resposta recebida do servidor:', res);
-      
-      // Tenta identificar onde estão os dados, caso venha em estrutura diferente
-      let authData = res;
-      if (authData && authData.data) authData = authData.data;
-      if (authData && authData.result) authData = authData.result;
-      
-      if (authData && authData.token && authData.user) {
-        console.log('Dados válidos encontrados! Autenticando...');
-        setAuth(authData.token, authData.user);
-        toast.success("Bem-vindo de volta!");
-        navigate({ to: authData.user.role === "admin" ? "/dashboard" : "/app" });
-      } else {
-        console.error('Dados inválidos na resposta:', authData);
-        toast.error("Resposta do servidor inválida.");
-      }
-    },
-    onError: (e) => showApiError(e, "Não foi possível entrar"),
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +40,25 @@ function LoginPage() {
       return;
     }
     setErrors({});
-    mutation.mutate(parsed.data);
+    setIsLoading(true);
+
+    setTimeout(() => {
+      if (form.email === ADMIN_EMAIL && form.password === ADMIN_PASSWORD) {
+        const user = {
+          id: "1",
+          email: ADMIN_EMAIL,
+          name: "Admin",
+          role: "admin"
+        };
+        const token = "admin-token-12345";
+        setAuth(token, user);
+        toast.success("Bem-vindo Admin!");
+        navigate({ to: "/dashboard" });
+      } else {
+        toast.error("E-mail ou senha incorretos.");
+      }
+      setIsLoading(false);
+    }, 500);
   };
 
   return (
@@ -95,8 +90,8 @@ function LoginPage() {
                 placeholder="••••••••" />
               {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
             </div>
-            <Button type="submit" className="w-full bg-gradient-brand text-cyan hover:opacity-90" disabled={mutation.isPending}>
-              {mutation.isPending ? "Entrando..." : "Entrar"}
+            <Button type="submit" className="w-full bg-gradient-brand text-cyan hover:opacity-90" disabled={isLoading}>
+              {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
