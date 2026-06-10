@@ -1,2 +1,2 @@
 // Shim entry point for Render
-import './server.cjs';
+require('./server.cjs');
