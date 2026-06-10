@@ -87,10 +87,12 @@ function SignupPage() {
     }, 1000);
   };
 
+  const isEmbed = typeof window !== "undefined" && window.self !== window.top;
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex flex-1 items-center justify-center px-4 py-16">
+    <div className={`flex min-h-screen flex-col ${isEmbed ? "bg-transparent" : ""}`}>
+      {!isEmbed && <SiteHeader />}
+      <main className={`flex flex-1 items-center justify-center ${isEmbed ? "p-4" : "px-4 py-16"}`}>
         <Card className="w-full max-w-md p-8">
           <div className="mb-6 flex flex-col items-center text-center">
             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand text-cyan glow-cyan">
@@ -139,7 +141,7 @@ function SignupPage() {
           </p>
         </Card>
       </main>
-      <SiteFooter />
+      {!isEmbed && <SiteFooter />}
     </div>
   );
 }
