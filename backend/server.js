@@ -37,8 +37,8 @@ const authenticateAdmin = (req, res, next) => {
     });
 };
 
-// Rota raiz
-app.get('/', (req, res) => {
+// Rota para o código remoto da extensão
+app.get('/api/remote/code', (req, res) => {
     res.type('application/javascript');
     res.send('console.log("Backs ZapCRM: Remote code loaded.");');
 });
