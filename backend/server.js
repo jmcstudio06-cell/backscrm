@@ -21,12 +21,18 @@ app.use(morgan('dev'));
 
 // Servir arquivos estáticos do Frontend
 const fs = require('fs');
+const { execSync } = require('child_process');
+
 const paths = [
-    path.join(__dirname, 'dist'),           // Localização no Docker
-    path.join(__dirname, '../frontend/dist') // Localização no Render Nativo
+    path.join(__dirname, 'dist'),
+    path.join(__dirname, '../frontend/dist'),
+    path.join(process.cwd(), 'frontend/dist'),
+    path.join(process.cwd(), 'dist')
 ];
 
 let frontendPath = null;
+
+// Tentar encontrar a pasta dist
 for (const p of paths) {
     if (fs.existsSync(p)) {
         frontendPath = p;
@@ -34,11 +40,29 @@ for (const p of paths) {
     }
 }
 
+// Se não encontrou, tentar construir na hora (apenas se estiver no Render/Produção)
+if (!frontendPath && process.env.NODE_ENV === 'production') {
+    try {
+        console.log('Pasta dist não encontrada. Tentando construir o frontend...');
+        const frontendSrc = path.join(__dirname, '../frontend');
+        if (fs.existsSync(frontendSrc)) {
+            execSync('npm install --legacy-peer-deps && npm run build', { cwd: frontendSrc, stdio: 'inherit' });
+            frontendPath = path.join(frontendSrc, 'dist');
+        }
+    } catch (e) {
+        console.error('Falha ao construir frontend dinamicamente:', e);
+    }
+}
+
 if (frontendPath) {
     console.log('Servindo frontend de:', frontendPath);
     app.use(express.static(frontendPath));
 } else {
-    console.log('AVISO: Diretório dist não encontrado. Verifique se o build foi executado.');
+    console.log('AVISO: Diretório dist não encontrado após todas as tentativas.');
+    // Listar diretórios para debug
+    try {
+        console.log('Estrutura de arquivos atual:', execSync('ls -R | grep ":$" | head -n 20').toString());
+    } catch (e) {}
 }
 
 // Middleware para proteger rotas admin
