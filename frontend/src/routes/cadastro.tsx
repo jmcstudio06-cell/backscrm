@@ -27,17 +27,7 @@ function SignupPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "", confirm: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const mutation = useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      apiFetch<AuthResponse>("/api/auth/register", { method: "POST", body: JSON.stringify(data) }),
-    onSuccess: (res) => {
-      if (res?.token) setAuth(res.token, res.user);
-      toast.success("Conta criada! Bem-vindo ao Backs ZapCRM.");
-      navigate({ to: "/app" });
-    },
-    onError: (e) => showApiError(e, "Não foi possível criar a conta"),
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +39,52 @@ function SignupPage() {
       return;
     }
     setErrors({});
-    mutation.mutate({ email: parsed.data.email, password: parsed.data.password });
+    setIsLoading(true);
+
+    setTimeout(() => {
+      try {
+        // Obter usuários existentes do localStorage
+        const storedUsers = JSON.parse(localStorage.getItem("zapcrm_users") || "[]");
+        
+        // Verificar se o email já existe
+        if (storedUsers.some((u: any) => u.email === parsed.data.email) || parsed.data.email === "mariooliveira.ctt@gmail.com") {
+          toast.error("Este e-mail já está em uso.");
+          setIsLoading(false);
+          return;
+        }
+
+        // Criar novo usuário
+        const newUser = {
+          id: Date.now().toString(),
+          email: parsed.data.email,
+          password: parsed.data.password, // Em produção, nunca salve senha pura!
+          name: parsed.data.email.split("@")[0],
+          role: "user",
+          status: "trial",
+          plan: "trial",
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 dias de trial
+        };
+
+        storedUsers.push(newUser);
+        localStorage.setItem("zapcrm_users", JSON.stringify(storedUsers));
+
+        // Autenticar
+        setAuth("user-token-" + newUser.id, {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          role: "user"
+        });
+
+        toast.success("Conta criada! Bem-vindo ao Backs ZapCRM.");
+        navigate({ to: "/app" });
+      } catch (error) {
+        toast.error("Erro ao criar conta.");
+      } finally {
+        setIsLoading(false);
+      }
+    }, 1000);
   };
 
   return (
@@ -94,8 +129,8 @@ function SignupPage() {
               <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-cyan" /> Não pedimos cartão</li>
               <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-cyan" /> Acesso imediato à extensão</li>
             </ul>
-            <Button type="submit" className="w-full bg-gradient-brand text-cyan hover:opacity-90" disabled={mutation.isPending}>
-              {mutation.isPending ? "Criando..." : "Criar conta grátis"}
+            <Button type="submit" className="w-full bg-gradient-brand text-cyan hover:opacity-90" disabled={isLoading}>
+              {isLoading ? "Criando..." : "Criar conta grátis"}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
