@@ -20,7 +20,7 @@ app.use(morgan('dev'));
 // Rota raiz
 app.get('/', (req, res) => {
     res.type('application/javascript');
-    res.send('console.log("Backs CRM: Remote code loaded.");');
+    res.send('console.log("Backs ZapCRM: Remote code loaded.");');
 });
 
 // Rota de saúde
@@ -112,5 +112,5 @@ app.all('/api/urls/install/*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor Backs CRM rodando na porta ${PORT}`);
+    console.log(`Servidor Backs ZapCRM rodando na porta ${PORT}`);
 });
