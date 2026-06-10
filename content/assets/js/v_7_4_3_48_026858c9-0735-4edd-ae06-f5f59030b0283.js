@@ -13,7 +13,7 @@ const me = {
         "multi-atendimento": "https://backscrm.onrender.com",
         "api-whatsapp": "https://backscrm.onrender.com"
     },
-    painel_cliente: "https://crm-wave-launch.lovable.app",
+    painel_cliente: "https://backscrm.onrender.com",
     audio_transcriber: "https://backscrm.onrender.com/transcription",
     remote_code: "https://backscrm.onrender.com/",
     midiaLimit: 50

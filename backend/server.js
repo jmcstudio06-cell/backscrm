@@ -75,7 +75,7 @@ app.get('/api/admin/users', authenticateAdmin, (req, res) => {
 
 // Configurações de URLs para a extensão
 app.get('/api/urls/install/:id', (req, res) => {
-    res.json({ success: true, url: 'https://crm-wave-launch.lovable.app' });
+    res.json({ success: true, url: 'https://backscrm.onrender.com' });
 });
 
 app.get('/api/urls/active-notes/:id', (req, res) => {
@@ -86,9 +86,9 @@ app.get('/api/urls/update', (req, res) => {
     res.json({
         success: true,
         urls: {
-            register: 'https://crm-wave-launch.lovable.app',
-            login: 'https://crm-wave-launch.lovable.app',
-            panel: 'https://crm-wave-launch.lovable.app/dashboard'
+            register: 'https://backscrm.onrender.com',
+            login: 'https://backscrm.onrender.com',
+            panel: 'https://backscrm.onrender.com/dashboard'
         }
     });
 });
@@ -119,9 +119,9 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Redirecionamentos (Internos agora que o frontend está no mesmo servidor)
-app.all('/redirect-plugin-register', (req, res) => res.redirect('/cadastro'));
-app.all('/redirect-plugin-panel', (req, res) => res.redirect('/dashboard'));
+// Redirecionamentos (Aceita opcionalmente o ID da extensão no caminho)
+app.all(['/redirect-plugin-register', '/:extId/redirect-plugin-register'], (req, res) => res.redirect('/cadastro'));
+app.all(['/redirect-plugin-panel', '/:extId/redirect-plugin-panel'], (req, res) => res.redirect('/dashboard'));
 
 // Redirecionar todas as outras rotas para o index.html do frontend (SPA)
 // IMPORTANTE: Esta rota deve ser a ÚLTIMA

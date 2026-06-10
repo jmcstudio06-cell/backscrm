@@ -32,7 +32,7 @@ const n = {
     "api-whatsapp": "https://backscrm.onrender.com"
   },
   // Url do painel de clientes
-  painel_cliente: "https://crm-wave-launch.lovable.app",
+  painel_cliente: "https://backscrm.onrender.com",
   // Url do audio transcriber
   audio_transcriber: "https://backscrm.onrender.com/transcription",
   // Url do código remoto
