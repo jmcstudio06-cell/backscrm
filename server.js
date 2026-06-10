@@ -2,12 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const morgan = require('morgan');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 7860;
+const JWT_SECRET = process.env.JWT_SECRET || 'backs-zapcrm-secret-key-2024';
 
-// Configuração de CORS mais permissiva para extensões Chrome
+// Configuração de CORS
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
@@ -17,100 +19,81 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Middleware para proteger rotas admin
+const authenticateAdmin = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(401).json({ success: false, message: "Token não fornecido" });
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ success: false, message: "Token inválido ou expirado" });
+        if (user.role !== 'admin') return res.status(403).json({ success: false, message: "Acesso negado" });
+        req.user = user;
+        next();
+    });
+};
+
 // Rota raiz
 app.get('/', (req, res) => {
     res.type('application/javascript');
     res.send('console.log("Backs ZapCRM: Remote code loaded.");');
 });
 
-// Rota de saúde
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', uptime: process.uptime() });
+// Login Admin (Usado pelo Painel do Lovable)
+app.post('/api/admin/login', (req, res) => {
+    const { email, password } = req.body;
+    
+    // Login simplificado para teste (Aceita qualquer admin@...)
+    if (email.startsWith('admin@') && password) {
+        const token = jwt.sign({ id: 1, email, role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+        return res.json({
+            success: true,
+            token: token,
+            user: { name: "Administrador Backs", email: email }
+        });
+    }
+    
+    res.status(401).json({ success: false, message: "Credenciais inválidas" });
 });
 
-// Rota para o arquivo de configuração
+// Listagem de Usuários (Protegida)
+app.get('/api/admin/users', authenticateAdmin, (req, res) => {
+    res.json({
+        success: true,
+        users: [
+            { id: 1, name: "Usuário Teste 1", email: "teste1@gmail.com", status: "active", plan: "Premium" },
+            { id: 2, name: "Usuário Teste 2", email: "teste2@gmail.com", status: "expired", plan: "Free" }
+        ]
+    });
+});
+
+// --- ROTAS DA EXTENSÃO ---
+
+// Login da Extensão (Universal para Dev)
+app.all('/api/auth/login*', (req, res) => {
+    const { email } = req.body || {};
+    res.json({
+        success: true,
+        token: "token-extensao-dev",
+        user: { id: 1, name: "Admin", email: email || "admin@backscrm.com.br", premium: true, status: "active" }
+    });
+});
+
+app.all('/api/auth/validation/*', (req, res) => {
+    res.json({ success: true, status: "authorized" });
+});
+
 app.get('/config.json', (req, res) => {
     res.sendFile(path.join(__dirname, 'config.json'));
 });
 
-// LOGIN LIBERADO (Modo Desenvolvedor)
-// Aceita qualquer e-mail e senha, e ignora o ID da extensão no final da URL
-app.all('/api/auth/login*', (req, res) => {
-    const { email } = req.body || {};
-    console.log(`Tentativa de login recebida para: ${email}`);
-    
-    res.json({
-        success: true,
-        bearer_token: "token-backs-crm-full-access",
-        token: "token-backs-crm-full-access",
-        user: {
-            id: 1,
-            name: "Administrador Backs",
-            email: email || "admin@backscrm.com.br",
-            role: "admin",
-            premium: true,
-            status: "active"
-        }
-    });
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Adicionando rota de validação de licença caso a extensão use esse endpoint
-app.all('/api/auth/license/*', (req, res) => {
-    res.json({ success: true, status: "active", type: "premium" });
-});
+// Redirecionamentos
+app.all('/redirect-plugin-register', (req, res) => res.redirect('https://backscrm.lovable.app/'));
+app.all('/redirect-plugin-panel', (req, res) => res.redirect('https://backscrm.lovable.app/dashboard'));
 
-// Validação de Token (Sempre autoriza)
-app.all('/api/auth/validation/*', (req, res) => {
-    res.json({ 
-        success: true, 
-        status: "authorized",
-        user: {
-            name: "Administrador Backs",
-            premium: true
-        }
-    });
-});
-
-// Outras rotas de serviço (Mocks)
-app.all('/api/services/initial-data/*', (req, res) => {
-    res.json({ 
-        success: true, 
-        data: {
-            tags: [],
-            funnels: [],
-            custom_fields: []
-        } 
-    });
-});
-
-app.all('/api/notify/get/premium/*', (req, res) => {
-    res.json({ success: true, notifications: [] });
-});
-
-app.all('/api/services/update', (req, res) => {
-    res.json({ success: true, message: "Update service mock active" });
-});
-
-// Redirecionamento de Registro/Cadastro
-app.all('/redirect-plugin-register', (req, res) => {
-    // Redirecionando para sua página no Lovable
-    res.redirect('https://backscrm.lovable.app/');
-});
-
-// Redirecionamento do Painel do Cliente
-app.all('/redirect-plugin-panel', (req, res) => {
-    // Redirecionando para sua página no Lovable (ou outra página se preferir)
-    res.redirect('https://backscrm.lovable.app/dashboard');
-});
-
-app.all('/api/urls/update', (req, res) => {
-    res.json({ success: true });
-});
-
-app.all('/api/urls/install/*', (req, res) => {
-    res.json({ success: true });
-});
-
-app.listen(PORT, () => {
-    console.log(`Servidor Backs ZapCRM rodando na porta ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor Backs ZapCRM rodando na porta ${PORT}`));
