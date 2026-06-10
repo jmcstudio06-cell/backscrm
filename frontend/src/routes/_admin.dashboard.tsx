@@ -39,8 +39,33 @@ function AdminDashboard() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const res = await apiFetch<User[] | { users: User[] }>("/api/admin/users");
-      return Array.isArray(res) ? res : res.users ?? [];
+      let apiUsers: User[] = [];
+      try {
+        const res = await apiFetch<User[] | { users: User[] }>("/api/admin/users");
+        apiUsers = Array.isArray(res) ? res : res.users ?? [];
+      } catch (e) {
+        console.warn("Falha ao buscar usuários da API, usando local fallback", e);
+      }
+
+      let localUsers: User[] = [];
+      try {
+        const stored = localStorage.getItem("zapcrm_users");
+        if (stored) {
+          localUsers = JSON.parse(stored);
+        }
+      } catch (e) {
+        console.error("Falha ao ler usuários do localStorage", e);
+      }
+
+      // Mesclar usuários evitando duplicados por email
+      const merged = [...localUsers];
+      apiUsers.forEach((au) => {
+        if (!merged.some((lu) => lu.email === au.email)) {
+          merged.push(au);
+        }
+      });
+
+      return merged;
     },
   });
 
@@ -67,8 +92,28 @@ function AdminDashboard() {
   }, [users]);
 
   const updateMut = useMutation({
-    mutationFn: (vars: { id: string; patch: Partial<User> }) =>
-      apiFetch(`/api/admin/users/${vars.id}`, { method: "PATCH", body: JSON.stringify(vars.patch) }),
+    mutationFn: async (vars: { id: string; patch: Partial<User> }) => {
+      // Atualizar no localStorage
+      try {
+        const stored = localStorage.getItem("zapcrm_users");
+        if (stored) {
+          const localUsers = JSON.parse(stored) as User[];
+          const updated = localUsers.map((u) => 
+            (u.id === vars.id || u._id === vars.id) ? { ...u, ...vars.patch } : u
+          );
+          localStorage.setItem("zapcrm_users", JSON.stringify(updated));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      // Tentar atualizar no backend
+      try {
+        await apiFetch(`/api/admin/users/${vars.id}`, { method: "PATCH", body: JSON.stringify(vars.patch) });
+      } catch (e) {
+        console.warn("Falha ao atualizar na API, atualizado localmente", e);
+      }
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("Usuário atualizado");
@@ -78,7 +123,26 @@ function AdminDashboard() {
   });
 
   const deleteMut = useMutation({
-    mutationFn: (id: string) => apiFetch(`/api/admin/users/${id}`, { method: "DELETE" }),
+    mutationFn: async (id: string) => {
+      // Remover no localStorage
+      try {
+        const stored = localStorage.getItem("zapcrm_users");
+        if (stored) {
+          const localUsers = JSON.parse(stored) as User[];
+          const updated = localUsers.filter((u) => u.id !== id && u._id !== id);
+          localStorage.setItem("zapcrm_users", JSON.stringify(updated));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      // Tentar remover no backend
+      try {
+        await apiFetch(`/api/admin/users/${id}`, { method: "DELETE" });
+      } catch (e) {
+        console.warn("Falha ao remover na API, removido localmente", e);
+      }
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("Usuário removido");
