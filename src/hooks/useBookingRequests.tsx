@@ -45,17 +45,24 @@ export function useBookingRequests() {
 
   const createShowFromRequest = async (request: BookingRequest) => {
     if (!user) return false;
-    try {
-      // Ensure date is a clean YYYY-MM-DD string (avoid UTC shift)
-      const eventDate = typeof request.event_date === 'string' 
-        ? request.event_date.substring(0, 10) 
-        : request.event_date;
 
-      console.log("Creating show from booking request:", { 
-        title: request.client_name, 
-        date: eventDate, 
-        originalDate: request.event_date 
+    // SECURITY: apenas o artista dono da solicitação pode convertê-la em show.
+    // Sem este guard, um admin (que tem SELECT em todas as booking_requests via RLS)
+    // ou qualquer outro autenticado poderia, por engano, criar um show em sua própria
+    // agenda usando a solicitação de outro artista.
+    if (request.artist_id !== user.id) {
+      console.error("Refusing to create show: booking request belongs to another artist", {
+        requestArtistId: request.artist_id,
+        currentUserId: user.id,
       });
+      toast.error("Esta solicitação não pertence à sua conta.");
+      return false;
+    }
+
+    try {
+      const eventDate = typeof request.event_date === 'string'
+        ? request.event_date.substring(0, 10)
+        : request.event_date;
 
       const { data, error: showError } = await supabase
         .from("shows")
