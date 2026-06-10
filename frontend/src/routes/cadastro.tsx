@@ -1,14 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { apiFetch, setAuth, showApiError, type AuthResponse } from "@/lib/api";
+import { setAuth } from "@/lib/api";
 import { toast } from "sonner";
 import { Zap, Check } from "lucide-react";
 
@@ -29,7 +28,7 @@ function SignupPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
@@ -41,50 +40,41 @@ function SignupPage() {
     setErrors({});
     setIsLoading(true);
 
-    setTimeout(() => {
-      try {
-        // Obter usuários existentes do localStorage
-        const storedUsers = JSON.parse(localStorage.getItem("zapcrm_users") || "[]");
-        
-        // Verificar se o email já existe
-        if (storedUsers.some((u: any) => u.email === parsed.data.email) || parsed.data.email === "mariooliveira.ctt@gmail.com") {
-          toast.error("Este e-mail já está em uso.");
-          setIsLoading(false);
-          return;
-        }
-
-        // Criar novo usuário
-        const newUser = {
-          id: Date.now().toString(),
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           email: parsed.data.email,
-          password: parsed.data.password, // Em produção, nunca salve senha pura!
+          password: parsed.data.password,
           name: parsed.data.email.split("@")[0],
-          role: "user",
-          status: "trial",
-          plan: "trial",
-          createdAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 dias de trial
-        };
+        }),
+      });
 
-        storedUsers.push(newUser);
-        localStorage.setItem("zapcrm_users", JSON.stringify(storedUsers));
+      const data = await res.json();
 
-        // Autenticar
-        setAuth("user-token-" + newUser.id, {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          role: "user"
-        });
-
-        toast.success("Conta criada! Bem-vindo ao Backs ZapCRM.");
-        navigate({ to: "/app" });
-      } catch (error) {
-        toast.error("Erro ao criar conta.");
-      } finally {
-        setIsLoading(false);
+      if (!res.ok || !data.success) {
+        toast.error(data.message || "Erro ao criar conta.");
+        return;
       }
-    }, 1000);
+
+      setAuth(data.token, {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        role: data.user.role,
+        status: data.user.status,
+        plan: data.user.plan,
+        expiresAt: data.user.expiresAt,
+      });
+
+      toast.success("Conta criada! Bem-vindo ao Backs ZapCRM 🎉");
+      navigate({ to: "/app" });
+    } catch (err) {
+      toast.error("Falha de conexão. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const isEmbed = typeof window !== "undefined" && window.self !== window.top;
@@ -145,4 +135,3 @@ function SignupPage() {
     </div>
   );
 }
-

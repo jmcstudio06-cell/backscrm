@@ -18,11 +18,8 @@ export const Route = createFileRoute("/login")({
 
 const schema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(100),
+  password: z.string().min(4, "Senha deve ter no mínimo 4 caracteres").max(100),
 });
-
-const ADMIN_EMAIL = "mariooliveira.ctt@gmail.com";
-const ADMIN_PASSWORD = "M@eeuteamo1";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -31,7 +28,7 @@ function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
@@ -43,46 +40,37 @@ function LoginPage() {
     setErrors({});
     setIsLoading(true);
 
-    setTimeout(() => {
-      // Verificar Admin hardcoded
-      if (form.email === ADMIN_EMAIL && form.password === ADMIN_PASSWORD) {
-        const user = {
-          id: "1",
-          email: ADMIN_EMAIL,
-          name: "Admin",
-          role: "admin"
-        };
-        const token = "admin-token-12345";
-        setAuth(token, user);
-        toast.success("Bem-vindo Admin!");
-        navigate({ to: "/dashboard" });
-        setIsLoading(false);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: parsed.data.email, password: parsed.data.password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.message || "E-mail ou senha incorretos.");
         return;
       }
 
-      // Verificar usuários no localStorage
-      try {
-        const storedUsers = JSON.parse(localStorage.getItem("zapcrm_users") || "[]");
-        const user = storedUsers.find((u: any) => u.email === form.email && u.password === form.password);
+      setAuth(data.token, {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        role: data.user.role,
+        status: data.user.status,
+        plan: data.user.plan,
+        expiresAt: data.user.expiresAt,
+      });
 
-        if (user) {
-          setAuth("user-token-" + user.id, {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role || "user"
-          });
-          toast.success("Bem-vindo de volta!");
-          navigate({ to: user.role === "admin" ? "/dashboard" : "/app" });
-        } else {
-          toast.error("E-mail ou senha incorretos.");
-        }
-      } catch (e) {
-        toast.error("Erro ao processar login.");
-      }
-      
+      toast.success(data.user.role === "admin" ? "Bem-vindo Admin!" : "Bem-vindo de volta!");
+      navigate({ to: data.user.role === "admin" ? "/dashboard" : "/app" });
+    } catch {
+      toast.error("Falha de conexão. Tente novamente.");
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   const isEmbed = typeof window !== "undefined" && window.self !== window.top;
@@ -102,28 +90,28 @@ function LoginPage() {
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
-              <Input 
-                id="email" 
-                type="email" 
+              <Input
+                id="email"
+                type="email"
                 autoComplete="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="voce@empresa.com" 
+                placeholder="voce@empresa.com"
               />
               {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
               <div className="relative">
-                <Input 
-                  id="password" 
-                  type={showPassword ? "text" : "password"} 
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="••••••••" 
+                  placeholder="••••••••"
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-400"
@@ -147,4 +135,3 @@ function LoginPage() {
     </div>
   );
 }
-
