@@ -20,14 +20,25 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Servir arquivos estáticos do Frontend
-const frontendPath = path.join(__dirname, 'dist');
 const fs = require('fs');
+const paths = [
+    path.join(__dirname, 'dist'),           // Localização no Docker
+    path.join(__dirname, '../frontend/dist') // Localização no Render Nativo
+];
 
-if (fs.existsSync(frontendPath)) {
+let frontendPath = null;
+for (const p of paths) {
+    if (fs.existsSync(p)) {
+        frontendPath = p;
+        break;
+    }
+}
+
+if (frontendPath) {
     console.log('Servindo frontend de:', frontendPath);
     app.use(express.static(frontendPath));
 } else {
-    console.log('AVISO: Diretório dist não encontrado em:', frontendPath);
+    console.log('AVISO: Diretório dist não encontrado. Verifique se o build foi executado.');
 }
 
 // Middleware para proteger rotas admin
