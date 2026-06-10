@@ -30,7 +30,7 @@ function LoginPage() {
   const mutation = useMutation({
     mutationFn: (data: { email: string; password: string }) => {
       console.log('Enviando dados para login:', data);
-      return apiFetch("/api/auth/login", { method: "POST", body: JSON.stringify(data) });
+      return apiFetch("/api/login", { method: "POST", body: JSON.stringify(data) });
     },
     onSuccess: (res) => {
       console.log('Resposta recebida do servidor:', res);
