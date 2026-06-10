@@ -119,9 +119,9 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Redirecionamentos (Aceita opcionalmente o ID da extensão no caminho)
-app.all(['/redirect-plugin-register', '/:extId/redirect-plugin-register', '*/redirect-plugin-register'], (req, res) => res.redirect('/cadastro'));
-app.all(['/redirect-plugin-panel', '/:extId/redirect-plugin-panel', '*/redirect-plugin-panel'], (req, res) => res.redirect('/dashboard'));
+// Redirecionamentos (Aceita qualquer caminho que termine com as rotas da extensão)
+app.all(/.*redirect-plugin-register$/, (req, res) => res.redirect('/cadastro'));
+app.all(/.*redirect-plugin-panel$/, (req, res) => res.redirect('/dashboard'));
 
 // Redirecionar todas as outras rotas para o index.html do frontend (SPA)
 // IMPORTANTE: Esta rota deve ser a ÚLTIMA
