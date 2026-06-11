@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { insertGuideLeadWithFallback } from "@/lib/guide-leads";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -251,7 +252,7 @@ export default function KitProfissional() {
         source: "kit_profissional",
       };
       
-      await supabase.from("guide_leads").insert(leadData);
+      await insertGuideLeadWithFallback(leadData);
       localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify(leadData));
       localStorage.setItem("guia_lead_captured", "true");
       setIsLeadRegistered(true);

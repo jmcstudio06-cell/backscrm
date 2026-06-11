@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { insertGuideLeadWithFallback } from "@/lib/guide-leads";
 import { toast } from "sonner";
 
 // ─── Anti-sabotage helpers (NAME + PHONE) ─────────────────────────────────────
@@ -265,13 +265,11 @@ export default function GuiaAtendimento() {
     setLeadSubmitting(true);
     
     try {
-      const { error } = await supabase.from("guide_leads").insert({
+      await insertGuideLeadWithFallback({
         name: normalizeName(leadName),
         phone: formatBRMobileFromDigits(phoneDigits),
         source: "guia_atendimento",
       });
-      
-      if (error) throw error;
       
       localStorage.setItem("guia_lead_captured", "true");
       setUnlocked(true);

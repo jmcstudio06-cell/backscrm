@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { insertGuideLeadWithFallback } from "@/lib/guide-leads";
 
 const LEAD_STORAGE_KEY = "planilha_gratuita_lead";
 const PLANILHA_URL =
@@ -92,9 +92,7 @@ export default function PlanilhaGratuita() {
         source: "planilha_gratuita",
       };
 
-      const { error } = await supabase.from("guide_leads").insert(leadData);
-
-      if (error) throw error;
+      await insertGuideLeadWithFallback(leadData);
 
       localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify(leadData));
       setUnlocked(true);
