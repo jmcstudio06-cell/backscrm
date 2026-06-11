@@ -154,6 +154,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
 
       let ok = 0;
       let fail = 0;
+      let skipped = 0;
       const errors: string[] = [];
 
       for (let r = 1; r < rows.length; r++) {
@@ -163,6 +164,14 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
         if (!titulo || !dataStr) { fail++; errors.push(`Linha ${r + 1}: título ou data faltando`); continue; }
         const date = parseDate(dataStr);
         if (!date) { fail++; errors.push(`Linha ${r + 1}: data inválida "${dataStr}"`); continue; }
+
+        // Ignora linhas de exemplo do modelo antigo para evitar importação acidental.
+        const endereco = iEnd >= 0 ? (row[iEnd] || "").trim() : "";
+        const signature = `${titulo}|${endereco}`.toLowerCase().trim();
+        if (EXAMPLE_SIGNATURES.has(signature)) {
+          skipped++;
+          continue;
+        }
 
         const rawStatus = (iStatus >= 0 ? row[iStatus] : "").trim().toLowerCase();
         const status = STATUS_MAP[rawStatus] || "confirmed";
