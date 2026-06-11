@@ -41,6 +41,7 @@ import Privacidade from "./pages/Privacidade";
 import ResetPassword from "./pages/ResetPassword";
 import GuiaAtendimento from "./pages/GuiaAtendimento";
 import KitProfissional from "./pages/KitProfissional";
+import PlanilhaGratuita from "./pages/PlanilhaGratuita";
 import MensagensProntas from "./pages/MensagensProntas";
 import ArtesCanva from "./pages/ArtesCanva";
 import Booking from "./pages/Booking";
@@ -140,6 +141,7 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/guia-atendimento" element={<ErrorBoundary><GuiaAtendimento /></ErrorBoundary>} />
                 <Route path="/kit-profissional" element={<ErrorBoundary><KitProfissional /></ErrorBoundary>} />
+                <Route path="/planilha-gratuita" element={<ErrorBoundary><PlanilhaGratuita /></ErrorBoundary>} />
                 <Route path="/kit-profissional/mensagens" element={<ErrorBoundary><MensagensProntas /></ErrorBoundary>} />
                 <Route path="/kit-profissional/artes" element={<ErrorBoundary><ArtesCanva /></ErrorBoundary>} />
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />

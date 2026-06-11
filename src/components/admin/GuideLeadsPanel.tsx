@@ -13,10 +13,25 @@ interface GuideLead {
   phone: string;
   city?: string;
   shows_per_month?: string;
+  source?: string | null;
   created_at: string;
 }
 
 const DAYS_LIMIT = 15;
+const SOURCE_META: Record<string, { label: string; className: string }> = {
+  guia_atendimento: {
+    label: "Guia",
+    className: "bg-blue-500/10 text-blue-700 border-blue-500/20",
+  },
+  kit_profissional: {
+    label: "Kit",
+    className: "bg-violet-500/10 text-violet-700 border-violet-500/20",
+  },
+  planilha_gratuita: {
+    label: "Planilha",
+    className: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+  },
+};
 
 export function GuideLeadsPanel() {
   const [leads, setLeads] = useState<GuideLead[]>([]);
@@ -80,7 +95,7 @@ export function GuideLeadsPanel() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <CalendarDays className="h-5 w-5 text-primary" />
-          Ganhou Guia
+          Guia e Materiais
           <span className="ml-auto text-sm font-normal text-muted-foreground">
             {leads.length} total
           </span>
@@ -142,7 +157,16 @@ export function GuideLeadsPanel() {
                           <User className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-sm text-foreground">{lead.name}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium text-sm text-foreground">{lead.name}</p>
+                            <span
+                              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                                SOURCE_META[lead.source || ""]?.className || "bg-muted text-muted-foreground border-border"
+                              }`}
+                            >
+                              {SOURCE_META[lead.source || ""]?.label || "Legado"}
+                            </span>
+                          </div>
                           <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
                             <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                               <Phone className="w-3 h-3 text-primary/60" />

@@ -247,7 +247,8 @@ export default function KitProfissional() {
         name: trimmedName, 
         phone: digits,
         city: city.trim(),
-        shows_per_month: showsPerMonth
+        shows_per_month: showsPerMonth,
+        source: "kit_profissional",
       };
       
       await supabase.from("guide_leads").insert(leadData);

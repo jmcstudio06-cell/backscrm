@@ -268,6 +268,7 @@ export default function GuiaAtendimento() {
       const { error } = await supabase.from("guide_leads").insert({
         name: normalizeName(leadName),
         phone: formatBRMobileFromDigits(phoneDigits),
+        source: "guia_atendimento",
       });
       
       if (error) throw error;
