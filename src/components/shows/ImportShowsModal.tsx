@@ -228,7 +228,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
               <div className="flex-1">
                 <h3 className="font-semibold mb-1">Baixe a planilha modelo</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Já vem com 3 exemplos. Use Excel, Google Sheets ou qualquer editor de planilhas.
+                  Vem apenas com os cabeçalhos. Preencha com seus próprios shows usando Excel, Google Sheets ou qualquer editor de planilhas.
                 </p>
                 <Button onClick={downloadTemplate} variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-2" />
