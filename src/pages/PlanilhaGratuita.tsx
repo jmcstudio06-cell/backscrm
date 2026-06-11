@@ -39,6 +39,23 @@ export default function PlanilhaGratuita() {
   const [showsPerMonth, setShowsPerMonth] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // #region debug-point A:debug-reporter
+  const debugReport = (hypothesisId: string, msg: string, data: Record<string, unknown>) =>
+    fetch("http://127.0.0.1:7777/event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: "planilha-liberar-erro",
+        runId: "pre-fix",
+        hypothesisId,
+        location: "src/pages/PlanilhaGratuita.tsx",
+        msg: `[DEBUG] ${msg}`,
+        data,
+        ts: Date.now(),
+      }),
+    }).catch(() => {});
+  // #endregion
+
   useEffect(() => {
     if (localStorage.getItem(LEAD_STORAGE_KEY)) {
       setUnlocked(true);
@@ -60,6 +77,14 @@ export default function PlanilhaGratuita() {
     const trimmedName = name.trim();
     const digits = phone.replace(/\D/g, "");
     const nameParts = trimmedName.split(/\s+/).filter(Boolean);
+    // #region debug-point A:submit-start
+    debugReport("A", "submit iniciado", {
+      nameLength: trimmedName.length,
+      phoneDigits: digits.length,
+      hasCity: !!city.trim(),
+      showsPerMonth,
+    });
+    // #endregion
 
     if (nameParts.length < 2) {
       return toast.error("Digite seu nome e sobrenome");
@@ -91,14 +116,33 @@ export default function PlanilhaGratuita() {
         shows_per_month: showsPerMonth,
         source: "planilha_gratuita",
       };
+      // #region debug-point B:before-insert
+      debugReport("B", "antes do insert", {
+        payloadKeys: Object.keys(leadData),
+        city: leadData.city,
+        showsPerMonth: leadData.shows_per_month,
+        source: leadData.source,
+      });
+      // #endregion
 
       await insertGuideLeadWithFallback(leadData);
+      // #region debug-point C:insert-success
+      debugReport("C", "insert concluido com sucesso", {
+        unlockedBeforeSet: unlocked,
+      });
+      // #endregion
 
       localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify(leadData));
       setUnlocked(true);
       toast.success("Planilha liberada com sucesso!");
     } catch (error) {
       console.error("Error saving planilha lead:", error);
+      // #region debug-point D:insert-error
+      debugReport("D", "erro no fluxo de liberacao", {
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorName: error instanceof Error ? error.name : typeof error,
+      });
+      // #endregion
       toast.error("Erro ao liberar a planilha. Tente novamente.");
     } finally {
       setSubmitting(false);
