@@ -98,7 +98,9 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
 
   const downloadTemplate = () => {
     const sep = ";";
-    const rows = [TEMPLATE_HEADERS, ...TEMPLATE_EXAMPLES];
+    // SECURITY/UX: a planilha modelo NÃO contém linhas de exemplo.
+    // Isso evita que o usuário envie por engano dados fictícios para a própria agenda.
+    const rows = [TEMPLATE_HEADERS];
     const csv = rows
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(sep))
       .join("\n");
@@ -109,8 +111,15 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
     a.download = "modelo-importar-shows.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Planilha modelo baixada! Preencha e envie de volta.");
+    toast.success("Planilha modelo baixada! Preencha com seus shows e envie de volta.");
   };
+
+  // Assinaturas das linhas de exemplo (título + endereço normalizados).
+  // Linhas iguais a esses exemplos serão IGNORADAS na importação como salvaguarda
+  // para usuários antigos que baixaram a versão anterior do modelo com exemplos.
+  const EXAMPLE_SIGNATURES = new Set(
+    TEMPLATE_EXAMPLES.map((row) => `${row[0]}|${row[5]}`.toLowerCase().trim()),
+  );
 
   const handleFile = async (file: File) => {
     setImporting(true);
@@ -145,6 +154,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
 
       let ok = 0;
       let fail = 0;
+      let skipped = 0;
       const errors: string[] = [];
 
       for (let r = 1; r < rows.length; r++) {
@@ -154,6 +164,14 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
         if (!titulo || !dataStr) { fail++; errors.push(`Linha ${r + 1}: título ou data faltando`); continue; }
         const date = parseDate(dataStr);
         if (!date) { fail++; errors.push(`Linha ${r + 1}: data inválida "${dataStr}"`); continue; }
+
+        // Ignora linhas de exemplo do modelo antigo para evitar importação acidental.
+        const endereco = iEnd >= 0 ? (row[iEnd] || "").trim() : "";
+        const signature = `${titulo}|${endereco}`.toLowerCase().trim();
+        if (EXAMPLE_SIGNATURES.has(signature)) {
+          skipped++;
+          continue;
+        }
 
         const rawStatus = (iStatus >= 0 ? row[iStatus] : "").trim().toLowerCase();
         const status = STATUS_MAP[rawStatus] || "confirmed";
@@ -181,6 +199,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
       setResult({ ok, fail, errors: errors.slice(0, 10) });
       if (ok > 0) toast.success(`${ok} show(s) importado(s) com sucesso!`);
       if (fail > 0) toast.error(`${fail} linha(s) com erro.`);
+      if (skipped > 0) toast.info(`${skipped} linha(s) de exemplo do modelo foram ignoradas.`);
     } catch (e: any) {
       toast.error("Erro ao processar arquivo: " + (e?.message || ""));
     } finally {
@@ -209,7 +228,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
               <div className="flex-1">
                 <h3 className="font-semibold mb-1">Baixe a planilha modelo</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Já vem com 3 exemplos. Use Excel, Google Sheets ou qualquer editor de planilhas.
+                  Vem apenas com os cabeçalhos. Preencha com seus próprios shows usando Excel, Google Sheets ou qualquer editor de planilhas.
                 </p>
                 <Button onClick={downloadTemplate} variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-2" />
