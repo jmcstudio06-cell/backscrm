@@ -98,7 +98,9 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
 
   const downloadTemplate = () => {
     const sep = ";";
-    const rows = [TEMPLATE_HEADERS, ...TEMPLATE_EXAMPLES];
+    // SECURITY/UX: a planilha modelo NÃO contém linhas de exemplo.
+    // Isso evita que o usuário envie por engano dados fictícios para a própria agenda.
+    const rows = [TEMPLATE_HEADERS];
     const csv = rows
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(sep))
       .join("\n");
@@ -109,8 +111,15 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
     a.download = "modelo-importar-shows.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Planilha modelo baixada! Preencha e envie de volta.");
+    toast.success("Planilha modelo baixada! Preencha com seus shows e envie de volta.");
   };
+
+  // Assinaturas das linhas de exemplo (título + endereço normalizados).
+  // Linhas iguais a esses exemplos serão IGNORADAS na importação como salvaguarda
+  // para usuários antigos que baixaram a versão anterior do modelo com exemplos.
+  const EXAMPLE_SIGNATURES = new Set(
+    TEMPLATE_EXAMPLES.map((row) => `${row[0]}|${row[5]}`.toLowerCase().trim()),
+  );
 
   const handleFile = async (file: File) => {
     setImporting(true);
