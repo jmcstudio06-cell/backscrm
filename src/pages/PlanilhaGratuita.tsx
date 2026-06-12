@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
+  BookOpen,
   CheckCircle2,
   Download,
   Gift,
@@ -172,8 +174,8 @@ export default function PlanilhaGratuita() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="grid gap-8 lg:grid-cols-[1fr_1fr] items-start">
           <section className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold backdrop-blur">
               <Gift className="w-3.5 h-3.5 text-emerald-300" />
@@ -181,13 +183,11 @@ export default function PlanilhaGratuita() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.02]">
-                Baixe a
-                <br />
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
+                Baixe a{" "}
                 <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
                   planilha de controle
-                </span>
-                <br />
+                </span>{" "}
                 do artista
               </h1>
               <p className="text-base sm:text-lg text-white/60 max-w-2xl">
@@ -199,7 +199,7 @@ export default function PlanilhaGratuita() {
             <div className="grid gap-3 sm:grid-cols-3">
               {[
                 "Controle financeiro pronto para usar",
-                "Organizacao simples da rotina de shows",
+                "Organização simples da rotina de shows",
                 "Download gratuito e imediato",
               ].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
@@ -210,17 +210,33 @@ export default function PlanilhaGratuita() {
                 </div>
               ))}
             </div>
+
+            {/* Kit Profissional quick access */}
+            <Link
+              to="/kit-profissional"
+              className="group flex items-center gap-4 rounded-2xl border border-violet-400/30 bg-gradient-to-r from-violet-600/20 via-fuchsia-600/15 to-blue-600/20 p-4 hover:border-violet-300/50 transition-all"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-violet-500/25 flex items-center justify-center shrink-0">
+                <BookOpen className="w-6 h-6 text-violet-200" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase tracking-wider font-bold text-violet-300">Bônus exclusivo • Grátis</p>
+                <p className="font-bold text-white leading-tight">Acesse também o Kit Profissional</p>
+                <p className="text-xs text-white/60 mt-0.5">Curso gratuito completo para artistas</p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-violet-200 group-hover:translate-x-1 transition-transform shrink-0" />
+            </Link>
           </section>
 
           <section>
             <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/[0.04] shadow-2xl">
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <img src={kitPlanilha} alt="Planilha de controle do artista" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07070d] via-black/20 to-transparent" />
+              <div className="relative bg-gradient-to-br from-emerald-950/40 to-black/40">
+                <img src={kitPlanilha} alt="Planilha de controle do artista" className="w-full h-auto object-contain" />
                 <div className="absolute top-4 left-4 px-3 py-1 rounded-md bg-emerald-500 text-[10px] font-bold text-white shadow-lg uppercase tracking-wider">
-                  Gratis
+                  Grátis
                 </div>
               </div>
+
 
               <div className="p-6 sm:p-7">
                 {unlocked ? (
