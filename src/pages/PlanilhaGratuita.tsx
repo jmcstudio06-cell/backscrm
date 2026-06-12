@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
+  BookOpen,
   CheckCircle2,
   Download,
   Gift,
