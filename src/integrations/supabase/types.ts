@@ -1072,22 +1072,31 @@ export type Database = {
       }
       guide_leads: {
         Row: {
+          city: string | null
           created_at: string
           id: string
           name: string
           phone: string
+          shows_per_month: string | null
+          source: string | null
         }
         Insert: {
+          city?: string | null
           created_at?: string
           id?: string
           name: string
           phone: string
+          shows_per_month?: string | null
+          source?: string | null
         }
         Update: {
+          city?: string | null
           created_at?: string
           id?: string
           name?: string
           phone?: string
+          shows_per_month?: string | null
+          source?: string | null
         }
         Relationships: []
       }
