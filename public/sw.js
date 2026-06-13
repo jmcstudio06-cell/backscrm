@@ -82,6 +82,16 @@ self.addEventListener("push", (event) => {
       };
 
       await self.registration.showNotification(data.title, options);
+
+      // Ask any open clients to play the notification sound (foreground UX).
+      try {
+        const windows = await clients.matchAll({ type: "window", includeUncontrolled: true });
+        for (const client of windows) {
+          client.postMessage({ type: "PLAY_NOTIFICATION_SOUND" });
+        }
+      } catch {
+        // ignore
+      }
     })(),
   );
 });
