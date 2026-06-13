@@ -313,6 +313,65 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
   return sendToUsers(supabase, uniqueUsers, "📊 Meta Mensal", message.trim(), "/metas", vapidPub, vapidPriv, vapidSub, "monthly_goal");
 }
 
+// ---- Plan expiring (monthly subscriptions only) ----
+async function handlePlanExpiring(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
+  // Only monthly paid plans (mensal_*). Anual users are not warned.
+  const { data: monthlyUsers } = await supabase
+    .from("profiles")
+    .select("user_id, plan, trial_start, updated_at, artist_name, name")
+    .like("plan", "mensal_%");
+
+  if (!monthlyUsers || monthlyUsers.length === 0) return 0;
+
+  const PLAN_DURATION_DAYS = 30;
+  const TRIGGER_DAYS = new Set([5, 3, 0]);
+  const now = Date.now();
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+  // Group users by daysRemaining so we send one push per bucket.
+  const buckets = new Map<number, string[]>();
+  for (const u of monthlyUsers) {
+    const startSrc = u.trial_start || u.updated_at;
+    if (!startSrc) continue;
+    const start = new Date(startSrc).getTime();
+    if (Number.isNaN(start)) continue;
+    const diffDays = Math.floor((now - start) / MS_PER_DAY);
+    const daysRemaining = PLAN_DURATION_DAYS - diffDays;
+    if (!TRIGGER_DAYS.has(daysRemaining)) continue;
+    if (!buckets.has(daysRemaining)) buckets.set(daysRemaining, []);
+    buckets.get(daysRemaining)!.push(u.user_id);
+  }
+
+  if (buckets.size === 0) return 0;
+
+  const messageFor = (days: number) => {
+    if (text) return text.replace(/{days}/g, String(days));
+    if (days === 0) {
+      return "⏰ Sua assinatura mensal vence HOJE! Renove agora para continuar com o benefício mensal — depois do vencimento só o plano anual fica disponível por um tempo. 💙";
+    }
+    if (days === 1) {
+      return "💙 Sua assinatura mensal vence amanhã. Renove hoje para manter o benefício mensal — atrasou, o próximo acesso só pelo plano anual.";
+    }
+    return `💙 Sua assinatura mensal vence em ${days} dias. Renove a tempo para manter o benefício mensal — se atrasar, o próximo acesso só pelo plano anual.`;
+  };
+
+  const titleFor = (days: number) => {
+    if (days === 0) return "⏰ Sua assinatura vence hoje";
+    if (days === 1) return "💙 Sua assinatura vence amanhã";
+    return `💙 Sua assinatura vence em ${days} dias`;
+  };
+
+  let totalSent = 0;
+  for (const [days, userIds] of buckets) {
+    const sent = await sendToUsers(
+      supabase, userIds, titleFor(days), messageFor(days), "/planos",
+      vapidPub, vapidPriv, vapidSub, "plan_expiring",
+    );
+    totalSent += sent;
+    console.log(`[PlanExpiring] D-${days}: ${userIds.length} users, ${sent} push sent`);
+  }
+  return totalSent;
+
 // ---- Main handler ----
 serve(async (req) => {
   if (req.method === "OPTIONS") {
