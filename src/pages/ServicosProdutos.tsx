@@ -94,11 +94,17 @@ export default function ServicosProdutos() {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
+  const getTotalPrice = (p: any) => {
+    const ids: string[] = p.musician_ids || [];
+    const mTotal = ids.reduce((s, id) => s + (musicians.find(mu => mu.id === id)?.rate || 0), 0);
+    return (p.price || 0) + mTotal;
+  };
+
   const filtered = performanceTypes
     .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      if (sortBy === "price_asc") return (a.price || 0) - (b.price || 0);
-      if (sortBy === "price_desc") return (b.price || 0) - (a.price || 0);
+      if (sortBy === "price_asc") return getTotalPrice(a) - getTotalPrice(b);
+      if (sortBy === "price_desc") return getTotalPrice(b) - getTotalPrice(a);
       return a.name.localeCompare(b.name, "pt-BR");
     });
 
