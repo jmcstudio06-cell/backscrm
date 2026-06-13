@@ -501,6 +501,9 @@ serve(async (req) => {
           case "weekly_motivation":
             sent = await handleWeeklyMotivation(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
             break;
+          case "plan_expiring":
+            sent = await handlePlanExpiring(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
+            break;
           default:
             console.log(`[Automations] Unknown key: ${setting.setting_key}`);
         }
