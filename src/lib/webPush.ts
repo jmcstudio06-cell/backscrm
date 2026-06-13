@@ -51,7 +51,7 @@ export async function ensurePushServiceWorker(): Promise<ServiceWorkerRegistrati
     throw new Error("Service Worker not supported");
   }
 
-  const registration = await navigator.serviceWorker.register("/sw.js?v=5", { scope: "/" });
+  const registration = await navigator.serviceWorker.register("/sw.js?v=6", { scope: "/" });
 
   // Força buscar versão nova do SW (evita SW “preso”)
   try {

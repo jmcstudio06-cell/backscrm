@@ -142,6 +142,17 @@ const AUTOMATION_CONFIG = [
     configType: null,
     defaultConfig: {},
   },
+  {
+    key: "plan_expiring",
+    icon: Calendar,
+    title: "Mensalidade Vencendo",
+    description:
+      "Avisar clientes do plano mensal 5, 3 e 0 dias antes do vencimento (renove para manter o benefício mensal — caso contrário só fica disponível o plano anual). Use {days} no texto para o número de dias.",
+    configField: null,
+    configLabel: null,
+    configType: null,
+    defaultConfig: {},
+  },
 ];
 
 const ACTION_URLS = [
