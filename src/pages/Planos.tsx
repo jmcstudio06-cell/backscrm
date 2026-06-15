@@ -226,13 +226,21 @@ export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [monthlyBlocked, setMonthlyBlocked] = useState(false);
 
   useEffect(() => {
     async function fetchPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
-      if (data) setUserPlan(data.plan);
+      const { data } = await supabase.from("profiles").select("plan, feature_blocks").eq("user_id", user.id).maybeSingle();
+      if (data) {
+        setUserPlan(data.plan);
+        const fb = (data.feature_blocks ?? {}) as Record<string, boolean>;
+        if (fb.block_monthly_billing === true) {
+          setMonthlyBlocked(true);
+          setIsYearly(true);
+        }
+      }
     }
     fetchPlan();
   }, []);
@@ -287,16 +295,18 @@ export default function Planos() {
 
         <div className="flex justify-center mb-10">
           <div className="flex bg-muted p-1 rounded-full border">
-            <button
-              onClick={() => setIsYearly(false)}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2",
-                !isYearly ? "bg-white shadow text-foreground" : "text-muted-foreground",
-              )}
-            >
-              <CalendarDays className="w-4 h-4" />
-              Mensal
-            </button>
+            {!monthlyBlocked && (
+              <button
+                onClick={() => setIsYearly(false)}
+                className={cn(
+                  "px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2",
+                  !isYearly ? "bg-white shadow text-foreground" : "text-muted-foreground",
+                )}
+              >
+                <CalendarDays className="w-4 h-4" />
+                Mensal
+              </button>
+            )}
             <button
               onClick={() => setIsYearly(true)}
               className={cn(
@@ -309,6 +319,11 @@ export default function Planos() {
             </button>
           </div>
         </div>
+        {monthlyBlocked && (
+          <p className="text-center text-xs text-muted-foreground -mt-6 mb-8 font-medium">
+            Apenas planos anuais estão disponíveis para sua conta.
+          </p>
+        )}
 
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

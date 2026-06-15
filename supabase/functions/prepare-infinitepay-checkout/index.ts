@@ -68,6 +68,21 @@ serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    if (planKey.startsWith("mensal_")) {
+      const { data: profile } = await adminClient
+        .from("profiles")
+        .select("feature_blocks")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const fb = (profile?.feature_blocks ?? {}) as Record<string, boolean>;
+      if (fb.block_monthly_billing === true) {
+        return new Response(
+          JSON.stringify({ error: "Plano mensal indisponível para sua conta. Escolha um plano anual." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     const { error: cancelError } = await adminClient
       .from("pending_payments")
       .update({ status: "cancelled" })

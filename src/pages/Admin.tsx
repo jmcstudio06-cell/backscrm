@@ -669,6 +669,25 @@ export default function Admin() {
                         </div>
                       )}
 
+                      {/* Billing Cycle Restriction */}
+                      <div className={`p-4 border rounded-xl flex items-center justify-between ${parseFeatureBlocks(userProfile.feature_blocks)["block_monthly_billing"] === true ? "bg-amber-500/5 border-amber-500/30" : "bg-background"}`}>
+                        <div>
+                          <p className="font-bold text-sm">Bloquear Plano Mensal</p>
+                          <p className="text-xs text-muted-foreground">Quando ativo, o usuário só verá e poderá assinar planos anuais.</p>
+                        </div>
+                        <Switch
+                          checked={parseFeatureBlocks(userProfile.feature_blocks)["block_monthly_billing"] === true}
+                          onCheckedChange={async (checked) => {
+                            const currentBlocks = parseFeatureBlocks(userProfile.feature_blocks);
+                            const newBlocks = { ...currentBlocks, block_monthly_billing: checked };
+                            const { error } = await supabase.from("profiles").update({ feature_blocks: newBlocks }).eq("user_id", userProfile.user_id);
+                            if (error) { toast.error("Erro ao atualizar"); return; }
+                            setUsers(prev => prev.map(u => u.user_id === userProfile.user_id ? { ...u, feature_blocks: newBlocks } : u));
+                            toast.success(checked ? "Plano mensal bloqueado" : "Plano mensal liberado");
+                          }}
+                        />
+                      </div>
+
                       {/* Module Management */}
                       <div>
                         <Label className="text-xs font-bold uppercase text-muted-foreground mb-3 block">Módulos do Plano</Label>
