@@ -226,13 +226,21 @@ export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [monthlyBlocked, setMonthlyBlocked] = useState(false);
 
   useEffect(() => {
     async function fetchPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle();
-      if (data) setUserPlan(data.plan);
+      const { data } = await supabase.from("profiles").select("plan, feature_blocks").eq("user_id", user.id).maybeSingle();
+      if (data) {
+        setUserPlan(data.plan);
+        const fb = (data.feature_blocks ?? {}) as Record<string, boolean>;
+        if (fb.block_monthly_billing === true) {
+          setMonthlyBlocked(true);
+          setIsYearly(true);
+        }
+      }
     }
     fetchPlan();
   }, []);
