@@ -151,14 +151,14 @@ const plans: PlanDef[] = [
 function UrgencyBanner() {
   return (
     <div className="max-w-5xl mx-auto mb-8">
-      <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-5 shadow-xl border border-red-400/30">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-5 shadow-xl border border-blue-400/30">
         <div className="flex items-center gap-3 justify-center">
-          <div className="bg-white/20 rounded-full p-2.5 animate-pulse">
-            <AlertTriangle className="w-6 h-6 text-white" />
+          <div className="bg-white/20 rounded-full p-2.5">
+            <Shield className="w-6 h-6 text-white" />
           </div>
           <div className="text-center">
-            <p className="text-white font-bold text-lg">Oferta por tempo limitado</p>
-            <p className="text-white/90 text-sm font-medium">Os valores podem voltar ao normal sem aviso prévio.</p>
+            <p className="text-white font-bold text-lg">Preço Fixo Garantido</p>
+            <p className="text-white/90 text-sm font-medium">Clientes que aderem à plataforma e mantêm a assinatura em dia permanecem sempre com esse valor.</p>
           </div>
         </div>
       </div>
