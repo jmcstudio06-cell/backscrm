@@ -1,21 +1,11 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { ChevronRight, Instagram } from "lucide-react";
+import { useMonthlyRanking } from "@/hooks/useMonthlyRanking";
 
 const INSTAGRAM_POST_URL = "https://www.instagram.com/p/DXxfzcmD55S/";
 
 export function RankingTeaser() {
-  const [hasData, setHasData] = useState(false);
-
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.rpc("get_monthly_show_ranking");
-      if (data && data.length > 0) setHasData(true);
-    };
-    fetch();
-  }, []);
-
-  if (!hasData) return null;
+  const { data = [] } = useMonthlyRanking();
+  if (data.length === 0) return null;
 
   return (
     <a

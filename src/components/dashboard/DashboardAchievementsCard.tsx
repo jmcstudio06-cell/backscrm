@@ -3,6 +3,7 @@ import { Trophy, Crown, Medal, Award, ArrowRight, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useMonthlyRanking } from "@/hooks/useMonthlyRanking";
 import { cn } from "@/lib/utils";
 
 interface BadgeRow {
@@ -17,33 +18,32 @@ const BADGE_ICONS: Record<string, { icon: typeof Crown; color: string; label: st
 
 export function DashboardAchievementsCard() {
   const { user } = useAuth();
-  const [position, setPosition] = useState<number | null>(null);
-  const [totalArtists, setTotalArtists] = useState(0);
+  const { data: ranking = [], isLoading: rankingLoading } = useMonthlyRanking();
   const [badges, setBadges] = useState<BadgeRow[]>([]);
-  const [showCount, setShowCount] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const [badgesLoaded, setBadgesLoaded] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    const fetch = async () => {
-      const [rankRes, badgeRes] = await Promise.all([
-        supabase.rpc("get_monthly_show_ranking"),
-        supabase.from("artist_badges").select("badge_type").eq("user_id", user.id),
-      ]);
-
-      if (rankRes.data) {
-        setTotalArtists(rankRes.data.length);
-        const idx = rankRes.data.findIndex((r: any) => r.user_id === user.id);
-        if (idx >= 0) {
-          setPosition(idx + 1);
-          setShowCount((rankRes.data[idx] as any).show_count || 0);
-        }
-      }
-      if (badgeRes.data) setBadges(badgeRes.data as BadgeRow[]);
-      setLoaded(true);
+    let cancelled = false;
+    supabase
+      .from("artist_badges")
+      .select("badge_type")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data) setBadges(data as BadgeRow[]);
+        setBadgesLoaded(true);
+      });
+    return () => {
+      cancelled = true;
     };
-    fetch();
   }, [user]);
+
+  const totalArtists = ranking.length;
+  const idx = user ? ranking.findIndex((r) => r.user_id === user.id) : -1;
+  const position = idx >= 0 ? idx + 1 : null;
+  const showCount = idx >= 0 ? Number(ranking[idx].show_count) || 0 : 0;
+  const loaded = !rankingLoading && badgesLoaded;
 
   if (!loaded) return null;
   if (position === null && badges.length === 0) return null;
