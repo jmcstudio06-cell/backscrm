@@ -371,6 +371,7 @@ async function handlePlanExpiring(supabase: any, _config: any, text: string, vap
     console.log(`[PlanExpiring] D-${days}: ${userIds.length} users, ${sent} push sent`);
   }
   return totalSent;
+}
 
 // ---- Main handler ----
 serve(async (req) => {
