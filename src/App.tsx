@@ -53,7 +53,7 @@ import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
 import Selos from "./pages/Selos";
 import Notificacoes from "./pages/Notificacoes";
 import Sugestoes from "./pages/Sugestoes";
-import Consultoria from "./pages/Consultoria";
+// import Consultoria from "./pages/Consultoria"; // temporariamente desativado
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
@@ -147,7 +147,7 @@ const App = () => (
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 <Route path="/sugestoes" element={<AuthPage><Sugestoes /></AuthPage>} />
-                <Route path="/consultoria" element={<AuthPage><Consultoria /></AuthPage>} />
+                {/* <Route path="/consultoria" element={<AuthPage><Consultoria /></AuthPage>} /> */}
                 <Route path="/link-instagram" element={<AuthPage featureKey="link-instagram"><LinkInstagramConfig /></AuthPage>} />
                 
                 <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />

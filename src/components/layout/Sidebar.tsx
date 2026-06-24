@@ -109,7 +109,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
-  { icon: GraduationCap, label: "Consultoria", path: "/consultoria" },
+  
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
