@@ -72,7 +72,7 @@ const menuItems: MenuItem[] = [
     label: "Área Comercial",
     children: [
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
-      { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
+      { icon: TrendingUp, label: "CRM do Artista", path: "/crm", featureKey: "crm" },
       { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "servicos" },
       { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
       { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
