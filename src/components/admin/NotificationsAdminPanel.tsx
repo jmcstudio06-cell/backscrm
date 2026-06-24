@@ -160,7 +160,7 @@ const ACTION_URLS = [
   { value: "/agenda", label: "Agenda de Shows" },
   { value: "/financeiro", label: "Financeiro" },
   { value: "/metas", label: "Metas" },
-  { value: "/crm", label: "Radar de Shows" },
+  { value: "/crm", label: "CRM do Artista" },
   { value: "/checklist", label: "Checklist" },
 ];
 

@@ -226,7 +226,7 @@ export default function CRM() {
 
   if (loading) {
     return (
-      <Layout title="Radar de Shows" subtitle="Oportunidades de shows na sua região">
+      <Layout title="CRM do Artista" subtitle="Oportunidades de shows na sua região">
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Carregando...</p>
         </div>
@@ -235,7 +235,7 @@ export default function CRM() {
   }
 
   return (
-    <Layout title="Radar de Shows" subtitle="Acompanhe oportunidades de shows na sua região">
+    <Layout title="CRM do Artista" subtitle="Acompanhe oportunidades de shows na sua região">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
