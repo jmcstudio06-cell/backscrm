@@ -14,8 +14,9 @@ export interface MonthlyRankingRow {
 export function useMonthlyRanking() {
   return useQuery({
     queryKey: ["monthly-show-ranking"],
-    staleTime: 15 * 60 * 1000, // 15 min — ranking muda lentamente
-    gcTime: 60 * 60 * 1000,
+    staleTime: 60 * 60 * 1000, // 1h — ranking muda lentamente
+    gcTime: 4 * 60 * 60 * 1000,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     queryFn: async (): Promise<MonthlyRankingRow[]> => {
       const { data, error } = await supabase.rpc("get_monthly_show_ranking");
