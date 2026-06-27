@@ -22,8 +22,9 @@ export function useNotifications() {
   const { data: notifications = [], isLoading: loading, refetch } = useQuery({
     queryKey,
     enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 min — realtime mantém atualizado
-    gcTime: 30 * 60 * 1000,
+    staleTime: 30 * 60 * 1000, // 30 min — realtime mantém novas notificações atualizado
+    gcTime: 2 * 60 * 60 * 1000,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     queryFn: async (): Promise<AppNotification[]> => {
       if (!user) return [];
