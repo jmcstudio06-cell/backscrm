@@ -30,7 +30,10 @@ export function useGoals() {
       return (data || []) as Goal[];
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 15 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const addGoal = async (goalData: Partial<Goal>) => {

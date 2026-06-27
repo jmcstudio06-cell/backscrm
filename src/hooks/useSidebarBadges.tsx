@@ -75,7 +75,10 @@ export function useSidebarBadges() {
       return buildBadgeData("agenda", (data ?? []).map((show) => show.id));
     },
     enabled: !!user,
-    staleTime: 30_000,
+    staleTime: 10 * 60_000,
+    gcTime: 60 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   // Checklist é 100% local agora — usamos apenas IDs dos shows confirmados
@@ -94,7 +97,10 @@ export function useSidebarBadges() {
       return buildBadgeData("checklist", (shows ?? []).map((show) => show.id));
     },
     enabled: !!user,
-    staleTime: 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 60 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const { data: historicoData = EMPTY_BADGE } = useQuery({
@@ -111,7 +117,10 @@ export function useSidebarBadges() {
       return buildBadgeData("historico", (data ?? []).map((show) => show.id));
     },
     enabled: !!user,
-    staleTime: 30_000,
+    staleTime: 10 * 60_000,
+    gcTime: 60 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const dismiss = useCallback(
