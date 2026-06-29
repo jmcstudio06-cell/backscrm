@@ -277,10 +277,6 @@ const Landing = () => {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
-              <p className="text-white/70 text-xs sm:text-sm max-w-xl mx-auto lg:mx-0 -mt-3 mb-5 sm:mb-6">
-                Teste de 3 horas gratis no modo trial
-              </p>
-
               {/* Trust signals */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 text-white/80 text-xs sm:text-sm mb-6 sm:mb-8">
                 <div className="flex items-center gap-1">
