@@ -52,12 +52,16 @@ export function CompactCareerHero({
       <div className="relative flex items-start justify-between gap-4 p-5 sm:p-6 border-b border-border/60">
         <div className="flex items-center gap-3 min-w-0">
           <div className={cn(
-            "w-12 h-12 rounded-lg flex items-center justify-center shadow-md shrink-0 bg-gradient-to-br",
+            "w-12 h-12 rounded-lg flex items-center justify-center shadow-md shrink-0 overflow-hidden bg-gradient-to-br",
             level.color
           )}>
-            <span className="text-white text-lg font-extrabold tracking-tight">
-              {artistName.charAt(0).toUpperCase()}
-            </span>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={artistName} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white text-lg font-extrabold tracking-tight">
+                {artistName.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
