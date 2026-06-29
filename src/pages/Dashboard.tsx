@@ -511,6 +511,7 @@ const Dashboard = () => {
         {/* #1 Hero compacto: nome, nível, 4 stats inline, meta mensal */}
         <CompactCareerHero
           artistName={profile?.name || "Artista"}
+          avatarUrl={profile?.avatar_url || null}
           totalRevenue={totalAllTimeRevenue}
           completedShowsCount={completedShowsAllTime}
           bestFee={bestFeeShow}
