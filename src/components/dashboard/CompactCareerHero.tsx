@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface CompactCareerHeroProps {
   artistName: string;
+  avatarUrl?: string | null;
   totalRevenue: number;
   completedShowsCount: number;
   bestFee: { value: number; showTitle: string } | null;
