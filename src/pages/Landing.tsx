@@ -68,6 +68,7 @@ const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzh
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
 
 const DEMO_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Gostaria de solicitar uma demo do Backstage Pro.");
+const SUPPORT_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Tenho dúvidas sobre o Backstage Pro e gostaria de falar com um atendente humano.");
 
 
 const plans = [
@@ -859,7 +860,7 @@ const Landing = () => {
 
       {/* Floating WhatsApp Button */}
       <a
-        href="https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Tenho dúvidas sobre o Backstage Pro e gostaria de falar com um atendente humano.")
+        href={SUPPORT_WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold px-4 py-3 rounded-full shadow-2xl hover:scale-105 transition-all duration-200"
