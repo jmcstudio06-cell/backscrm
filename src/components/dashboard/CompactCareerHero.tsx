@@ -28,6 +28,7 @@ const fmtBRL = (v: number) =>
 
 export function CompactCareerHero({
   artistName,
+  avatarUrl,
   totalRevenue,
   completedShowsCount,
   bestFee,
