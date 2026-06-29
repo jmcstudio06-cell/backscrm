@@ -68,6 +68,7 @@ const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzh
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
 
 const DEMO_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Gostaria de solicitar uma demo do Backstage Pro.");
+const SUPPORT_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Tenho dúvidas sobre o Backstage Pro e gostaria de falar com um atendente humano.");
 
 
 const plans = [
@@ -269,7 +270,7 @@ const Landing = () => {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 sm:gap-4 mb-5 sm:mb-6 mt-6">
                 <Button
-                  onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
+                  onClick={() => navigate('/auth')}
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/95 hover:scale-[1.02] font-bold px-6 sm:px-8 py-6 text-base sm:text-lg shadow-2xl shadow-black/30 transition-all duration-200 w-full sm:w-auto"
                 >
@@ -842,7 +843,7 @@ const Landing = () => {
 
               <Button 
                 size="lg"
-                onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
+                onClick={() => navigate('/auth')}
                 className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
                 Teste gratis
@@ -856,6 +857,17 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Floating WhatsApp Button */}
+      <a
+        href={SUPPORT_WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold px-4 py-3 rounded-full shadow-2xl hover:scale-105 transition-all duration-200"
+      >
+        <MessageCircle className="w-5 h-5 fill-white" />
+        <span className="hidden sm:inline text-sm">Tirar dúvidas com atendente</span>
+      </a>
 
       {/* Footer */}
       <footer className="py-12 bg-slate-100 border-t border-slate-200">
