@@ -270,11 +270,11 @@ const Landing = () => {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 sm:gap-4 mb-5 sm:mb-6 mt-6">
                 <Button
-                  onClick={() => navigate('/auth')}
+                  onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/95 hover:scale-[1.02] font-bold px-6 sm:px-8 py-6 text-base sm:text-lg shadow-2xl shadow-black/30 transition-all duration-200 w-full sm:w-auto"
                 >
-                  Teste gratis
+                  Solicitar demo
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
@@ -404,7 +404,7 @@ const Landing = () => {
           size="lg"
           className="w-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] hover:from-[#0055BB] hover:to-[#00A0C4] text-white font-bold py-5 text-base shadow-lg shadow-blue-500/30"
         >
-          Teste gratis
+          Solicitar demo
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
@@ -577,7 +577,7 @@ const Landing = () => {
                 className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
                 onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
               >
-                Teste gratis
+                Solicitar demo
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
@@ -838,15 +838,15 @@ const Landing = () => {
               
               <p className="text-white/80 max-w-xl mx-auto mb-8">
                 Junte-se a milhares de artistas que já estão crescendo com o Backstage Pro. 
-                Comece hoje mesmo, é grátis por 3 dias!
+                Agende uma demonstração personalizada com nosso time.
               </p>
 
               <Button 
                 size="lg"
-                onClick={() => navigate('/auth')}
+                onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
                 className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
-                Teste gratis
+                Solicitar demo
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
