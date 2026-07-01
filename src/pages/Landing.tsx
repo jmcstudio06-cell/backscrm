@@ -577,7 +577,7 @@ const Landing = () => {
                 className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
                 onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
               >
-                Teste gratis
+                Solicitar demo
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
