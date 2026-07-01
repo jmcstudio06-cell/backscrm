@@ -405,6 +405,36 @@ export default function LinkInstagram() {
           </section>
         )}
 
+        {/* SPOTIFY */}
+        {spotifyEmbed && (
+          <section className="relative">
+            <div className="absolute -inset-4 bg-gradient-to-b from-transparent via-green-500/15 to-transparent blur-3xl pointer-events-none" />
+            <div className="flex items-end justify-between mb-4 px-1">
+              <h2
+                style={{ fontFamily: "'Syne', sans-serif" }}
+                className="text-2xl md:text-3xl font-bold tracking-tight"
+              >
+                Ouça no Spotify
+              </h2>
+              <span className="text-[10px] text-white/40 uppercase tracking-[0.25em] font-bold">
+                Original sound
+              </span>
+            </div>
+            <div className="relative rounded-[2rem] overflow-hidden border border-white/10 bg-black/40 shadow-2xl shadow-black/50">
+              <iframe
+                src={spotifyEmbed}
+                title="Spotify"
+                width="100%"
+                height="352"
+                frameBorder={0}
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+                className="block"
+              />
+            </div>
+          </section>
+        )}
+
         {/* CTA */}
         {(() => {
           if (!profile.slug) return null;
