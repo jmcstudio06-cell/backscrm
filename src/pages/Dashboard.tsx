@@ -13,8 +13,8 @@ import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModa
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
+import { PromoBannerCarousel } from "@/components/dashboard/PromoBannerCarousel";
 import { RenewSoonBanner } from "@/components/dashboard/RenewSoonBanner";
-import { PartnerAdBanner } from "@/components/dashboard/PartnerAdBanner";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
@@ -492,11 +492,12 @@ const Dashboard = () => {
         {/* Ranking Teaser - removido temporariamente */}
         {false && <RankingTeaser />}
 
+        {/* Carrossel de banners promocionais (Backs Radar + Ranking de Shows) */}
+        <PromoBannerCarousel />
+
         {/* Aviso de renovação (mensal próximo do vencimento) */}
         <RenewSoonBanner />
 
-        {/* Backs Radar - App parceiro */}
-        <PartnerAdBanner />
 
 
         {/* Próxima consultoria / apresentação — temporariamente desativado */}
