@@ -113,6 +113,14 @@ export default function LinkInstagram() {
     return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null;
   }, [profile?.show_video_url]);
 
+  const spotifyEmbed = useMemo(() => {
+    const url = profile?.spotify_url;
+    if (!url) return null;
+    const m = url.match(/open\.spotify\.com\/(intl-[a-z]+\/)?(artist|album|track|playlist|episode|show)\/([A-Za-z0-9]+)/);
+    if (!m) return null;
+    return `https://open.spotify.com/embed/${m[2]}/${m[3]}?utm_source=generator&theme=0`;
+  }, [profile?.spotify_url]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
