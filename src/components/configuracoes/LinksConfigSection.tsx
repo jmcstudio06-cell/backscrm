@@ -60,8 +60,8 @@ export function LinksConfigSection() {
           {/* LINK INSTAGRAM */}
           <LinkCard
             icon={Instagram}
-            title="Link na bio"
-            description="Press kit visual com vídeo, redes, mídia kit e botão de agenda — perfeito para a bio do Instagram"
+            title="Link Mídia Kit"
+            description="Press kit profissional com vídeo, Spotify, redes sociais e botão de agenda — perfeito para bio do Instagram"
             url={instagramUrl}
             blocked={instagramBlocked}
             planName="Profissional"

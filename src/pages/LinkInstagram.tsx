@@ -113,6 +113,14 @@ export default function LinkInstagram() {
     return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null;
   }, [profile?.show_video_url]);
 
+  const spotifyEmbed = useMemo(() => {
+    const url = profile?.spotify_url;
+    if (!url) return null;
+    const m = url.match(/open\.spotify\.com\/(intl-[a-z]+\/)?(artist|album|track|playlist|episode|show)\/([A-Za-z0-9]+)/);
+    if (!m) return null;
+    return `https://open.spotify.com/embed/${m[2]}/${m[3]}?utm_source=generator&theme=0`;
+  }, [profile?.spotify_url]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
@@ -393,6 +401,36 @@ export default function LinkInstagram() {
                   </button>
                 )}
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* SPOTIFY */}
+        {spotifyEmbed && (
+          <section className="relative">
+            <div className="absolute -inset-4 bg-gradient-to-b from-transparent via-green-500/15 to-transparent blur-3xl pointer-events-none" />
+            <div className="flex items-end justify-between mb-4 px-1">
+              <h2
+                style={{ fontFamily: "'Syne', sans-serif" }}
+                className="text-2xl md:text-3xl font-bold tracking-tight"
+              >
+                Ouça no Spotify
+              </h2>
+              <span className="text-[10px] text-white/40 uppercase tracking-[0.25em] font-bold">
+                Original sound
+              </span>
+            </div>
+            <div className="relative rounded-[2rem] overflow-hidden border border-white/10 bg-black/40 shadow-2xl shadow-black/50">
+              <iframe
+                src={spotifyEmbed}
+                title="Spotify"
+                width="100%"
+                height="352"
+                frameBorder={0}
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+                className="block"
+              />
             </div>
           </section>
         )}
