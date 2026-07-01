@@ -68,6 +68,7 @@ const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzh
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
 
 const DEMO_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Gostaria de solicitar uma demo do Backstage Pro.");
+const SUPPORT_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Tenho dúvidas sobre o Backstage Pro e gostaria de falar com um atendente humano.");
 
 
 const plans = [
@@ -273,11 +274,10 @@ const Landing = () => {
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/95 hover:scale-[1.02] font-bold px-6 sm:px-8 py-6 text-base sm:text-lg shadow-2xl shadow-black/30 transition-all duration-200 w-full sm:w-auto"
                 >
-                  Agendar demo
+                  Solicitar demo
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
-
               {/* Trust signals */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 text-white/80 text-xs sm:text-sm mb-6 sm:mb-8">
                 <div className="flex items-center gap-1">
@@ -404,7 +404,7 @@ const Landing = () => {
           size="lg"
           className="w-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] hover:from-[#0055BB] hover:to-[#00A0C4] text-white font-bold py-5 text-base shadow-lg shadow-blue-500/30"
         >
-          Agendar demo
+          Solicitar demo
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
@@ -577,7 +577,7 @@ const Landing = () => {
                 className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
                 onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
               >
-                Agendar demo
+                Solicitar demo
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
@@ -838,7 +838,7 @@ const Landing = () => {
               
               <p className="text-white/80 max-w-xl mx-auto mb-8">
                 Junte-se a milhares de artistas que já estão crescendo com o Backstage Pro. 
-                Comece hoje mesmo, é grátis por 3 dias!
+                Agende uma demonstração personalizada com nosso time.
               </p>
 
               <Button 
@@ -846,7 +846,7 @@ const Landing = () => {
                 onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
                 className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
-                Agendar demo
+                Solicitar demo
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
@@ -857,6 +857,17 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Floating WhatsApp Button */}
+      <a
+        href={SUPPORT_WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold px-4 py-3 rounded-full shadow-2xl hover:scale-105 transition-all duration-200"
+      >
+        <MessageCircle className="w-5 h-5 fill-white" />
+        <span className="hidden sm:inline text-sm">Tirar dúvidas com atendente</span>
+      </a>
 
       {/* Footer */}
       <footer className="py-12 bg-slate-100 border-t border-slate-200">

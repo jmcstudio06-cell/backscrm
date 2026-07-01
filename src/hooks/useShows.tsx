@@ -317,7 +317,8 @@ export function useShowsData() {
       return allShows.map(normalizeShowRow).filter((s): s is Show => s !== null);
     },
     enabled: !!user,
-    staleTime: 3 * 60 * 1000, // 3 minutes
+    staleTime: 10 * 60 * 1000, // 10 min — add/update/delete invalidam manualmente
+    gcTime: 60 * 60 * 1000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -582,6 +583,15 @@ export function useShowsData() {
   useEffect(() => {
     if (repairRanRef.current || !user || loading || shows.length === 0) return;
     repairRanRef.current = true;
+
+    const todayKey = formatDateString(new Date());
+    const repairKey = `financial_repair_checked_${user.id}`;
+    try {
+      if (localStorage.getItem(repairKey) === todayKey) return;
+      localStorage.setItem(repairKey, todayKey);
+    } catch {
+      // Se localStorage falhar, segue com o reparo normal.
+    }
 
     (async () => {
       try {

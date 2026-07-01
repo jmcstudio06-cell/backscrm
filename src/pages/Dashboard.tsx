@@ -14,7 +14,7 @@ import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalP
 
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { RenewSoonBanner } from "@/components/dashboard/RenewSoonBanner";
-import { NextConsultoriaCard } from "@/components/dashboard/NextConsultoriaCard";
+import { PartnerAdBanner } from "@/components/dashboard/PartnerAdBanner";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
@@ -495,8 +495,12 @@ const Dashboard = () => {
         {/* Aviso de renovação (mensal próximo do vencimento) */}
         <RenewSoonBanner />
 
-        {/* Próxima consultoria / apresentação agendada pelo admin */}
-        <NextConsultoriaCard />
+        {/* Backs Radar - App parceiro */}
+        <PartnerAdBanner />
+
+
+        {/* Próxima consultoria / apresentação — temporariamente desativado */}
+        {/* <NextConsultoriaCard /> */}
 
         {/* #3 Cachês a receber - destaque no topo */}
         <PendingCachetBanner
@@ -507,6 +511,7 @@ const Dashboard = () => {
         {/* #1 Hero compacto: nome, nível, 4 stats inline, meta mensal */}
         <CompactCareerHero
           artistName={profile?.name || "Artista"}
+          avatarUrl={profile?.avatar_url || null}
           totalRevenue={totalAllTimeRevenue}
           completedShowsCount={completedShowsAllTime}
           bestFee={bestFeeShow}

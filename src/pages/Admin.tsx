@@ -79,7 +79,7 @@ const FEATURES: { key: string; label: string }[] = [
   { key: "checklist", label: "Checklist de Show" },
   { key: "checklist", label: "Avanços" },
   { key: "precificacao", label: "Precificação" },
-  { key: "crm", label: "Radar de Shows" },
+  { key: "crm", label: "CRM do Artista" },
   { key: "servicos", label: "Serviços e Produtos" },
   { key: "orcamentos", label: "Orçamento Automático" },
   { key: "contratos", label: "Contrato Automático" },

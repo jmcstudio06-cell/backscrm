@@ -72,7 +72,7 @@ const menuItems: MenuItem[] = [
     label: "Área Comercial",
     children: [
       { icon: DollarSign, label: "Precificação", path: "/precificacao", featureKey: "precificacao" },
-      { icon: TrendingUp, label: "Radar de Shows", path: "/crm", featureKey: "crm" },
+      { icon: TrendingUp, label: "CRM do Artista", path: "/crm", featureKey: "crm" },
       { icon: Package, label: "Serviços e Produtos", path: "/servicos", featureKey: "servicos" },
       { icon: CheckSquare, label: "Contrato Automático", path: "/contratos", featureKey: "contratos" },
       { icon: DollarSign, label: "Orçamento Automático", path: "/orcamentos", featureKey: "orcamentos" },
@@ -105,11 +105,11 @@ const menuItems: MenuItem[] = [
     label: "Links",
     children: [
       { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
-      { icon: Instagram, label: "Link na bio", path: "/link-instagram", featureKey: "link-instagram" },
+      { icon: Instagram, label: "Link Mídia Kit", path: "/link-instagram", featureKey: "link-instagram" },
     ],
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
-  { icon: GraduationCap, label: "Consultoria", path: "/consultoria" },
+  
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];

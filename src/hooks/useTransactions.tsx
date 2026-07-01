@@ -82,7 +82,8 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
       return allTransactions;
     },
     enabled: !!user,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 10 * 60 * 1000, // 10 min — alterações manuais/realtime invalidam o cache
+    gcTime: 60 * 60 * 1000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
