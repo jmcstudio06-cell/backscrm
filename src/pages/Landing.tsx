@@ -404,7 +404,7 @@ const Landing = () => {
           size="lg"
           className="w-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] hover:from-[#0055BB] hover:to-[#00A0C4] text-white font-bold py-5 text-base shadow-lg shadow-blue-500/30"
         >
-          Teste gratis
+          Solicitar demo
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
