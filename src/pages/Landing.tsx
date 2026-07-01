@@ -838,15 +838,15 @@ const Landing = () => {
               
               <p className="text-white/80 max-w-xl mx-auto mb-8">
                 Junte-se a milhares de artistas que já estão crescendo com o Backstage Pro. 
-                Comece hoje mesmo, é grátis por 3 dias!
+                Agende uma demonstração personalizada com nosso time.
               </p>
 
               <Button 
                 size="lg"
-                onClick={() => navigate('/auth')}
+                onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
                 className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
-                Teste gratis
+                Solicitar demo
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
