@@ -270,11 +270,11 @@ const Landing = () => {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 sm:gap-4 mb-5 sm:mb-6 mt-6">
                 <Button
-                  onClick={() => navigate('/auth')}
+                  onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/95 hover:scale-[1.02] font-bold px-6 sm:px-8 py-6 text-base sm:text-lg shadow-2xl shadow-black/30 transition-all duration-200 w-full sm:w-auto"
                 >
-                  Teste gratis
+                  Solicitar demo
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
