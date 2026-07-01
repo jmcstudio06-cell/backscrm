@@ -3,25 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { BarChart3, ChevronRight, ExternalLink, Sparkles, Trophy } from "lucide-react";
 import backsRadarBanner from "@/assets/backs-radar-banner.png.asset.json";
 
-const INTERVAL_MS = 5000;
+const INTERVAL_MS = 10000; // 10 segundos agora!
 const BACKSRADAR_URL = "https://backsradar.com.br";
 
-// ─── Banner 1: Backs Radar (usa a imagem real do asset) ──────────────────────
+// ─── Banner 1: Backs Radar ───────────────────────────────────────────────────
 function BacksRadarBanner() {
   return (
     <a
       href={BACKSRADAR_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative block w-full overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card transition-all duration-500 hover:shadow-elevated hover:scale-[1.005] animate-fade-in"
+      className="group relative flex w-full h-[280px] sm:h-[180px] lg:h-[160px] overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card transition-all duration-500 hover:shadow-elevated hover:scale-[1.005] animate-fade-in"
       style={{ textDecoration: "none" }}
     >
       {/* Hover gradient glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
 
-      <div className="relative flex flex-col sm:flex-row items-stretch">
+      <div className="relative flex flex-col sm:flex-row items-stretch w-full h-full">
         {/* Banner image */}
-        <div className="relative w-full sm:w-[60%] lg:w-[55%] aspect-[2.4/1] sm:aspect-auto overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20">
+        <div className="relative w-full h-[140px] sm:h-full sm:w-[55%] lg:w-[55%] shrink-0 overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20">
           <img
             src={backsRadarBanner.url}
             alt="Backs Radar – App parceiro do Backstage Pro"
@@ -40,15 +40,15 @@ function BacksRadarBanner() {
           </div>
 
           <div>
-            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground leading-tight">
+            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground leading-tight line-clamp-1">
               Encontre shows perto de você
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
               O app parceiro para cantores que querem mais palcos, mais oportunidades e mais audiência.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 mt-1">
+          <div className="flex items-center gap-3 mt-1 sm:mt-auto">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary group-hover:underline underline-offset-4">
               Conhecer agora
               <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -67,7 +67,7 @@ function RankingBanner() {
   return (
     <button
       onClick={() => navigate("/ranking")}
-      className="group relative block w-full overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card transition-all duration-500 hover:shadow-elevated hover:scale-[1.005] animate-fade-in"
+      className="group relative block w-full h-[280px] sm:h-[180px] lg:h-[160px] overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card transition-all duration-500 hover:shadow-elevated hover:scale-[1.005] animate-fade-in"
       style={{
         cursor: "pointer",
         padding: 0,
@@ -79,16 +79,13 @@ function RankingBanner() {
       {/* Hover gradient glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
 
-      {/* Como você pediu, aqui usamos a imagem do banner do Ranking! */}
-      {/* Aviso: Certifique-se de salvar a imagem que você enviou na pasta src/assets/ como "ranking-banner.png" (ou altere o caminho abaixo se necessário) */}
-      <div className="relative w-full aspect-[2.4/1] sm:aspect-[2.8/1] overflow-hidden bg-gradient-to-br from-blue-900 to-blue-950">
+      <div className="relative w-full h-full overflow-hidden bg-gradient-to-br from-blue-900 to-blue-950">
         <img
           src="/ranking-banner.png" 
           alt="Ranking de Shows"
           className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
           loading="lazy"
           onError={(e) => {
-            // Fallback caso a imagem ainda não tenha sido adicionada
             (e.target as HTMLImageElement).src = "https://placehold.co/800x300/0a2056/ffffff?text=Adicione+ranking-banner.png+na+pasta+public";
           }}
         />
@@ -128,9 +125,10 @@ export function PromoBannerCarousel() {
   }, []);
 
   return (
-    <div className="w-full">
+    <div className="w-full relative h-[310px] sm:h-[210px] lg:h-[190px]">
       {/* Banner */}
       <div
+        className="absolute top-0 left-0 w-full"
         style={{
           opacity: fading ? 0 : 1,
           transform: fading ? "translateY(6px) scale(0.99)" : "translateY(0) scale(1)",
@@ -141,7 +139,7 @@ export function PromoBannerCarousel() {
       </div>
 
       {/* Dot indicators */}
-      <div className="flex justify-center gap-1.5 mt-2">
+      <div className="absolute bottom-1 left-0 w-full flex justify-center gap-1.5">
         {BANNERS.map((_, i) => (
           <button
             key={i}
