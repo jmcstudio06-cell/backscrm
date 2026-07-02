@@ -60,7 +60,7 @@ export function PartnerAdBanner() {
   if (isMobile) {
     return (
       <div className="relative w-full">
-        <div className="relative overflow-hidden rounded-2xl border border-primary/20 shadow-card aspect-[2.4/1] w-full">
+        <div className="relative overflow-hidden rounded-2xl border border-primary/20 shadow-card">
           {SLIDES.map((s, i) => (
             <a
               key={s.id}
@@ -69,14 +69,14 @@ export function PartnerAdBanner() {
               rel="noopener noreferrer"
               aria-label={s.title}
               className={cn(
-                "absolute inset-0 block transition-opacity duration-700",
-                i === index ? "opacity-100" : "opacity-0 pointer-events-none"
+                "block w-full transition-opacity duration-700",
+                i === index ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"
               )}
             >
               <img
                 src={s.image}
                 alt={s.alt}
-                className="w-full h-full object-contain"
+                className="w-full h-auto object-cover"
                 loading="lazy"
               />
             </a>
@@ -104,7 +104,7 @@ export function PartnerAdBanner() {
   // Desktop: image + text card, auto-rotating
   return (
     <div className="relative w-full">
-      <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card h-[240px] lg:h-[260px]">
+      <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card">
         {SLIDES.map((s, i) => (
           <a
             key={s.id}
@@ -112,15 +112,17 @@ export function PartnerAdBanner() {
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-              "absolute inset-0 group transition-opacity duration-700 flex flex-row items-stretch",
-              i === index ? "opacity-100" : "opacity-0 pointer-events-none"
+              "group transition-opacity duration-700",
+              i === index
+                ? "opacity-100 relative flex flex-col sm:flex-row items-stretch"
+                : "opacity-0 absolute inset-0 pointer-events-none flex flex-col sm:flex-row items-stretch"
             )}
           >
-            <div className="relative w-[60%] lg:w-[55%] h-full overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20">
+            <div className="relative w-full sm:w-[60%] lg:w-[55%] aspect-[2.4/1] sm:aspect-auto overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20">
               <img
                 src={s.image}
                 alt={s.alt}
-                className="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
                 loading="lazy"
               />
             </div>
