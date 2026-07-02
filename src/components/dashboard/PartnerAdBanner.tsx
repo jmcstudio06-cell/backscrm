@@ -76,7 +76,7 @@ export function PartnerAdBanner() {
               <img
                 src={s.image}
                 alt={s.alt}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 loading="lazy"
               />
             </a>
@@ -120,7 +120,7 @@ export function PartnerAdBanner() {
               <img
                 src={s.image}
                 alt={s.alt}
-                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                className="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-[1.03]"
                 loading="lazy"
               />
             </div>
