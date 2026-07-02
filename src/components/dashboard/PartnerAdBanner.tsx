@@ -60,7 +60,7 @@ export function PartnerAdBanner() {
   if (isMobile) {
     return (
       <div className="relative w-full">
-        <div className="relative overflow-hidden rounded-2xl border border-primary/20 shadow-card">
+        <div className="relative overflow-hidden rounded-2xl border border-primary/20 shadow-card aspect-[2.4/1] w-full">
           {SLIDES.map((s, i) => (
             <a
               key={s.id}
@@ -69,14 +69,14 @@ export function PartnerAdBanner() {
               rel="noopener noreferrer"
               aria-label={s.title}
               className={cn(
-                "block w-full transition-opacity duration-700",
-                i === index ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"
+                "absolute inset-0 block transition-opacity duration-700",
+                i === index ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
               <img
                 src={s.image}
                 alt={s.alt}
-                className="w-full h-auto object-cover"
+                className="w-full h-full object-cover"
                 loading="lazy"
               />
             </a>
