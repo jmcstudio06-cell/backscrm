@@ -30,14 +30,14 @@ const SLIDES: Slide[] = [
   },
   {
     id: "ranking-shows",
-    href: "https://www.instagram.com/p/DXxfzcmD55S/",
+    href: "/ranking",
     image: rankingBanner.url,
     alt: "Ranking de Shows do mês - TOP 3 artistas",
     badge: "Ranking Backstage",
     title: "Confira o Ranking de Shows do mês",
     description:
-      "Veja quem fez mais shows e concorra ao pódio. Divulgado todo mês no nosso Instagram.",
-    cta: "Ver no Instagram",
+      "Veja quem fez mais shows e conquiste o pódio. Atualizado todo mês automaticamente.",
+    cta: "Ver ranking",
   },
 ];
 
