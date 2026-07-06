@@ -83,20 +83,16 @@ export function PartnerAdBanner() {
           ))}
         </div>
 
-        {/* Dots */}
-        <div className="flex items-center justify-center gap-1.5 mt-2">
-          {SLIDES.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => setIndex(i)}
-              aria-label={`Ir para banner ${i + 1}`}
-              className={cn(
-                "h-1.5 rounded-full transition-all",
-                i === index ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
-              )}
-            />
-          ))}
-        </div>
+        {/* CTA link */}
+        <a
+          href={slide.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline underline-offset-4"
+        >
+          {slide.cta}
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
       </div>
     );
   }
