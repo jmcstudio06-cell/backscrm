@@ -8,7 +8,6 @@ import {
   Youtube,
   Music2,
   Globe,
-  ExternalLink,
   FileText,
   ListMusic,
   CalendarDays,
@@ -18,7 +17,7 @@ import {
   User as UserIcon,
   MessageCircle,
   Play,
-  ArrowRight,
+  ChevronRight,
 } from "lucide-react";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
@@ -41,6 +40,8 @@ interface PublicProfile {
   repertoire_url: string | null;
   booking_method?: string | null;
   booking_whatsapp?: string | null;
+  link_bg_image_url?: string | null;
+  link_cover_type?: string | null;
 }
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -48,14 +49,6 @@ const TikTokIcon = ({ className }: { className?: string }) => (
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.94a8.16 8.16 0 0 0 4.77 1.52V7.05a4.85 4.85 0 0 1-1.84-.36z" />
   </svg>
 );
-
-// Quebra "Nome Sobrenome" em duas linhas (primeira palavra em branco, restante em gradiente)
-function splitName(name: string): { first: string; rest: string } {
-  const trimmed = name.trim();
-  const parts = trimmed.split(/\s+/);
-  if (parts.length === 1) return { first: parts[0], rest: "" };
-  return { first: parts[0], rest: parts.slice(1).join(" ") };
-}
 
 export default function LinkInstagram() {
   const { slug } = useParams<{ slug: string }>();
@@ -89,7 +82,7 @@ export default function LinkInstagram() {
       const { data: prof } = await supabase
         .from("profiles")
         .select(
-          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_method, booking_whatsapp"
+          "user_id, slug, artist_name, avatar_url, base_city, music_style, bio, phone, instagram_url, youtube_url, tiktok_url, spotify_url, website_url, media_kit_url, show_video_url, repertoire_url, booking_method, booking_whatsapp, link_bg_image_url, link_cover_type"
         )
         .eq("slug", slug)
         .maybeSingle();
@@ -113,25 +106,17 @@ export default function LinkInstagram() {
     return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null;
   }, [profile?.show_video_url]);
 
-  const spotifyEmbed = useMemo(() => {
-    const url = profile?.spotify_url;
-    if (!url) return null;
-    const m = url.match(/open\.spotify\.com\/(intl-[a-z]+\/)?(artist|album|track|playlist|episode|show)\/([A-Za-z0-9]+)/);
-    if (!m) return null;
-    return `https://open.spotify.com/embed/${m[2]}/${m[3]}?utm_source=generator&theme=0`;
-  }, [profile?.spotify_url]);
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
-        <Loader2 className="w-8 h-8 animate-spin text-sky-300" />
+      <div className="min-h-screen flex items-center justify-center bg-neutral-950">
+        <Loader2 className="w-8 h-8 animate-spin text-white/70" />
       </div>
     );
   }
 
   if (notFound || !profile) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029] p-6 text-center text-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 p-6 text-center text-white">
         <h1 className="text-2xl font-bold mb-2">Link não encontrado</h1>
         <p className="text-white/60 mb-6">Este link de artista não existe ou foi removido.</p>
         <Link to="/" className="text-sky-300 underline">Voltar</Link>
@@ -139,367 +124,317 @@ export default function LinkInstagram() {
     );
   }
 
-  const socials: { Icon: React.ElementType; label: string; url: string | null; dot: string }[] = [
-    { Icon: Instagram, label: "Instagram", url: profile.instagram_url, dot: "bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888]" },
-    { Icon: Youtube, label: "YouTube", url: profile.youtube_url, dot: "bg-red-600" },
-    { Icon: TikTokIcon, label: "TikTok", url: profile.tiktok_url, dot: "bg-white" },
-    { Icon: Music2, label: "Spotify", url: profile.spotify_url, dot: "bg-green-500" },
-    { Icon: Globe, label: "Website", url: profile.website_url, dot: "bg-cyan-400" },
-  ];
-  const visibleSocials = socials.filter((s) => s.url && s.url.trim().length > 0);
-
   const fullName = profile.artist_name || "Artista";
-  const { first, rest } = splitName(fullName);
+  const bgImage = profile.link_bg_image_url || profile.avatar_url || "";
+  const useVideoCover = profile.link_cover_type === "video" && !!embedUrl;
+
+  // Booking URL
+  const customWa = profile.booking_whatsapp ? profile.booking_whatsapp.replace(/\D/g, "") : "";
+  const fallbackWa = profile.phone ? profile.phone.replace(/\D/g, "") : "";
+  const phoneDigits = customWa || fallbackWa;
+  const useWhatsapp = profile.booking_method === "whatsapp" && phoneDigits;
+  const whatsappHref = phoneDigits
+    ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
+        `Olá ${fullName}! Vi seu link e quero agendar um show.`
+      )}`
+    : null;
+  const backstageHref = `/artista/${profile.slug}`;
+
+  // Link rows
+  type Row = {
+    key: string;
+    href: string;
+    external: boolean;
+    label: string;
+    sub: string;
+    Icon: React.ElementType;
+    iconBg: string;
+    iconColor: string;
+  };
+  const rows: Row[] = [];
+
+  if (useWhatsapp && whatsappHref) {
+    rows.push({
+      key: "booking-wa",
+      href: whatsappHref,
+      external: true,
+      label: "Agendar Show",
+      sub: "Conversa direta no WhatsApp",
+      Icon: MessageCircle,
+      iconBg: "bg-[#25D366]",
+      iconColor: "text-white",
+    });
+  } else if (profile.slug) {
+    rows.push({
+      key: "booking-agenda",
+      href: backstageHref,
+      external: false,
+      label: "Agendar Show",
+      sub: "Ver datas disponíveis na agenda",
+      Icon: CalendarDays,
+      iconBg: "bg-gradient-to-br from-sky-500 to-blue-600",
+      iconColor: "text-white",
+    });
+  }
+
+  if (profile.spotify_url)
+    rows.push({
+      key: "spotify",
+      href: profile.spotify_url,
+      external: true,
+      label: "Spotify",
+      sub: "Ouça agora",
+      Icon: Music2,
+      iconBg: "bg-[#1DB954]",
+      iconColor: "text-white",
+    });
+  if (profile.youtube_url)
+    rows.push({
+      key: "youtube",
+      href: profile.youtube_url,
+      external: true,
+      label: "YouTube",
+      sub: "Inscreva-se no canal",
+      Icon: Youtube,
+      iconBg: "bg-[#FF0000]",
+      iconColor: "text-white",
+    });
+  if (profile.instagram_url)
+    rows.push({
+      key: "instagram",
+      href: profile.instagram_url,
+      external: true,
+      label: "Instagram",
+      sub: "Siga nos bastidores",
+      Icon: Instagram,
+      iconBg: "bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888]",
+      iconColor: "text-white",
+    });
+  if (profile.tiktok_url)
+    rows.push({
+      key: "tiktok",
+      href: profile.tiktok_url,
+      external: true,
+      label: "TikTok",
+      sub: "Vídeos e cortes",
+      Icon: TikTokIcon,
+      iconBg: "bg-black border border-white/20",
+      iconColor: "text-white",
+    });
+  if (profile.website_url)
+    rows.push({
+      key: "website",
+      href: profile.website_url,
+      external: true,
+      label: "Website",
+      sub: "Site oficial",
+      Icon: Globe,
+      iconBg: "bg-gradient-to-br from-cyan-400 to-sky-500",
+      iconColor: "text-white",
+    });
+  if (profile.media_kit_url)
+    rows.push({
+      key: "midiakit",
+      href: profile.media_kit_url,
+      external: true,
+      label: "Mídia Kit",
+      sub: "Baixe o material completo",
+      Icon: FileText,
+      iconBg: "bg-gradient-to-br from-amber-400 to-orange-500",
+      iconColor: "text-white",
+    });
+  if (profile.repertoire_url)
+    rows.push({
+      key: "repertoire",
+      href: profile.repertoire_url,
+      external: true,
+      label: "Repertório",
+      sub: "Lista de músicas",
+      Icon: ListMusic,
+      iconBg: "bg-gradient-to-br from-fuchsia-500 to-purple-600",
+      iconColor: "text-white",
+    });
 
   return (
-    <div className="relative min-h-screen w-full text-white selection:bg-sky-400/30 overflow-x-hidden bg-gradient-to-br from-[#0a1a3a] via-[#0d2557] to-[#061029]">
+    <div className="relative min-h-screen w-full text-white overflow-x-hidden bg-neutral-950">
       <Helmet>
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
         <title>{`${fullName} — Press Kit Oficial`}</title>
-        <meta name="description" content={`Press kit oficial de ${fullName}: estilo, cidade, redes sociais e contato direto para shows.`} />
+        <meta name="description" content={`Press kit oficial de ${fullName}: música, redes sociais e contato direto para shows.`} />
         <link rel="canonical" href={`https://backstagepro.online/link/${slug ?? ""}`} />
         <meta property="og:title" content={`${fullName} — Press Kit`} />
         <meta property="og:description" content={`Conheça ${fullName} e contrate seu show pelo Backstage Pro.`} />
         <meta property="og:url" content={`https://backstagepro.online/link/${slug ?? ""}`} />
       </Helmet>
 
-      {/* Ambient avatar backdrop — foto do artista extensa no fundo */}
-      {profile.avatar_url && (
+      {/* Blurred background (uploaded image or avatar fallback) */}
+      {bgImage ? (
         <div className="fixed inset-0 pointer-events-none">
           <img
-            src={profile.avatar_url}
+            src={bgImage}
             alt=""
             aria-hidden
-            className="w-full h-full object-cover scale-110 opacity-30 blur-2xl"
+            className="w-full h-full object-cover scale-125 blur-2xl opacity-70"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1a3a]/70 via-[#0d2557]/85 to-[#061029]/95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/90" />
         </div>
+      ) : (
+        <div className="fixed inset-0 bg-gradient-to-br from-neutral-900 via-neutral-950 to-black pointer-events-none" />
       )}
 
-      {/* Nome em watermark gigante atrás de tudo */}
-      <div
-        aria-hidden
-        className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden select-none"
-      >
-        <span
-          style={{ fontFamily: "'Syne', sans-serif" }}
-          className="text-[28vw] md:text-[20vw] font-extrabold uppercase tracking-tighter text-white/[0.04] whitespace-nowrap leading-none"
-        >
-          {fullName}
-        </span>
-      </div>
-
-      {/* Floating glows azuis */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-sky-500/25 blur-[140px]" />
-        <div className="absolute top-1/2 -right-32 w-[32rem] h-[32rem] rounded-full bg-blue-500/25 blur-[120px]" />
-        <div className="absolute -bottom-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-cyan-400/20 blur-[120px]" />
-      </div>
-
-      {/* Subtle grain */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.04] mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        }}
-      />
-
-      <div className="relative max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-16 flex flex-col gap-14 md:gap-16">
-        {/* Top badge */}
+      <div className="relative max-w-lg mx-auto px-4 sm:px-6 pt-5 pb-14 flex flex-col gap-6">
+        {/* Backstage Pro badge */}
         <div className="flex justify-center">
           <a
             href="https://backstagepro.online"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/25 transition-all group"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/15 hover:bg-white/15 transition-all group"
           >
             <AppLogo collapsed size="sm" />
-            <span className="text-[11px] text-white/60 group-hover:text-white transition-colors">
+            <span className="text-[11px] text-white/70 group-hover:text-white transition-colors">
               feito com <span className="font-bold text-white">Backstage Pro</span>
             </span>
           </a>
         </div>
 
-        {/* HERO — Editorial */}
-        <section className="relative flex flex-col items-center text-center">
-          {/* Avatar */}
-          <div className="relative mb-8 md:mb-10 group">
-            <div
-              className="absolute -inset-1 rounded-[2.5rem] blur opacity-50 group-hover:opacity-80 transition duration-1000"
-              style={{
-                background:
-                  "conic-gradient(from 0deg, #38bdf8, #ffffff, #0ea5e9, #38bdf8)",
-                animation: "spin 10s linear infinite",
-              }}
-            />
-            <div className="relative w-44 h-44 md:w-56 md:h-56 rounded-[2.2rem] overflow-hidden border border-white/10 bg-zinc-900">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt={fullName} className="w-full h-full object-cover" />
+        {/* Cover Card — square, either photo or clickable YouTube */}
+        <div className="relative rounded-2xl overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)] border border-white/10 bg-neutral-900">
+          <div className="aspect-square relative">
+            {useVideoCover ? (
+              videoPlaying ? (
+                <iframe
+                  src={`${embedUrl}${embedUrl?.includes("?") ? "&" : "?"}autoplay=1`}
+                  title="Vídeo do artista"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <UserIcon className="w-16 h-16 text-white/40" />
-                </div>
-              )}
-            </div>
-            <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center border-4 border-[#0a1a3a] shadow-2xl">
-              <Music className="w-6 h-6 text-white" />
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setVideoPlaying(true)}
+                  className="absolute inset-0 w-full h-full group"
+                  aria-label="Tocar vídeo"
+                >
+                  {videoThumb ? (
+                    <img
+                      src={videoThumb}
+                      alt={fullName}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  ) : profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={fullName}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : null}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="w-20 h-20 flex items-center justify-center rounded-full bg-white/15 backdrop-blur-xl border border-white/30 group-hover:bg-white group-hover:text-black transition-all duration-500 shadow-2xl">
+                      <Play className="w-9 h-9 fill-current ml-1" />
+                    </span>
+                  </div>
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-black/50 backdrop-blur-lg rounded-lg border border-white/10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-[10px] font-black tracking-widest text-white">VÍDEO</span>
+                  </div>
+                </button>
+              )
+            ) : profile.avatar_url ? (
+              <img src={profile.avatar_url} alt={fullName} className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral-900">
+                <UserIcon className="w-20 h-20 text-white/40" />
+              </div>
+            )}
           </div>
+        </div>
 
-          {/* Tags */}
+        {/* Name & meta */}
+        <div className="text-center px-2">
+          <h1
+            style={{ fontFamily: "'Syne', sans-serif" }}
+            className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight"
+          >
+            {fullName}
+          </h1>
+
           {(profile.music_style || profile.base_city) && (
-            <div className="flex flex-wrap justify-center gap-2 mb-4">
+            <div className="mt-2 flex flex-wrap justify-center items-center gap-x-2 gap-y-1 text-white/70 text-sm">
               {profile.music_style && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-300">
-                  <Music className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1">
+                  <Music className="w-3.5 h-3.5" />
                   {profile.music_style}
                 </span>
               )}
+              {profile.music_style && profile.base_city && <span className="text-white/30">•</span>}
               {profile.base_city && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-300">
-                  <MapPin className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
                   {profile.base_city}
                 </span>
               )}
             </div>
           )}
 
-          {/* Massive editorial name */}
-          <h1
-            style={{ fontFamily: "'Syne', sans-serif" }}
-            className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tighter leading-[0.9] uppercase"
-          >
-            {first}
-            {rest && (
-              <>
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-white to-cyan-200">
-                  {rest}
-                </span>
-              </>
-            )}
-          </h1>
-
-          <p className="mt-4 text-zinc-500 font-medium tracking-tight text-base md:text-lg">
-            Press Kit Oficial
-          </p>
-
-          {/* Bio */}
           {profile.bio && (
-            <p className="mt-6 max-w-xl text-[15px] text-white/70 leading-relaxed">
+            <p className="mt-3 text-white/70 text-sm leading-relaxed max-w-md mx-auto">
               {profile.bio}
             </p>
           )}
 
-          {/* Socials + docs */}
-          {(visibleSocials.length > 0 || profile.media_kit_url || profile.repertoire_url) && (
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              {visibleSocials.map(({ Icon, label, url, dot }) => (
-                <a
-                  key={label}
-                  href={url!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2.5 pl-3 pr-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 rounded-2xl transition-all hover:-translate-y-0.5"
-                >
-                  <span className={`w-2 h-2 rounded-full ${dot}`} />
-                  <Icon className="w-3.5 h-3.5 text-white/80" />
-                  <span className="text-[11px] font-bold tracking-widest uppercase">{label}</span>
-                </a>
-              ))}
+          <p className="mt-4 text-[11px] font-bold uppercase tracking-[0.3em] text-white/50">
+            Escolha uma opção
+          </p>
+        </div>
 
-              {profile.media_kit_url && (
-                <a
-                  href={profile.media_kit_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2.5 pl-3 pr-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 rounded-2xl transition-all hover:-translate-y-0.5"
-                >
-                  <span className="w-2 h-2 rounded-full bg-sky-300" />
-                  <FileText className="w-3.5 h-3.5 text-white/80" />
-                  <span className="text-[11px] font-bold tracking-widest uppercase">Mídia Kit</span>
-                </a>
-              )}
-
-              {profile.repertoire_url && (
-                <a
-                  href={profile.repertoire_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2.5 pl-3 pr-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 rounded-2xl transition-all hover:-translate-y-0.5"
-                >
-                  <span className="w-2 h-2 rounded-full bg-amber-400" />
-                  <ListMusic className="w-3.5 h-3.5 text-white/80" />
-                  <span className="text-[11px] font-bold tracking-widest uppercase">Repertório</span>
-                </a>
-              )}
-            </div>
-          )}
-        </section>
-
-        {/* VIDEO SPOTLIGHT */}
-        {embedUrl && (
-          <section className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-b from-transparent via-sky-500/15 to-transparent blur-3xl pointer-events-none" />
-
-            <div className="flex items-end justify-between mb-4 px-1">
-              <h2
-                style={{ fontFamily: "'Syne', sans-serif" }}
-                className="text-2xl md:text-3xl font-bold tracking-tight"
-              >
-                Destaque
-              </h2>
-              <span className="text-[10px] text-white/40 uppercase tracking-[0.25em] font-bold">
-                Assista agora
-              </span>
-            </div>
-
-            <div className="relative group rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl shadow-black/50">
-              <div className="aspect-video relative">
-                {videoPlaying ? (
-                  <iframe
-                    src={embedUrl}
-                    title="Vídeo do show"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setVideoPlaying(true)}
-                    className="absolute inset-0 w-full h-full group/play"
-                    aria-label="Tocar vídeo"
-                  >
-                    {videoThumb && (
-                      <img
-                        src={videoThumb}
-                        alt="Capa do vídeo"
-                        className="absolute inset-0 w-full h-full object-cover grayscale group-hover/play:grayscale-0 group-hover/play:scale-105 transition-all duration-1000"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40" />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl border border-white/20 group-hover/play:bg-sky-500 group-hover/play:scale-110 transition-all duration-500 shadow-[0_0_60px_-10px_rgba(56,189,248,0.7)]">
-                        <Play className="w-9 h-9 md:w-10 md:h-10 fill-white text-white ml-1" />
-                      </span>
-                    </div>
-                    <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
-                      <div className="space-y-1 text-left">
-                        <h3 className="text-lg md:text-2xl font-bold tracking-tight">Show ao vivo</h3>
-                        <p className="text-white/60 text-xs md:text-sm">Toque para assistir</p>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-lg rounded-xl border border-white/10">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                        <span className="text-[10px] font-black tracking-widest">HD</span>
-                      </div>
-                    </div>
-                  </button>
-                )}
+        {/* Link rows — Linkfire style */}
+        <div className="space-y-2.5">
+          {rows.map((r) => {
+            const Icon = r.Icon;
+            const content = (
+              <div className="group flex items-center gap-3 pl-2 pr-3 py-2 bg-white rounded-xl hover:bg-neutral-50 active:scale-[0.985] transition-all shadow-lg shadow-black/30">
+                <span className={`w-11 h-11 rounded-lg flex items-center justify-center ${r.iconBg} ${r.iconColor} shrink-0`}>
+                  <Icon className="w-5 h-5" />
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-neutral-900 font-bold text-[15px] leading-tight truncate">
+                    {r.label}
+                  </span>
+                  <span className="block text-neutral-500 text-[11px] truncate">{r.sub}</span>
+                </span>
+                <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 group-hover:text-neutral-900 transition-colors flex items-center gap-0.5">
+                  Abrir
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
               </div>
-            </div>
-          </section>
-        )}
-
-        {/* SPOTIFY */}
-        {spotifyEmbed && (
-          <section className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-b from-transparent via-green-500/15 to-transparent blur-3xl pointer-events-none" />
-            <div className="flex items-end justify-between mb-4 px-1">
-              <h2
-                style={{ fontFamily: "'Syne', sans-serif" }}
-                className="text-2xl md:text-3xl font-bold tracking-tight"
-              >
-                Ouça no Spotify
-              </h2>
-              <span className="text-[10px] text-white/40 uppercase tracking-[0.25em] font-bold">
-                Original sound
-              </span>
-            </div>
-            <div className="relative rounded-[2rem] overflow-hidden border border-white/10 bg-black/40 shadow-2xl shadow-black/50">
-              <iframe
-                src={spotifyEmbed}
-                title="Spotify"
-                width="100%"
-                height="352"
-                frameBorder={0}
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                className="block"
-              />
-            </div>
-          </section>
-        )}
-
-        {/* CTA */}
-        {(() => {
-          if (!profile.slug) return null;
-          const customWa = profile.booking_whatsapp ? profile.booking_whatsapp.replace(/\D/g, "") : "";
-          const fallbackWa = profile.phone ? profile.phone.replace(/\D/g, "") : "";
-          const phoneDigits = customWa || fallbackWa;
-          const useWhatsapp = profile.booking_method === "whatsapp" && phoneDigits;
-          const whatsappHref = phoneDigits
-            ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
-                `Olá ${fullName}! Vi seu link e quero agendar um show.`
-              )}`
-            : null;
-          const backstageHref = `/artista/${profile.slug}`;
-
-          const Icon = useWhatsapp ? MessageCircle : CalendarDays;
-          const subtitle = useWhatsapp ? "Falar agora pelo WhatsApp" : "Veja datas disponíveis";
-
-          const inner = (
-            <span className="relative group block overflow-hidden rounded-[2rem] active:scale-[0.98] transition-transform">
-              {/* gradient liquid bg */}
-              <span className="absolute inset-0 bg-gradient-to-r from-sky-500 via-blue-500 to-cyan-400 bg-[length:200%_100%] group-hover:bg-right transition-[background-position] duration-700" />
-              {/* shimmer */}
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <span className="relative flex items-center justify-between gap-4 px-6 md:px-8 py-5 md:py-6">
-                <span className="flex items-center gap-4 md:gap-5">
-                  <span className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md ring-1 ring-white/30">
-                    <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                  </span>
-                  <span className="text-left">
-                    <span
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                      className="block text-xl md:text-2xl font-extrabold uppercase tracking-tight leading-none"
-                    >
-                      Agendar Show
-                    </span>
-                    <span className="block text-[10px] md:text-[11px] font-bold uppercase tracking-[0.25em] text-white/80 mt-1.5">
-                      {subtitle}
-                    </span>
-                  </span>
-                </span>
-                <span className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center group-hover:bg-white group-hover:text-blue-700 transition-all duration-300">
-                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
-                </span>
-              </span>
-            </span>
-          );
-
-          const wrapper = "block shadow-[0_30px_80px_-20px_rgba(56,189,248,0.45)] rounded-[2rem]";
-
-          if (useWhatsapp && whatsappHref) {
-            return (
-              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className={wrapper}>
-                {inner}
-                <span className="sr-only">
-                  <ExternalLink />
-                </span>
-              </a>
             );
-          }
-          return (
-            <Link to={backstageHref} className={wrapper}>
-              {inner}
-            </Link>
-          );
-        })()}
+            return r.external ? (
+              <a key={r.key} href={r.href} target="_blank" rel="noopener noreferrer" className="block">
+                {content}
+              </a>
+            ) : (
+              <Link key={r.key} to={r.href} className="block">
+                {content}
+              </Link>
+            );
+          })}
+        </div>
+
+        {rows.length === 0 && (
+          <p className="text-center text-white/50 text-sm py-8">
+            Este artista ainda não configurou seus links.
+          </p>
+        )}
+
+        <p className="text-center text-[10px] text-white/40 mt-2">
+          Press Kit Oficial — © {new Date().getFullYear()} {fullName}
+        </p>
       </div>
     </div>
   );
