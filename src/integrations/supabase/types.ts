@@ -259,6 +259,8 @@ export type Database = {
           booking_whatsapp: string | null
           created_at: string
           instagram_url: string | null
+          link_bg_image_url: string | null
+          link_cover_type: string | null
           media_kit_url: string | null
           music_style: string | null
           project_type: string | null
@@ -285,6 +287,8 @@ export type Database = {
           booking_whatsapp?: string | null
           created_at?: string
           instagram_url?: string | null
+          link_bg_image_url?: string | null
+          link_cover_type?: string | null
           media_kit_url?: string | null
           music_style?: string | null
           project_type?: string | null
@@ -311,6 +315,8 @@ export type Database = {
           booking_whatsapp?: string | null
           created_at?: string
           instagram_url?: string | null
+          link_bg_image_url?: string | null
+          link_cover_type?: string | null
           media_kit_url?: string | null
           music_style?: string | null
           project_type?: string | null
@@ -1504,6 +1510,8 @@ export type Database = {
           instagram_url: string | null
           last_seen: string | null
           late_fee_percentage: number | null
+          link_bg_image_url: string | null
+          link_cover_type: string | null
           media_kit_url: string | null
           min_fee: number | null
           music_style: string | null
@@ -1566,6 +1574,8 @@ export type Database = {
           instagram_url?: string | null
           last_seen?: string | null
           late_fee_percentage?: number | null
+          link_bg_image_url?: string | null
+          link_cover_type?: string | null
           media_kit_url?: string | null
           min_fee?: number | null
           music_style?: string | null
@@ -1628,6 +1638,8 @@ export type Database = {
           instagram_url?: string | null
           last_seen?: string | null
           late_fee_percentage?: number | null
+          link_bg_image_url?: string | null
+          link_cover_type?: string | null
           media_kit_url?: string | null
           min_fee?: number | null
           music_style?: string | null

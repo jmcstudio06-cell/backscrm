@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { ExternalLink, Copy, Check, CalendarDays, MessageCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { processImage, formatFileSize } from "@/lib/imageUtils";
+import { ExternalLink, Copy, Check, CalendarDays, MessageCircle, Image as ImageIcon, Loader2, Trash2, Camera, Youtube } from "lucide-react";
 import { toast } from "sonner";
 
 const PUBLIC_DOMAIN = "https://backstagepro.online";
@@ -30,6 +32,55 @@ export function PublicProfileSection() {
   const [bookingWhatsapp, setBookingWhatsapp] = useState<string>(
     (profile as any)?.booking_whatsapp || ""
   );
+  const [linkBgImageUrl, setLinkBgImageUrl] = useState<string>((profile as any)?.link_bg_image_url || "");
+  const [linkCoverType, setLinkCoverType] = useState<"photo" | "video">(
+    ((profile as any)?.link_cover_type as "photo" | "video") || "photo"
+  );
+  const [uploadingBg, setUploadingBg] = useState(false);
+  const bgInputRef = useRef<HTMLInputElement>(null);
+
+  const handleBgFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    setUploadingBg(true);
+    try {
+      const result = await processImage(file);
+      if (!result.valid || !result.file) {
+        toast.error(result.error || "Erro ao processar imagem");
+        setUploadingBg(false);
+        return;
+      }
+      const processed = result.file;
+      const ext = processed.type === "image/webp" ? "webp" : "jpg";
+      const fileName = `${profile.user_id}/link-bg-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(fileName, processed, {
+        upsert: true,
+        contentType: processed.type,
+      });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
+      if (!data.publicUrl) throw new Error("URL inválida");
+      setLinkBgImageUrl(data.publicUrl);
+      await updateProfile({ link_bg_image_url: data.publicUrl } as any);
+      toast.success(`Fundo atualizado (${formatFileSize(processed.size)})`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploadingBg(false);
+      if (bgInputRef.current) bgInputRef.current.value = "";
+    }
+  };
+
+  const removeBg = async () => {
+    setLinkBgImageUrl("");
+    await updateProfile({ link_bg_image_url: null } as any);
+  };
+
+  const chooseCoverType = async (t: "photo" | "video") => {
+    setLinkCoverType(t);
+    await updateProfile({ link_cover_type: t } as any);
+  };
 
   const handleSave = async () => {
     await updateProfile({
@@ -44,6 +95,8 @@ export function PublicProfileSection() {
       repertoire_url: repertoireUrl || null,
       booking_method: bookingMethod,
       booking_whatsapp: bookingWhatsapp.replace(/\D/g, "") || null,
+      link_bg_image_url: linkBgImageUrl || null,
+      link_cover_type: linkCoverType,
     } as any);
   };
 
@@ -74,6 +127,112 @@ export function PublicProfileSection() {
 
   return (
     <div className="space-y-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-1">Capa e Fundo do Link Mídia Kit</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Personalize a imagem de fundo (desfocada) e escolha se a capa mostra sua foto ou um vídeo do YouTube.
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <Label>Imagem de fundo (aparece desfocada)</Label>
+            <input
+              ref={bgInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleBgFileChange}
+            />
+            <div className="mt-2 flex items-center gap-3">
+              <div className="w-24 h-24 rounded-xl overflow-hidden border border-border/60 bg-secondary/30 flex items-center justify-center shrink-0">
+                {linkBgImageUrl ? (
+                  <img src={linkBgImageUrl} alt="Fundo" className="w-full h-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => bgInputRef.current?.click()}
+                  disabled={uploadingBg}
+                >
+                  {uploadingBg ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4 mr-1.5" />
+                      {linkBgImageUrl ? "Trocar imagem" : "Enviar imagem"}
+                    </>
+                  )}
+                </Button>
+                {linkBgImageUrl && (
+                  <Button type="button" variant="ghost" size="sm" onClick={removeBg} className="text-destructive hover:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-1.5" />
+                    Remover
+                  </Button>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Se nenhuma imagem for enviada, será usada sua foto de perfil.
+            </p>
+          </div>
+
+          <div>
+            <Label>Capa em destaque</Label>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <button
+                type="button"
+                onClick={() => chooseCoverType("photo")}
+                className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+                  linkCoverType === "photo"
+                    ? "border-primary bg-primary/5 shadow-md"
+                    : "border-border/60 bg-secondary/20 hover:border-border"
+                }`}
+              >
+                {linkCoverType === "photo" && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                )}
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md mb-3">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-foreground">Foto</p>
+                <p className="text-xs text-muted-foreground mt-1">Mostra sua foto de perfil como capa principal.</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => chooseCoverType("video")}
+                className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+                  linkCoverType === "video"
+                    ? "border-primary bg-primary/5 shadow-md"
+                    : "border-border/60 bg-secondary/20 hover:border-border"
+                }`}
+              >
+                {linkCoverType === "video" && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                )}
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center text-white shadow-md mb-3">
+                  <Youtube className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-foreground">Vídeo do YouTube</p>
+                <p className="text-xs text-muted-foreground mt-1">Toca ao clicar. Configure o link do vídeo abaixo.</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-1">Botão "Agendar Show"</h3>
         <p className="text-sm text-muted-foreground mb-4">
