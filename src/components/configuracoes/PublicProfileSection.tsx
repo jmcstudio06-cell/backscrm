@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { ExternalLink, Copy, Check, CalendarDays, MessageCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { processImage, formatFileSize } from "@/lib/imageUtils";
+import { ExternalLink, Copy, Check, CalendarDays, MessageCircle, Image as ImageIcon, Loader2, Trash2, Camera, Youtube } from "lucide-react";
 import { toast } from "sonner";
 
 const PUBLIC_DOMAIN = "https://backstagepro.online";
