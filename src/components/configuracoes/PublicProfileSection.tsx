@@ -128,6 +128,112 @@ export function PublicProfileSection() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-1">Capa e Fundo do Link Mídia Kit</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Personalize a imagem de fundo (desfocada) e escolha se a capa mostra sua foto ou um vídeo do YouTube.
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <Label>Imagem de fundo (aparece desfocada)</Label>
+            <input
+              ref={bgInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleBgFileChange}
+            />
+            <div className="mt-2 flex items-center gap-3">
+              <div className="w-24 h-24 rounded-xl overflow-hidden border border-border/60 bg-secondary/30 flex items-center justify-center shrink-0">
+                {linkBgImageUrl ? (
+                  <img src={linkBgImageUrl} alt="Fundo" className="w-full h-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => bgInputRef.current?.click()}
+                  disabled={uploadingBg}
+                >
+                  {uploadingBg ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4 mr-1.5" />
+                      {linkBgImageUrl ? "Trocar imagem" : "Enviar imagem"}
+                    </>
+                  )}
+                </Button>
+                {linkBgImageUrl && (
+                  <Button type="button" variant="ghost" size="sm" onClick={removeBg} className="text-destructive hover:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-1.5" />
+                    Remover
+                  </Button>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Se nenhuma imagem for enviada, será usada sua foto de perfil.
+            </p>
+          </div>
+
+          <div>
+            <Label>Capa em destaque</Label>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <button
+                type="button"
+                onClick={() => chooseCoverType("photo")}
+                className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+                  linkCoverType === "photo"
+                    ? "border-primary bg-primary/5 shadow-md"
+                    : "border-border/60 bg-secondary/20 hover:border-border"
+                }`}
+              >
+                {linkCoverType === "photo" && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                )}
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md mb-3">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-foreground">Foto</p>
+                <p className="text-xs text-muted-foreground mt-1">Mostra sua foto de perfil como capa principal.</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => chooseCoverType("video")}
+                className={`relative text-left rounded-xl border-2 p-4 transition-all ${
+                  linkCoverType === "video"
+                    ? "border-primary bg-primary/5 shadow-md"
+                    : "border-border/60 bg-secondary/20 hover:border-border"
+                }`}
+              >
+                {linkCoverType === "video" && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                )}
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center text-white shadow-md mb-3">
+                  <Youtube className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-foreground">Vídeo do YouTube</p>
+                <p className="text-xs text-muted-foreground mt-1">Toca ao clicar. Configure o link do vídeo abaixo.</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-6">
         <h3 className="text-lg font-semibold mb-1">Botão "Agendar Show"</h3>
         <p className="text-sm text-muted-foreground mb-4">
           Escolha para onde o visitante é levado quando clicar no botão "Agendar Show" do seu Link Mídia Kit.
