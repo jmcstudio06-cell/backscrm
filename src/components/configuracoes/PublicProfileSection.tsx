@@ -95,6 +95,8 @@ export function PublicProfileSection() {
       repertoire_url: repertoireUrl || null,
       booking_method: bookingMethod,
       booking_whatsapp: bookingWhatsapp.replace(/\D/g, "") || null,
+      link_bg_image_url: linkBgImageUrl || null,
+      link_cover_type: linkCoverType,
     } as any);
   };
 
