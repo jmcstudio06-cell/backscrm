@@ -32,6 +32,55 @@ export function PublicProfileSection() {
   const [bookingWhatsapp, setBookingWhatsapp] = useState<string>(
     (profile as any)?.booking_whatsapp || ""
   );
+  const [linkBgImageUrl, setLinkBgImageUrl] = useState<string>((profile as any)?.link_bg_image_url || "");
+  const [linkCoverType, setLinkCoverType] = useState<"photo" | "video">(
+    ((profile as any)?.link_cover_type as "photo" | "video") || "photo"
+  );
+  const [uploadingBg, setUploadingBg] = useState(false);
+  const bgInputRef = useRef<HTMLInputElement>(null);
+
+  const handleBgFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    setUploadingBg(true);
+    try {
+      const result = await processImage(file);
+      if (!result.valid || !result.file) {
+        toast.error(result.error || "Erro ao processar imagem");
+        setUploadingBg(false);
+        return;
+      }
+      const processed = result.file;
+      const ext = processed.type === "image/webp" ? "webp" : "jpg";
+      const fileName = `${profile.user_id}/link-bg-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(fileName, processed, {
+        upsert: true,
+        contentType: processed.type,
+      });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
+      if (!data.publicUrl) throw new Error("URL inválida");
+      setLinkBgImageUrl(data.publicUrl);
+      await updateProfile({ link_bg_image_url: data.publicUrl } as any);
+      toast.success(`Fundo atualizado (${formatFileSize(processed.size)})`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploadingBg(false);
+      if (bgInputRef.current) bgInputRef.current.value = "";
+    }
+  };
+
+  const removeBg = async () => {
+    setLinkBgImageUrl("");
+    await updateProfile({ link_bg_image_url: null } as any);
+  };
+
+  const chooseCoverType = async (t: "photo" | "video") => {
+    setLinkCoverType(t);
+    await updateProfile({ link_cover_type: t } as any);
+  };
 
   const handleSave = async () => {
     await updateProfile({
