@@ -102,6 +102,7 @@ export default function Agenda() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingShow, setEditingShow] = useState<Show | null>(null);
+  const [mirrorShow, setMirrorShow] = useState<Show | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const { user } = useAuth();
   
