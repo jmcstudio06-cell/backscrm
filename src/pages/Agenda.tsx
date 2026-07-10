@@ -851,6 +851,9 @@ export default function Agenda() {
                       <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleEditShow(show)}>
                         <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-primary hover:text-primary" onClick={() => setMirrorShow(show)} title="Espelhar data">
+                        <CopyPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </Button>
                       {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
                         <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-green-500 hover:text-green-600" onClick={() => handleConfirmShow(show.id)} title="Confirmar">
                           <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
