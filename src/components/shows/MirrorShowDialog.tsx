@@ -38,11 +38,14 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
     }
     setLoading(true);
     try {
-      // Fetch musicians & expenses of source show
-      const [{ data: srcMusicians }, { data: srcExpenses }] = await Promise.all([
+      // Fetch full source show, musicians & expenses
+      const [{ data: srcShow }, { data: srcMusicians }, { data: srcExpenses }] = await Promise.all([
+        supabase.from("shows").select("*").eq("id", show.id).maybeSingle(),
         supabase.from("show_musicians").select("musician_id, fee, musicians(name)").eq("show_id", show.id),
         supabase.from("show_expenses").select("*").eq("show_id", show.id),
       ]);
+
+      const source: any = srcShow || show;
 
       const musicians = (srcMusicians || []).map((m: any) => ({
         musicianId: m.musician_id,
@@ -69,17 +72,17 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
         {
           title,
           date: newDate,
-          start_time: show.start_time,
-          end_time: show.end_time,
-          duration_minutes: show.duration_minutes,
-          performance_format: show.performance_format,
-          venue: show.venue,
-          address: show.address,
-          cachet: show.cachet,
+          start_time: source.start_time ?? show.start_time ?? null,
+          end_time: source.end_time ?? show.end_time ?? null,
+          duration_minutes: source.duration_minutes ?? show.duration_minutes ?? null,
+          performance_format: source.performance_format ?? show.performance_format ?? null,
+          venue: source.venue ?? show.venue ?? null,
+          address: source.address ?? show.address ?? null,
+          cachet: source.cachet ?? show.cachet ?? 0,
           status: "scheduled",
-          event_type: show.event_type,
+          event_type: source.event_type ?? show.event_type ?? null,
           client_id: finalClientId,
-          notes: show.notes,
+          notes: source.notes ?? show.notes ?? null,
           advance_amount: 0,
           advance_received_date: null,
           balance_due_date: null,
