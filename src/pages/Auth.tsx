@@ -238,6 +238,8 @@ const Auth = () => {
   const handleBack = () => {
     if (isResetSent) {
       setView("forgot");
+    } else if (isSignupSent) {
+      setView("register");
     } else if (isForgot) {
       setView("login");
     } else {
@@ -248,6 +250,7 @@ const Auth = () => {
   const getFormTitle = () => {
     if (isForgot) return "Recuperar senha";
     if (isResetSent) return "Verifique seu e-mail";
+    if (isSignupSent) return "Confirme seu email";
     if (isLogin) return "Bem-vindo de volta!";
     return "Crie sua conta grátis";
   };
@@ -255,6 +258,7 @@ const Auth = () => {
   const getFormSubtitle = () => {
     if (isForgot) return "Informe seu e-mail para receber o link de recuperação";
     if (isResetSent) return "Enviamos um link de redefinição de senha para seu e-mail";
+    if (isSignupSent) return "Enviamos um link de confirmação para seu email. Clique nele para ativar sua conta.";
     if (isLogin) return "Entre para acessar seu painel";
     return "Comece a gerenciar sua carreira hoje";
   };
