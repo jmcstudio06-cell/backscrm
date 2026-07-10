@@ -21,14 +21,35 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
   const { clients } = useClients();
   const [newDate, setNewDate] = useState("");
   const [clientId, setClientId] = useState<string>("");
+  const [venue, setVenue] = useState("");
+  const [address, setAddress] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [addressTouched, setAddressTouched] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open && show) {
       setNewDate("");
       setClientId(show.client_id || "none");
+      setVenue(show.venue || "");
+      setAddress(show.address || "");
+      setStartTime(show.start_time || "");
+      setEndTime(show.end_time || "");
+      setAddressTouched(false);
     }
   }, [open, show]);
+
+  // Auto-fill address from client if user hasn't manually edited it
+  useEffect(() => {
+    if (!open || addressTouched) return;
+    if (clientId && clientId !== "none") {
+      const client = clients.find((c) => c.id === clientId);
+      if (client?.address) {
+        setAddress(client.address);
+      }
+    }
+  }, [clientId, clients, open, addressTouched]);
 
   const handleMirror = async () => {
     if (!show) return;
@@ -38,14 +59,10 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
     }
     setLoading(true);
     try {
-      // Fetch full source show, musicians & expenses
-      const [{ data: srcShow }, { data: srcMusicians }, { data: srcExpenses }] = await Promise.all([
-        supabase.from("shows").select("*").eq("id", show.id).maybeSingle(),
+      const [{ data: srcMusicians }, { data: srcExpenses }] = await Promise.all([
         supabase.from("show_musicians").select("musician_id, fee, musicians(name)").eq("show_id", show.id),
         supabase.from("show_expenses").select("*").eq("show_id", show.id),
       ]);
-
-      const source: any = srcShow || show;
 
       const musicians = (srcMusicians || []).map((m: any) => ({
         musicianId: m.musician_id,
@@ -62,7 +79,6 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
       const finalClientId = clientId && clientId !== "none" ? clientId : null;
       const client = finalClientId ? clients.find((c) => c.id === finalClientId) : null;
 
-      // Build new title: if client changed, use "<client> - <event_type or original title suffix>"
       let title = show.title;
       if (client && show.client_id !== finalClientId) {
         title = show.event_type ? `${client.name} - ${show.event_type}` : client.name;
@@ -72,17 +88,17 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
         {
           title,
           date: newDate,
-          start_time: source.start_time ?? show.start_time ?? null,
-          end_time: source.end_time ?? show.end_time ?? null,
-          duration_minutes: source.duration_minutes ?? show.duration_minutes ?? null,
-          performance_format: source.performance_format ?? show.performance_format ?? null,
-          venue: source.venue ?? show.venue ?? null,
-          address: source.address ?? show.address ?? null,
-          cachet: source.cachet ?? show.cachet ?? 0,
+          start_time: startTime || null,
+          end_time: endTime || null,
+          duration_minutes: (show as any).duration_minutes ?? null,
+          performance_format: (show as any).performance_format ?? null,
+          venue: venue || null,
+          address: address || null,
+          cachet: show.cachet ?? 0,
           status: "scheduled",
-          event_type: source.event_type ?? show.event_type ?? null,
+          event_type: show.event_type,
           client_id: finalClientId,
-          notes: source.notes ?? show.notes ?? null,
+          notes: show.notes,
           advance_amount: 0,
           advance_received_date: null,
           balance_due_date: null,
@@ -103,15 +119,14 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CopyPlus className="w-5 h-5 text-primary" />
             Espelhar Show
           </DialogTitle>
           <DialogDescription>
-            Replique todos os dados de <strong>{show?.title}</strong> para uma nova data.
-            Músicos, despesas, local, cachê e formato serão copiados.
+            Replique os dados de <strong>{show?.title}</strong>. Músicos, despesas, cachê e formato serão copiados automaticamente.
           </DialogDescription>
         </DialogHeader>
 
@@ -124,6 +139,27 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
               value={newDate}
               onChange={(e) => setNewDate(e.target.value)}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="mirror-start">Início</Label>
+              <Input
+                id="mirror-start"
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mirror-end">Término</Label>
+              <Input
+                id="mirror-end"
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -142,8 +178,31 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Escolha o mesmo cliente para manter, ou selecione outro para agilizar.
+              Se o cliente tiver endereço cadastrado, ele será preenchido automaticamente.
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="mirror-venue">Local</Label>
+            <Input
+              id="mirror-venue"
+              placeholder="Nome do local"
+              value={venue}
+              onChange={(e) => setVenue(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="mirror-address">Endereço</Label>
+            <Input
+              id="mirror-address"
+              placeholder="Rua, número, cidade..."
+              value={address}
+              onChange={(e) => {
+                setAddress(e.target.value);
+                setAddressTouched(true);
+              }}
+            />
           </div>
         </div>
 
