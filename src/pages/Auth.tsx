@@ -62,6 +62,7 @@ const Auth = () => {
   const isLogin = view === "login";
   const isForgot = view === "forgot";
   const isResetSent = view === "reset-sent";
+  const isSignupSent = view === "signup-sent";
 
   // Password validation — alinhado com a política do Supabase
   // (mín. 8, maiúscula, minúscula, número e caractere especial).
