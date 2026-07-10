@@ -771,6 +771,36 @@ export default function Admin() {
                           ))}
                         </div>
                       </div>
+
+                      {/* Danger Zone - Delete Account */}
+                      <div className="border-t border-red-500/20 pt-4 mt-2">
+                        <Label className="text-xs font-bold uppercase text-red-600 mb-2 block">Zona de Perigo</Label>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="w-full sm:w-auto">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir conta deste usuário
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir conta permanentemente?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Isso vai apagar a conta de <strong>{userProfile.name || userProfile.email}</strong> e todos os dados associados. Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => deleteUser(userProfile.user_id, userProfile.name || userProfile.email || "")}
+                              >
+                                Sim, excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </CardContent>
                   )}
                 </Card>
