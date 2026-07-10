@@ -38,7 +38,7 @@ import {
   Music
 } from "lucide-react";
 
-type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent";
+type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent" | "signup-sent";
 
 const Auth = () => {
   const [termsModalOpen, setTermsModalOpen] = useState(false);
@@ -62,6 +62,7 @@ const Auth = () => {
   const isLogin = view === "login";
   const isForgot = view === "forgot";
   const isResetSent = view === "reset-sent";
+  const isSignupSent = view === "signup-sent";
 
   // Password validation — alinhado com a política do Supabase
   // (mín. 8, maiúscula, minúscula, número e caractere especial).
@@ -188,7 +189,9 @@ const Auth = () => {
           }
           throw error;
         }
-        toast({ title: "Conta criada!", description: "Sua conta foi criada com sucesso!" });
+        setResetEmail(formData.email);
+        setView("signup-sent");
+        toast({ title: "Confirme seu email", description: "Enviamos um link de confirmação para seu email." });
       }
     } catch (error: any) {
       toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
@@ -235,6 +238,8 @@ const Auth = () => {
   const handleBack = () => {
     if (isResetSent) {
       setView("forgot");
+    } else if (isSignupSent) {
+      setView("register");
     } else if (isForgot) {
       setView("login");
     } else {
@@ -245,6 +250,7 @@ const Auth = () => {
   const getFormTitle = () => {
     if (isForgot) return "Recuperar senha";
     if (isResetSent) return "Verifique seu e-mail";
+    if (isSignupSent) return "Confirme seu email";
     if (isLogin) return "Bem-vindo de volta!";
     return "Crie sua conta grátis";
   };
@@ -252,6 +258,7 @@ const Auth = () => {
   const getFormSubtitle = () => {
     if (isForgot) return "Informe seu e-mail para receber o link de recuperação";
     if (isResetSent) return "Enviamos um link de redefinição de senha para seu e-mail";
+    if (isSignupSent) return "Enviamos um link de confirmação para seu email. Clique nele para ativar sua conta.";
     if (isLogin) return "Entre para acessar seu painel";
     return "Comece a gerenciar sua carreira hoje";
   };
@@ -518,6 +525,31 @@ const Auth = () => {
                   >
                     Reenviar link
                   </Button>
+                  <button
+                    type="button"
+                    onClick={() => setView("login")}
+                    className="w-full text-sm text-[#0066CC] hover:underline font-medium"
+                  >
+                    Voltar para o login
+                  </button>
+                </div>
+              )}
+
+              {/* Signup Sent - Confirmation */}
+              {isSignupSent && (
+                <div className="space-y-5">
+                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div className="flex items-start gap-3">
+                      <Mail className="w-5 h-5 text-[#0066CC] mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-slate-700 font-medium">Link enviado para:</p>
+                        <p className="text-sm text-[#0066CC] font-semibold">{resetEmail}</p>
+                        <p className="text-xs text-slate-500 mt-2">
+                          Clique no link do email para confirmar sua conta e fazer login. Verifique também a pasta de spam.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setView("login")}
