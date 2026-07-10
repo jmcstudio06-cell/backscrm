@@ -348,6 +348,23 @@ export default function Admin() {
     toast.success(`Plano atualizado para ${plan.toUpperCase()}`);
   };
 
+  const deleteUser = async (userId: string, userName: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { userId },
+      });
+      if (error || data?.error) {
+        toast.error(data?.error || "Erro ao excluir conta");
+        return;
+      }
+      setUsers(prev => prev.filter(u => u.user_id !== userId));
+      toast.success(`Conta de ${userName || "usuário"} excluída`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao excluir conta");
+    }
+  };
+
   const updatePlanStartDate = async (userId: string, dateStr: string) => {
     setUserPlanDates(prev => ({ ...prev, [userId]: dateStr }));
     const userProfile = users.find(u => u.user_id === userId);
