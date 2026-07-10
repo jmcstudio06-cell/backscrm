@@ -189,7 +189,9 @@ const Auth = () => {
           }
           throw error;
         }
-        toast({ title: "Conta criada!", description: "Sua conta foi criada com sucesso!" });
+        setResetEmail(formData.email);
+        setView("signup-sent");
+        toast({ title: "Confirme seu email", description: "Enviamos um link de confirmação para seu email." });
       }
     } catch (error: any) {
       toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
