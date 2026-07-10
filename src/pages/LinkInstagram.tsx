@@ -274,9 +274,9 @@ export default function LinkInstagram() {
             src={bgImage}
             alt=""
             aria-hidden
-            className="w-full h-full object-cover scale-100 blur-[1px] opacity-85 saturate-125 brightness-90"
+            className="w-full h-full object-cover scale-100 blur-[1px] opacity-100 saturate-125 brightness-75"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/60 to-background/85" />
+          <div className="absolute inset-0 bg-gradient-to-b from-foreground/35 via-foreground/45 to-foreground/70" />
         </div>
       ) : (
         <div className="fixed inset-0 bg-gradient-to-br from-neutral-900 via-neutral-950 to-black pointer-events-none" />
