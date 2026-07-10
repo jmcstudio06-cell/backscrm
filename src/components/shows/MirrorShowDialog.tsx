@@ -38,11 +38,14 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
     }
     setLoading(true);
     try {
-      // Fetch musicians & expenses of source show
-      const [{ data: srcMusicians }, { data: srcExpenses }] = await Promise.all([
+      // Fetch full source show, musicians & expenses
+      const [{ data: srcShow }, { data: srcMusicians }, { data: srcExpenses }] = await Promise.all([
+        supabase.from("shows").select("*").eq("id", show.id).maybeSingle(),
         supabase.from("show_musicians").select("musician_id, fee, musicians(name)").eq("show_id", show.id),
         supabase.from("show_expenses").select("*").eq("show_id", show.id),
       ]);
+
+      const source: any = srcShow || show;
 
       const musicians = (srcMusicians || []).map((m: any) => ({
         musicianId: m.musician_id,
