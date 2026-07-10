@@ -875,6 +875,11 @@ export default function Agenda() {
           </div>
         </div>
       )}
+      <MirrorShowDialog
+        open={!!mirrorShow}
+        onOpenChange={(o) => !o && setMirrorShow(null)}
+        show={mirrorShow}
+      />
     </Layout>
   );
 }
