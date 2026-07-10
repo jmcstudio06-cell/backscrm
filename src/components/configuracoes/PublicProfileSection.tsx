@@ -128,7 +128,7 @@ export function PublicProfileSection() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-1">Capa e Fundo do Link Mídia Kit</h3>
+        <h3 className="text-lg font-semibold mb-1">Capa e Fundo do Link da bio</h3>
         <p className="text-sm text-muted-foreground mb-4">
           Personalize a imagem de fundo (desfocada) e escolha se a capa mostra sua foto ou um vídeo do YouTube.
         </p>
@@ -236,7 +236,7 @@ export function PublicProfileSection() {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-1">Botão "Agendar Show"</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Escolha para onde o visitante é levado quando clicar no botão "Agendar Show" do seu Link Mídia Kit.
+          Escolha para onde o visitante é levado quando clicar no botão "Agendar Show" do seu Link da bio.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
