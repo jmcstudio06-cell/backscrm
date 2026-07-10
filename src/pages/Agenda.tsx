@@ -27,6 +27,7 @@ import {
   Music,
   CalendarCheck,
   FileDown,
+  CopyPlus,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, parseLocalDate } from "@/lib/utils";
