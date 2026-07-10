@@ -39,6 +39,7 @@ import Admin from "./pages/Admin";
 import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
 import ResetPassword from "./pages/ResetPassword";
+import AuthConfirm from "./pages/AuthConfirm";
 import GuiaAtendimento from "./pages/GuiaAtendimento";
 import KitProfissional from "./pages/KitProfissional";
 import PlanilhaGratuita from "./pages/PlanilhaGratuita";
