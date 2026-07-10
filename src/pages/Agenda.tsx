@@ -27,10 +27,12 @@ import {
   Music,
   CalendarCheck,
   FileDown,
+  CopyPlus,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, parseLocalDate } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
+import { MirrorShowDialog } from "@/components/shows/MirrorShowDialog";
 import { ImportShowsModal } from "@/components/shows/ImportShowsModal";
 import { FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
@@ -100,6 +102,7 @@ export default function Agenda() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingShow, setEditingShow] = useState<Show | null>(null);
+  const [mirrorShow, setMirrorShow] = useState<Show | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const { user } = useAuth();
   
@@ -534,6 +537,9 @@ export default function Agenda() {
                       <Button variant="outline" size="sm" className="flex-1 h-7 text-xs gap-1" onClick={() => handleEditShow(show)}>
                         <Edit className="w-3 h-3" /> Editar
                       </Button>
+                      <Button variant="outline" size="icon" className="h-7 w-7 text-primary hover:text-primary hover:bg-primary/10" onClick={() => setMirrorShow(show)} title="Espelhar data">
+                        <CopyPlus className="w-3.5 h-3.5" />
+                      </Button>
                       {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
                         <Button variant="outline" size="icon" className="h-7 w-7 text-green-500 hover:text-green-600 hover:bg-green-500/10" onClick={() => handleConfirmShow(show.id)} title="Confirmar">
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -845,6 +851,9 @@ export default function Agenda() {
                       <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleEditShow(show)}>
                         <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-primary hover:text-primary" onClick={() => setMirrorShow(show)} title="Espelhar data">
+                        <CopyPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </Button>
                       {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
                         <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-green-500 hover:text-green-600" onClick={() => handleConfirmShow(show.id)} title="Confirmar">
                           <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -866,6 +875,11 @@ export default function Agenda() {
           </div>
         </div>
       )}
+      <MirrorShowDialog
+        open={!!mirrorShow}
+        onOpenChange={(o) => !o && setMirrorShow(null)}
+        show={mirrorShow}
+      />
     </Layout>
   );
 }
