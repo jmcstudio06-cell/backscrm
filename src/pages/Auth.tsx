@@ -38,7 +38,7 @@ import {
   Music
 } from "lucide-react";
 
-type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent";
+type AuthView = "landing" | "login" | "register" | "forgot" | "reset-sent" | "signup-sent";
 
 const Auth = () => {
   const [termsModalOpen, setTermsModalOpen] = useState(false);
