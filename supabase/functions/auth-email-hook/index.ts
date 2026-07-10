@@ -216,12 +216,25 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Build a self-hosted confirmation URL using token_hash so email link scanners
+  // (e.g. Gmail) don't consume the one-time token before the user clicks.
+  // Our /auth/confirm route calls supabase.auth.verifyOtp({ token_hash, type }).
+  let confirmationUrl = payload.data.url
+  const tokenHash = payload.data.token_hash
+  const actionType = payload.data.email_action_type || payload.data.action_type
+  if (tokenHash && actionType) {
+    const next = actionType === 'recovery' ? '/reset-password' : '/dashboard'
+    confirmationUrl = `https://${ROOT_DOMAIN}/auth/confirm?token_hash=${encodeURIComponent(
+      tokenHash
+    )}&type=${encodeURIComponent(actionType)}&next=${encodeURIComponent(next)}`
+  }
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
     siteUrl: `https://${ROOT_DOMAIN}`,
     recipient: payload.data.email,
-    confirmationUrl: payload.data.url,
+    confirmationUrl,
     token: payload.data.token,
     email: payload.data.email,
     newEmail: payload.data.new_email,
