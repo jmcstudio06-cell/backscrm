@@ -33,7 +33,19 @@ import {
   ChevronLeft,
   ChevronRight,
   Crown,
+  Trash2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
@@ -334,6 +346,23 @@ export default function Admin() {
         : u
     ));
     toast.success(`Plano atualizado para ${plan.toUpperCase()}`);
+  };
+
+  const deleteUser = async (userId: string, userName: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { userId },
+      });
+      if (error || data?.error) {
+        toast.error(data?.error || "Erro ao excluir conta");
+        return;
+      }
+      setUsers(prev => prev.filter(u => u.user_id !== userId));
+      toast.success(`Conta de ${userName || "usuário"} excluída`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao excluir conta");
+    }
   };
 
   const updatePlanStartDate = async (userId: string, dateStr: string) => {
@@ -741,6 +770,36 @@ export default function Admin() {
                             </div>
                           ))}
                         </div>
+                      </div>
+
+                      {/* Danger Zone - Delete Account */}
+                      <div className="border-t border-red-500/20 pt-4 mt-2">
+                        <Label className="text-xs font-bold uppercase text-red-600 mb-2 block">Zona de Perigo</Label>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="w-full sm:w-auto">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir conta deste usuário
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir conta permanentemente?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Isso vai apagar a conta de <strong>{userProfile.name || userProfile.email}</strong> e todos os dados associados. Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => deleteUser(userProfile.user_id, userProfile.name || userProfile.email || "")}
+                              >
+                                Sim, excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </CardContent>
                   )}
