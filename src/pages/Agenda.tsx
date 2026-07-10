@@ -32,6 +32,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, parseLocalDate } from "@/lib/utils";
 import { NovoShowModal, ShowData } from "@/components/shows/NovoShowModal";
+import { MirrorShowDialog } from "@/components/shows/MirrorShowDialog";
 import { ImportShowsModal } from "@/components/shows/ImportShowsModal";
 import { FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
