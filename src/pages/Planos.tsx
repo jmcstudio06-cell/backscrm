@@ -120,7 +120,7 @@ const plans: PlanDef[] = [
       "Orçamentos Automáticos",
       "Checklist de Show",
       "Equipe & Freelancers",
-      "Link Mídia Kit (Press Kit)",
+      "Link da bio (Press Kit)",
     ],
   },
   {

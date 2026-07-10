@@ -105,7 +105,7 @@ const menuItems: MenuItem[] = [
     label: "Links",
     children: [
       { icon: Inbox, label: "Link Agenda", path: "/solicitacoes", featureKey: "link-agenda" },
-      { icon: Instagram, label: "Link Mídia Kit", path: "/link-instagram", featureKey: "link-instagram" },
+      { icon: Instagram, label: "Link da bio", path: "/link-instagram", featureKey: "link-instagram" },
     ],
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
