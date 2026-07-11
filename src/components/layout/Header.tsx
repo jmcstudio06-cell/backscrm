@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,10 @@ import { NotificationBell } from "./NotificationBell";
 interface HeaderProps {
   title: string;
   subtitle?: string;
+  rightSlot?: ReactNode;
 }
 
-export function Header({ title, subtitle }: HeaderProps) {
+export function Header({ title, subtitle, rightSlot }: HeaderProps) {
   const { profile } = useProfile();
   const navigate = useNavigate();
 
