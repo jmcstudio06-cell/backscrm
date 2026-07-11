@@ -7,7 +7,7 @@ import { CareerThermometerCard } from "@/components/dashboard/CareerThermometerC
 import { PendingCachetBanner } from "@/components/dashboard/PendingCachetBanner";
 import { MonthlyEvolutionCard } from "@/components/dashboard/MonthlyEvolutionCard";
 import { DashboardAchievementsCard } from "@/components/dashboard/DashboardAchievementsCard";
-import { TrialCountdownCard } from "@/components/dashboard/TrialCountdownCard";
+import { HeaderTrialPill } from "@/components/dashboard/HeaderTrialPill";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
 import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalProgress";
@@ -415,8 +415,11 @@ const Dashboard = () => {
     );
   }
 
+  const greetingTitle = `Olá, ${profile?.name || 'Artista'}!`;
+  const greetingSubtitle = format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR });
+
   return (
-    <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
+    <Layout title={greetingTitle} subtitle={greetingSubtitle} headerRightSlot={<HeaderTrialPill />}>
       {/* Monthly Show Goal Modal */}
       <MonthlyShowGoalModal
         open={showGoalModal}
@@ -460,25 +463,11 @@ const Dashboard = () => {
         {/* Gift Claim Card - shows when user has available gift */}
         <GiftClaimCard />
 
-        {/* Trial Countdown Card */}
-        <TrialCountdownCard />
-
-        {/* Welcome Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 animate-fade-in">
-          <div className="relative">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              <span className="text-foreground">Olá, </span>
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
-                {profile?.name || 'Artista'}!
-              </span>
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR })}
-            </p>
-          </div>
+        {/* Tutoriais CTA */}
+        <div className="flex justify-end animate-fade-in">
           <button
             onClick={() => navigate("/tutoriais")}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-colors text-left sm:text-right shrink-0"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-colors shrink-0"
           >
             <Lightbulb className="w-4 h-4 text-primary flex-shrink-0" />
             <span className="text-xs font-medium text-foreground">Aproveite 100% do seu plano</span>
