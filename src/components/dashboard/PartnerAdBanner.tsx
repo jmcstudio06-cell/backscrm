@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { ExternalLink, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import backsRadarBanner from "@/assets/backs-radar-banner.png.asset.json";
-import rankingBanner from "@/assets/ranking-banner.png.asset.json";
+import tutoriaisBanner from "@/assets/tutoriais-banner.png.asset.json";
 
 type Slide = {
   id: string;
@@ -18,26 +17,15 @@ type Slide = {
 
 const SLIDES: Slide[] = [
   {
-    id: "backs-radar",
-    href: "https://backsai.online",
-    image: backsRadarBanner.url,
-    alt: "Backs Radar - App parceiro do Backstage Pro para encontrar shows perto de você",
-    badge: "Parceiro Backstage",
-    title: "Encontre shows perto de você",
+    id: "tutoriais",
+    href: "/tutoriais",
+    image: tutoriaisBanner.url,
+    alt: "Tutoriais Backstage Pro - aprenda a usar a plataforma",
+    badge: "Aprenda agora",
+    title: "Tutoriais Backstage Pro",
     description:
-      "O app parceiro para cantores que querem mais palcos, mais oportunidades e mais audiência.",
-    cta: "Conhecer agora",
-  },
-  {
-    id: "ranking-shows",
-    href: "/ranking",
-    image: rankingBanner.url,
-    alt: "Ranking de Shows do mês - TOP 3 artistas",
-    badge: "Ranking Backstage",
-    title: "Confira o Ranking de Shows do mês",
-    description:
-      "Veja quem fez mais shows e conquiste o pódio. Atualizado todo mês automaticamente.",
-    cta: "Ver ranking",
+      "Aprenda de forma rápida e prática a usar todos os recursos da plataforma.",
+    cta: "Ver tutoriais",
   },
 ];
 
