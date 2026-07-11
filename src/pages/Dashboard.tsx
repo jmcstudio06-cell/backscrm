@@ -415,8 +415,11 @@ const Dashboard = () => {
     );
   }
 
+  const greetingTitle = `Olá, ${profile?.name || 'Artista'}!`;
+  const greetingSubtitle = format(now, "'Hoje é' EEEE, dd 'de' MMMM", { locale: ptBR });
+
   return (
-    <Layout title="Dashboard" subtitle="Visão geral da sua carreira">
+    <Layout title={greetingTitle} subtitle={greetingSubtitle} headerRightSlot={<HeaderTrialPill />}>
       {/* Monthly Show Goal Modal */}
       <MonthlyShowGoalModal
         open={showGoalModal}
