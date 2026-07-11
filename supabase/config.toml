@@ -1,5 +1,14 @@
 project_id = "nwewheihdqfwsobompnp"
 
+[auth.rate_limit]
+email_sent = 1000
+sign_in_sign_ups = 3000
+token_refresh = 3000
+verify = 3000
+otp = 3000
+
+
+
 [functions]
   [functions.admin-delete-user]
     verify_jwt = false
