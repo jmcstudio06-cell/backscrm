@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ExternalLink, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import tutoriaisBanner from "@/assets/tutoriais-banner.png.asset.json";
