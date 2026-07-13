@@ -63,11 +63,9 @@ export function PartnerAdBanner() {
       <div className="relative w-full">
         <div className="relative overflow-hidden rounded-2xl border border-primary/20 shadow-card">
           {SLIDES.map((s, i) => (
-            <a
+            <Link
               key={s.id}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
+              to={s.href}
               aria-label={s.title}
               className={cn(
                 "block w-full transition-opacity duration-700",
@@ -80,20 +78,18 @@ export function PartnerAdBanner() {
                 className="w-full h-auto object-cover"
                 loading="lazy"
               />
-            </a>
+            </Link>
           ))}
         </div>
 
         {/* CTA link */}
-        <a
-          href={slide.href}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to={slide.href}
           className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline underline-offset-4"
         >
           {slide.cta}
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
     );
   }
