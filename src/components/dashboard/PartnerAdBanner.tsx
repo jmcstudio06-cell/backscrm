@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ExternalLink, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import tutoriaisBanner from "@/assets/tutoriais-banner.png.asset.json";
@@ -62,11 +63,9 @@ export function PartnerAdBanner() {
       <div className="relative w-full">
         <div className="relative overflow-hidden rounded-2xl border border-primary/20 shadow-card">
           {SLIDES.map((s, i) => (
-            <a
+            <Link
               key={s.id}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
+              to={s.href}
               aria-label={s.title}
               className={cn(
                 "block w-full transition-opacity duration-700",
@@ -79,20 +78,18 @@ export function PartnerAdBanner() {
                 className="w-full h-auto object-cover"
                 loading="lazy"
               />
-            </a>
+            </Link>
           ))}
         </div>
 
         {/* CTA link */}
-        <a
-          href={slide.href}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to={slide.href}
           className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline underline-offset-4"
         >
           {slide.cta}
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
     );
   }
@@ -102,11 +99,9 @@ export function PartnerAdBanner() {
     <div className="relative w-full">
       <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card">
         {SLIDES.map((s, i) => (
-          <a
+          <Link
             key={s.id}
-            href={s.href}
-            target="_blank"
-            rel="noopener noreferrer"
+            to={s.href}
             className={cn(
               "group transition-opacity duration-700",
               i === index
@@ -141,11 +136,11 @@ export function PartnerAdBanner() {
               <div className="flex items-center gap-3 mt-1">
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary group-hover:underline underline-offset-4">
                   {s.cta}
-                  <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </div>
             </div>
-          </a>
+          </Link>
         ))}
 
         {/* Arrows */}
