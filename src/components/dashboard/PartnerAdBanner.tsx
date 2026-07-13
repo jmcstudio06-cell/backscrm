@@ -3,6 +3,7 @@ import { ExternalLink, Sparkles, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import tutoriaisBanner from "@/assets/tutoriais-banner.png.asset.json";
+import indicacoesBanner from "@/assets/indicacoes-banner.png.asset.json";
 
 type Slide = {
   id: string;
