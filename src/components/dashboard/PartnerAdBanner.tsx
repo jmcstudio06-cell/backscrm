@@ -28,6 +28,17 @@ const SLIDES: Slide[] = [
       "Aprenda de forma rápida e prática a usar todos os recursos da plataforma.",
     cta: "Ver tutoriais",
   },
+  {
+    id: "indicacoes",
+    href: "/indicacoes",
+    image: indicacoesBanner.url,
+    alt: "Indique e Ganhe - convide amigos e ganhe recompensas no Backstage Pro",
+    badge: "Indique e Ganhe",
+    title: "Indique Amigos e Ganhe",
+    description:
+      "Convide outros cantores para o Backstage Pro e receba dias de uso como recompensa.",
+    cta: "Ver painel de indicações",
+  },
 ];
 
 const ROTATION_MS = 6000;
