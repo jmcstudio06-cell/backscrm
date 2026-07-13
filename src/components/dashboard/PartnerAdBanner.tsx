@@ -99,11 +99,9 @@ export function PartnerAdBanner() {
     <div className="relative w-full">
       <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-card">
         {SLIDES.map((s, i) => (
-          <a
+          <Link
             key={s.id}
-            href={s.href}
-            target="_blank"
-            rel="noopener noreferrer"
+            to={s.href}
             className={cn(
               "group transition-opacity duration-700",
               i === index
@@ -138,11 +136,11 @@ export function PartnerAdBanner() {
               <div className="flex items-center gap-3 mt-1">
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary group-hover:underline underline-offset-4">
                   {s.cta}
-                  <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </div>
             </div>
-          </a>
+          </Link>
         ))}
 
         {/* Arrows */}
