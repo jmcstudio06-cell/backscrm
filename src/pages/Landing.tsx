@@ -270,11 +270,11 @@ const Landing = () => {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 sm:gap-4 mb-5 sm:mb-6 mt-6">
                 <Button
-                  onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
+                  onClick={() => navigate('/auth')}
                   size="lg"
                   className="bg-white text-[#0066CC] hover:bg-white/95 hover:scale-[1.02] font-bold px-6 sm:px-8 py-6 text-base sm:text-lg shadow-2xl shadow-black/30 transition-all duration-200 w-full sm:w-auto"
                 >
-                  Solicitar demo
+                  Cadastrar grátis
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
@@ -400,11 +400,11 @@ const Landing = () => {
       {/* Sticky mobile CTA */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">
         <Button
-          onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
+          onClick={() => navigate('/auth')}
           size="lg"
           className="w-full bg-gradient-to-r from-[#0066CC] to-[#00B4D8] hover:from-[#0055BB] hover:to-[#00A0C4] text-white font-bold py-5 text-base shadow-lg shadow-blue-500/30"
         >
-          Solicitar demo
+          Cadastrar grátis
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
@@ -575,9 +575,9 @@ const Landing = () => {
               <Button
                 size="lg"
                 className="bg-[#0066CC] hover:bg-[#0055BB] text-white px-8 py-6 text-lg font-semibold shadow-lg"
-                onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
+                onClick={() => navigate('/auth')}
               >
-                Solicitar demo
+                Cadastrar grátis
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
@@ -843,10 +843,10 @@ const Landing = () => {
 
               <Button 
                 size="lg"
-                onClick={() => window.open(DEMO_WHATSAPP_URL, '_blank')}
+                onClick={() => navigate('/auth')}
                 className="bg-white text-[#0066CC] hover:bg-white/90 font-semibold px-8 py-6 text-lg"
               >
-                Solicitar demo
+                Cadastrar grátis
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
 
