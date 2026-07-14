@@ -476,12 +476,6 @@ const Dashboard = () => {
         {/* Próxima consultoria / apresentação — temporariamente desativado */}
         {/* <NextConsultoriaCard /> */}
 
-        {/* #3 Cachês a receber - destaque no topo */}
-        <PendingCachetBanner
-          totalPending={pendingCachetData.totalPending}
-          pendingCount={pendingCachetData.pendingShows.length}
-        />
-
         {/* #1 Hero compacto: nome, nível, 4 stats inline, meta mensal */}
         <CompactCareerHero
           artistName={profile?.name || "Artista"}
@@ -497,6 +491,12 @@ const Dashboard = () => {
           monthlyGoalTarget={currentShowGoal?.target_value || 0}
           monthlyGoalAchieved={completedShowsThisMonth}
           annualProjection={annualProjection}
+        />
+
+        {/* #3 Cachês a receber - destaque logo abaixo do painel */}
+        <PendingCachetBanner
+          totalPending={pendingCachetData.totalPending}
+          pendingCount={pendingCachetData.pendingShows.length}
         />
 
         {/* #2 Termômetro da carreira */}
