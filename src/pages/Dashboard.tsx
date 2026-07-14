@@ -33,7 +33,6 @@ import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns"
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Lightbulb, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
