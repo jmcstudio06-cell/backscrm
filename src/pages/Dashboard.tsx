@@ -33,7 +33,6 @@ import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns"
 import { parseLocalDate } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Lightbulb, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -462,20 +461,6 @@ const Dashboard = () => {
       <div className="space-y-4 sm:space-y-6">
         {/* Gift Claim Card - shows when user has available gift */}
         <GiftClaimCard />
-
-        {/* Tutoriais CTA */}
-        <div className="flex justify-end animate-fade-in">
-          <button
-            onClick={() => navigate("/tutoriais")}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 hover:bg-primary/10 transition-colors shrink-0"
-          >
-            <Lightbulb className="w-4 h-4 text-primary flex-shrink-0" />
-            <span className="text-xs font-medium text-foreground">Aproveite 100% do seu plano</span>
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-          </button>
-        </div>
-
-
 
 
         {/* Ranking Teaser - removido temporariamente */}
