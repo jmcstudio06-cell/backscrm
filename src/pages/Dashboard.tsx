@@ -494,57 +494,42 @@ const Dashboard = () => {
           annualProjection={annualProjection}
         />
 
-        {/* #3 Cachês a receber - destaque logo abaixo do painel */}
-        <PendingCachetBanner
-          totalPending={pendingCachetData.totalPending}
-          pendingCount={pendingCachetData.pendingShows.length}
-        />
-
-        {/* #2 Termômetro da carreira */}
-        <CareerThermometerCard
-          showsThisMonth={showsThisMonth}
-          showsLastMonth={showsLastMonth}
-          monthlyGoal={currentShowGoal?.target_value || 0}
-          monthlyGoalProgress={
-            currentShowGoal && currentShowGoal.target_value > 0
-              ? (completedShowsThisMonth / currentShowGoal.target_value) * 100
-              : 0
-          }
-          revenueThisMonth={revenueThisMonth}
-          revenueLastMonth={revenueLastMonth}
-        />
-
-        {/* Evolução mensal + Ranking lado a lado */}
+        {/* Cachês a receber + Termômetro da carreira lado a lado */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <MonthlyEvolutionCard transactions={transactions} />
-          <DashboardAchievementsCard />
+          <PendingCachetBanner
+            totalPending={pendingCachetData.totalPending}
+            pendingCount={pendingCachetData.pendingShows.length}
+          />
+          <CareerThermometerCard
+            showsThisMonth={showsThisMonth}
+            showsLastMonth={showsLastMonth}
+            monthlyGoal={currentShowGoal?.target_value || 0}
+            monthlyGoalProgress={
+              currentShowGoal && currentShowGoal.target_value > 0
+                ? (completedShowsThisMonth / currentShowGoal.target_value) * 100
+                : 0
+            }
+            revenueThisMonth={revenueThisMonth}
+            revenueLastMonth={revenueLastMonth}
+          />
         </div>
+
+        {/* Conquistas */}
+        <DashboardAchievementsCard />
 
         {/* Onde você mais toca — distribuição por tipo de evento */}
         <EventTypeBreakdownCard shows={shows} />
 
+        {/* Ação recomendada */}
+        <RecommendedActionCard
+          hasLeads={hasLeads}
+          hasShows={hasShows}
+          hasContracts={hasContracts}
+          hasGoals={hasGoals}
+          pendingCachet={pendingCachetData.totalPending}
+          upcomingShowsCount={upcomingShows.length}
+        />
 
-
-
-        {/* Main Status Cards Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <CareerStatusCard
-            leadsThisMonth={leadsThisMonth}
-            leadsLastMonth={leadsLastMonth}
-            showsThisMonth={showsThisMonth}
-            showsLastMonth={showsLastMonth}
-            revenueThisMonth={revenueThisMonth}
-            revenueLastMonth={revenueLastMonth}
-          />
-          <RecommendedActionCard
-            hasLeads={hasLeads}
-            hasShows={hasShows}
-            hasContracts={hasContracts}
-            hasGoals={hasGoals}
-            pendingCachet={pendingCachetData.totalPending}
-            upcomingShowsCount={upcomingShows.length}
-          />
-        </div>
 
         {/* Financial & Shows Row - #6 próximos shows com resumo do mês */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
