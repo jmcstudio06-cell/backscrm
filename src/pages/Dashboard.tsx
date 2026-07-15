@@ -520,6 +520,11 @@ const Dashboard = () => {
           <DashboardAchievementsCard />
         </div>
 
+        {/* Onde você mais toca — distribuição por tipo de evento */}
+        <EventTypeBreakdownCard shows={shows} />
+
+
+
 
         {/* Main Status Cards Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
