@@ -5,7 +5,7 @@ import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
 import { CompactCareerHero } from "@/components/dashboard/CompactCareerHero";
 import { CareerThermometerCard } from "@/components/dashboard/CareerThermometerCard";
 import { PendingCachetBanner } from "@/components/dashboard/PendingCachetBanner";
-import { MonthlyEvolutionCard } from "@/components/dashboard/MonthlyEvolutionCard";
+
 import { DashboardAchievementsCard } from "@/components/dashboard/DashboardAchievementsCard";
 import { EventTypeBreakdownCard } from "@/components/dashboard/EventTypeBreakdownCard";
 import { HeaderTrialPill } from "@/components/dashboard/HeaderTrialPill";
