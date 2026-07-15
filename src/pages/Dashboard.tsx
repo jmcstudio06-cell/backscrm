@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { CareerStatusCard } from "@/components/dashboard/CareerStatusCard";
+
 import { RecommendedActionCard } from "@/components/dashboard/RecommendedActionCard";
 import { PendingCachetCard } from "@/components/dashboard/PendingCachetCard";
 import { CompactCareerHero } from "@/components/dashboard/CompactCareerHero";
