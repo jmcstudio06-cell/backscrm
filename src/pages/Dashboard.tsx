@@ -7,6 +7,7 @@ import { CareerThermometerCard } from "@/components/dashboard/CareerThermometerC
 import { PendingCachetBanner } from "@/components/dashboard/PendingCachetBanner";
 import { MonthlyEvolutionCard } from "@/components/dashboard/MonthlyEvolutionCard";
 import { DashboardAchievementsCard } from "@/components/dashboard/DashboardAchievementsCard";
+import { EventTypeBreakdownCard } from "@/components/dashboard/EventTypeBreakdownCard";
 import { HeaderTrialPill } from "@/components/dashboard/HeaderTrialPill";
 import { UpcomingShowsCard } from "@/components/dashboard/UpcomingShowsCard";
 import { MonthlyShowGoalModal } from "@/components/dashboard/MonthlyShowGoalModal";
@@ -518,6 +519,11 @@ const Dashboard = () => {
           <MonthlyEvolutionCard transactions={transactions} />
           <DashboardAchievementsCard />
         </div>
+
+        {/* Onde você mais toca — distribuição por tipo de evento */}
+        <EventTypeBreakdownCard shows={shows} />
+
+
 
 
         {/* Main Status Cards Row */}
