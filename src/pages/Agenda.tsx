@@ -325,12 +325,25 @@ export default function Agenda() {
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Importar
           </Button>
-          <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
+          <Button
+            size="sm"
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => handleOpenNewShow()}
+            disabled={monthlyLimit.blocked}
+            title={monthlyLimit.blocked ? "Limite de 5 shows/mês atingido" : undefined}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Novo Show
           </Button>
         </div>
       </div>
+
+      {monthlyLimit.isParceiros && (
+        <div className="mb-3 text-xs text-muted-foreground">
+          {monthlyLimit.used} de {monthlyLimit.limit} shows deste mês
+          {monthlyLimit.blocked && " — limite atingido"}
+        </div>
+      )}
 
       {viewMode === "calendar" ? (
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(520px,640px)_minmax(320px,1fr)] gap-4 items-start">
