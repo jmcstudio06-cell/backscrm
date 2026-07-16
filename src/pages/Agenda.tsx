@@ -97,6 +97,7 @@ const monthNames = [
 export default function Agenda() {
   const { shows, addShow, updateShow, deleteShow, cancelShow } = useShows();
   const { goals } = useGoals();
+  const monthlyLimit = useMonthlyShowLimit();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
@@ -193,6 +194,10 @@ export default function Agenda() {
   };
 
   const handleOpenNewShow = (presetDate?: Date) => {
+    if (monthlyLimit.blocked) {
+      toast.error("Limite de 5 shows/mês do plano Parceiros atingido");
+      return;
+    }
     setEditingShow(null);
     setIsModalOpen(true);
   };
