@@ -38,6 +38,7 @@ import { FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { useGoals } from "@/hooks/useGoals";
+import { useMonthlyShowLimit } from "@/hooks/useMonthlyShowLimit";
 
 const statusColors: Record<string, string> = {
   confirmed: "bg-primary",
