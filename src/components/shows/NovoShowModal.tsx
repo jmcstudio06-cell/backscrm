@@ -551,6 +551,10 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   };
 
   const handleSubmit = async () => {
+    if (!editingShow && monthlyLimit.blocked) {
+      toast.error("Limite de 5 shows/mês do plano Parceiros atingido");
+      return;
+    }
     if (!formData.name || !formData.date || !formData.venue) {
       toast.error("Preencha os campos obrigatórios: Nome, Data e Local");
       return;
