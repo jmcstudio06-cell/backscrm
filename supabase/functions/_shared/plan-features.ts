@@ -50,6 +50,8 @@ export const PLAN_FEATURES: Record<string, string[]> = {
   // Starter
   mensal_starter: STARTER_FEATURES,
   anual_starter: STARTER_FEATURES,
+  // Parceiros (same features as Starter, activated by token)
+  parceiros: STARTER_FEATURES,
   // Profissional
   mensal_profissional: PROFISSIONAL_FEATURES,
   anual_profissional: PROFISSIONAL_FEATURES,
