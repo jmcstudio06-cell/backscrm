@@ -38,6 +38,7 @@ import { FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { useGoals } from "@/hooks/useGoals";
+import { useMonthlyShowLimit } from "@/hooks/useMonthlyShowLimit";
 
 const statusColors: Record<string, string> = {
   confirmed: "bg-primary",
@@ -96,6 +97,7 @@ const monthNames = [
 export default function Agenda() {
   const { shows, addShow, updateShow, deleteShow, cancelShow } = useShows();
   const { goals } = useGoals();
+  const monthlyLimit = useMonthlyShowLimit();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
@@ -192,6 +194,10 @@ export default function Agenda() {
   };
 
   const handleOpenNewShow = (presetDate?: Date) => {
+    if (monthlyLimit.blocked) {
+      toast.error("Limite de 5 shows/mês do plano Parceiros atingido");
+      return;
+    }
     setEditingShow(null);
     setIsModalOpen(true);
   };
@@ -319,12 +325,25 @@ export default function Agenda() {
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Importar
           </Button>
-          <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => handleOpenNewShow()}>
+          <Button
+            size="sm"
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => handleOpenNewShow()}
+            disabled={monthlyLimit.blocked}
+            title={monthlyLimit.blocked ? "Limite de 5 shows/mês atingido" : undefined}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Novo Show
           </Button>
         </div>
       </div>
+
+      {monthlyLimit.isParceiros && (
+        <div className="mb-3 text-xs text-muted-foreground">
+          {monthlyLimit.used} de {monthlyLimit.limit} shows deste mês
+          {monthlyLimit.blocked && " — limite atingido"}
+        </div>
+      )}
 
       {viewMode === "calendar" ? (
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(520px,640px)_minmax(320px,1fr)] gap-4 items-start">

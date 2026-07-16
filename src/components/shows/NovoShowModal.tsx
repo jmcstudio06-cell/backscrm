@@ -60,6 +60,7 @@ import { MusicianModal } from "@/components/equipe/MusicianModal";
 import { useClients, Client } from "@/hooks/useClients";
 import { useChecklistTemplates } from "@/hooks/useChecklistTemplates";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { useMonthlyShowLimit } from "@/hooks/useMonthlyShowLimit";
 import { supabase } from "@/integrations/supabase/client";
 import TransportCalculatorModal from "@/components/calculadora/TransportCalculatorModal";
 import { useFormPersistence, clearAllShowFormData, hasPersistedShowData } from "@/hooks/useFormPersistence";
@@ -224,6 +225,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   const { clients, loading: clientsLoading, addClient } = useClients();
   const { templates: checklistTemplates, loading: templatesLoading } = useChecklistTemplates();
   const { isBlocked } = useFeatureBlocks();
+  const monthlyLimit = useMonthlyShowLimit();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("info");
   const [showTeamSelector, setShowTeamSelector] = useState(false);
@@ -549,6 +551,10 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
   };
 
   const handleSubmit = async () => {
+    if (!editingShow && monthlyLimit.blocked) {
+      toast.error("Limite de 5 shows/mês do plano Parceiros atingido");
+      return;
+    }
     if (!formData.name || !formData.date || !formData.venue) {
       toast.error("Preencha os campos obrigatórios: Nome, Data e Local");
       return;
