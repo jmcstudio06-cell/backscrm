@@ -37,6 +37,11 @@ export const PLAN_MODULES = {
     features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
     price: "R$ 19,90/mês",
   },
+  parceiros: {
+    name: "Parceiros",
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
+    price: "",
+  },
   profissional: {
     name: "Profissional",
     features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "link-instagram", "ideias-post", "tutoriais", "configuracoes"],

@@ -7,7 +7,7 @@ import { useProfile } from "@/hooks/useProfile";
 import ReactConfetti from "react-confetti";
 
 // Planos pagos que não devem ver o card de resgate
-const PAID_PLANS = ["mensal", "essencial", "completo", "mensal_starter", "mensal_profissional", "mensal_completo", "anual_starter", "anual_profissional", "anual_completo"];
+const PAID_PLANS = ["mensal", "essencial", "completo", "mensal_starter", "mensal_profissional", "mensal_completo", "anual_starter", "anual_profissional", "anual_completo", "mensal_empresarial", "anual_empresarial", "parceiros"];
 
 export function GiftClaimCard() {
   const { gifts, loading, claimGift, getAvailableGift } = useUserGifts();
