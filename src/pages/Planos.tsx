@@ -469,6 +469,11 @@ export default function Planos() {
         <InfoStrip />
         <TestimonialsSection />
         <ReassurancesBar />
+
+        {/* Token Parceiros e resgate de presentes — área Garantir Acesso */}
+        <div className="max-w-6xl mx-auto mt-12">
+          <GiftClaimCard />
+        </div>
       </div>
 
     </Layout>
