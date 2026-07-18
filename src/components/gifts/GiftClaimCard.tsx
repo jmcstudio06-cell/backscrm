@@ -154,7 +154,9 @@ export function GiftClaimCard() {
           )}
 
           {/* Token Parceiros */}
+          {!alreadyParceiros && (
           <div className={hasGift ? "pt-4 border-t border-amber-500/30" : ""}>
+
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="flex items-center gap-2 sm:min-w-[160px]">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow">
