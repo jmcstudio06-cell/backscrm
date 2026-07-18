@@ -19,7 +19,7 @@ import { PartnerAdBanner } from "@/components/dashboard/PartnerAdBanner";
 import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
-import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
+
 import { useLeads } from "@/hooks/useLeads";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useGoals } from "@/hooks/useGoals";
@@ -460,8 +460,6 @@ const Dashboard = () => {
 
 
       <div className="space-y-4 sm:space-y-6">
-        {/* Gift Claim Card - shows when user has available gift */}
-        <GiftClaimCard />
 
 
         {/* Ranking Teaser - removido temporariamente */}

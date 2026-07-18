@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -468,6 +469,11 @@ export default function Planos() {
         <InfoStrip />
         <TestimonialsSection />
         <ReassurancesBar />
+
+        {/* Token Parceiros e resgate de presentes — área Garantir Acesso */}
+        <div className="max-w-6xl mx-auto mt-12">
+          <GiftClaimCard />
+        </div>
       </div>
 
     </Layout>
