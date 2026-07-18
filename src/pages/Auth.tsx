@@ -189,9 +189,7 @@ const Auth = () => {
           }
           throw error;
         }
-        setResetEmail(formData.email);
-        setView("signup-sent");
-        toast({ title: "Confirme seu email", description: "Enviamos um link de confirmação para seu email." });
+        toast({ title: "Cadastro realizado!", description: "Bem-vindo ao Backstage Pro!" });
       }
     } catch (error: any) {
       toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
