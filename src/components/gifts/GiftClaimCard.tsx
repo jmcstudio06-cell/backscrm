@@ -194,6 +194,8 @@ export function GiftClaimCard() {
               </Button>
             </div>
           </div>
+          )}
+
         </CardContent>
       </Card>
     </>
