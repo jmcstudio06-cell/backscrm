@@ -87,11 +87,11 @@ export function GiftClaimCard() {
 
   if (loading || profileLoading) return null;
 
-  // Não mostrar para usuários com planos pagos
-  if (profile?.plan && PAID_PLANS.includes(profile.plan)) return null;
-
-  // Se não há brinde disponível, mostramos apenas o input de token
-  const hasGift = !!availableGift;
+  // Se já está no plano Parceiros, não mostra o token.
+  const alreadyParceiros = profile?.plan === "parceiros";
+  // Esconde o bloco de brinde para planos pagos, mas mantém o Token Parceiros disponível.
+  const hideGift = !!(profile?.plan && PAID_PLANS.includes(profile.plan));
+  const hasGift = !!availableGift && !hideGift;
 
   return (
     <>
@@ -106,6 +106,7 @@ export function GiftClaimCard() {
 
       <Card className="bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-amber-500/50 shadow-lg animate-pulse-slow">
         <CardContent className="p-4 sm:p-6 space-y-4">
+
           {hasGift && (
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative">
