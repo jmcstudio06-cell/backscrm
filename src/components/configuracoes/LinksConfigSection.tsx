@@ -15,6 +15,7 @@ export function LinksConfigSection() {
 
   const agendaBlocked = isBlocked("link-agenda");
   const instagramBlocked = isBlocked("link-instagram");
+  const orcamentoBlocked = isBlocked("link-orcamento");
 
   const PUBLIC_DOMAIN = "https://backstagepro.online";
   const agendaUrl = profile?.slug
@@ -22,6 +23,9 @@ export function LinksConfigSection() {
     : null;
   const instagramUrl = profile?.slug
     ? `${PUBLIC_DOMAIN}/link/${profile.slug}`
+    : null;
+  const orcamentoUrl = profile?.slug
+    ? `${PUBLIC_DOMAIN}/orcamento/${profile.slug}`
     : null;
 
   const handleCopy = (url: string, key: string) => {
