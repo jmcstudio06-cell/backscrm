@@ -4,7 +4,7 @@ import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
-import { Copy, Check, ExternalLink, CalendarDays, Instagram, Lock, Crown } from "lucide-react";
+import { Copy, Check, ExternalLink, CalendarDays, Instagram, Lock, Crown, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 export function LinksConfigSection() {
@@ -15,6 +15,7 @@ export function LinksConfigSection() {
 
   const agendaBlocked = isBlocked("link-agenda");
   const instagramBlocked = isBlocked("link-instagram");
+  const orcamentoBlocked = isBlocked("link-orcamento");
 
   const PUBLIC_DOMAIN = "https://backstagepro.online";
   const agendaUrl = profile?.slug
@@ -22,6 +23,9 @@ export function LinksConfigSection() {
     : null;
   const instagramUrl = profile?.slug
     ? `${PUBLIC_DOMAIN}/link/${profile.slug}`
+    : null;
+  const orcamentoUrl = profile?.slug
+    ? `${PUBLIC_DOMAIN}/orcamento/${profile.slug}`
     : null;
 
   const handleCopy = (url: string, key: string) => {
@@ -69,6 +73,20 @@ export function LinksConfigSection() {
             copied={copied === "instagram"}
             onUpgrade={() => navigate("/planos")}
             gradient="from-pink-500 via-rose-500 to-orange-400"
+          />
+
+          {/* LINK ORÇAMENTO */}
+          <LinkCard
+            icon={FileText}
+            title="Link Orçamento"
+            description="Página de apresentação com pacotes, depoimentos e botão de WhatsApp para fechar mais shows"
+            url={orcamentoUrl}
+            blocked={orcamentoBlocked}
+            planName="Profissional"
+            onCopy={(u) => handleCopy(u, "orcamento")}
+            copied={copied === "orcamento"}
+            onUpgrade={() => navigate("/planos")}
+            gradient="from-amber-400 via-amber-500 to-orange-500"
           />
 
           {!profile?.slug && (

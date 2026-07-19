@@ -257,6 +257,16 @@ export type Database = {
           booking_min_dates_discount: number
           booking_show_products: boolean
           booking_whatsapp: string | null
+          budget_bg_image_url: string | null
+          budget_cover_image_url: string | null
+          budget_cover_type: string
+          budget_headline: string | null
+          budget_intro: string | null
+          budget_link_enabled: boolean
+          budget_packages: Json
+          budget_reviews: Json
+          budget_video_url: string | null
+          budget_whatsapp: string | null
           created_at: string
           instagram_url: string | null
           link_bg_image_url: string | null
@@ -285,6 +295,16 @@ export type Database = {
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           booking_whatsapp?: string | null
+          budget_bg_image_url?: string | null
+          budget_cover_image_url?: string | null
+          budget_cover_type?: string
+          budget_headline?: string | null
+          budget_intro?: string | null
+          budget_link_enabled?: boolean
+          budget_packages?: Json
+          budget_reviews?: Json
+          budget_video_url?: string | null
+          budget_whatsapp?: string | null
           created_at?: string
           instagram_url?: string | null
           link_bg_image_url?: string | null
@@ -313,6 +333,16 @@ export type Database = {
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           booking_whatsapp?: string | null
+          budget_bg_image_url?: string | null
+          budget_cover_image_url?: string | null
+          budget_cover_type?: string
+          budget_headline?: string | null
+          budget_intro?: string | null
+          budget_link_enabled?: boolean
+          budget_packages?: Json
+          budget_reviews?: Json
+          budget_video_url?: string | null
+          budget_whatsapp?: string | null
           created_at?: string
           instagram_url?: string | null
           link_bg_image_url?: string | null
@@ -1491,6 +1521,16 @@ export type Database = {
           booking_min_dates_discount: number
           booking_show_products: boolean
           booking_whatsapp: string | null
+          budget_bg_image_url: string | null
+          budget_cover_image_url: string | null
+          budget_cover_type: string
+          budget_headline: string | null
+          budget_intro: string | null
+          budget_link_enabled: boolean
+          budget_packages: Json
+          budget_reviews: Json
+          budget_video_url: string | null
+          budget_whatsapp: string | null
           cancel_at_period_end: boolean | null
           city: string | null
           consultoria_activated_at: string | null
@@ -1555,6 +1595,16 @@ export type Database = {
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           booking_whatsapp?: string | null
+          budget_bg_image_url?: string | null
+          budget_cover_image_url?: string | null
+          budget_cover_type?: string
+          budget_headline?: string | null
+          budget_intro?: string | null
+          budget_link_enabled?: boolean
+          budget_packages?: Json
+          budget_reviews?: Json
+          budget_video_url?: string | null
+          budget_whatsapp?: string | null
           cancel_at_period_end?: boolean | null
           city?: string | null
           consultoria_activated_at?: string | null
@@ -1619,6 +1669,16 @@ export type Database = {
           booking_min_dates_discount?: number
           booking_show_products?: boolean
           booking_whatsapp?: string | null
+          budget_bg_image_url?: string | null
+          budget_cover_image_url?: string | null
+          budget_cover_type?: string
+          budget_headline?: string | null
+          budget_intro?: string | null
+          budget_link_enabled?: boolean
+          budget_packages?: Json
+          budget_reviews?: Json
+          budget_video_url?: string | null
+          budget_whatsapp?: string | null
           cancel_at_period_end?: boolean | null
           city?: string | null
           consultoria_activated_at?: string | null

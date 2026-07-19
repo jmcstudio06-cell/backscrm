@@ -48,6 +48,8 @@ import ArtesCanva from "./pages/ArtesCanva";
 import Booking from "./pages/Booking";
 import LinkInstagram from "./pages/LinkInstagram";
 import LinkInstagramConfig from "./pages/LinkInstagramConfig";
+import LinkOrcamento from "./pages/LinkOrcamento";
+import LinkOrcamentoConfig from "./pages/LinkOrcamentoConfig";
 import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
 import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
@@ -151,9 +153,11 @@ const App = () => (
                 <Route path="/sugestoes" element={<AuthPage><Sugestoes /></AuthPage>} />
                 {/* <Route path="/consultoria" element={<AuthPage><Consultoria /></AuthPage>} /> */}
                 <Route path="/link-instagram" element={<AuthPage featureKey="link-instagram"><LinkInstagramConfig /></AuthPage>} />
+                <Route path="/link-orcamento" element={<AuthPage featureKey="link-orcamento"><LinkOrcamentoConfig /></AuthPage>} />
                 
                 <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="/link/:slug" element={<ErrorBoundary><LinkInstagram /></ErrorBoundary>} />
+                <Route path="/orcamento/:slug" element={<ErrorBoundary><LinkOrcamento /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CustomizationProvider>
