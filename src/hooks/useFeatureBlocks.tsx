@@ -29,6 +29,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   configuracoes: true,
   "link-agenda": true,
   "link-instagram": true,
+  "link-orcamento": true,
 };
 
 export const PLAN_MODULES = {
