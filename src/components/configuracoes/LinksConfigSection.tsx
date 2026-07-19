@@ -75,6 +75,20 @@ export function LinksConfigSection() {
             gradient="from-pink-500 via-rose-500 to-orange-400"
           />
 
+          {/* LINK ORÇAMENTO */}
+          <LinkCard
+            icon={FileText}
+            title="Link Orçamento"
+            description="Página de apresentação com pacotes, depoimentos e botão de WhatsApp para fechar mais shows"
+            url={orcamentoUrl}
+            blocked={orcamentoBlocked}
+            planName="Profissional"
+            onCopy={(u) => handleCopy(u, "orcamento")}
+            copied={copied === "orcamento"}
+            onUpgrade={() => navigate("/planos")}
+            gradient="from-amber-400 via-amber-500 to-orange-500"
+          />
+
           {!profile?.slug && (
             <p className="text-xs text-muted-foreground text-center pt-2">
               Configure seu nome artístico no <span className="font-semibold">Perfil Artístico</span> para gerar seus links automaticamente.
