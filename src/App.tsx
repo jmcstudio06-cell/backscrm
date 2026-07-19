@@ -48,6 +48,8 @@ import ArtesCanva from "./pages/ArtesCanva";
 import Booking from "./pages/Booking";
 import LinkInstagram from "./pages/LinkInstagram";
 import LinkInstagramConfig from "./pages/LinkInstagramConfig";
+import LinkOrcamento from "./pages/LinkOrcamento";
+import LinkOrcamentoConfig from "./pages/LinkOrcamentoConfig";
 import Solicitacoes from "./pages/Solicitacoes";
 import ServicosProdutos from "./pages/ServicosProdutos";
 import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
