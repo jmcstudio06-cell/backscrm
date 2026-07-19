@@ -38,6 +38,7 @@ import {
   Lightbulb,
   Link2,
   Instagram,
+  FileText,
   GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
