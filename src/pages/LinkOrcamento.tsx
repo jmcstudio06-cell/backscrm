@@ -18,6 +18,10 @@ import {
   Youtube,
   Globe,
   FileText,
+  Award,
+  Film,
+  Play as PlayIcon,
+
 } from "lucide-react";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
