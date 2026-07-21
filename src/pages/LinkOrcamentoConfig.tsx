@@ -214,6 +214,28 @@ export default function LinkOrcamentoConfig() {
     setUploadingReviewIdx(null);
   };
 
+  const handleGalleryImageUpload = async (idx: number, file: File) => {
+    setUploadingGalleryIdx(idx);
+    const url = await uploadImage(file, `gallery-${idx}`);
+    if (url) {
+      const next = [...gallery];
+      next[idx] = { ...next[idx], image_url: url };
+      setGallery(next);
+    }
+    setUploadingGalleryIdx(null);
+  };
+
+  const handleBrandImageUpload = async (idx: number, file: File) => {
+    setUploadingBrandIdx(idx);
+    const url = await uploadImage(file, `brand-${idx}`);
+    if (url) {
+      const next = [...brands];
+      next[idx] = { ...next[idx], image_url: url };
+      setBrands(next);
+    }
+    setUploadingBrandIdx(null);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -228,6 +250,9 @@ export default function LinkOrcamentoConfig() {
         budget_whatsapp: whatsapp.replace(/\D/g, "") || null,
         budget_packages: packages.filter((p) => p.title || p.price_text) as any,
         budget_reviews: reviews.filter((r) => r.author || r.text) as any,
+        budget_gallery: gallery.filter((g) => g.image_url) as any,
+        budget_brands: brands.filter((b) => b.image_url) as any,
+        budget_videos: videos.filter((v) => v.url) as any,
       } as any);
       toast.success("Link Orçamento atualizado!");
     } catch (err) {
