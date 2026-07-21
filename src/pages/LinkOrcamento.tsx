@@ -18,6 +18,10 @@ import {
   Youtube,
   Globe,
   FileText,
+  Award,
+  Film,
+  Play as PlayIcon,
+
 } from "lucide-react";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 
@@ -36,6 +40,10 @@ type BudgetReview = {
   rating?: number;
   image_url?: string;
 };
+
+type GalleryItem = { image_url?: string; caption?: string };
+type BrandItem = { image_url?: string; name?: string };
+type VideoItem = { url?: string; title?: string };
 
 interface PublicProfile {
   user_id: string;
@@ -63,6 +71,9 @@ interface PublicProfile {
   budget_whatsapp?: string | null;
   budget_packages?: BudgetPackage[] | null;
   budget_reviews?: BudgetReview[] | null;
+  budget_gallery?: GalleryItem[] | null;
+  budget_brands?: BrandItem[] | null;
+  budget_videos?: VideoItem[] | null;
 }
 
 export default function LinkOrcamento() {
@@ -145,6 +156,9 @@ export default function LinkOrcamento() {
     (p) => p && (p.title || p.price_text)
   );
   const reviews = (profile.budget_reviews || []).filter((r) => r && (r.text || r.author));
+  const gallery = (profile.budget_gallery || []).filter((g) => g && g.image_url);
+  const brands = (profile.budget_brands || []).filter((b) => b && b.image_url);
+  const videos = (profile.budget_videos || []).filter((v) => v && v.url);
 
   const headline = profile.budget_headline || "Faça seu evento inesquecível";
   const intro =
@@ -326,7 +340,141 @@ export default function LinkOrcamento() {
           </a>
         )}
 
+        {/* Gallery — shows marcantes (fotos) */}
+        {gallery.length > 0 && (
+          <section className="space-y-4">
+            <div className="text-center">
+              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-300/80">
+                Momentos no Palco
+              </p>
+              <h3
+                style={{ fontFamily: "'Playfair Display', serif" }}
+                className="text-2xl sm:text-3xl font-bold text-white mt-1"
+              >
+                Shows que ficaram na memória
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {gallery.map((g, i) => (
+                <figure
+                  key={i}
+                  className="group relative rounded-2xl overflow-hidden border border-white/10 aspect-[4/5] bg-white/5"
+                >
+                  <img
+                    src={g.image_url as string}
+                    alt={g.caption || `Show ${i + 1}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  {g.caption && (
+                    <>
+                      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
+                      <figcaption className="absolute bottom-2 left-2 right-2 text-[11px] font-medium text-white/95 leading-tight drop-shadow">
+                        {g.caption}
+                      </figcaption>
+                    </>
+                  )}
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Videos — shows marcantes (vídeos) */}
+        {videos.length > 0 && (
+          <section className="space-y-4">
+            <div className="text-center">
+              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-300/80">
+                Assista em Ação
+              </p>
+              <h3
+                style={{ fontFamily: "'Playfair Display', serif" }}
+                className="text-2xl sm:text-3xl font-bold text-white mt-1"
+              >
+                Shows marcantes
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {videos.map((v, i) => {
+                const embed = getYouTubeEmbedUrl(v.url || undefined);
+                const id = v.url?.match(
+                  /(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{6,})/
+                )?.[1];
+                const thumb = id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+                return (
+                  <a
+                    key={i}
+                    href={v.url as string}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative rounded-2xl overflow-hidden border border-white/10 aspect-video bg-black block"
+                  >
+                    {thumb && (
+                      <img
+                        src={thumb}
+                        alt={v.title || `Vídeo ${i + 1}`}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="w-14 h-14 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/40 group-hover:bg-white group-hover:text-black transition-all shadow-xl">
+                        <PlayIcon className="w-6 h-6 fill-current ml-0.5" />
+                      </span>
+                    </div>
+                    {v.title && (
+                      <p className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white drop-shadow-lg">
+                        {v.title}
+                      </p>
+                    )}
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Brands — marcas que confiaram */}
+        {brands.length > 0 && (
+          <section className="space-y-4">
+            <div className="text-center">
+              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-300/80">
+                Confiança de Quem Contrata
+              </p>
+              <h3
+                style={{ fontFamily: "'Playfair Display', serif" }}
+                className="text-2xl sm:text-3xl font-bold text-white mt-1"
+              >
+                Marcas que já confiaram
+              </h3>
+              <p className="text-white/60 text-sm mt-2 max-w-lg mx-auto">
+                Casas, empresas e eventos que escolheram a nossa apresentação.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md p-5 sm:p-6">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4 items-center">
+                {brands.map((b, i) => (
+                  <div
+                    key={i}
+                    className="aspect-[3/2] rounded-xl bg-white flex items-center justify-center p-3 hover:scale-105 transition-transform"
+                    title={b.name || ""}
+                  >
+                    <img
+                      src={b.image_url as string}
+                      alt={b.name || `Marca ${i + 1}`}
+                      loading="lazy"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Packages */}
+
         {packages.length > 0 && (
           <section className="space-y-4">
             <div className="text-center">
