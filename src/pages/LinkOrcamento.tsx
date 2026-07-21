@@ -156,6 +156,9 @@ export default function LinkOrcamento() {
     (p) => p && (p.title || p.price_text)
   );
   const reviews = (profile.budget_reviews || []).filter((r) => r && (r.text || r.author));
+  const gallery = (profile.budget_gallery || []).filter((g) => g && g.image_url);
+  const brands = (profile.budget_brands || []).filter((b) => b && b.image_url);
+  const videos = (profile.budget_videos || []).filter((v) => v && v.url);
 
   const headline = profile.budget_headline || "Faça seu evento inesquecível";
   const intro =
