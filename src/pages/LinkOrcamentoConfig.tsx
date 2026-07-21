@@ -29,6 +29,9 @@ import {
   Sparkles,
   Quote,
   Star,
+  Images,
+  Award,
+  Film,
 } from "lucide-react";
 import { toast } from "sonner";
 
