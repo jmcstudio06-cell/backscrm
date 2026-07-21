@@ -142,6 +142,12 @@ export default function LinkOrcamentoConfig() {
         image_url: x?.image_url || "",
       }))
     );
+    const g = Array.isArray(p.budget_gallery) ? p.budget_gallery : [];
+    setGallery(g.map((x: any) => ({ image_url: x?.image_url || "", caption: x?.caption || "" })));
+    const b = Array.isArray(p.budget_brands) ? p.budget_brands : [];
+    setBrands(b.map((x: any) => ({ image_url: x?.image_url || "", name: x?.name || "" })));
+    const v = Array.isArray(p.budget_videos) ? p.budget_videos : [];
+    setVideos(v.map((x: any) => ({ url: x?.url || "", title: x?.title || "" })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.user_id]);
 
