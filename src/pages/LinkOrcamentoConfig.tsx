@@ -103,6 +103,11 @@ export default function LinkOrcamentoConfig() {
   const [whatsapp, setWhatsapp] = useState("");
   const [packages, setPackages] = useState<Pkg[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [brands, setBrands] = useState<BrandItem[]>([]);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [uploadingGalleryIdx, setUploadingGalleryIdx] = useState<number | null>(null);
+  const [uploadingBrandIdx, setUploadingBrandIdx] = useState<number | null>(null);
 
   useEffect(() => {
     if (!profile) return;
