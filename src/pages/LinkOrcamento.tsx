@@ -71,6 +71,9 @@ interface PublicProfile {
   budget_whatsapp?: string | null;
   budget_packages?: BudgetPackage[] | null;
   budget_reviews?: BudgetReview[] | null;
+  budget_gallery?: GalleryItem[] | null;
+  budget_brands?: BrandItem[] | null;
+  budget_videos?: VideoItem[] | null;
 }
 
 export default function LinkOrcamento() {
