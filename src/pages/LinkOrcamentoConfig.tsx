@@ -54,6 +54,10 @@ type Review = {
   image_url: string;
 };
 
+type GalleryItem = { image_url: string; caption: string };
+type BrandItem = { image_url: string; name: string };
+type VideoItem = { url: string; title: string };
+
 const emptyPkg = (): Pkg => ({
   title: "",
   subtitle: "",
@@ -69,6 +73,10 @@ const emptyReview = (): Review => ({
   rating: 5,
   image_url: "",
 });
+
+const emptyGallery = (): GalleryItem => ({ image_url: "", caption: "" });
+const emptyBrand = (): BrandItem => ({ image_url: "", name: "" });
+const emptyVideo = (): VideoItem => ({ url: "", title: "" });
 
 export default function LinkOrcamentoConfig() {
   const { profile, updateProfile } = useProfile();
