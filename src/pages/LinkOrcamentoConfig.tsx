@@ -846,6 +846,237 @@ export default function LinkOrcamentoConfig() {
               ))}
             </Card>
 
+            {/* Galeria de shows */}
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Images className="w-4 h-4 text-amber-500" /> Galeria de Shows
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Fotos marcantes que mostram autoridade — palco, público, bastidores.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setGallery([...gallery, emptyGallery()])}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Adicionar foto
+                </Button>
+              </div>
+
+              {gallery.length === 0 && (
+                <p className="text-sm text-muted-foreground italic text-center py-6 bg-secondary/20 rounded-lg border border-dashed border-border">
+                  Nenhuma foto ainda. Adicione fotos dos seus melhores shows.
+                </p>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {gallery.map((g, i) => (
+                  <div key={i} className="rounded-xl border border-border/60 bg-secondary/20 p-3 space-y-2">
+                    <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-secondary/40 border border-border/60">
+                      {g.image_url ? (
+                        <img src={g.image_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <label className="absolute bottom-2 right-2 cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleGalleryImageUpload(i, f);
+                          }}
+                        />
+                        <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-background/95 border border-border shadow-sm hover:bg-secondary">
+                          {uploadingGalleryIdx === i ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Camera className="w-3 h-3" />
+                          )}
+                          {g.image_url ? "Trocar" : "Enviar"}
+                        </span>
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={g.caption}
+                        onChange={(e) => {
+                          const next = [...gallery];
+                          next[i] = { ...next[i], caption: e.target.value };
+                          setGallery(next);
+                        }}
+                        placeholder="Legenda (ex: Casamento — Villa Bisutti)"
+                        className="text-sm"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setGallery(gallery.filter((_, x) => x !== i))}
+                        className="text-destructive shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Marcas / Parcerias */}
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Award className="w-4 h-4 text-amber-500" /> Marcas que confiaram
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Logos de eventos, empresas, bares e casas que já contrataram você.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setBrands([...brands, emptyBrand()])}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Adicionar marca
+                </Button>
+              </div>
+
+              {brands.length === 0 && (
+                <p className="text-sm text-muted-foreground italic text-center py-6 bg-secondary/20 rounded-lg border border-dashed border-border">
+                  Sem marcas ainda. Envie logos das casas e empresas.
+                </p>
+              )}
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {brands.map((b, i) => (
+                  <div key={i} className="rounded-xl border border-border/60 bg-secondary/20 p-3 space-y-2">
+                    <div className="relative aspect-[3/2] rounded-lg overflow-hidden bg-white border border-border/60 flex items-center justify-center">
+                      {b.image_url ? (
+                        <img src={b.image_url} alt={b.name} className="max-w-full max-h-full object-contain p-2" />
+                      ) : (
+                        <Award className="w-8 h-8 text-muted-foreground" />
+                      )}
+                      <label className="absolute bottom-1.5 right-1.5 cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleBrandImageUpload(i, f);
+                          }}
+                        />
+                        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-md bg-background/95 border border-border shadow-sm hover:bg-secondary">
+                          {uploadingBrandIdx === i ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Camera className="w-3 h-3" />
+                          )}
+                        </span>
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        value={b.name}
+                        onChange={(e) => {
+                          const next = [...brands];
+                          next[i] = { ...next[i], name: e.target.value };
+                          setBrands(next);
+                        }}
+                        placeholder="Nome"
+                        className="text-xs h-8"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setBrands(brands.filter((_, x) => x !== i))}
+                        className="text-destructive shrink-0 h-8 w-8 p-0"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Vídeos de shows marcantes */}
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Film className="w-4 h-4 text-amber-500" /> Shows marcantes (vídeos)
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Links do YouTube com performances que impressionam.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setVideos([...videos, emptyVideo()])}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Adicionar vídeo
+                </Button>
+              </div>
+
+              {videos.length === 0 && (
+                <p className="text-sm text-muted-foreground italic text-center py-6 bg-secondary/20 rounded-lg border border-dashed border-border">
+                  Nenhum vídeo ainda. Cole links do YouTube.
+                </p>
+              )}
+
+              <div className="space-y-3">
+                {videos.map((v, i) => (
+                  <div
+                    key={i}
+                    className="rounded-xl border border-border/60 bg-secondary/20 p-3 grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-center"
+                  >
+                    <Input
+                      value={v.url}
+                      onChange={(e) => {
+                        const next = [...videos];
+                        next[i] = { ...next[i], url: e.target.value };
+                        setVideos(next);
+                      }}
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                    <Input
+                      value={v.title}
+                      onChange={(e) => {
+                        const next = [...videos];
+                        next[i] = { ...next[i], title: e.target.value };
+                        setVideos(next);
+                      }}
+                      placeholder="Título (ex: Live no Villa Country)"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setVideos(videos.filter((_, x) => x !== i))}
+                      className="text-destructive shrink-0 justify-self-end"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+
             <div className="sticky bottom-4 flex justify-end">
               <Button size="lg" onClick={handleSave} disabled={saving} className="shadow-lg">
                 {saving ? (
