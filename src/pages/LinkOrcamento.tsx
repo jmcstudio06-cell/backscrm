@@ -41,6 +41,10 @@ type BudgetReview = {
   image_url?: string;
 };
 
+type GalleryItem = { image_url?: string; caption?: string };
+type BrandItem = { image_url?: string; name?: string };
+type VideoItem = { url?: string; title?: string };
+
 interface PublicProfile {
   user_id: string;
   slug: string;
