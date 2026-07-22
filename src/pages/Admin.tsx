@@ -111,6 +111,7 @@ const FEATURES: { key: string; label: string }[] = [
 const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
   { value: "trial", label: "Trial (1h)" },
+  { value: "parceiros", label: "Parceiros" },
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Prof." },
   { value: "mensal_completo", label: "Mensal Completo" },
@@ -142,6 +143,7 @@ const USERS_PER_PAGE = 10;
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
   trial:                 { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", icon: <Calendar className="h-5 w-5" /> },
+  parceiros:             { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/20", icon: <Heart className="h-5 w-5" /> },
   mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
   mensal_completo:       { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
@@ -177,7 +179,7 @@ export default function Admin() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [planStats, setPlanStats] = useState<Record<string, number>>({
-    trial: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
+    trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
     anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
   });
   const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
@@ -235,7 +237,7 @@ export default function Admin() {
       
       if (planResult.data) {
         const stats: Record<string, number> = {
-          trial: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
+          trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
            anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
         };
         planResult.data.forEach(p => {
@@ -314,15 +316,20 @@ export default function Admin() {
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
     
     if (plan !== "expirado" && plan !== "comprou_expirado") {
-      // Para trial: sempre usar agora (now) para reiniciar a contagem de 1h.
-      // Para planos pagos: respeitar data customizada ou hoje.
-      if (plan === "trial") {
+      // Parceiros é ativado por token e não expira
+      if (plan === "parceiros") {
+        updates.trial_start = null;
+        updates.trial_days = null;
+      } else if (plan === "trial") {
+        // Para trial: sempre usar agora (now) para reiniciar a contagem de 1h.
         updates.trial_start = new Date().toISOString();
+        updates.trial_days = PLAN_DURATIONS[plan] || 3;
       } else {
+        // Para planos pagos: respeitar data customizada ou hoje.
         const startDate = customStartDate || new Date().toISOString().split("T")[0];
         updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
+        updates.trial_days = PLAN_DURATIONS[plan] || 3;
       }
-      updates.trial_days = PLAN_DURATIONS[plan] || 3;
     }
 
     const newFeatureBlocks: Record<string, boolean> = {};
@@ -475,7 +482,7 @@ export default function Admin() {
 
   const getPlanBadge = (plan: string | null) => {
     const p = plan || "trial";
-    const labels: Record<string, string> = { trial: "Trial (1h)", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
+    const labels: Record<string, string> = { trial: "Trial (1h)", parceiros: "Parceiros", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
     const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
     return (
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
@@ -661,6 +668,7 @@ export default function Admin() {
                           className="w-full mt-1.5 px-3 py-2.5 border rounded-lg bg-background text-sm font-medium"
                         >
                           <option value="trial">Trial (3 dias)</option>
+                          <option value="parceiros">Parceiros (token)</option>
                           <optgroup label="Mensal (30 dias)">
                             <option value="mensal_starter">Mensal Starter</option>
                             <option value="mensal_profissional">Mensal Profissional</option>
