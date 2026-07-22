@@ -111,6 +111,7 @@ const FEATURES: { key: string; label: string }[] = [
 const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
   { value: "trial", label: "Trial (1h)" },
+  { value: "parceiros", label: "Parceiros" },
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Prof." },
   { value: "mensal_completo", label: "Mensal Completo" },
