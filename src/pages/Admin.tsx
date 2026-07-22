@@ -316,15 +316,20 @@ export default function Admin() {
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
     
     if (plan !== "expirado" && plan !== "comprou_expirado") {
-      // Para trial: sempre usar agora (now) para reiniciar a contagem de 1h.
-      // Para planos pagos: respeitar data customizada ou hoje.
-      if (plan === "trial") {
+      // Parceiros é ativado por token e não expira
+      if (plan === "parceiros") {
+        updates.trial_start = null;
+        updates.trial_days = null;
+      } else if (plan === "trial") {
+        // Para trial: sempre usar agora (now) para reiniciar a contagem de 1h.
         updates.trial_start = new Date().toISOString();
+        updates.trial_days = PLAN_DURATIONS[plan] || 3;
       } else {
+        // Para planos pagos: respeitar data customizada ou hoje.
         const startDate = customStartDate || new Date().toISOString().split("T")[0];
         updates.trial_start = new Date(startDate + "T00:00:00").toISOString();
+        updates.trial_days = PLAN_DURATIONS[plan] || 3;
       }
-      updates.trial_days = PLAN_DURATIONS[plan] || 3;
     }
 
     const newFeatureBlocks: Record<string, boolean> = {};
