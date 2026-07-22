@@ -493,7 +493,7 @@ export default function LinkOrcamento() {
               {packages.map((pkg, idx) => (
                 <div
                   key={idx}
-                  className={`relative rounded-2xl p-6 border backdrop-blur-md transition-all hover:-translate-y-0.5 ${
+                  className={`relative flex flex-col h-full rounded-2xl p-6 border backdrop-blur-md transition-all hover:-translate-y-0.5 ${
                     pkg.highlighted
                       ? "bg-gradient-to-br from-amber-400/20 to-amber-500/10 border-amber-300/50 shadow-[0_20px_50px_-15px_rgba(251,191,36,0.4)]"
                       : "bg-white/5 border-white/10 hover:border-white/25"
