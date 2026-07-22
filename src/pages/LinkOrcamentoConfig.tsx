@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
-import { LivePreviewFrame } from "@/components/configuracoes/LivePreviewFrame";
+
 import {
   Copy,
   Check,
@@ -296,14 +296,8 @@ export default function LinkOrcamentoConfig() {
       subtitle="Página exclusiva para apresentar seus pacotes e receber pedidos de orçamento"
     >
       <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
-        {!blocked && (
-          <LivePreviewFrame
-            url={orcamentoUrl}
-            title="Sua página Link Orçamento"
-            subtitle="Veja como sua página aparece para contratantes"
-            refreshKey={(profile as any)?.updated_at}
-          />
-        )}
+
+
 
         {/* Card do Link */}
         <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
