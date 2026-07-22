@@ -489,14 +489,14 @@ export default function LinkOrcamento() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
               {packages.map((pkg, idx) => (
                 <div
                   key={idx}
-                  className={`relative flex flex-col h-full rounded-2xl p-6 border backdrop-blur-md transition-all hover:-translate-y-0.5 ${
+                  className={`group relative flex flex-col h-full rounded-3xl p-6 sm:p-7 border backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-2xl ${
                     pkg.highlighted
                       ? "bg-gradient-to-br from-amber-400/20 to-amber-500/10 border-amber-300/50 shadow-[0_20px_50px_-15px_rgba(251,191,36,0.4)]"
-                      : "bg-white/5 border-white/10 hover:border-white/25"
+                      : "bg-white/[0.04] border-white/10 hover:border-white/25"
                   }`}
                 >
                   {pkg.highlighted && (
@@ -506,27 +506,33 @@ export default function LinkOrcamento() {
                     </span>
                   )}
 
-                  {pkg.title && (
-                    <h4
-                      style={{ fontFamily: "'Playfair Display', serif" }}
-                      className="text-2xl font-bold text-white leading-tight"
-                    >
-                      {pkg.title}
-                    </h4>
-                  )}
-                  {pkg.subtitle && (
-                    <p className="mt-1 text-sm text-white/60">{pkg.subtitle}</p>
-                  )}
+                  {/* Header */}
+                  <div className="space-y-1">
+                    {pkg.title && (
+                      <h4
+                        style={{ fontFamily: "'Playfair Display', serif" }}
+                        className="text-2xl sm:text-[1.75rem] font-bold text-white leading-tight"
+                      >
+                        {pkg.title}
+                      </h4>
+                    )}
+                    {pkg.subtitle && (
+                      <p className="text-sm text-white/60 leading-snug">{pkg.subtitle}</p>
+                    )}
+                  </div>
+
                   {pkg.price_text && (
-                    <p className="mt-4 text-3xl font-black text-amber-300">{pkg.price_text}</p>
+                    <p className="mt-4 text-3xl sm:text-4xl font-black text-amber-300 tracking-tight">
+                      {pkg.price_text}
+                    </p>
                   )}
 
                   {pkg.features && pkg.features.length > 0 && (
-                    <ul className="mt-4 space-y-2">
+                    <ul className="mt-5 mb-6 space-y-2.5 flex-grow">
                       {pkg.features.filter(Boolean).map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-white/80">
+                        <li key={i} className="flex items-start gap-2.5 text-sm text-white/80">
                           <Check className="w-4 h-4 mt-0.5 text-amber-300 shrink-0" />
-                          <span>{f}</span>
+                          <span className="leading-snug">{f}</span>
                         </li>
                       ))}
                     </ul>
@@ -537,7 +543,7 @@ export default function LinkOrcamento() {
                       href={whatsappHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`mt-auto pt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-sm transition-all ${
+                      className={`mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-semibold text-sm transition-all ${
                         pkg.highlighted
                           ? "bg-neutral-950 text-amber-300 hover:bg-neutral-800"
                           : "bg-white/10 text-white hover:bg-white/20 border border-white/15"
