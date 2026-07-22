@@ -178,7 +178,7 @@ export default function Admin() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [planStats, setPlanStats] = useState<Record<string, number>>({
-    trial: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
+    trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
     anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
   });
   const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
