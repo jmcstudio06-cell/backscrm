@@ -601,6 +601,30 @@ export default function CRM() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Schedule show from lead */}
+      <NovoShowModal
+        open={showModalOpen}
+        onOpenChange={(o) => {
+          setShowModalOpen(o);
+          if (!o) setScheduleLead(null);
+        }}
+        onShowCreated={() => {
+          setShowModalOpen(false);
+          setScheduleLead(null);
+          toast.success("Show agendado a partir da oportunidade!");
+        }}
+        presetClient={scheduleLead ? {
+          name: scheduleLead.name,
+          phone: scheduleLead.phone || undefined,
+          email: scheduleLead.email || undefined,
+          company: scheduleLead.company || undefined,
+          eventType: scheduleLead.event_type || undefined,
+          eventDate: scheduleLead.event_date || undefined,
+          cachet: scheduleLead.estimated_value || undefined,
+          notes: scheduleLead.notes || undefined,
+        } : undefined}
+      />
     </Layout>
   );
 }
