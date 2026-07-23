@@ -48,6 +48,7 @@ export interface StageElement {
   y: number;
   scale?: number;
   rotation?: number;
+  flipped?: boolean;
 }
 
 interface StageCanvasProps {
