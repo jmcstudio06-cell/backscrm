@@ -88,12 +88,26 @@ interface EditingShow {
 }
 
 
+interface PresetClient {
+  id?: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  company?: string;
+  eventType?: string;
+  eventDate?: string;
+  cachet?: number;
+  city?: string;
+  notes?: string;
+}
+
 interface NovoShowModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onShowCreated?: (show: ShowData) => void;
   editingShow?: EditingShow | null;
   presetDate?: Date;
+  presetClient?: PresetClient;
 }
 
 interface Expense {
