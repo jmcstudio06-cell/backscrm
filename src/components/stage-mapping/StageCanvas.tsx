@@ -82,7 +82,9 @@ const MUSICIANS: ElementTypeInfo[] = [
   { type: 'drums', label: 'Baterista', image: drummerImg, width: 100, height: 85 },
   { type: 'percussion', label: 'Percussionista', image: percussionistImg, width: 90, height: 95 },
   { type: 'accordion', label: 'Sanfoneiro', image: accordionistImg, width: 70, height: 85 },
-  { type: 'brass', label: 'Sopro', image: brassImg, width: 65, height: 85 },
+  { type: 'brass', label: 'Saxofone', image: brassImg, width: 65, height: 85 },
+  { type: 'trombone', label: 'Trombone', image: tromboneImg, width: 75, height: 95 },
+  { type: 'trumpet', label: 'Trompete', image: trumpetImg, width: 70, height: 90 },
 ];
 
 const EQUIPMENT: ElementTypeInfo[] = [
