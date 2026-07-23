@@ -243,6 +243,10 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
     onChange(elements.map(el => el.id === id ? { ...el, rotation: newRotation } : el));
   };
 
+  const flipElement = (id: string) => {
+    onChange(elements.map(el => el.id === id ? { ...el, flipped: !el.flipped } : el));
+  };
+
   const startRename = (el: StageElement) => {
     setEditingName(el.id);
     setEditNameValue(el.name);
