@@ -11,6 +11,7 @@ export interface StageElement {
   y: number;
   scale?: number;
   rotation?: number;
+  flipped?: boolean;
 }
 
 export interface InputChannel {
