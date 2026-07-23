@@ -93,6 +93,8 @@ export default function CRM() {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [scheduleLead, setScheduleLead] = useState<Lead | null>(null);
+  const [showModalOpen, setShowModalOpen] = useState(false);
 
   // Form state
   const [formName, setFormName] = useState("");
