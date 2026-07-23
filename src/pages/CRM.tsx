@@ -424,6 +424,16 @@ export default function CRM() {
                   <Button variant="outline" size="sm" className="flex-1 h-7 text-xs gap-1" onClick={() => openEditModal(lead)}>
                     <Edit className="w-3 h-3" /> Editar
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs gap-1 text-primary border-primary/30 hover:bg-primary/10"
+                    onClick={() => { setScheduleLead(lead); setShowModalOpen(true); }}
+                    title="Agendar show com este cliente"
+                  >
+                    <CalendarPlus className="w-3.5 h-3.5" />
+                    Agendar
+                  </Button>
                   {lead.phone && (
                     <Button
                       variant="outline"
