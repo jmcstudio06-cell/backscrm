@@ -24,6 +24,8 @@ import ampImg from '@/assets/stage/amp.png';
 import accordionistImg from '@/assets/stage/accordionist.png';
 import acousticImg from '@/assets/stage/acoustic-transparent.png';
 import brassImg from '@/assets/stage/brass.png';
+import tromboneImg from '@/assets/stage/trombone.png';
+import trumpetImg from '@/assets/stage/trumpet.png';
 import percussionistImg from '@/assets/stage/percussionista.png';
 import power110vImg from '@/assets/stage/power110v.png';
 import power220vImg from '@/assets/stage/power220v.png';
@@ -80,7 +82,9 @@ const MUSICIANS: ElementTypeInfo[] = [
   { type: 'drums', label: 'Baterista', image: drummerImg, width: 100, height: 85 },
   { type: 'percussion', label: 'Percussionista', image: percussionistImg, width: 90, height: 95 },
   { type: 'accordion', label: 'Sanfoneiro', image: accordionistImg, width: 70, height: 85 },
-  { type: 'brass', label: 'Sopro', image: brassImg, width: 65, height: 85 },
+  { type: 'brass', label: 'Saxofone', image: brassImg, width: 65, height: 85 },
+  { type: 'trombone', label: 'Trombone', image: tromboneImg, width: 75, height: 95 },
+  { type: 'trumpet', label: 'Trompete', image: trumpetImg, width: 70, height: 90 },
 ];
 
 const EQUIPMENT: ElementTypeInfo[] = [
@@ -140,7 +144,9 @@ const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: stri
     { instrument: 'Acessórios (OH)', micType: 'SM81', di: false },
   ],
   accordion: [{ instrument: 'Sanfona', micType: '', di: true }],
-  brass: [{ instrument: 'Sopro', micType: 'SM57', di: false }],
+  brass: [{ instrument: 'Saxofone', micType: 'SM57', di: false }],
+  trombone: [{ instrument: 'Trombone', micType: 'SM57', di: false }],
+  trumpet: [{ instrument: 'Trompete', micType: 'SM57', di: false }],
   amp: [], pedalboard: [], sider: [], monitor1: [], monitor2: [], rack: [], stairs: [], riser: [], power110v: [], power220v: [], speaker_stand: [], vs: [], gabinete: [],
 };
 
