@@ -23,7 +23,9 @@ import {
   X,
   Clock,
   AlertCircle,
+  CalendarPlus,
 } from "lucide-react";
+import { NovoShowModal } from "@/components/shows/NovoShowModal";
 import {
   Dialog,
   DialogContent,
