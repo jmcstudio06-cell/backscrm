@@ -144,7 +144,9 @@ const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: stri
     { instrument: 'Acessórios (OH)', micType: 'SM81', di: false },
   ],
   accordion: [{ instrument: 'Sanfona', micType: '', di: true }],
-  brass: [{ instrument: 'Sopro', micType: 'SM57', di: false }],
+  brass: [{ instrument: 'Saxofone', micType: 'SM57', di: false }],
+  trombone: [{ instrument: 'Trombone', micType: 'SM57', di: false }],
+  trumpet: [{ instrument: 'Trompete', micType: 'SM57', di: false }],
   amp: [], pedalboard: [], sider: [], monitor1: [], monitor2: [], rack: [], stairs: [], riser: [], power110v: [], power220v: [], speaker_stand: [], vs: [], gabinete: [],
 };
 
