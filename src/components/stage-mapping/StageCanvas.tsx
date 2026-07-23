@@ -24,6 +24,8 @@ import ampImg from '@/assets/stage/amp.png';
 import accordionistImg from '@/assets/stage/accordionist.png';
 import acousticImg from '@/assets/stage/acoustic-transparent.png';
 import brassImg from '@/assets/stage/brass.png';
+import tromboneImg from '@/assets/stage/trombone.png';
+import trumpetImg from '@/assets/stage/trumpet.png';
 import percussionistImg from '@/assets/stage/percussionista.png';
 import power110vImg from '@/assets/stage/power110v.png';
 import power220vImg from '@/assets/stage/power220v.png';
