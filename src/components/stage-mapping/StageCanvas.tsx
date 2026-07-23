@@ -508,7 +508,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
                     src={elementType.image}
                     alt={element.name}
                     className="w-full h-full object-contain pointer-events-none"
-                    style={{ transform: `rotate(${rotation}deg)` }}
+                    style={{ transform: `rotate(${rotation}deg) scaleX(${element.flipped ? -1 : 1})` }}
                     draggable={false}
                   />
                   
