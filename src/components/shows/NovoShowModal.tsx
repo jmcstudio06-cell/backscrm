@@ -229,7 +229,7 @@ const initialRecurringConfig: RecurringConfig = {
   endDate: "",
 };
 
-export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate }: NovoShowModalProps) {
+export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate, presetClient }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading, addMusician } = useMusicians();
   const { performanceTypes } = useBudgets();
   const [musicianModalOpen, setMusicianModalOpen] = useState(false);
