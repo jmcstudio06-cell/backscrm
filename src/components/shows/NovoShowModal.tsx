@@ -88,12 +88,26 @@ interface EditingShow {
 }
 
 
+interface PresetClient {
+  id?: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  company?: string;
+  eventType?: string;
+  eventDate?: string;
+  cachet?: number;
+  city?: string;
+  notes?: string;
+}
+
 interface NovoShowModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onShowCreated?: (show: ShowData) => void;
   editingShow?: EditingShow | null;
   presetDate?: Date;
+  presetClient?: PresetClient;
 }
 
 interface Expense {
@@ -215,7 +229,7 @@ const initialRecurringConfig: RecurringConfig = {
   endDate: "",
 };
 
-export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate }: NovoShowModalProps) {
+export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, presetDate, presetClient }: NovoShowModalProps) {
   const { musicians, loading: musiciansLoading, addMusician } = useMusicians();
   const { performanceTypes } = useBudgets();
   const [musicianModalOpen, setMusicianModalOpen] = useState(false);
@@ -474,6 +488,38 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       }));
     }
   }, [open, editingShow, clients, presetDate]);
+
+  // Handle presetClient (e.g. from CRM "Agendar show" shortcut)
+  useEffect(() => {
+    if (!open || editingShow || !presetClient) return;
+
+    // Try to match an existing client by id, phone, or name
+    const matched = presetClient.id
+      ? clients.find(c => c.id === presetClient.id)
+      : clients.find(c => (presetClient.phone && c.phone === presetClient.phone) || c.name.toLowerCase() === presetClient.name.toLowerCase());
+
+    if (matched) {
+      setClientMode("existing");
+      handleClientSelect(matched.id);
+    } else {
+      setClientMode("new");
+      setSelectedClientId("");
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      name: prev.name || presetClient.name,
+      client: presetClient.name,
+      clientPhone: presetClient.phone || prev.clientPhone,
+      clientEmail: presetClient.email || prev.clientEmail,
+      clientCompany: presetClient.company || prev.clientCompany,
+      type: prev.type || presetClient.eventType || "",
+      date: prev.date || presetClient.eventDate || "",
+      address: prev.address || presetClient.city || "",
+      cachet: prev.cachet || presetClient.cachet || 0,
+      notes: prev.notes || presetClient.notes || "",
+    }));
+  }, [open, editingShow, presetClient, clients]);
 
   // Calculate total from musicians + other expenses
   const musiciansCost = selectedMusicians.reduce((sum, m) => sum + m.fee, 0);

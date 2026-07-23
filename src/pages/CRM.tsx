@@ -23,7 +23,9 @@ import {
   X,
   Clock,
   AlertCircle,
+  CalendarPlus,
 } from "lucide-react";
+import { NovoShowModal } from "@/components/shows/NovoShowModal";
 import {
   Dialog,
   DialogContent,
@@ -91,6 +93,8 @@ export default function CRM() {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [scheduleLead, setScheduleLead] = useState<Lead | null>(null);
+  const [showModalOpen, setShowModalOpen] = useState(false);
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -420,6 +424,16 @@ export default function CRM() {
                   <Button variant="outline" size="sm" className="flex-1 h-7 text-xs gap-1" onClick={() => openEditModal(lead)}>
                     <Edit className="w-3 h-3" /> Editar
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs gap-1 text-primary border-primary/30 hover:bg-primary/10"
+                    onClick={() => { setScheduleLead(lead); setShowModalOpen(true); }}
+                    title="Agendar show com este cliente"
+                  >
+                    <CalendarPlus className="w-3.5 h-3.5" />
+                    Agendar
+                  </Button>
                   {lead.phone && (
                     <Button
                       variant="outline"
@@ -587,6 +601,30 @@ export default function CRM() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Schedule show from lead */}
+      <NovoShowModal
+        open={showModalOpen}
+        onOpenChange={(o) => {
+          setShowModalOpen(o);
+          if (!o) setScheduleLead(null);
+        }}
+        onShowCreated={() => {
+          setShowModalOpen(false);
+          setScheduleLead(null);
+          toast.success("Show agendado a partir da oportunidade!");
+        }}
+        presetClient={scheduleLead ? {
+          name: scheduleLead.name,
+          phone: scheduleLead.phone || undefined,
+          email: scheduleLead.email || undefined,
+          company: scheduleLead.company || undefined,
+          eventType: scheduleLead.event_type || undefined,
+          eventDate: scheduleLead.event_date || undefined,
+          cachet: scheduleLead.estimated_value || undefined,
+          notes: scheduleLead.notes || undefined,
+        } : undefined}
+      />
     </Layout>
   );
 }
