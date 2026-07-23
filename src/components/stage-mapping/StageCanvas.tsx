@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { 
   Trash2, Plus, Minus, Monitor, Tablet, Copy, 
   RotateCcw, Grid3X3, Pencil, Check, ChevronDown, ChevronRight,
-  User, Music, Plug, Box
+  User, Music, Plug, Box, FlipHorizontal2
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { InputChannel } from '@/hooks/useStageMappings';
