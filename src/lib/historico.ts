@@ -92,14 +92,65 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
 
   const completedShows = yearShows.filter((show) => isCompletedShowStatus(show.status));
   const projectedShows = yearShows.filter((show) => isProjectedShowStatus(show.status));
-  const totalReceita = yearTransactions
-    .filter((transaction) => transaction.type === "income")
-    .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+
+  // Sinais já recebidos em shows ainda NÃO finalizados (não geram transação no banco).
+  // Contamos como receita no mês em que o sinal foi recebido, e descontamos do "previsto".
+  // Só considerar quando o próprio ano do recebimento bate com o ano em análise —
+  // se o sinal entrou em ano diferente do show, ele conta apenas no ano de recebimento.
+  type VirtualAdvance = {
+    showId: string;
+    receivedDate: string; // yyyy-mm-dd
+    amount: number;
+  };
+
+  const virtualAdvances: VirtualAdvance[] = [];
+  projectedShows.forEach((show) => {
+    const adv = Number(show.advance_amount || 0);
+    if (adv <= 0) return;
+    const receivedDate = show.advance_received_date;
+    if (!isValidDateString(receivedDate)) return;
+    virtualAdvances.push({ showId: show.id, receivedDate: receivedDate!, amount: adv });
+  });
+
+  // Adiantamentos de shows agendados neste ano cujo recebimento caiu em OUTRO ano
+  // não entram como receita deste ano — o mês do recebimento fora do ano fica de fora.
+  const virtualAdvancesThisYear = virtualAdvances.filter(
+    (v) => getYearFromDate(v.receivedDate) === selectedYear,
+  );
+
+  // Sinais recebidos NESTE ano vindos de shows que estão em OUTRO ano também contam como receita aqui.
+  shows.forEach((show) => {
+    if (!isProjectedShowStatus(show.status)) return;
+    if (!isValidDateString(show.date)) return;
+    if (getYearFromDate(show.date) === selectedYear) return; // já capturado acima
+    const adv = Number(show.advance_amount || 0);
+    if (adv <= 0) return;
+    const receivedDate = show.advance_received_date;
+    if (!isValidDateString(receivedDate)) return;
+    if (getYearFromDate(receivedDate!) !== selectedYear) return;
+    virtualAdvancesThisYear.push({ showId: show.id, receivedDate: receivedDate!, amount: adv });
+  });
+
+  const totalVirtualAdvancesReceived = virtualAdvancesThisYear.reduce((sum, v) => sum + v.amount, 0);
+
+  const totalReceita =
+    yearTransactions
+      .filter((transaction) => transaction.type === "income")
+      .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0) + totalVirtualAdvancesReceived;
+
   const totalDespesa = yearTransactions
     .filter((transaction) => transaction.type === "expense")
     .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
-  const totalReceitaPrevista = projectedShows
-    .reduce((sum, show) => sum + Number(show.cachet || 0), 0);
+
+  // Previsto = soma dos cachês pendentes (cachet - sinal já recebido) dos shows projetados neste ano
+  const totalReceitaPrevista = projectedShows.reduce((sum, show) => {
+    const cachet = Number(show.cachet || 0);
+    const adv = Number(show.advance_amount || 0);
+    const receivedDate = show.advance_received_date;
+    // Só descontamos o sinal se ele foi efetivamente recebido (tem data)
+    const alreadyReceived = adv > 0 && isValidDateString(receivedDate) ? adv : 0;
+    return sum + Math.max(cachet - alreadyReceived, 0);
+  }, 0);
 
   // Always show all 12 months for any year
   const maxMonth = 11;
@@ -114,9 +165,25 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
     );
     const completedMonthShows = completedShows.filter((show) => getMonthFromDate(show.date) === monthIndex);
     const projectedMonthShows = projectedShows.filter((show) => getMonthFromDate(show.date) === monthIndex);
-    const receita = incomeTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+
+    const virtualAdvancesInMonth = virtualAdvancesThisYear.filter(
+      (v) => getMonthFromDate(v.receivedDate) === monthIndex,
+    );
+    const virtualAdvancesTotal = virtualAdvancesInMonth.reduce((sum, v) => sum + v.amount, 0);
+
+    const receita =
+      incomeTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0) +
+      virtualAdvancesTotal;
     const despesa = expenseTransactions.reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
-    const receitaPrevista = projectedMonthShows.reduce((sum, show) => sum + Number(show.cachet || 0), 0);
+
+    // Previsto do mês = cachês pendentes (cachet - sinal recebido) dos shows daquele mês
+    const receitaPrevista = projectedMonthShows.reduce((sum, show) => {
+      const cachet = Number(show.cachet || 0);
+      const adv = Number(show.advance_amount || 0);
+      const receivedDate = show.advance_received_date;
+      const alreadyReceived = adv > 0 && isValidDateString(receivedDate) ? adv : 0;
+      return sum + Math.max(cachet - alreadyReceived, 0);
+    }, 0);
 
     return {
       month: format(monthDate, "MMM/yy", { locale: ptBR }),
