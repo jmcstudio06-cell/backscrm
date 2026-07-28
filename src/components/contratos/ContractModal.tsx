@@ -286,9 +286,19 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
                 </div>
               </div>
             )}
+            <div className="space-y-3">
+              {clauses.map((clause, index) => (
+                <div key={index} className="p-4 rounded-lg bg-secondary/50 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Input value={clause.title} onChange={e => updateClause(index, "title", e.target.value)} placeholder="Título da cláusula" className="bg-background font-semibold" />
+                    <Button variant="ghost" size="icon" onClick={() => moveClause(index, "up")} disabled={index === 0}><ChevronUp className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => moveClause(index, "down")} disabled={index === clauses.length - 1}><ChevronDown className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => removeClause(index)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                  </div>
+                  <Textarea value={clause.content} onChange={e => updateClause(index, "content", e.target.value)} placeholder="Conteúdo da cláusula" className="bg-background min-h-[100px]" />
                 </div>
               ))}
-              {clauses.length === 0 && <div className="text-center py-8 text-muted-foreground">Clique em "Carregar Padrão" para usar o modelo de contrato ou adicione cláusulas manualmente.</div>}
+              {clauses.length === 0 && <div className="text-center py-8 text-muted-foreground">Clique em "Carregar Padrão" para usar o modelo ou adicione suas cláusulas personalizadas acima.</div>}
             </div>
           </div>
 
