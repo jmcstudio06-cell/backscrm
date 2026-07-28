@@ -18,6 +18,8 @@ export interface ProjectedShow {
   date: string;
   cachet: number;
   status: string;
+  advanceReceived: number;
+  pending: number;
 }
 
 export interface HistoricoMonthData {
@@ -195,13 +197,20 @@ export function buildHistoricoYearSummary(transactions: Transaction[], shows: Sh
       shows: completedMonthShows.length,
       incomeTransactions,
       expenseTransactions,
-      projectedShows: projectedMonthShows.map((s) => ({
-        id: s.id,
-        title: s.title,
-        date: s.date,
-        cachet: s.cachet,
-        status: s.status,
-      })),
+      projectedShows: projectedMonthShows.map((s) => {
+        const cachet = Number(s.cachet || 0);
+        const adv = Number(s.advance_amount || 0);
+        const alreadyReceived = adv > 0 && isValidDateString(s.advance_received_date) ? adv : 0;
+        return {
+          id: s.id,
+          title: s.title,
+          date: s.date,
+          cachet,
+          status: s.status,
+          advanceReceived: alreadyReceived,
+          pending: Math.max(cachet - alreadyReceived, 0),
+        };
+      }),
     };
   });
 

@@ -130,7 +130,15 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
     setClauses(newClauses);
   };
   const addSavedClause = (clause: SavedClause) => {
+    if (clauses.some((c) => c.title.trim().toLowerCase() === clause.title.trim().toLowerCase())) return;
     setClauses([...clauses, { title: clause.title, content: clause.content, sort_order: clauses.length + 1 }]);
+  };
+  const loadAllSavedClauses = () => {
+    const existingTitles = new Set(clauses.map((c) => c.title.trim().toLowerCase()));
+    const toAdd = savedClauses
+      .filter((sc) => !existingTitles.has(sc.title.trim().toLowerCase()))
+      .map((sc, i) => ({ title: sc.title, content: sc.content, sort_order: clauses.length + i + 1 }));
+    if (toAdd.length > 0) setClauses([...clauses, ...toAdd]);
   };
 
   const handleSave = () => {
@@ -261,8 +269,21 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
               </div>
             </div>
             {savedClauses.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {savedClauses.map(sc => <Button key={sc.id} variant="ghost" size="sm" onClick={() => addSavedClause(sc)}>+ {sc.title}</Button>)}
+              <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-sm">Minhas cláusulas personalizadas ({savedClauses.length})</Label>
+                  <Button variant="outline" size="sm" onClick={loadAllSavedClauses}>
+                    <Plus className="w-3.5 h-3.5 mr-1" />Adicionar todas
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Clique para adicionar ao contrato:</p>
+                <div className="flex gap-1.5 flex-wrap">
+                  {savedClauses.map(sc => (
+                    <Button key={sc.id} variant="secondary" size="sm" className="h-7 text-xs" onClick={() => addSavedClause(sc)}>
+                      + {sc.title}
+                    </Button>
+                  ))}
+                </div>
               </div>
             )}
             <div className="space-y-3">
@@ -277,7 +298,7 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
                   <Textarea value={clause.content} onChange={e => updateClause(index, "content", e.target.value)} placeholder="Conteúdo da cláusula" className="bg-background min-h-[100px]" />
                 </div>
               ))}
-              {clauses.length === 0 && <div className="text-center py-8 text-muted-foreground">Clique em "Carregar Padrão" para usar o modelo de contrato ou adicione cláusulas manualmente.</div>}
+              {clauses.length === 0 && <div className="text-center py-8 text-muted-foreground">Clique em "Carregar Padrão" para usar o modelo ou adicione suas cláusulas personalizadas acima.</div>}
             </div>
           </div>
 

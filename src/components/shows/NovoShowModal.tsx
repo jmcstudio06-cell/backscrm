@@ -1441,6 +1441,9 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="all">Todas funções</SelectItem>
+                                  {selectedMusicians.length > 0 && (
+                                    <SelectItem value="__selected__">Músicos selecionados ({selectedMusicians.length})</SelectItem>
+                                  )}
                                   {uniqueInstruments.map((inst) => (
                                     <SelectItem key={inst} value={inst}>
                                       {inst}
@@ -1477,7 +1480,11 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                           const term = teamSearch.trim().toLowerCase();
                           const filtered = musicians
                             .filter((m) => {
-                              if (teamInstrumentFilter !== "all" && m.instrument !== teamInstrumentFilter) return false;
+                              if (teamInstrumentFilter === "__selected__") {
+                                if (!selectedMusicians.some((s) => s.musicianId === m.id)) return false;
+                              } else if (teamInstrumentFilter !== "all" && m.instrument !== teamInstrumentFilter) {
+                                return false;
+                              }
                               if (term && !m.name.toLowerCase().includes(term)) return false;
                               return true;
                             })

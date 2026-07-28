@@ -228,8 +228,13 @@ function TransactionSection({
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-warning border-warning/30">
                     {getProjectedStatusLabel(show.status)}
                   </Badge>
+                  {show.advanceReceived > 0 && (
+                    <span className="text-[10px] text-muted-foreground">
+                      (sinal {formatCurrencyBR(show.advanceReceived)} recebido)
+                    </span>
+                  )}
                 </div>
-                <span className="whitespace-nowrap font-medium text-warning">{formatCurrencyBR(show.cachet)}</span>
+                <span className="whitespace-nowrap font-medium text-warning">{formatCurrencyBR(show.pending)}</span>
               </div>
             ))}
           </div>
