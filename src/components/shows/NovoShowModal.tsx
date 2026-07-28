@@ -1441,6 +1441,9 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="all">Todas funções</SelectItem>
+                                  {selectedMusicians.length > 0 && (
+                                    <SelectItem value="__selected__">Músicos selecionados ({selectedMusicians.length})</SelectItem>
+                                  )}
                                   {uniqueInstruments.map((inst) => (
                                     <SelectItem key={inst} value={inst}>
                                       {inst}
