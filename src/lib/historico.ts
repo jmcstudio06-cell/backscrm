@@ -18,6 +18,8 @@ export interface ProjectedShow {
   date: string;
   cachet: number;
   status: string;
+  advanceReceived: number;
+  pending: number;
 }
 
 export interface HistoricoMonthData {
