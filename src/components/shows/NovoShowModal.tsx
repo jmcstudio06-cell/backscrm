@@ -1480,7 +1480,11 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                           const term = teamSearch.trim().toLowerCase();
                           const filtered = musicians
                             .filter((m) => {
-                              if (teamInstrumentFilter !== "all" && m.instrument !== teamInstrumentFilter) return false;
+                              if (teamInstrumentFilter === "__selected__") {
+                                if (!selectedMusicians.some((s) => s.musicianId === m.id)) return false;
+                              } else if (teamInstrumentFilter !== "all" && m.instrument !== teamInstrumentFilter) {
+                                return false;
+                              }
                               if (term && !m.name.toLowerCase().includes(term)) return false;
                               return true;
                             })
