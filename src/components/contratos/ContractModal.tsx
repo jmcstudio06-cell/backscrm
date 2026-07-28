@@ -130,7 +130,15 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
     setClauses(newClauses);
   };
   const addSavedClause = (clause: SavedClause) => {
+    if (clauses.some((c) => c.title.trim().toLowerCase() === clause.title.trim().toLowerCase())) return;
     setClauses([...clauses, { title: clause.title, content: clause.content, sort_order: clauses.length + 1 }]);
+  };
+  const loadAllSavedClauses = () => {
+    const existingTitles = new Set(clauses.map((c) => c.title.trim().toLowerCase()));
+    const toAdd = savedClauses
+      .filter((sc) => !existingTitles.has(sc.title.trim().toLowerCase()))
+      .map((sc, i) => ({ title: sc.title, content: sc.content, sort_order: clauses.length + i + 1 }));
+    if (toAdd.length > 0) setClauses([...clauses, ...toAdd]);
   };
 
   const handleSave = () => {
