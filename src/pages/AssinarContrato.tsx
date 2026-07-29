@@ -52,7 +52,7 @@ export default function AssinarContrato() {
         setError("Link não encontrado. Verifique se o endereço está correto.");
         return;
       }
-      const payload = data as { link: SignLink; contract: Contract & { clauses: string | ContractClause[] } };
+      const payload = data as unknown as { link: SignLink; contract: Contract & { clauses: string | ContractClause[] } };
       const parsedContract: Contract = {
         ...payload.contract,
         clauses:
