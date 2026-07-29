@@ -21,6 +21,7 @@ interface SignLink {
   artist_signed_at: string | null;
   client_signature_name: string | null;
   client_signature_document: string | null;
+  client_signature_email: string | null;
   client_signed_at: string | null;
   expires_at: string;
 }
