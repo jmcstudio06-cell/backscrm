@@ -878,6 +878,71 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_signature_links: {
+        Row: {
+          artist_signature_ip: string | null
+          artist_signature_name: string | null
+          artist_signed_at: string | null
+          client_signature_document: string | null
+          client_signature_email: string | null
+          client_signature_ip: string | null
+          client_signature_name: string | null
+          client_signed_at: string | null
+          contract_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          status: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          artist_signature_ip?: string | null
+          artist_signature_name?: string | null
+          artist_signed_at?: string | null
+          client_signature_document?: string | null
+          client_signature_email?: string | null
+          client_signature_ip?: string | null
+          client_signature_name?: string | null
+          client_signed_at?: string | null
+          contract_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          status?: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          artist_signature_ip?: string | null
+          artist_signature_name?: string | null
+          artist_signed_at?: string | null
+          client_signature_document?: string | null
+          client_signature_email?: string | null
+          client_signature_ip?: string | null
+          client_signature_name?: string | null
+          client_signed_at?: string | null
+          contract_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          status?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_signature_links_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           artist_address: string | null
@@ -2633,6 +2698,7 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_signature_link_by_token: { Args: { _token: string }; Returns: Json }
       get_yearly_show_totals: {
         Args: { target_year: number }
         Returns: {
@@ -2656,6 +2722,15 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      public_sign_contract: {
+        Args: {
+          _client_document?: string
+          _client_email?: string
+          _client_name: string
+          _token: string
+        }
+        Returns: Json
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
