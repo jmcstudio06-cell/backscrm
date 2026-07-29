@@ -171,6 +171,7 @@ export default function Contratos() {
       <ContractModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedContract(null); }} onSave={handleSave} clients={clients} savedClauses={savedClauses} getDefaultClauses={getDefaultClauses} contract={selectedContract} />
       <ContractPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} contract={selectedContract} />
       <ClausesModal isOpen={isClausesModalOpen} onClose={() => setIsClausesModalOpen(false)} clauses={savedClauses} onAdd={addSavedClause} onUpdate={updateSavedClause} onDelete={deleteSavedClause} />
+      <SignatureLinkModal isOpen={isSignLinkOpen} onClose={() => setIsSignLinkOpen(false)} contract={selectedContract} />
     </Layout>
   );
 }
