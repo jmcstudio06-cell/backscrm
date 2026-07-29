@@ -112,10 +112,14 @@ export default function Contratos() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" onClick={() => handleView(contract)}><Eye className="w-4 h-4" /></Button>
+                            <Button variant="ghost" size="icon" title="Link de assinatura" onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>
+                              <Link2 className="w-4 h-4 text-primary" />
+                            </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                               <DropdownMenuContent className="bg-background border">
                                 <DropdownMenuItem onClick={() => handleEdit(contract)}>Editar</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>Link de assinatura</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "sent" })}>Marcar Enviado</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "signed", signed_at: new Date().toISOString() })}>Marcar Assinado</DropdownMenuItem>
                                 <DropdownMenuItem className="text-destructive" onClick={() => deleteContract(contract.id)}>Excluir</DropdownMenuItem>
