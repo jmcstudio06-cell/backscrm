@@ -57,6 +57,7 @@ import Selos from "./pages/Selos";
 import Notificacoes from "./pages/Notificacoes";
 import Sugestoes from "./pages/Sugestoes";
 // import Consultoria from "./pages/Consultoria"; // temporariamente desativado
+import AssinarContrato from "./pages/AssinarContrato";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
@@ -158,6 +159,7 @@ const App = () => (
                 <Route path="/artista/:slug" element={<ErrorBoundary><Booking /></ErrorBoundary>} />
                 <Route path="/link/:slug" element={<ErrorBoundary><LinkInstagram /></ErrorBoundary>} />
                 <Route path="/orcamento/:slug" element={<ErrorBoundary><LinkOrcamento /></ErrorBoundary>} />
+                <Route path="/assinar/:token" element={<ErrorBoundary><AssinarContrato /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CustomizationProvider>

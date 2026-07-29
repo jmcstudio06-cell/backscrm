@@ -79,13 +79,15 @@ export function useContracts() {
           : contract.clauses || []
       }));
 
-      // Auto-delete contracts beyond the 5 most recent (batch)
-      if (allContracts.length > 5) {
-        const idsToDelete = allContracts.slice(5).map(c => c.id);
+      // Auto-delete contracts beyond the 5 most recent — but NEVER delete signed contracts
+      const nonSigned = allContracts.filter(c => c.status !== "signed");
+      const signed = allContracts.filter(c => c.status === "signed");
+      if (nonSigned.length > 5) {
+        const idsToDelete = nonSigned.slice(5).map(c => c.id);
         await supabase.from("contracts").delete().in("id", idsToDelete);
       }
-      
-      setContracts(allContracts.slice(0, 5));
+
+      setContracts([...nonSigned.slice(0, 5), ...signed]);
     } catch (error) {
       console.error("Error fetching contracts:", error);
       toast.error("Erro ao carregar contratos");
