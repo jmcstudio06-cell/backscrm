@@ -30,6 +30,7 @@ export default function Contratos() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isClausesModalOpen, setIsClausesModalOpen] = useState(false);
+  const [isSignLinkOpen, setIsSignLinkOpen] = useState(false);
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
 
   const filteredContracts = contracts.filter(c => 
