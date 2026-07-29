@@ -4,7 +4,7 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle } from "lucide-react";
+import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle, Link2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -14,6 +14,7 @@ import { useClients } from "@/hooks/useClients";
 import { ContractModal } from "@/components/contratos/ContractModal";
 import { ContractPreview } from "@/components/contratos/ContractPreview";
 import { ClausesModal } from "@/components/contratos/ClausesModal";
+import { SignatureLinkModal } from "@/components/contratos/SignatureLinkModal";
 
 const statusConfig = {
   draft: { label: "Rascunho", color: "bg-muted text-muted-foreground", icon: FileText },
