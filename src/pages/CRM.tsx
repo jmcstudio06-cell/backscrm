@@ -195,6 +195,24 @@ export default function CRM() {
     window.open(`https://wa.me/${formatted}?text=${msg}`, "_blank");
   };
 
+  // Dados do lead prontos para o modal de Novo Show (memoizado para não reiniciar o formulário)
+  const schedulePreset = useMemo(() => {
+    if (!scheduleLead) return undefined;
+    const cleanNotes = (scheduleLead.notes || "").split("|||CONTACT_WHEN|||")[0].trim();
+    return {
+      name: scheduleLead.name,
+      phone: scheduleLead.phone || undefined,
+      // no CRM o campo "email" guarda o nome do contato e "company" guarda a cidade
+      company: undefined,
+      city: scheduleLead.company || undefined,
+      eventType: LEAD_TO_SHOW_TYPE[scheduleLead.event_type || ""] || undefined,
+      cachet: scheduleLead.estimated_value || undefined,
+      notes: cleanNotes || undefined,
+    };
+  }, [scheduleLead]);
+
+
+
   const monthIds = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 
   const withinHorizon = (lead: Lead) => {
