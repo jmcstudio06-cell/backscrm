@@ -193,6 +193,29 @@ export default function CRM() {
     window.open(`https://wa.me/${formatted}?text=${msg}`, "_blank");
   };
 
+  const monthIds = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+  const withinHorizon = (lead: Lead) => {
+    if (!filterHorizon) return true;
+    const months = Number(filterHorizon);
+    const now = new Date();
+    // Data prevista do evento, quando existir
+    if (lead.event_date) {
+      const [y, m, d] = lead.event_date.split("-").map(Number);
+      const eventDate = new Date(y, (m || 1) - 1, d || 1);
+      const limit = new Date(now.getFullYear(), now.getMonth() + months, now.getDate());
+      return eventDate >= new Date(now.getFullYear(), now.getMonth(), 1) && eventDate <= limit;
+    }
+    // Senão, usa o mês ideal de contato
+    const contactWhen = lead.notes?.split("|||CONTACT_WHEN|||")[1] || "";
+    if (!contactWhen) return false;
+    if (contactWhen === "qualquer") return true;
+    const idx = monthIds.indexOf(contactWhen);
+    if (idx < 0) return false;
+    const diff = (idx - now.getMonth() + 12) % 12;
+    return diff < months;
+  };
+
   const filteredLeads = leads
     .filter((l) => {
       const term = searchTerm.toLowerCase();
@@ -204,9 +227,11 @@ export default function CRM() {
     })
     .filter((l) => (filterType ? l.event_type === filterType : true))
     .filter((l) => (filterStatus ? l.status === filterStatus : true))
+    .filter(withinHorizon)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const hasFilters = filterType || filterStatus || searchTerm;
+  const hasFilters = filterType || filterStatus || filterHorizon || searchTerm;
+
 
   // Stats
   const currentMonth = new Date().getMonth();
