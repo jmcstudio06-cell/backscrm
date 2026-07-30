@@ -88,10 +88,7 @@ const LEAD_TO_SHOW_TYPE: Record<string, string> = {
   outro: "Outro",
 };
 
-  { id: "3", label: "Próximos 3 meses" },
-  { id: "5", label: "Próximos 5 meses" },
-  { id: "12", label: "Próximos 12 meses" },
-];
+
 
 const statusOptions = [
   { id: "new", label: "Novo", color: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
