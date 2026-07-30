@@ -25,7 +25,8 @@ import {
   AlertCircle,
   CalendarPlus,
 } from "lucide-react";
-import { NovoShowModal } from "@/components/shows/NovoShowModal";
+import { NovoShowModal, type ShowData } from "@/components/shows/NovoShowModal";
+import { useShows } from "@/contexts/shows/ShowsContext";
 import {
   Dialog,
   DialogContent,
@@ -109,6 +110,7 @@ function getStatusInfo(statusId: string) {
 
 export default function CRM() {
   const { leads, loading, addLead, updateLead, deleteLead } = useLeads();
+  const { addShow } = useShows();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
