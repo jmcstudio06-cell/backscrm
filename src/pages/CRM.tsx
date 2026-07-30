@@ -661,16 +661,8 @@ export default function CRM() {
           setScheduleLead(null);
           toast.success("Show agendado a partir da oportunidade!");
         }}
-        presetClient={scheduleLead ? {
-          name: scheduleLead.name,
-          phone: scheduleLead.phone || undefined,
-          email: scheduleLead.email || undefined,
-          company: scheduleLead.company || undefined,
-          eventType: scheduleLead.event_type || undefined,
-          eventDate: scheduleLead.event_date || undefined,
-          cachet: scheduleLead.estimated_value || undefined,
-          notes: scheduleLead.notes || undefined,
-        } : undefined}
+        presetClient={schedulePreset}
+
       />
     </Layout>
   );
