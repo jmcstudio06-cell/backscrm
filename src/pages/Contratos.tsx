@@ -4,7 +4,9 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle, Link2 } from "lucide-react";
+import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle, Link2, Lock } from "lucide-react";
+import { toast } from "sonner";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -112,14 +114,15 @@ export default function Contratos() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" onClick={() => handleView(contract)}><Eye className="w-4 h-4" /></Button>
-                            <Button variant="ghost" size="icon" title="Link de assinatura" onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>
-                              <Link2 className="w-4 h-4 text-primary" />
+                            <Button variant="ghost" size="icon" title="Link de assinatura (em breve)" disabled onClick={() => toast.info("Assinatura digital em breve")}>
+                              <Lock className="w-4 h-4 text-muted-foreground" />
                             </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                               <DropdownMenuContent className="bg-background border">
                                 <DropdownMenuItem onClick={() => handleEdit(contract)}>Editar</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>Link de assinatura</DropdownMenuItem>
+                                <DropdownMenuItem disabled className="opacity-60">Link de assinatura (em breve)</DropdownMenuItem>
+
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "sent" })}>Marcar Enviado</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "signed", signed_at: new Date().toISOString() })}>Marcar Assinado</DropdownMenuItem>
                                 <DropdownMenuItem className="text-destructive" onClick={() => deleteContract(contract.id)}>Excluir</DropdownMenuItem>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,8 @@ import {
   AlertCircle,
   CalendarPlus,
 } from "lucide-react";
-import { NovoShowModal } from "@/components/shows/NovoShowModal";
+import { NovoShowModal, type ShowData } from "@/components/shows/NovoShowModal";
+import { useShows } from "@/contexts/shows/ShowsContext";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +49,7 @@ import { toast } from "sonner";
 const opportunityTypes = [
   { id: "bar", label: "Bar / Restaurante", icon: Utensils },
   { id: "evento", label: "Evento / Festival", icon: PartyPopper },
+  { id: "festa", label: "Festas e Bailes", icon: PartyPopper },
   { id: "casamento", label: "Casamento / Buffet", icon: Landmark },
   { id: "produtor", label: "Produtor de Eventos", icon: User },
   { id: "rodeio", label: "Rodeio / Festa de Peão", icon: Music },
@@ -70,6 +72,25 @@ const contactPeriods = [
   { id: "qualquer", label: "Qualquer época" },
 ];
 
+const horizonOptions = [
+  { id: "3", label: "Próximos 3 meses" },
+  { id: "5", label: "Próximos 5 meses" },
+  { id: "12", label: "Próximos 12 meses" },
+];
+
+// Converte o tipo de oportunidade do CRM para o tipo de show da agenda
+const LEAD_TO_SHOW_TYPE: Record<string, string> = {
+  bar: "Bar/Restaurante",
+  evento: "Festival",
+  festa: "Festa/Baile",
+  casamento: "Casamento",
+  produtor: "Outro",
+  rodeio: "Festa/Baile",
+  outro: "Outro",
+};
+
+
+
 const statusOptions = [
   { id: "new", label: "Novo", color: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
   { id: "contact", label: "Entrar em contato", color: "bg-warning/10 text-warning border-warning/30" },
@@ -79,8 +100,9 @@ const statusOptions = [
 ];
 
 function getTypeInfo(typeId: string | null) {
-  return opportunityTypes.find((t) => t.id === typeId) || opportunityTypes[5];
+  return opportunityTypes.find((t) => t.id === typeId) || opportunityTypes[opportunityTypes.length - 1];
 }
+
 
 function getStatusInfo(statusId: string) {
   return statusOptions.find((s) => s.id === statusId) || statusOptions[0];
@@ -88,9 +110,12 @@ function getStatusInfo(statusId: string) {
 
 export default function CRM() {
   const { leads, loading, addLead, updateLead, deleteLead } = useLeads();
+  const { addShow } = useShows();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [filterHorizon, setFilterHorizon] = useState<string | null>(null);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [scheduleLead, setScheduleLead] = useState<Lead | null>(null);
@@ -173,6 +198,40 @@ export default function CRM() {
     resetForm();
   };
 
+  // Salva de fato o show na agenda a partir da oportunidade
+  const handleShowCreated = (newShow: ShowData) => {
+    const safeDate = (newShow.date || "").slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(safeDate)) {
+      toast.error("Data inválida. Selecione uma data válida para salvar o show.");
+      return;
+    }
+    const musicians = newShow.selectedMusicians?.map((m) => ({ musicianId: m.musicianId, name: m.name, fee: m.fee })) || [];
+    const expenses = newShow.expenses?.map((e) => ({ id: e.id, description: e.description, category: e.category, value: e.value })) || [];
+
+    addShow({
+      title: newShow.name,
+      date: safeDate,
+      start_time: newShow.time || null,
+      end_time: newShow.endTime || null,
+      duration_minutes: newShow.durationMinutes ?? null,
+      performance_format: newShow.performanceFormat ?? null,
+      venue: newShow.venue || null,
+      address: newShow.address || null,
+      cachet: newShow.cachet,
+      status: newShow.status,
+      event_type: newShow.type || null,
+      client_id: newShow.clientId || null,
+      advance_amount: newShow.advanceAmount || 0,
+      advance_received_date: newShow.advanceReceivedDate ?? null,
+      balance_due_date: newShow.balanceDueDate ?? null,
+    } as any, musicians, expenses, newShow.checklistTemplateId, undefined, newShow.advanceAmount || 0);
+
+    setShowModalOpen(false);
+    setScheduleLead(null);
+    toast.success("Show agendado a partir da oportunidade!");
+  };
+
+
   const handleDelete = async (id: string) => {
     await deleteLead(id);
   };
@@ -183,6 +242,47 @@ export default function CRM() {
     if (!formatted.startsWith("55")) formatted = "55" + formatted;
     const msg = encodeURIComponent(`Olá! Tudo bem? Meu nome é [seu nome] e sou músico. Gostaria de saber sobre oportunidades de shows no ${name}.`);
     window.open(`https://wa.me/${formatted}?text=${msg}`, "_blank");
+  };
+
+  // Dados do lead prontos para o modal de Novo Show (memoizado para não reiniciar o formulário)
+  const schedulePreset = useMemo(() => {
+    if (!scheduleLead) return undefined;
+    const cleanNotes = (scheduleLead.notes || "").split("|||CONTACT_WHEN|||")[0].trim();
+    return {
+      name: scheduleLead.name,
+      phone: scheduleLead.phone || undefined,
+      // no CRM o campo "email" guarda o nome do contato e "company" guarda a cidade
+      company: undefined,
+      city: scheduleLead.company || undefined,
+      eventType: LEAD_TO_SHOW_TYPE[scheduleLead.event_type || ""] || undefined,
+      cachet: scheduleLead.estimated_value || undefined,
+      notes: cleanNotes || undefined,
+    };
+  }, [scheduleLead]);
+
+
+
+  const monthIds = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+  const withinHorizon = (lead: Lead) => {
+    if (!filterHorizon) return true;
+    const months = Number(filterHorizon);
+    const now = new Date();
+    // Data prevista do evento, quando existir
+    if (lead.event_date) {
+      const [y, m, d] = lead.event_date.split("-").map(Number);
+      const eventDate = new Date(y, (m || 1) - 1, d || 1);
+      const limit = new Date(now.getFullYear(), now.getMonth() + months, now.getDate());
+      return eventDate >= new Date(now.getFullYear(), now.getMonth(), 1) && eventDate <= limit;
+    }
+    // Senão, usa o mês ideal de contato
+    const contactWhen = lead.notes?.split("|||CONTACT_WHEN|||")[1] || "";
+    if (!contactWhen) return false;
+    if (contactWhen === "qualquer") return true;
+    const idx = monthIds.indexOf(contactWhen);
+    if (idx < 0) return false;
+    const diff = (idx - now.getMonth() + 12) % 12;
+    return diff < months;
   };
 
   const filteredLeads = leads
@@ -196,9 +296,11 @@ export default function CRM() {
     })
     .filter((l) => (filterType ? l.event_type === filterType : true))
     .filter((l) => (filterStatus ? l.status === filterStatus : true))
+    .filter(withinHorizon)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const hasFilters = filterType || filterStatus || searchTerm;
+  const hasFilters = filterType || filterStatus || filterHorizon || searchTerm;
+
 
   // Stats
   const currentMonth = new Date().getMonth();
@@ -305,8 +407,20 @@ export default function CRM() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={filterHorizon || "all"} onValueChange={(v) => setFilterHorizon(v === "all" ? null : v)}>
+          <SelectTrigger className="w-[190px]">
+            <SelectValue placeholder="Período" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Qualquer período</SelectItem>
+            {horizonOptions.map((h) => (
+              <SelectItem key={h.id} value={h.id}>{h.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={() => { setSearchTerm(""); setFilterType(null); setFilterStatus(null); }} className="h-10 text-muted-foreground gap-1">
+          <Button variant="ghost" size="sm" onClick={() => { setSearchTerm(""); setFilterType(null); setFilterStatus(null); setFilterHorizon(null); }} className="h-10 text-muted-foreground gap-1">
+
             <X className="w-4 h-4" /> Limpar
           </Button>
         )}
@@ -609,21 +723,10 @@ export default function CRM() {
           setShowModalOpen(o);
           if (!o) setScheduleLead(null);
         }}
-        onShowCreated={() => {
-          setShowModalOpen(false);
-          setScheduleLead(null);
-          toast.success("Show agendado a partir da oportunidade!");
-        }}
-        presetClient={scheduleLead ? {
-          name: scheduleLead.name,
-          phone: scheduleLead.phone || undefined,
-          email: scheduleLead.email || undefined,
-          company: scheduleLead.company || undefined,
-          eventType: scheduleLead.event_type || undefined,
-          eventDate: scheduleLead.event_date || undefined,
-          cachet: scheduleLead.estimated_value || undefined,
-          notes: scheduleLead.notes || undefined,
-        } : undefined}
+        onShowCreated={handleShowCreated}
+
+        presetClient={schedulePreset}
+
       />
     </Layout>
   );
