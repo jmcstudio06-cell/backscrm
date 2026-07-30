@@ -489,9 +489,16 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
     }
   }, [open, editingShow, clients, presetDate]);
 
-  // Handle presetClient (e.g. from CRM "Agendar show" shortcut)
+  // Handle presetClient (e.g. from CRM "Agendar show" shortcut) — aplica uma única vez por abertura
+  const presetAppliedRef = useRef(false);
   useEffect(() => {
-    if (!open || editingShow || !presetClient) return;
+    if (!open) {
+      presetAppliedRef.current = false;
+      return;
+    }
+    if (editingShow || !presetClient || presetAppliedRef.current) return;
+    if (clients.length === 0 && loadingClients) return;
+    presetAppliedRef.current = true;
 
     // Try to match an existing client by id, phone, or name
     const matched = presetClient.id
@@ -500,7 +507,8 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
 
     if (matched) {
       setClientMode("existing");
-      handleClientSelect(matched.id);
+      setSelectedClientId(matched.id);
+      setPersistedClientId(matched.id);
     } else {
       setClientMode("new");
       setSelectedClientId("");
@@ -519,7 +527,8 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       cachet: prev.cachet || presetClient.cachet || 0,
       notes: prev.notes || presetClient.notes || "",
     }));
-  }, [open, editingShow, presetClient, clients]);
+  }, [open, editingShow, presetClient, clients, loadingClients]);
+
 
   // Calculate total from musicians + other expenses
   const musiciansCost = selectedMusicians.reduce((sum, m) => sum + m.fee, 0);
