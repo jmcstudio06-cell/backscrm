@@ -340,8 +340,20 @@ export default function CRM() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={filterHorizon || "all"} onValueChange={(v) => setFilterHorizon(v === "all" ? null : v)}>
+          <SelectTrigger className="w-[190px]">
+            <SelectValue placeholder="Período" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Qualquer período</SelectItem>
+            {horizonOptions.map((h) => (
+              <SelectItem key={h.id} value={h.id}>{h.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={() => { setSearchTerm(""); setFilterType(null); setFilterStatus(null); }} className="h-10 text-muted-foreground gap-1">
+          <Button variant="ghost" size="sm" onClick={() => { setSearchTerm(""); setFilterType(null); setFilterStatus(null); setFilterHorizon(null); }} className="h-10 text-muted-foreground gap-1">
+
             <X className="w-4 h-4" /> Limpar
           </Button>
         )}
