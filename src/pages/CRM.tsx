@@ -77,6 +77,22 @@ const horizonOptions = [
   { id: "12", label: "Próximos 12 meses" },
 ];
 
+// Converte o tipo de oportunidade do CRM para o tipo de show da agenda
+const LEAD_TO_SHOW_TYPE: Record<string, string> = {
+  bar: "Bar/Restaurante",
+  evento: "Festival",
+  festa: "Festa/Baile",
+  casamento: "Casamento",
+  produtor: "Outro",
+  rodeio: "Festa/Baile",
+  outro: "Outro",
+};
+
+  { id: "3", label: "Próximos 3 meses" },
+  { id: "5", label: "Próximos 5 meses" },
+  { id: "12", label: "Próximos 12 meses" },
+];
+
 const statusOptions = [
   { id: "new", label: "Novo", color: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
   { id: "contact", label: "Entrar em contato", color: "bg-warning/10 text-warning border-warning/30" },
