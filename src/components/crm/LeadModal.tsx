@@ -52,6 +52,7 @@ const eventTypes = [
   "Corporativo",
   "Formatura",
   "Bar/Balada",
+  "Festa/Baile",
   "Festival",
   "Outro",
 ];
