@@ -687,11 +687,8 @@ export default function CRM() {
           setShowModalOpen(o);
           if (!o) setScheduleLead(null);
         }}
-        onShowCreated={() => {
-          setShowModalOpen(false);
-          setScheduleLead(null);
-          toast.success("Show agendado a partir da oportunidade!");
-        }}
+        onShowCreated={handleShowCreated}
+
         presetClient={schedulePreset}
 
       />
