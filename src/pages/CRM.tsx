@@ -99,6 +99,8 @@ export default function CRM() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [filterHorizon, setFilterHorizon] = useState<string | null>(null);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [scheduleLead, setScheduleLead] = useState<Lead | null>(null);
