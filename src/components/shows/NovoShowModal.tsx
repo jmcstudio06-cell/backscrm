@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -171,6 +171,7 @@ const showTypes = [
   "Festival",
   "Bar/Restaurante",
   "Festa Junina",
+  "Festa/Baile",
   "Outro",
 ];
 
@@ -497,7 +498,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       return;
     }
     if (editingShow || !presetClient || presetAppliedRef.current) return;
-    if (clients.length === 0 && loadingClients) return;
+    if (clients.length === 0 && clientsLoading) return;
     presetAppliedRef.current = true;
 
     // Try to match an existing client by id, phone, or name
@@ -527,7 +528,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
       cachet: prev.cachet || presetClient.cachet || 0,
       notes: prev.notes || presetClient.notes || "",
     }));
-  }, [open, editingShow, presetClient, clients, loadingClients]);
+  }, [open, editingShow, presetClient, clients, clientsLoading]);
 
 
   // Calculate total from musicians + other expenses
