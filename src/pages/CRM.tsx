@@ -196,6 +196,40 @@ export default function CRM() {
     resetForm();
   };
 
+  // Salva de fato o show na agenda a partir da oportunidade
+  const handleShowCreated = (newShow: ShowData) => {
+    const safeDate = (newShow.date || "").slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(safeDate)) {
+      toast.error("Data inválida. Selecione uma data válida para salvar o show.");
+      return;
+    }
+    const musicians = newShow.selectedMusicians?.map((m) => ({ musicianId: m.musicianId, name: m.name, fee: m.fee })) || [];
+    const expenses = newShow.expenses?.map((e) => ({ id: e.id, description: e.description, category: e.category, value: e.value })) || [];
+
+    addShow({
+      title: newShow.name,
+      date: safeDate,
+      start_time: newShow.time || null,
+      end_time: newShow.endTime || null,
+      duration_minutes: newShow.durationMinutes ?? null,
+      performance_format: newShow.performanceFormat ?? null,
+      venue: newShow.venue || null,
+      address: newShow.address || null,
+      cachet: newShow.cachet,
+      status: newShow.status,
+      event_type: newShow.type || null,
+      client_id: newShow.clientId || null,
+      advance_amount: newShow.advanceAmount || 0,
+      advance_received_date: newShow.advanceReceivedDate ?? null,
+      balance_due_date: newShow.balanceDueDate ?? null,
+    } as any, musicians, expenses, newShow.checklistTemplateId, undefined, newShow.advanceAmount || 0);
+
+    setShowModalOpen(false);
+    setScheduleLead(null);
+    toast.success("Show agendado a partir da oportunidade!");
+  };
+
+
   const handleDelete = async (id: string) => {
     await deleteLead(id);
   };
