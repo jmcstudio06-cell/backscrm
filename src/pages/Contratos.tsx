@@ -4,7 +4,9 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle, Link2 } from "lucide-react";
+import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle, Link2, Lock } from "lucide-react";
+import { toast } from "sonner";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
