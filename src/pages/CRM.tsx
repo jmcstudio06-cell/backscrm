@@ -48,6 +48,7 @@ import { toast } from "sonner";
 const opportunityTypes = [
   { id: "bar", label: "Bar / Restaurante", icon: Utensils },
   { id: "evento", label: "Evento / Festival", icon: PartyPopper },
+  { id: "festa", label: "Festas e Bailes", icon: PartyPopper },
   { id: "casamento", label: "Casamento / Buffet", icon: Landmark },
   { id: "produtor", label: "Produtor de Eventos", icon: User },
   { id: "rodeio", label: "Rodeio / Festa de Peão", icon: Music },
@@ -70,6 +71,12 @@ const contactPeriods = [
   { id: "qualquer", label: "Qualquer época" },
 ];
 
+const horizonOptions = [
+  { id: "3", label: "Próximos 3 meses" },
+  { id: "5", label: "Próximos 5 meses" },
+  { id: "12", label: "Próximos 12 meses" },
+];
+
 const statusOptions = [
   { id: "new", label: "Novo", color: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
   { id: "contact", label: "Entrar em contato", color: "bg-warning/10 text-warning border-warning/30" },
@@ -79,8 +86,9 @@ const statusOptions = [
 ];
 
 function getTypeInfo(typeId: string | null) {
-  return opportunityTypes.find((t) => t.id === typeId) || opportunityTypes[5];
+  return opportunityTypes.find((t) => t.id === typeId) || opportunityTypes[opportunityTypes.length - 1];
 }
+
 
 function getStatusInfo(statusId: string) {
   return statusOptions.find((s) => s.id === statusId) || statusOptions[0];
