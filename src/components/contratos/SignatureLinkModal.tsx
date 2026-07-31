@@ -35,7 +35,10 @@ export function SignatureLinkModal({ isOpen, onClose, contract }: Props) {
 
   if (!contract) return null;
 
-  const publicUrl = (token: string) => `${window.location.origin}/assinar/${token}`;
+  const PUBLIC_DOMAIN = "https://backstagepro.online";
+  const slug = profile?.slug;
+  const publicUrl = (token: string) =>
+    slug ? `${PUBLIC_DOMAIN}/assinar/${slug}/${token}` : `${PUBLIC_DOMAIN}/assinar/${token}`;
 
   const handleCreate = async () => {
     setCreating(true);
