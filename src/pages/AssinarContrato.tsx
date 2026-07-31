@@ -289,6 +289,35 @@ export default function AssinarContrato() {
           )}
         </div>
 
+        {/* Progresso da assinatura */}
+        <div className="bg-white rounded-2xl shadow-sm border p-4 md:p-5">
+          <div className="flex items-center justify-between gap-2">
+            {[
+              { label: "Contrato emitido", done: true, icon: FileText },
+              { label: "Assinatura do artista", done: artistSigned, icon: PenLine },
+              { label: "Assinatura do contratante", done: clientSigned, icon: Users },
+              { label: "Documento válido", done: isSigned, icon: ShieldCheck },
+            ].map((step, i, arr) => {
+              const StepIcon = step.icon;
+              return (
+                <div key={step.label} className="flex-1 flex items-center gap-2 min-w-0">
+                  <div className="flex flex-col items-center gap-1.5 min-w-0">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 shrink-0 ${step.done ? "bg-success/15 border-success text-success" : "bg-muted border-border text-muted-foreground"}`}>
+                      {step.done ? <CheckCircle2 className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
+                    </div>
+                    <span className={`text-[10px] md:text-xs text-center leading-tight ${step.done ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                      {step.label}
+                    </span>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div className={`h-0.5 flex-1 rounded ${arr[i + 1].done ? "bg-success" : "bg-border"}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Contract render */}
         <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
           <div className="p-4 md:p-8">
@@ -433,6 +462,13 @@ export default function AssinarContrato() {
               </div>
             </div>
 
+            <div className="rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4 text-center">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Prévia da sua assinatura</p>
+              <div style={{ fontFamily: "'Brush Script MT', cursive" }} className="text-3xl text-primary min-h-[44px] flex items-center justify-center">
+                {clientName.trim() || "seu nome aqui"}
+              </div>
+            </div>
+
             <label className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 cursor-pointer">
               <Checkbox checked={accepted} onCheckedChange={(v) => setAccepted(!!v)} className="mt-0.5" />
               <span className="text-sm">
@@ -445,6 +481,9 @@ export default function AssinarContrato() {
               {signing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PenLine className="w-4 h-4 mr-2" />}
               Assinar contrato
             </Button>
+            <p className="text-[11px] text-muted-foreground flex items-center justify-center gap-1.5">
+              <Lock className="w-3 h-3" /> Assinatura registrada com data, hora e token único de verificação.
+            </p>
           </div>
         )}
 
