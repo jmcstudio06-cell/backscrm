@@ -467,7 +467,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                   <div style={{ fontSize: 11, color: "#666" }}>
                     Escritório de vendas de shows e músicas
                     <br />
-                    {artistAddress || "[ENDEREÇO COMPLETO DA EMPRESA]"}
+                    {artistAddress || artistCity || ""}
                   </div>
                 </div>
               </div>
@@ -508,7 +508,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             {/* Contratada */}
             <div style={{ marginBottom: 15, textAlign: "justify" }}>
               <span style={{ fontWeight: "bold" }}>CONTRATADA:</span> {companyName}, representada por seu responsável,
-              portador do CPF nº {artistDocument || "XXX.XXX.XXX-XX"}, com endereço na {artistAddress || "[XXXX]"},
+              portador do CPF/CNPJ nº {artistDocument || "não informado"}{artistAddress ? `, com endereço em ${artistAddress}` : ""},
               doravante denominada EMPRESA REPRESENTANTE, responsável pela gestão, agenciamento e administração da
               carreira do artista {artistName.toUpperCase()}.
             </div>
@@ -518,7 +518,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             {/* Contratante */}
             <div style={{ marginBottom: 15, textAlign: "justify" }}>
               <span style={{ fontWeight: "bold" }}>CONTRATANTE:</span> {contract.client_name.toUpperCase()}, portador
-              do CPF nº {contract.client_document || "XXX.XXX.XXX-XX"}, residente em {contract.client_address || "CIDADE E UF"}.
+              do CPF/CNPJ nº {contract.client_document || "não informado"}{contract.client_address ? `, residente em ${contract.client_address}` : ""}.
             </div>
 
             <p style={{ textAlign: "center", fontStyle: "italic", margin: "20px 0" }}>
@@ -541,13 +541,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                   CLÁUSULA {index + 1} – {clause.title.toUpperCase()}
                 </div>
                 <div style={{ padding: "0 12px", whiteSpace: "pre-wrap", textAlign: "justify" }}>
-                  {clause.content
-                    .replace("[VALOR]", `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`)
-                    .replace("[NOME DA EMPRESA]", companyName)
-                    .replace("[NOME DO ARTISTA]", artistName)
-                    .replace("[CIDADE]", contract.event_location?.split(",")[0] || "CIDADE")
-                    .replace("[ESTADO]", "UF")
-                    .replace("[CIDADE E UF]", contract.event_location || "CIDADE E UF")}
+                  {fillTokens(clause.content)}
                 </div>
                 {/* Event details after OBJETO clause */}
                 {clause.title.toUpperCase() === "OBJETO" && contract.event_date && (
@@ -617,7 +611,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                   <strong>CONTRATANTE:</strong>
                   <br />{contract.client_name.toUpperCase()}<br />
                   <span style={{ fontSize: 11, color: "#666" }}>
-                    CPF: {contract.client_document || "XXX.XXX.XXX-XX"}
+                    CPF: {contract.client_document || "não informado"}
                   </span>
                 </div>
               </div>
@@ -628,7 +622,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                   {companyName.toUpperCase()}
                   <br />
                   <span style={{ fontSize: 11, color: "#666" }}>
-                    Responsável: CPF {artistDocument || "XXX.XXX.XXX-XX"}
+                    Responsável: CPF {artistDocument || "não informado"}
                     <br />
                     Representante da carreira do artista {artistName.toUpperCase()}
                   </span>
