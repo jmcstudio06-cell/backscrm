@@ -119,6 +119,16 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
     setClientSearchOpen(false);
   };
 
+  const handleServiceSelect = (serviceId: string) => {
+    setSelectedServiceId(serviceId);
+    const service = performanceTypes.find((p) => p.id === serviceId);
+    if (!service) return;
+    setEventType(service.name);
+    if (!totalValue) setTotalValue(service.price || 0);
+    if (!title) setTitle(`Contrato de Prestação de Serviços Artísticos — ${service.name}`);
+  };
+
+
   const loadDefaultClauses = () => setClauses(getDefaultClauses());
   const addClause = () => setClauses([...clauses, { title: "", content: "", sort_order: clauses.length + 1 }]);
   const removeClause = (index: number) => setClauses(clauses.filter((_, i) => i !== index));
