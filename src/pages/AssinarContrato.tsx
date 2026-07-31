@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, ShieldCheck, PenLine, Download, CheckCircle2, AlertTriangle, Clock, Sparkles } from "lucide-react";
+import { Loader2, ShieldCheck, PenLine, Download, CheckCircle2, AlertTriangle, Clock, Sparkles, Lock, FileText, Users } from "lucide-react";
 import { toast } from "sonner";
 import { formatDateBR } from "@/lib/utils";
 import type { Contract, ContractClause } from "@/hooks/useContracts";
@@ -27,7 +27,8 @@ interface SignLink {
 }
 
 export default function AssinarContrato() {
-  const { token } = useParams<{ token: string }>();
+  const { token, slug } = useParams<{ token: string; slug?: string }>();
+  const [artistProfile, setArtistProfile] = useState<{ artist_name: string | null; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [link, setLink] = useState<SignLink | null>(null);
   const [contract, setContract] = useState<Contract | null>(null);
@@ -72,6 +73,18 @@ export default function AssinarContrato() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      const { data } = await supabase
+        .from("artist_public_profiles")
+        .select("artist_name, avatar_url")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (data) setArtistProfile(data);
+    })();
+  }, [slug]);
 
   useEffect(() => {
     load();
@@ -174,6 +187,34 @@ export default function AssinarContrato() {
   const artistDocument = contract.artist_document || "";
   const artistAddress = contract.artist_address || "";
 
+  const fillTokens = (text: string) => {
+    const map: Record<string, string> = {
+      "[VALOR]": `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      "[VALOR TOTAL]": `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      "[NOME DO ARTISTA]": artistName,
+      "[NOME DA EMPRESA]": artistName,
+      "[NOME DO CONTRATANTE]": contract.client_name || "",
+      "[CPF DO CONTRATANTE]": contract.client_document || "",
+      "[CPF]": artistDocument,
+      "[ENDEREÇO]": artistAddress,
+      "[LOCAL]": contract.event_location || "",
+      "[DATA]": contract.event_date ? formatDateBR(contract.event_date) : "",
+      "[HORARIO]": contract.event_time || "",
+      "[HORÁRIO]": contract.event_time || "",
+      "[DURACAO]": contract.event_duration || "",
+      "[DURAÇÃO]": contract.event_duration || "",
+      "[FORMATO]": contract.event_type || "",
+      "[CIDADE]": contract.event_location?.split(",")[0]?.trim() || "",
+      "[CIDADE E UF]": contract.event_location || "",
+      "[FORMA DE PAGAMENTO]": contract.payment_terms || "",
+      "XXXX": "",
+      "XXX.XXX.XXX-XX": artistDocument || "não informado",
+    };
+    let out = text;
+    for (const [k, v] of Object.entries(map)) out = out.split(k).join(v);
+    return out.replace(/\[[A-ZÀ-Ú ÇÃÉÍÓÚ]+\]/g, "").replace(/ {2,}/g, " ");
+  };
+
   const creationDate = new Date(contract.created_at);
   const creationDay = creationDate.getDate();
   const creationMonth = creationDate.toLocaleDateString("pt-BR", { month: "long" });
@@ -184,10 +225,18 @@ export default function AssinarContrato() {
       {/* Sticky brand header */}
       <div className="bg-gradient-to-r from-primary to-primary/70 text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            <span className="font-bold">Backstage PRO</span>
-            <span className="hidden sm:inline text-xs opacity-80">· Assinatura de contrato</span>
+          <div className="flex items-center gap-3 min-w-0">
+            {artistProfile?.avatar_url ? (
+              <img src={artistProfile.avatar_url} alt={artistProfile.artist_name || "Artista"} className="w-9 h-9 rounded-full object-cover ring-2 ring-white/40" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center font-bold">
+                {(artistProfile?.artist_name || contract?.artist_name || "A").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="font-bold truncate">{artistProfile?.artist_name || contract?.artist_name || "Backstage PRO"}</div>
+              <div className="text-[11px] opacity-80 truncate">Assinatura digital de contrato</div>
+            </div>
           </div>
           <div className="flex items-center gap-1.5 text-xs bg-white/15 rounded-full px-3 py-1">
             <ShieldCheck className="w-3.5 h-3.5" />
@@ -269,13 +318,13 @@ export default function AssinarContrato() {
 
               <p style={{ textAlign: "justify", marginBottom: 12 }}>Pelo presente instrumento particular, de um lado:</p>
               <div style={{ marginBottom: 12, textAlign: "justify" }}>
-                <strong>CONTRATADA:</strong> {artistName}, portador do CPF nº {artistDocument || "XXX.XXX.XXX-XX"}
+                <strong>CONTRATADA:</strong> {artistName}, portador do CPF/CNPJ nº {artistDocument || "não informado"}
                 {artistAddress ? `, com endereço em ${artistAddress}` : ""}.
               </div>
               <p style={{ marginBottom: 12 }}>E de outro lado:</p>
               <div style={{ marginBottom: 12, textAlign: "justify" }}>
                 <strong>CONTRATANTE:</strong> {(link.client_signature_name || contract.client_name).toUpperCase()},
-                portador do CPF nº {link.client_signature_document || contract.client_document || "XXX.XXX.XXX-XX"}
+                portador do CPF/CNPJ nº {link.client_signature_document || contract.client_document || "não informado"}
                 {contract.client_address ? `, residente em ${contract.client_address}` : ""}.
               </div>
 
@@ -289,9 +338,7 @@ export default function AssinarContrato() {
                     CLÁUSULA {index + 1} – {clause.title.toUpperCase()}
                   </div>
                   <div style={{ padding: "0 12px", whiteSpace: "pre-wrap", textAlign: "justify" }}>
-                    {clause.content
-                      .replace("[VALOR]", `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`)
-                      .replace("[NOME DO ARTISTA]", artistName)}
+                    {fillTokens(clause.content)}
                   </div>
                   {clause.title.toUpperCase() === "OBJETO" && contract.event_date && (
                     <ul style={{ margin: "10px 0 10px 30px" }}>
