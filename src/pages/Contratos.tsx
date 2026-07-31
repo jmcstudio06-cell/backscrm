@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useContracts, Contract } from "@/hooks/useContracts";
 import { formatDateBR } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
+import { useBudgets } from "@/hooks/useBudgets";
 import { ContractModal } from "@/components/contratos/ContractModal";
 import { ContractPreview } from "@/components/contratos/ContractPreview";
 import { ClausesModal } from "@/components/contratos/ClausesModal";
@@ -28,6 +29,7 @@ const statusConfig = {
 export default function Contratos() {
   const { contracts, savedClauses, loading, addContract, updateContract, deleteContract, addSavedClause, updateSavedClause, deleteSavedClause, getDefaultClauses } = useContracts();
   const { clients } = useClients();
+  const { performanceTypes } = useBudgets();
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -114,14 +116,14 @@ export default function Contratos() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" onClick={() => handleView(contract)}><Eye className="w-4 h-4" /></Button>
-                            <Button variant="ghost" size="icon" title="Link de assinatura (em breve)" disabled onClick={() => toast.info("Assinatura digital em breve")}>
-                              <Lock className="w-4 h-4 text-muted-foreground" />
+                            <Button variant="ghost" size="icon" title="Link de assinatura digital" onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>
+                              <Link2 className="w-4 h-4 text-primary" />
                             </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                               <DropdownMenuContent className="bg-background border">
                                 <DropdownMenuItem onClick={() => handleEdit(contract)}>Editar</DropdownMenuItem>
-                                <DropdownMenuItem disabled className="opacity-60">Link de assinatura (em breve)</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>Link de assinatura</DropdownMenuItem>
 
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "sent" })}>Marcar Enviado</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "signed", signed_at: new Date().toISOString() })}>Marcar Assinado</DropdownMenuItem>
@@ -171,7 +173,7 @@ export default function Contratos() {
         </div>
       </div>
 
-      <ContractModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedContract(null); }} onSave={handleSave} clients={clients} savedClauses={savedClauses} getDefaultClauses={getDefaultClauses} contract={selectedContract} />
+      <ContractModal performanceTypes={performanceTypes} isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedContract(null); }} onSave={handleSave} clients={clients} savedClauses={savedClauses} getDefaultClauses={getDefaultClauses} contract={selectedContract} />
       <ContractPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} contract={selectedContract} />
       <ClausesModal isOpen={isClausesModalOpen} onClose={() => setIsClausesModalOpen(false)} clauses={savedClauses} onAdd={addSavedClause} onUpdate={updateSavedClause} onDelete={deleteSavedClause} />
       <SignatureLinkModal isOpen={isSignLinkOpen} onClose={() => setIsSignLinkOpen(false)} contract={selectedContract} />
