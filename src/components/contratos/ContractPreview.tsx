@@ -376,10 +376,45 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
   const artistName = profile?.artist_name || profile?.name || contract.artist_name || "NOME DO ARTISTA";
   const artistEmail = profile?.email || contract.artist_email || "";
   const artistPhone = profile?.phone || contract.artist_phone || "";
-  const artistCity = profile?.city || "";
+  const artistCity = profile?.city || profile?.base_city || "";
   const artistAddress = contract.artist_address || "";
   const artistDocument = contract.artist_document || "";
   const artistInitial = (artistName || companyName).charAt(0).toUpperCase();
+
+  const eventCity = contract.event_location?.split(",")[0]?.trim() || artistCity;
+
+  // Substitui todos os marcadores por dados reais do contrato/perfil
+  const fillTokens = (text: string) => {
+    const map: Record<string, string> = {
+      "[VALOR]": `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      "[VALOR TOTAL]": `R$ ${finalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      "[NOME DA EMPRESA]": companyName,
+      "[NOME DO ARTISTA]": artistName,
+      "[NOME DO CONTRATANTE]": contract.client_name || "",
+      "[CPF DO CONTRATANTE]": contract.client_document || "",
+      "[CPF]": artistDocument,
+      "[TELEFONE]": artistPhone,
+      "[EMAIL]": artistEmail,
+      "[ENDEREÇO]": artistAddress || artistCity,
+      "[LOCAL]": contract.event_location || "",
+      "[DATA]": contract.event_date ? formatDateBR(contract.event_date) : "",
+      "[HORARIO]": contract.event_time || "",
+      "[HORÁRIO]": contract.event_time || "",
+      "[DURACAO]": contract.event_duration || "",
+      "[DURAÇÃO]": contract.event_duration || "",
+      "[FORMATO]": contract.event_type || "",
+      "[CIDADE]": eventCity,
+      "[ESTADO]": contract.event_location?.split(",")[1]?.trim() || "",
+      "[CIDADE E UF]": contract.event_location || artistCity,
+      "[FORMA DE PAGAMENTO]": contract.payment_terms || "",
+      "XXXX": "",
+      "XXX.XXX.XXX-XX": artistDocument || "não informado",
+    };
+    let out = text;
+    for (const [k, v] of Object.entries(map)) out = out.split(k).join(v);
+    return out.replace(/\[[A-ZÀ-Ú ÇÃÉÍÓÚ]+\]/g, "").replace(/ {2,}/g, " ");
+  };
+
 
   // Format contract creation date
   const creationDate = new Date(contract.created_at);
