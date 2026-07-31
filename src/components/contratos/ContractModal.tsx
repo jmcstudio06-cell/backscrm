@@ -23,7 +23,8 @@ interface ContractModalProps {
   performanceTypes?: PerformanceType[];
 }
 
-export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, getDefaultClauses, contract }: ContractModalProps) {
+export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, getDefaultClauses, contract, performanceTypes = [] }: ContractModalProps) {
+  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [clientSearchOpen, setClientSearchOpen] = useState(false);
   const [title, setTitle] = useState("");
