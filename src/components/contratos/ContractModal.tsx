@@ -81,6 +81,7 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
   }, [contract, isOpen]);
 
   const resetForm = () => {
+    setSelectedServiceId("");
     setSelectedClientId("");
     setTitle("");
     setArtistName("");
