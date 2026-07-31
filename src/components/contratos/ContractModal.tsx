@@ -252,14 +252,36 @@ export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, 
           {/* Event Info */}
           <div className="space-y-4">
             <Label className="text-base font-semibold">Dados do Evento</Label>
+
+            {performanceTypes.length > 0 && (
+              <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-2">
+                <Label className="text-sm">Formato registrado em Serviços e Produtos</Label>
+                <div className="flex gap-1.5 flex-wrap">
+                  {performanceTypes.map((pt) => (
+                    <Button
+                      key={pt.id}
+                      variant={selectedServiceId === pt.id ? "gradient" : "secondary"}
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() => handleServiceSelect(pt.id)}
+                    >
+                      {pt.name} · R$ {(pt.price || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">Ao selecionar, o formato e o valor do show são puxados automaticamente para o contrato.</p>
+              </div>
+            )}
+
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2"><Label>Data</Label><Input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="bg-secondary" /></div>
               <div className="space-y-2"><Label>Horário</Label><Input value={eventTime} onChange={e => setEventTime(e.target.value)} placeholder="19h00 às 23h00" className="bg-secondary" /></div>
               <div className="space-y-2"><Label>Duração</Label><Input value={eventDuration} onChange={e => setEventDuration(e.target.value)} placeholder="4 horas" className="bg-secondary" /></div>
-              <div className="space-y-2"><Label>Tipo de Evento</Label><Input value={eventType} onChange={e => setEventType(e.target.value)} placeholder="Casamento, Corporativo..." className="bg-secondary" /></div>
+              <div className="space-y-2"><Label>Formato / Tipo de Evento</Label><Input value={eventType} onChange={e => setEventType(e.target.value)} placeholder="Voz e violão, Banda completa..." className="bg-secondary" /></div>
               <div className="col-span-2 space-y-2"><Label>Local</Label><Input value={eventLocation} onChange={e => setEventLocation(e.target.value)} className="bg-secondary" /></div>
             </div>
           </div>
+
 
           {/* Financial */}
           <div className="space-y-4">
