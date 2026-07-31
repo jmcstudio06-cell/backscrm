@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Plus, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, Check } from "lucide-react";
 import { Client } from "@/hooks/useClients";
+import { PerformanceType } from "@/hooks/useBudgets";
 import { Contract, ContractClause, SavedClause } from "@/hooks/useContracts";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ interface ContractModalProps {
   savedClauses: SavedClause[];
   getDefaultClauses: () => ContractClause[];
   contract?: Contract | null;
+  performanceTypes?: PerformanceType[];
 }
 
 export function ContractModal({ isOpen, onClose, onSave, clients, savedClauses, getDefaultClauses, contract }: ContractModalProps) {
