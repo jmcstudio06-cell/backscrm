@@ -630,7 +630,7 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             {/* Signature Section */}
             <div style={{ marginTop: 40, textAlign: "center" }}>
               <p>
-                {artistCity ? `${artistCity.toUpperCase()}` : "[CIDADE E UF]"}, {creationDay} de {creationMonth} de{" "}
+                {(eventCity || artistCity || "").toUpperCase()}{eventCity || artistCity ? ", " : ""}{creationDay} de {creationMonth} de{" "}
                 {creationYear}.
               </p>
             </div>
