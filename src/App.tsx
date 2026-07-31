@@ -160,6 +160,7 @@ const App = () => (
                 <Route path="/link/:slug" element={<ErrorBoundary><LinkInstagram /></ErrorBoundary>} />
                 <Route path="/orcamento/:slug" element={<ErrorBoundary><LinkOrcamento /></ErrorBoundary>} />
                 <Route path="/assinar/:token" element={<ErrorBoundary><AssinarContrato /></ErrorBoundary>} />
+                <Route path="/assinar/:slug/:token" element={<ErrorBoundary><AssinarContrato /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CustomizationProvider>
