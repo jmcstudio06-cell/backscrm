@@ -12,6 +12,14 @@ import type { Contract, ContractClause } from "@/hooks/useContracts";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
+function fmtStamp(iso?: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+
 interface SignLink {
   id: string;
   contract_id: string;
