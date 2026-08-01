@@ -393,40 +393,59 @@ export default function AssinarContrato() {
 
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 40, gap: 20 }}>
                 <div style={{ width: "48%", textAlign: "center" }}>
-                  <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 40 }}>
-                    <strong>CONTRATANTE</strong><br />
+                  <div style={{ height: 46, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
                     {clientSigned ? (
+                      <span style={{ fontFamily: "'Brush Script MT', cursive", fontSize: 24, color: "#1a56db", lineHeight: 1 }}>
+                        {link.client_signature_name}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 10, color: "#bbb" }}>Aguardando assinatura</span>
+                    )}
+                  </div>
+                  <div style={{ borderTop: "1px solid #333", paddingTop: 8 }}>
+                    <strong>CONTRATANTE</strong><br />
+                    <span style={{ fontSize: 11 }}>{(link.client_signature_name || contract.client_name).toUpperCase()}</span><br />
+                    <span style={{ fontSize: 10, color: "#666" }}>
+                      CPF/CNPJ: {link.client_signature_document || contract.client_document || "não informado"}
+                    </span>
+                    {clientSigned && (
                       <>
-                        <span style={{ fontFamily: "'Brush Script MT', cursive", fontSize: 22, color: "#1a56db", display: "block", margin: "8px 0" }}>
-                          {link.client_signature_name}
-                        </span>
+                        <br />
                         <span style={{ fontSize: 10, color: "#666" }}>
-                          Assinado digitalmente em {formatDateBR(link.client_signed_at || "")}
+                          Assinado digitalmente em {fmtStamp(link.client_signed_at)}
                         </span>
                       </>
-                    ) : (
-                      <span style={{ fontSize: 10, color: "#999" }}>Aguardando assinatura</span>
                     )}
                   </div>
                 </div>
                 <div style={{ width: "48%", textAlign: "center" }}>
-                  <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 40 }}>
-                    <strong>CONTRATADA</strong><br />
+                  <div style={{ height: 46, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
                     {artistSigned ? (
+                      <span style={{ fontFamily: "'Brush Script MT', cursive", fontSize: 24, color: "#1a56db", lineHeight: 1 }}>
+                        {link.artist_signature_name}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 10, color: "#bbb" }}>Aguardando assinatura</span>
+                    )}
+                  </div>
+                  <div style={{ borderTop: "1px solid #333", paddingTop: 8 }}>
+                    <strong>CONTRATADA</strong><br />
+                    <span style={{ fontSize: 11 }}>{(link.artist_signature_name || artistName).toUpperCase()}</span><br />
+                    <span style={{ fontSize: 10, color: "#666" }}>
+                      CPF/CNPJ: {artistDocument || "não informado"}
+                    </span>
+                    {artistSigned && (
                       <>
-                        <span style={{ fontFamily: "'Brush Script MT', cursive", fontSize: 22, color: "#1a56db", display: "block", margin: "8px 0" }}>
-                          {link.artist_signature_name}
-                        </span>
+                        <br />
                         <span style={{ fontSize: 10, color: "#666" }}>
-                          Assinado digitalmente em {formatDateBR(link.artist_signed_at || "")}
+                          Assinado digitalmente em {fmtStamp(link.artist_signed_at)}
                         </span>
                       </>
-                    ) : (
-                      <span style={{ fontSize: 10, color: "#999" }}>Aguardando assinatura</span>
                     )}
                   </div>
                 </div>
               </div>
+
 
               {isSigned && (
                 <div style={{ marginTop: 30, padding: 12, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, fontSize: 11, textAlign: "center", color: "#166534" }}>
