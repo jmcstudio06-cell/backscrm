@@ -277,7 +277,7 @@ export default function AssinarContrato() {
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {isSigned
-                  ? `Assinado por ${link.client_signature_name} em ${formatDateBR(link.client_signed_at || "")}. Você já pode baixar o PDF oficial.`
+                  ? `Assinado por ${link.client_signature_name} em ${fmtStamp(link.client_signed_at)}. Você já pode baixar o PDF oficial.`
                   : isCancelled
                     ? "Este link foi cancelado pelo artista. Solicite um novo link."
                     : isExpired

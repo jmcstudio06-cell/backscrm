@@ -12,6 +12,13 @@ import { useContractSignatureLinks, ContractSignatureLink } from "@/hooks/useCon
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 
+function fmtStamp(iso?: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -126,7 +133,7 @@ export function SignatureLinkModal({ isOpen, onClose, contract }: Props) {
                         {st.label}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        Criado em {formatDateBR(link.created_at)}
+                        Criado em {fmtStamp(link.created_at)}
                       </span>
                     </div>
 
@@ -210,7 +217,7 @@ export function SignatureLinkModal({ isOpen, onClose, contract }: Props) {
                     {link.status === "signed" && (
                       <div className="flex items-center justify-between border-t pt-3">
                         <div className="text-xs text-muted-foreground">
-                          Assinado em {formatDateBR(link.client_signed_at || "")}
+                          Assinado em {fmtStamp(link.client_signed_at)}
                         </div>
                         <Button size="sm" variant="outline" onClick={() => handleCopy(link)}>
                           {copiedId === link.id ? <Check className="w-3.5 h-3.5 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
