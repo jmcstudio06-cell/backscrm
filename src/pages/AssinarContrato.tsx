@@ -428,15 +428,16 @@ export default function AssinarContrato() {
                   </div>
                 </div>
                 <div style={{ width: "48%", textAlign: "center" }}>
-                  <div style={{ height: 46, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+                  <div style={{ height: 46, lineHeight: "46px", textAlign: "center", whiteSpace: "nowrap", overflow: "hidden" }}>
                     {artistSigned ? (
-                      <span style={{ fontFamily: "'Brush Script MT', cursive", fontSize: 24, color: "#1a56db", lineHeight: 1 }}>
+                      <span style={{ fontFamily: "'Brush Script MT', cursive", fontSize: 22, color: "#1a56db" }}>
                         {link.artist_signature_name}
                       </span>
                     ) : (
                       <span style={{ fontSize: 10, color: "#bbb" }}>Aguardando assinatura</span>
                     )}
                   </div>
+
                   <div style={{ borderTop: "1px solid #333", paddingTop: 8 }}>
                     <strong>CONTRATADA</strong><br />
                     <span style={{ fontSize: 11 }}>{(link.artist_signature_name || artistName).toUpperCase()}</span><br />
