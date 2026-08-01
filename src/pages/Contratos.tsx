@@ -18,6 +18,8 @@ import { ContractModal } from "@/components/contratos/ContractModal";
 import { ContractPreview } from "@/components/contratos/ContractPreview";
 import { ClausesModal } from "@/components/contratos/ClausesModal";
 import { SignatureLinkModal } from "@/components/contratos/SignatureLinkModal";
+import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 
 const statusConfig = {
   draft: { label: "Rascunho", color: "bg-muted text-muted-foreground", icon: FileText },
@@ -36,6 +38,18 @@ export default function Contratos() {
   const [isClausesModalOpen, setIsClausesModalOpen] = useState(false);
   const [isSignLinkOpen, setIsSignLinkOpen] = useState(false);
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const { isBlocked } = useFeatureBlocks();
+  const signatureBlocked = isBlocked("assinatura-digital");
+  const [showBlockedDialog, setShowBlockedDialog] = useState(false);
+
+  const openSignatureLink = (contract: Contract) => {
+    if (signatureBlocked) {
+      setShowBlockedDialog(true);
+      return;
+    }
+    setSelectedContract(contract);
+    setIsSignLinkOpen(true);
+  };
 
   const filteredContracts = contracts.filter(c => 
     c.client_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -116,14 +130,16 @@ export default function Contratos() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" onClick={() => handleView(contract)}><Eye className="w-4 h-4" /></Button>
-                            <Button variant="ghost" size="icon" title="Link de assinatura digital" onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>
-                              <Link2 className="w-4 h-4 text-primary" />
+                            <Button variant="ghost" size="icon" title={signatureBlocked ? "Assinatura digital disponível no plano Empresarial" : "Link de assinatura digital"} onClick={() => openSignatureLink(contract)}>
+                              {signatureBlocked ? <Lock className="w-4 h-4 text-muted-foreground" /> : <Link2 className="w-4 h-4 text-primary" />}
                             </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                               <DropdownMenuContent className="bg-background border">
                                 <DropdownMenuItem onClick={() => handleEdit(contract)}>Editar</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => { setSelectedContract(contract); setIsSignLinkOpen(true); }}>Link de assinatura</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openSignatureLink(contract)}>
+                                  {signatureBlocked && <Lock className="w-3.5 h-3.5 mr-2" />}Link de assinatura
+                                </DropdownMenuItem>
 
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "sent" })}>Marcar Enviado</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "signed", signed_at: new Date().toISOString() })}>Marcar Assinado</DropdownMenuItem>
@@ -176,6 +192,7 @@ export default function Contratos() {
       <ContractModal performanceTypes={performanceTypes} isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedContract(null); }} onSave={handleSave} clients={clients} savedClauses={savedClauses} getDefaultClauses={getDefaultClauses} contract={selectedContract} />
       <ContractPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} contract={selectedContract} />
       <ClausesModal isOpen={isClausesModalOpen} onClose={() => setIsClausesModalOpen(false)} clauses={savedClauses} onAdd={addSavedClause} onUpdate={updateSavedClause} onDelete={deleteSavedClause} />
+      <FeatureBlockedDialog open={showBlockedDialog} onOpenChange={setShowBlockedDialog} featureName="Assinatura digital de contratos" />
       <SignatureLinkModal isOpen={isSignLinkOpen} onClose={() => setIsSignLinkOpen(false)} contract={selectedContract} />
     </Layout>
   );
