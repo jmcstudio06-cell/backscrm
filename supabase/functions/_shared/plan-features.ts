@@ -10,6 +10,7 @@ export const ALL_FEATURES = [
   "orcamentos",
   "servicos",
   "contratos",
+  "assinatura-digital",
   "financeiro",
   "historico",
   "precificacao",
@@ -42,7 +43,7 @@ const PROFISSIONAL_FEATURES = [
 
 const EMPRESARIAL_FEATURES = [
   ...PROFISSIONAL_FEATURES,
-  "contratos", "historico", "mapeamento-palco", "metas", "aulas",
+  "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "aulas",
   "link-agenda", "bonus", "ideias-post", "metas-anuais",
 ];
 
