@@ -642,28 +642,31 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
 
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 50 }}>
               <div style={{ width: "45%", textAlign: "center" }}>
-                <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 50 }}>
-                  <strong>CONTRATANTE:</strong>
+                <div style={{ height: 46 }} />
+                <div style={{ borderTop: "1px solid #333", paddingTop: 8 }}>
+                  <strong>CONTRATANTE</strong>
                   <br />{contract.client_name.toUpperCase()}<br />
                   <span style={{ fontSize: 11, color: "#666" }}>
-                    CPF: {contract.client_document || "não informado"}
+                    CPF/CNPJ: {contract.client_document || "não informado"}
                   </span>
                 </div>
               </div>
               <div style={{ width: "45%", textAlign: "center" }}>
-                <div style={{ borderTop: "1px solid #333", paddingTop: 10, marginTop: 50 }}>
-                  <strong>CONTRATADA / REPRESENTANTE:</strong>
+                <div style={{ height: 46 }} />
+                <div style={{ borderTop: "1px solid #333", paddingTop: 8 }}>
+                  <strong>CONTRATADA / REPRESENTANTE</strong>
                   <br />
                   {companyName.toUpperCase()}
                   <br />
                   <span style={{ fontSize: 11, color: "#666" }}>
-                    Responsável: CPF {artistDocument || "não informado"}
+                    CPF/CNPJ: {artistDocument || "não informado"}
                     <br />
                     Representante da carreira do artista {artistName.toUpperCase()}
                   </span>
                 </div>
               </div>
             </div>
+
 
             {/* Footer Logo */}
             <div style={{ textAlign: "center", marginTop: 40, paddingTop: 20, borderTop: "1px solid #ddd" }}>
