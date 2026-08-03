@@ -30,15 +30,15 @@ const SLIDES: Slide[] = [
     cta: "Ver tutoriais",
   },
   {
-    id: "indicacoes",
-    href: "/indicacoes",
-    image: indicacoesBanner.url,
-    alt: "Indique e Ganhe - convide amigos e ganhe recompensas no Backstage Pro",
-    badge: "Indique e Ganhe",
-    title: "Indique Amigos e Ganhe",
+    id: "ranking",
+    href: "/ranking",
+    image: rankingBanner.url,
+    alt: "Ranking de Shows - confira quem fez mais shows no mês",
+    badge: "Ranking",
+    title: "Ranking de Shows",
     description:
-      "Convide outros cantores para o Backstage Pro e receba dias de uso como recompensa.",
-    cta: "Ver painel de indicações",
+      "Veja quem são os artistas que mais fizeram shows no mês e motive-se a subir no pódio.",
+    cta: "Ver ranking",
   },
 ];
 
