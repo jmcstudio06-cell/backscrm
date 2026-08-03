@@ -4,7 +4,7 @@ import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import tutoriaisBanner from "@/assets/tutoriais-banner.png.asset.json";
-import indicacoesBanner from "@/assets/indicacoes-banner.png.asset.json";
+import rankingBanner from "@/assets/ranking-banner-2026.png.asset.json";
 
 type Slide = {
   id: string;
