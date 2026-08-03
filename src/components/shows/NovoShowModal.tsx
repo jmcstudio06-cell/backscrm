@@ -966,8 +966,7 @@ export function NovoShowModal({ open, onOpenChange, onShowCreated, editingShow, 
                       setFormData({ ...formData, status: value });
                       if (value === "partial") {
                         setIsAdvancePayment(true);
-                        setActiveTab("financial");
-                        toast.info("Configure o valor adiantado na aba Financeiro");
+                        toast.info("Continue preenchendo o evento. O valor adiantado será configurado na aba Financeiro.");
                       } else {
                         // Adiantamento só vale para Pagamento parcial
                         setIsAdvancePayment(false);
