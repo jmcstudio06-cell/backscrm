@@ -190,6 +190,7 @@ const durationOptions = [
 ];
 
 const showStatuses = [
+  { value: "scheduled", label: "Agendado (negociação)", color: "bg-muted-foreground" },
   { value: "confirmed", label: "Pagamento pendente", color: "bg-warning" },
   { value: "partial", label: "Pagamento parcial (entrada)", color: "bg-primary" },
   { value: "completed", label: "Pagamento realizado", color: "bg-green-500" },
