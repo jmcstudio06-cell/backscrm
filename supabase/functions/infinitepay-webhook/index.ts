@@ -56,6 +56,17 @@ serve(async (req) => {
       status = "paid";
     }
 
+    // Payload oficial do checkout InfinitePay: só é enviado quando o pagamento é aprovado
+    // { invoice_slug, amount, paid_amount, installments, capture_method, transaction_nsu, order_nsu, items }
+    const invoiceSlug: string | null = body?.invoice_slug || body?.slug || body?.data?.invoice_slug || null;
+    const transactionNsu: string | null =
+      body?.transaction_nsu || body?.data?.transaction_nsu || null;
+    const paidAmount = Number(body?.paid_amount ?? body?.data?.paid_amount ?? 0);
+
+    if (!status && (transactionNsu || invoiceSlug) && paidAmount > 0) {
+      status = "paid";
+    }
+
     // Suporte a múltiplos formatos de metadata da InfinitePay
     const metadata =
       body?.metadata ||
@@ -68,6 +79,7 @@ serve(async (req) => {
       body?.external_reference ||
       body?.order_nsu ||
       body?.data?.external_reference ||
+      body?.data?.order_nsu ||
       body?.transaction?.external_reference ||
       null;
 
@@ -81,9 +93,10 @@ serve(async (req) => {
     }
 
     const gatewayEventId =
-      body?.id || body?.event_id || body?.data?.id || body?.transaction?.id || null;
+      transactionNsu || body?.id || body?.event_id || body?.data?.id || body?.transaction?.id || null;
 
-    const payerEmail = body?.customer?.email || body?.payer?.email || body?.email || null;
+    const payerEmail =
+      body?.customer?.email || body?.payer?.email || body?.email || body?.data?.customer?.email || null;
 
     console.log("Webhook recebido:", {
       status,
@@ -92,11 +105,28 @@ serve(async (req) => {
       gatewayEventId,
       payerEmail,
       externalRef,
+      invoiceSlug,
+      paidAmount,
     });
 
-    // Tenta localizar pending_payment correspondente (por gateway_event_id ou por user+plan mais recente)
+    // 1) Prioridade: order_nsu = id do pending_payment criado no prepare-infinitepay-checkout
     let pendingPaymentId: string | null = null;
-    if (gatewayEventId) {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (externalRef && UUID_RE.test(externalRef.trim())) {
+      const { data: byOrder } = await supabase
+        .from("pending_payments")
+        .select("id, user_id, plan_key")
+        .eq("id", externalRef.trim())
+        .maybeSingle();
+      if (byOrder) {
+        pendingPaymentId = byOrder.id;
+        userId = byOrder.user_id;
+        planName = byOrder.plan_key;
+      }
+    }
+
+    // Tenta localizar pending_payment correspondente (por gateway_event_id ou por user+plan mais recente)
+    if (!pendingPaymentId && gatewayEventId) {
       const { data: byEvent } = await supabase
         .from("pending_payments")
         .select("id, user_id, plan_key")
@@ -131,6 +161,23 @@ serve(async (req) => {
         if (!planName) planName = byUser.plan_key;
       }
     }
+    // Último recurso: casa pelo valor pago com o pending mais recente daquele valor
+    if (!pendingPaymentId && !userId && paidAmount > 0) {
+      const amount = Number(body?.amount ?? paidAmount);
+      const { data: byAmount } = await supabase
+        .from("pending_payments")
+        .select("id, user_id, plan_key")
+        .eq("status", "pending")
+        .eq("amount_cents", amount)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (byAmount) {
+        pendingPaymentId = byAmount.id;
+        userId = byAmount.user_id;
+        planName = byAmount.plan_key;
+      }
+    }
 
     if (!status || !SUCCESSFUL_STATUSES.has(status)) {
       // Salva status no pending_payment se encontrado, para auditoria
@@ -145,6 +192,7 @@ serve(async (req) => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+
 
     if (!userId || !planName) {
       console.error("Webhook sem user_id/plan identificáveis", body);
