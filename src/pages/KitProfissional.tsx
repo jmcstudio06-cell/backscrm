@@ -26,7 +26,13 @@ import {
   Clock,
   DollarSign,
   Star,
+  CalendarDays,
+  FileSignature,
+  Users,
+  TrendingUp,
+  PuzzleIcon,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { insertGuideLeadWithFallback } from "@/lib/guide-leads";
 import { toast } from "sonner";
@@ -67,7 +73,8 @@ type Block =
   | { type: "warn"; title: string; text: string }
   | { type: "list"; items: string[] }
   | { type: "stat"; value: string; label: string }
-  | { type: "compare"; wrong: string; right: string };
+  | { type: "compare"; wrong: string; right: string }
+  | { type: "gap"; title: string; text: string; items: string[] };
 
 const CHAPTERS: Chapter[] = [
   {
@@ -75,34 +82,47 @@ const CHAPTERS: Chapter[] = [
     eyebrow: "Capítulo 1",
     title: "Por que artistas talentosos perdem shows",
     intro:
-      "Talento não é o suficiente. A cada semana, milhares de artistas perdem contratações porque falham em detalhes que ninguém ensina.",
+      "Talento não é o suficiente. A cada semana, milhares de artistas perdem contratações por detalhes de gestão que ninguém ensina.",
     icon: AlertTriangle,
     accent: "rose",
     blocks: [
       {
         type: "p",
-        text: "Se você já viu um artista com metade do seu talento fechar o triplo de shows, saiba: não é sorte. É posicionamento. É a forma como ele responde, como se apresenta e como conduz uma negociação do início ao fim.",
+        text: "Se você já viu um artista com metade do seu talento fechar o triplo de shows, saiba: não é sorte. É posicionamento. É a forma como ele responde, como se apresenta e como conduz uma negociação do primeiro 'oi' até o pagamento final.",
       },
       {
         type: "stat",
         value: "73%",
         label: "dos contratantes desistem quando não recebem resposta em até 2 horas",
       },
-      {
-        type: "h",
-        text: "Os 3 erros silenciosos",
-      },
+      { type: "h", text: "Os 5 erros silenciosos" },
       {
         type: "list",
         items: [
           "Demorar horas (ou dias) para responder uma mensagem simples de orçamento.",
           "Enviar áudios longos e desorganizados quando o contratante espera algo objetivo.",
-          "Passar valores sem contexto, sem apresentar o que está incluso — o preço parece caro sozinho.",
+          "Passar valores sem contexto: preço sozinho sempre parece caro.",
+          "Perder o histórico do contato — quem pediu orçamento, quando, por quanto, e o que ficou combinado.",
+          "Não saber, de cabeça, quanto entrou no mês, quanto ainda vai receber e quanto custou cada show.",
         ],
       },
       {
         type: "quote",
         text: "O contratante não te compra pela sua voz. Ele te compra pela confiança que você transmite antes do show acontecer.",
+      },
+      {
+        type: "p",
+        text: "Repare em algo: nenhum desses cinco erros é sobre música. Todos são sobre organização. E organização, quando fica no bloco de notas, no print do WhatsApp e na memória, sempre falha exatamente no dia em que você está mais ocupado — o dia do show.",
+      },
+      {
+        type: "gap",
+        title: "O que falta quando não existe sistema",
+        text: "Cada dica deste material funciona uma vez na força de vontade. Repetida 30 vezes por mês, ela só se sustenta dentro de um sistema. É esse o buraco que o Backstage Pro fecha.",
+        items: [
+          "Todo contato de show entra no CRM e nunca se perde no meio das conversas.",
+          "Agenda, financeiro e clientes no mesmo lugar, atualizados sozinhos.",
+          "Você olha uma tela e sabe onde sua carreira está hoje.",
+        ],
       },
     ],
   },
@@ -111,36 +131,49 @@ const CHAPTERS: Chapter[] = [
     eyebrow: "Capítulo 2",
     title: "O primeiro contato que fecha shows",
     intro:
-      "Os primeiros 5 minutos definem se o contratante vai continuar com você ou procurar outro artista. Existe uma forma certa de responder.",
+      "Os primeiros 5 minutos definem se o contratante continua com você ou procura outro artista. Existe uma forma certa de responder.",
     icon: MessageSquare,
     accent: "blue",
     blocks: [
       {
         type: "p",
-        text: "Quando um contratante manda mensagem, ele já pesquisou. Ele viu seu Instagram, ouviu um trecho seu, e está decidindo. Sua resposta é o momento em que ele confirma se vale a pena continuar.",
+        text: "Quando um contratante manda mensagem, ele já pesquisou. Viu seu Instagram, ouviu um trecho seu, e está decidindo. Sua resposta é o momento em que ele confirma se vale a pena continuar — ou se você é 'mais um'.",
       },
       {
         type: "compare",
         wrong: '"Boa noite! Passo os valores amanhã pq to em show 🎤"',
         right:
-          '"Boa noite! Que bom seu contato. Para o dia XX consigo sim, vou verificar aqui e te retorno em até 30min com os detalhes completos."',
+          '"Boa noite, Marcos! Que bom seu contato. Para o dia 14 tenho disponibilidade sim. Vou montar a proposta com os formatos e te envio em até 30 minutos."',
       },
       {
         type: "tip",
         title: "A regra dos 30 minutos",
-        text: "Se demorar mais que isso, você perdeu autoridade. Nem que seja pra dizer 'estou verificando, respondo em 1h', responda de imediato.",
+        text: "Se demorar mais que isso, você perdeu autoridade. Nem que seja para dizer 'estou verificando, respondo em 1h' — responda de imediato.",
       },
-      {
-        type: "h",
-        text: "O que sempre incluir no primeiro retorno",
-      },
+      { type: "h", text: "O que sempre incluir no primeiro retorno" },
       {
         type: "list",
         items: [
-          "Cumprimento personalizado (nome do contratante ou do evento).",
-          "Confirmação de disponibilidade da data.",
+          "Cumprimento personalizado com o nome do contratante ou do evento.",
+          "Confirmação real de disponibilidade da data (real, não 'acho que dá').",
           "Prazo claro para envio da proposta completa.",
-          "Um pedido de 2-3 informações que te ajudam a montar orçamento (local, duração, público).",
+          "Duas ou três perguntas que te ajudam a orçar: local, duração e público estimado.",
+          "Um link único com seu material, em vez de sete arquivos soltos.",
+        ],
+      },
+      {
+        type: "warn",
+        title: "O erro que custa mais caro",
+        text: "Dizer que a data está livre sem ter certeza. Quando você descobre que já tinha compromisso, ou perde o show ou queima sua imagem. Disponibilidade precisa ser consultada, não lembrada.",
+      },
+      {
+        type: "gap",
+        title: "O que falta quando não existe sistema",
+        text: "Responder em 30 minutos com segurança exige que a resposta esteja pronta antes da pergunta chegar.",
+        items: [
+          "Agenda em tempo real: você confirma a data em 5 segundos, de onde estiver.",
+          "Mensagens prontas para contratantes, só ajustando nome e data.",
+          "Link da bio profissional com vídeo, fotos e contato num único endereço.",
         ],
       },
     ],
@@ -150,59 +183,73 @@ const CHAPTERS: Chapter[] = [
     eyebrow: "Capítulo 3",
     title: "Como valorizar seu trabalho sem parecer caro",
     intro:
-      "Preço não é número — é percepção. Um mesmo valor pode parecer barato ou absurdo dependendo de como você apresenta.",
+      "Preço não é número — é percepção. O mesmo valor pode parecer barato ou absurdo dependendo de como você apresenta.",
     icon: DollarSign,
     accent: "emerald",
     blocks: [
       {
         type: "p",
-        text: "A maioria dos artistas cai na armadilha de mandar 'R$ X,XX' no WhatsApp e esperar resposta. O contratante compara com o próximo orçamento e escolhe o mais barato. Você entrou numa guerra que não precisava entrar.",
+        text: "A maioria dos artistas manda 'R$ 2.500' no WhatsApp e espera. O contratante compara com o próximo orçamento e escolhe o mais barato. Você entrou numa guerra de preço que não precisava entrar.",
       },
-      {
-        type: "h",
-        text: "A estrutura de proposta que converte",
-      },
+      { type: "h", text: "A estrutura de proposta que converte" },
       {
         type: "list",
         items: [
-          "Descrição do que está incluso (repertório, tempo, equipe, equipamento).",
-          "Benefícios extras (ensaios, sound check, flexibilidade de repertório).",
-          "Prazos e condições de pagamento em bullets claros.",
+          "Descrição do que está incluso: repertório, tempo de show, equipe, equipamento.",
+          "Benefícios extras: ensaio, passagem de som, flexibilidade de repertório.",
+          "Prazos e condições de pagamento em itens claros, sem letra miúda.",
           "Investimento total — a palavra 'investimento' vale mais que 'preço'.",
+          "Prazo de validade da proposta. Proposta sem prazo não gera decisão.",
         ],
       },
       {
         type: "tip",
         title: "Ancoragem de valor",
-        text: "Se seu show custa R$ 2.500, apresente 3 formatos: solo (R$ 2.500), duo (R$ 3.500) e banda (R$ 5.000). A maioria escolhe o do meio — que era exatamente onde você queria chegar.",
+        text: "Se seu show custa R$ 2.500, apresente três formatos: solo (R$ 2.500), duo (R$ 3.500) e banda (R$ 5.000). A maioria escolhe o do meio — que era exatamente onde você queria chegar.",
+      },
+      { type: "h", text: "Você sabe quanto custa o seu show?" },
+      {
+        type: "p",
+        text: "Cachê não é lucro. Do valor combinado saem músicos, transporte, alimentação, equipamento e imposto. Artista que não calcula custo real aceita show que dá prejuízo achando que fez um bom negócio.",
       },
       {
         type: "warn",
         title: "Nunca envie só o número",
         text: "Preço solto no WhatsApp é a forma mais rápida de perder um show. Sempre acompanhe de contexto e valor percebido.",
       },
+      {
+        type: "gap",
+        title: "O que falta quando não existe sistema",
+        text: "Precificar bem é conta, não intuição. E proposta bonita feita à mão só sai quando você tem tempo — o que nunca acontece na semana cheia.",
+        items: [
+          "Precificação com custo de equipe e transporte calculado automaticamente.",
+          "Orçamento profissional gerado em segundos, com seus formatos e sua marca.",
+          "Link de orçamento premium com fotos, vídeos e marcas que já te contrataram.",
+        ],
+      },
     ],
   },
   {
     id: "fechamento",
     eyebrow: "Capítulo 4",
-    title: "Fechamento e profissionalismo",
+    title: "Fechamento, contrato e sinal",
     intro:
-      "Aqui é onde artistas amadores viram profissionais. Como conduzir o fechamento sem dar margem para desistência ou desorganização.",
+      "Aqui é onde amadores viram profissionais: conduzir o fechamento sem dar margem para desistência ou desorganização.",
     icon: Handshake,
     accent: "violet",
     blocks: [
       {
         type: "p",
-        text: "Um show fechado no boca-a-boca é um show que pode desmarcar. Fechamento profissional gera contrato, sinal e cronograma. É isso que separa quem vive de música de quem toca por hobby.",
+        text: "Um show fechado no boca a boca é um show que pode desmarcar na véspera. Fechamento profissional gera contrato, sinal e cronograma. É isso que separa quem vive de música de quem toca por hobby.",
       },
       {
         type: "list",
         items: [
           "Envie um contrato simples — mesmo quando o contratante é conhecido.",
           "Sinal de 30% a 50% na assinatura, saldo até 7 dias antes do show.",
-          "Cronograma da apresentação: horário de chegada, sound check, entrada, término.",
-          "Rider técnico anexado, mesmo básico. Isso te posiciona.",
+          "Cronograma da apresentação: chegada, passagem de som, entrada, término.",
+          "Rider técnico anexado, mesmo básico. Isso te posiciona acima da média.",
+          "Confirmação por escrito de tudo que foi combinado por voz.",
         ],
       },
       {
@@ -212,48 +259,166 @@ const CHAPTERS: Chapter[] = [
       {
         type: "tip",
         title: "A frase que blinda o fechamento",
-        text: "\"Vou preparar o contrato ainda hoje pra gente formalizar. Assim garantimos a data no seu nome e eu já bloqueio agenda.\" — isso comunica seriedade e cria urgência ao mesmo tempo.",
+        text: '"Vou preparar o contrato ainda hoje pra gente formalizar. Assim garantimos a data no seu nome e eu já bloqueio a agenda." — comunica seriedade e cria urgência na mesma frase.',
+      },
+      {
+        type: "warn",
+        title: "Contrato em Word não fecha show",
+        text: "Editar um modelo antigo, salvar em PDF, imprimir, assinar, fotografar e reenviar faz o fechamento levar dias. Nesse intervalo, o contratante recebe outra proposta.",
+      },
+      {
+        type: "gap",
+        title: "O que falta quando não existe sistema",
+        text: "Contrato precisa sair no mesmo dia da conversa, com os dados certos e sem retrabalho.",
+        items: [
+          "Contrato gerado automaticamente com dados do cliente, do show e suas cláusulas.",
+          "Assinatura digital por link: o contratante assina do celular, em minutos.",
+          "Sinal e saldo já lançados no financeiro, com data prevista de recebimento.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "rotina",
+    eyebrow: "Capítulo 5",
+    title: "A rotina que sustenta uma agenda cheia",
+    intro:
+      "Fechar shows é uma habilidade. Sustentar 15 shows no mês sem esquecer nada é outra — e é a que quebra a maioria.",
+    icon: CalendarDays,
+    accent: "blue",
+    blocks: [
+      {
+        type: "p",
+        text: "Quando a agenda enche, o problema deixa de ser conseguir show e passa a ser não deixar nada cair. Data trocada, músico não avisado, equipamento esquecido, cachê não cobrado. Um único erro desses apaga a reputação construída em dez shows perfeitos.",
+      },
+      { type: "h", text: "O checklist mínimo de cada show" },
+      {
+        type: "list",
+        items: [
+          "Data, horário de chegada e horário de início confirmados com o contratante.",
+          "Endereço completo e nome de quem vai te receber no local.",
+          "Equipe escalada e confirmada, com valor de cada músico definido.",
+          "Repertório e formato acertados com a produção do evento.",
+          "Equipamento revisado e transporte resolvido com antecedência.",
+          "Sinal recebido e saldo com data marcada para cobrança.",
+        ],
+      },
+      {
+        type: "stat",
+        value: "1 em 4",
+        label: "shows tem algum problema evitável de produção por falta de checagem prévia",
+      },
+      {
+        type: "tip",
+        title: "Confirmação 72h antes",
+        text: "Três dias antes, mande uma mensagem confirmando horário, local e formato. Isso evita 90% dos desencontros e passa uma impressão de organização que o contratante comenta com outros.",
+      },
+      {
+        type: "gap",
+        title: "O que falta quando não existe sistema",
+        text: "Checklist no papel funciona até o terceiro show do mês. Depois disso, você precisa que o próprio show te cobre.",
+        items: [
+          "Checklist por show, com pendências visíveis até serem resolvidas.",
+          "Equipe, pagamentos e PIX de cada músico organizados por evento.",
+          "Notificações e lembretes automáticos dos próximos compromissos.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "dinheiro",
+    eyebrow: "Capítulo 6",
+    title: "Onde o dinheiro do artista desaparece",
+    intro:
+      "Faturar bem e não sobrar nada é o sintoma mais comum da carreira musical. O problema quase nunca é o cachê.",
+    icon: TrendingUp,
+    accent: "emerald",
+    blocks: [
+      {
+        type: "p",
+        text: "Pergunte a dez artistas quanto eles faturaram no mês passado. Nove vão dar um número aproximado. Pergunte quanto sobrou depois de equipe, transporte e despesas — praticamente nenhum sabe. Sem esse número, não existe decisão de carreira, só palpite.",
+      },
+      { type: "h", text: "Os três números que você precisa saber sempre" },
+      {
+        type: "list",
+        items: [
+          "Recebido no mês: o que efetivamente caiu na conta.",
+          "A receber: sinais e saldos de shows já fechados, com data.",
+          "Custo por show: quanto sai do cachê antes de virar seu.",
+        ],
+      },
+      {
+        type: "warn",
+        title: "O sinal que virou confusão",
+        text: "Recebeu 50% em março de um show em maio? Se esse valor não fica registrado no mês certo, você acha que faturou menos em março e mais em maio. Aí toma decisão errada nos dois meses.",
+      },
+      {
+        type: "quote",
+        text: "Carreira sem número não é carreira, é tentativa. Quem mede o mês consegue planejar o ano.",
+      },
+      {
+        type: "gap",
+        title: "O que falta quando não existe sistema",
+        text: "Nenhuma planilha aguenta sinal parcial, custo de equipe e histórico mensal ao mesmo tempo — e ainda ser preenchida depois do show, de madrugada.",
+        items: [
+          "Financeiro alimentado automaticamente por cada show da agenda.",
+          "Recebido, pendente e custo real de equipe separados por mês.",
+          "Histórico e gráficos mostrando a evolução real da sua carreira.",
+        ],
       },
     ],
   },
   {
     id: "pos-show",
-    eyebrow: "Capítulo 5",
+    eyebrow: "Capítulo 7",
     title: "Pós-show: onde nasce o próximo contrato",
     intro:
-      "O contrato acabou, o show foi um sucesso — e é aí que 90% dos artistas param. Quem entende o que fazer depois multiplica indicações.",
+      "O show foi um sucesso — e é aí que 90% dos artistas param. Quem entende o pós-show multiplica indicações.",
     icon: Target,
     accent: "amber",
     blocks: [
       {
         type: "p",
-        text: "Um contratante satisfeito é a fonte mais barata e mais quente de novos shows que existe. Mas isso só acontece se você fizer o pós certo. E a maioria não faz.",
+        text: "Um contratante satisfeito é a fonte mais barata e mais quente de novos shows que existe. Mas isso só acontece se você fizer o pós certo — e a maioria não faz porque, no dia seguinte, já está correndo atrás do próximo evento.",
       },
-      {
-        type: "h",
-        text: "Os 3 movimentos pós-show",
-      },
+      { type: "h", text: "Os 4 movimentos pós-show" },
       {
         type: "list",
         items: [
           "Mensagem de agradecimento em até 24h, personalizada — nada de 'valeu' genérico.",
-          "Peça 2 fotos ou 1 vídeo curto do evento. Isso vira material pra próxima venda.",
-          "Pergunte, com naturalidade, se ele conhece alguém que também vai contratar show em breve. Indicação nasce de pergunta feita.",
+          "Peça duas fotos ou um vídeo curto do evento. Isso vira material da próxima venda.",
+          "Pergunte com naturalidade se ele conhece alguém que vai contratar show em breve.",
+          "Marque no calendário a data provável do próximo evento dele e volte a falar antes dos concorrentes.",
         ],
       },
       {
         type: "stat",
         value: "4x",
-        label: "mais chances de contratação quando vem de indicação direta",
+        label: "mais chances de contratação quando o contato vem de indicação direta",
+      },
+      {
+        type: "p",
+        text: "Esse quarto movimento é o mais valioso e o mais esquecido. Aniversário de empresa, festa junina, réveillon de um bar: quase todo contratante repete. Quem aparece antes de ele começar a procurar não disputa preço com ninguém.",
+      },
+      {
+        type: "gap",
+        title: "O que falta quando não existe sistema",
+        text: "Pós-show é sobre lembrar de algo na semana certa, meses depois. Memória não faz isso; sistema faz.",
+        items: [
+          "CRM com histórico de cada cliente e data de retorno programada.",
+          "Radar de shows avisando quando é hora de reativar um contato antigo.",
+          "Base de clientes que cresce a cada evento, em vez de sumir na conversa antiga.",
+        ],
       },
       {
         type: "tip",
         title: "Você concluiu o material 🎓",
-        text: "Agora você tem uma visão completa: do primeiro contato ao pós-show. Na próxima tela, o vídeo completo e todos os bônus foram desbloqueados.",
+        text: "Você tem agora a visão completa: primeiro contato, precificação, contrato, rotina, dinheiro e pós-show. Repare que todo capítulo terminava no mesmo ponto — a técnica só se sustenta com estrutura. Na próxima tela, o vídeo completo e todos os bônus foram desbloqueados.",
       },
     ],
   },
 ];
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BÔNUS — o que é entregue quando o material é concluído
@@ -761,7 +926,33 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
           </div>
         </div>
       );
+    case "gap":
+      return (
+        <div className="rounded-3xl border border-slate-800 bg-slate-900 text-white p-6 sm:p-8 space-y-5 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+              <PuzzleIcon className="w-5 h-5 text-blue-300" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-300">
+                Backstage Pro
+              </p>
+              <p className="font-black text-lg leading-tight">{block.title}</p>
+            </div>
+          </div>
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">{block.text}</p>
+          <ul className="space-y-2.5">
+            {block.items.map((it, i) => (
+              <li key={i} className="flex gap-3 items-start text-sm sm:text-base text-white/90">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-1 shrink-0" />
+                <span>{it}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
     default:
+
       return null;
   }
 }
