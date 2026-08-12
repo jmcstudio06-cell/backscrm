@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -295,7 +296,31 @@
   .booking-occupied {
     @apply !bg-rose-100 dark:!bg-rose-900/40 !text-rose-500 dark:!text-rose-400 line-through cursor-not-allowed !rounded-full;
   }
+
+  /* Editorial reading experience (Kit Profissional) */
+  .font-editorial {
+    font-family: 'Fraunces', 'Georgia', serif;
+    font-optical-sizing: auto;
+  }
+
+  .kit-prose-first::first-letter {
+    float: left;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: 3.6em;
+    line-height: 0.82;
+    padding: 0.06em 0.12em 0 0;
+    color: hsl(220 25% 12%);
+  }
+
+  .paper-texture {
+    background-color: #fbfaf7;
+    background-image:
+      radial-gradient(at 12% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 55%),
+      radial-gradient(at 92% 8%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+  }
 }
+
 
 @keyframes floatUp {
   0%, 100% { transform: translateY(0); }

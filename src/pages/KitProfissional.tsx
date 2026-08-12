@@ -31,6 +31,7 @@ import {
   Users,
   TrendingUp,
   PuzzleIcon,
+  Lock,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -574,22 +575,28 @@ export default function KitProfissional() {
     }
   };
 
+  const remaining = totalChapters - (chapterIdx + 1);
+  const readMinutes = useMemo(() => {
+    const words = JSON.stringify(currentChapter.blocks).split(/\s+/).length;
+    return Math.max(2, Math.round(words / 190));
+  }, [currentChapter]);
+
   return (
-    <div className="min-h-screen bg-[#fafaf7] text-slate-900">
+    <div className="min-h-screen paper-texture text-slate-900 selection:bg-slate-900 selection:text-white">
       {/* ── HEADER ── */}
-      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-slate-200/80">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 min-w-0">
             <img
               src={baIcon}
               alt="Backstage"
-              className="w-9 h-9 rounded-lg object-cover ring-1 ring-slate-200"
+              className="w-9 h-9 rounded-xl object-cover ring-1 ring-slate-200"
             />
             <div className="flex flex-col leading-tight min-w-0">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
-                Backstage
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold">
+                Backstage Pro
               </span>
-              <span className="font-black text-sm sm:text-base text-slate-900 -mt-0.5 truncate">
+              <span className="font-editorial font-semibold text-sm sm:text-base text-slate-900 -mt-0.5 truncate">
                 Manual do Artista
               </span>
             </div>
@@ -597,16 +604,22 @@ export default function KitProfissional() {
 
           {isLeadRegistered && view === "reading" && (
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 font-medium">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
                 <BookOpen className="w-3.5 h-3.5" />
-                Capítulo {chapterIdx + 1} de {totalChapters}
-              </div>
-              <div className="w-24 sm:w-32 h-1.5 rounded-full bg-slate-200 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-500"
-                  style={{ width: `${progressPct}%` }}
-                />
-              </div>
+                {chapterIdx + 1}/{totalChapters}
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-full">
+                {remaining === 0 ? (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5" /> Bônus prontos
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-3 h-3" /> 4 bônus em {remaining}{" "}
+                    {remaining === 1 ? "capítulo" : "capítulos"}
+                  </>
+                )}
+              </span>
             </div>
           )}
 
@@ -616,121 +629,234 @@ export default function KitProfissional() {
             </span>
           )}
         </div>
+        {isLeadRegistered && view === "reading" && (
+          <div className="h-[3px] w-full bg-slate-200/70">
+            <div
+              className="h-full bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 transition-all duration-700 ease-out"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        )}
       </header>
 
       {/* ── READING VIEW ── */}
       {isLeadRegistered && view === "reading" && (
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-          <ChapterView chapter={currentChapter} />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16 pb-32 lg:pb-16">
+          <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-14">
+            {/* Rail */}
+            <aside className="hidden lg:block">
+              <div className="sticky top-28 space-y-8">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-4">
+                    Sumário
+                  </p>
+                  <ol className="space-y-1">
+                    {CHAPTERS.map((c, i) => (
+                      <li key={c.id}>
+                        <button
+                          onClick={() => {
+                            setChapterIdx(i);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={cn(
+                            "w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all group",
+                            i === chapterIdx
+                              ? "bg-white shadow-sm ring-1 ring-slate-200"
+                              : "hover:bg-white/70",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "mt-0.5 w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 transition",
+                              i < chapterIdx
+                                ? "bg-emerald-500 text-white"
+                                : i === chapterIdx
+                                  ? "bg-slate-900 text-white"
+                                  : "bg-slate-200 text-slate-500",
+                            )}
+                          >
+                            {i < chapterIdx ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
+                          </span>
+                          <span
+                            className={cn(
+                              "text-[13px] leading-snug font-medium",
+                              i === chapterIdx ? "text-slate-900" : "text-slate-500",
+                            )}
+                          >
+                            {c.title}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
 
-          {/* Nav */}
-          <div className="mt-12 flex items-center justify-between gap-4">
+                <RewardTracker
+                  benefits={benefits}
+                  progressPct={progressPct}
+                  remaining={remaining}
+                />
+              </div>
+            </aside>
+
+            {/* Article */}
+            <main>
+              <div key={currentChapter.id} className="animate-in fade-in slide-in-from-bottom-3 duration-500">
+                <ChapterView chapter={currentChapter} readMinutes={readMinutes} />
+              </div>
+
+              {/* Encouragement */}
+              <div className="mt-14 rounded-3xl border border-amber-200/70 bg-gradient-to-br from-amber-50 to-white p-6 sm:p-7 flex items-start gap-4">
+                <div className="w-11 h-11 rounded-2xl bg-amber-400/20 flex items-center justify-center shrink-0">
+                  <Gift className="w-5 h-5 text-amber-700" />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-editorial font-semibold text-lg text-slate-900 leading-tight">
+                    {remaining === 0
+                      ? "Você chegou ao último capítulo"
+                      : `Faltam ${remaining} ${remaining === 1 ? "capítulo" : "capítulos"} para liberar seus bônus`}
+                  </p>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Aula completa em vídeo, artes editáveis no Canva, mensagens prontas para
+                    contratantes e teste grátis do sistema — tudo liberado no fim da leitura.
+                  </p>
+                </div>
+              </div>
+
+              {/* Chapter dots (mobile) */}
+              <div className="mt-10 flex items-center justify-center gap-2 lg:hidden">
+                {CHAPTERS.map((c, i) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setChapterIdx(i)}
+                    aria-label={`Ir para capítulo ${i + 1}`}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all",
+                      i === chapterIdx
+                        ? "w-8 bg-slate-900"
+                        : i < chapterIdx
+                          ? "w-1.5 bg-emerald-500"
+                          : "w-1.5 bg-slate-300",
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Desktop nav */}
+              <div className="mt-10 hidden lg:flex items-center justify-between gap-4">
+                <button
+                  onClick={goPrev}
+                  disabled={chapterIdx === 0}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl transition",
+                    chapterIdx === 0
+                      ? "text-slate-300 cursor-not-allowed"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white",
+                  )}
+                >
+                  <ArrowLeft className="w-4 h-4" /> Anterior
+                </button>
+                <NextButton
+                  isLast={chapterIdx === totalChapters - 1}
+                  onClick={goNext}
+                />
+              </div>
+            </main>
+          </div>
+
+          {/* Mobile sticky nav */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-xl border-t border-slate-200 px-4 py-3 flex items-center gap-3">
             <button
               onClick={goPrev}
               disabled={chapterIdx === 0}
               className={cn(
-                "inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-lg transition",
+                "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition",
                 chapterIdx === 0
-                  ? "text-slate-300 cursor-not-allowed"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
+                  ? "text-slate-300"
+                  : "text-slate-700 bg-slate-100 hover:bg-slate-200",
               )}
+              aria-label="Capítulo anterior"
             >
-              <ArrowLeft className="w-4 h-4" /> Anterior
+              <ArrowLeft className="w-4 h-4" />
             </button>
-
-            <button
+            <NextButton
+              isLast={chapterIdx === totalChapters - 1}
               onClick={goNext}
-              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl shadow-lg shadow-slate-900/10 transition-all hover:shadow-xl hover:-translate-y-0.5"
-            >
-              {chapterIdx === totalChapters - 1 ? (
-                <>
-                  Concluir e desbloquear bônus
-                  <Sparkles className="w-4 h-4" />
-                </>
-              ) : (
-                <>
-                  Continuar leitura
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
+              full
+            />
           </div>
-
-          {/* Chapter dots */}
-          <div className="mt-10 flex items-center justify-center gap-2">
-            {CHAPTERS.map((c, i) => (
-              <button
-                key={c.id}
-                onClick={() => setChapterIdx(i)}
-                aria-label={`Ir para capítulo ${i + 1}`}
-                className={cn(
-                  "h-2 rounded-full transition-all",
-                  i === chapterIdx
-                    ? "w-8 bg-slate-900"
-                    : i < chapterIdx
-                      ? "w-2 bg-emerald-500"
-                      : "w-2 bg-slate-300 hover:bg-slate-400",
-                )}
-              />
-            ))}
-          </div>
-        </main>
+        </div>
       )}
 
       {/* ── UNLOCKED VIEW ── */}
       {isLeadRegistered && view === "unlocked" && (
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-12">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-14">
           {/* Hero */}
-          <section className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700">
-              <Trophy className="w-3.5 h-3.5" />
-              Você concluiu o Manual do Artista
+          <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 sm:px-12 py-12 sm:py-16 text-center shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)]">
+            <div className="absolute inset-x-0 -top-24 h-56 bg-[radial-gradient(closest-side,rgba(251,191,36,0.22),transparent)]" />
+            <div className="relative space-y-5">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/25">
+                <Trophy className="w-8 h-8 text-white" />
+              </div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-bold">
+                Leitura concluída
+              </p>
+              <h1 className="font-editorial text-3xl sm:text-5xl font-semibold tracking-tight leading-[1.05] text-slate-900">
+                Seus 4 bônus estão
+                <br className="hidden sm:block" />{" "}
+                <span className="italic bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
+                  liberados
+                </span>
+              </h1>
+              <p className="text-base sm:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
+                Você terminou o Manual do Artista Contratado. Agora é hora de aplicar — comece pelo
+                bônus que resolve sua maior dor hoje.
+              </p>
+              <button
+                onClick={() => {
+                  setChapterIdx(0);
+                  setView("reading");
+                }}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition"
+              >
+                <BookOpen className="w-4 h-4" /> Revisar o material escrito
+              </button>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05] text-slate-900">
-              Todos os seus bônus foram <br className="hidden sm:block" />
-              <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
-                desbloqueados
-              </span>
-            </h1>
-            <p className="text-base sm:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
-              Você tem agora tudo o que precisa para transformar mensagens em contratos assinados.
-            </p>
-            <button
-              onClick={() => {
-                setChapterIdx(0);
-                setView("reading");
-              }}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition"
-            >
-              <BookOpen className="w-4 h-4" /> Revisar material escrito
-            </button>
           </section>
 
           {/* Benefits grid */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {benefits.map((b) => (
-              <BenefitCard key={b.id} benefit={b} />
-            ))}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">
+                Suas recompensas
+              </span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {benefits.map((b, i) => (
+                <BenefitCard key={b.id} benefit={b} index={i + 1} />
+              ))}
+            </div>
           </section>
 
           {/* Video anchor */}
           <section id="video-anchor" className="space-y-5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-blue-100 flex items-center justify-center">
                 <PlayCircle className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-[10px] sm:text-xs uppercase tracking-widest text-slate-400 font-bold">
+                <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-slate-400 font-bold">
                   Aula em vídeo
                 </p>
-                <h2 className="font-bold text-lg sm:text-xl text-slate-900">
+                <h2 className="font-editorial font-semibold text-lg sm:text-xl text-slate-900">
                   Manual do Artista — versão completa
                 </h2>
               </div>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black shadow-xl">
-              <div className="flex justify-center py-5 px-4">
-                <div className="relative w-full max-w-[420px] aspect-[9/16] rounded-xl overflow-hidden ring-1 ring-white/10">
+            <div className="rounded-[1.75rem] overflow-hidden border border-slate-200 bg-slate-950 shadow-xl">
+              <div className="flex justify-center py-6 px-4">
+                <div className="relative w-full max-w-[420px] aspect-[9/16] rounded-2xl overflow-hidden ring-1 ring-white/10">
                   <iframe
                     className="absolute inset-0 w-full h-full"
                     src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
@@ -744,21 +870,25 @@ export default function KitProfissional() {
           </section>
 
           {/* Closing card */}
-          <section className="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 p-8 sm:p-12 text-center space-y-4">
-            <Star className="w-8 h-8 text-amber-300 mx-auto" />
-            <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
-              Leve tudo isso para o próximo nível
-            </h3>
-            <p className="text-slate-300 max-w-lg mx-auto text-sm sm:text-base">
-              O Backstage Pro é o sistema onde artistas profissionais aplicam esse manual todo dia — agenda, contratos, financeiro e link da bio em um único lugar.
-            </p>
-            <button
-              onClick={() => (window.location.href = "https://backstagepro.online/landing")}
-              className="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl transition-all hover:shadow-xl hover:-translate-y-0.5"
-            >
-              Testar o Backstage Pro grátis
-              <ArrowRight className="w-4 h-4" />
-            </button>
+          <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-8 sm:p-14 text-center space-y-5">
+            <div className="absolute inset-x-0 -top-20 h-52 bg-[radial-gradient(closest-side,rgba(59,130,246,0.35),transparent)]" />
+            <div className="relative space-y-5">
+              <Star className="w-8 h-8 text-amber-300 mx-auto" />
+              <h3 className="font-editorial text-2xl sm:text-4xl font-semibold text-white leading-tight">
+                Leve tudo isso para o próximo nível
+              </h3>
+              <p className="text-slate-300 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
+                O Backstage Pro é o sistema onde artistas profissionais aplicam esse manual todo dia —
+                agenda, contratos, financeiro e link da bio em um único lugar.
+              </p>
+              <button
+                onClick={() => (window.location.href = "https://backstagepro.online/landing")}
+                className="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm sm:text-base px-7 sm:px-9 py-4 rounded-xl transition-all hover:shadow-2xl hover:-translate-y-0.5"
+              >
+                Testar o Backstage Pro grátis
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </section>
         </main>
       )}
@@ -781,32 +911,162 @@ export default function KitProfissional() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Next button
+// ─────────────────────────────────────────────────────────────────────────────
+function NextButton({
+  isLast,
+  onClick,
+  full,
+}: {
+  isLast: boolean;
+  onClick: () => void;
+  full?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "group relative inline-flex items-center justify-center gap-2 font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 overflow-hidden",
+        full ? "flex-1" : "",
+        isLast
+          ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25"
+          : "bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/15",
+      )}
+    >
+      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+      <span className="relative inline-flex items-center gap-2">
+        {isLast ? (
+          <>
+            Concluir e liberar bônus
+            <Sparkles className="w-4 h-4" />
+          </>
+        ) : (
+          <>
+            Continuar leitura
+            <ArrowRight className="w-4 h-4" />
+          </>
+        )}
+      </span>
+    </button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reward tracker (rail)
+// ─────────────────────────────────────────────────────────────────────────────
+function RewardTracker({
+  benefits,
+  progressPct,
+  remaining,
+}: {
+  benefits: Benefit[];
+  progressPct: number;
+  remaining: number;
+}) {
+  const r = 26;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+      <div className="flex items-center gap-4">
+        <div className="relative w-16 h-16 shrink-0">
+          <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
+            <circle cx="32" cy="32" r={r} fill="none" stroke="#e2e8f0" strokeWidth="6" />
+            <circle
+              cx="32"
+              cy="32"
+              r={r}
+              fill="none"
+              stroke="url(#rewardGrad)"
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeDasharray={c}
+              strokeDashoffset={c - (c * progressPct) / 100}
+              className="transition-all duration-700"
+            />
+            <defs>
+              <linearGradient id="rewardGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#2563eb" />
+                <stop offset="100%" stopColor="#10b981" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-slate-800">
+            {progressPct}%
+          </span>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            Prêmio final
+          </p>
+          <p className="font-editorial font-semibold text-slate-900 leading-tight">
+            4 bônus liberados no fim
+          </p>
+        </div>
+      </div>
+
+      <ul className="space-y-2 pt-1">
+        {benefits.map((b) => {
+          const Icon = b.icon;
+          const done = remaining === 0;
+          return (
+            <li
+              key={b.id}
+              className={cn(
+                "flex items-center gap-2.5 text-[12px] font-medium transition",
+                done ? "text-slate-800" : "text-slate-400",
+              )}
+            >
+              <span
+                className={cn(
+                  "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
+                  done ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400",
+                )}
+              >
+                {done ? <Icon className="w-3.5 h-3.5" /> : <Lock className="w-3 h-3" />}
+              </span>
+              <span className="leading-tight">{b.title}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Chapter view
 // ─────────────────────────────────────────────────────────────────────────────
-function ChapterView({ chapter }: { chapter: Chapter }) {
+function ChapterView({ chapter, readMinutes }: { chapter: Chapter; readMinutes: number }) {
   const Icon = chapter.icon;
   const accentBg: Record<string, string> = {
-    rose: "bg-rose-100 text-rose-700",
-    blue: "bg-blue-100 text-blue-700",
-    emerald: "bg-emerald-100 text-emerald-700",
-    violet: "bg-violet-100 text-violet-700",
-    amber: "bg-amber-100 text-amber-700",
+    rose: "bg-rose-50 text-rose-700 ring-rose-200/70",
+    blue: "bg-blue-50 text-blue-700 ring-blue-200/70",
+    emerald: "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
+    violet: "bg-violet-50 text-violet-700 ring-violet-200/70",
+    amber: "bg-amber-50 text-amber-700 ring-amber-200/70",
   };
 
+  let firstParagraph = true;
+
   return (
-    <article className="space-y-8">
+    <article className="max-w-[680px]">
       {/* Chapter header */}
-      <header className="space-y-4">
-        <div
-          className={cn(
-            "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest",
-            accentBg[chapter.accent] || "bg-slate-100 text-slate-700",
-          )}
-        >
-          <Icon className="w-3.5 h-3.5" />
-          {chapter.eyebrow}
+      <header className="space-y-5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span
+            className={cn(
+              "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] ring-1",
+              accentBg[chapter.accent] || "bg-slate-50 text-slate-700 ring-slate-200",
+            )}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {chapter.eyebrow}
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+            <Clock className="w-3 h-3" /> {readMinutes} min de leitura
+          </span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05] text-slate-900">
+        <h1 className="font-editorial text-[2rem] sm:text-[3.1rem] font-semibold tracking-tight leading-[1.03] text-slate-900">
           {chapter.title}
         </h1>
         <p className="text-lg sm:text-xl text-slate-500 leading-relaxed font-light">
@@ -815,41 +1075,60 @@ function ChapterView({ chapter }: { chapter: Chapter }) {
       </header>
 
       {/* Divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+      <div className="my-9 flex items-center gap-3">
+        <span className="h-px flex-1 bg-slate-200" />
+        <Music className="w-3.5 h-3.5 text-slate-300" />
+        <span className="h-px flex-1 bg-slate-200" />
+      </div>
 
       {/* Blocks */}
-      <div className="space-y-6">
-        {chapter.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} accent={chapter.accent} />
-        ))}
+      <div className="space-y-7">
+        {chapter.blocks.map((block, i) => {
+          const isLead = block.type === "p" && firstParagraph;
+          if (isLead) firstParagraph = false;
+          return <BlockRenderer key={i} block={block} accent={chapter.accent} lead={isLead} />;
+        })}
       </div>
     </article>
   );
 }
 
-function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
+function BlockRenderer({
+  block,
+  accent,
+  lead,
+}: {
+  block: Block;
+  accent: string;
+  lead?: boolean;
+}) {
   switch (block.type) {
     case "p":
       return (
-        <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
+        <p
+          className={cn(
+            "text-[1.06rem] sm:text-[1.15rem] text-slate-700 leading-[1.75]",
+            lead && "kit-prose-first text-slate-800",
+          )}
+        >
           {block.text}
         </p>
       );
     case "h":
       return (
-        <h2 className="text-xl sm:text-2xl font-black text-slate-900 pt-4 tracking-tight">
+        <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-slate-900 pt-5 tracking-tight leading-tight">
           {block.text}
         </h2>
       );
     case "quote":
       return (
-        <blockquote className="relative pl-6 py-2 border-l-4 border-slate-900 bg-slate-50 rounded-r-xl px-6 py-5">
-          <Quote className="absolute -top-2 -left-2 w-6 h-6 text-slate-300 bg-[#fafaf7] rounded-full p-1" />
-          <p className="text-lg sm:text-xl font-medium text-slate-800 italic leading-snug">
-            "{block.text}"
+        <blockquote className="relative rounded-[1.5rem] bg-white ring-1 ring-slate-200 px-7 py-7 shadow-sm">
+          <Quote className="absolute -top-3 left-6 w-8 h-8 text-slate-900 bg-white rounded-full p-1.5 ring-1 ring-slate-200" />
+          <p className="font-editorial text-xl sm:text-2xl italic font-medium text-slate-900 leading-snug">
+            “{block.text}”
           </p>
           {block.author && (
-            <p className="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">
+            <p className="text-[11px] text-slate-400 mt-3 uppercase tracking-[0.2em] font-bold">
               — {block.author}
             </p>
           )}
@@ -857,13 +1136,15 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
       );
     case "tip":
       return (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 sm:p-6 flex gap-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+        <div className="rounded-[1.5rem] border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-6 flex gap-4 shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25">
             <Lightbulb className="w-5 h-5 text-white" />
           </div>
           <div className="space-y-1.5">
-            <p className="font-black text-emerald-900 text-sm sm:text-base">{block.title}</p>
-            <p className="text-emerald-800/90 text-sm sm:text-base leading-relaxed">
+            <p className="font-bold text-emerald-900 text-sm uppercase tracking-wide">
+              {block.title}
+            </p>
+            <p className="text-emerald-900/80 text-[15px] sm:text-base leading-relaxed">
               {block.text}
             </p>
           </div>
@@ -871,13 +1152,13 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
       );
     case "warn":
       return (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 sm:p-6 flex gap-4">
-          <div className="w-10 h-10 rounded-xl bg-rose-500 flex items-center justify-center shrink-0">
+        <div className="rounded-[1.5rem] border border-rose-200/80 bg-gradient-to-br from-rose-50 to-white p-6 flex gap-4 shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-rose-500 flex items-center justify-center shrink-0 shadow-md shadow-rose-500/25">
             <AlertTriangle className="w-5 h-5 text-white" />
           </div>
           <div className="space-y-1.5">
-            <p className="font-black text-rose-900 text-sm sm:text-base">{block.title}</p>
-            <p className="text-rose-800/90 text-sm sm:text-base leading-relaxed">
+            <p className="font-bold text-rose-900 text-sm uppercase tracking-wide">{block.title}</p>
+            <p className="text-rose-900/80 text-[15px] sm:text-base leading-relaxed">
               {block.text}
             </p>
           </div>
@@ -885,10 +1166,13 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
       );
     case "list":
       return (
-        <ul className="space-y-3">
+        <ul className="space-y-3.5">
           {block.items.map((it, i) => (
-            <li key={i} className="flex gap-3 items-start text-base sm:text-lg text-slate-700 leading-relaxed">
-              <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
+            <li
+              key={i}
+              className="group flex gap-4 items-start text-[1.02rem] sm:text-[1.08rem] text-slate-700 leading-relaxed rounded-2xl bg-white/70 ring-1 ring-slate-200/70 px-4 py-3.5 transition hover:bg-white hover:ring-slate-300"
+            >
+              <span className="font-editorial w-7 h-7 rounded-full bg-slate-900 text-white text-[12px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                 {i + 1}
               </span>
               <span>{it}</span>
@@ -898,54 +1182,56 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
       );
     case "stat":
       return (
-        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 text-center">
-          <p className="text-5xl sm:text-6xl font-black bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent leading-none">
-            {block.value}
-          </p>
-          <p className="text-sm sm:text-base text-slate-300 mt-3 font-medium max-w-md mx-auto">
-            {block.label}
-          </p>
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-slate-950 text-white p-8 sm:p-10 text-center">
+          <div className="absolute inset-x-0 -top-16 h-40 bg-[radial-gradient(closest-side,rgba(59,130,246,0.35),transparent)]" />
+          <div className="relative">
+            <p className="font-editorial text-5xl sm:text-7xl font-semibold bg-gradient-to-r from-blue-300 to-emerald-300 bg-clip-text text-transparent leading-none">
+              {block.value}
+            </p>
+            <p className="text-sm sm:text-base text-slate-300 mt-4 font-medium max-w-md mx-auto leading-relaxed">
+              {block.label}
+            </p>
+          </div>
         </div>
       );
     case "compare":
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-2xl border-2 border-rose-200 bg-white p-5 space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-widest text-rose-600 flex items-center gap-1.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-[1.4rem] bg-white ring-1 ring-rose-200 p-5 space-y-2.5 shadow-sm">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-600 flex items-center gap-1.5">
               <AlertTriangle className="w-3 h-3" /> Errado
             </p>
-            <p className="text-sm text-slate-700 leading-relaxed italic">
-              {block.wrong}
-            </p>
+            <p className="text-[15px] text-slate-600 leading-relaxed italic">{block.wrong}</p>
           </div>
-          <div className="rounded-2xl border-2 border-emerald-200 bg-white p-5 space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 flex items-center gap-1.5">
+          <div className="rounded-[1.4rem] bg-white ring-1 ring-emerald-200 p-5 space-y-2.5 shadow-sm">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 flex items-center gap-1.5">
               <CheckCircle2 className="w-3 h-3" /> Certo
             </p>
-            <p className="text-sm text-slate-700 leading-relaxed italic">
-              {block.right}
-            </p>
+            <p className="text-[15px] text-slate-700 leading-relaxed italic">{block.right}</p>
           </div>
         </div>
       );
     case "gap":
       return (
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 text-white p-6 sm:p-8 space-y-5 shadow-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-slate-950 text-white p-7 sm:p-9 space-y-5 shadow-xl">
+          <div className="absolute inset-x-0 -top-16 h-40 bg-[radial-gradient(closest-side,rgba(16,185,129,0.28),transparent)]" />
+          <div className="relative flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
               <PuzzleIcon className="w-5 h-5 text-blue-300" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-300">
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-300">
                 Backstage Pro
               </p>
-              <p className="font-black text-lg leading-tight">{block.title}</p>
+              <p className="font-editorial font-semibold text-lg leading-tight">{block.title}</p>
             </div>
           </div>
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">{block.text}</p>
-          <ul className="space-y-2.5">
+          <p className="relative text-slate-300 text-[15px] sm:text-base leading-relaxed">
+            {block.text}
+          </p>
+          <ul className="relative space-y-2.5">
             {block.items.map((it, i) => (
-              <li key={i} className="flex gap-3 items-start text-sm sm:text-base text-white/90">
+              <li key={i} className="flex gap-3 items-start text-[15px] sm:text-base text-white/90">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-1 shrink-0" />
                 <span>{it}</span>
               </li>
@@ -954,7 +1240,6 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
         </div>
       );
     default:
-
       return null;
   }
 }
@@ -962,31 +1247,31 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Benefit card
 // ─────────────────────────────────────────────────────────────────────────────
-function BenefitCard({ benefit }: { benefit: Benefit }) {
+function BenefitCard({ benefit, index }: { benefit: Benefit; index?: number }) {
   const Icon = benefit.icon;
   const accents: Record<string, { bg: string; text: string; ring: string; btn: string }> = {
     blue: {
       bg: "bg-blue-50",
       text: "text-blue-700",
-      ring: "hover:border-blue-300",
+      ring: "hover:ring-blue-300",
       btn: "bg-blue-600 hover:bg-blue-700 text-white",
     },
     emerald: {
       bg: "bg-emerald-50",
       text: "text-emerald-700",
-      ring: "hover:border-emerald-300",
+      ring: "hover:ring-emerald-300",
       btn: "bg-emerald-600 hover:bg-emerald-700 text-white",
     },
     violet: {
       bg: "bg-violet-50",
       text: "text-violet-700",
-      ring: "hover:border-violet-300",
+      ring: "hover:ring-violet-300",
       btn: "bg-violet-600 hover:bg-violet-700 text-white",
     },
     amber: {
       bg: "bg-amber-50",
       text: "text-amber-700",
-      ring: "hover:border-amber-300",
+      ring: "hover:ring-amber-300",
       btn: "bg-amber-600 hover:bg-amber-700 text-white",
     },
   };
@@ -995,15 +1280,22 @@ function BenefitCard({ benefit }: { benefit: Benefit }) {
   return (
     <div
       className={cn(
-        "group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-xl transition-all duration-300",
+        "group relative rounded-[1.6rem] bg-white ring-1 ring-slate-200 p-6 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300",
         a.ring,
       )}
     >
+      {index && (
+        <span className="font-editorial absolute top-5 right-6 text-3xl font-semibold text-slate-100 group-hover:text-slate-200 transition">
+          0{index}
+        </span>
+      )}
       <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4", a.bg)}>
         <Icon className={cn("w-6 h-6", a.text)} />
       </div>
-      <h3 className="font-black text-slate-900 text-lg leading-tight">{benefit.title}</h3>
-      <p className="text-sm text-slate-500 mt-2 leading-relaxed">{benefit.description}</p>
+      <h3 className="font-editorial font-semibold text-slate-900 text-lg leading-tight">
+        {benefit.title}
+      </h3>
+      <p className="text-sm text-slate-500 mt-2 leading-relaxed flex-1">{benefit.description}</p>
       <button
         onClick={benefit.action}
         className={cn(
@@ -1012,7 +1304,7 @@ function BenefitCard({ benefit }: { benefit: Benefit }) {
         )}
       >
         {benefit.cta}
-        <ArrowRight className="w-3.5 h-3.5" />
+        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
       </button>
     </div>
   );
@@ -1034,22 +1326,36 @@ function LeadCaptureModal(props: {
   onSubmit: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 py-6 overflow-y-auto">
-      <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-slate-200 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-md px-4 py-6 overflow-y-auto">
+      <div className="w-full max-w-md rounded-[2rem] bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 ring-1 ring-slate-200 my-auto">
         {/* Top */}
-        <div className="p-7 pb-5 text-center border-b border-slate-100">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/20">
-            <BookOpen className="w-7 h-7 text-white" />
+        <div className="relative p-8 pb-6 text-center border-b border-slate-100 overflow-hidden">
+          <div className="absolute inset-x-0 -top-20 h-44 bg-[radial-gradient(closest-side,rgba(37,99,235,0.16),transparent)]" />
+          <div className="relative">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25">
+              <BookOpen className="w-7 h-7 text-white" />
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold mb-2">
+              Manual do Artista Contratado
+            </p>
+            <h2 className="font-editorial text-2xl sm:text-[1.7rem] font-semibold text-slate-900 leading-tight">
+              O material que organiza sua carreira
+            </h2>
+            <p className="text-sm text-slate-500 mt-2.5 leading-relaxed">
+              7 capítulos práticos. No fim da leitura você libera{" "}
+              <strong className="text-slate-700">4 bônus gratuitos</strong>.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+              {["Aula em vídeo", "Artes no Canva", "Mensagens prontas", "Teste grátis"].map((t) => (
+                <span
+                  key={t}
+                  className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 ring-1 ring-amber-200/70 px-2.5 py-1 rounded-full"
+                >
+                  <Gift className="w-2.5 h-2.5" /> {t}
+                </span>
+              ))}
+            </div>
           </div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-1">
-            Manual do Artista Contratado
-          </p>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
-            Acesso ao material profissional
-          </h2>
-          <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-            5 capítulos práticos + vídeo + bônus. Preencha para começar.
-          </p>
         </div>
 
         {/* Form */}
@@ -1104,7 +1410,7 @@ function LeadCaptureModal(props: {
             onClick={props.onSubmit}
             disabled={props.submitting}
           >
-            {props.submitting ? "Liberando acesso..." : "Acessar o material grátis"}
+            {props.submitting ? "Liberando acesso..." : "Começar a leitura grátis"}
             <ArrowRight className="w-4 h-4" />
           </Button>
 
@@ -1136,3 +1442,4 @@ function FormField({
     </div>
   );
 }
+
