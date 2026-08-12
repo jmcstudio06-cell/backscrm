@@ -926,7 +926,33 @@ function BlockRenderer({ block, accent }: { block: Block; accent: string }) {
           </div>
         </div>
       );
+    case "gap":
+      return (
+        <div className="rounded-3xl border border-slate-800 bg-slate-900 text-white p-6 sm:p-8 space-y-5 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+              <PuzzleIcon className="w-5 h-5 text-blue-300" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-300">
+                Backstage Pro
+              </p>
+              <p className="font-black text-lg leading-tight">{block.title}</p>
+            </div>
+          </div>
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">{block.text}</p>
+          <ul className="space-y-2.5">
+            {block.items.map((it, i) => (
+              <li key={i} className="flex gap-3 items-start text-sm sm:text-base text-white/90">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-1 shrink-0" />
+                <span>{it}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
     default:
+
       return null;
   }
 }
