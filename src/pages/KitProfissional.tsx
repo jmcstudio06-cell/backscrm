@@ -26,7 +26,13 @@ import {
   Clock,
   DollarSign,
   Star,
+  CalendarDays,
+  FileSignature,
+  Users,
+  TrendingUp,
+  PuzzleIcon,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { insertGuideLeadWithFallback } from "@/lib/guide-leads";
 import { toast } from "sonner";
