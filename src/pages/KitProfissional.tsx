@@ -453,10 +453,12 @@ export default function KitProfissional() {
 
   useEffect(() => {
     if (localStorage.getItem(LEAD_STORAGE_KEY)) setIsLeadRegistered(true);
-    if (localStorage.getItem(MATERIAL_COMPLETED_KEY) === "true") {
-      setView("unlocked");
-    }
+    // Sempre começa no material escrito. Quem já concluiu antes acessa os
+    // bônus pelo atalho no fim da leitura (o material é o conteúdo principal).
+    setView("reading");
+    setChapterIdx(0);
   }, []);
+
 
   const totalChapters = CHAPTERS.length;
   const progressPct = Math.round(((chapterIdx + 1) / totalChapters) * 100);
