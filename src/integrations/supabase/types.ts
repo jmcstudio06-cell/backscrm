@@ -1057,6 +1057,48 @@ export type Database = {
           },
         ]
       }
+      dashboard_ads: {
+        Row: {
+          active: boolean
+          badge: string | null
+          created_at: string
+          cta_label: string
+          cta_url: string
+          description: string | null
+          id: string
+          image_url: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          cta_label?: string
+          cta_url: string
+          description?: string | null
+          id?: string
+          image_url: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          cta_label?: string
+          cta_url?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
