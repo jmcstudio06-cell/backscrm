@@ -51,6 +51,8 @@ import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
+import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
+
 import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
 
 import type { Json } from "@/integrations/supabase/types";
@@ -567,9 +569,13 @@ export default function Admin() {
           <TabsTrigger value="ranking" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Trophy className="h-3.5 w-3.5" /> Ranking
           </TabsTrigger>
+          <TabsTrigger value="ads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Megaphone className="h-3.5 w-3.5" /> Anúncios
+          </TabsTrigger>
           <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <PartyPopper className="h-3.5 w-3.5" /> Marco
           </TabsTrigger>
+
         </TabsList>
 
         {/* Users Tab */}
@@ -894,6 +900,10 @@ export default function Admin() {
 
         {/* Marco Tab */}
         <TabsContent value="ranking"><MonthlyShowRankingPanel /></TabsContent>
+
+        {/* Dashboard Ads Tab */}
+        <TabsContent value="ads"><DashboardAdsPanel /></TabsContent>
+
 
         <TabsContent value="marco">
           <Card className="overflow-hidden border-0 shadow-xl">
