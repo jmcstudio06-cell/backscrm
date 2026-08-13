@@ -11,6 +11,8 @@ import { RequireFeature } from "@/components/auth/RequireFeature";
 import { ShowsProvider } from "@/contexts/shows/ShowsProvider";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { CustomizationProvider } from "@/hooks/useCustomization";
+import { WorkspaceProvider } from "@/hooks/useWorkspace";
+import { RequireOwner } from "@/components/auth/RequireOwner";
 
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
@@ -56,6 +58,7 @@ import PlanejamentoConteudo from "./pages/PlanejamentoConteudo";
 import Selos from "./pages/Selos";
 import Notificacoes from "./pages/Notificacoes";
 import Sugestoes from "./pages/Sugestoes";
+import Usuarios from "./pages/Usuarios";
 // import Consultoria from "./pages/Consultoria"; // temporariamente desativado
 import AssinarContrato from "./pages/AssinarContrato";
 import NotFound from "./pages/NotFound";
@@ -106,6 +109,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <WorkspaceProvider>
           <AppSettingsProvider>
             <CustomizationProvider>
               <NotificationPrompt />
@@ -152,6 +156,7 @@ const App = () => (
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 <Route path="/sugestoes" element={<AuthPage><Sugestoes /></AuthPage>} />
+                <Route path="/usuarios" element={<AuthPage><RequireOwner><Usuarios /></RequireOwner></AuthPage>} />
                 {/* <Route path="/consultoria" element={<AuthPage><Consultoria /></AuthPage>} /> */}
                 <Route path="/link-instagram" element={<AuthPage featureKey="link-instagram"><LinkInstagramConfig /></AuthPage>} />
                 <Route path="/link-orcamento" element={<AuthPage featureKey="link-orcamento"><LinkOrcamentoConfig /></AuthPage>} />
@@ -165,6 +170,7 @@ const App = () => (
               </Routes>
             </CustomizationProvider>
           </AppSettingsProvider>
+          </WorkspaceProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
