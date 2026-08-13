@@ -663,7 +663,7 @@ export function useShowsData() {
 
         const showsToRepair = completedShows.filter((show) => {
           const expectedTransactions = buildShowTransactions(
-            user.id,
+            ownerId ?? user.id,
             show,
             musiciansByShow[show.id] || [],
             expensesByShow[show.id] || [],
