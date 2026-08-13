@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -23,6 +24,7 @@ interface UseTransactionsOptions {
 export function useTransactions(options: UseTransactionsOptions = {}) {
   const { fullHistory = false } = options;
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const queryClient = useQueryClient();
 
   const { data: transactions = [], isLoading: loading } = useQuery({
@@ -103,7 +105,7 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
             date: transactionData.date,
             show_id: transactionData.show_id,
             is_advance_payment: transactionData.is_advance_payment || false,
-            user_id: user.id,
+            user_id: ownerId ?? user.id,
           },
         ])
         .select()

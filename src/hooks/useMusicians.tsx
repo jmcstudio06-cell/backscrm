@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -21,6 +22,7 @@ export interface Musician {
 
 export function useMusicians() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const queryClient = useQueryClient();
 
   const { data: musicians = [], isLoading: loading } = useQuery({
@@ -50,7 +52,7 @@ export function useMusicians() {
           rating: musicianData.rating,
           payment_request_date: musicianData.payment_request_date,
           pix_key: musicianData.pix_key || null,
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select().single();
       if (error) throw error;

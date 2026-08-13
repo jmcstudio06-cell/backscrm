@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export type ContentStatus = "pending" | "done" | "skipped";
@@ -50,6 +51,7 @@ export function getSuggestion(day: number): string {
 
 export function useContentPlan() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
@@ -110,7 +112,7 @@ export function useContentPlan() {
       } else {
         await supabase
           .from("content_plan_entries" as any)
-          .insert({ user_id: user.id, day, month, year, status } as any);
+          .insert({ user_id: ownerId ?? user.id, day, month, year, status } as any);
       }
 
       setEntries((prev) =>

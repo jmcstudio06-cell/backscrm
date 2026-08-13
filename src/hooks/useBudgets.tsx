@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface BudgetItem {
@@ -82,6 +83,7 @@ const getBudgetErrorMessage = (error: unknown) => {
 
 export function useBudgets() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [performanceTypes, setPerformanceTypes] = useState<PerformanceType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,7 +157,7 @@ export function useBudgets() {
           price: typeData.price || 0,
           icon: performancePayload.icon || "music",
           musician_ids: performancePayload.musician_ids || [],
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();
@@ -241,7 +243,7 @@ export function useBudgets() {
           status: budgetData.status || "created",
           valid_until: budgetData.valid_until,
           stage_changed_at: new Date().toISOString(),
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();

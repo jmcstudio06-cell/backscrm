@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface ContractSignatureLink {
@@ -32,6 +33,7 @@ function makeToken() {
 
 export function useContractSignatureLinks(contractId?: string) {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [links, setLinks] = useState<ContractSignatureLink[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -60,7 +62,7 @@ export function useContractSignatureLinks(contractId?: string) {
       .from("contract_signature_links")
       .insert([
         {
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
           contract_id: targetContractId,
           token,
           status: "awaiting_artist",

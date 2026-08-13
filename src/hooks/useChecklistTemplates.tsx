@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface ChecklistTemplate {
@@ -13,6 +14,7 @@ export interface ChecklistTemplate {
 
 export function useChecklistTemplates() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +57,7 @@ export function useChecklistTemplates() {
         .insert([{
           name,
           tasks,
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 import { compactClauses } from "@/lib/textUtils";
 
@@ -57,6 +58,7 @@ export interface SavedClause {
 
 export function useContracts() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [savedClauses, setSavedClauses] = useState<SavedClause[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,7 +125,7 @@ export function useContracts() {
           content: clauseData.content || "",
           sort_order: clauseData.sort_order || 0,
           is_default: clauseData.is_default || false,
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();
@@ -215,7 +217,7 @@ export function useContracts() {
           payment_terms: contractData.payment_terms,
           clauses: JSON.stringify(compactClauses(contractData.clauses || [])),
           status: contractData.status || "draft",
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();

@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -21,6 +22,7 @@ export interface Client {
 
 export function useClients() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const queryClient = useQueryClient();
 
   const { data: clients = [], isLoading: loading } = useQuery({
@@ -63,7 +65,7 @@ export function useClients() {
         .insert([{
           name: clientData.name || "", email: clientData.email,
           phone: clientData.phone, company: clientData.company,
-          notes: clientData.notes, user_id: user.id,
+          notes: clientData.notes, user_id: ownerId ?? user.id,
         }])
         .select().single();
 

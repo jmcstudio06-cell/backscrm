@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface AnnualGoal {
@@ -18,6 +19,7 @@ export interface AnnualGoal {
 
 export function useAnnualGoals() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [goals, setGoals] = useState<AnnualGoal[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +55,7 @@ export function useAnnualGoals() {
           current_value: goalData.current_value || 0,
           year: goalData.year || new Date().getFullYear(),
           category: goalData.category || "marketing",
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();

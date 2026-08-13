@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { isCompletedShowStatus, isFinancialShowStatus, normalizeShowStatus } from "@/lib/showStatus";
@@ -220,6 +221,7 @@ const normalizeShowRow = (row: any): Show | null => {
 
 export function useShowsData() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const queryClient = useQueryClient();
   const autoCompleteRanRef = useRef(false);
   const repairRanRef = useRef(false);
@@ -335,7 +337,7 @@ export function useShowsData() {
     try {
       await supabase.from("transactions").delete().eq("show_id", show.id);
 
-      const transactionsToInsert = buildShowTransactions(user.id, show, musicians, expenses, advanceAmountOverride);
+      const transactionsToInsert = buildShowTransactions(ownerId ?? user.id, show, musicians, expenses, advanceAmountOverride);
 
       if (transactionsToInsert.length > 0) {
         const { error } = await supabase.from("transactions").insert(transactionsToInsert);
@@ -431,7 +433,7 @@ export function useShowsData() {
             notes: showData.notes,
             duration_minutes: (showData as any).duration_minutes ?? null,
             performance_format: (showData as any).performance_format ?? null,
-            user_id: user.id,
+            user_id: ownerId ?? user.id,
             checklist_template_id: checklistTemplateId || null,
           },
 
@@ -688,7 +690,7 @@ export function useShowsData() {
         }
 
         const rebuiltTransactions = showsToRepair.flatMap((show) =>
-          buildShowTransactions(user.id, show, musiciansByShow[show.id] || [], expensesByShow[show.id] || []),
+          buildShowTransactions(ownerId ?? user.id, show, musiciansByShow[show.id] || [], expensesByShow[show.id] || []),
         );
 
         for (const batch of chunkArray(rebuiltTransactions, 200)) {
