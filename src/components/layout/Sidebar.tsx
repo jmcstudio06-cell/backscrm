@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { useSidebarBadges } from "@/hooks/useSidebarBadges";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { AppLogo } from "@/components/layout/AppLogo";
@@ -40,6 +41,7 @@ import {
   Instagram,
   FileText,
   GraduationCap,
+  UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -55,6 +57,7 @@ interface MenuItem {
   path?: string;
   featureKey?: string;
   adminOnly?: boolean;
+  ownerOnly?: boolean;
   isGradient?: boolean;
   children?: {
     icon: React.ElementType;
@@ -110,8 +113,9 @@ const menuItems: MenuItem[] = [
       { icon: FileText, label: "Link Orçamento", path: "/link-orcamento", featureKey: "link-orcamento" },
     ],
   },
-  { icon: Crown, label: "Ranking & Selos", path: "/ranking" },
+  { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "ranking" },
   
+  { icon: UsersRound, label: "Usuários", path: "/usuarios", ownerOnly: true },
   { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
@@ -127,8 +131,21 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const { signOut } = useAuth();
   const { agendaBadge, checklistBadge, historicoBadge, dismiss } = useSidebarBadges();
+  const { isMember } = useWorkspace();
 
-  const filteredMenuItems = menuItems.filter((item) => !(item.adminOnly && !isAdmin));
+  // Team members: hide everything the owner did not release (no upsell for them).
+  const filteredMenuItems = menuItems
+    .filter((item) => !(item.adminOnly && !isAdmin))
+    .filter((item) => !(item.ownerOnly && isMember))
+    .map((item) => {
+      if (!isMember || !item.children) return item;
+      return { ...item, children: item.children.filter((c) => !(c.featureKey && isBlocked(c.featureKey))) };
+    })
+    .filter((item) => {
+      if (!isMember) return true;
+      if (item.children) return item.children.length > 0;
+      return !(item.featureKey && isBlocked(item.featureKey));
+    });
 
   const handleBlockedClick = (label: string) => {
     setBlockedFeatureName(label);
@@ -333,6 +350,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         <div className="px-3 pb-2 space-y-2">
           {/* Indique e Ganhe agora vive no FAB de ajuda */}
 
+          {!isMember && (
           <Button
             onClick={() => navigate("/planos")}
             className="w-full justify-start bg-[hsl(220,90%,56%)] hover:bg-[hsl(220,90%,50%)] text-white border-0"
@@ -340,6 +358,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
             <Crown className="w-5 h-5 mr-2" />
             Garantir acesso
           </Button>
+          )}
 
           <Button
             variant="ghost"
