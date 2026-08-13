@@ -2671,6 +2671,45 @@ export type Database = {
         }
         Relationships: []
       }
+      workspace_members: {
+        Row: {
+          allowed_features: Json
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          member_user_id: string
+          owner_id: string
+          permission_level: string
+          role_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed_features?: Json
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          member_user_id: string
+          owner_id: string
+          permission_level?: string
+          role_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed_features?: Json
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          member_user_id?: string
+          owner_id?: string
+          permission_level?: string
+          role_label?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2756,6 +2795,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      member_can: {
+        Args: { _action: string; _owner_id: string }
+        Returns: boolean
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -2782,6 +2825,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      workspace_owner_for: { Args: { _uid: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
