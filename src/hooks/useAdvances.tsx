@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface Advance {
@@ -21,6 +22,7 @@ export function useAdvances() {
   const [advances, setAdvances] = useState<Advance[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const ownerId = useOwnerId();
 
   const fetchAdvances = async () => {
     if (!user) return;
@@ -47,7 +49,7 @@ export function useAdvances() {
     try {
       const { data, error } = await supabase
         .from("advances")
-        .insert([{ ...advanceData, user_id: user.id }])
+        .insert([{ ...advanceData, user_id: ownerId ?? user.id }])
         .select()
         .single();
 

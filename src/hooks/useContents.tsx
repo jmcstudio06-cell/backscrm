@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface Content {
@@ -18,6 +19,7 @@ export interface Content {
 
 export function useContents() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [contents, setContents] = useState<Content[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +56,7 @@ export function useContents() {
           type: contentData.type || "link",
           featured: contentData.featured || false,
           thumbnail: contentData.thumbnail || null,
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();

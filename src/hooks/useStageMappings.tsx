@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface StageElement {
@@ -68,6 +69,7 @@ const defaultMaterialsChecklist: MaterialsChecklist = {
 
 export function useStageMappings() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [mappings, setMappings] = useState<StageMapping[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -122,7 +124,7 @@ export function useStageMappings() {
           materials_checklist: JSON.parse(JSON.stringify(mappingData.materials_checklist || defaultMaterialsChecklist)),
           observations: mappingData.observations || null,
           show_id: mappingData.show_id || null,
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select()
         .single();

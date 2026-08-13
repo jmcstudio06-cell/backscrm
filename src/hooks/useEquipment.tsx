@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface Equipment {
@@ -21,6 +22,7 @@ export interface Equipment {
 
 export function useEquipment() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,7 +61,7 @@ export function useEquipment() {
         .from("artist_equipment")
         .insert({
           ...equipmentData,
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         })
         .select()
         .single();

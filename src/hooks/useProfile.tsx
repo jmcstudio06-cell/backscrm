@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -53,26 +54,31 @@ export interface Profile {
 
 export function useProfile() {
   const { user } = useAuth();
+  const { ownerId, isMember, loading: workspaceLoading } = useWorkspace();
   const queryClient = useQueryClient();
 
   const { data: profile = null, isLoading: loading } = useQuery({
-    queryKey: ["profile", user?.id],
+    queryKey: ["profile", ownerId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user!.id)
+        .eq("user_id", ownerId!)
         .maybeSingle();
 
       if (error) throw error;
       return data as Profile | null;
     },
-    enabled: !!user,
+    enabled: !!user && !!ownerId && !workspaceLoading,
     staleTime: 5 * 60 * 1000,
   });
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return;
+    if (isMember) {
+      toast.error("Seu acesso não permite alterar o perfil do artista");
+      return;
+    }
 
     try {
       const { data: existing } = await supabase
@@ -95,7 +101,7 @@ export function useProfile() {
       }
 
       toast.success("Perfil atualizado com sucesso!");
-      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["profile", ownerId] });
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Erro ao atualizar perfil");
@@ -103,7 +109,7 @@ export function useProfile() {
   };
 
   const fetchProfile = () => {
-    if (user) queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+    if (ownerId) queryClient.invalidateQueries({ queryKey: ["profile", ownerId] });
   };
 
   return { profile, loading, updateProfile, fetchProfile };

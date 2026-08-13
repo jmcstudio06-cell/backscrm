@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 
 export interface Song {
@@ -30,6 +31,7 @@ export function useRepertoire() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const ownerId = useOwnerId();
 
   const fetchBlocks = async () => {
     if (!user) return;
@@ -106,7 +108,7 @@ export function useRepertoire() {
       const { data, error } = await supabase
         .from("repertoire_blocks")
         .insert({
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
           name,
           climate,
           objective,
@@ -225,7 +227,7 @@ export function useRepertoire() {
         .from("repertoire_songs")
         .insert({
           block_id: blockId,
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
           title,
           artist,
           song_key: key,

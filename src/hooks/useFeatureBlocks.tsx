@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface FeatureBlocks {
@@ -64,6 +65,7 @@ export const PLAN_MODULES = {
 
 export function useFeatureBlocks() {
   const { user } = useAuth();
+  const { ownerId, isMember, allowedFeatures, loading: workspaceLoading } = useWorkspace();
   const [featureBlocks, setFeatureBlocks] = useState<FeatureBlocks>(DEFAULT_FEATURE_BLOCKS);
   const [loading, setLoading] = useState(true);
   const [planExpired, setPlanExpired] = useState(false);
@@ -119,8 +121,10 @@ export function useFeatureBlocks() {
       return;
     }
 
+    if (workspaceLoading || !ownerId) return;
+
     // Try to get profile from React Query cache first
-    const cachedProfile = queryClient.getQueryData<any>(["profile", user.id]);
+    const cachedProfile = queryClient.getQueryData<any>(["profile", ownerId]);
     if (cachedProfile) {
       processProfile(cachedProfile);
       return;
@@ -132,7 +136,7 @@ export function useFeatureBlocks() {
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("plan, feature_blocks")
-          .eq("user_id", user!.id)
+          .eq("user_id", ownerId)
           .single();
 
         if (error) {
@@ -151,21 +155,21 @@ export function useFeatureBlocks() {
     }
 
     fetchBlocks();
-  }, [user, processProfile, queryClient]);
+  }, [user, ownerId, workspaceLoading, processProfile, queryClient]);
 
   // Realtime subscription — updates sidebar instantly when admin changes blocks
   useEffect(() => {
-    if (!user) return;
+    if (!user || !ownerId) return;
 
     const channel = supabase
-      .channel(`profile-blocks:${user.id}`)
+      .channel(`profile-blocks:${ownerId}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "profiles",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${ownerId}`,
         },
         (payload) => {
           const updated = payload.new as { plan: string | null; feature_blocks: unknown };
@@ -177,9 +181,26 @@ export function useFeatureBlocks() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, processProfile]);
+  }, [user, ownerId, processProfile]);
+
+  // Team members only see the tabs the owner released for them (intersection
+  // with the owner plan — never more than the owner has).
+  const effectiveBlocks = useMemo(() => {
+    if (!isMember) return featureBlocks;
+    const allowed = new Set(allowedFeatures ?? []);
+    const out: FeatureBlocks = { ...featureBlocks };
+    const keys = new Set([...Object.keys(DEFAULT_FEATURE_BLOCKS), ...Object.keys(featureBlocks), "usuarios", "ideias-post", "metas-anuais", "bonus", "ranking"]);
+    for (const key of keys) {
+      if (!allowed.has(key)) out[key] = true;
+    }
+    return out;
+  }, [featureBlocks, isMember, allowedFeatures]);
 
   const isBlocked = (featureKey: string): boolean => {
+    if (isMember) {
+      if (featureKey === "usuarios") return true;
+      return effectiveBlocks[featureKey] === true;
+    }
     if (planExpired && featureKey !== "admin") {
       if (featureBlocks[featureKey] === false) return false;
       return true;
@@ -189,10 +210,10 @@ export function useFeatureBlocks() {
     return featureBlocks[featureKey] === true;
   };
 
-  const blocks = Object.entries(featureBlocks).map(([feature_key, blocked]) => ({
+  const blocks = Object.entries(effectiveBlocks).map(([feature_key, blocked]) => ({
     feature_key,
     blocked,
   }));
 
-  return { blocks, loading, isBlocked, planExpired, featureBlocks };
+  return { blocks, loading: loading || workspaceLoading, isBlocked, planExpired, featureBlocks: effectiveBlocks, planFeatureBlocks: featureBlocks };
 }

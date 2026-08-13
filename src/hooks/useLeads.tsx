@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -38,6 +39,7 @@ const stageNames: Record<string, string> = {
 
 export function useLeads() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const queryClient = useQueryClient();
 
   const { data: leads = [], isLoading: loading } = useQuery({
@@ -97,7 +99,7 @@ export function useLeads() {
         .from("clients")
         .insert([{
           name: lead.name, email: lead.email, phone: lead.phone,
-          company: lead.company, notes: lead.notes, user_id: user.id,
+          company: lead.company, notes: lead.notes, user_id: ownerId ?? user.id,
         }]);
 
       if (error) throw error;
@@ -118,7 +120,7 @@ export function useLeads() {
           company: leadData.company, event_type: leadData.event_type,
           event_date: leadData.event_date, estimated_value: leadData.estimated_value,
           status: leadData.status || "new", source: leadData.source,
-          notes: leadData.notes, user_id: user.id,
+          notes: leadData.notes, user_id: ownerId ?? user.id,
         }])
         .select().single();
 

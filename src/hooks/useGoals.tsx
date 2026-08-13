@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -16,6 +17,7 @@ export interface Goal {
 
 export function useGoals() {
   const { user } = useAuth();
+  const ownerId = useOwnerId();
   const queryClient = useQueryClient();
 
   const { data: goals = [], isLoading: loading } = useQuery({
@@ -48,7 +50,7 @@ export function useGoals() {
           current_value: goalData.current_value || 0,
           month: goalData.month || new Date().getMonth() + 1,
           year: goalData.year || new Date().getFullYear(),
-          user_id: user.id,
+          user_id: ownerId ?? user.id,
         }])
         .select().single();
 
