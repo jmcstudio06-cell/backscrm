@@ -131,11 +131,11 @@ const App = () => (
                 <Route path="/mapeamento-palco" element={<AuthPage featureKey="mapeamento-palco"><MapeamentoPalco /></AuthPage>} />
                 <Route path="/precificacao" element={<AuthPage featureKey="precificacao"><Precificacao /></AuthPage>} />
                 <Route path="/avancos" element={<AuthPage featureKey="avancos"><Avancos /></AuthPage>} />
-                <Route path="/indicacoes" element={<AuthPage><Indicacoes /></AuthPage>} />
+                <Route path="/indicacoes" element={<AuthPage><RequireOwner><Indicacoes /></RequireOwner></AuthPage>} />
                 <Route path="/equipe" element={<AuthPage featureKey="equipe"><Equipe /></AuthPage>} />
                 <Route path="/metas" element={<AuthPage featureKey="metas"><Metas /></AuthPage>} />
                 <Route path="/metas/anual" element={<AuthPage featureKey="metas-anuais"><MetasAnuais /></AuthPage>} />
-                <Route path="/planos" element={<AuthPage><Planos /></AuthPage>} />
+                <Route path="/planos" element={<AuthPage><RequireOwner><Planos /></RequireOwner></AuthPage>} />
                 <Route path="/configuracoes" element={<AuthPage featureKey="configuracoes"><Configuracoes /></AuthPage>} />
                 <Route path="/orcamentos" element={<AuthPage featureKey="orcamentos"><Orcamentos /></AuthPage>} />
                 <Route path="/servicos" element={<AuthPage featureKey="servicos"><ServicosProdutos /></AuthPage>} />
@@ -143,7 +143,7 @@ const App = () => (
                 
                 <Route path="/contratos" element={<AuthPage featureKey="contratos"><Contratos /></AuthPage>} />
                 <Route path="/repertorio" element={<AuthPage featureKey="repertorio"><Repertorio /></AuthPage>} />
-                <Route path="/admin" element={<AuthPage><Admin /></AuthPage>} />
+                <Route path="/admin" element={<AuthPage><RequireOwner><Admin /></RequireOwner></AuthPage>} />
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
