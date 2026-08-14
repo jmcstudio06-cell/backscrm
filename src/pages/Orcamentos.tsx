@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/Can";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, LayoutTemplate, AlertTriangle } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -113,7 +114,7 @@ export default function Orcamentos() {
           <Input placeholder="Buscar orçamentos..." className="pl-9 w-64 bg-secondary" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-2">
-          <Button variant="gradient" onClick={() => { setSelectedBudget(null); setIsModalOpen(true); }}>
+          <Can action="create"><Button variant="gradient" onClick={() => { setSelectedBudget(null); setIsModalOpen(true); }}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Orçamento
           </Button>

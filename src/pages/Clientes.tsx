@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/Can";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -184,10 +185,12 @@ export default function Clientes() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <Button onClick={handleAddClient}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Cliente
-          </Button>
+          <Can action="create">
+            <Button onClick={handleAddClient}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Cliente
+            </Button>
+          </Can>
         </div>
 
         {/* Clients Table */}
@@ -199,10 +202,12 @@ export default function Clientes() {
               </div>
               <p className="font-semibold text-foreground mb-1">Nenhum cliente cadastrado</p>
               <p className="text-sm text-muted-foreground mb-4">Adicione seu primeiro cliente para começar</p>
-              <Button onClick={handleAddClient}>
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Cliente
-              </Button>
+              <Can action="create">
+                <Button onClick={handleAddClient}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Cliente
+                </Button>
+              </Can>
             </div>
           ) : (
             <Table>

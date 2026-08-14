@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/Can";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -190,10 +191,12 @@ export default function Equipe() {
               </Button>
             </div>
 
-            <Button className="bg-primary hover:bg-primary/90" onClick={handleAdd}>
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Músico
-            </Button>
+            <Can action="create">
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleAdd}>
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Músico
+              </Button>
+            </Can>
           </div>
         </div>
 

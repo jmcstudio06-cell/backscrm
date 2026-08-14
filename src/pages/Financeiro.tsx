@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/Can";
 import {
   DollarSign,
   TrendingUp,
@@ -321,18 +322,20 @@ export default function Financeiro() {
           </Badge>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            className="gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full px-6 shadow-sm"
-            onClick={() => { setModalType("expense"); setModalOpen(true); }}
-          >
-            <Plus className="w-4 h-4" /> Nova Despesa
-          </Button>
-          <Button
-            className="gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 shadow-sm"
-            onClick={() => { setModalType("income"); setModalOpen(true); }}
-          >
-            <Plus className="w-4 h-4" /> Nova Receita
-          </Button>
+          <Can action="create">
+            <Button
+              className="gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full px-6 shadow-sm"
+              onClick={() => { setModalType("expense"); setModalOpen(true); }}
+            >
+              <Plus className="w-4 h-4" /> Nova Despesa
+            </Button>
+            <Button
+              className="gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 shadow-sm"
+              onClick={() => { setModalType("income"); setModalOpen(true); }}
+            >
+              <Plus className="w-4 h-4" /> Nova Receita
+            </Button>
+          </Can>
         </div>
       </div>
 

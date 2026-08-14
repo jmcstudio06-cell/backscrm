@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/Can";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
@@ -325,16 +326,18 @@ export default function Agenda() {
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Importar
           </Button>
-          <Button
-            size="sm"
-            className="bg-primary hover:bg-primary/90"
-            onClick={() => handleOpenNewShow()}
-            disabled={monthlyLimit.blocked}
-            title={monthlyLimit.blocked ? "Limite de 5 shows/mês atingido" : undefined}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Show
-          </Button>
+          <Can action="create">
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90"
+              onClick={() => handleOpenNewShow()}
+              disabled={monthlyLimit.blocked}
+              title={monthlyLimit.blocked ? "Limite de 5 shows/mês atingido" : undefined}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Show
+            </Button>
+          </Can>
         </div>
       </div>
 

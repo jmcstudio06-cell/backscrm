@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/Can";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle, Link2, Lock } from "lucide-react";
@@ -91,9 +92,11 @@ export default function Contratos() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Buscar contratos..." className="pl-9 w-64 bg-secondary" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <Button variant="gradient" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }}>
-              <Plus className="w-4 h-4 mr-2" />Novo Contrato
-            </Button>
+            <Can action="create">
+              <Button variant="gradient" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }}>
+                <Plus className="w-4 h-4 mr-2" />Novo Contrato
+              </Button>
+            </Can>
           </div>
 
           <ChartCard title="Contratos Recentes" subtitle="Últimos contratos criados">
@@ -182,7 +185,7 @@ export default function Contratos() {
 
           <ChartCard title="Ações Rápidas">
             <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }}><PenTool className="w-4 h-4 mr-2" />Novo Contrato</Button>
+              <Can action="create"><Button variant="outline" className="w-full justify-start" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }}><PenTool className="w-4 h-4 mr-2" />Novo Contrato</Button></Can>
               <Button variant="outline" className="w-full justify-start" onClick={() => setIsClausesModalOpen(true)}><FileText className="w-4 h-4 mr-2" />Cláusulas Padrão</Button>
             </div>
           </ChartCard>
