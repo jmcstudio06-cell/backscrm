@@ -24,12 +24,11 @@ export function RequireFeature({ featureKey, children }: Props) {
     // Team members never see the upsell — send them to a tab they can use.
     if (isMember) {
       const fallback = (allowedFeatures ?? []).find((f) => f !== featureKey);
-      const target =
-        fallback === "dashboard" || !fallback
-          ? "/dashboard"
-          : fallback === "ideias-post"
-            ? "/planejamento-conteudo"
-            : `/${fallback}`;
+      const target = !fallback
+        ? "/notificacoes"
+        : fallback === "ideias-post"
+          ? "/planejamento-conteudo"
+          : `/${fallback}`;
       return <Navigate to={target} replace />;
     }
     return <Navigate to="/planos" replace state={{ blockedFeature: featureKey }} />;
