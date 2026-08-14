@@ -117,7 +117,7 @@ export default function Orcamentos() {
           <Can action="create"><Button variant="gradient" onClick={() => { setSelectedBudget(null); setIsModalOpen(true); }}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Orçamento
-          </Button>
+          </Button></Can>
         </div>
       </div>
 
