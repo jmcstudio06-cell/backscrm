@@ -801,6 +801,36 @@ export default function Admin() {
                         </div>
                       </div>
 
+                      {/* Team users created by this buyer */}
+                      <div>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground mb-2 block">
+                          Usuários da equipe (mesmo plano)
+                        </Label>
+                        {teamMembers.filter(m => m.owner_id === userProfile.user_id).length === 0 ? (
+                          <p className="text-xs text-muted-foreground">Nenhum usuário cadastrado por este comprador.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {teamMembers
+                              .filter(m => m.owner_id === userProfile.user_id)
+                              .map(m => (
+                                <div key={m.id} className="flex flex-wrap items-center gap-2 p-2.5 border rounded-lg bg-background text-xs">
+                                  <span className="font-semibold">{m.role_label || "Usuário"}</span>
+                                  <span className="text-muted-foreground truncate">{m.email}</span>
+                                  <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                                    {m.permission_level === "manager" ? "Gerente" : m.permission_level === "editor" ? "Editor" : "Visualizador"}
+                                  </span>
+                                  <span className={`ml-auto px-1.5 py-0.5 rounded-full font-medium ${m.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"}`}>
+                                    {m.is_active ? "Ativo" : "Inativo"}
+                                  </span>
+                                </div>
+                              ))}
+                            <p className="text-[11px] text-muted-foreground">
+                              Estes acessos seguem o plano do comprador: se o plano dele parar, o acesso deles para também.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Danger Zone - Delete Account */}
                       <div className="border-t border-red-500/20 pt-4 mt-2">
                         <Label className="text-xs font-bold uppercase text-red-600 mb-2 block">Zona de Perigo</Label>
