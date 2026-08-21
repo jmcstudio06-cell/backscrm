@@ -56,7 +56,7 @@ function SlideLink({
 export function PartnerAdBanner() {
   const isMobile = useIsMobile();
   const [index, setIndex] = useState(0);
-  const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
+  const [slides, setSlides] = useState<Slide[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,7 +68,8 @@ export function PartnerAdBanner() {
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: true });
 
-      if (cancelled || !data || data.length === 0) return;
+      if (cancelled || !data) return;
+
 
       setSlides(
         data.map((ad) => ({
