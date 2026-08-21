@@ -185,6 +185,9 @@ export default function Admin() {
     anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
   });
   const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
+  const [teamMembers, setTeamMembers] = useState<
+    { id: string; owner_id: string; member_user_id: string; email: string; role_label: string | null; permission_level: string; is_active: boolean }[]
+  >([]);
 
   // Check admin
   useEffect(() => {
@@ -203,15 +206,25 @@ export default function Admin() {
     setLoadingUsers(true);
     const from = (page - 1) * USERS_PER_PAGE;
     const to = from + USERS_PER_PAGE - 1;
-    
+
+    // Team members belong to their owner's panel — never list them as separate accounts.
+    const { data: memberRows } = await supabase
+      .from("workspace_members")
+      .select("id, owner_id, member_user_id, email, role_label, permission_level, is_active");
+    const members = memberRows ?? [];
+    setTeamMembers(members as typeof teamMembers);
+    const memberIds = members.map((m) => m.member_user_id);
+
     let query = supabase
       .from("profiles")
       .select("*, feature_blocks", { count: "exact" })
       .order("created_at", { ascending: false });
-    
+
+    if (memberIds.length > 0) query = query.not("user_id", "in", `(${memberIds.join(",")})`);
     if (filter !== "all") query = query.eq("plan", filter);
     if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
     query = query.range(from, to);
+
     
     const { data, error, count } = await query;
     if (error) {
