@@ -578,7 +578,11 @@ export function useShowsData() {
     await updateShow(id, { status: "cancelled" });
   };
 
-  const getConfirmedShows = () => shows.filter((s) => s.status === "confirmed");
+  const getConfirmedShows = () =>
+    shows.filter((s) => {
+      const status = normalizeShowStatus(s.status);
+      return status === "confirmed" || status === "partial";
+    });
   const getCompletedShows = () => shows.filter((s) => isCompletedShowStatus(s.status));
 
   // Background repair: create missing transactions for completed shows (non-blocking)
