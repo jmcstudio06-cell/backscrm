@@ -185,6 +185,9 @@ export default function Admin() {
     anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
   });
   const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
+  const [teamMembers, setTeamMembers] = useState<
+    { id: string; owner_id: string; member_user_id: string; email: string; role_label: string | null; permission_level: string; is_active: boolean }[]
+  >([]);
 
   // Check admin
   useEffect(() => {
@@ -203,15 +206,25 @@ export default function Admin() {
     setLoadingUsers(true);
     const from = (page - 1) * USERS_PER_PAGE;
     const to = from + USERS_PER_PAGE - 1;
-    
+
+    // Team members belong to their owner's panel — never list them as separate accounts.
+    const { data: memberRows } = await supabase
+      .from("workspace_members")
+      .select("id, owner_id, member_user_id, email, role_label, permission_level, is_active");
+    const members = memberRows ?? [];
+    setTeamMembers(members as typeof teamMembers);
+    const memberIds = members.map((m) => m.member_user_id);
+
     let query = supabase
       .from("profiles")
       .select("*, feature_blocks", { count: "exact" })
       .order("created_at", { ascending: false });
-    
+
+    if (memberIds.length > 0) query = query.not("user_id", "in", `(${memberIds.join(",")})`);
     if (filter !== "all") query = query.eq("plan", filter);
     if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
     query = query.range(from, to);
+
     
     const { data, error, count } = await query;
     if (error) {
@@ -228,21 +241,23 @@ export default function Admin() {
     async function fetchInitialData() {
       if (!isAdmin || dataLoaded.current) return;
       
-      const [goalsResult, planResult] = await Promise.all([
+      const [goalsResult, planResult, memberResult] = await Promise.all([
         supabase.from("user_goals").select("*")
           .eq("month", new Date().getMonth() + 1)
           .eq("year", new Date().getFullYear()),
-        supabase.from("profiles").select("plan"),
+        supabase.from("profiles").select("plan, user_id"),
+        supabase.from("workspace_members").select("member_user_id"),
       ]);
 
       if (goalsResult.data) setUserGoals(goalsResult.data);
-      
+
       if (planResult.data) {
+        const memberIds = new Set((memberResult.data ?? []).map(m => m.member_user_id));
         const stats: Record<string, number> = {
           trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
            anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
         };
-        planResult.data.forEach(p => {
+        planResult.data.filter(p => !memberIds.has(p.user_id)).forEach(p => {
           const plan = p.plan || 'trial';
           if (stats.hasOwnProperty(plan)) {
             stats[plan]++;
@@ -784,6 +799,36 @@ export default function Admin() {
                             </div>
                           ))}
                         </div>
+                      </div>
+
+                      {/* Team users created by this buyer */}
+                      <div>
+                        <Label className="text-xs font-bold uppercase text-muted-foreground mb-2 block">
+                          Usuários da equipe (mesmo plano)
+                        </Label>
+                        {teamMembers.filter(m => m.owner_id === userProfile.user_id).length === 0 ? (
+                          <p className="text-xs text-muted-foreground">Nenhum usuário cadastrado por este comprador.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {teamMembers
+                              .filter(m => m.owner_id === userProfile.user_id)
+                              .map(m => (
+                                <div key={m.id} className="flex flex-wrap items-center gap-2 p-2.5 border rounded-lg bg-background text-xs">
+                                  <span className="font-semibold">{m.role_label || "Usuário"}</span>
+                                  <span className="text-muted-foreground truncate">{m.email}</span>
+                                  <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                                    {m.permission_level === "manager" ? "Gerente" : m.permission_level === "editor" ? "Editor" : "Visualizador"}
+                                  </span>
+                                  <span className={`ml-auto px-1.5 py-0.5 rounded-full font-medium ${m.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"}`}>
+                                    {m.is_active ? "Ativo" : "Inativo"}
+                                  </span>
+                                </div>
+                              ))}
+                            <p className="text-[11px] text-muted-foreground">
+                              Estes acessos seguem o plano do comprador: se o plano dele parar, o acesso deles para também.
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       {/* Danger Zone - Delete Account */}

@@ -4,8 +4,6 @@ import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import tutoriaisBanner from "@/assets/tutoriais-banner.png.asset.json";
-import rankingBanner from "@/assets/ranking-banner-2026.png.asset.json";
 
 type Slide = {
   id: string;
@@ -18,32 +16,8 @@ type Slide = {
   cta: string;
 };
 
-const DEFAULT_SLIDES: Slide[] = [
-  {
-    id: "tutoriais",
-    href: "/tutoriais",
-    image: tutoriaisBanner.url,
-    alt: "Tutoriais Backstage Pro - aprenda a usar a plataforma",
-    badge: "Aprenda agora",
-    title: "Tutoriais Backstage Pro",
-    description:
-      "Aprenda de forma rápida e prática a usar todos os recursos da plataforma.",
-    cta: "Ver tutoriais",
-  },
-  {
-    id: "ranking",
-    href: "/ranking",
-    image: rankingBanner.url,
-    alt: "Ranking de Shows - confira quem fez mais shows no mês",
-    badge: "Ranking",
-    title: "Ranking de Shows",
-    description:
-      "Veja quem são os artistas que mais fizeram shows no mês e motive-se a subir no pódio.",
-    cta: "Ver ranking",
-  },
-];
-
 const ROTATION_MS = 6000;
+
 
 const isExternal = (href: string) => /^https?:\/\//i.test(href);
 
@@ -82,7 +56,7 @@ function SlideLink({
 export function PartnerAdBanner() {
   const isMobile = useIsMobile();
   const [index, setIndex] = useState(0);
-  const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
+  const [slides, setSlides] = useState<Slide[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,7 +68,8 @@ export function PartnerAdBanner() {
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: true });
 
-      if (cancelled || !data || data.length === 0) return;
+      if (cancelled || !data) return;
+
 
       setSlides(
         data.map((ad) => ({

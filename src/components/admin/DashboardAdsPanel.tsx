@@ -284,8 +284,7 @@ export function DashboardAdsPanel() {
             </div>
           ) : ads.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4 text-center">
-              Nenhum anúncio cadastrado. Enquanto isso, os banners padrão continuam aparecendo no
-              dashboard.
+              Nenhum anúncio cadastrado. Sem anúncios ativos aqui, nada aparece no dashboard.
             </p>
           ) : (
             ads.map((ad) => (
