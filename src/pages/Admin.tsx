@@ -241,21 +241,23 @@ export default function Admin() {
     async function fetchInitialData() {
       if (!isAdmin || dataLoaded.current) return;
       
-      const [goalsResult, planResult] = await Promise.all([
+      const [goalsResult, planResult, memberResult] = await Promise.all([
         supabase.from("user_goals").select("*")
           .eq("month", new Date().getMonth() + 1)
           .eq("year", new Date().getFullYear()),
-        supabase.from("profiles").select("plan"),
+        supabase.from("profiles").select("plan, user_id"),
+        supabase.from("workspace_members").select("member_user_id"),
       ]);
 
       if (goalsResult.data) setUserGoals(goalsResult.data);
-      
+
       if (planResult.data) {
+        const memberIds = new Set((memberResult.data ?? []).map(m => m.member_user_id));
         const stats: Record<string, number> = {
           trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
            anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
         };
-        planResult.data.forEach(p => {
+        planResult.data.filter(p => !memberIds.has(p.user_id)).forEach(p => {
           const plan = p.plan || 'trial';
           if (stats.hasOwnProperty(plan)) {
             stats[plan]++;
