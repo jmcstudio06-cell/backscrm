@@ -18,6 +18,8 @@ import {
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
+import { InstallAppSection } from "@/components/configuracoes/InstallAppSection";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
