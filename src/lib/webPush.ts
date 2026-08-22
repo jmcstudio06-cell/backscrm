@@ -91,12 +91,20 @@ async function upsertSubscriptionOnBackend(sub: PushSubscription) {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id || "anonymous";
 
+  // Só evitamos reenvio DENTRO da mesma sessão do app. Um cache persistente
+  // impedia reativar a inscrição quando o servidor a desativava (410 no iOS),
+  // e o celular deixava de receber push para sempre.
   const CACHE_KEY = `push_last_synced_${userId}`;
   const currentSyncData = JSON.stringify({ endpoint, p256dh, auth });
-  const lastSyncedData = localStorage.getItem(CACHE_KEY);
 
-  if (lastSyncedData === currentSyncData) {
-    console.log("[WebPush] Subscription already synced for this user, skipping.");
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch {
+    /* ignore */
+  }
+
+  if (sessionStorage.getItem(CACHE_KEY) === currentSyncData) {
+    console.log("[WebPush] Subscription already synced in this session, skipping.");
     return;
   }
 
@@ -107,7 +115,7 @@ async function upsertSubscriptionOnBackend(sub: PushSubscription) {
 
   if (error) throw error;
 
-  localStorage.setItem(CACHE_KEY, currentSyncData);
+  sessionStorage.setItem(CACHE_KEY, currentSyncData);
 }
 
 export async function subscribeToWebPush(): Promise<boolean> {
