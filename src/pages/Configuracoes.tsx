@@ -18,6 +18,8 @@ import {
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
+import { InstallAppSection } from "@/components/configuracoes/InstallAppSection";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -703,7 +705,13 @@ export default function Configuracoes() {
 
               <Separator />
 
+              {/* Instalar App */}
+              <InstallAppSection />
+
+              <Separator />
+
               {/* Clear Cache */}
+
               <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
                 <div className="flex items-start gap-3">
                   <Trash2 className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
