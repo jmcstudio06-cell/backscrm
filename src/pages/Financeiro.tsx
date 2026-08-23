@@ -108,9 +108,14 @@ export default function Financeiro() {
     fetchDetails();
   }, [shows]);
 
-  const now = new Date();
-  const currentMonthIndex = now.getMonth();
-  const currentYear = now.getFullYear();
+  const today = new Date();
+  const [monthOffset, setMonthOffset] = useState(0);
+  const referenceDate = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1),
+    [monthOffset, today.getFullYear(), today.getMonth()],
+  );
+  const currentMonthIndex = referenceDate.getMonth();
+  const currentYear = referenceDate.getFullYear();
 
   const virtualTransactions = useMemo(() => {
     const transactions: any[] = [];
