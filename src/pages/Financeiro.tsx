@@ -50,6 +50,7 @@ import {
 } from "recharts";
 import { useShows } from "@/contexts/shows/ShowsContext";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { useProfile } from "@/hooks/useProfile";
 import { format, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
