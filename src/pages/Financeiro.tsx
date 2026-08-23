@@ -321,9 +321,37 @@ export default function Financeiro() {
   return (
     <Layout title="Resumo Mensal" subtitle={`RESUMO DE ${currentMonthName}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1 rounded-full border border-border/50 bg-secondary/30 p-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full"
+              aria-label="Mês anterior"
+              onClick={() => setMonthOffset((v) => v - 1)}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="px-2 text-sm font-semibold capitalize min-w-[130px] text-center">
+              {format(referenceDate, "MMMM 'de' yyyy", { locale: ptBR })}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full"
+              aria-label="Mês seguinte"
+              onClick={() => setMonthOffset((v) => v + 1)}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+          {monthOffset !== 0 && (
+            <Button variant="outline" size="sm" className="rounded-full" onClick={() => setMonthOffset(0)}>
+              Mês atual
+            </Button>
+          )}
           <Badge variant="secondary" className="px-3 py-1 bg-secondary/50">
-            {showsThisMonth} {showsThisMonth === 1 ? "Show" : "Shows"} na agenda este mês
+            {showsThisMonth} {showsThisMonth === 1 ? "Show" : "Shows"} na agenda neste mês
           </Badge>
         </div>
         <div className="flex items-center gap-3">
