@@ -22,6 +22,8 @@ import {
   Download,
   Filter,
   Plus,
+  ChevronLeft,
+  ChevronRight,
   Trash2,
 } from "lucide-react";
 import {
