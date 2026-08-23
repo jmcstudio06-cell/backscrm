@@ -244,7 +244,7 @@ export default function Financeiro() {
   const chartData = useMemo(() => {
     const data = [];
     for (let i = 5; i >= 0; i--) {
-      const d = subMonths(now, i);
+      const d = subMonths(referenceDate, i);
       const mIdx = d.getMonth();
       const y = d.getFullYear();
       
