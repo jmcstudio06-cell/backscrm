@@ -280,7 +280,7 @@ export default function Financeiro() {
     }));
   }, [currentMonthTransactions]);
 
-  const currentMonthName = format(now, "MMMM 'de' yyyy", { locale: ptBR }).toUpperCase();
+  const currentMonthName = format(referenceDate, "MMMM 'de' yyyy", { locale: ptBR }).toUpperCase();
   const showsThisMonth = shows.filter(s => {
     const d = parseLocalDate(s.date);
     return d.getMonth() === currentMonthIndex && d.getFullYear() === currentYear && s.status !== 'cancelled';
