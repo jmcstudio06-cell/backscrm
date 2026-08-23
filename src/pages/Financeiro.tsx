@@ -119,6 +119,13 @@ export default function Financeiro() {
 
   const today = new Date();
   const [monthOffset, setMonthOffset] = useState(0);
+
+  useEffect(() => {
+    if (!isEmpresarial && monthOffset !== 0) {
+      setMonthOffset(0);
+    }
+  }, [isEmpresarial, monthOffset]);
+
   const referenceDate = useMemo(
     () => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1),
     [monthOffset, today.getFullYear(), today.getMonth()],
