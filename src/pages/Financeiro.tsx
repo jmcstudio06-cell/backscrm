@@ -69,11 +69,17 @@ const CATEGORY_MAP: Record<string, string> = {
 
 export default function Financeiro() {
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
+  const { profile } = useProfile();
   const { shows, loading: loadingShows } = useShows();
   const { transactions: dbTransactions, loading: loadingDb, addTransaction, deleteTransaction } = useTransactions({ fullHistory: true });
   const [musicians, setMusicians] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
+
+  const isEmpresarial = useMemo(() => {
+    const plan = (profile?.plan || "").toLowerCase();
+    return plan.includes("empresarial") || plan.includes("completo");
+  }, [profile?.plan]);
   
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"income" | "expense">("expense");
