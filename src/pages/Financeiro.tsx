@@ -263,7 +263,7 @@ export default function Financeiro() {
       });
     }
     return data;
-  }, [virtualTransactions, now]);
+  }, [virtualTransactions, referenceDate]);
 
   const expenseCategories = useMemo(() => {
     const cats: Record<string, number> = {};
