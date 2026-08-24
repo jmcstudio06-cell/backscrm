@@ -12,7 +12,7 @@ import {
   Package,
   Info
 } from "lucide-react";
-import { StageCanvas } from "./StageCanvas";
+import { StageCanvas, STAGE_ELEMENT_TYPES } from "./StageCanvas";
 import { InputList } from "./InputList";
 import { MaterialsChecklist } from "./MaterialsChecklist";
 import { EventInfo } from "./EventInfo";
