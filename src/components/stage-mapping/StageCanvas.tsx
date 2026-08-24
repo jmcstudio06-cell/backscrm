@@ -39,6 +39,8 @@ import gabineteImg from '@/assets/stage/gabinete.png';
 import stairsImg from '@/assets/stage/stairs.png';
 import riserImg from '@/assets/stage/riser.png';
 import pedalboardImg from '@/assets/stage/pedalboard.png';
+import repertoireMonitorImg from '@/assets/stage/repertoire-monitor.png';
+import singerRugImg from '@/assets/stage/singer-rug.png';
 
 export interface StageElement {
   id: string;
