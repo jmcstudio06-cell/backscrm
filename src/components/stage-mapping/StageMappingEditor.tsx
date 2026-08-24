@@ -260,15 +260,20 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         iluminacao_basica: "Iluminação Básica",
       };
 
-      // Gerar o mapeamento de palco em um container temporário offscreen
+      // Altura real do "chão" do palco na tela, para não distorcer as posições
+      const liveCanvas = document.getElementById("stage-canvas-print");
+      const liveFloor = liveCanvas?.lastElementChild as HTMLElement | undefined;
+      const floorHeight = liveFloor?.clientHeight || CANVAS_HEIGHT - 70 - 21;
+
+      // Gerar o mapeamento de palco em um container temporário offscreen (escala 1:1)
       let stageImageSrc = "";
       const tempContainer = document.createElement("div");
-      tempContainer.style.cssText = `position: absolute; left: -9999px; top: 0; width: ${PRINT_WIDTH}px; height: ${PRINT_HEIGHT}px; background: white;`;
+      tempContainer.style.cssText = `position: absolute; left: -9999px; top: 0; width: ${CANVAS_WIDTH}px; background: white;`;
       document.body.appendChild(tempContainer);
 
       try {
         // Renderizar o stage layout manualmente no container temporário
-        const stageHtml = generateStageHtml(stageLayout, artistName);
+        const stageHtml = generateStageHtml(stageLayout, artistName, floorHeight);
         tempContainer.innerHTML = stageHtml;
 
         // Aguardar as imagens carregarem
