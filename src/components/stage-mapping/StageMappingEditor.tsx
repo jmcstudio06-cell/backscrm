@@ -12,7 +12,7 @@ import {
   Package,
   Info
 } from "lucide-react";
-import { StageCanvas } from "./StageCanvas";
+import { StageCanvas, STAGE_ELEMENT_TYPES } from "./StageCanvas";
 import { InputList } from "./InputList";
 import { MaterialsChecklist } from "./MaterialsChecklist";
 import { EventInfo } from "./EventInfo";
@@ -110,20 +110,24 @@ const PRINT_WIDTH = 1000;
 const PRINT_SCALE = PRINT_WIDTH / CANVAS_WIDTH;
 const PRINT_HEIGHT = Math.round(CANVAS_HEIGHT * PRINT_SCALE);
 
-function generateStageHtml(stageLayout: StageElement[], artistName: string): string {
-  const elements = stageLayout.map((el) => {
-    const image = ELEMENT_TYPE_IMAGES[el.type] || "";
-    const size = ELEMENT_TYPE_SIZES[el.type] || { width: 60, height: 60 };
+function generateStageHtml(stageLayout: StageElement[], artistName: string, floorHeight: number): string {
+  // Tapete sempre por baixo, igual ao canvas
+  const ordered = [...stageLayout].sort(
+    (a, b) => (a.type === "rug" ? -1 : 0) - (b.type === "rug" ? -1 : 0)
+  );
+
+  const elements = ordered.map((el) => {
+    const def = STAGE_ELEMENT_TYPES.find((t) => t.type === el.type);
+    const image = def?.image || "";
+    const size = { width: def?.width ?? 60, height: def?.height ?? 60 };
     const scale = el.scale || 1;
     const rotation = el.rotation || 0;
-    const width = size.width * scale * PRINT_SCALE;
-    const height = size.height * scale * PRINT_SCALE;
-    const x = el.x * PRINT_SCALE;
-    const y = el.y * PRINT_SCALE;
+    const width = size.width * scale;
+    const height = size.height * scale;
 
     return `
-      <div style="position: absolute; left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px;">
-        <img src="${image}" style="width: 100%; height: 100%; object-fit: contain; transform: rotate(${rotation}deg);" />
+      <div style="position: absolute; left: ${el.x}px; top: ${el.y}px; width: ${width}px; height: ${height}px;">
+        <img src="${image}" style="width: 100%; height: 100%; object-fit: contain; transform: rotate(${rotation}deg) scaleX(${el.flipped ? -1 : 1});" />
         <div style="position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); white-space: nowrap;">
           <span style="font-weight: bold; font-size: 9px; color: #333; background: rgba(255,255,255,0.9); padding: 2px 4px; border-radius: 3px;">${el.name}</span>
         </div>
@@ -131,21 +135,17 @@ function generateStageHtml(stageLayout: StageElement[], artistName: string): str
     `;
   }).join("");
 
-  const headerHeight = 40;
-  const dimBarHeight = 20;
-  const stageFloorHeight = PRINT_HEIGHT - headerHeight - dimBarHeight;
-
   return `
-    <div style="position: relative; width: ${PRINT_WIDTH}px; height: ${PRINT_HEIGHT}px; background: white; border: 2px solid #555; overflow: hidden; font-family: Arial, sans-serif;">
-      <div style="background: #1a1a1a; padding: 8px 16px; text-align: center; height: ${headerHeight}px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <h3 style="margin: 0; color: white; font-size: 18px; letter-spacing: 2px;">MAPEAMENTO DE PALCO</h3>
-        ${artistName ? `<p style="margin: 2px 0 0; color: #ccc; font-size: 11px;">${artistName}</p>` : ""}
+    <div style="position: relative; width: ${CANVAS_WIDTH}px; background: white; border: 2px solid #555; overflow: hidden; font-family: Arial, sans-serif;">
+      <div style="background: #1a1a1a; padding: 10px 16px; text-align: center;">
+        <h3 style="margin: 0; color: white; font-size: 18px; letter-spacing: 3px;">MAPEAMENTO DE PALCO</h3>
+        ${artistName ? `<p style="margin: 3px 0 0; color: #ccc; font-size: 12px;">${artistName}</p>` : ""}
       </div>
-      <div style="display: flex; justify-content: space-between; padding: 4px 16px; background: #f5f5f5; border-bottom: 1px solid #ddd; font-size: 10px; color: #666; height: ${dimBarHeight}px;">
+      <div style="display: flex; justify-content: space-between; padding: 4px 16px; background: #f5f5f5; border-bottom: 1px solid #ddd; font-size: 10px; color: #666;">
         <span>8M (MÍNIMO)</span>
         <span>6M (MÍNIMO)</span>
       </div>
-      <div style="position: relative; height: ${stageFloorHeight}px; background: linear-gradient(to bottom, #fafafa, #f0f0f0);">
+      <div style="position: relative; height: ${floorHeight}px; background: linear-gradient(to bottom, #fafafa, #f0f0f0);">
         ${artistName ? `<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;"><span style="font-weight: bold; color: rgba(0,0,0,0.06); font-size: 60px; text-transform: uppercase; letter-spacing: 8px;">${artistName}</span></div>` : ""}
         ${elements}
       </div>
@@ -260,15 +260,20 @@ export function StageMappingEditor({ mapping, onSave, onBack }: StageMappingEdit
         iluminacao_basica: "Iluminação Básica",
       };
 
-      // Gerar o mapeamento de palco em um container temporário offscreen
+      // Altura real do "chão" do palco na tela, para não distorcer as posições
+      const liveCanvas = document.getElementById("stage-canvas-print");
+      const liveFloor = liveCanvas?.lastElementChild as HTMLElement | undefined;
+      const floorHeight = liveFloor?.clientHeight || CANVAS_HEIGHT - 70 - 21;
+
+      // Gerar o mapeamento de palco em um container temporário offscreen (escala 1:1)
       let stageImageSrc = "";
       const tempContainer = document.createElement("div");
-      tempContainer.style.cssText = `position: absolute; left: -9999px; top: 0; width: ${PRINT_WIDTH}px; height: ${PRINT_HEIGHT}px; background: white;`;
+      tempContainer.style.cssText = `position: absolute; left: -9999px; top: 0; width: ${CANVAS_WIDTH}px; background: white;`;
       document.body.appendChild(tempContainer);
 
       try {
         // Renderizar o stage layout manualmente no container temporário
-        const stageHtml = generateStageHtml(stageLayout, artistName);
+        const stageHtml = generateStageHtml(stageLayout, artistName, floorHeight);
         tempContainer.innerHTML = stageHtml;
 
         // Aguardar as imagens carregarem
