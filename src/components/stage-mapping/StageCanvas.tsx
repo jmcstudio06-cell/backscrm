@@ -120,9 +120,6 @@ const ELEMENT_CATEGORIES: ElementCategory[] = [
 
 const ALL_ELEMENT_TYPES = [...MUSICIANS, ...EQUIPMENT, ...STAGE_INFRA];
 
-// Fonte única de verdade dos tipos de elemento (usada também na impressão/PDF)
-export const STAGE_ELEMENT_TYPES = ALL_ELEMENT_TYPES;
-
 const ELEMENT_INPUT_CHANNELS: Record<string, { instrument: string; micType: string; di: boolean }[]> = {
   vocal: [{ instrument: 'Voz Principal', micType: 'SM58', di: false }],
   singer_guitar: [
