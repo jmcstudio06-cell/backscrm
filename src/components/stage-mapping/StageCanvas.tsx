@@ -483,8 +483,10 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
               </div>
             )}
 
-            {/* Elements */}
-            {elements.map((element) => {
+            {/* Elements (tapete sempre renderizado por baixo) */}
+            {[...elements]
+              .sort((a, b) => (a.type === 'rug' ? -1 : 0) - (b.type === 'rug' ? -1 : 0))
+              .map((element) => {
               const elementType = ALL_ELEMENT_TYPES.find(t => t.type === element.type);
               if (!elementType) return null;
 
@@ -493,11 +495,13 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
               const width = elementType.width * scale;
               const height = elementType.height * scale;
               const isSelected = selectedElement === element.id;
+              const isRug = element.type === 'rug';
 
               return (
                 <div
                   key={element.id}
-                  className={`absolute cursor-move group transition-shadow ${dragging === element.id ? 'z-50' : 'z-10'} ${isSelected ? 'z-40' : ''}`}
+                  className={`absolute cursor-move group transition-shadow ${dragging === element.id ? 'z-50' : isRug ? 'z-0' : 'z-10'} ${isSelected ? (isRug ? 'z-[5]' : 'z-40') : ''}`}
+
                   style={{
                     left: element.x,
                     top: element.y,
