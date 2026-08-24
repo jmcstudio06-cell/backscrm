@@ -500,7 +500,7 @@ export function StageCanvas({ elements, onChange, onElementAdded, artistName }: 
               return (
                 <div
                   key={element.id}
-                  className={`absolute cursor-move group transition-shadow ${dragging === element.id ? 'z-50' : isRug ? 'z-0' : 'z-10'} ${isSelected ? (isRug ? 'z-[5]' : 'z-40') : ''}`}
+                  className={`absolute cursor-move group transition-shadow ${isRug ? (isSelected ? 'z-[5]' : 'z-0') : dragging === element.id ? 'z-50' : isSelected ? 'z-40' : 'z-10'}`}
 
                   style={{
                     left: element.x,
