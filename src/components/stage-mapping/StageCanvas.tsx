@@ -100,14 +100,17 @@ const EQUIPMENT: ElementTypeInfo[] = [
   { type: 'rack', label: 'Tripé Instr.', image: rackImg, width: 80, height: 70 },
   { type: 'sider', label: 'Sider', image: siderImg, width: 60, height: 55 },
   { type: 'gabinete', label: 'Gabinete', image: gabineteImg, width: 90, height: 60 },
+  { type: 'repertoire_monitor', label: 'Monitor Repertório', image: repertoireMonitorImg, width: 70, height: 70 },
 ];
 
 const STAGE_INFRA: ElementTypeInfo[] = [
+  { type: 'rug', label: 'Tapete Cantor', image: singerRugImg, width: 140, height: 76 },
   { type: 'stairs', label: 'Escadaria', image: stairsImg, width: 100, height: 80 },
   { type: 'riser', label: 'Elevado', image: riserImg, width: 100, height: 100 },
   { type: 'power110v', label: '110V', image: power110vImg, width: 40, height: 45 },
   { type: 'power220v', label: '220V', image: power220vImg, width: 40, height: 45 },
 ];
+
 
 const ELEMENT_CATEGORIES: ElementCategory[] = [
   { label: 'Músicos', icon: User, types: MUSICIANS },
