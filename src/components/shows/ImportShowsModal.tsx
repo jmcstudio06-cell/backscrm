@@ -231,9 +231,15 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
         const status = STATUS_MAP[rawStatus] || "confirmed";
 
         try {
+          // Se não houver coluna/valor de cliente, usa o nome do evento como cliente,
+          // reaproveitando o mesmo cliente quando o nome se repetir.
+          const clienteRaw = iCliente >= 0 ? (row[iCliente] || "").trim() : "";
+          const clientId = await ensureClient(clienteRaw || titulo);
+
           await addShow({
             title: titulo,
             date,
+            client_id: clientId,
             start_time: iIni >= 0 ? (row[iIni] || "").trim() || null : null,
             end_time: iFim >= 0 ? (row[iFim] || "").trim() || null : null,
             venue: iLocal >= 0 ? (row[iLocal] || "").trim() || null : null,
@@ -243,6 +249,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
             event_type: iTipo >= 0 ? (row[iTipo] || "").trim() || null : null,
             notes: iObs >= 0 ? (row[iObs] || "").trim() || null : null,
           });
+
           ok++;
         } catch (e: any) {
           fail++;
