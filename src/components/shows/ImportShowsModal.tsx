@@ -3,6 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Download, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useShows } from "@/contexts/shows/ShowsContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface Props {
@@ -20,6 +24,7 @@ const TEMPLATE_HEADERS = [
   "cachet",
   "status",
   "tipo_evento",
+  "cliente",
   "observacoes",
 ];
 
@@ -28,6 +33,25 @@ const TEMPLATE_EXAMPLES = [
   ["Show Aniversário 30 anos", "2026-07-20", "21:00", "01:00", "Buffet Estrela", "Av. Brasil, 500 - RJ", "2800", "confirmed", "Aniversário", ""],
   ["Show Realizado - Bar do Zé", "2026-04-10", "22:00", "02:00", "Bar do Zé", "", "1500", "completed", "Bar", "Pago via PIX"],
 ];
+
+function toTitleCase(value: string): string {
+  return value
+    .toLowerCase()
+    .split(/\s+/)
+    .map((w) => (w.length > 2 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+    .join(" ")
+    .trim();
+}
+
+function normalizeName(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 
 const STATUS_MAP: Record<string, string> = {
   confirmado: "confirmed",
