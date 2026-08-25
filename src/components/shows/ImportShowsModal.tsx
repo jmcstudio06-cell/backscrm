@@ -172,6 +172,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
       const iCachet = idx("cachet");
       const iStatus = idx("status");
       const iTipo = idx("tipo_evento");
+      const iCliente = idx("cliente") >= 0 ? idx("cliente") : idx("nome_do_cliente");
       const iObs = idx("observacoes");
 
       if (iTitulo < 0 || iData < 0) {
@@ -179,6 +180,30 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
         setImporting(false);
         return;
       }
+
+      // Clientes já cadastrados (para reaproveitar em vez de duplicar).
+      const clientMap = new Map<string, string>();
+      const { data: existingClients } = await supabase.from("clients").select("id, name");
+      (existingClients || []).forEach((c: any) => {
+        if (c?.name) clientMap.set(normalizeName(c.name), c.id);
+      });
+      let createdClients = 0;
+
+      const ensureClient = async (rawName: string): Promise<string | null> => {
+        const key = normalizeName(rawName);
+        if (!key) return null;
+        const existing = clientMap.get(key);
+        if (existing) return existing;
+        const { data, error } = await supabase
+          .from("clients")
+          .insert([{ name: toTitleCase(rawName), user_id: ownerId ?? user?.id }])
+          .select("id")
+          .single();
+        if (error || !data) return null;
+        clientMap.set(key, data.id);
+        createdClients++;
+        return data.id;
+      };
 
       let ok = 0;
       let fail = 0;
@@ -188,6 +213,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
       for (let r = 1; r < rows.length; r++) {
         const row = rows[r];
         const titulo = (row[iTitulo] || "").trim();
+
         const dataStr = (row[iData] || "").trim();
         if (!titulo || !dataStr) { fail++; errors.push(`Linha ${r + 1}: título ou data faltando`); continue; }
         const date = parseDate(dataStr);
