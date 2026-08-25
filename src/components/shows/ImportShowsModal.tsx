@@ -117,8 +117,12 @@ function parseCSV(text: string): string[][] {
 
 export function ImportShowsModal({ open, onOpenChange }: Props) {
   const { addShow } = useShows();
+  const { user } = useAuth();
+  const ownerId = useOwnerId();
+  const queryClient = useQueryClient();
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ ok: number; fail: number; errors: string[] } | null>(null);
+
 
   const downloadTemplate = () => {
     const sep = ";";
