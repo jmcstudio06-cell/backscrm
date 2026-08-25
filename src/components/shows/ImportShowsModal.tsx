@@ -258,8 +258,13 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
       }
 
       setResult({ ok, fail, errors: errors.slice(0, 10) });
+      if (createdClients > 0) {
+        queryClient.invalidateQueries({ queryKey: ["clients", user?.id] });
+        toast.success(`${createdClients} cliente(s) criado(s) a partir dos nomes dos eventos.`);
+      }
       if (ok > 0) toast.success(`${ok} show(s) importado(s) com sucesso!`);
       if (fail > 0) toast.error(`${fail} linha(s) com erro.`);
+
       if (skipped > 0) toast.info(`${skipped} linha(s) de exemplo do modelo foram ignoradas.`);
     } catch (e: any) {
       toast.error("Erro ao processar arquivo: " + (e?.message || ""));
