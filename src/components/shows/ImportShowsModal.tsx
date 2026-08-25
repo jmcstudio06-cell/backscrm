@@ -3,6 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Download, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useShows } from "@/contexts/shows/ShowsContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useOwnerId } from "@/hooks/useWorkspace";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface Props {
@@ -20,6 +24,7 @@ const TEMPLATE_HEADERS = [
   "cachet",
   "status",
   "tipo_evento",
+  "cliente",
   "observacoes",
 ];
 
@@ -28,6 +33,25 @@ const TEMPLATE_EXAMPLES = [
   ["Show Aniversário 30 anos", "2026-07-20", "21:00", "01:00", "Buffet Estrela", "Av. Brasil, 500 - RJ", "2800", "confirmed", "Aniversário", ""],
   ["Show Realizado - Bar do Zé", "2026-04-10", "22:00", "02:00", "Bar do Zé", "", "1500", "completed", "Bar", "Pago via PIX"],
 ];
+
+function toTitleCase(value: string): string {
+  return value
+    .toLowerCase()
+    .split(/\s+/)
+    .map((w) => (w.length > 2 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+    .join(" ")
+    .trim();
+}
+
+function normalizeName(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 
 const STATUS_MAP: Record<string, string> = {
   confirmado: "confirmed",
@@ -93,8 +117,12 @@ function parseCSV(text: string): string[][] {
 
 export function ImportShowsModal({ open, onOpenChange }: Props) {
   const { addShow } = useShows();
+  const { user } = useAuth();
+  const ownerId = useOwnerId();
+  const queryClient = useQueryClient();
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ ok: number; fail: number; errors: string[] } | null>(null);
+
 
   const downloadTemplate = () => {
     const sep = ";";
@@ -144,6 +172,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
       const iCachet = idx("cachet");
       const iStatus = idx("status");
       const iTipo = idx("tipo_evento");
+      const iCliente = idx("cliente") >= 0 ? idx("cliente") : idx("nome_do_cliente");
       const iObs = idx("observacoes");
 
       if (iTitulo < 0 || iData < 0) {
@@ -151,6 +180,30 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
         setImporting(false);
         return;
       }
+
+      // Clientes já cadastrados (para reaproveitar em vez de duplicar).
+      const clientMap = new Map<string, string>();
+      const { data: existingClients } = await supabase.from("clients").select("id, name");
+      (existingClients || []).forEach((c: any) => {
+        if (c?.name) clientMap.set(normalizeName(c.name), c.id);
+      });
+      let createdClients = 0;
+
+      const ensureClient = async (rawName: string): Promise<string | null> => {
+        const key = normalizeName(rawName);
+        if (!key) return null;
+        const existing = clientMap.get(key);
+        if (existing) return existing;
+        const { data, error } = await supabase
+          .from("clients")
+          .insert([{ name: toTitleCase(rawName), user_id: ownerId ?? user?.id }])
+          .select("id")
+          .single();
+        if (error || !data) return null;
+        clientMap.set(key, data.id);
+        createdClients++;
+        return data.id;
+      };
 
       let ok = 0;
       let fail = 0;
@@ -160,6 +213,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
       for (let r = 1; r < rows.length; r++) {
         const row = rows[r];
         const titulo = (row[iTitulo] || "").trim();
+
         const dataStr = (row[iData] || "").trim();
         if (!titulo || !dataStr) { fail++; errors.push(`Linha ${r + 1}: título ou data faltando`); continue; }
         const date = parseDate(dataStr);
@@ -177,9 +231,15 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
         const status = STATUS_MAP[rawStatus] || "confirmed";
 
         try {
+          // Se não houver coluna/valor de cliente, usa o nome do evento como cliente,
+          // reaproveitando o mesmo cliente quando o nome se repetir.
+          const clienteRaw = iCliente >= 0 ? (row[iCliente] || "").trim() : "";
+          const clientId = await ensureClient(clienteRaw || titulo);
+
           await addShow({
             title: titulo,
             date,
+            client_id: clientId,
             start_time: iIni >= 0 ? (row[iIni] || "").trim() || null : null,
             end_time: iFim >= 0 ? (row[iFim] || "").trim() || null : null,
             venue: iLocal >= 0 ? (row[iLocal] || "").trim() || null : null,
@@ -189,6 +249,7 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
             event_type: iTipo >= 0 ? (row[iTipo] || "").trim() || null : null,
             notes: iObs >= 0 ? (row[iObs] || "").trim() || null : null,
           });
+
           ok++;
         } catch (e: any) {
           fail++;
@@ -197,8 +258,13 @@ export function ImportShowsModal({ open, onOpenChange }: Props) {
       }
 
       setResult({ ok, fail, errors: errors.slice(0, 10) });
+      if (createdClients > 0) {
+        queryClient.invalidateQueries({ queryKey: ["clients", user?.id] });
+        toast.success(`${createdClients} cliente(s) criado(s) a partir dos nomes dos eventos.`);
+      }
       if (ok > 0) toast.success(`${ok} show(s) importado(s) com sucesso!`);
       if (fail > 0) toast.error(`${fail} linha(s) com erro.`);
+
       if (skipped > 0) toast.info(`${skipped} linha(s) de exemplo do modelo foram ignoradas.`);
     } catch (e: any) {
       toast.error("Erro ao processar arquivo: " + (e?.message || ""));
