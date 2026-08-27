@@ -95,7 +95,7 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
           venue: venue || null,
           address: address || null,
           cachet: show.cachet ?? 0,
-          status: "scheduled",
+          status: "pending",
           event_type: show.event_type,
           client_id: finalClientId,
           notes: show.notes,
