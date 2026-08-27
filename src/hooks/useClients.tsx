@@ -57,14 +57,47 @@ export function useClients() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const normalizeName = (value: string) =>
+    (value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+
   const addClient = async (clientData: Partial<Client>) => {
     if (!user) return;
     try {
+      const cleanName = (clientData.name || "").replace(/\s+/g, " ").trim();
+
+      // Se já existe cliente com o mesmo nome, unifica (atualiza) em vez de duplicar.
+      const existing = clients.find(
+        (c) => normalizeName(c.name) === normalizeName(cleanName)
+      );
+      if (existing) {
+        const merged: Record<string, any> = {};
+        (["email", "phone", "company", "cpf", "rg", "address", "notes"] as const).forEach((f) => {
+          const incoming = (clientData as any)[f];
+          if (incoming) merged[f] = incoming;
+        });
+        const { data, error } = await supabase
+          .from("clients")
+          .update(merged)
+          .eq("id", existing.id)
+          .select()
+          .single();
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey: ["clients", user.id] });
+        toast.success("Cliente já existia — dados unificados!");
+        return data;
+      }
+
       const { data, error } = await supabase
         .from("clients")
         .insert([{
-          name: clientData.name || "", email: clientData.email,
+          name: cleanName, email: clientData.email,
           phone: clientData.phone, company: clientData.company,
+          cpf: clientData.cpf, rg: clientData.rg, address: clientData.address,
           notes: clientData.notes, user_id: ownerId ?? user.id,
         }])
         .select().single();
@@ -78,6 +111,7 @@ export function useClients() {
       toast.error("Erro ao adicionar cliente");
     }
   };
+
 
   const updateClient = async (id: string, updates: Partial<Client>) => {
     try {
