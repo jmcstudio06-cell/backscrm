@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Medal, Award, Flame, Star, Crown, Calendar, ChevronDown, ChevronLeft, ChevronRight, Music, X } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { SafeImage } from "@/components/media/SafeImage";
 
 interface RankingEntry {
   user_id: string;
@@ -515,6 +516,16 @@ function ListItem({ entry, position, isMe }: { entry: RankingEntry; position: nu
       <div className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0`}>
         <span className={`text-sm font-black ${config.text}`}>{position}</span>
       </div>
+      <SafeImage
+        srcCandidates={[entry.avatar_url]}
+        alt={toTitleCase(entry.user_name)}
+        className="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-1 ring-border"
+        fallback={
+          <div className={`w-9 h-9 rounded-full ${config.bg} flex items-center justify-center flex-shrink-0 ring-1 ring-border`}>
+            <span className={`text-xs font-black ${config.text}`}>{toTitleCase(entry.user_name).charAt(0)}</span>
+          </div>
+        }
+      />
       <p className="flex-1 text-sm font-semibold text-foreground truncate">
         {toTitleCase(entry.user_name)}
         {isMe && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Você</span>}
