@@ -25,6 +25,7 @@ export const ALL_FEATURES = [
   "configuracoes",
   "link-agenda",
   "link-instagram",
+  "link-orcamento",
   "bonus",
   "ideias-post",
   "metas-anuais",
@@ -44,7 +45,7 @@ const PROFISSIONAL_FEATURES = [
 const EMPRESARIAL_FEATURES = [
   ...PROFISSIONAL_FEATURES,
   "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "aulas",
-  "link-agenda", "bonus", "ideias-post", "metas-anuais",
+  "link-agenda", "link-orcamento", "bonus", "ideias-post", "metas-anuais",
 ];
 
 export const PLAN_FEATURES: Record<string, string[]> = {
