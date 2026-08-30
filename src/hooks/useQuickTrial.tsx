@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const TRIAL_DURATION_HOURS = 4;
+const TRIAL_DURATION_HOURS = 3;
 const TRIAL_DURATION_DAYS = 0;
 const TRIAL_DURATION_MS = TRIAL_DURATION_HOURS * 60 * 60 * 1000;
 const TRIAL_DURATION_MINUTES = TRIAL_DURATION_HOURS * 60;
