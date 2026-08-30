@@ -5,11 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Medal, Award, Flame, Star, Crown, Calendar, ChevronDown, ChevronLeft, ChevronRight, Music, X } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { SafeImage } from "@/components/media/SafeImage";
 
 interface RankingEntry {
   user_id: string;
   user_name: string;
   show_count: number;
+  avatar_url?: string | null;
 }
 
 interface Badge {
@@ -461,6 +463,9 @@ function PodiumContent({ ranking, currentUserId }: { ranking: RankingEntry[]; cu
   ];
   const positions = [2, 1, 3];
 
+  const ringColors = ["ring-slate-300", "ring-amber-400", "ring-amber-600"];
+  const badgeSizes = ["w-4 h-4", "w-4 h-4", "w-4 h-4"];
+
   return (
     <div className="flex items-end justify-center gap-3 sm:gap-5">
       {ordered.map((entry, i) => {
@@ -470,8 +475,20 @@ function PodiumContent({ ranking, currentUserId }: { ranking: RankingEntry[]; cu
         const isMe = entry.user_id === currentUserId;
         return (
           <div key={entry.user_id} className="flex flex-col items-center w-24 sm:w-28">
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${color.icon} flex items-center justify-center mb-2 shadow-md ${isMe ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : ""}`}>
-              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <div className={`relative mb-2 ${isMe ? "ring-2 ring-primary ring-offset-2 ring-offset-card rounded-full" : ""}`}>
+              <SafeImage
+                srcCandidates={[entry.avatar_url]}
+                alt={toTitleCase(entry.user_name)}
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shadow-md ring-2 ${ringColors[i]}`}
+                fallback={
+                  <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${color.icon} flex items-center justify-center shadow-md ring-2 ${ringColors[i]}`}>
+                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                  </div>
+                }
+              />
+              <div className={`absolute -bottom-1 -right-1 ${color.icon} rounded-full p-1 shadow-md ring-2 ring-card`}>
+                <Icon className={`${badgeSizes[i]} text-white`} />
+              </div>
             </div>
             <p className="text-xs font-bold text-foreground text-center truncate w-full leading-tight">{toTitleCase(entry.user_name)}</p>
             <p className={`text-lg sm:text-xl font-black ${color.text} leading-none mt-0.5`}>{entry.show_count}</p>
@@ -499,6 +516,16 @@ function ListItem({ entry, position, isMe }: { entry: RankingEntry; position: nu
       <div className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0`}>
         <span className={`text-sm font-black ${config.text}`}>{position}</span>
       </div>
+      <SafeImage
+        srcCandidates={[entry.avatar_url]}
+        alt={toTitleCase(entry.user_name)}
+        className="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-1 ring-border"
+        fallback={
+          <div className={`w-9 h-9 rounded-full ${config.bg} flex items-center justify-center flex-shrink-0 ring-1 ring-border`}>
+            <span className={`text-xs font-black ${config.text}`}>{toTitleCase(entry.user_name).charAt(0)}</span>
+          </div>
+        }
+      />
       <p className="flex-1 text-sm font-semibold text-foreground truncate">
         {toTitleCase(entry.user_name)}
         {isMe && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Você</span>}

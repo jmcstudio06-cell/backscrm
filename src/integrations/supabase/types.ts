@@ -2774,6 +2774,7 @@ export type Database = {
       get_monthly_show_ranking_for_month: {
         Args: { target_month: number; target_year: number }
         Returns: {
+          avatar_url: string
           show_count: number
           user_id: string
           user_name: string
