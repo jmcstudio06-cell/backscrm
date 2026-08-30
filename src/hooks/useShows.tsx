@@ -588,7 +588,13 @@ export function useShowsData() {
   // Background repair: create missing transactions for completed shows (non-blocking)
   useEffect(() => {
     if (repairRanRef.current || !user || loading || shows.length === 0) return;
+
+    // Modo manual: o usuário controla os status/lançamentos. Nada é criado ou removido automaticamente.
+    const mode = localStorage.getItem(`financial_mode_${user.id}`) || "automatic";
+    if (mode === "manual") return;
+
     repairRanRef.current = true;
+
 
     const todayKey = formatDateString(new Date());
     const repairKey = `financial_repair_checked_${user.id}`;
