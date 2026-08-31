@@ -112,7 +112,7 @@ const FEATURES: { key: string; label: string }[] = [
 
 const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
-  { value: "trial", label: "Trial (1h)" },
+  { value: "trial", label: "Trial (3h)" },
   { value: "parceiros", label: "Parceiros" },
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Prof." },
@@ -122,7 +122,30 @@ const PLAN_FILTERS = [
   { value: "anual_completo", label: "Anual Completo" },
   { value: "expirado", label: "Expirados" },
   { value: "comprou_expirado", label: "Comprou Expirado" },
+  { value: "outros", label: "Outros" },
 ];
+
+// Planos legados/alternativos agrupados no filtro/estatística equivalente
+const PLAN_ALIASES: Record<string, string> = {
+  mensal_empresarial: "mensal_completo",
+  anual_empresarial: "anual_completo",
+  empresarial: "mensal_completo",
+  expired: "expirado",
+};
+
+const KNOWN_PLANS = [
+  "trial", "parceiros", "mensal_starter", "mensal_profissional", "mensal_completo",
+  "anual_starter", "anual_profissional", "anual_completo", "expirado", "comprou_expirado",
+];
+
+// Valores reais no banco que cada filtro deve buscar
+const PLAN_FILTER_VALUES: Record<string, string[]> = {
+  trial: ["trial"],
+  mensal_completo: ["mensal_completo", "mensal_empresarial", "empresarial"],
+  anual_completo: ["anual_completo", "anual_empresarial"],
+  expirado: ["expirado", "expired"],
+};
+
 
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
