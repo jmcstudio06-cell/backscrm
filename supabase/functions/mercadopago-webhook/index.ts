@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildFeatureBlocks } from "../_shared/plan-features.ts";
+import { buildFeatureBlocks, canonicalPlan } from "../_shared/plan-features.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -128,14 +128,15 @@ serve(async (req) => {
     }
 
     // Determine plan days
-    const planDays = planKey.startsWith("anual_") ? 365 : 30;
-    const featureBlocks = buildFeatureBlocks(planKey);
+    const canonicalKey = canonicalPlan(planKey);
+    const planDays = canonicalKey.startsWith("anual_") ? 365 : 30;
+    const featureBlocks = buildFeatureBlocks(canonicalKey);
 
     // Update profile
     const { error: updateError } = await supabase
       .from("profiles")
       .update({
-        plan: planKey,
+        plan: canonicalKey,
         trial_start: new Date().toISOString(),
         trial_days: planDays,
         feature_blocks: featureBlocks,

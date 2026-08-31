@@ -83,3 +83,15 @@ export function buildFeatureBlocks(plan: string): Record<string, boolean> {
   }
   return blocks;
 }
+
+// Normaliza chaves legadas/variantes para o nome canônico usado no app.
+const PLAN_CANONICAL: Record<string, string> = {
+  mensal_empresarial: "mensal_completo",
+  anual_empresarial: "anual_completo",
+  empresarial: "mensal_completo",
+  completo: "mensal_completo",
+};
+
+export function canonicalPlan(plan: string): string {
+  return PLAN_CANONICAL[plan] ?? plan;
+}

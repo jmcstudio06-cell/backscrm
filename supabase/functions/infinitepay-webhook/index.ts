@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { PLAN_DAYS, buildFeatureBlocks } from "../_shared/plan-features.ts";
+import { PLAN_DAYS, buildFeatureBlocks, canonicalPlan } from "../_shared/plan-features.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -202,6 +202,7 @@ serve(async (req) => {
       );
     }
 
+    planName = canonicalPlan(planName);
     const planDays = PLAN_DAYS[planName] || 30;
     const featureBlocks = buildFeatureBlocks(planName);
 
