@@ -180,6 +180,9 @@ const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; ic
   mensal:    { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
   essencial: { bg: "bg-green-500/10", text: "text-green-600", border: "border-green-500/20", icon: <UsersIcon className="h-5 w-5" /> },
   completo:  { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
+  outros:    { bg: "bg-slate-500/10", text: "text-slate-600", border: "border-slate-500/20", icon: <UsersIcon className="h-5 w-5" /> },
+  mensal_empresarial: { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
+  anual_empresarial:  { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
   anual:     { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
   expirado:  { bg: "bg-red-500/10", text: "text-red-600", border: "border-red-500/20", icon: <AlertCircle className="h-5 w-5" /> },
   comprou_expirado: { bg: "bg-rose-500/10", text: "text-rose-600", border: "border-rose-500/20", icon: <Crown className="h-5 w-5" /> },
@@ -244,7 +247,13 @@ export default function Admin() {
       .order("created_at", { ascending: false });
 
     if (memberIds.length > 0) query = query.not("user_id", "in", `(${memberIds.join(",")})`);
-    if (filter !== "all") query = query.eq("plan", filter);
+    if (filter === "outros") {
+      const known = [...KNOWN_PLANS, ...Object.keys(PLAN_ALIASES)];
+      query = query.not("plan", "in", `(${known.join(",")})`);
+    } else if (filter !== "all") {
+      const values = PLAN_FILTER_VALUES[filter] || [filter];
+      query = query.in("plan", values);
+    }
     if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
     query = query.range(from, to);
 
@@ -279,19 +288,13 @@ export default function Admin() {
         const stats: Record<string, number> = {
           trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
            anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
+           outros: 0,
         };
         planResult.data.filter(p => !memberIds.has(p.user_id)).forEach(p => {
-          const plan = p.plan || 'trial';
-          if (stats.hasOwnProperty(plan)) {
-            stats[plan]++;
-          } else if (plan === 'expirado' || plan === 'expired') {
-            stats.expirado++;
-          } else if (plan === 'comprou_expirado') {
-            stats.comprou_expirado++;
-          } else {
-            // Legacy plans count as trial
-            stats.trial++;
-          }
+          const raw = p.plan || 'trial';
+          const plan = PLAN_ALIASES[raw] || raw;
+          if (KNOWN_PLANS.includes(plan)) stats[plan]++;
+          else stats.outros++;
         });
         setPlanStats(stats);
       }
@@ -522,7 +525,7 @@ export default function Admin() {
 
   const getPlanBadge = (plan: string | null) => {
     const p = plan || "trial";
-    const labels: Record<string, string> = { trial: "Trial (1h)", parceiros: "Parceiros", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
+    const labels: Record<string, string> = { mensal_empresarial: "Mensal Empresarial", anual_empresarial: "Anual Empresarial", empresarial: "Empresarial", outros: "Outros", trial: "Trial (3h)", parceiros: "Parceiros", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
     const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
     return (
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
