@@ -656,7 +656,21 @@ export default function Repertorio() {
                                     <span className="text-primary ml-2 text-xs">(Principal)</span>
                                   )}
                                 </p>
-                                <p className="text-xs text-muted-foreground">{song.artist}</p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                  <span className="truncate">{song.artist}</span>
+                                  {song.link && (
+                                    <a
+                                      href={/^https?:\/\//i.test(song.link) ? song.link : `https://${song.link}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 text-primary hover:underline shrink-0"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <LinkIcon className="w-3 h-3" /> Versão
+                                    </a>
+                                  )}
+                                </p>
+
                               </div>
 
                               <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground shrink-0">
@@ -867,6 +881,17 @@ export default function Repertorio() {
                   onChange={(e) => setSongDuration(e.target.value)}
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <LinkIcon className="w-4 h-4" /> Link da versão
+              </Label>
+              <Input
+                placeholder="Ex: link do YouTube/Spotify da versão"
+                value={songLink}
+                onChange={(e) => setSongLink(e.target.value)}
+              />
+
             </div>
           </div>
           <DialogFooter>
