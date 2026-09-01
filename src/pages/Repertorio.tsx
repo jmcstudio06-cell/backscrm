@@ -260,83 +260,137 @@ export default function Repertorio() {
     const normalizeUrl = (url: string) =>
       /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
+    const esc = (v: string) =>
+      (v || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     const songsHtml = block.songs
       .map(
         (song, index) => `
-        <tr style="${song.isMain ? "background-color: #f0f9ff; font-weight: bold;" : ""}">
-          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${index + 1}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
-            ${
-              song.link
-                ? `<a href="${normalizeUrl(song.link)}" target="_blank" rel="noopener" style="color: #1d4ed8; text-decoration: underline;">${song.title}</a>`
-                : song.title
-            }${song.isMain ? " ⭐" : ""}
-          </td>
-          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${song.artist}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.key}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.duration}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">
-            ${
-              song.link
-                ? `<a href="${normalizeUrl(song.link)}" target="_blank" rel="noopener" style="color: #1d4ed8;">Ouvir versão</a>`
-                : "—"
-            }
-          </td>
+        <tr${song.isMain ? ' class="main"' : ""}>
+          <td class="num">${index + 1}</td>
+          <td class="title">${esc(song.title)}${song.isMain ? '<span class="star">principal</span>' : ""}</td>
+          <td>${esc(song.artist)}</td>
+          <td class="center">${esc(song.key) || "-"}</td>
+          <td class="center">${esc(song.duration) || "-"}</td>
+          <td class="center">${
+            song.link
+              ? `<a href="${normalizeUrl(esc(song.link))}" target="_blank" rel="noopener">Ouvir</a>`
+              : "-"
+          }</td>
         </tr>
-      `
+      `,
       )
       .join("");
 
+    const printedAt = new Date().toLocaleDateString("pt-BR");
 
     const html = `
       <!DOCTYPE html>
-      <html>
+      <html lang="pt-BR">
       <head>
-        <title>Bloco: ${block.name}</title>
+        <meta charset="utf-8" />
+        <title>Repertório - ${esc(block.name)}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 20px; color: #1f2937; }
-          h1 { margin-bottom: 5px; }
-          .info { color: #6b7280; margin-bottom: 20px; }
-          table { width: 100%; border-collapse: collapse; }
-          th { background-color: #f3f4f6; text-align: left; padding: 10px 8px; border-bottom: 2px solid #e5e7eb; }
-          .legend { margin-top: 20px; font-size: 12px; color: #6b7280; }
-          @media print {
-            body { padding: 0; }
-            .no-print { display: none; }
+          @page { size: A4; margin: 14mm 12mm; }
+          * { box-sizing: border-box; }
+          html, body { margin: 0; padding: 0; background: #fff; }
+          body {
+            font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+            color: #111827;
+            font-size: 12px;
+            line-height: 1.45;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
+          .sheet { max-width: 190mm; margin: 0 auto; padding: 8mm 0; }
+          header {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            border-bottom: 2px solid #111827; padding-bottom: 10px; margin-bottom: 16px;
+          }
+          .eyebrow { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #6b7280; }
+          h1 { font-size: 20px; margin: 4px 0 0; letter-spacing: -0.2px; }
+          .meta { font-size: 10px; color: #6b7280; text-align: right; }
+          .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+          .chip {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;
+            border: 1px solid #e5e7eb; border-radius: 999px; padding: 3px 9px; color: #374151;
+          }
+          table { width: 100%; border-collapse: collapse; }
+          thead { display: table-header-group; }
+          th {
+            font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.8px;
+            color: #374151; text-align: left; padding: 7px 8px;
+            border-bottom: 1.5px solid #111827; background: #f9fafb;
+          }
+          td { padding: 7px 8px; border-bottom: 1px solid #eceff3; vertical-align: top; }
+          tr { page-break-inside: avoid; break-inside: avoid; }
+          tbody tr:nth-child(even) td { background: #fbfcfd; }
+          .num { color: #9ca3af; width: 28px; }
+          .center { text-align: center; }
+          .title { font-weight: 600; }
+          tr.main .title { color: #111827; }
+          .star {
+            display: inline-block; margin-left: 6px; font-size: 8.5px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.6px; color: #92400e;
+            background: #fef3c7; border-radius: 999px; padding: 1px 6px; vertical-align: middle;
+          }
+          a { color: #1d4ed8; text-decoration: none; border-bottom: 1px solid #c7d2fe; }
+          footer {
+            margin-top: 18px; padding-top: 8px; border-top: 1px solid #e5e7eb;
+            font-size: 9.5px; color: #9ca3af; display: flex; justify-content: space-between;
+          }
+          .toolbar { text-align: center; margin: 18px 0 4px; }
+          .toolbar button {
+            padding: 10px 22px; background: #111827; color: #fff; border: none;
+            border-radius: 8px; font-size: 13px; cursor: pointer;
+          }
+          @media print { .no-print { display: none !important; } .sheet { padding: 0; } }
         </style>
       </head>
       <body>
-        <h1>🎵 ${block.name}</h1>
-        <p class="info">
-          Clima: ${climateLabels[block.climate]} | 
-          Objetivo: ${objectiveLabels[block.objective]} | 
-          Duração: ${block.duration} | 
-          ${block.songs.length} músicas
-        </p>
-        
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 40px;">#</th>
-              <th>Música</th>
-              <th>Artista</th>
-              <th style="width: 60px; text-align: center;">Tom</th>
-              <th style="width: 70px; text-align: center;">Duração</th>
-              <th style="width: 100px; text-align: center;">Versão</th>
+        <div class="sheet">
+          <header>
+            <div>
+              <div class="eyebrow">Repertório do show</div>
+              <h1>${esc(block.name)}</h1>
+            </div>
+            <div class="meta">
+              ${block.songs.length} música${block.songs.length === 1 ? "" : "s"}<br />
+              Emitido em ${printedAt}
+            </div>
+          </header>
 
-            </tr>
-          </thead>
-          <tbody>
-            ${songsHtml}
-          </tbody>
-        </table>
-        
-        <p class="legend">⭐ = Música principal do bloco</p>
-        
-        <button class="no-print" onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
-          Imprimir
-        </button>
+          <div class="chips">
+            <span class="chip">Clima: ${esc(climateLabels[block.climate])}</span>
+            <span class="chip">Objetivo: ${esc(objectiveLabels[block.objective])}</span>
+            <span class="chip">Duração: ${esc(block.duration)}</span>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 28px;">#</th>
+                <th>Música</th>
+                <th style="width: 24%;">Artista</th>
+                <th class="center" style="width: 48px;">Tom</th>
+                <th class="center" style="width: 62px;">Duração</th>
+                <th class="center" style="width: 62px;">Versão</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${songsHtml}
+            </tbody>
+          </table>
+
+          <footer>
+            <span>Backstage Pro</span>
+            <span>${esc(block.name)}</span>
+          </footer>
+
+          <div class="toolbar no-print">
+            <button onclick="window.print()">Imprimir / Salvar PDF</button>
+          </div>
+        </div>
       </body>
       </html>
     `;
@@ -344,6 +398,7 @@ export default function Repertorio() {
     printWindow.document.write(html);
     printWindow.document.close();
   };
+
 
   if (loading) {
     return (
