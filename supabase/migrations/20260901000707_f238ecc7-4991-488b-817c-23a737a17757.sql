@@ -1,0 +1,1 @@
+ALTER TABLE public.repertoire_songs ADD COLUMN IF NOT EXISTS link text;

@@ -2006,6 +2006,7 @@ export type Database = {
           id: string
           is_main: boolean
           key_ok: boolean
+          link: string | null
           song_key: string | null
           sort_order: number
           title: string
@@ -2022,6 +2023,7 @@ export type Database = {
           id?: string
           is_main?: boolean
           key_ok?: boolean
+          link?: string | null
           song_key?: string | null
           sort_order?: number
           title: string
@@ -2038,6 +2040,7 @@ export type Database = {
           id?: string
           is_main?: boolean
           key_ok?: boolean
+          link?: string | null
           song_key?: string | null
           sort_order?: number
           title?: string
