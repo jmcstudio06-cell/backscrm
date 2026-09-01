@@ -76,6 +76,8 @@ export function useRepertoire() {
             key: song.song_key || "",
             duration: song.duration || "",
             link: song.link || "",
+            isMain: song.is_main,
+
 
             checked: song.checked,
             keyOk: song.key_ok,
