@@ -323,6 +323,8 @@ export default function Repertorio() {
               <th>Artista</th>
               <th style="width: 60px; text-align: center;">Tom</th>
               <th style="width: 70px; text-align: center;">Duração</th>
+              <th style="width: 100px; text-align: center;">Versão</th>
+
             </tr>
           </thead>
           <tbody>
