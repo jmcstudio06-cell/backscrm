@@ -26,6 +26,8 @@ import {
   Users,
   PartyPopper,
   Loader2,
+  LinkIcon,
+
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -116,6 +118,8 @@ export default function Repertorio() {
   const [songArtist, setSongArtist] = useState("");
   const [songKey, setSongKey] = useState("");
   const [songDuration, setSongDuration] = useState("");
+  const [songLink, setSongLink] = useState("");
+
 
   // Stats
   const totalSongs = blocks.reduce((acc, b) => acc + b.songs.length, 0);
