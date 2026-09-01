@@ -26,6 +26,8 @@ import {
   Users,
   PartyPopper,
   Loader2,
+  Link as LinkIcon,
+
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -116,6 +118,8 @@ export default function Repertorio() {
   const [songArtist, setSongArtist] = useState("");
   const [songKey, setSongKey] = useState("");
   const [songDuration, setSongDuration] = useState("");
+  const [songLink, setSongLink] = useState("");
+
 
   // Stats
   const totalSongs = blocks.reduce((acc, b) => acc + b.songs.length, 0);
@@ -196,12 +200,13 @@ export default function Repertorio() {
     setSongArtist("");
     setSongKey("");
     setSongDuration("");
+    setSongLink("");
     setShowSongModal(true);
   };
 
   const handleSaveSong = async () => {
     if (!songTitle.trim() || !selectedBlockId) return;
-    await addSong(selectedBlockId, songTitle, songArtist, songKey, songDuration || "3:30");
+    await addSong(selectedBlockId, songTitle, songArtist, songKey, songDuration || "3:30", songLink.trim());
     setShowSongModal(false);
   };
 
@@ -219,12 +224,14 @@ export default function Repertorio() {
     setSongArtist(song.artist);
     setSongKey(song.key);
     setSongDuration(song.duration);
+    setSongLink(song.link || "");
     setShowEditSongModal(true);
   };
 
   const handleEditSong = async () => {
     if (!songTitle.trim() || !selectedBlockId || !editingSongId) return;
-    await editSongDetails(selectedBlockId, editingSongId, songTitle, songArtist, songKey, songDuration);
+    await editSongDetails(selectedBlockId, editingSongId, songTitle, songArtist, songKey, songDuration, songLink.trim());
+
     setShowEditSongModal(false);
   };
 
@@ -250,21 +257,36 @@ export default function Repertorio() {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
+    const normalizeUrl = (url: string) =>
+      /^https?:\/\//i.test(url) ? url : `https://${url}`;
+
     const songsHtml = block.songs
       .map(
         (song, index) => `
         <tr style="${song.isMain ? "background-color: #f0f9ff; font-weight: bold;" : ""}">
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${index + 1}</td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
-            ${song.title}${song.isMain ? " ⭐" : ""}
+            ${
+              song.link
+                ? `<a href="${normalizeUrl(song.link)}" target="_blank" rel="noopener" style="color: #1d4ed8; text-decoration: underline;">${song.title}</a>`
+                : song.title
+            }${song.isMain ? " ⭐" : ""}
           </td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${song.artist}</td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.key}</td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.duration}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+            ${
+              song.link
+                ? `<a href="${normalizeUrl(song.link)}" target="_blank" rel="noopener" style="color: #1d4ed8;">Ouvir versão</a>`
+                : "—"
+            }
+          </td>
         </tr>
       `
       )
       .join("");
+
 
     const html = `
       <!DOCTYPE html>
@@ -301,6 +323,8 @@ export default function Repertorio() {
               <th>Artista</th>
               <th style="width: 60px; text-align: center;">Tom</th>
               <th style="width: 70px; text-align: center;">Duração</th>
+              <th style="width: 100px; text-align: center;">Versão</th>
+
             </tr>
           </thead>
           <tbody>
@@ -632,7 +656,21 @@ export default function Repertorio() {
                                     <span className="text-primary ml-2 text-xs">(Principal)</span>
                                   )}
                                 </p>
-                                <p className="text-xs text-muted-foreground">{song.artist}</p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                  <span className="truncate">{song.artist}</span>
+                                  {song.link && (
+                                    <a
+                                      href={/^https?:\/\//i.test(song.link) ? song.link : `https://${song.link}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 text-primary hover:underline shrink-0"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <LinkIcon className="w-3 h-3" /> Versão
+                                    </a>
+                                  )}
+                                </p>
+
                               </div>
 
                               <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground shrink-0">
@@ -844,6 +882,17 @@ export default function Repertorio() {
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <LinkIcon className="w-4 h-4" /> Link da versão
+              </Label>
+              <Input
+                placeholder="Ex: link do YouTube/Spotify da versão"
+                value={songLink}
+                onChange={(e) => setSongLink(e.target.value)}
+              />
+
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSongModal(false)}>
@@ -893,6 +942,17 @@ export default function Repertorio() {
                   onChange={(e) => setSongDuration(e.target.value)}
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <LinkIcon className="w-4 h-4" /> Link da versão
+              </Label>
+              <Input
+                placeholder="Ex: link do YouTube/Spotify da versão"
+                value={songLink}
+                onChange={(e) => setSongLink(e.target.value)}
+              />
+
             </div>
           </div>
           <DialogFooter>
