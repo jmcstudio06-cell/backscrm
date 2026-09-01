@@ -10,12 +10,14 @@ export interface Song {
   artist: string;
   key: string;
   duration: string;
+  link: string;
   isMain: boolean;
   checked: boolean;
   keyOk: boolean;
   chordsReviewed: boolean;
   sortOrder: number;
 }
+
 
 export interface Block {
   id: string;
@@ -73,7 +75,8 @@ export function useRepertoire() {
             artist: song.artist || "",
             key: song.song_key || "",
             duration: song.duration || "",
-            isMain: song.is_main,
+            link: song.link || "",
+
             checked: song.checked,
             keyOk: song.key_ok,
             chordsReviewed: song.chords_reviewed,
@@ -213,7 +216,8 @@ export function useRepertoire() {
     title: string,
     artist: string,
     key: string,
-    duration: string
+    duration: string,
+    link?: string
   ) => {
     if (!user) return null;
 
@@ -232,6 +236,7 @@ export function useRepertoire() {
           artist,
           song_key: key,
           duration,
+          link: link || null,
           sort_order: maxOrder,
         })
         .select()
@@ -245,12 +250,14 @@ export function useRepertoire() {
         artist: data.artist || "",
         key: data.song_key || "",
         duration: data.duration || "",
+        link: data.link || "",
         isMain: data.is_main,
         checked: data.checked,
         keyOk: data.key_ok,
         chordsReviewed: data.chords_reviewed,
         sortOrder: data.sort_order,
       };
+
 
       setBlocks(
         blocks.map((b) =>
@@ -314,12 +321,13 @@ export function useRepertoire() {
     title: string,
     artist: string,
     key: string,
-    duration: string
+    duration: string,
+    link?: string
   ) => {
     try {
       const { error } = await supabase
         .from("repertoire_songs")
-        .update({ title, artist, song_key: key, duration })
+        .update({ title, artist, song_key: key, duration, link: link || null })
         .eq("id", songId);
 
       if (error) throw error;
@@ -330,12 +338,13 @@ export function useRepertoire() {
             ? {
                 ...b,
                 songs: b.songs.map((s) =>
-                  s.id === songId ? { ...s, title, artist, key, duration } : s
+                  s.id === songId ? { ...s, title, artist, key, duration, link: link || "" } : s
                 ),
               }
             : b
         )
       );
+
       toast.success("Música atualizada!");
     } catch (error) {
       console.error("Error editing song:", error);
