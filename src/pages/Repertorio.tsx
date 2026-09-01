@@ -943,6 +943,17 @@ export default function Repertorio() {
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <LinkIcon className="w-4 h-4" /> Link da versão
+              </Label>
+              <Input
+                placeholder="Ex: link do YouTube/Spotify da versão"
+                value={songLink}
+                onChange={(e) => setSongLink(e.target.value)}
+              />
+
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditSongModal(false)}>
