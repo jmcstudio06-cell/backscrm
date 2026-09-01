@@ -200,12 +200,13 @@ export default function Repertorio() {
     setSongArtist("");
     setSongKey("");
     setSongDuration("");
+    setSongLink("");
     setShowSongModal(true);
   };
 
   const handleSaveSong = async () => {
     if (!songTitle.trim() || !selectedBlockId) return;
-    await addSong(selectedBlockId, songTitle, songArtist, songKey, songDuration || "3:30");
+    await addSong(selectedBlockId, songTitle, songArtist, songKey, songDuration || "3:30", songLink.trim());
     setShowSongModal(false);
   };
 
@@ -223,12 +224,14 @@ export default function Repertorio() {
     setSongArtist(song.artist);
     setSongKey(song.key);
     setSongDuration(song.duration);
+    setSongLink(song.link || "");
     setShowEditSongModal(true);
   };
 
   const handleEditSong = async () => {
     if (!songTitle.trim() || !selectedBlockId || !editingSongId) return;
-    await editSongDetails(selectedBlockId, editingSongId, songTitle, songArtist, songKey, songDuration);
+    await editSongDetails(selectedBlockId, editingSongId, songTitle, songArtist, songKey, songDuration, songLink.trim());
+
     setShowEditSongModal(false);
   };
 
