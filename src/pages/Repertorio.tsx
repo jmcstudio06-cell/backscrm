@@ -257,21 +257,36 @@ export default function Repertorio() {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
+    const normalizeUrl = (url: string) =>
+      /^https?:\/\//i.test(url) ? url : `https://${url}`;
+
     const songsHtml = block.songs
       .map(
         (song, index) => `
         <tr style="${song.isMain ? "background-color: #f0f9ff; font-weight: bold;" : ""}">
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${index + 1}</td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
-            ${song.title}${song.isMain ? " ⭐" : ""}
+            ${
+              song.link
+                ? `<a href="${normalizeUrl(song.link)}" target="_blank" rel="noopener" style="color: #1d4ed8; text-decoration: underline;">${song.title}</a>`
+                : song.title
+            }${song.isMain ? " ⭐" : ""}
           </td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${song.artist}</td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.key}</td>
           <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.duration}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+            ${
+              song.link
+                ? `<a href="${normalizeUrl(song.link)}" target="_blank" rel="noopener" style="color: #1d4ed8;">Ouvir versão</a>`
+                : "—"
+            }
+          </td>
         </tr>
       `
       )
       .join("");
+
 
     const html = `
       <!DOCTYPE html>
