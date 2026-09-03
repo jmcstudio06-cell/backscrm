@@ -414,10 +414,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
           <div className="flex items-center justify-between">
             <DialogTitle>Pré-visualização do Orçamento</DialogTitle>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleWhatsApp}>
-                <MessageCircle className="w-4 h-4 mr-2" />
-                WhatsApp
-              </Button>
               <Button variant="gradient" size="sm" onClick={handlePrintPDF}>
                 <Printer className="w-4 h-4 mr-2" />
                 Imprimir
