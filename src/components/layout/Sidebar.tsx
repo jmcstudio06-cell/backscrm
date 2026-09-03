@@ -64,6 +64,8 @@ interface MenuItem {
     label: string;
     path: string;
     featureKey?: string;
+    adminOnly?: boolean;
+    ownerOnly?: boolean;
   }[];
 }
 
