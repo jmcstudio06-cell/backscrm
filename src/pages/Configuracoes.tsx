@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
-import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
 import { InstallAppSection } from "@/components/configuracoes/InstallAppSection";
 
 
