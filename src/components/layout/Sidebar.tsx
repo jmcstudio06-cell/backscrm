@@ -146,6 +146,13 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   // Normalize path for active checks (strip query strings).
   const basePath = (path?: string) => (path ? path.split("?")[0] : "");
 
+  // Exact match, but allow a parent route to match its sub-routes (e.g. /metas -> /metas/anual).
+  const isPathActive = (path?: string, current = location.pathname) => {
+    const base = basePath(path);
+    if (!base) return false;
+    return current === base || current.startsWith(base + "/");
+  };
+
   // Team members: hide everything the owner did not release (no upsell for them).
   const filteredMenuItems = menuItems
     .filter((item) => !(item.adminOnly && !isAdmin))
@@ -173,7 +180,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   };
 
   const isChildActive = (children?: MenuItem["children"]) =>
-    children?.some((c) => location.pathname.startsWith(basePath(c.path)));
+    children?.some((c) => isPathActive(c.path));
 
   return (
     <>
@@ -266,7 +273,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                       <div className="pl-4 mt-1 space-y-1">
                         {item.children.map((child) => {
                           const blocked = !blocksLoading && child.featureKey && isBlocked(child.featureKey);
-                          const isActive = location.pathname.startsWith(basePath(child.path));
+                          const isActive = isPathActive(child.path);
 
                           if (blocked) {
                             return (
@@ -285,16 +292,19 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                             <RouterNavLink
                               key={child.path}
                               to={child.path}
+                              end
                               onClick={() => {
                                 if (child.label === "Checklist de Show") dismiss("checklist");
                                 if (child.label === "Histórico Completo") dismiss("historico");
                               }}
-                              className={cn(
-                                "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
-                                isActive
-                                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                  : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
-                              )}
+                              className={({ isActive }) =>
+                                cn(
+                                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
+                                  isActive
+                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                    : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
+                                )
+                              }
                             >
                               <child.icon className="w-4 h-4" />
                               <span className="text-sm flex-1">{child.label}</span>
