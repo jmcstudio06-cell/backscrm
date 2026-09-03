@@ -43,6 +43,7 @@ import {
   UsersRound,
   User,
   Palette,
+  Radar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
