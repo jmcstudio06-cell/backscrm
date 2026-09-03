@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
@@ -188,70 +188,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     toast.success("Abrindo impressão...", { id: "pdf" });
   };
 
-  /**
-   * ✅ WhatsApp: imagem A4 (igual PDF) com qualidade alta
-   */
-  const handleWhatsApp = async () => {
-    toast.loading("Gerando imagem (formato A4 para WhatsApp)...", {
-      id: "whatsapp",
-    });
-
-    const blob = await generateImage("phone");
-    if (!blob) {
-      toast.error("Erro ao gerar o orçamento.", { id: "whatsapp" });
-      return;
-    }
-
-    const navAny = navigator as any;
-    const hasShare = typeof navAny?.share === "function";
-
-    if (hasShare) {
-      try {
-        const file = new File([blob], `orcamento-${budget.budget_number}.png`, {
-          type: "image/png",
-        });
-
-        const shareData = {
-          files: [file],
-          title: `Orçamento ${budget.budget_number}`,
-          text: `Orçamento ${budget.budget_number} - ${formatCurrency(budget.total)}`,
-        };
-
-        if (typeof navAny?.canShare !== "function" || navAny.canShare(shareData)) {
-          toast.dismiss("whatsapp");
-          await navAny.share(shareData);
-          return;
-        }
-      } catch {
-        // fallback abaixo
-      }
-    }
-
-    // Fallback: baixa a imagem e abre WhatsApp com texto
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `orcamento-${budget.budget_number}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    let phone = budget.client_phone?.replace(/\D/g, "") || "";
-    if (phone && !phone.startsWith("55")) phone = "55" + phone;
-
-    const message = encodeURIComponent(
-      `Olá ${budget.client_name}!\n\nSegue o orçamento ${budget.budget_number} no valor de ${formatCurrency(
-        budget.total,
-      )}.\n\n✅ A imagem foi gerada em formato A4 (igual ao PDF). É só anexar no WhatsApp.`,
-    );
-
-    toast.success("Imagem pronta! Anexe no WhatsApp.", { id: "whatsapp" });
-
-    setTimeout(() => {
-      window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
-    }, 500);
-  };
 
   const artistName = profile?.name || "Sua Empresa";
   const artistEmail = profile?.email || "";
@@ -414,10 +350,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
           <div className="flex items-center justify-between">
             <DialogTitle>Pré-visualização do Orçamento</DialogTitle>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleWhatsApp}>
-                <MessageCircle className="w-4 h-4 mr-2" />
-                WhatsApp
-              </Button>
               <Button variant="gradient" size="sm" onClick={handlePrintPDF}>
                 <Printer className="w-4 h-4 mr-2" />
                 Imprimir
