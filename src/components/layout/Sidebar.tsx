@@ -180,7 +180,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   };
 
   const isChildActive = (children?: MenuItem["children"]) =>
-    children?.some((c) => location.pathname.startsWith(basePath(c.path)));
+    children?.some((c) => isPathActive(c.path));
 
   return (
     <>
