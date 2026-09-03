@@ -116,16 +116,14 @@ const menuItems: MenuItem[] = [
       { icon: FileText, label: "Link Orçamento", path: "/link-orcamento", featureKey: "link-orcamento" },
     ],
   },
-  { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "ranking" },
-  
   {
     icon: Settings,
     label: "Configurações",
     children: [
       { icon: User, label: "Meu Perfil", path: "/configuracoes", featureKey: "configuracoes" },
-      { icon: Music, label: "Perfil Artístico", path: "/configuracoes?tab=artist", featureKey: "configuracoes" },
-      { icon: Palette, label: "Personalização", path: "/configuracoes?tab=customization", featureKey: "configuracoes" },
-      { icon: Shield, label: "Segurança", path: "/configuracoes?tab=security", featureKey: "configuracoes" },
+      { icon: Music, label: "Perfil Artístico", path: "/configuracoes/perfil-artistico", featureKey: "configuracoes" },
+      { icon: Palette, label: "Personalização", path: "/configuracoes/personalizacao", featureKey: "configuracoes" },
+      { icon: Shield, label: "Segurança", path: "/configuracoes/seguranca", featureKey: "configuracoes" },
       { icon: UsersRound, label: "Usuários", path: "/usuarios", ownerOnly: true },
     ],
   },
