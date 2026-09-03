@@ -73,9 +73,14 @@ export default function Configuracoes() {
   const { plan, daysRemaining, trialStart } = useTrialStatus(profile);
   const { settings: customization, updateSettings, resetSettings } = useCustomization();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "profile";
-  
+  const location = useLocation();
+  const activeSection = (() => {
+    if (location.pathname === "/configuracoes/perfil-artistico") return "artist";
+    if (location.pathname === "/configuracoes/personalizacao") return "customization";
+    if (location.pathname === "/configuracoes/seguranca") return "security";
+    return "profile";
+  })();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
