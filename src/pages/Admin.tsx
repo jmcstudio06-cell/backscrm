@@ -617,6 +617,10 @@ export default function Admin() {
           <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <PartyPopper className="h-3.5 w-3.5" /> Marco
           </TabsTrigger>
+          <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Cloud className="h-3.5 w-3.5" /> Cloud
+          </TabsTrigger>
+
 
         </TabsList>
 
