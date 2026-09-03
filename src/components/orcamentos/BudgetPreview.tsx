@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
