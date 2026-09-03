@@ -722,7 +722,7 @@ export function useShowsData() {
         console.error("Error repairing missing transactions:", error);
       }
     })();
-  }, [user, loading, shows]);
+  }, [user, loading, shows, financialMode, financialModeReady]);
 
   return {
     shows,
