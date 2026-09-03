@@ -114,6 +114,8 @@ const App = () => (
             <CustomizationProvider>
               <NotificationPrompt />
               <PushSubscriptionRefresher />
+              <LastSeenTracker />
+
               <PlanActivatedCelebration />
               <Routes>
                 <Route path="/" element={<Auth />} />
