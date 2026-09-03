@@ -72,6 +72,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", featureKey: "dashboard" },
   { icon: Calendar, label: "Agenda de Shows", path: "/agenda", featureKey: "agenda" },
+  { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "ranking" },
   
   {
     icon: Briefcase,
