@@ -658,10 +658,10 @@ export default function Configuracoes() {
               </Button>
             </div>
           </div>
-        </TabsContent>
+        </div>}
 
         {/* ════════ SEGURANÇA ════════ */}
-        <TabsContent value="security" className="space-y-6 animate-in fade-in-50 duration-300">
+        {activeSection === "security" && <div className="space-y-6 animate-in fade-in-50 duration-300">
           <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
             <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-r from-destructive/5 via-transparent to-transparent">
               <div className="relative flex items-center gap-4">
