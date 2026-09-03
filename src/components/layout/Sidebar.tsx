@@ -289,19 +289,22 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                           }
 
                           return (
-                            <Link
+                            <RouterNavLink
                               key={child.path}
                               to={child.path}
+                              end
                               onClick={() => {
                                 if (child.label === "Checklist de Show") dismiss("checklist");
                                 if (child.label === "Histórico Completo") dismiss("historico");
                               }}
-                              className={cn(
-                                "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
-                                isActive
-                                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                  : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
-                              )}
+                              className={({ isActive }) =>
+                                cn(
+                                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
+                                  isActive
+                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                    : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
+                                )
+                              }
                             >
                               <child.icon className="w-4 h-4" />
                               <span className="text-sm flex-1">{child.label}</span>
@@ -315,7 +318,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                                   {historicoBadge > 99 ? "99+" : historicoBadge}
                                 </span>
                               )}
-                            </Link>
+                            </RouterNavLink>
                           );
                         })}
                       </div>
