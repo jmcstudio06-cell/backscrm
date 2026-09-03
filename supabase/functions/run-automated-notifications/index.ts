@@ -314,30 +314,74 @@ async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapi
 }
 
 // ---- Plan expiring (monthly subscriptions only) ----
+// Accuracy rules:
+// - Only paid monthly plans (mensal_*).
+// - Expiry date comes from real sources, in priority order:
+//   1) current_period_end (gateway/Stripe truth) when it is in the future;
+//   2) latest confirmed payment activation (pending_payments.activated_at);
+//   3) trial_start (used as activation date on manual/admin activations).
+//   If none of these exists, the user is NEVER notified (better silent than wrong).
+// - Day math is done on calendar days in Brasília, so "vence em 3 dias" is exact.
+// - Message never claims a charge will happen; it only informs the end of access.
 async function handlePlanExpiring(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  // Only monthly paid plans (mensal_*). Anual users are not warned.
   const { data: monthlyUsers } = await supabase
     .from("profiles")
-    .select("user_id, plan, trial_start, updated_at, artist_name, name")
+    .select("user_id, plan, trial_start, current_period_end, subscription_status")
     .like("plan", "mensal_%");
 
   if (!monthlyUsers || monthlyUsers.length === 0) return 0;
 
-  const PLAN_DURATION_DAYS = 30;
-  const TRIGGER_DAYS = new Set([5, 3, 0]);
-  const now = Date.now();
-  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+  const userIdsAll = monthlyUsers.map((u: any) => u.user_id);
 
-  // Group users by daysRemaining so we send one push per bucket.
+  // Latest confirmed payment per user
+  const { data: payments } = await supabase
+    .from("pending_payments")
+    .select("user_id, activated_at, status")
+    .in("user_id", userIdsAll)
+    .in("status", ["activated", "approved"])
+    .not("activated_at", "is", null);
+
+  const lastPaidAt = new Map<string, number>();
+  for (const p of payments || []) {
+    const t = new Date(p.activated_at).getTime();
+    if (Number.isNaN(t)) continue;
+    if (!lastPaidAt.has(p.user_id) || t > lastPaidAt.get(p.user_id)!) lastPaidAt.set(p.user_id, t);
+  }
+
+  const PLAN_DURATION_DAYS = 30;
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+  const TRIGGER_DAYS = new Set([5, 3, 1, 0]);
+  const nowMs = Date.now();
+
+  // Calendar day index in Brasília (UTC-3)
+  const brDayIndex = (ms: number) => Math.floor((ms - 3 * 60 * 60 * 1000) / MS_PER_DAY);
+  const todayIdx = brDayIndex(nowMs);
+
   const buckets = new Map<number, string[]>();
+
   for (const u of monthlyUsers) {
-    const startSrc = u.trial_start || u.updated_at;
-    if (!startSrc) continue;
-    const start = new Date(startSrc).getTime();
-    if (Number.isNaN(start)) continue;
-    const diffDays = Math.floor((now - start) / MS_PER_DAY);
-    const daysRemaining = PLAN_DURATION_DAYS - diffDays;
+    let expiryMs: number | null = null;
+
+    // 1) gateway period end (only if still in the future — stale/past values are ignored)
+    if (u.current_period_end) {
+      const t = new Date(u.current_period_end).getTime();
+      if (!Number.isNaN(t) && t > nowMs - 2 * MS_PER_DAY) expiryMs = t;
+    }
+
+    // 2/3) latest real activation date + 30 days
+    if (expiryMs === null) {
+      const paid = lastPaidAt.get(u.user_id) ?? null;
+      const trial = u.trial_start ? new Date(u.trial_start).getTime() : NaN;
+      const candidates = [paid, Number.isNaN(trial) ? null : trial].filter((v): v is number => v !== null);
+      if (candidates.length === 0) continue; // no reliable date → never notify
+      const activation = Math.max(...candidates);
+      if (activation > nowMs) continue; // inconsistent data → skip
+      expiryMs = activation + PLAN_DURATION_DAYS * MS_PER_DAY;
+    }
+
+    const daysRemaining = brDayIndex(expiryMs) - todayIdx;
     if (!TRIGGER_DAYS.has(daysRemaining)) continue;
+
     if (!buckets.has(daysRemaining)) buckets.set(daysRemaining, []);
     buckets.get(daysRemaining)!.push(u.user_id);
   }
@@ -347,18 +391,18 @@ async function handlePlanExpiring(supabase: any, _config: any, text: string, vap
   const messageFor = (days: number) => {
     if (text) return text.replace(/{days}/g, String(days));
     if (days === 0) {
-      return "⏰ Sua assinatura mensal vence HOJE! Renove agora para continuar com o benefício mensal — depois do vencimento só o plano anual fica disponível por um tempo. 💙";
+      return "Seu acesso mensal termina hoje. Não há cobrança automática: se quiser continuar, renove pelo app quando preferir. 💙";
     }
     if (days === 1) {
-      return "💙 Sua assinatura mensal vence amanhã. Renove hoje para manter o benefício mensal — atrasou, o próximo acesso só pelo plano anual.";
+      return "Seu acesso mensal termina amanhã. Não há cobrança automática — a renovação é feita por você no app. 💙";
     }
-    return `💙 Sua assinatura mensal vence em ${days} dias. Renove a tempo para manter o benefício mensal — se atrasar, o próximo acesso só pelo plano anual.`;
+    return `Seu acesso mensal termina em ${days} dias. Não há cobrança automática — se quiser seguir com o Backstage, a renovação é feita por você no app. 💙`;
   };
 
   const titleFor = (days: number) => {
-    if (days === 0) return "⏰ Sua assinatura vence hoje";
-    if (days === 1) return "💙 Sua assinatura vence amanhã";
-    return `💙 Sua assinatura vence em ${days} dias`;
+    if (days === 0) return "Seu acesso termina hoje";
+    if (days === 1) return "Seu acesso termina amanhã";
+    return `Seu acesso termina em ${days} dias`;
   };
 
   let totalSent = 0;
@@ -372,6 +416,8 @@ async function handlePlanExpiring(supabase: any, _config: any, text: string, vap
   }
   return totalSent;
 }
+
+
 
 // ---- Main handler ----
 serve(async (req) => {
