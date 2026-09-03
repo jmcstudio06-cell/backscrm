@@ -25,6 +25,7 @@ import {
   TrendingUp,
   Trophy,
   PartyPopper,
+  Cloud,
   Bell,
   Sparkles,
   BookOpen,
@@ -979,6 +980,8 @@ export default function Admin() {
 
         {/* Dashboard Ads Tab */}
         <TabsContent value="ads"><DashboardAdsPanel /></TabsContent>
+
+        <TabsContent value="cloud"><CloudUsagePanel /></TabsContent>
 
 
         <TabsContent value="marco">
