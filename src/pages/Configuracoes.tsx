@@ -380,10 +380,10 @@ export default function Configuracoes() {
               </Button>
             </div>
           </div>
-        </TabsContent>
+        </div>}
 
         {/* ════════ PERFIL ARTÍSTICO ════════ */}
-        <TabsContent value="artist" className="space-y-6 animate-in fade-in-50 duration-300">
+        {activeSection === "artist" && <div className="space-y-6 animate-in fade-in-50 duration-300">
           <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
             {/* Header com gradiente */}
             <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-r from-primary/10 via-accent/5 to-transparent">
