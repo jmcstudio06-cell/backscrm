@@ -25,6 +25,7 @@ import {
   TrendingUp,
   Trophy,
   PartyPopper,
+  Cloud,
   Bell,
   Sparkles,
   BookOpen,
@@ -52,6 +53,7 @@ import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
 import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
+import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
 
 import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
 
@@ -616,6 +618,10 @@ export default function Admin() {
           <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <PartyPopper className="h-3.5 w-3.5" /> Marco
           </TabsTrigger>
+          <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Cloud className="h-3.5 w-3.5" /> Cloud
+          </TabsTrigger>
+
 
         </TabsList>
 
@@ -974,6 +980,8 @@ export default function Admin() {
 
         {/* Dashboard Ads Tab */}
         <TabsContent value="ads"><DashboardAdsPanel /></TabsContent>
+
+        <TabsContent value="cloud"><CloudUsagePanel /></TabsContent>
 
 
         <TabsContent value="marco">
