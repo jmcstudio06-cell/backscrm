@@ -52,6 +52,7 @@ import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
 import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
+import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
 
 import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
 
