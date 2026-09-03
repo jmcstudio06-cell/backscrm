@@ -19,6 +19,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
 import Ranking from "./pages/Ranking";
+import BacksRadar from "./pages/BacksRadar";
 import Tutoriais from "./pages/Tutoriais";
 import CRM from "./pages/CRM";
 import Clientes from "./pages/Clientes";
@@ -126,6 +127,7 @@ const App = () => (
                 <Route path="/dashboard" element={<AuthPage featureKey="dashboard"><Dashboard /></AuthPage>} />
                 <Route path="/agenda" element={<AuthPage featureKey="agenda"><Agenda /></AuthPage>} />
                 <Route path="/ranking" element={<AuthPage><Ranking /></AuthPage>} />
+                <Route path="/backs-radar" element={<AuthPage><BacksRadar /></AuthPage>} />
                 <Route path="/tutoriais" element={<AuthPage featureKey="tutoriais"><Tutoriais /></AuthPage>} />
                 <Route path="/crm" element={<AuthPage featureKey="crm"><CRM /></AuthPage>} />
                 <Route path="/clientes" element={<AuthPage featureKey="clientes"><Clientes /></AuthPage>} />
