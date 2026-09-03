@@ -775,12 +775,8 @@ export default function Configuracoes() {
               </div>
             </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="public" className="space-y-6">
-          <PublicProfileSection />
-        </TabsContent>
-      </Tabs>
+        </div>}
+      </div>
     </Layout>
   );
 }
