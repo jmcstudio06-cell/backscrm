@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink as RouterNavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
