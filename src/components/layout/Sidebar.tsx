@@ -146,6 +146,13 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   // Normalize path for active checks (strip query strings).
   const basePath = (path?: string) => (path ? path.split("?")[0] : "");
 
+  // Exact match, but allow a parent route to match its sub-routes (e.g. /metas -> /metas/anual).
+  const isPathActive = (path?: string, current = location.pathname) => {
+    const base = basePath(path);
+    if (!base) return false;
+    return current === base || current.startsWith(base + "/");
+  };
+
   // Team members: hide everything the owner did not release (no upsell for them).
   const filteredMenuItems = menuItems
     .filter((item) => !(item.adminOnly && !isAdmin))
