@@ -289,7 +289,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                           }
 
                           return (
-                            <RouterNavLink
+                            <Link
                               key={child.path}
                               to={child.path}
                               onClick={() => {
@@ -315,7 +315,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                                   {historicoBadge > 99 ? "99+" : historicoBadge}
                                 </span>
                               )}
-                            </RouterNavLink>
+                            </Link>
                           );
                         })}
                       </div>
