@@ -149,9 +149,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   // Exact match, but allow a parent route to match its sub-routes (e.g. /metas -> /metas/anual).
   const isPathActive = (path?: string, current = location.pathname) => {
     const base = basePath(path);
-    const active = !!base && (current === base || current.startsWith(base + "/"));
-    console.log("isPathActive", { path, base, current, active });
-    return active;
+    if (!base) return false;
+    return current === base || current.startsWith(base + "/");
   };
 
   // Team members: hide everything the owner did not release (no upsell for them).
