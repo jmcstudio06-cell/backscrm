@@ -64,6 +64,8 @@ import AssinarContrato from "./pages/AssinarContrato";
 import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
+import { LastSeenTracker } from "@/components/auth/LastSeenTracker";
+
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 import type { ReactNode } from "react";
@@ -114,6 +116,8 @@ const App = () => (
             <CustomizationProvider>
               <NotificationPrompt />
               <PushSubscriptionRefresher />
+              <LastSeenTracker />
+
               <PlanActivatedCelebration />
               <Routes>
                 <Route path="/" element={<Auth />} />
