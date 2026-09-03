@@ -1631,6 +1631,7 @@ export type Database = {
           deposit_percentage: number | null
           email: string | null
           feature_blocks: Json | null
+          financial_mode: string
           has_interval: boolean | null
           id: string
           instagram_url: string | null
@@ -1708,6 +1709,7 @@ export type Database = {
           deposit_percentage?: number | null
           email?: string | null
           feature_blocks?: Json | null
+          financial_mode?: string
           has_interval?: boolean | null
           id?: string
           instagram_url?: string | null
@@ -1785,6 +1787,7 @@ export type Database = {
           deposit_percentage?: number | null
           email?: string | null
           feature_blocks?: Json | null
+          financial_mode?: string
           has_interval?: boolean | null
           id?: string
           instagram_url?: string | null

@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         Object.keys(localStorage).forEach((key) => {
           if (
-            key.startsWith("financial_mode_") ||
+            
             key.startsWith("checklist_local_") ||
             key.startsWith("sidebar_badge_seen_")
           ) {

@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { useGoals } from "@/hooks/useGoals";
 import { useMonthlyShowLimit } from "@/hooks/useMonthlyShowLimit";
+import { useFinancialMode } from "@/hooks/useFinancialMode";
 
 const statusColors: Record<string, string> = {
   confirmed: "bg-primary",
@@ -109,15 +110,15 @@ export default function Agenda() {
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const { user } = useAuth();
   
-  const [financialMode, setFinancialMode] = useState<"automatic" | "manual">(() => {
-    if (!user) return "automatic";
-    return (localStorage.getItem(`financial_mode_${user.id}`) as "automatic" | "manual") || "automatic";
-  });
+  const { mode: financialMode, setMode: setFinancialMode } = useFinancialMode();
 
-  const handleFinancialModeChange = (checked: boolean) => {
+  const handleFinancialModeChange = async (checked: boolean) => {
     const mode = checked ? "automatic" : "manual";
-    setFinancialMode(mode);
-    if (user?.id) localStorage.setItem(`financial_mode_${user.id}`, mode);
+    const ok = await setFinancialMode(mode);
+    if (!ok) {
+      toast.error("Não foi possível salvar a preferência. Tente novamente.");
+      return;
+    }
     toast.success(`Lançamento financeiro ${checked ? "automático" : "manual"} ativado.`);
   };
 

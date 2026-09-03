@@ -4,6 +4,7 @@ import { useAuth } from "./useAuth";
 import { useOwnerId } from "@/hooks/useWorkspace";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useFinancialMode } from "./useFinancialMode";
 import { isCompletedShowStatus, isFinancialShowStatus, normalizeShowStatus } from "@/lib/showStatus";
 
 export interface Show {
@@ -224,6 +225,7 @@ export function useShowsData() {
   const ownerId = useOwnerId();
   const queryClient = useQueryClient();
   const autoCompleteRanRef = useRef(false);
+  const { mode: financialMode, ready: financialModeReady } = useFinancialMode();
   const repairRanRef = useRef(false);
 
   const invalidateAll = () => {
@@ -238,8 +240,10 @@ export function useShowsData() {
 
     const today = formatDateString(new Date());
 
-    const mode = localStorage.getItem(`financial_mode_${user.id}`) || "automatic";
-    if (mode === "manual") return;
+    if (!financialModeReady || financialMode === "manual") {
+      autoCompleteRanRef.current = false;
+      return;
+    }
 
     const { data: showsToComplete } = await supabase
       .from("shows")
@@ -590,8 +594,7 @@ export function useShowsData() {
     if (repairRanRef.current || !user || loading || shows.length === 0) return;
 
     // Modo manual: o usuário controla os status/lançamentos. Nada é criado ou removido automaticamente.
-    const mode = localStorage.getItem(`financial_mode_${user.id}`) || "automatic";
-    if (mode === "manual") return;
+    if (!financialModeReady || financialMode === "manual") return;
 
     repairRanRef.current = true;
 
@@ -719,7 +722,7 @@ export function useShowsData() {
         console.error("Error repairing missing transactions:", error);
       }
     })();
-  }, [user, loading, shows]);
+  }, [user, loading, shows, financialMode, financialModeReady]);
 
   return {
     shows,
