@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,6 +74,8 @@ export default function Configuracoes() {
   const { plan, daysRemaining, trialStart } = useTrialStatus(profile);
   const { settings: customization, updateSettings, resetSettings } = useCustomization();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "profile";
   
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -221,7 +223,7 @@ export default function Configuracoes() {
 
   return (
     <Layout title="Configurações" subtitle="Gerencie suas preferências e personalize seu app">
-      <Tabs defaultValue="profile" className="space-y-6">
+      <Tabs defaultValue={defaultTab} className="space-y-6">
         <TabsList className="bg-card border border-border/50 flex-wrap h-auto gap-1 p-1.5 w-full shadow-card rounded-xl">
           <TabsTrigger value="profile" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
             <User className="w-4 h-4" />

@@ -6,7 +6,6 @@ import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { useSidebarBadges } from "@/hooks/useSidebarBadges";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { AppLogo } from "@/components/layout/AppLogo";
 import { FeatureBlockedDialog } from "@/components/layout/FeatureBlockedDialog";
 import {
@@ -42,9 +41,10 @@ import {
   FileText,
   GraduationCap,
   UsersRound,
+  User,
+  Palette,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface SidebarProps {
   mobileOpen?: boolean;
@@ -115,8 +115,17 @@ const menuItems: MenuItem[] = [
   },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "ranking" },
   
-  { icon: UsersRound, label: "Usuários", path: "/usuarios", ownerOnly: true },
-  { icon: Settings, label: "Configurações", path: "/configuracoes", featureKey: "configuracoes" },
+  {
+    icon: Settings,
+    label: "Configurações",
+    children: [
+      { icon: User, label: "Meu Perfil", path: "/configuracoes", featureKey: "configuracoes" },
+      { icon: Music, label: "Perfil Artístico", path: "/configuracoes?tab=artist", featureKey: "configuracoes" },
+      { icon: Palette, label: "Personalização", path: "/configuracoes?tab=customization", featureKey: "configuracoes" },
+      { icon: Shield, label: "Segurança", path: "/configuracoes?tab=security", featureKey: "configuracoes" },
+      { icon: UsersRound, label: "Usuários", path: "/usuarios", ownerOnly: true },
+    ],
+  },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },
 ];
 
@@ -133,13 +142,23 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const { agendaBadge, checklistBadge, historicoBadge, dismiss } = useSidebarBadges();
   const { isMember } = useWorkspace();
 
+  // Normalize path for active checks (strip query strings).
+  const basePath = (path?: string) => (path ? path.split("?")[0] : "");
+
   // Team members: hide everything the owner did not release (no upsell for them).
   const filteredMenuItems = menuItems
     .filter((item) => !(item.adminOnly && !isAdmin))
     .filter((item) => !(item.ownerOnly && isMember))
     .map((item) => {
-      if (!isMember || !item.children) return item;
-      return { ...item, children: item.children.filter((c) => !(c.featureKey && isBlocked(c.featureKey))) };
+      if (!item.children) return item;
+      return {
+        ...item,
+        children: item.children.filter((c) => {
+          if (c.ownerOnly && isMember) return false;
+          if (c.adminOnly && !isAdmin) return false;
+          return !(c.featureKey && isBlocked(c.featureKey));
+        }),
+      };
     })
     .filter((item) => {
       if (!isMember) return true;
@@ -153,7 +172,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   };
 
   const isChildActive = (children?: MenuItem["children"]) =>
-    children?.some((c) => location.pathname.startsWith(c.path));
+    children?.some((c) => location.pathname.startsWith(basePath(c.path)));
 
   return (
     <>
@@ -202,52 +221,51 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
             {filteredMenuItems.map((item) => {
             if (item.children) {
               const active = isChildActive(item.children);
-              const isOpen = openGroup === item.label || (isChildActive(item.children) && !manualClosed.has(item.label));
-              const highlighted = active || isOpen;
+              const isOpen = openGroup === item.label || (active && !manualClosed.has(item.label));
 
               return (
                   <li key={item.label}>
-                    <Collapsible
-                      open={openGroup === item.label || (isChildActive(item.children) && !manualClosed.has(item.label))}
-                      onOpenChange={(open) => {
-                        if (open) {
-                          setOpenGroup(item.label);
-                          setManualClosed(prev => { const n = new Set(prev); n.delete(item.label); return n; });
+                    <button
+                      onClick={() => {
+                        if (isOpen) {
+                          setOpenGroup((prev) => (prev === item.label ? null : prev));
+                          setManualClosed((prev) => new Set(prev).add(item.label));
                         } else {
-                          setOpenGroup(openGroup === item.label ? null : openGroup);
-                          setManualClosed(prev => new Set(prev).add(item.label));
+                          setOpenGroup(item.label);
+                          setManualClosed((prev) => {
+                            const next = new Set(prev);
+                            next.delete(item.label);
+                            return next;
+                          });
                         }
                       }}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 w-full text-left",
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
+                      )}
                     >
-                      <CollapsibleTrigger asChild>
-                        <button
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 w-full text-left",
-                            active
-                              ? "bg-primary text-primary-foreground"
-                              : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-primary",
-                          )}
-                        >
-                          <item.icon className="w-5 h-5 shrink-0" />
-                          <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
-                          {item.label === "Planejamento" && checklistBadge > 0 && (
-                            <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
-                              {checklistBadge > 99 ? "99+" : checklistBadge}
-                            </span>
-                          )}
-                          {item.label === "Financeiro" && historicoBadge > 0 && (
-                            <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
-                              {historicoBadge > 99 ? "99+" : historicoBadge}
-                            </span>
-                          )}
-                          <ChevronDown className="w-4 h-4" />
-                        </button>
-                      </CollapsibleTrigger>
+                      <item.icon className="w-5 h-5 shrink-0" />
+                      <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
+                      {item.label === "Planejamento" && checklistBadge > 0 && (
+                        <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                          {checklistBadge > 99 ? "99+" : checklistBadge}
+                        </span>
+                      )}
+                      {item.label === "Financeiro" && historicoBadge > 0 && (
+                        <span className="flex items-center justify-center h-5 min-w-5 px-1.5 text-xs font-bold text-white rounded-full" style={{ backgroundColor: '#ff4d4d' }}>
+                          {historicoBadge > 99 ? "99+" : historicoBadge}
+                        </span>
+                      )}
+                      <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isOpen && "rotate-180")} />
+                    </button>
 
-                      <CollapsibleContent className="pl-4 mt-1 space-y-1">
+                    {isOpen && (
+                      <div className="pl-4 mt-1 space-y-1">
                         {item.children.map((child) => {
                           const blocked = !blocksLoading && child.featureKey && isBlocked(child.featureKey);
-                          const isActive = location.pathname.startsWith(child.path);
+                          const isActive = location.pathname.startsWith(basePath(child.path));
 
                           if (blocked) {
                             return (
@@ -292,14 +310,14 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                             </RouterNavLink>
                           );
                         })}
-                      </CollapsibleContent>
-                    </Collapsible>
+                      </div>
+                    )}
                   </li>
                 );
               }
 
               const blocked = !blocksLoading && item.featureKey && isBlocked(item.featureKey);
-              const isActive = location.pathname.startsWith(item.path!);
+              const isActive = location.pathname.startsWith(basePath(item.path));
 
               if (blocked) {
                 return (
