@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { useGoals } from "@/hooks/useGoals";
 import { useMonthlyShowLimit } from "@/hooks/useMonthlyShowLimit";
+import { useFinancialMode } from "@/hooks/useFinancialMode";
 
 const statusColors: Record<string, string> = {
   confirmed: "bg-primary",
