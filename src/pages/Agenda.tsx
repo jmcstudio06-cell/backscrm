@@ -109,15 +109,15 @@ export default function Agenda() {
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const { user } = useAuth();
   
-  const [financialMode, setFinancialMode] = useState<"automatic" | "manual">(() => {
-    if (!user) return "automatic";
-    return (localStorage.getItem(`financial_mode_${user.id}`) as "automatic" | "manual") || "automatic";
-  });
+  const { mode: financialMode, setMode: setFinancialMode } = useFinancialMode();
 
-  const handleFinancialModeChange = (checked: boolean) => {
+  const handleFinancialModeChange = async (checked: boolean) => {
     const mode = checked ? "automatic" : "manual";
-    setFinancialMode(mode);
-    if (user?.id) localStorage.setItem(`financial_mode_${user.id}`, mode);
+    const ok = await setFinancialMode(mode);
+    if (!ok) {
+      toast.error("Não foi possível salvar a preferência. Tente novamente.");
+      return;
+    }
     toast.success(`Lançamento financeiro ${checked ? "automático" : "manual"} ativado.`);
   };
 
