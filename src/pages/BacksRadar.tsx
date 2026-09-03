@@ -1,82 +1,329 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { Radar, Sparkles, Rocket, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useLeads } from "@/hooks/useLeads";
+import { toast } from "sonner";
+import {
+  Radar,
+  Search,
+  Loader2,
+  Phone,
+  Globe,
+  MapPin,
+  Star,
+  MessageCircle,
+  UserPlus,
+  Sparkles,
+  Beer,
+  UtensilsCrossed,
+  Hotel,
+  Disc3,
+  Mic2,
+  PartyPopper,
+} from "lucide-react";
+
+interface RadarPlace {
+  place_id: string;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  website: string | null;
+  rating: number | null;
+  rating_count: number | null;
+  place_type: string | null;
+  maps_uri: string | null;
+}
+
+const UFS = [
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
+  "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
+  "SP", "SE", "TO",
+];
+
+const CATEGORIES = [
+  { key: "bares", label: "Bares", icon: Beer },
+  { key: "restaurantes", label: "Restaurantes", icon: UtensilsCrossed },
+  { key: "hoteis", label: "Hotéis", icon: Hotel },
+  { key: "casas_noturnas", label: "Casas noturnas", icon: Disc3 },
+  { key: "casas_de_show", label: "Casas de show", icon: Mic2 },
+  { key: "buffets", label: "Buffets e eventos", icon: PartyPopper },
+];
+
+function whatsappLink(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  const withCountry = digits.startsWith("55") ? digits : `55${digits}`;
+  return `https://wa.me/${withCountry}`;
+}
 
 export default function BacksRadar() {
+  const { addLead } = useLeads();
+  const [state, setState] = useState("SP");
+  const [city, setCity] = useState("");
+  const [category, setCategory] = useState("bares");
+  const [loading, setLoading] = useState(false);
+  const [places, setPlaces] = useState<RadarPlace[] | null>(null);
+  const [source, setSource] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  const search = async () => {
+    if (city.trim().length < 2) {
+      toast.error("Informe a cidade");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("backs-radar-search", {
+        body: { state, city: city.trim(), category },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setPlaces((data?.places ?? []) as RadarPlace[]);
+      setSource(data?.source ?? null);
+      if ((data?.places ?? []).length === 0) {
+        toast.info("Nenhum contato encontrado para esse filtro");
+      }
+    } catch (err) {
+      console.error("Backs Radar search failed:", err);
+      toast.error("Não foi possível buscar os contatos agora");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendToCRM = async (place: RadarPlace) => {
+    setSavingId(place.place_id);
+    const categoryLabel = CATEGORIES.find((c) => c.key === category)?.label ?? "";
+    const notes = [
+      place.address ? `Endereço: ${place.address}` : null,
+      place.website ? `Site: ${place.website}` : null,
+      place.maps_uri ? `Google Maps: ${place.maps_uri}` : null,
+      `Origem: Backs Radar (${categoryLabel} — ${city}/${state})`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    await addLead({
+      name: place.name,
+      phone: place.phone,
+      company: place.name,
+      status: "new",
+      source: "Backs Radar",
+      notes,
+    });
+    setSavingId(null);
+  };
+
   return (
     <Layout
       title="Backs Radar"
-      subtitle="Descubra oportunidades, tendências e movimentação do mercado da música em um só lugar"
+      subtitle="Encontre bares, restaurantes, hotéis e casas noturnas da sua região que contratam música ao vivo"
     >
-      <div className="max-w-3xl mx-auto mt-8 sm:mt-12">
-        <div className="relative overflow-hidden rounded-3xl border bg-card/80 backdrop-blur-xl p-8 sm:p-12 text-center shadow-2xl">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Painel de busca */}
+        <div className="relative overflow-hidden rounded-3xl border bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-xl">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 pointer-events-none" />
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
 
-          <div className="relative">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg">
-              <Radar className="h-10 w-10" />
+          <div className="relative space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg">
+                <Radar className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold leading-tight">Radar de contatos</h2>
+                <p className="text-sm text-muted-foreground">
+                  Escolha o estado, a cidade e o tipo de local
+                </p>
+              </div>
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
-              <Sparkles className="h-4 w-4" />
-              Lançamento em breve
+            <div className="grid gap-3 sm:grid-cols-[110px_1fr_auto]">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Estado</Label>
+                <Select value={state} onValueChange={setState}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {UFS.map((uf) => (
+                      <SelectItem key={uf} value={uf}>
+                        {uf}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Cidade</Label>
+                <Input
+                  value={city}
+                  maxLength={80}
+                  placeholder="Ex: Ribeirão Preto"
+                  onChange={(e) => setCity(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") search();
+                  }}
+                />
+              </div>
+
+              <div className="space-y-1.5 flex flex-col justify-end">
+                <Button onClick={search} disabled={loading} className="gap-2 rounded-xl">
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                  Buscar
+                </Button>
+              </div>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-              O Backs Radar está chegando
-            </h1>
-
-            <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto mb-8">
-              Em breve você vai poder acompanhar oportunidades de shows, calendário de eventos,
-              tendências do mercado e muito mais — tudo para impulsionar sua carreira artística.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                variant="outline"
-                className="rounded-full px-6 gap-2"
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    window.open("https://www.instagram.com/backstageprooficiall/", "_blank", "noopener,noreferrer");
-                  }
-                }}
-              >
-                <Rocket className="h-4 w-4" />
-                Fique por dentro no Instagram
-              </Button>
-              <Button
-                variant="ghost"
-                className="rounded-full px-6 gap-2 text-muted-foreground hover:text-foreground"
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    window.location.href = "/dashboard";
-                  }
-                }}
-              >
-                <Bell className="h-4 w-4" />
-                Voltar para o Dashboard
-              </Button>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setCategory(key)}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                    category === key
+                      ? "bg-primary text-primary-foreground border-primary shadow-md"
+                      : "bg-secondary/40 border-border hover:bg-secondary"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { label: "Oportunidades de shows", value: "Em breve" },
-            { label: "Tendências do mercado", value: "Em breve" },
-            { label: "Conexões estratégicas", value: "Em breve" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-2xl border bg-card/60 backdrop-blur-md p-5 text-center"
-            >
-              <p className="text-2xl font-bold text-primary mb-1">{item.value}</p>
-              <p className="text-sm text-muted-foreground">{item.label}</p>
+        {/* Resultados */}
+        {places && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                {places.length} contato{places.length !== 1 ? "s" : ""} em {city}/{state}
+                {source === "cache" && " (resultados já pesquisados)"}
+              </p>
             </div>
-          ))}
-        </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {places.map((place) => (
+                <div
+                  key={place.place_id}
+                  className="rounded-2xl border bg-card/70 backdrop-blur-md p-4 hover:shadow-lg transition-shadow flex flex-col gap-3"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold leading-tight">{place.name}</h3>
+                      {place.rating != null && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary shrink-0">
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          {place.rating.toFixed(1)}
+                          {place.rating_count ? ` (${place.rating_count})` : ""}
+                        </span>
+                      )}
+                    </div>
+                    {place.place_type && (
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground mt-0.5">
+                        {place.place_type}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
+                    {place.address && (
+                      <p className="flex items-start gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 mt-0.5 text-primary/60 shrink-0" />
+                        {place.address}
+                      </p>
+                    )}
+                    {place.phone && (
+                      <p className="flex items-center gap-1.5">
+                        <Phone className="h-3.5 w-3.5 text-primary/60" />
+                        {place.phone}
+                      </p>
+                    )}
+                    {place.website && (
+                      <a
+                        href={place.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 hover:text-primary truncate"
+                      >
+                        <Globe className="h-3.5 w-3.5 text-primary/60 shrink-0" />
+                        <span className="truncate">{place.website.replace(/^https?:\/\//, "")}</span>
+                      </a>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-auto pt-1">
+                    {place.phone && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-full gap-1.5 text-xs"
+                        onClick={() =>
+                          window.open(whatsappLink(place.phone!), "_blank", "noopener,noreferrer")
+                        }
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        WhatsApp
+                      </Button>
+                    )}
+                    {place.maps_uri && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-full gap-1.5 text-xs"
+                        onClick={() =>
+                          window.open(place.maps_uri!, "_blank", "noopener,noreferrer")
+                        }
+                      >
+                        <MapPin className="h-3.5 w-3.5" />
+                        Mapa
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      className="rounded-full gap-1.5 text-xs ml-auto"
+                      disabled={savingId === place.place_id}
+                      onClick={() => sendToCRM(place)}
+                    >
+                      {savingId === place.place_id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <UserPlus className="h-3.5 w-3.5" />
+                      )}
+                      Enviar ao CRM
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!places && !loading && (
+          <div className="rounded-2xl border border-dashed bg-card/40 p-10 text-center">
+            <Radar className="h-10 w-10 mx-auto text-primary/50 mb-3" />
+            <p className="text-sm text-muted-foreground">
+              Escolha estado, cidade e categoria para encontrar novos contatos de shows.
+            </p>
+          </div>
+        )}
       </div>
     </Layout>
   );
