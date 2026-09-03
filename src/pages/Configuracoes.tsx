@@ -476,12 +476,12 @@ export default function Configuracoes() {
               </Button>
             </div>
           </div>
-        </TabsContent>
+        </div>}
 
 
 
         {/* ════════ PERSONALIZAÇÃO ════════ */}
-        <TabsContent value="customization" className="space-y-5 animate-in fade-in-50 duration-300">
+        {activeSection === "customization" && <div className="space-y-5 animate-in fade-in-50 duration-300">
           
           {/* Header */}
           <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-card">
