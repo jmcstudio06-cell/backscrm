@@ -2799,6 +2799,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      slugify_artist_name: { Args: { _name: string }; Returns: string }
       workspace_owner_for: { Args: { _uid: string }; Returns: string }
     }
     Enums: {
