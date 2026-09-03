@@ -1297,39 +1297,6 @@ export type Database = {
         }
         Relationships: []
       }
-      landing_page_visits: {
-        Row: {
-          converted: boolean | null
-          converted_at: string | null
-          created_at: string
-          id: string
-          page_path: string
-          referrer: string | null
-          user_agent: string | null
-          visitor_id: string
-        }
-        Insert: {
-          converted?: boolean | null
-          converted_at?: string | null
-          created_at?: string
-          id?: string
-          page_path?: string
-          referrer?: string | null
-          user_agent?: string | null
-          visitor_id: string
-        }
-        Update: {
-          converted?: boolean | null
-          converted_at?: string | null
-          created_at?: string
-          id?: string
-          page_path?: string
-          referrer?: string | null
-          user_agent?: string | null
-          visitor_id?: string
-        }
-        Relationships: []
-      }
       lead_history: {
         Row: {
           changed_at: string
@@ -2721,7 +2688,6 @@ export type Database = {
       archive_monthly_ranking: { Args: never; Returns: number }
       auto_archive_old_budgets: { Args: never; Returns: number }
       auto_complete_past_shows: { Args: never; Returns: number }
-      cleanup_old_landing_visits: { Args: never; Returns: number }
       cleanup_old_notifications: { Args: never; Returns: number }
       delete_email: {
         Args: { message_id: number; queue_name: string }
