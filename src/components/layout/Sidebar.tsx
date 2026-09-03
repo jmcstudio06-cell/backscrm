@@ -273,7 +273,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                       <div className="pl-4 mt-1 space-y-1">
                         {item.children.map((child) => {
                           const blocked = !blocksLoading && child.featureKey && isBlocked(child.featureKey);
-                          const isActive = location.pathname.startsWith(basePath(child.path));
+                          const isActive = isPathActive(child.path);
 
                           if (blocked) {
                             return (
