@@ -19,6 +19,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
 import Ranking from "./pages/Ranking";
+import BacksRadar from "./pages/BacksRadar";
 import Tutoriais from "./pages/Tutoriais";
 import CRM from "./pages/CRM";
 import Clientes from "./pages/Clientes";
