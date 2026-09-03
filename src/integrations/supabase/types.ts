@@ -1827,6 +1827,60 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_places: {
+        Row: {
+          address: string | null
+          category: string
+          city: string
+          created_at: string
+          fetched_at: string
+          id: string
+          maps_uri: string | null
+          name: string
+          phone: string | null
+          place_id: string
+          place_type: string | null
+          rating: number | null
+          rating_count: number | null
+          state: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          category: string
+          city: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          maps_uri?: string | null
+          name: string
+          phone?: string | null
+          place_id: string
+          place_type?: string | null
+          rating?: number | null
+          rating_count?: number | null
+          state: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          category?: string
+          city?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          maps_uri?: string | null
+          name?: string
+          phone?: string | null
+          place_id?: string
+          place_type?: string | null
+          rating?: number | null
+          rating_count?: number | null
+          state?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       referral_config: {
         Row: {
           campaign_active: boolean
