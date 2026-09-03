@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -17,7 +16,6 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
-import { PublicProfileSection } from "@/components/configuracoes/PublicProfileSection";
 import { InstallAppSection } from "@/components/configuracoes/InstallAppSection";
 
 
@@ -74,9 +72,14 @@ export default function Configuracoes() {
   const { plan, daysRemaining, trialStart } = useTrialStatus(profile);
   const { settings: customization, updateSettings, resetSettings } = useCustomization();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "profile";
-  
+  const location = useLocation();
+  const activeSection = (() => {
+    if (location.pathname === "/configuracoes/perfil-artistico") return "artist";
+    if (location.pathname === "/configuracoes/personalizacao") return "customization";
+    if (location.pathname === "/configuracoes/seguranca") return "security";
+    return "profile";
+  })();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -221,36 +224,19 @@ export default function Configuracoes() {
 
   const planIcon = (plan === "expirado" || plan === "comprou_expirado") ? "text-destructive" : plan === "trial" ? "text-warning" : "text-primary";
 
+  const sectionTitles: Record<string, { title: string; subtitle: string }> = {
+    profile: { title: "Configurações", subtitle: "Gerencie seus dados pessoais e plano" },
+    artist: { title: "Perfil Artístico", subtitle: "Configure sua identidade artística pública" },
+    customization: { title: "Personalização", subtitle: "Ajuste cores, tema e aparência do app" },
+    security: { title: "Segurança", subtitle: "Gerencie senha, acesso e dados sensíveis" },
+  };
+
   return (
-    <Layout title="Configurações" subtitle="Gerencie suas preferências e personalize seu app">
-      <Tabs defaultValue={defaultTab} className="space-y-6">
-        <TabsList className="bg-card border border-border/50 flex-wrap h-auto gap-1 p-1.5 w-full shadow-card rounded-xl">
-          <TabsTrigger value="profile" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
-            <User className="w-4 h-4" />
-            <span className="hidden sm:inline">Meu Perfil</span>
-            <span className="sm:hidden">Perfil</span>
-          </TabsTrigger>
-          <TabsTrigger value="artist" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
-            <Music className="w-4 h-4" />
-            <span className="hidden sm:inline">Perfil Artístico</span>
-            <span className="sm:hidden">Artístico</span>
-          </TabsTrigger>
-
-
-          <TabsTrigger value="customization" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
-            <Palette className="w-4 h-4" />
-            <span className="hidden sm:inline">Personalização</span>
-            <span className="sm:hidden">Visual</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="gap-2 flex-1 min-w-fit rounded-lg data-[state=active]:shadow-md">
-            <Shield className="w-4 h-4" />
-            <span className="hidden sm:inline">Segurança</span>
-            <span className="sm:hidden">Segurança</span>
-          </TabsTrigger>
-        </TabsList>
+    <Layout title={sectionTitles[activeSection].title} subtitle={sectionTitles[activeSection].subtitle}>
+      <div className="space-y-6">
 
         {/* ════════ MEU PERFIL ════════ */}
-        <TabsContent value="profile" className="space-y-6 animate-in fade-in-50 duration-300">
+        {activeSection === "profile" && <div className="space-y-6 animate-in fade-in-50 duration-300">
           
           {/* Plan Card - Hero Style */}
           <div className={`relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br ${planGradient}`}>
@@ -393,10 +379,10 @@ export default function Configuracoes() {
               </Button>
             </div>
           </div>
-        </TabsContent>
+        </div>}
 
         {/* ════════ PERFIL ARTÍSTICO ════════ */}
-        <TabsContent value="artist" className="space-y-6 animate-in fade-in-50 duration-300">
+        {activeSection === "artist" && <div className="space-y-6 animate-in fade-in-50 duration-300">
           <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
             {/* Header com gradiente */}
             <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-r from-primary/10 via-accent/5 to-transparent">
@@ -489,12 +475,12 @@ export default function Configuracoes() {
               </Button>
             </div>
           </div>
-        </TabsContent>
+        </div>}
 
 
 
         {/* ════════ PERSONALIZAÇÃO ════════ */}
-        <TabsContent value="customization" className="space-y-5 animate-in fade-in-50 duration-300">
+        {activeSection === "customization" && <div className="space-y-5 animate-in fade-in-50 duration-300">
           
           {/* Header */}
           <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-card">
@@ -671,10 +657,10 @@ export default function Configuracoes() {
               </Button>
             </div>
           </div>
-        </TabsContent>
+        </div>}
 
         {/* ════════ SEGURANÇA ════════ */}
-        <TabsContent value="security" className="space-y-6 animate-in fade-in-50 duration-300">
+        {activeSection === "security" && <div className="space-y-6 animate-in fade-in-50 duration-300">
           <div className="rounded-2xl border border-border/50 bg-card shadow-card overflow-hidden">
             <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-r from-destructive/5 via-transparent to-transparent">
               <div className="relative flex items-center gap-4">
@@ -788,12 +774,8 @@ export default function Configuracoes() {
               </div>
             </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="public" className="space-y-6">
-          <PublicProfileSection />
-        </TabsContent>
-      </Tabs>
+        </div>}
+      </div>
     </Layout>
   );
 }

@@ -72,6 +72,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", featureKey: "dashboard" },
   { icon: Calendar, label: "Agenda de Shows", path: "/agenda", featureKey: "agenda" },
+  { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "ranking" },
   
   {
     icon: Briefcase,
@@ -115,16 +116,14 @@ const menuItems: MenuItem[] = [
       { icon: FileText, label: "Link Orçamento", path: "/link-orcamento", featureKey: "link-orcamento" },
     ],
   },
-  { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "ranking" },
-  
   {
     icon: Settings,
     label: "Configurações",
     children: [
       { icon: User, label: "Meu Perfil", path: "/configuracoes", featureKey: "configuracoes" },
-      { icon: Music, label: "Perfil Artístico", path: "/configuracoes?tab=artist", featureKey: "configuracoes" },
-      { icon: Palette, label: "Personalização", path: "/configuracoes?tab=customization", featureKey: "configuracoes" },
-      { icon: Shield, label: "Segurança", path: "/configuracoes?tab=security", featureKey: "configuracoes" },
+      { icon: Music, label: "Perfil Artístico", path: "/configuracoes/perfil-artistico", featureKey: "configuracoes" },
+      { icon: Palette, label: "Personalização", path: "/configuracoes/personalizacao", featureKey: "configuracoes" },
+      { icon: Shield, label: "Segurança", path: "/configuracoes/seguranca", featureKey: "configuracoes" },
       { icon: UsersRound, label: "Usuários", path: "/usuarios", ownerOnly: true },
     ],
   },

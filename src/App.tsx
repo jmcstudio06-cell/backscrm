@@ -141,6 +141,9 @@ const App = () => (
                 <Route path="/metas/anual" element={<AuthPage featureKey="metas-anuais"><MetasAnuais /></AuthPage>} />
                 <Route path="/planos" element={<AuthPage><RequireOwner><Planos /></RequireOwner></AuthPage>} />
                 <Route path="/configuracoes" element={<AuthPage featureKey="configuracoes"><Configuracoes /></AuthPage>} />
+                <Route path="/configuracoes/perfil-artistico" element={<AuthPage featureKey="configuracoes"><Configuracoes /></AuthPage>} />
+                <Route path="/configuracoes/personalizacao" element={<AuthPage featureKey="configuracoes"><Configuracoes /></AuthPage>} />
+                <Route path="/configuracoes/seguranca" element={<AuthPage featureKey="configuracoes"><Configuracoes /></AuthPage>} />
                 <Route path="/orcamentos" element={<AuthPage featureKey="orcamentos"><Orcamentos /></AuthPage>} />
                 <Route path="/servicos" element={<AuthPage featureKey="servicos"><ServicosProdutos /></AuthPage>} />
                 <Route path="/planejamento-conteudo" element={<AuthPage featureKey="ideias-post"><PlanejamentoConteudo /></AuthPage>} />
