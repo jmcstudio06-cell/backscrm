@@ -2726,6 +2726,7 @@ export type Database = {
           price: number
         }[]
       }
+      get_cloud_metrics: { Args: never; Returns: Json }
       get_full_monthly_show_ranking: {
         Args: { target_month: number; target_year: number }
         Returns: {
