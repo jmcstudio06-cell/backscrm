@@ -32,6 +32,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   "link-instagram": true,
   "link-orcamento": true,
   "assinatura-digital": true,
+  "backs-radar": true,
 };
 
 export const PLAN_MODULES = {
@@ -54,6 +55,11 @@ export const PLAN_MODULES = {
     name: "Empresarial",
     features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-instagram", "link-orcamento", "bonus", "ideias-post", "tutoriais", "configuracoes"],
     price: "R$ 39,90/mês",
+  },
+  executivo: {
+    name: "Executivo",
+    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-instagram", "link-orcamento", "bonus", "ideias-post", "tutoriais", "configuracoes", "backs-radar"],
+    price: "R$ 79,90/mês",
   },
   // Legacy alias
   completo: {

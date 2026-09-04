@@ -29,6 +29,7 @@ export const ALL_FEATURES = [
   "bonus",
   "ideias-post",
   "metas-anuais",
+  "backs-radar",
 ];
 
 const STARTER_FEATURES = [
@@ -48,6 +49,11 @@ const EMPRESARIAL_FEATURES = [
   "link-agenda", "link-orcamento", "bonus", "ideias-post", "metas-anuais",
 ];
 
+const EXECUTIVO_FEATURES = [
+  ...EMPRESARIAL_FEATURES,
+  "backs-radar",
+];
+
 export const PLAN_FEATURES: Record<string, string[]> = {
   // Starter
   mensal_starter: STARTER_FEATURES,
@@ -62,6 +68,9 @@ export const PLAN_FEATURES: Record<string, string[]> = {
   anual_empresarial: EMPRESARIAL_FEATURES,
   mensal_completo: EMPRESARIAL_FEATURES,
   anual_completo: EMPRESARIAL_FEATURES,
+  // Executivo (tudo do Empresarial + Backs Radar)
+  mensal_executivo: EXECUTIVO_FEATURES,
+  anual_executivo: EXECUTIVO_FEATURES,
 };
 
 export const PLAN_DAYS: Record<string, number> = {
@@ -69,10 +78,12 @@ export const PLAN_DAYS: Record<string, number> = {
   mensal_profissional: 30,
   mensal_empresarial: 30,
   mensal_completo: 30,
+  mensal_executivo: 30,
   anual_starter: 365,
   anual_profissional: 365,
   anual_empresarial: 365,
   anual_completo: 365,
+  anual_executivo: 365,
 };
 
 export function buildFeatureBlocks(plan: string): Record<string, boolean> {
@@ -90,6 +101,7 @@ const PLAN_CANONICAL: Record<string, string> = {
   anual_empresarial: "anual_completo",
   empresarial: "mensal_completo",
   completo: "mensal_completo",
+  executivo: "mensal_executivo",
 };
 
 export function canonicalPlan(plan: string): string {
