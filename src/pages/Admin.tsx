@@ -215,8 +215,8 @@ export default function Admin() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [planStats, setPlanStats] = useState<Record<string, number>>({
-    trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
-    anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
+    trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0, mensal_executivo: 0,
+    anual_starter: 0, anual_profissional: 0, anual_completo: 0, anual_executivo: 0, expirado: 0, comprou_expirado: 0,
   });
   const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
   const [teamMembers, setTeamMembers] = useState<
@@ -294,8 +294,8 @@ export default function Admin() {
       if (planResult.data) {
         const memberIds = new Set((memberResult.data ?? []).map(m => m.member_user_id));
         const stats: Record<string, number> = {
-          trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
-           anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
+          trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0, mensal_executivo: 0,
+           anual_starter: 0, anual_profissional: 0, anual_completo: 0, anual_executivo: 0, expirado: 0, comprou_expirado: 0,
            outros: 0,
         };
         planResult.data.filter(p => !memberIds.has(p.user_id)).forEach(p => {
@@ -356,6 +356,7 @@ export default function Admin() {
     if (plan.includes("starter")) return "starter";
     if (plan.includes("profissional")) return "profissional";
     if (plan.includes("completo")) return "completo";
+    if (plan.includes("executivo")) return "executivo";
     // Legacy mapping
     if (plan === "base" || plan === "mensal") return "starter";
     if (plan === "essencial") return "profissional";
@@ -533,7 +534,7 @@ export default function Admin() {
 
   const getPlanBadge = (plan: string | null) => {
     const p = plan || "trial";
-    const labels: Record<string, string> = { mensal_empresarial: "Mensal Empresarial", anual_empresarial: "Anual Empresarial", empresarial: "Empresarial", outros: "Outros", trial: "Trial (3h)", parceiros: "Parceiros", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
+    const labels: Record<string, string> = { mensal_empresarial: "Mensal Empresarial", anual_empresarial: "Anual Empresarial", empresarial: "Empresarial", mensal_executivo: "Mensal Executivo", anual_executivo: "Anual Executivo", executivo: "Executivo", outros: "Outros", trial: "Trial (3h)", parceiros: "Parceiros", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
     const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
     return (
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
