@@ -119,9 +119,11 @@ const PLAN_FILTERS = [
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Prof." },
   { value: "mensal_completo", label: "Mensal Completo" },
+  { value: "mensal_executivo", label: "Mensal Executivo" },
   { value: "anual_starter", label: "Anual Starter" },
   { value: "anual_profissional", label: "Anual Prof." },
   { value: "anual_completo", label: "Anual Completo" },
+  { value: "anual_executivo", label: "Anual Executivo" },
   { value: "expirado", label: "Expirados" },
   { value: "comprou_expirado", label: "Comprou Expirado" },
   { value: "outros", label: "Outros" },
@@ -136,8 +138,8 @@ const PLAN_ALIASES: Record<string, string> = {
 };
 
 const KNOWN_PLANS = [
-  "trial", "parceiros", "mensal_starter", "mensal_profissional", "mensal_completo",
-  "anual_starter", "anual_profissional", "anual_completo", "expirado", "comprou_expirado",
+  "trial", "parceiros", "mensal_starter", "mensal_profissional", "mensal_completo", "mensal_executivo",
+  "anual_starter", "anual_profissional", "anual_completo", "anual_executivo", "expirado", "comprou_expirado",
 ];
 
 // Valores reais no banco que cada filtro deve buscar
@@ -145,6 +147,8 @@ const PLAN_FILTER_VALUES: Record<string, string[]> = {
   trial: ["trial"],
   mensal_completo: ["mensal_completo", "mensal_empresarial", "empresarial"],
   anual_completo: ["anual_completo", "anual_empresarial"],
+  mensal_executivo: ["mensal_executivo", "executivo"],
+  anual_executivo: ["anual_executivo"],
   expirado: ["expirado", "expired"],
 };
 
