@@ -155,8 +155,8 @@ const PLAN_FILTER_VALUES: Record<string, string[]> = {
 
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
-  mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30,
-  anual_starter: 365, anual_profissional: 365, anual_completo: 365,
+  mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30, mensal_executivo: 30,
+  anual_starter: 365, anual_profissional: 365, anual_completo: 365, anual_executivo: 365,
   // Legacy support
   base: 30, mensal: 30, essencial: 90, completo: 180, anual: 365,
 };
@@ -178,9 +178,11 @@ const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; ic
   mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
   mensal_completo:       { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
+  mensal_executivo:      { bg: "bg-rose-500/10", text: "text-rose-600", border: "border-rose-500/20", icon: <Trophy className="h-5 w-5" /> },
   anual_starter:         { bg: "bg-teal-500/10", text: "text-teal-600", border: "border-teal-500/20", icon: <Shield className="h-5 w-5" /> },
   anual_profissional:    { bg: "bg-indigo-500/10", text: "text-indigo-600", border: "border-indigo-500/20", icon: <Zap className="h-5 w-5" /> },
   anual_completo:        { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
+  anual_executivo:       { bg: "bg-fuchsia-500/10", text: "text-fuchsia-600", border: "border-fuchsia-500/20", icon: <Crown className="h-5 w-5" /> },
   // Legacy
   base:      { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal:    { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
