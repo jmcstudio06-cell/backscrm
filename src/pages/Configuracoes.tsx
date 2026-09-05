@@ -29,9 +29,11 @@ const planLabels: Record<string, string> = {
   mensal_starter: "Mensal Starter",
   mensal_profissional: "Mensal Profissional",
   mensal_completo: "Mensal Completo",
+  mensal_executivo: "Mensal Executivo",
   anual_starter: "Anual Starter",
   anual_profissional: "Anual Profissional",
   anual_completo: "Anual Completo",
+  anual_executivo: "Anual Executivo",
   // Legacy
   starter: "Plano Starter",
   mensal: "Plano Mensal",
@@ -49,9 +51,11 @@ const PLAN_DURATIONS: Record<string, number> = {
   mensal_starter: 30,
   mensal_profissional: 30,
   mensal_completo: 30,
+  mensal_executivo: 30,
   anual_starter: 365,
   anual_profissional: 365,
   anual_completo: 365,
+  anual_executivo: 365,
   // Legacy
   starter: 30, mensal: 30, inicial: 30, base: 30,
   essencial: 90, completo: 180, anual: 365,
