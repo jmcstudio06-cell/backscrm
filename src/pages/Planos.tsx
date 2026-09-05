@@ -351,15 +351,20 @@ export default function Planos() {
           </p>
         )}
 
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((p) => {
-              const isStarter = p.id === "starter";
-              const isPro = p.id === "pro";
-              const monthlyValue = isStarter ? 19.9 : isPro ? 24.9 : 39.9;
-              const yearlyOldPrice = isStarter ? "238,80" : isPro ? "298,80" : "478,80";
-              const yearlyNewPrice = isStarter ? "149,90" : isPro ? "199,90" : "298,80";
-              const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,66" : "24,90";
+              const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
+                starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
+                pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "16,66" },
+                full: { monthly: 39.9, yearlyOld: "478,80", yearlyNew: "298,80", installment: "24,90" },
+                executivo: { monthly: 79.9, yearlyOld: "958,80", yearlyNew: "499,90", installment: "41,66" },
+              };
+              const planPricing = pricing[p.id];
+              const monthlyValue = planPricing.monthly;
+              const yearlyOldPrice = planPricing.yearlyOld;
+              const yearlyNewPrice = planPricing.yearlyNew;
+              const yearlyInstallment = planPricing.installment;
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
