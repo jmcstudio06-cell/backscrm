@@ -119,9 +119,11 @@ const PLAN_FILTERS = [
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Prof." },
   { value: "mensal_completo", label: "Mensal Completo" },
+  { value: "mensal_executivo", label: "Mensal Executivo" },
   { value: "anual_starter", label: "Anual Starter" },
   { value: "anual_profissional", label: "Anual Prof." },
   { value: "anual_completo", label: "Anual Completo" },
+  { value: "anual_executivo", label: "Anual Executivo" },
   { value: "expirado", label: "Expirados" },
   { value: "comprou_expirado", label: "Comprou Expirado" },
   { value: "outros", label: "Outros" },
@@ -136,8 +138,8 @@ const PLAN_ALIASES: Record<string, string> = {
 };
 
 const KNOWN_PLANS = [
-  "trial", "parceiros", "mensal_starter", "mensal_profissional", "mensal_completo",
-  "anual_starter", "anual_profissional", "anual_completo", "expirado", "comprou_expirado",
+  "trial", "parceiros", "mensal_starter", "mensal_profissional", "mensal_completo", "mensal_executivo",
+  "anual_starter", "anual_profissional", "anual_completo", "anual_executivo", "expirado", "comprou_expirado",
 ];
 
 // Valores reais no banco que cada filtro deve buscar
@@ -145,14 +147,16 @@ const PLAN_FILTER_VALUES: Record<string, string[]> = {
   trial: ["trial"],
   mensal_completo: ["mensal_completo", "mensal_empresarial", "empresarial"],
   anual_completo: ["anual_completo", "anual_empresarial"],
+  mensal_executivo: ["mensal_executivo", "executivo"],
+  anual_executivo: ["anual_executivo"],
   expirado: ["expirado", "expired"],
 };
 
 
 const PLAN_DURATIONS: Record<string, number> = {
   trial: 3,
-  mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30,
-  anual_starter: 365, anual_profissional: 365, anual_completo: 365,
+  mensal_starter: 30, mensal_profissional: 30, mensal_completo: 30, mensal_executivo: 30,
+  anual_starter: 365, anual_profissional: 365, anual_completo: 365, anual_executivo: 365,
   // Legacy support
   base: 30, mensal: 30, essencial: 90, completo: 180, anual: 365,
 };
@@ -174,9 +178,11 @@ const PLAN_COLORS: Record<string, { bg: string; text: string; border: string; ic
   mensal_starter:        { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal_profissional:   { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
   mensal_completo:       { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/20", icon: <Heart className="h-5 w-5" /> },
+  mensal_executivo:      { bg: "bg-rose-500/10", text: "text-rose-600", border: "border-rose-500/20", icon: <Trophy className="h-5 w-5" /> },
   anual_starter:         { bg: "bg-teal-500/10", text: "text-teal-600", border: "border-teal-500/20", icon: <Shield className="h-5 w-5" /> },
   anual_profissional:    { bg: "bg-indigo-500/10", text: "text-indigo-600", border: "border-indigo-500/20", icon: <Zap className="h-5 w-5" /> },
   anual_completo:        { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-500/20", icon: <Trophy className="h-5 w-5" /> },
+  anual_executivo:       { bg: "bg-fuchsia-500/10", text: "text-fuchsia-600", border: "border-fuchsia-500/20", icon: <Crown className="h-5 w-5" /> },
   // Legacy
   base:      { bg: "bg-cyan-500/10", text: "text-cyan-600", border: "border-cyan-500/20", icon: <Shield className="h-5 w-5" /> },
   mensal:    { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/20", icon: <Zap className="h-5 w-5" /> },
@@ -209,8 +215,8 @@ export default function Admin() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [planStats, setPlanStats] = useState<Record<string, number>>({
-    trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
-    anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
+    trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0, mensal_executivo: 0,
+    anual_starter: 0, anual_profissional: 0, anual_completo: 0, anual_executivo: 0, expirado: 0, comprou_expirado: 0,
   });
   const [userPlanDates, setUserPlanDates] = useState<Record<string, string>>({});
   const [teamMembers, setTeamMembers] = useState<
@@ -288,8 +294,8 @@ export default function Admin() {
       if (planResult.data) {
         const memberIds = new Set((memberResult.data ?? []).map(m => m.member_user_id));
         const stats: Record<string, number> = {
-          trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0,
-           anual_starter: 0, anual_profissional: 0, anual_completo: 0, expirado: 0, comprou_expirado: 0,
+          trial: 0, parceiros: 0, mensal_starter: 0, mensal_profissional: 0, mensal_completo: 0, mensal_executivo: 0,
+           anual_starter: 0, anual_profissional: 0, anual_completo: 0, anual_executivo: 0, expirado: 0, comprou_expirado: 0,
            outros: 0,
         };
         planResult.data.filter(p => !memberIds.has(p.user_id)).forEach(p => {
@@ -350,6 +356,7 @@ export default function Admin() {
     if (plan.includes("starter")) return "starter";
     if (plan.includes("profissional")) return "profissional";
     if (plan.includes("completo")) return "completo";
+    if (plan.includes("executivo")) return "executivo";
     // Legacy mapping
     if (plan === "base" || plan === "mensal") return "starter";
     if (plan === "essencial") return "profissional";
@@ -527,7 +534,7 @@ export default function Admin() {
 
   const getPlanBadge = (plan: string | null) => {
     const p = plan || "trial";
-    const labels: Record<string, string> = { mensal_empresarial: "Mensal Empresarial", anual_empresarial: "Anual Empresarial", empresarial: "Empresarial", outros: "Outros", trial: "Trial (3h)", parceiros: "Parceiros", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
+    const labels: Record<string, string> = { mensal_empresarial: "Mensal Empresarial", anual_empresarial: "Anual Empresarial", empresarial: "Empresarial", mensal_executivo: "Mensal Executivo", anual_executivo: "Anual Executivo", executivo: "Executivo", outros: "Outros", trial: "Trial (3h)", parceiros: "Parceiros", mensal_starter: "Mensal Starter", mensal_profissional: "Mensal Prof.", mensal_completo: "Mensal Completo", anual_starter: "Anual Starter", anual_profissional: "Anual Prof.", anual_completo: "Anual Completo", base: "Mensal (leg.)", mensal: "Mensal (leg.)", essencial: "Prof. (leg.)", completo: "Completo (leg.)", anual: "Anual (leg.)", expirado: "Expirado", comprou_expirado: "Comprou Expirado" };
     const colors = PLAN_COLORS[p] || PLAN_COLORS.trial;
     return (
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${colors.bg} ${colors.text} ${colors.border}`}>
@@ -726,11 +733,13 @@ export default function Admin() {
                             <option value="mensal_starter">Mensal Starter</option>
                             <option value="mensal_profissional">Mensal Profissional</option>
                             <option value="mensal_completo">Mensal Completo</option>
+                            <option value="mensal_executivo">Mensal Executivo</option>
                           </optgroup>
                           <optgroup label="Anual (365 dias)">
                             <option value="anual_starter">Anual Starter</option>
                             <option value="anual_profissional">Anual Profissional</option>
                             <option value="anual_completo">Anual Completo</option>
+                            <option value="anual_executivo">Anual Executivo</option>
                           </optgroup>
                           <option value="expirado">Expirado</option>
                           <option value="comprou_expirado">Comprou Expirado</option>

@@ -30,18 +30,22 @@ const CHECKOUT_URLS: Record<string, string> = {
   mensal_starter: "https://checkout.infinitepay.io/backstagegroup/xSJTvKbev",
   mensal_profissional: "https://checkout.infinitepay.io/backstagegroup/3ppHyYNBMH",
   mensal_empresarial: "https://checkout.infinitepay.io/backstagegroup/7feafZpCUB",
+  mensal_executivo: "https://checkout.infinitepay.io/backstagegroup/executivo-mensal",
   anual_starter: "https://checkout.infinitepay.io/backstagegroup/1uueQ3x5Jr",
   anual_profissional: "https://checkout.infinitepay.io/backstagegroup/1HH6RVTbeb",
   anual_empresarial: "https://checkout.infinitepay.io/backstagegroup/1uuf5FwQOf",
+  anual_executivo: "https://checkout.infinitepay.io/backstagegroup/executivo-anual",
 };
 
 const PLAN_AMOUNTS: Record<string, number> = {
   mensal_starter: 1990,
   mensal_profissional: 2490,
   mensal_empresarial: 3990,
+  mensal_executivo: 7990,
   anual_starter: 14990,
   anual_profissional: 19990,
   anual_empresarial: 29880,
+  anual_executivo: 49990,
 };
 
 const testimonials = [
@@ -145,6 +149,27 @@ const plans: PlanDef[] = [
       "Mapeamento de Palco",
       "Metas",
       "Bônus",
+    ],
+  },
+  {
+    id: "executivo",
+    name: "Executivo",
+    subtitle: "Tudo do Empresarial + Backs Radar: uma rede de contatos de bares, restaurantes e casas de show da sua região.",
+    price: "R$ 79,90",
+    period: "/mês",
+    buttonText: "Escolher Executivo",
+    highlight: false,
+    badgeText: "MAIS COMPLETO",
+    icon: Crown,
+    socialProof: "27 artistas estão nesse plano!",
+    planKeyMonthly: "mensal_executivo",
+    planKeyYearly: "anual_executivo",
+    features: [
+      "Tudo do Empresarial +",
+      "Backs Radar",
+      "Oportunidades perto de você",
+      "Contatos de bares e casas",
+      "Envio direto ao CRM",
     ],
   },
 ];
@@ -326,15 +351,20 @@ export default function Planos() {
           </p>
         )}
 
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((p) => {
-              const isStarter = p.id === "starter";
-              const isPro = p.id === "pro";
-              const monthlyValue = isStarter ? 19.9 : isPro ? 24.9 : 39.9;
-              const yearlyOldPrice = isStarter ? "238,80" : isPro ? "298,80" : "478,80";
-              const yearlyNewPrice = isStarter ? "149,90" : isPro ? "199,90" : "298,80";
-              const yearlyInstallment = isStarter ? "12,49" : isPro ? "16,66" : "24,90";
+              const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
+                starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
+                pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "16,66" },
+                full: { monthly: 39.9, yearlyOld: "478,80", yearlyNew: "298,80", installment: "24,90" },
+                executivo: { monthly: 79.9, yearlyOld: "958,80", yearlyNew: "499,90", installment: "41,66" },
+              };
+              const planPricing = pricing[p.id];
+              const monthlyValue = planPricing.monthly;
+              const yearlyOldPrice = planPricing.yearlyOld;
+              const yearlyNewPrice = planPricing.yearlyNew;
+              const yearlyInstallment = planPricing.installment;
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
@@ -347,7 +377,7 @@ export default function Planos() {
                   key={p.id}
                   className={cn(
                     "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
-                    isStarter
+                    p.id === "starter"
                       ? "border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-green-50"
                       : p.highlight
                       ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"

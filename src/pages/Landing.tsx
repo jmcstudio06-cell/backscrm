@@ -63,9 +63,11 @@ const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
 const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
 const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB";
 const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
+const EXECUTIVO_URL = "https://checkout.infinitepay.io/backstagegroup/executivo-mensal";
 
 const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP";
 const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
+const EXECUTIVO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/executivo-anual";
 
 const DEMO_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Gostaria de solicitar uma demo do Backstage Pro.");
 const SUPPORT_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Tenho dúvidas sobre o Backstage Pro e gostaria de falar com um atendente humano.");
@@ -113,6 +115,20 @@ const plans = [
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
     features: ["Tudo do Profissional +", "Link Agendamento Online", "Contratos Automáticos", "Histórico Financeiro", "Mapeamento de Palco", "Metas", "Bônus"],
+  },
+  {
+    id: "executivo",
+    name: "Executivo",
+    subtitle: "Tudo do Empresarial + Backs Radar: encontre bares, restaurantes e casas de show da sua região.",
+    price: "R$ 79,90",
+    period: "/mês",
+    buttonText: "Começar Executivo",
+    url: EXECUTIVO_URL,
+    highlight: false,
+    badgeText: "MAIS COMPLETO",
+    icon: Crown,
+    socialProof: "27 artistas estão nesse plano!",
+    features: ["Tudo do Empresarial +", "Backs Radar", "Oportunidades perto de você", "Contatos de bares e casas", "Envio direto ao CRM"],
   },
 ];
 
