@@ -151,6 +151,27 @@ const plans: PlanDef[] = [
       "Bônus",
     ],
   },
+  {
+    id: "executivo",
+    name: "Executivo",
+    subtitle: "Tudo do Empresarial + Backs Radar: uma rede de contatos de bares, restaurantes e casas de show da sua região.",
+    price: "R$ 79,90",
+    period: "/mês",
+    buttonText: "Escolher Executivo",
+    highlight: false,
+    badgeText: "MAIS COMPLETO",
+    icon: Crown,
+    socialProof: "27 artistas estão nesse plano!",
+    planKeyMonthly: "mensal_executivo",
+    planKeyYearly: "anual_executivo",
+    features: [
+      "Tudo do Empresarial +",
+      "Backs Radar",
+      "Oportunidades perto de você",
+      "Contatos de bares e casas",
+      "Envio direto ao CRM",
+    ],
+  },
 ];
 
 function UrgencyBanner() {
