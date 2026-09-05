@@ -733,11 +733,13 @@ export default function Admin() {
                             <option value="mensal_starter">Mensal Starter</option>
                             <option value="mensal_profissional">Mensal Profissional</option>
                             <option value="mensal_completo">Mensal Completo</option>
+                            <option value="mensal_executivo">Mensal Executivo</option>
                           </optgroup>
                           <optgroup label="Anual (365 dias)">
                             <option value="anual_starter">Anual Starter</option>
                             <option value="anual_profissional">Anual Profissional</option>
                             <option value="anual_completo">Anual Completo</option>
+                            <option value="anual_executivo">Anual Executivo</option>
                           </optgroup>
                           <option value="expirado">Expirado</option>
                           <option value="comprou_expirado">Comprou Expirado</option>
