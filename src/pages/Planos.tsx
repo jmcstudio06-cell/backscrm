@@ -377,7 +377,7 @@ export default function Planos() {
                   key={p.id}
                   className={cn(
                     "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
-                    isStarter
+                    p.id === "starter"
                       ? "border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-green-50"
                       : p.highlight
                       ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
