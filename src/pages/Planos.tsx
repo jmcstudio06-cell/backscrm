@@ -30,18 +30,22 @@ const CHECKOUT_URLS: Record<string, string> = {
   mensal_starter: "https://checkout.infinitepay.io/backstagegroup/xSJTvKbev",
   mensal_profissional: "https://checkout.infinitepay.io/backstagegroup/3ppHyYNBMH",
   mensal_empresarial: "https://checkout.infinitepay.io/backstagegroup/7feafZpCUB",
+  mensal_executivo: "https://checkout.infinitepay.io/backstagegroup/executivo-mensal",
   anual_starter: "https://checkout.infinitepay.io/backstagegroup/1uueQ3x5Jr",
   anual_profissional: "https://checkout.infinitepay.io/backstagegroup/1HH6RVTbeb",
   anual_empresarial: "https://checkout.infinitepay.io/backstagegroup/1uuf5FwQOf",
+  anual_executivo: "https://checkout.infinitepay.io/backstagegroup/executivo-anual",
 };
 
 const PLAN_AMOUNTS: Record<string, number> = {
   mensal_starter: 1990,
   mensal_profissional: 2490,
   mensal_empresarial: 3990,
+  mensal_executivo: 7990,
   anual_starter: 14990,
   anual_profissional: 19990,
   anual_empresarial: 29880,
+  anual_executivo: 49990,
 };
 
 const testimonials = [
