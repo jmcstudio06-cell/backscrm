@@ -9,9 +9,11 @@ const PLAN_LABELS: Record<string, string> = {
   mensal_starter: "Starter Mensal",
   mensal_profissional: "Profissional Mensal",
   mensal_completo: "Completo Mensal",
+  mensal_executivo: "Executivo Mensal",
   anual_starter: "Starter Anual",
   anual_profissional: "Profissional Anual",
   anual_completo: "Completo Anual",
+  anual_executivo: "Executivo Anual",
 };
 
 const STORAGE_PREFIX = "celebrated_activation_";
