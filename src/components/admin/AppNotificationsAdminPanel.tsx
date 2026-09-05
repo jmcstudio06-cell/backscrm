@@ -32,9 +32,11 @@ const PLAN_OPTIONS = [
   { value: "mensal_starter", label: "Mensal Starter" },
   { value: "mensal_profissional", label: "Mensal Profissional" },
   { value: "mensal_completo", label: "Mensal Empresarial" },
+  { value: "mensal_executivo", label: "Mensal Executivo" },
   { value: "anual_starter", label: "Anual Starter" },
   { value: "anual_profissional", label: "Anual Profissional" },
   { value: "anual_completo", label: "Anual Empresarial" },
+  { value: "anual_executivo", label: "Anual Executivo" },
   { value: "expirado", label: "Expirados" },
 ];
 

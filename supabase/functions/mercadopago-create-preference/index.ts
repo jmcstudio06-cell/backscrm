@@ -11,9 +11,11 @@ const PLAN_DETAILS: Record<string, { title: string; price: number; days: number 
   mensal_starter: { title: "Backstage Starter - Mensal", price: 19.90, days: 30 },
   mensal_profissional: { title: "Backstage Profissional - Mensal", price: 24.90, days: 30 },
   mensal_completo: { title: "Backstage Empresarial - Mensal", price: 39.90, days: 30 },
+  mensal_executivo: { title: "Backstage Executivo - Mensal", price: 79.90, days: 30 },
   anual_starter: { title: "Backstage Starter - Anual", price: 149.90, days: 365 },
   anual_profissional: { title: "Backstage Profissional - Anual", price: 199.90, days: 365 },
   anual_completo: { title: "Backstage Empresarial - Anual", price: 298.80, days: 365 },
+  anual_executivo: { title: "Backstage Executivo - Anual", price: 499.90, days: 365 },
 };
 
 serve(async (req) => {
