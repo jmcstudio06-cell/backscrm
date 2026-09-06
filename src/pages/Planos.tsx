@@ -353,7 +353,7 @@ export default function Planos() {
         )}
 
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
             {plans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
                 starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
@@ -373,81 +373,129 @@ export default function Planos() {
               const finalPeriod = isYearly ? "/ano" : "/mês";
               const isLoading = loadingPlan === finalPlanKey;
 
+              const theme = {
+                starter: {
+                  border: "border-emerald-200",
+                  ring: "ring-emerald-500/20",
+                  iconBg: "bg-emerald-100",
+                  iconText: "text-emerald-600",
+                  badge: "bg-emerald-600 hover:bg-emerald-600",
+                  check: "bg-emerald-500",
+                  button: "bg-emerald-600 hover:bg-emerald-700",
+                  gradient: "from-emerald-50/60 via-white to-white",
+                },
+                pro: {
+                  border: "border-blue-300",
+                  ring: "ring-blue-500/30",
+                  iconBg: "bg-blue-100",
+                  iconText: "text-blue-600",
+                  badge: "bg-blue-600 hover:bg-blue-600",
+                  check: "bg-blue-500",
+                  button: "bg-blue-600 hover:bg-blue-700",
+                  gradient: "from-blue-50/70 via-white to-cyan-50/40",
+                },
+                full: {
+                  border: "border-amber-200",
+                  ring: "ring-amber-500/20",
+                  iconBg: "bg-amber-100",
+                  iconText: "text-amber-600",
+                  badge: "bg-amber-600 hover:bg-amber-600",
+                  check: "bg-amber-500",
+                  button: "bg-amber-600 hover:bg-amber-700",
+                  gradient: "from-amber-50/60 via-white to-orange-50/40",
+                },
+                executivo: {
+                  border: "border-violet-200",
+                  ring: "ring-violet-500/30",
+                  iconBg: "bg-violet-100",
+                  iconText: "text-violet-600",
+                  badge: "bg-violet-600 hover:bg-violet-600",
+                  check: "bg-violet-500",
+                  button: "bg-violet-600 hover:bg-violet-700",
+                  gradient: "from-violet-50/70 via-white to-fuchsia-50/40",
+                },
+              }[p.id];
+
+              const PlanIcon = p.icon;
+
               return (
                 <Card
                   key={p.id}
                   className={cn(
-                    "relative rounded-3xl border shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col",
-                    p.id === "starter"
-                      ? "border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-green-50"
-                      : p.highlight
-                      ? "border-blue-500 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-                      : "border-amber-400 bg-gradient-to-br from-amber-50 via-white to-orange-50",
+                    "relative rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgb(0,0,0,0.1)] h-full flex flex-col overflow-visible",
+                    "bg-gradient-to-b",
+                    theme.gradient,
+                    theme.border,
+                    p.highlight && "ring-2 ring-blue-500/20 scale-[1.02] md:scale-[1.03]"
                   )}
                 >
-                  {p.badgeText && (
-                    <div className="absolute top-5 right-5">
-                      <Badge className="bg-blue-600 text-white rounded-full px-3 py-1 text-xs font-semibold">
+                  {p.highlight && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full px-4 py-1 text-xs font-bold shadow-lg border-0">
                         {p.badgeText}
                       </Badge>
                     </div>
                   )}
 
-                  <CardContent className="p-8 flex flex-col h-full">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                        <AppLogo size="sm" collapsed />
+                  <CardContent className="p-6 sm:p-7 flex flex-col h-full">
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0", theme.iconBg)}>
+                        <PlanIcon className={cn("w-6 h-6", theme.iconText)} />
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold">{p.name}</h3>
-                        <p className="text-sm text-muted-foreground font-medium">{p.subtitle}</p>
-                      </div>
+                      {!p.highlight && p.badgeText && (
+                        <Badge className={cn("rounded-full px-3 py-1 text-[10px] font-bold text-white border-0 shrink-0 mt-1", theme.badge)}>
+                          {p.badgeText}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="mb-5">
+                      <h3 className="text-2xl font-bold tracking-tight">{p.name}</h3>
+                      <p className="text-sm text-muted-foreground font-medium leading-relaxed mt-1">{p.subtitle}</p>
                     </div>
 
                     <div className="mb-6">
                       {isYearly && (
-                        <p className="text-sm text-red-600 line-through mb-1 font-semibold">
+                        <p className="text-sm text-muted-foreground line-through mb-1 font-semibold">
                           De: R$ {yearlyOldPrice}
                         </p>
                       )}
 
                       {isYearly ? (
                         <>
-                          <div className="flex items-end gap-2">
-                            <span className="text-4xl font-bold">12x de R$ {yearlyInstallment}</span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-3xl font-extrabold tracking-tight">12x R$ {yearlyInstallment}</span>
                           </div>
                           <p className="text-sm text-muted-foreground font-medium mt-1">
-                            ou R$ {yearlyNewPrice} à vista /ano
+                            ou <span className="font-bold text-foreground">R$ {yearlyNewPrice}</span> à vista /ano
                           </p>
                         </>
                       ) : (
-                        <div className="flex items-end gap-2">
-                          <span className="text-4xl font-bold">{finalPrice}</span>
-                          <span className="text-sm text-muted-foreground mb-1 font-medium">{finalPeriod}</span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-extrabold tracking-tight">{finalPrice}</span>
+                          <span className="text-sm text-muted-foreground font-medium">{finalPeriod}</span>
                         </div>
                       )}
 
-                      <p className="text-xs text-muted-foreground mt-1 font-medium">
+                      <p className="text-xs text-muted-foreground mt-2 font-medium">
                         {isYearly ? "Cobrança anual pré-paga." : "Cobrança mensal pré-paga. Cancele quando quiser."}
                       </p>
                     </div>
 
-                    <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-white/20 to-white/40 mb-6 flex-1">
-                      <div className="rounded-2xl bg-background/80 backdrop-blur-md border border-white/20 shadow-inner p-6 h-full">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
-                          O que inclui
-                        </p>
-                        <ul className="space-y-3">
-                          {p.features.map((f, i) => (
-                            <li key={i} className="flex items-start gap-3 text-sm font-medium">
-                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                                <Check className="w-3 h-3 text-white" />
-                              </div>
-                              <span>{f}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                    <div className="rounded-2xl bg-white/70 border border-white/60 shadow-sm p-5 mb-6 flex-1">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
+                        O que inclui
+                      </p>
+                      <ul className="space-y-2.5">
+                        {p.features.map((f, i) => (
+                          <li key={i} className="flex items-start gap-3 text-sm font-medium">
+                            <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5", theme.check)}>
+                              <Check className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="text-foreground/90">{f}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
 
                     <div className="mt-auto">
@@ -455,12 +503,12 @@ export default function Planos() {
                         size="lg"
                         disabled={isLoading}
                         className={cn(
-                          "w-full rounded-2xl text-white font-semibold shadow-md",
+                          "w-full rounded-2xl text-white font-semibold shadow-md transition-all hover:shadow-lg",
                           isActiveOrExpiredPaid && userTier === p.id
-                            ? "bg-gradient-to-r from-emerald-600 to-emerald-500"
+                            ? "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600"
                             : p.highlight
-                            ? "bg-gradient-to-r from-blue-600 to-cyan-500"
-                            : "bg-gradient-to-r from-primary to-blue-600",
+                            ? "bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
+                            : cn("bg-gradient-to-r", theme.button)
                         )}
                         onClick={() => handleSubscribe(finalPlanKey)}
                       >
@@ -488,7 +536,12 @@ export default function Planos() {
                           )}
                         </span>
                       </Button>
-                      <p className="text-xs text-center text-muted-foreground mt-3 font-medium">{p.socialProof}</p>
+                      {p.socialProof && (
+                        <p className="text-xs text-center text-muted-foreground mt-3 font-medium flex items-center justify-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          {p.socialProof}
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
