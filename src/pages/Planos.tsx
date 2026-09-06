@@ -10,7 +10,6 @@ import {
   HeadphonesIcon,
   XCircle,
   Quote,
-  AlertTriangle,
   Sparkles,
   Briefcase,
   Crown,
@@ -18,9 +17,11 @@ import {
   CalendarDays,
   CalendarRange,
   Loader2,
+  Rocket,
+  Building2,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AppLogo } from "@/components/layout/AppLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
