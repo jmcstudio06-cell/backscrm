@@ -515,12 +515,12 @@ export default function Planos() {
                         size="lg"
                         disabled={isLoading}
                         className={cn(
-                          "w-full rounded-2xl text-white font-semibold shadow-md transition-all hover:shadow-lg",
+                          "w-full rounded-2xl text-white font-semibold shadow-md transition-all hover:shadow-lg bg-gradient-to-r",
                           isActiveOrExpiredPaid && userTier === p.id
-                            ? "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600"
+                            ? "from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600"
                             : p.highlight
-                            ? "bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
-                            : cn("bg-gradient-to-r", theme.button)
+                            ? "from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
+                            : cn(theme.buttonFrom, theme.buttonTo, theme.buttonHoverFrom, theme.buttonHoverTo)
                         )}
                         onClick={() => handleSubscribe(finalPlanKey)}
                       >
