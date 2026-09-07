@@ -136,12 +136,16 @@ export function TransactionModal({ open, onOpenChange, type, onSave }: Transacti
 
         if (showsData) {
           const formatted = showsData
-            .map(d => ({
-              show_id: d.show_id,
-              fee: d.fee,
-              title: d.shows?.title || "Show",
-              date: d.shows?.date || "",
-            }))
+            .map((d) => {
+              const show = Array.isArray(d.shows) ? d.shows[0] : d.shows;
+              return {
+                show_id: d.show_id,
+                fee: d.fee,
+                title: show?.title || "Show",
+                date: show?.date || "",
+              };
+            })
+
             // Filter out shows whose title appears in any past payment description for this musician
             .filter(s => {
               const isPaid = pastDescriptions.some(desc => 
