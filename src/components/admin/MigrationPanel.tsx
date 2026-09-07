@@ -64,6 +64,44 @@ export function MigrationPanel() {
   const [tables, setTables] = useState<MigrationTable[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [exporting, setExporting] = useState<string | null>(null);
+
+  const fetchRows = async (table: string) => {
+    const { data, error } = await supabase.rpc("admin_read_query", {
+      sql_query: `select * from public."${table}"`,
+    });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as unknown[];
+  };
+
+  const exportTable = async (table: string) => {
+    setExporting(table);
+    try {
+      const rows = await fetchRows(table);
+      download(`${table}.json`, JSON.stringify(rows, null, 2));
+      toast({ title: `${table}: ${rows.length} registros baixados` });
+    } catch (e) {
+      toast({ title: `Erro em ${table}`, description: (e as Error).message, variant: "destructive" });
+    }
+    setExporting(null);
+  };
+
+  const exportAll = async () => {
+    if (!tables) return;
+    const out: Record<string, unknown[]> = {};
+    for (const t of tables.filter((x) => x.row_count > 0)) {
+      setExporting(t.table_name);
+      try {
+        out[t.table_name] = await fetchRows(t.table_name);
+      } catch {
+        out[t.table_name] = [];
+      }
+    }
+    setExporting(null);
+    download("dados-completos.json", JSON.stringify(out, null, 2));
+    toast({ title: `${Object.keys(out).length} tabelas exportadas` });
+  };
+
 
   const names = functionNames();
 
@@ -239,6 +277,56 @@ export function MigrationPanel() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Passo 5 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Download className="h-4 w-4" /> Passo 5 — Exportar o conteúdo das tabelas
+          </CardTitle>
+          <CardDescription>
+            Baixe os registros de cada tabela em arquivo (até 5.000 por vez) para conferir ou importar no destino.
+            Somente leitura: nada é alterado aqui.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {!tables ? (
+            <Button onClick={loadTables} disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null} Carregar tabelas
+            </Button>
+          ) : (
+            <div className="max-h-80 overflow-auto rounded-lg border divide-y">
+              {tables
+                .filter((t) => t.row_count > 0)
+                .map((t) => (
+                  <div key={t.table_name} className="flex items-center gap-2 p-2 text-sm">
+                    <span className="font-mono text-xs flex-1 truncate">{t.table_name}</span>
+                    <span className="text-xs text-muted-foreground">{t.row_count} reg.</span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={exporting === t.table_name}
+                      onClick={() => exportTable(t.table_name)}
+                    >
+                      {exporting === t.table_name ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Download className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </div>
+                ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Button variant="secondary" disabled={!tables || exporting !== null} onClick={exportAll}>
+              {exporting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
+              Baixar tudo em um arquivo
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+

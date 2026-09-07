@@ -2754,6 +2754,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_read_query: { Args: { sql_query: string }; Returns: Json }
       archive_monthly_ranking: { Args: never; Returns: number }
       auto_archive_old_budgets: { Args: never; Returns: number }
       auto_complete_past_shows: { Args: never; Returns: number }
