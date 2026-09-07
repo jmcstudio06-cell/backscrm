@@ -1,1 +1,0 @@
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS financial_mode text NOT NULL DEFAULT 'automatic';

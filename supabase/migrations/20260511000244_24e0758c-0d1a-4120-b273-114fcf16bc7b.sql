@@ -1,1 +1,0 @@
-ALTER TABLE public.contracts ADD COLUMN IF NOT EXISTS client_rg text;

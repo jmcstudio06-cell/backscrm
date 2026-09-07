@@ -1,1 +1,0 @@
-ALTER TABLE public.shows ADD COLUMN IF NOT EXISTS duration_minutes integer; ALTER TABLE public.shows ADD COLUMN IF NOT EXISTS performance_format text;

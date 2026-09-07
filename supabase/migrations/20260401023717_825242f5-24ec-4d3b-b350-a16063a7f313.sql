@@ -1,1 +1,0 @@
-ALTER TABLE public.performance_types ADD COLUMN cover_url text;

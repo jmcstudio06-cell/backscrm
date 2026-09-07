@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "7e3a9883-0910-4c07-99d7-46eb6ae1cb54",
-  "project_id": "a7522896-776e-445a-b0ef-2f3bf171fe86",
-  "url": "/__l5e/assets-v1/7e3a9883-0910-4c07-99d7-46eb6ae1cb54/ranking-banner.png",
-  "r2_key": "a/v1/a7522896-776e-445a-b0ef-2f3bf171fe86/7e3a9883-0910-4c07-99d7-46eb6ae1cb54/ranking-banner.png",
-  "original_filename": "ranking-banner.png",
-  "size": 1433584,
   "content_type": "image/png",
-  "created_at": "2026-07-02T00:20:49Z"
+  "created_at": "2026-07-02T00:20:49Z",
+  "original_filename": "ranking-banner.png",
+  "project_id": "52c7de05-990c-4886-9da3-ccf34d5c150c",
+  "r2_key": "a/v1/52c7de05-990c-4886-9da3-ccf34d5c150c/7e3a9883-0910-4c07-99d7-46eb6ae1cb54/ranking-banner.png",
+  "size": 1433584,
+  "url": "/__l5e/assets-v1/7e3a9883-0910-4c07-99d7-46eb6ae1cb54/ranking-banner.png",
+  "version": 1
 }

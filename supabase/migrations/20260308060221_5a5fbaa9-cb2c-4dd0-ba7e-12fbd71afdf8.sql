@@ -1,1 +1,0 @@
-ALTER TABLE public.performance_types ADD COLUMN IF NOT EXISTS icon text DEFAULT 'music';
