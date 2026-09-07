@@ -2802,6 +2802,16 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_migration_tables: {
+        Args: never
+        Returns: {
+          column_count: number
+          has_user_id: boolean
+          rls_enabled: boolean
+          row_count: number
+          table_name: string
+        }[]
+      }
       get_monthly_show_ranking: {
         Args: never
         Returns: {

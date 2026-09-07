@@ -57,6 +57,9 @@ import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsA
 import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
 import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
 import { MaintenancePanel } from "@/components/admin/MaintenancePanel";
+import { MigrationPanel } from "@/components/admin/MigrationPanel";
+import { Database } from "lucide-react";
+
 import { RadarRegionsPanel } from "@/components/admin/RadarRegionsPanel";
 
 import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
@@ -638,6 +641,10 @@ export default function Admin() {
           <TabsTrigger value="maintenance" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Wrench className="h-3.5 w-3.5" /> Manutenção
           </TabsTrigger>
+          <TabsTrigger value="migration" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Database className="h-3.5 w-3.5" /> Migração
+          </TabsTrigger>
+
 
 
         </TabsList>
@@ -1005,6 +1012,9 @@ export default function Admin() {
         <TabsContent value="cloud"><CloudUsagePanel /></TabsContent>
 
         <TabsContent value="maintenance"><MaintenancePanel /></TabsContent>
+
+        <TabsContent value="migration"><MigrationPanel /></TabsContent>
+
 
 
         <TabsContent value="marco">
