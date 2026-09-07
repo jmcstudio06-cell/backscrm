@@ -166,7 +166,6 @@ export function RadarRegionsPanel() {
               Salvar região
             </Button>
           </DialogFooter>
-        </DialogFooter>
         </DialogContent>
       </Dialog>
     </Card>

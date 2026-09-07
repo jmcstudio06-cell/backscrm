@@ -35,6 +35,7 @@ import {
   ChevronRight,
   Crown,
   Trash2,
+  MapPin,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -54,6 +55,7 @@ import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPa
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
 import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
 import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
+import { RadarRegionsPanel } from "@/components/admin/RadarRegionsPanel";
 
 import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
 
@@ -625,6 +627,9 @@ export default function Admin() {
           <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <PartyPopper className="h-3.5 w-3.5" /> Marco
           </TabsTrigger>
+          <TabsTrigger value="radar" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <MapPin className="h-3.5 w-3.5" /> Backs Radar
+          </TabsTrigger>
           <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Cloud className="h-3.5 w-3.5" /> Cloud
           </TabsTrigger>
@@ -989,6 +994,8 @@ export default function Admin() {
 
         {/* Dashboard Ads Tab */}
         <TabsContent value="ads"><DashboardAdsPanel /></TabsContent>
+
+        <TabsContent value="radar"><RadarRegionsPanel /></TabsContent>
 
         <TabsContent value="cloud"><CloudUsagePanel /></TabsContent>
 

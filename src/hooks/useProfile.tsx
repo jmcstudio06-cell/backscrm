@@ -50,6 +50,10 @@ export interface Profile {
   booking_show_products: boolean;
   feature_blocks: Record<string, boolean> | null;
   trial_days: number | null;
+  radar_state: string | null;
+  radar_city: string | null;
+  radar_cep: string | null;
+  radar_configured_at: string | null;
 }
 
 export function useProfile() {
