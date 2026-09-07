@@ -67,23 +67,40 @@ function whatsappLink(phone: string) {
 
 export default function BacksRadar() {
   const { addLead } = useLeads();
-  const [state, setState] = useState("SP");
-  const [city, setCity] = useState("");
+  const { profile, loading: profileLoading, updateProfile } = useProfile();
   const [category, setCategory] = useState("bares");
   const [loading, setLoading] = useState(false);
   const [places, setPlaces] = useState<RadarPlace[] | null>(null);
   const [source, setSource] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState({ state: "", city: "", cep: "" });
+  const [savingRegion, setSavingRegion] = useState(false);
 
-  const search = async () => {
-    if (city.trim().length < 2) {
-      toast.error("Informe a cidade");
+  const state = profile?.radar_state ?? "";
+  const city = profile?.radar_city ?? "";
+  const configured = !!(state && city);
+
+  const saveRegion = async () => {
+    if (!draft.state || !draft.city) {
+      toast.error("Selecione seu estado e sua cidade");
       return;
     }
+    setSavingRegion(true);
+    await updateProfile({
+      radar_state: draft.state,
+      radar_city: draft.city,
+      radar_cep: draft.cep.replace(/\D/g, "") || null,
+      radar_configured_at: new Date().toISOString(),
+    } as never);
+    setSavingRegion(false);
+  };
+
+  const search = async () => {
+    if (!configured) return;
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("backs-radar-search", {
-        body: { state, city: city.trim(), category },
+        body: { state, city, category },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -122,6 +139,68 @@ export default function BacksRadar() {
     });
     setSavingId(null);
   };
+
+  if (profileLoading) {
+    return (
+      <Layout title="Backs Radar" subtitle="Carregando...">
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!configured) {
+    return (
+      <Layout
+        title="Backs Radar"
+        subtitle="Antes de começar, diga qual é a sua região de atuação"
+      >
+        <div className="max-w-xl mx-auto">
+          <div className="relative overflow-hidden rounded-3xl border bg-card/80 backdrop-blur-xl p-6 shadow-xl space-y-5">
+            <div className="absolute -top-16 -right-16 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
+            <div className="relative flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg">
+                <Radar className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold leading-tight">Configure sua região</h2>
+                <p className="text-sm text-muted-foreground">
+                  Você faz isso uma única vez. Depois seu radar já vem pronto para a sua cidade.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative">
+              <RegionPicker
+                state={draft.state}
+                city={draft.city}
+                cep={draft.cep}
+                onChange={setDraft}
+              />
+            </div>
+
+            <Button
+              onClick={saveRegion}
+              disabled={savingRegion || !draft.state || !draft.city}
+              className="w-full rounded-xl gap-2"
+            >
+              {savingRegion ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MapPin className="h-4 w-4" />
+              )}
+              Salvar minha região
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              Precisa mudar depois? Fale com o suporte e a equipe ajusta sua região.
+            </p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
 
   return (
     <Layout
