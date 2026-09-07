@@ -120,6 +120,7 @@ const App = () => (
               <NotificationPrompt />
               <PushSubscriptionRefresher />
               <LastSeenTracker />
+              <OnboardingGate />
 
               <PlanActivatedCelebration />
               <MaintenanceGate>
