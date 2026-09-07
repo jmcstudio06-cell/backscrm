@@ -1,17 +1,10 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useLeads } from "@/hooks/useLeads";
+import { useProfile } from "@/hooks/useProfile";
+import { RegionPicker } from "@/components/radar/RegionPicker";
 import { toast } from "sonner";
 import {
   Radar,
@@ -220,53 +213,27 @@ export default function BacksRadar() {
               </div>
               <div>
                 <h2 className="text-lg font-bold leading-tight">Radar de contatos</h2>
-                <p className="text-sm text-muted-foreground">
-                  Escolha o estado, a cidade e o tipo de local
+                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-primary" />
+                  Sua região: <span className="font-semibold text-foreground">{city} / {state}</span>
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-[110px_1fr_auto]">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Estado</Label>
-                <Select value={state} onValueChange={setState}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-72">
-                    {UFS.map((uf) => (
-                      <SelectItem key={uf} value={uf}>
-                        {uf}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs">Cidade</Label>
-                <Input
-                  value={city}
-                  maxLength={80}
-                  placeholder="Ex: Ribeirão Preto"
-                  onChange={(e) => setCity(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") search();
-                  }}
-                />
-              </div>
-
-              <div className="space-y-1.5 flex flex-col justify-end">
-                <Button onClick={search} disabled={loading} className="gap-2 rounded-xl">
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                  Buscar
-                </Button>
-              </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button onClick={search} disabled={loading} className="gap-2 rounded-xl">
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Search className="h-4 w-4" />
+                )}
+                Buscar contatos
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Para mudar de região, fale com o suporte.
+              </p>
             </div>
+
 
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map(({ key, label, icon: Icon }) => (
