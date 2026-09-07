@@ -37,12 +37,6 @@ interface RadarPlace {
   maps_uri: string | null;
 }
 
-const UFS = [
-  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
-  "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
-  "SP", "SE", "TO",
-];
-
 const CATEGORIES = [
   { key: "bares", label: "Bares", icon: Beer },
   { key: "restaurantes", label: "Restaurantes", icon: UtensilsCrossed },
