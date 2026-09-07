@@ -85,23 +85,10 @@ const Dashboard = () => {
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
-  // Check if user should see onboarding, checklists, and fetch lightweight counts
+  // Contadores leves (o onboarding é tratado no OnboardingGate)
   useEffect(() => {
     if (profileLoading || !profile) return;
 
-    // Check onboarding using already-loaded profile (no auth.getUser call)
-    if (!profile.onboarding_completed) {
-      // Show the mandatory welcome video ONLY on first signup (once per user)
-      const videoSeenKey = `welcome_video_seen_${profile.user_id}`;
-      const videoSeen = localStorage.getItem(videoSeenKey);
-      if (!videoSeen) {
-        setShowWelcomeVideo(true);
-      } else {
-        setShowWelcome(true);
-      }
-    }
-    // Onboarding handles install/notifications/goal in one flow.
-    // Do NOT show extra install/notification prompts afterwards.
 
     // Batch lightweight count queries (checklist agora é 100% local — sem query)
     const fetchCounts = async () => {
