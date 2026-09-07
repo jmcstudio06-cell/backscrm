@@ -44,11 +44,9 @@ const Dashboard = () => {
   const { shows, loading: showsLoading } = useShows();
   const { profile, loading: profileLoading } = useProfile();
   const { clients, loading: clientsLoading } = useClients();
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showWelcomeVideo, setShowWelcomeVideo] = useState(false);
-  
-  // Onboarding flow handles its own goal step — suppress legacy goal modal during onboarding
-  const onboardingActive = showWelcomeVideo || showWelcome;
+  // O onboarding obrigatório (vídeo + 4 etapas) agora vive no OnboardingGate (App).
+  // Aqui só suprimimos o modal de meta enquanto ele não foi concluído.
+  const onboardingActive = !profile?.onboarding_completed;
   const [checklistsUsed, setChecklistsUsed] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
   // Lightweight counts instead of full data hooks
