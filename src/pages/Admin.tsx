@@ -35,6 +35,7 @@ import {
   ChevronRight,
   Crown,
   Trash2,
+  MapPin,
 } from "lucide-react";
 import {
   AlertDialog,
