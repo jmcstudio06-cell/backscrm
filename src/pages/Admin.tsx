@@ -57,6 +57,9 @@ import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsA
 import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
 import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
 import { MaintenancePanel } from "@/components/admin/MaintenancePanel";
+import { MigrationPanel } from "@/components/admin/MigrationPanel";
+import { Database } from "lucide-react";
+
 import { RadarRegionsPanel } from "@/components/admin/RadarRegionsPanel";
 
 import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
