@@ -1010,6 +1010,9 @@ export default function Admin() {
 
         <TabsContent value="maintenance"><MaintenancePanel /></TabsContent>
 
+        <TabsContent value="migration"><MigrationPanel /></TabsContent>
+
+
 
         <TabsContent value="marco">
           <Card className="overflow-hidden border-0 shadow-xl">
