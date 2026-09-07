@@ -425,36 +425,6 @@ const Dashboard = () => {
         monthName={currentMonthName}
       />
 
-      {/* Mandatory welcome video — only on FIRST signup, cannot be skipped */}
-      <WelcomeVideoModal
-        open={showWelcomeVideo}
-        userName={profile?.name || undefined}
-        onFinished={() => {
-          if (profile?.user_id) {
-            localStorage.setItem(`welcome_video_seen_${profile.user_id}`, "1");
-          }
-          setShowWelcomeVideo(false);
-          setShowWelcome(true);
-        }}
-      />
-
-      {/* Unified onboarding flow (4 steps): Install → Notifications → Goal → Ready */}
-      <OnboardingFlow
-        open={showWelcome}
-        userName={profile?.name || undefined}
-        monthName={currentMonthName}
-        onFinish={async (goalTarget) => {
-          if (goalTarget) {
-            try {
-              await handleGoalSet(goalTarget);
-            } catch (e) {
-              console.error("Error saving goal from onboarding:", e);
-            }
-          }
-          setShowWelcome(false);
-          queryClient.invalidateQueries({ queryKey: ["profile"] });
-        }}
-      />
 
 
       <div className="space-y-4 sm:space-y-6">
