@@ -66,6 +66,7 @@ import NotFound from "./pages/NotFound";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
 import { LastSeenTracker } from "@/components/auth/LastSeenTracker";
+import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
 
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 import { SplashScreen } from "@/components/layout/SplashScreen";
@@ -119,6 +120,7 @@ const App = () => (
               <NotificationPrompt />
               <PushSubscriptionRefresher />
               <LastSeenTracker />
+              <OnboardingGate />
 
               <PlanActivatedCelebration />
               <MaintenanceGate>

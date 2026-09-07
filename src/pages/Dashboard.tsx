@@ -16,8 +16,6 @@ import { MonthlyShowGoalProgress } from "@/components/dashboard/MonthlyShowGoalP
 import { RankingTeaser } from "@/components/dashboard/RankingTeaser";
 import { RenewSoonBanner } from "@/components/dashboard/RenewSoonBanner";
 import { PartnerAdBanner } from "@/components/dashboard/PartnerAdBanner";
-import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
-import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
 
 import { useLeads } from "@/hooks/useLeads";
@@ -44,11 +42,9 @@ const Dashboard = () => {
   const { shows, loading: showsLoading } = useShows();
   const { profile, loading: profileLoading } = useProfile();
   const { clients, loading: clientsLoading } = useClients();
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showWelcomeVideo, setShowWelcomeVideo] = useState(false);
-  
-  // Onboarding flow handles its own goal step — suppress legacy goal modal during onboarding
-  const onboardingActive = showWelcomeVideo || showWelcome;
+  // O onboarding obrigatório (vídeo + 4 etapas) agora vive no OnboardingGate (App).
+  // Aqui só suprimimos o modal de meta enquanto ele não foi concluído.
+  const onboardingActive = !profile?.onboarding_completed;
   const [checklistsUsed, setChecklistsUsed] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
   // Lightweight counts instead of full data hooks
@@ -87,23 +83,10 @@ const Dashboard = () => {
     }).length;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
-  // Check if user should see onboarding, checklists, and fetch lightweight counts
+  // Contadores leves (o onboarding é tratado no OnboardingGate)
   useEffect(() => {
     if (profileLoading || !profile) return;
 
-    // Check onboarding using already-loaded profile (no auth.getUser call)
-    if (!profile.onboarding_completed) {
-      // Show the mandatory welcome video ONLY on first signup (once per user)
-      const videoSeenKey = `welcome_video_seen_${profile.user_id}`;
-      const videoSeen = localStorage.getItem(videoSeenKey);
-      if (!videoSeen) {
-        setShowWelcomeVideo(true);
-      } else {
-        setShowWelcome(true);
-      }
-    }
-    // Onboarding handles install/notifications/goal in one flow.
-    // Do NOT show extra install/notification prompts afterwards.
 
     // Batch lightweight count queries (checklist agora é 100% local — sem query)
     const fetchCounts = async () => {
@@ -427,36 +410,6 @@ const Dashboard = () => {
         monthName={currentMonthName}
       />
 
-      {/* Mandatory welcome video — only on FIRST signup, cannot be skipped */}
-      <WelcomeVideoModal
-        open={showWelcomeVideo}
-        userName={profile?.name || undefined}
-        onFinished={() => {
-          if (profile?.user_id) {
-            localStorage.setItem(`welcome_video_seen_${profile.user_id}`, "1");
-          }
-          setShowWelcomeVideo(false);
-          setShowWelcome(true);
-        }}
-      />
-
-      {/* Unified onboarding flow (4 steps): Install → Notifications → Goal → Ready */}
-      <OnboardingFlow
-        open={showWelcome}
-        userName={profile?.name || undefined}
-        monthName={currentMonthName}
-        onFinish={async (goalTarget) => {
-          if (goalTarget) {
-            try {
-              await handleGoalSet(goalTarget);
-            } catch (e) {
-              console.error("Error saving goal from onboarding:", e);
-            }
-          }
-          setShowWelcome(false);
-          queryClient.invalidateQueries({ queryKey: ["profile"] });
-        }}
-      />
 
 
       <div className="space-y-4 sm:space-y-6">
