@@ -36,6 +36,7 @@ import {
   Crown,
   Trash2,
   MapPin,
+  Wrench,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -55,6 +56,7 @@ import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPa
 import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
 import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
 import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
+import { MaintenancePanel } from "@/components/admin/MaintenancePanel";
 import { RadarRegionsPanel } from "@/components/admin/RadarRegionsPanel";
 
 import { MonthlyShowRankingPanel } from "@/components/admin/MonthlyShowRankingPanel";
@@ -633,6 +635,9 @@ export default function Admin() {
           <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Cloud className="h-3.5 w-3.5" /> Cloud
           </TabsTrigger>
+          <TabsTrigger value="maintenance" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Wrench className="h-3.5 w-3.5" /> Manutenção
+          </TabsTrigger>
 
 
         </TabsList>
@@ -998,6 +1003,8 @@ export default function Admin() {
         <TabsContent value="radar"><RadarRegionsPanel /></TabsContent>
 
         <TabsContent value="cloud"><CloudUsagePanel /></TabsContent>
+
+        <TabsContent value="maintenance"><MaintenancePanel /></TabsContent>
 
 
         <TabsContent value="marco">

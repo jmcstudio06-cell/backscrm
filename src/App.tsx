@@ -69,6 +69,7 @@ import { LastSeenTracker } from "@/components/auth/LastSeenTracker";
 
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 import { SplashScreen } from "@/components/layout/SplashScreen";
+import { MaintenanceGate } from "@/components/layout/MaintenanceGate";
 import type { ReactNode } from "react";
 
 const queryClient = new QueryClient({
@@ -120,6 +121,7 @@ const App = () => (
               <LastSeenTracker />
 
               <PlanActivatedCelebration />
+              <MaintenanceGate>
               <Routes>
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
@@ -177,6 +179,7 @@ const App = () => (
                 <Route path="/assinar/:slug/:token" element={<ErrorBoundary><AssinarContrato /></ErrorBoundary>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </MaintenanceGate>
             </CustomizationProvider>
           </AppSettingsProvider>
           </WorkspaceProvider>
