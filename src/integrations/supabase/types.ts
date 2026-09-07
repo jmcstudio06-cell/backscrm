@@ -1651,6 +1651,10 @@ export type Database = {
           phone: string | null
           plan: string | null
           project_type: string | null
+          radar_cep: string | null
+          radar_city: string | null
+          radar_configured_at: string | null
+          radar_state: string | null
           repertoire_url: string | null
           requires_food: boolean | null
           show_duration: string | null
@@ -1729,6 +1733,10 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           project_type?: string | null
+          radar_cep?: string | null
+          radar_city?: string | null
+          radar_configured_at?: string | null
+          radar_state?: string | null
           repertoire_url?: string | null
           requires_food?: boolean | null
           show_duration?: string | null
@@ -1807,6 +1815,10 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           project_type?: string | null
+          radar_cep?: string | null
+          radar_city?: string | null
+          radar_configured_at?: string | null
+          radar_state?: string | null
           repertoire_url?: string | null
           requires_food?: boolean | null
           show_duration?: string | null
