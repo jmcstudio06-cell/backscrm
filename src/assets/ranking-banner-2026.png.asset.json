@@ -1,11 +1,11 @@
 {
+  "version": 1,
   "asset_id": "5f527cea-b28d-4715-ba62-824b950e8837",
-  "content_type": "image/png",
-  "created_at": "2026-08-03T16:03:31Z",
-  "original_filename": "ranking-banner-2026.png",
-  "project_id": "52c7de05-990c-4886-9da3-ccf34d5c150c",
-  "r2_key": "a/v1/52c7de05-990c-4886-9da3-ccf34d5c150c/5f527cea-b28d-4715-ba62-824b950e8837/ranking-banner-2026.png",
-  "size": 1641009,
+  "project_id": "a7522896-776e-445a-b0ef-2f3bf171fe86",
   "url": "/__l5e/assets-v1/5f527cea-b28d-4715-ba62-824b950e8837/ranking-banner-2026.png",
-  "version": 1
+  "r2_key": "a/v1/a7522896-776e-445a-b0ef-2f3bf171fe86/5f527cea-b28d-4715-ba62-824b950e8837/ranking-banner-2026.png",
+  "original_filename": "ranking-banner-2026.png",
+  "size": 1641009,
+  "content_type": "image/png",
+  "created_at": "2026-08-03T16:03:31Z"
 }

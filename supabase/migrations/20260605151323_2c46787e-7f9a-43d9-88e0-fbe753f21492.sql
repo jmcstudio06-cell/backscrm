@@ -1,0 +1,2 @@
+ALTER TABLE public.shows DROP CONSTRAINT IF EXISTS shows_status_check;
+ALTER TABLE public.shows ADD CONSTRAINT shows_status_check CHECK (status = ANY (ARRAY['scheduled'::text, 'confirmed'::text, 'completed'::text, 'cancelled'::text, 'partial'::text, 'pending'::text, 'negotiation'::text]));

@@ -1,1 +1,30 @@
-project_id = "jyjddhbjrmgdhococpfr"
+project_id = "nwewheihdqfwsobompnp"
+
+[auth.rate_limit]
+email_sent = 1000
+sign_in_sign_ups = 3000
+token_refresh = 3000
+verify = 3000
+otp = 3000
+
+
+
+[functions]
+  [functions.admin-delete-user]
+    verify_jwt = false
+  [functions.admin-update-password]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.get-vapid-key]
+    verify_jwt = false
+  [functions.send-push-notification]
+    verify_jwt = false
+  [functions.infinitepay-webhook]
+    verify_jwt = false
+  [functions.invite-user]
+    verify_jwt = false
+  [functions.mercadopago-create-preference]
+    verify_jwt = false
+  [functions.mercadopago-webhook]
+    verify_jwt = false
