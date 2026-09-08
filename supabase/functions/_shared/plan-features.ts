@@ -30,29 +30,33 @@ export const ALL_FEATURES = [
   "ideias-post",
   "metas-anuais",
   "backs-radar",
+  "usuarios",
 ];
 
+// Legacy plan (no longer sold, preserved for existing subscribers).
 const STARTER_FEATURES = [
   "dashboard", "agenda", "financeiro", "precificacao", "avancos",
   "servicos", "tutoriais", "configuracoes",
 ];
 
 const PROFISSIONAL_FEATURES = [
-  ...STARTER_FEATURES,
-  "clientes", "repertorio", "crm", "orcamentos", "checklist",
-  "equipe", "link-instagram", "ideias-post",
+  "dashboard", "agenda", "clientes", "repertorio", "financeiro", "precificacao",
+  "orcamentos", "servicos", "checklist", "crm", "link-instagram", "ideias-post",
+  "avancos", "tutoriais", "configuracoes",
 ];
 
 const EMPRESARIAL_FEATURES = [
   ...PROFISSIONAL_FEATURES,
-  "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "aulas",
-  "link-agenda", "link-orcamento", "bonus", "ideias-post", "metas-anuais",
+  "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco",
+  "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus",
 ];
 
 const EXECUTIVO_FEATURES = [
   ...EMPRESARIAL_FEATURES,
   "backs-radar",
+  "usuarios",
 ];
+
 
 export const PLAN_FEATURES: Record<string, string[]> = {
   // Starter
