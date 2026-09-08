@@ -166,8 +166,10 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         children: item.children.filter((c) => {
           if (c.ownerOnly && isMember) return false;
           if (c.adminOnly && !isAdmin) return false;
+          if (!isMember) return true;
           return !(c.featureKey && isBlocked(c.featureKey));
         }),
+
       };
     })
     .filter((item) => {
