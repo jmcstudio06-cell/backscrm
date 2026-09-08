@@ -176,14 +176,17 @@ const PLAN_DURATIONS: Record<string, number> = {
   base: 30, mensal: 30, essencial: 90, completo: 180, anual: 365,
 };
 
-const ALL_FEATURE_KEYS = [
-  "dashboard", "agenda", "crm", "clientes", "orcamentos", "servicos",
-  "contratos", "financeiro", "historico", "precificacao", "checklist",
-  "mapeamento-palco", "equipe", "metas", "repertorio", "aulas",
-  "avancos", "tutoriais", "configuracoes", "link-agenda",
+const ALL_FEATURE_KEYS = Object.keys(FEATURE_LABELS);
+
+const FEATURES: { key: string; label: string }[] = ALL_FEATURE_KEYS.map(key => ({ key, label: FEATURE_LABELS[key] }));
+
+// Recursos liberados no Trial de 3 horas (espelha useFeatureBlocks)
+const TRIAL_FEATURES = [
+  "dashboard", "agenda", "crm", "clientes", "financeiro", "historico", "precificacao",
+  "checklist", "equipe", "metas", "repertorio", "aulas", "avancos", "tutoriais",
+  "configuracoes", "servicos",
 ];
 
-const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos", "link-agenda"];
 
 const USERS_PER_PAGE = 10;
 
