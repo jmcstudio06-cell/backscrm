@@ -20,12 +20,6 @@ export function NotificationPrompt() {
       return;
     }
 
-    // Onboarding flow already handled the notification prompt — don't nag again.
-    if (profile?.onboarding_completed) {
-      console.log("[NotifPrompt] Onboarding completed, suppressing prompt");
-      return;
-    }
-
     const check = async () => {
       const hasNotification = "Notification" in window;
       const hasSW = "serviceWorker" in navigator;
@@ -37,6 +31,7 @@ export function NotificationPrompt() {
         console.log("[NotifPrompt] Browser doesn't support push notifications");
         return;
       }
+
 
       const permission = Notification.permission;
       console.log("[NotifPrompt] Current permission:", permission);
