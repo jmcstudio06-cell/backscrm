@@ -403,7 +403,9 @@ export default function Admin() {
       }
     }
 
+    const previousBlocks = parseFeatureBlocks(users.find(u => u.user_id === userId)?.feature_blocks);
     const newFeatureBlocks: Record<string, boolean> = {};
+    if (previousBlocks.block_monthly_billing === true) newFeatureBlocks.block_monthly_billing = true;
     const tier = getPlanTier(plan);
     const tierModule = PLAN_MODULES[tier as keyof typeof PLAN_MODULES];
     
