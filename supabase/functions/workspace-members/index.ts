@@ -1,9 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { PLAN_FEATURES, canonicalPlan } from "../_shared/plan-features.ts";
 
 const MAX_FREE_MEMBERS = 1;
 const LEVELS = ["viewer", "editor", "manager"];
+
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -50,6 +52,29 @@ serve(async (req) => {
       .eq("member_user_id", user.id)
       .maybeSingle();
     if (ownMembership) return json({ error: "Apenas o titular da conta pode gerenciar usuários" }, 403);
+
+    // Plan gate — Gestão de Usuários is exclusive to the Executivo plan.
+    const { data: ownerProfile } = await admin
+      .from("profiles")
+      .select("plan, feature_blocks")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const plan = canonicalPlan(String(ownerProfile?.plan ?? ""));
+    const planAllows = (PLAN_FEATURES[plan] ?? []).includes("usuarios");
+    const fb = (ownerProfile?.feature_blocks ?? {}) as Record<string, boolean>;
+    const manuallyReleased = fb.usuarios === false;
+
+    if (!planAllows && !manuallyReleased) {
+      return json(
+        {
+          error: "plan_required",
+          message: "Gestão de Usuários está disponível exclusivamente no plano Executivo.",
+        },
+        403,
+      );
+    }
+
 
     if (action === "create") {
       const email = String(body.email ?? "").trim().toLowerCase();

@@ -126,7 +126,7 @@ const menuItems: MenuItem[] = [
       { icon: Music, label: "Perfil Artístico", path: "/configuracoes/perfil-artistico", featureKey: "configuracoes" },
       { icon: Palette, label: "Personalização", path: "/configuracoes/personalizacao", featureKey: "configuracoes" },
       { icon: Shield, label: "Segurança", path: "/configuracoes/seguranca", featureKey: "configuracoes" },
-      { icon: UsersRound, label: "Usuários", path: "/usuarios", ownerOnly: true },
+      { icon: UsersRound, label: "Usuários", path: "/usuarios", featureKey: "usuarios", ownerOnly: true },
     ],
   },
   { icon: Shield, label: "Admin", path: "/admin", adminOnly: true },

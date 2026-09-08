@@ -169,7 +169,7 @@ const App = () => (
                 <Route path="/solicitacoes" element={<AuthPage><Solicitacoes /></AuthPage>} />
                 <Route path="/notificacoes" element={<AuthPage><Notificacoes /></AuthPage>} />
                 <Route path="/sugestoes" element={<AuthPage><Sugestoes /></AuthPage>} />
-                <Route path="/usuarios" element={<AuthPage><RequireOwner><Usuarios /></RequireOwner></AuthPage>} />
+                <Route path="/usuarios" element={<AuthPage featureKey="usuarios"><RequireOwner><Usuarios /></RequireOwner></AuthPage>} />
                 {/* <Route path="/consultoria" element={<AuthPage><Consultoria /></AuthPage>} /> */}
                 <Route path="/link-instagram" element={<AuthPage featureKey="link-instagram"><LinkInstagramConfig /></AuthPage>} />
                 <Route path="/link-orcamento" element={<AuthPage featureKey="link-orcamento"><LinkOrcamentoConfig /></AuthPage>} />
