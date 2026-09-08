@@ -373,14 +373,15 @@ export default function Admin() {
   const getPlanTier = (plan: string): string => {
     if (plan.includes("starter")) return "starter";
     if (plan.includes("profissional")) return "profissional";
-    if (plan.includes("completo")) return "completo";
+    if (plan.includes("empresarial") || plan.includes("completo")) return "empresarial";
     if (plan.includes("executivo")) return "executivo";
     // Legacy mapping
     if (plan === "base" || plan === "mensal") return "starter";
     if (plan === "essencial") return "profissional";
-    if (plan === "anual") return "completo";
+    if (plan === "anual") return "empresarial";
     return plan;
   };
+
 
   const updateUserPlan = async (userId: string, plan: string, customStartDate?: string) => {
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
