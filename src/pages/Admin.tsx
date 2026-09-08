@@ -409,10 +409,11 @@ export default function Admin() {
     
     ALL_FEATURE_KEYS.forEach(key => {
       if (plan === "expirado" || plan === "comprou_expirado") newFeatureBlocks[key] = true;
-      else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
+      else if (plan === "trial") newFeatureBlocks[key] = !TRIAL_FEATURES.includes(key);
       else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
       else newFeatureBlocks[key] = false;
     });
+
     updates.feature_blocks = newFeatureBlocks;
 
     const { error } = await supabase.from("profiles").update(updates).eq("user_id", userId);
