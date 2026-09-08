@@ -17,7 +17,7 @@ import {
   CalendarDays,
   CalendarRange,
   Loader2,
-  Rocket,
+  
   Building2,
   Target,
 } from "lucide-react";
@@ -91,60 +91,51 @@ interface PlanDef {
 
 const plans: PlanDef[] = [
   {
-    id: "starter",
-    name: "Starter",
-    subtitle: "Comece a organizar sua carreira musical com o essencial.",
-    price: "R$ 19,90",
-    period: "/mês",
-    buttonText: "Escolher Starter",
-    highlight: false,
-    badgeText: "ESSENCIAL",
-    icon: Rocket,
-    socialProof: "",
-    planKeyMonthly: "mensal_starter",
-    planKeyYearly: "anual_starter",
-    features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Avanços", "Tutoriais", "Configurações"],
-  },
-  {
     id: "pro",
     name: "Profissional",
-    subtitle: "Organize sua área comercial e feche mais shows com processos profissionais.",
+    subtitle: "Organize sua carreira e tenha as ferramentas para vender e executar seus shows profissionalmente.",
     price: "R$ 24,90",
     period: "/mês",
     buttonText: "Escolher Profissional",
-    highlight: true,
-    badgeText: "MAIS POPULAR",
+    highlight: false,
+    badgeText: "ESSENCIAL",
     icon: Briefcase,
     socialProof: "47 artistas estão nesse plano!",
     planKeyMonthly: "mensal_profissional",
     planKeyYearly: "anual_profissional",
     features: [
-      "Tudo do Starter +",
+      "Dashboard",
+      "Agenda ilimitada",
       "Clientes",
       "Repertório",
-      "Radar de Shows",
+      "Resumo Financeiro",
+      "Precificação",
       "Orçamentos Automáticos",
       "Checklist de Show",
-      "Equipe & Freelancers",
-      "Link da bio (Press Kit)",
+      "Link da Bio / Press Kit",
+      "Radar de Shows",
+      "Avanços",
+      "Tutoriais",
+      "Configurações",
     ],
   },
   {
     id: "full",
     name: "Empresarial",
-    subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
+    subtitle: "Automatize sua operação e tenha controle completo da sua carreira como negócio.",
     price: "R$ 39,90",
     period: "/mês",
     buttonText: "Escolher Empresarial",
-    highlight: false,
-    badgeText: "TUDO LIBERADO",
+    highlight: true,
+    badgeText: "MAIS POPULAR",
     icon: Crown,
     socialProof: "21 artistas estão nesse plano!",
     planKeyMonthly: "mensal_empresarial",
     planKeyYearly: "anual_empresarial",
     features: [
-      "Tudo do Profissional +",
-      "Link Agendamento Online",
+      "Tudo do Profissional, mais:",
+      "Equipe & Freelancers",
+      "Link de Agendamento Online",
       "Contratos Automáticos",
       "Histórico Financeiro",
       "Mapeamento de Palco",
@@ -155,7 +146,7 @@ const plans: PlanDef[] = [
   {
     id: "executivo",
     name: "Executivo",
-    subtitle: "Tudo do Empresarial + Backs Radar: uma rede de contatos de bares, restaurantes e casas de show da sua região.",
+    subtitle: "Tenha todas as ferramentas de gestão + uma estrutura comercial para encontrar novas oportunidades.",
     price: "R$ 79,90",
     period: "/mês",
     buttonText: "Escolher Executivo",
@@ -166,14 +157,16 @@ const plans: PlanDef[] = [
     planKeyMonthly: "mensal_executivo",
     planKeyYearly: "anual_executivo",
     features: [
-      "Tudo do Empresarial +",
+      "Tudo do Empresarial, mais:",
       "Backs Radar",
       "Oportunidades perto de você",
-      "Contatos de bares e casas",
+      "Contatos de bares, restaurantes e casas de show",
       "Envio direto ao CRM",
+      "Gestão de Usuários",
     ],
   },
 ];
+
 
 function UrgencyBanner() {
   return (
@@ -236,14 +229,15 @@ function InfoStrip() {
     <div className="max-w-6xl mx-auto mt-10 mb-12">
       <div className="rounded-2xl border border-border bg-gradient-to-r from-muted/40 to-muted/10 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <p className="font-semibold">Comece pelo Starter e evolua quando quiser.</p>
+          <p className="font-semibold">Comece pelo Profissional e evolua quando quiser.</p>
           <p className="text-sm text-muted-foreground font-medium">
             A troca de plano é simples. Você pode subir de nível conforme sua carreira cresce.
           </p>
         </div>
         <div className="text-sm text-muted-foreground font-medium">
-          <span className="font-semibold text-foreground">Dica:</span> O Profissional é o mais escolhido.
+          <span className="font-semibold text-foreground">Dica:</span> O Empresarial é o mais escolhido.
         </div>
+
       </div>
     </div>
   );
@@ -352,8 +346,9 @@ export default function Planos() {
           </p>
         )}
 
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch justify-center">
+
             {plans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
                 starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },

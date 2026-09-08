@@ -36,13 +36,23 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   bonus: true,
   "ideias-post": true,
   "metas-anuais": true,
+  usuarios: true,
 };
 
 // Plan → released features (single source of truth for the app UI).
+// Starter is legacy: no longer sold, but kept working for existing subscribers.
 const STARTER = ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"];
-const PROFISSIONAL = [...STARTER, "clientes", "repertorio", "crm", "orcamentos", "checklist", "equipe", "link-instagram", "ideias-post"];
-const EMPRESARIAL = [...PROFISSIONAL, "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus"];
-const EXECUTIVO = [...EMPRESARIAL, "backs-radar"];
+const PROFISSIONAL = [
+  "dashboard", "agenda", "clientes", "repertorio", "financeiro", "precificacao",
+  "orcamentos", "servicos", "checklist", "crm", "link-instagram", "ideias-post",
+  "avancos", "tutoriais", "configuracoes",
+];
+const EMPRESARIAL = [
+  ...PROFISSIONAL,
+  "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco",
+  "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus",
+];
+const EXECUTIVO = [...EMPRESARIAL, "backs-radar", "usuarios"];
 const TRIAL = ["dashboard", "agenda", "crm", "clientes", "financeiro", "historico", "precificacao", "checklist", "equipe", "metas", "repertorio", "aulas", "avancos", "tutoriais", "configuracoes", "servicos"];
 
 const PLAN_RELEASED: Record<string, string[]> = {
@@ -74,38 +84,40 @@ function blocksForPlan(plan: string | null, stored: FeatureBlocks): FeatureBlock
 
 
 export const PLAN_MODULES = {
+  // Legacy plan, not sold anymore — kept for existing subscribers.
   starter: {
-    name: "Starter",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
-    price: "R$ 19,90/mês",
+    name: "Starter (legado)",
+    features: STARTER,
+    price: "",
   },
   parceiros: {
     name: "Parceiros",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"],
+    features: STARTER,
     price: "",
   },
   profissional: {
     name: "Profissional",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "link-instagram", "ideias-post", "tutoriais", "configuracoes"],
+    features: PROFISSIONAL,
     price: "R$ 24,90/mês",
   },
   empresarial: {
     name: "Empresarial",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-instagram", "link-orcamento", "bonus", "ideias-post", "tutoriais", "configuracoes"],
+    features: EMPRESARIAL,
     price: "R$ 39,90/mês",
   },
   executivo: {
     name: "Executivo",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-instagram", "link-orcamento", "bonus", "ideias-post", "tutoriais", "configuracoes", "backs-radar"],
+    features: EXECUTIVO,
     price: "R$ 79,90/mês",
   },
   // Legacy alias
   completo: {
     name: "Empresarial",
-    features: ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "clientes", "repertorio", "crm", "orcamentos", "servicos", "checklist", "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-instagram", "link-orcamento", "bonus", "ideias-post", "tutoriais", "configuracoes"],
+    features: EMPRESARIAL,
     price: "R$ 39,90/mês",
   },
 };
+
 
 export function useFeatureBlocks() {
   const { user } = useAuth();

@@ -36,11 +36,18 @@ export function FeatureBlockedDialog({
           </div>
           <DialogTitle className="text-xl">Recurso Bloqueado</DialogTitle>
           <DialogDescription className="text-base mt-2">
-            O seu plano atual não inclui acesso à página <strong>"{featureName}"</strong>.
+            {featureName === "Usuários" ? (
+              <>Gestão de Usuários está disponível exclusivamente no plano Executivo.</>
+            ) : (
+              <>
+                O seu plano atual não inclui acesso à página <strong>"{featureName}"</strong>.
+              </>
+            )}
             <br />
             <br />
             Atualize seu plano para desbloquear este e outros recursos exclusivos!
           </DialogDescription>
+
         </DialogHeader>
         
         <div className="flex flex-col gap-3 mt-4">
