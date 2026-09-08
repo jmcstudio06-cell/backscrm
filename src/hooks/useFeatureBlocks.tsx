@@ -76,8 +76,8 @@ function blocksForPlan(plan: string | null, stored: FeatureBlocks): FeatureBlock
   const out: FeatureBlocks = {};
   const keys = new Set([...Object.keys(DEFAULT_FEATURE_BLOCKS), ...Object.keys(stored)]);
   for (const key of keys) {
-    // Plan defines the base; an explicit release saved by the admin can only unlock.
-    out[key] = released.includes(key) ? false : stored[key] === false ? false : true;
+    // Ajuste salvo pelo admin (liberar OU bloquear) tem prioridade; o plano define a base.
+    out[key] = typeof stored[key] === "boolean" ? stored[key] : !released.includes(key);
   }
   return out;
 }

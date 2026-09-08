@@ -95,29 +95,37 @@ interface UserGoal {
   year: number;
 }
 
-const FEATURES: { key: string; label: string }[] = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "agenda", label: "Agenda de Shows" },
-  { key: "checklist", label: "Ideias de Post" },
-  { key: "checklist", label: "Checklist de Show" },
-  { key: "checklist", label: "Avanços" },
-  { key: "precificacao", label: "Precificação" },
-  { key: "crm", label: "CRM do Artista" },
-  { key: "servicos", label: "Serviços e Produtos" },
-  { key: "orcamentos", label: "Orçamento Automático" },
-  { key: "contratos", label: "Contrato Automático" },
-  { key: "clientes", label: "Clientes" },
-  { key: "financeiro", label: "Resumo Mensal" },
-  { key: "historico", label: "Histórico Completo" },
-  { key: "repertorio", label: "Repertório" },
-  { key: "equipe", label: "Banda & Músicos" },
-  { key: "mapeamento-palco", label: "Mapeamento de Palco" },
-  { key: "metas", label: "Metas Comerciais" },
-  { key: "metas", label: "Meta Anual 2026" },
-  { key: "aulas", label: "Bônus" },
-  { key: "link-agenda", label: "Link Agendamento Online" },
-  { key: "configuracoes", label: "Configurações" },
-];
+const FEATURE_LABELS: Record<string, string> = {
+  dashboard: "Dashboard",
+  agenda: "Agenda de Shows",
+  crm: "CRM do Artista",
+  clientes: "Clientes",
+  orcamentos: "Orçamento Automático",
+  servicos: "Serviços e Produtos",
+  contratos: "Contrato Automático",
+  "assinatura-digital": "Assinatura Digital",
+  financeiro: "Resumo Mensal",
+  historico: "Histórico Completo",
+  precificacao: "Precificação",
+  checklist: "Checklist de Show",
+  "mapeamento-palco": "Mapeamento de Palco",
+  equipe: "Banda & Músicos",
+  metas: "Metas Comerciais",
+  "metas-anuais": "Meta Anual",
+  repertorio: "Repertório",
+  aulas: "Aulas",
+  avancos: "Avanços",
+  tutoriais: "Tutoriais",
+  configuracoes: "Configurações",
+  "link-agenda": "Link Agendamento Online",
+  "link-instagram": "Link da Bio / Press Kit",
+  "link-orcamento": "Link de Orçamento",
+  bonus: "Bônus",
+  "ideias-post": "Ideias de Post",
+  "backs-radar": "Backs Radar",
+  usuarios: "Gestão de Usuários",
+};
+
 
 const PLAN_FILTERS = [
   { value: "all", label: "Todos" },
@@ -168,14 +176,17 @@ const PLAN_DURATIONS: Record<string, number> = {
   base: 30, mensal: 30, essencial: 90, completo: 180, anual: 365,
 };
 
-const ALL_FEATURE_KEYS = [
-  "dashboard", "agenda", "crm", "clientes", "orcamentos", "servicos",
-  "contratos", "financeiro", "historico", "precificacao", "checklist",
-  "mapeamento-palco", "equipe", "metas", "repertorio", "aulas",
-  "avancos", "tutoriais", "configuracoes", "link-agenda",
+const ALL_FEATURE_KEYS = Object.keys(FEATURE_LABELS);
+
+const FEATURES: { key: string; label: string }[] = ALL_FEATURE_KEYS.map(key => ({ key, label: FEATURE_LABELS[key] }));
+
+// Recursos liberados no Trial de 3 horas (espelha useFeatureBlocks)
+const TRIAL_FEATURES = [
+  "dashboard", "agenda", "crm", "clientes", "financeiro", "historico", "precificacao",
+  "checklist", "equipe", "metas", "repertorio", "aulas", "avancos", "tutoriais",
+  "configuracoes", "servicos",
 ];
 
-const TRIAL_BLOCKED_FEATURES = ["mapeamento-palco", "contratos", "orcamentos", "servicos", "link-agenda"];
 
 const USERS_PER_PAGE = 10;
 
@@ -362,14 +373,15 @@ export default function Admin() {
   const getPlanTier = (plan: string): string => {
     if (plan.includes("starter")) return "starter";
     if (plan.includes("profissional")) return "profissional";
-    if (plan.includes("completo")) return "completo";
+    if (plan.includes("empresarial") || plan.includes("completo")) return "empresarial";
     if (plan.includes("executivo")) return "executivo";
     // Legacy mapping
     if (plan === "base" || plan === "mensal") return "starter";
     if (plan === "essencial") return "profissional";
-    if (plan === "anual") return "completo";
+    if (plan === "anual") return "empresarial";
     return plan;
   };
+
 
   const updateUserPlan = async (userId: string, plan: string, customStartDate?: string) => {
     const updates: { plan: string; trial_start?: string; trial_days?: number; feature_blocks?: Record<string, boolean> } = { plan };
@@ -391,16 +403,19 @@ export default function Admin() {
       }
     }
 
+    const previousBlocks = parseFeatureBlocks(users.find(u => u.user_id === userId)?.feature_blocks);
     const newFeatureBlocks: Record<string, boolean> = {};
+    if (previousBlocks.block_monthly_billing === true) newFeatureBlocks.block_monthly_billing = true;
     const tier = getPlanTier(plan);
     const tierModule = PLAN_MODULES[tier as keyof typeof PLAN_MODULES];
     
     ALL_FEATURE_KEYS.forEach(key => {
       if (plan === "expirado" || plan === "comprou_expirado") newFeatureBlocks[key] = true;
-      else if (plan === "trial") newFeatureBlocks[key] = TRIAL_BLOCKED_FEATURES.includes(key);
+      else if (plan === "trial") newFeatureBlocks[key] = !TRIAL_FEATURES.includes(key);
       else if (tierModule) newFeatureBlocks[key] = !tierModule.features.includes(key);
       else newFeatureBlocks[key] = false;
     });
+
     updates.feature_blocks = newFeatureBlocks;
 
     const { error } = await supabase.from("profiles").update(updates).eq("user_id", userId);
@@ -808,9 +823,11 @@ export default function Admin() {
                       <div>
                         <Label className="text-xs font-bold uppercase text-muted-foreground mb-3 block">Módulos do Plano</Label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          {Object.entries(PLAN_MODULES).filter(([id]) => id !== "completo").map(([moduleId, mod]) => {
+                          {Object.entries(PLAN_MODULES).filter(([id]) => ["profissional", "empresarial", "executivo"].includes(id)).map(([moduleId, mod]) => {
                             const blocks = parseFeatureBlocks(userProfile.feature_blocks);
-                            const allUnlocked = mod.features.every(f => blocks[f] === false);
+                            const allUnlocked =
+                              mod.features.every(f => blocks[f] === false) &&
+                              ALL_FEATURE_KEYS.filter(k => !mod.features.includes(k)).every(k => blocks[k] === true);
                             return (
                               <div key={moduleId} className={`p-4 border rounded-xl transition-all ${allUnlocked ? "bg-emerald-500/5 border-emerald-500/30" : "bg-red-500/5 border-red-500/30"}`}>
                                 <div className="flex items-center justify-between mb-2">
@@ -822,15 +839,20 @@ export default function Admin() {
                                     checked={allUnlocked}
                                     onCheckedChange={async (checked) => {
                                       const currentBlocks = parseFeatureBlocks(userProfile.feature_blocks);
-                                      const newBlocks = { ...currentBlocks };
-                                      mod.features.forEach(f => { newBlocks[f] = !checked; });
+                                      const newBlocks: Record<string, boolean> = {};
+                                      if (currentBlocks.block_monthly_billing === true) newBlocks.block_monthly_billing = true;
+                                      // Ativar o plano aplica exatamente os recursos dele; desativar bloqueia tudo.
+                                      ALL_FEATURE_KEYS.forEach(k => {
+                                        newBlocks[k] = checked ? !mod.features.includes(k) : true;
+                                      });
                                       const { error } = await supabase.from("profiles").update({ feature_blocks: newBlocks }).eq("user_id", userProfile.user_id);
                                       if (error) { toast.error("Erro ao atualizar módulo"); return; }
                                       setUsers(prev => prev.map(u => u.user_id === userProfile.user_id ? { ...u, feature_blocks: newBlocks } : u));
-                                      toast.success(checked ? `${mod.name} desbloqueado!` : `${mod.name} bloqueado!`);
+                                      toast.success(checked ? `${mod.name} aplicado!` : `${mod.name} bloqueado!`);
                                     }}
                                   />
                                 </div>
+
                                 <div className="flex flex-wrap gap-1">
                                   {mod.features.map(f => (
                                     <span key={f} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${blocks[f] === false ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
