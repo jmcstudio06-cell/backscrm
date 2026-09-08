@@ -17,7 +17,7 @@ import {
   CalendarDays,
   CalendarRange,
   Loader2,
-  Rocket,
+  
   Building2,
   Target,
 } from "lucide-react";
@@ -346,8 +346,9 @@ export default function Planos() {
           </p>
         )}
 
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch justify-center">
+
             {plans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
                 starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
