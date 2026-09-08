@@ -825,7 +825,9 @@ export default function Admin() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           {Object.entries(PLAN_MODULES).filter(([id]) => ["profissional", "empresarial", "executivo"].includes(id)).map(([moduleId, mod]) => {
                             const blocks = parseFeatureBlocks(userProfile.feature_blocks);
-                            const allUnlocked = mod.features.every(f => blocks[f] === false);
+                            const allUnlocked =
+                              mod.features.every(f => blocks[f] === false) &&
+                              ALL_FEATURE_KEYS.filter(k => !mod.features.includes(k)).every(k => blocks[k] === true);
                             return (
                               <div key={moduleId} className={`p-4 border rounded-xl transition-all ${allUnlocked ? "bg-emerald-500/5 border-emerald-500/30" : "bg-red-500/5 border-red-500/30"}`}>
                                 <div className="flex items-center justify-between mb-2">
@@ -837,15 +839,20 @@ export default function Admin() {
                                     checked={allUnlocked}
                                     onCheckedChange={async (checked) => {
                                       const currentBlocks = parseFeatureBlocks(userProfile.feature_blocks);
-                                      const newBlocks = { ...currentBlocks };
-                                      mod.features.forEach(f => { newBlocks[f] = !checked; });
+                                      const newBlocks: Record<string, boolean> = {};
+                                      if (currentBlocks.block_monthly_billing === true) newBlocks.block_monthly_billing = true;
+                                      // Ativar o plano aplica exatamente os recursos dele; desativar bloqueia tudo.
+                                      ALL_FEATURE_KEYS.forEach(k => {
+                                        newBlocks[k] = checked ? !mod.features.includes(k) : true;
+                                      });
                                       const { error } = await supabase.from("profiles").update({ feature_blocks: newBlocks }).eq("user_id", userProfile.user_id);
                                       if (error) { toast.error("Erro ao atualizar módulo"); return; }
                                       setUsers(prev => prev.map(u => u.user_id === userProfile.user_id ? { ...u, feature_blocks: newBlocks } : u));
-                                      toast.success(checked ? `${mod.name} desbloqueado!` : `${mod.name} bloqueado!`);
+                                      toast.success(checked ? `${mod.name} aplicado!` : `${mod.name} bloqueado!`);
                                     }}
                                   />
                                 </div>
+
                                 <div className="flex flex-wrap gap-1">
                                   {mod.features.map(f => (
                                     <span key={f} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${blocks[f] === false ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
