@@ -135,23 +135,14 @@ export function useFeatureBlocks() {
 
     setPlanExpired(false);
 
-    if (profile.plan === "trial") {
-      const trialBlocked = ["mapeamento-palco", "contratos", "orcamentos", "link-agenda", "link-instagram", "link-orcamento"];
-      const trialBlocks: FeatureBlocks = {};
-      for (const key of Object.keys(DEFAULT_FEATURE_BLOCKS)) {
-        trialBlocks[key] = trialBlocked.includes(key);
-      }
-      setFeatureBlocks(trialBlocks);
-      setLoading(false);
-      return;
-    }
+    const stored =
+      profile.feature_blocks && typeof profile.feature_blocks === "object" && !Array.isArray(profile.feature_blocks)
+        ? (profile.feature_blocks as FeatureBlocks)
+        : {};
 
-    if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
-      setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
-    } else {
-      setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
-    }
+    setFeatureBlocks(blocksForPlan(profile.plan, stored));
     setLoading(false);
+
   }, []);
 
   const queryClient = useQueryClient();
