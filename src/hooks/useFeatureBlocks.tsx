@@ -33,7 +33,45 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   "link-orcamento": true,
   "assinatura-digital": true,
   "backs-radar": true,
+  bonus: true,
+  "ideias-post": true,
+  "metas-anuais": true,
 };
+
+// Plan → released features (single source of truth for the app UI).
+const STARTER = ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"];
+const PROFISSIONAL = [...STARTER, "clientes", "repertorio", "crm", "orcamentos", "checklist", "equipe", "link-instagram", "ideias-post"];
+const EMPRESARIAL = [...PROFISSIONAL, "contratos", "assinatura-digital", "historico", "mapeamento-palco", "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus"];
+const EXECUTIVO = [...EMPRESARIAL, "backs-radar"];
+const TRIAL = ["dashboard", "agenda", "crm", "clientes", "financeiro", "historico", "precificacao", "checklist", "equipe", "metas", "repertorio", "aulas", "avancos", "tutoriais", "configuracoes", "servicos"];
+
+const PLAN_RELEASED: Record<string, string[]> = {
+  trial: TRIAL,
+  mensal_starter: STARTER,
+  anual_starter: STARTER,
+  parceiros: STARTER,
+  mensal_profissional: PROFISSIONAL,
+  anual_profissional: PROFISSIONAL,
+  mensal_empresarial: EMPRESARIAL,
+  anual_empresarial: EMPRESARIAL,
+  mensal_completo: EMPRESARIAL,
+  anual_completo: EMPRESARIAL,
+  mensal_executivo: EXECUTIVO,
+  anual_executivo: EXECUTIVO,
+};
+
+function blocksForPlan(plan: string | null, stored: FeatureBlocks): FeatureBlocks {
+  const released = PLAN_RELEASED[plan ?? ""];
+  if (!released) return Object.keys(stored).length ? { ...DEFAULT_FEATURE_BLOCKS, ...stored } : DEFAULT_FEATURE_BLOCKS;
+  const out: FeatureBlocks = {};
+  const keys = new Set([...Object.keys(DEFAULT_FEATURE_BLOCKS), ...Object.keys(stored)]);
+  for (const key of keys) {
+    // Plan defines the base; an explicit release saved by the admin can only unlock.
+    out[key] = released.includes(key) ? false : stored[key] === false ? false : true;
+  }
+  return out;
+}
+
 
 export const PLAN_MODULES = {
   starter: {
