@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLeads } from "@/hooks/useLeads";
 import { useProfile } from "@/hooks/useProfile";
+import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
+import { useNavigate } from "react-router-dom";
 import { RegionPicker } from "@/components/radar/RegionPicker";
 import { toast } from "sonner";
 import {
@@ -23,6 +25,8 @@ import {
   Disc3,
   Mic2,
   PartyPopper,
+  Lock,
+  Crown,
 } from "lucide-react";
 
 interface RadarPlace {
@@ -55,6 +59,10 @@ function whatsappLink(phone: string) {
 export default function BacksRadar() {
   const { addLead } = useLeads();
   const { profile, loading: profileLoading, updateProfile } = useProfile();
+  const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
+  const navigate = useNavigate();
+  const locked = !blocksLoading && isBlocked("backs-radar");
+  const [lockedCount, setLockedCount] = useState<number | null>(null);
   const [category, setCategory] = useState("bares");
   const [loading, setLoading] = useState(false);
   const [places, setPlaces] = useState<RadarPlace[] | null>(null);
@@ -91,9 +99,16 @@ export default function BacksRadar() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setPlaces((data?.places ?? []) as RadarPlace[]);
+      const found = (data?.places ?? []) as RadarPlace[];
+      if (locked) {
+        setLockedCount(found.length);
+        setPlaces([]);
+        setSource(null);
+        return;
+      }
+      setPlaces(found);
       setSource(data?.source ?? null);
-      if ((data?.places ?? []).length === 0) {
+      if (found.length === 0) {
         toast.info("Nenhum contato encontrado para esse filtro");
       }
     } catch (err) {
@@ -248,8 +263,54 @@ export default function BacksRadar() {
           </div>
         </div>
 
+        {/* Resultados bloqueados */}
+        {locked && lockedCount !== null && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              {lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""} encontrada{lockedCount !== 1 ? "s" : ""} em {city}/{state}
+            </p>
+
+            <div className="relative">
+              <div className="grid gap-3 sm:grid-cols-2 select-none pointer-events-none blur-[6px] opacity-70">
+                {Array.from({ length: Math.max(4, Math.min(lockedCount, 6)) }).map((_, i) => (
+                  <div key={i} className="rounded-2xl border bg-card/70 p-4 space-y-3">
+                    <div className="h-4 w-2/3 rounded bg-muted" />
+                    <div className="h-3 w-full rounded bg-muted/70" />
+                    <div className="h-3 w-4/5 rounded bg-muted/70" />
+                    <div className="h-3 w-1/2 rounded bg-muted/70" />
+                    <div className="flex gap-2 pt-1">
+                      <div className="h-7 w-24 rounded-full bg-muted" />
+                      <div className="h-7 w-28 rounded-full bg-muted" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="max-w-md w-full rounded-3xl border bg-card/95 backdrop-blur-xl p-6 text-center shadow-2xl space-y-4">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg">
+                    <Lock className="h-6 w-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold">Contatos disponíveis no plano Executivo</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Encontramos {lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""} em {city}/{state}. Para ver nomes,
+                      telefones e enviar direto ao seu CRM, ative o plano Executivo.
+                    </p>
+                  </div>
+                  <Button onClick={() => navigate("/planos")} className="w-full rounded-xl gap-2">
+                    <Crown className="h-4 w-4" />
+                    Quero o plano Executivo
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Resultados */}
-        {places && (
+        {!locked && places && (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <p className="text-sm text-muted-foreground flex items-center gap-2">
@@ -356,7 +417,7 @@ export default function BacksRadar() {
           </div>
         )}
 
-        {!places && !loading && (
+        {!places && !loading && lockedCount === null && (
           <div className="rounded-2xl border border-dashed bg-card/40 p-10 text-center">
             <Radar className="h-10 w-10 mx-auto text-primary/50 mb-3" />
             <p className="text-sm text-muted-foreground">
