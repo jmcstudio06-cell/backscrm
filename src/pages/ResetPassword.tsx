@@ -13,51 +13,77 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Handle the hash fragment from the recovery link
-    // Supabase appends #access_token=...&type=recovery to the URL
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get("access_token");
-    const refreshToken = hashParams.get("refresh_token");
-    const type = hashParams.get("type");
+    let cancelled = false;
+    const fail = (msg = "O link expirou ou já foi usado. Solicite um novo e-mail de recuperação.") => {
+      if (cancelled) return;
+      setLinkError(msg);
+      toast({ title: "Link inválido", description: msg, variant: "destructive" });
+    };
+    const ok = () => {
+      if (cancelled) return;
+      setIsReady(true);
+      window.history.replaceState(null, "", window.location.pathname);
+    };
 
-    if (accessToken && type === "recovery") {
-      // Set the session from the URL tokens
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken || "",
-      }).then(({ error }) => {
-        if (!error) {
-          setIsReady(true);
-          // Clean the URL
-          window.history.replaceState(null, "", window.location.pathname);
-        } else {
-          toast({ title: "Link inválido", description: "O link expirou ou é inválido. Solicite um novo.", variant: "destructive" });
-        }
-      });
-    } else {
-      // Listen for PASSWORD_RECOVERY event (fallback)
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event) => {
-          if (event === "PASSWORD_RECOVERY") {
-            setIsReady(true);
-          }
-        }
-      );
+    const run = async () => {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const query = new URLSearchParams(window.location.search);
 
-      // Check if already has a session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          setIsReady(true);
-        }
-      });
+      // Erro devolvido pelo Supabase no próprio link
+      if (hash.get("error") || query.get("error")) {
+        return fail(hash.get("error_description") || query.get("error_description") || undefined);
+      }
 
-      return () => subscription.unsubscribe();
-    }
+      // 1) Link com tokens no hash (#access_token=...&type=recovery)
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
+      if (accessToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || "",
+        });
+        return error ? fail() : ok();
+      }
+
+      // 2) Link PKCE (?code=...)
+      const code = query.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        return error ? fail() : ok();
+      }
+
+      // 3) Link com token_hash (?token_hash=...&type=recovery)
+      const tokenHash = query.get("token_hash") || query.get("token");
+      const type = (query.get("type") || "recovery") as "recovery" | "email";
+      if (tokenHash) {
+        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+        return error ? fail() : ok();
+      }
+
+      // 4) Já existe sessão de recuperação ativa
+      const { data } = await supabase.auth.getSession();
+      if (data.session) return setIsReady(true);
+
+      fail("Abra esta página pelo link enviado no seu e-mail de recuperação.");
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") ok();
+    });
+
+    run();
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
+
 
   const passwordHasMinLength = newPassword.length >= 8;
   const passwordHasUpper = /[A-Z]/.test(newPassword);
@@ -119,8 +145,26 @@ const ResetPassword = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0066CC] via-[#0077DD] to-[#00B4D8] flex items-center justify-center px-4">
         <div className="rounded-3xl bg-white shadow-2xl p-8 md:p-10 max-w-md w-full text-center">
-          <div className="h-8 w-8 border-2 border-[#0066CC]/30 border-t-[#0066CC] rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-500">Verificando link de recuperação...</p>
+          {linkError ? (
+            <>
+              <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <KeyRound className="w-7 h-7 text-red-500" />
+              </div>
+              <h1 className="text-xl font-bold text-slate-800">Link de recuperação inválido</h1>
+              <p className="text-slate-500 mt-2 text-sm">{linkError}</p>
+              <Button
+                onClick={() => navigate("/auth")}
+                className="w-full h-12 mt-6 bg-gradient-to-r from-[#0066CC] to-[#0088DD] text-white font-semibold rounded-xl"
+              >
+                Solicitar novo link
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="h-8 w-8 border-2 border-[#0066CC]/30 border-t-[#0066CC] rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-slate-500">Verificando link de recuperação...</p>
+            </>
+          )}
         </div>
       </div>
     );
