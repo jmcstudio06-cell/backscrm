@@ -53,11 +53,9 @@ import { ReferralsAdminPanel } from "@/components/admin/ReferralsAdminPanel";
 import { ImprovementsPanel } from "@/components/admin/ImprovementsPanel";
 import { GuideLeadsPanel } from "@/components/admin/GuideLeadsPanel";
 import { NotificationsAdminPanel } from "@/components/admin/NotificationsAdminPanel";
-import { AppNotificationsAdminPanel } from "@/components/admin/AppNotificationsAdminPanel";
 import { DashboardAdsPanel } from "@/components/admin/DashboardAdsPanel";
 import { CloudUsagePanel } from "@/components/admin/CloudUsagePanel";
 import { MaintenancePanel } from "@/components/admin/MaintenancePanel";
-import { MigrationPanel } from "@/components/admin/MigrationPanel";
 import { UserBackupPanel } from "@/components/admin/UserBackupPanel";
 import { FileSpreadsheet } from "lucide-react";
 import { Database } from "lucide-react";
@@ -628,15 +626,10 @@ export default function Admin() {
           <TabsTrigger value="notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Bell className="h-3.5 w-3.5" /> Push
           </TabsTrigger>
-          <TabsTrigger value="app-notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Bell className="h-3.5 w-3.5" /> In-App
-          </TabsTrigger>
           <TabsTrigger value="guide-leads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <BookOpen className="h-3.5 w-3.5" /> Guia
           </TabsTrigger>
-          <TabsTrigger value="personalization" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Image className="h-3.5 w-3.5" /> Visual
-          </TabsTrigger>
+
           <TabsTrigger value="improvements" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Lightbulb className="h-3.5 w-3.5" /> Melhorias
           </TabsTrigger>
@@ -657,9 +650,6 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="maintenance" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Wrench className="h-3.5 w-3.5" /> Manutenção
-          </TabsTrigger>
-          <TabsTrigger value="migration" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Database className="h-3.5 w-3.5" /> Migração
           </TabsTrigger>
           <TabsTrigger value="backup" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <FileSpreadsheet className="h-3.5 w-3.5" /> Backup
@@ -984,46 +974,10 @@ export default function Admin() {
         {/* Push Notifications Tab */}
         <TabsContent value="notifications"><NotificationsAdminPanel /></TabsContent>
 
-        {/* In-App Notifications Tab */}
-        <TabsContent value="app-notifications"><AppNotificationsAdminPanel /></TabsContent>
-
         {/* Guide Leads Tab */}
         <TabsContent value="guide-leads"><GuideLeadsPanel /></TabsContent>
 
-        {/* Personalization Tab */}
-        <TabsContent value="personalization">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Image className="h-5 w-5" /> Personalização</CardTitle>
-              <CardDescription>Aparência do aplicativo</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label className="text-sm font-semibold">Logo do App</Label>
-                <p className="text-xs text-muted-foreground mb-3">Aparecerá no menu de navegação</p>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center overflow-hidden bg-muted/30">
-                    {logoPreview ? <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" /> : <Upload className="w-6 h-6 text-muted-foreground/40" />}
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Input type="file" accept="image/*" onChange={handleLogoChange} className="cursor-pointer" />
-                    <Button onClick={uploadLogo} disabled={!logoFile || uploadingLogo} size="sm" className="w-full">
-                      {uploadingLogo ? "Enviando..." : "Salvar Logo"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-semibold">Nome do App</Label>
-                <p className="text-xs text-muted-foreground mb-3">Nome exibido no menu</p>
-                <div className="flex gap-2">
-                  <Input value={appName} onChange={e => setAppName(e.target.value)} placeholder="Nome do aplicativo" />
-                  <Button onClick={saveAppName}>Salvar</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+
 
         {/* Improvements Tab */}
         <TabsContent value="improvements"><ImprovementsPanel /></TabsContent>
@@ -1040,7 +994,6 @@ export default function Admin() {
 
         <TabsContent value="maintenance"><MaintenancePanel /></TabsContent>
 
-        <TabsContent value="migration"><MigrationPanel /></TabsContent>
 
         <TabsContent value="backup"><UserBackupPanel /></TabsContent>
 
