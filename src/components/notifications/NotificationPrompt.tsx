@@ -119,17 +119,27 @@ export function NotificationPrompt() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-foreground">Ativar notificações</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Receba lembretes de shows, cobranças e alertas importantes.
-          </p>
-          <button
-            onClick={handleEnable}
-            disabled={loading}
-            className="mt-2 bg-primary text-primary-foreground text-xs font-medium px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            {loading ? "Ativando..." : "Ativar agora"}
-          </button>
+          {iosHint ? (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              No iPhone, adicione o Backstage Pro à tela de início (botão Compartilhar → Adicionar à Tela de Início) e
+              abra pelo ícone para receber os avisos.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Receba lembretes de shows, cobranças e alertas importantes.
+              </p>
+              <button
+                onClick={handleEnable}
+                disabled={loading}
+                className="mt-2 bg-primary text-primary-foreground text-xs font-medium px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {loading ? "Ativando..." : "Ativar agora"}
+              </button>
+            </>
+          )}
         </div>
+
         <button
           onClick={handleDismiss}
           className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
