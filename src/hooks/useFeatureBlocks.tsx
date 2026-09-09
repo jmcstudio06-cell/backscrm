@@ -148,9 +148,12 @@ export function useFeatureBlocks() {
       return;
     }
 
-    if (profile.plan === "expirado" || profile.plan === "comprou_expirado" || isPlanOver(profile)) {
+    const overdue = isPlanOver(profile);
+    if (profile.plan === "expirado" || profile.plan === "comprou_expirado" || overdue) {
       setPlanExpired(true);
-      if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
+      if (overdue) {
+        setFeatureBlocks({ ...DEFAULT_FEATURE_BLOCKS });
+      } else if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
         setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
       } else {
         setFeatureBlocks({});
