@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { isWebPushSubscribed, subscribeToWebPush } from "@/lib/webPush";
 import { Bell, X } from "lucide-react";
 
 const PROMPT_DISMISSED_KEY = "notification_prompt_dismissed";
-const PROMPT_DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+const PROMPT_DISMISSED_DURATION = 2 * 24 * 60 * 60 * 1000; // 2 days
 
 export function NotificationPrompt() {
   const { user } = useAuth();
-  const { profile } = useProfile();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [iosHint, setIosHint] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -29,8 +28,24 @@ export function NotificationPrompt() {
 
       if (!hasNotification || !hasSW || !hasPush) {
         console.log("[NotifPrompt] Browser doesn't support push notifications");
+
+        // iPhone/iPad no Safari: push só funciona com o app na tela inicial.
+        const isIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && (navigator as any).maxTouchPoints > 1);
+        const standalone =
+          window.matchMedia?.("(display-mode: standalone)").matches ||
+          (window.navigator as any).standalone === true;
+
+        if (isIOS && !standalone) {
+          const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
+          if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < PROMPT_DISMISSED_DURATION) return;
+          setIosHint(true);
+          setVisible(true);
+        }
         return;
       }
+
 
 
       const permission = Notification.permission;
@@ -69,7 +84,7 @@ export function NotificationPrompt() {
     // Delay to not block initial render
     const timer = setTimeout(check, 2000);
     return () => clearTimeout(timer);
-  }, [user, profile?.onboarding_completed]);
+  }, [user]);
 
   const handleEnable = async () => {
     setLoading(true);
@@ -104,17 +119,27 @@ export function NotificationPrompt() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-foreground">Ativar notificações</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Receba lembretes de shows, cobranças e alertas importantes.
-          </p>
-          <button
-            onClick={handleEnable}
-            disabled={loading}
-            className="mt-2 bg-primary text-primary-foreground text-xs font-medium px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            {loading ? "Ativando..." : "Ativar agora"}
-          </button>
+          {iosHint ? (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              No iPhone, adicione o Backstage Pro à tela de início (botão Compartilhar → Adicionar à Tela de Início) e
+              abra pelo ícone para receber os avisos.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Receba lembretes de shows, cobranças e alertas importantes.
+              </p>
+              <button
+                onClick={handleEnable}
+                disabled={loading}
+                className="mt-2 bg-primary text-primary-foreground text-xs font-medium px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {loading ? "Ativando..." : "Ativar agora"}
+              </button>
+            </>
+          )}
         </div>
+
         <button
           onClick={handleDismiss}
           className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
