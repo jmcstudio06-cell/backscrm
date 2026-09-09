@@ -48,7 +48,7 @@ const FEATURE_LABELS: Record<string, string> = {
   financeiro: "Resumo Mensal",
   historico: "Histórico Completo",
   precificacao: "Precificação",
-  checklist: "Checklist / Avanços",
+  checklist: "Checklist de Show",
   "mapeamento-palco": "Mapeamento de Palco",
   equipe: "Banda & Músicos",
   metas: "Metas Comerciais",
