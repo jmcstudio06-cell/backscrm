@@ -126,7 +126,21 @@ export function useFeatureBlocks() {
   const [loading, setLoading] = useState(true);
   const [planExpired, setPlanExpired] = useState(false);
 
-  const processProfile = useCallback((profile: { plan: string | null; feature_blocks: unknown } | null) => {
+  const isPlanOver = (profile: { plan: string | null; trial_start?: string | null; trial_days?: number | null }) => {
+    const plan = profile.plan;
+    if (!plan || plan === "parceiros") return false;
+    if (plan === "trial") {
+      if (!profile.trial_start) return false;
+      return new Date(profile.trial_start).getTime() + 3 * 60 * 60 * 1000 < Date.now();
+    }
+    if (plan === "expirado" || plan === "comprou_expirado") return false;
+    if (!profile.trial_start) return false;
+    const days = profile.trial_days ?? 30;
+    if (days <= 0) return false;
+    return new Date(profile.trial_start).getTime() + days * 86400000 < Date.now();
+  };
+
+  const processProfile = useCallback((profile: { plan: string | null; feature_blocks: unknown; trial_start?: string | null; trial_days?: number | null } | null) => {
     if (!profile) {
       setFeatureBlocks(DEFAULT_FEATURE_BLOCKS);
       setPlanExpired(false);
@@ -134,9 +148,12 @@ export function useFeatureBlocks() {
       return;
     }
 
-    if (profile.plan === "expirado" || profile.plan === "comprou_expirado") {
+    const overdue = isPlanOver(profile);
+    if (profile.plan === "expirado" || profile.plan === "comprou_expirado" || overdue) {
       setPlanExpired(true);
-      if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
+      if (overdue) {
+        setFeatureBlocks({ ...DEFAULT_FEATURE_BLOCKS });
+      } else if (profile.feature_blocks && typeof profile.feature_blocks === 'object' && !Array.isArray(profile.feature_blocks)) {
         setFeatureBlocks(profile.feature_blocks as FeatureBlocks);
       } else {
         setFeatureBlocks({});
@@ -182,7 +199,7 @@ export function useFeatureBlocks() {
       try {
         const { data: profile, error } = await supabase
           .from("profiles")
-          .select("plan, feature_blocks")
+          .select("plan, feature_blocks, trial_start, trial_days")
           .eq("user_id", ownerId)
           .single();
 
