@@ -116,7 +116,7 @@ const FEATURE_LABELS: Record<string, string> = {
   "metas-anuais": "Meta Anual",
   repertorio: "Repertório",
   aulas: "Aulas",
-  avancos: "Avanços",
+  cobrancas: "Cobranças",
   tutoriais: "Tutoriais",
   configuracoes: "Configurações",
   "link-agenda": "Link Agendamento Online",

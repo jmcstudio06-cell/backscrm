@@ -36,7 +36,7 @@ import Contratos from "./pages/Contratos";
 import Repertorio from "./pages/Repertorio";
 import MapeamentoPalco from "./pages/MapeamentoPalco";
 import Precificacao from "./pages/Precificacao";
-import Avancos from "./pages/Avancos";
+import Cobrancas from "./pages/Cobrancas";
 import Indicacoes from "./pages/Indicacoes";
 import Admin from "./pages/Admin";
 import Termos from "./pages/Termos";
@@ -140,7 +140,7 @@ const App = () => (
                 <Route path="/checklist" element={<AuthPage featureKey="checklist"><Checklist /></AuthPage>} />
                 <Route path="/mapeamento-palco" element={<AuthPage featureKey="mapeamento-palco"><MapeamentoPalco /></AuthPage>} />
                 <Route path="/precificacao" element={<AuthPage featureKey="precificacao"><Precificacao /></AuthPage>} />
-                <Route path="/avancos" element={<AuthPage featureKey="avancos"><Avancos /></AuthPage>} />
+                <Route path="/cobrancas" element={<AuthPage featureKey="cobrancas"><Cobrancas /></AuthPage>} />
                 <Route path="/indicacoes" element={<AuthPage><RequireOwner><Indicacoes /></RequireOwner></AuthPage>} />
                 <Route path="/equipe" element={<AuthPage featureKey="equipe"><Equipe /></AuthPage>} />
                 <Route path="/metas" element={<AuthPage featureKey="metas"><Metas /></AuthPage>} />

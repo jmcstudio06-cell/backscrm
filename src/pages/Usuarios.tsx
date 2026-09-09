@@ -54,7 +54,7 @@ const FEATURE_LABELS: Record<string, string> = {
   metas: "Metas Comerciais",
   "metas-anuais": "Meta Anual",
   repertorio: "Repertório",
-  avancos: "Avanços",
+  cobrancas: "Cobranças",
   tutoriais: "Tutoriais",
   "ideias-post": "Planejamento de Conteúdo",
   "link-agenda": "Link Agenda",

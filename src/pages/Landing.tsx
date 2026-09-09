@@ -86,7 +86,7 @@ const plans = [
     badgeText: "ESSENCIAL",
     icon: Sparkles,
     socialProof: "",
-    features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Avanços", "Tutoriais", "Configurações"],
+    features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Tutoriais", "Configurações"],
   },
   {
     id: "pro",
