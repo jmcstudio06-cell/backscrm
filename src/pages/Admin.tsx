@@ -59,6 +59,8 @@ import { MaintenancePanel } from "@/components/admin/MaintenancePanel";
 import { UserBackupPanel } from "@/components/admin/UserBackupPanel";
 import { FileSpreadsheet } from "lucide-react";
 import { Database } from "lucide-react";
+import { Activity } from "lucide-react";
+import { EngagementPanel } from "@/components/admin/EngagementPanel";
 
 import { RadarRegionsPanel } from "@/components/admin/RadarRegionsPanel";
 
@@ -651,6 +653,9 @@ export default function Admin() {
           <TabsTrigger value="maintenance" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <Wrench className="h-3.5 w-3.5" /> Manutenção
           </TabsTrigger>
+          <TabsTrigger value="engagement" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+            <Activity className="h-3.5 w-3.5" /> Engajamento
+          </TabsTrigger>
           <TabsTrigger value="backup" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
             <FileSpreadsheet className="h-3.5 w-3.5" /> Backup
           </TabsTrigger>
@@ -996,6 +1001,9 @@ export default function Admin() {
 
 
         <TabsContent value="backup"><UserBackupPanel /></TabsContent>
+
+        <TabsContent value="engagement"><EngagementPanel /></TabsContent>
+
 
 
 
