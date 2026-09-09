@@ -28,13 +28,43 @@ export function useClients() {
   const { data: clients = [], isLoading: loading } = useQuery({
     queryKey: ["clients", user?.id],
     queryFn: async () => {
-      // Fetch clients and their show stats in parallel
-      const [clientsResult, showsResult] = await Promise.all([
-        supabase.from("clients").select("*").order("created_at", { ascending: false }),
-        supabase.from("shows").select("client_id, cachet").not("client_id", "is", null),
-      ]);
+      const PAGE = 1000;
 
-      if (clientsResult.error) throw clientsResult.error;
+      const fetchAllClients = async () => {
+        const all: any[] = [];
+        for (let from = 0; ; from += PAGE) {
+          const { data, error } = await supabase
+            .from("clients")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .range(from, from + PAGE - 1);
+          if (error) throw error;
+          all.push(...(data || []));
+          if (!data || data.length < PAGE) break;
+        }
+        return all;
+      };
+
+      const fetchAllShows = async () => {
+        const all: any[] = [];
+        for (let from = 0; ; from += PAGE) {
+          const { data, error } = await supabase
+            .from("shows")
+            .select("client_id, cachet")
+            .not("client_id", "is", null)
+            .order("id", { ascending: true })
+            .range(from, from + PAGE - 1);
+          if (error) throw error;
+          all.push(...(data || []));
+          if (!data || data.length < PAGE) break;
+        }
+        return all;
+      };
+
+      const [clientsData, showsData] = await Promise.all([fetchAllClients(), fetchAllShows()]);
+      const clientsResult = { data: clientsData };
+      const showsResult = { data: showsData };
+
 
       const showsMap: Record<string, { count: number; total: number }> = {};
       (showsResult.data || []).forEach((show: any) => {
