@@ -145,8 +145,26 @@ const ResetPassword = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0066CC] via-[#0077DD] to-[#00B4D8] flex items-center justify-center px-4">
         <div className="rounded-3xl bg-white shadow-2xl p-8 md:p-10 max-w-md w-full text-center">
-          <div className="h-8 w-8 border-2 border-[#0066CC]/30 border-t-[#0066CC] rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-500">Verificando link de recuperação...</p>
+          {linkError ? (
+            <>
+              <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <KeyRound className="w-7 h-7 text-red-500" />
+              </div>
+              <h1 className="text-xl font-bold text-slate-800">Link de recuperação inválido</h1>
+              <p className="text-slate-500 mt-2 text-sm">{linkError}</p>
+              <Button
+                onClick={() => navigate("/auth")}
+                className="w-full h-12 mt-6 bg-gradient-to-r from-[#0066CC] to-[#0088DD] text-white font-semibold rounded-xl"
+              >
+                Solicitar novo link
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="h-8 w-8 border-2 border-[#0066CC]/30 border-t-[#0066CC] rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-slate-500">Verificando link de recuperação...</p>
+            </>
+          )}
         </div>
       </div>
     );
