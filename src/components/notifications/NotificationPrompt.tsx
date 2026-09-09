@@ -11,7 +11,7 @@ export function NotificationPrompt() {
   const { user } = useAuth();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [iosHint, setIosHint] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -28,8 +28,24 @@ export function NotificationPrompt() {
 
       if (!hasNotification || !hasSW || !hasPush) {
         console.log("[NotifPrompt] Browser doesn't support push notifications");
+
+        // iPhone/iPad no Safari: push só funciona com o app na tela inicial.
+        const isIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && (navigator as any).maxTouchPoints > 1);
+        const standalone =
+          window.matchMedia?.("(display-mode: standalone)").matches ||
+          (window.navigator as any).standalone === true;
+
+        if (isIOS && !standalone) {
+          const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
+          if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < PROMPT_DISMISSED_DURATION) return;
+          setIosHint(true);
+          setVisible(true);
+        }
         return;
       }
+
 
 
       const permission = Notification.permission;
