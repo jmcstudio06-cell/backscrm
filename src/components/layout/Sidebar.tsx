@@ -44,6 +44,7 @@ import {
   User,
   Palette,
   Radar,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -93,6 +94,7 @@ const menuItems: MenuItem[] = [
     children: [
       { icon: UserCheck, label: "Clientes", path: "/clientes", featureKey: "clientes" },
       { icon: DollarSign, label: "Resumo Mensal", path: "/financeiro", featureKey: "financeiro" },
+      { icon: Wallet, label: "Cobranças", path: "/cobrancas", featureKey: "cobrancas" },
       { icon: History, label: "Histórico Completo", path: "/historico", featureKey: "historico" },
     ],
   },
@@ -100,7 +102,6 @@ const menuItems: MenuItem[] = [
     icon: ClipboardList,
     label: "Planejamento",
     children: [
-      { icon: Target, label: "Avanços", path: "/avancos", featureKey: "checklist" },
       { icon: Music, label: "Repertório", path: "/repertorio", featureKey: "repertorio" },
       { icon: Users2, label: "Banda & Músicos", path: "/equipe", featureKey: "equipe" },
       { icon: CheckSquare, label: "Checklist de Show", path: "/checklist", featureKey: "checklist" },

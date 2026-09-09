@@ -21,6 +21,7 @@ export const ALL_FEATURES = [
   "repertorio",
   "aulas",
   "avancos",
+  "cobrancas",
   "tutoriais",
   "configuracoes",
   "link-agenda",
@@ -49,6 +50,7 @@ const EMPRESARIAL_FEATURES = [
   ...PROFISSIONAL_FEATURES,
   "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco",
   "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus",
+  "cobrancas",
 ];
 
 const EXECUTIVO_FEATURES = [

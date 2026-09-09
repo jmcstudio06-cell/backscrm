@@ -26,6 +26,7 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
   repertorio: true,
   aulas: true,
   avancos: true,
+  cobrancas: true,
   tutoriais: true,
   configuracoes: true,
   "link-agenda": true,
@@ -51,6 +52,7 @@ const EMPRESARIAL = [
   ...PROFISSIONAL,
   "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco",
   "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus",
+  "cobrancas",
 ];
 const EXECUTIVO = [...EMPRESARIAL, "backs-radar", "usuarios"];
 const TRIAL = ["dashboard", "agenda", "crm", "clientes", "financeiro", "historico", "precificacao", "checklist", "equipe", "metas", "repertorio", "aulas", "avancos", "tutoriais", "configuracoes", "servicos"];
