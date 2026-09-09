@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { isWebPushSubscribed, subscribeToWebPush } from "@/lib/webPush";
 import { Bell, X } from "lucide-react";
 
 const PROMPT_DISMISSED_KEY = "notification_prompt_dismissed";
-const PROMPT_DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+const PROMPT_DISMISSED_DURATION = 2 * 24 * 60 * 60 * 1000; // 2 days
 
 export function NotificationPrompt() {
   const { user } = useAuth();
-  const { profile } = useProfile();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (!user) {
@@ -69,7 +68,7 @@ export function NotificationPrompt() {
     // Delay to not block initial render
     const timer = setTimeout(check, 2000);
     return () => clearTimeout(timer);
-  }, [user, profile?.onboarding_completed]);
+  }, [user]);
 
   const handleEnable = async () => {
     setLoading(true);
