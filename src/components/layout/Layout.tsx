@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { MobileBottomNav } from "./MobileBottomNav";
-import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
+
 import { HelpFab } from "./HelpFab";
 
 interface LayoutProps {
@@ -30,8 +30,8 @@ export function Layout({ children, title, subtitle, headerRightSlot }: LayoutPro
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav onMenuClick={() => setMobileOpen(true)} />
 
-      {/* Notification Permission Prompt */}
-      <NotificationPrompt />
+
+
 
       {/* Floating help button */}
       <HelpFab />
