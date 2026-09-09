@@ -331,7 +331,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 );
               }
 
-              const blocked = !blocksLoading && item.featureKey && isBlocked(item.featureKey);
+              const blocked = !blocksLoading && item.featureKey && isBlocked(item.featureKey) && item.path !== "/backs-radar";
               const isActive = location.pathname.startsWith(basePath(item.path));
 
               if (blocked) {
