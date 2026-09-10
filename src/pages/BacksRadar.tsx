@@ -208,7 +208,9 @@ export default function BacksRadar() {
       }
     } catch (err: any) {
       console.error("Backs Radar search failed:", err);
-      toast.error(err?.message ?? "Não foi possível buscar os contatos agora");
+      // Mostra o erro real da edge function para debug
+      const msg = err?.message ?? "Não foi possível buscar os contatos agora";
+      toast.error(msg, { duration: 8000 });
     } finally {
       setLoading(false);
     }
