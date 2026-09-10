@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useLeads } from "@/hooks/useLeads";
+import { useProfile } from "@/hooks/useProfile";
 import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -28,6 +29,8 @@ import {
   Lock,
   Crown,
   Navigation,
+  CheckCircle2,
+  Info,
 } from "lucide-react";
 
 interface RadarPlace {
@@ -71,26 +74,42 @@ function formatCep(v: string) {
 
 export default function BacksRadar() {
   const { addLead } = useLeads();
+  const { profile, loading: profileLoading, updateProfile } = useProfile();
   const { isBlocked, loading: blocksLoading } = useFeatureBlocks();
   const navigate = useNavigate();
 
   const locked = !blocksLoading && isBlocked("backs-radar");
 
-  const [cep, setCep] = useState("");
+  // CEP já configurado anteriormente?
+  const isConfigured = !!(profile?.radar_cep && profile?.radar_city && profile?.radar_state);
+
+  // Estado local do CEP (só editável na primeira configuração)
+  const [cepInput, setCepInput] = useState("");
+  const [cepLoading, setCepLoading] = useState(false);
+  const [savingRegion, setSavingRegion] = useState(false);
+  const [resolvedLocation, setResolvedLocation] = useState<{ city: string; state: string } | null>(null);
+
+  // Estado de busca
   const [radius, setRadius] = useState(25);
   const [category, setCategory] = useState("bares");
   const [loading, setLoading] = useState(false);
-  const [cepLoading, setCepLoading] = useState(false);
-  const [resolvedLocation, setResolvedLocation] = useState<{ city: string; state: string } | null>(null);
   const [places, setPlaces] = useState<RadarPlace[] | null>(null);
   const [lockedCount, setLockedCount] = useState<number | null>(null);
   const [source, setSource] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  // Preview do CEP enquanto digita
+  // Quando o perfil carrega e já tem região configurada, usa o CEP salvo
+  useEffect(() => {
+    if (isConfigured && profile) {
+      setResolvedLocation({ city: profile.radar_city!, state: profile.radar_state! });
+    }
+  }, [isConfigured, profile]);
+
+  // Preview automático do CEP enquanto digita (só na primeira configuração)
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isConfigured) return; // travado
     const formatted = formatCep(e.target.value);
-    setCep(formatted);
+    setCepInput(formatted);
     setResolvedLocation(null);
 
     const digits = formatted.replace(/\D/g, "");
@@ -105,7 +124,7 @@ export default function BacksRadar() {
       const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
       const data = await res.json();
       if (data?.erro) {
-        toast.error("CEP não encontrado");
+        toast.error("CEP não encontrado. Verifique e tente novamente.");
         setResolvedLocation(null);
         return;
       }
@@ -117,10 +136,43 @@ export default function BacksRadar() {
     }
   };
 
-  const search = async () => {
-    const digits = cep.replace(/\D/g, "");
+  // Salva a região no perfil (apenas uma vez)
+  const saveRegion = async () => {
+    if (!resolvedLocation) {
+      toast.error("Aguarde o CEP ser validado");
+      return;
+    }
+    const digits = cepInput.replace(/\D/g, "");
     if (digits.length !== 8) {
-      toast.error("Digite um CEP válido com 8 dígitos");
+      toast.error("CEP inválido");
+      return;
+    }
+
+    setSavingRegion(true);
+    await updateProfile({
+      radar_cep: digits,
+      radar_city: resolvedLocation.city,
+      radar_state: resolvedLocation.state,
+      radar_configured_at: new Date().toISOString(),
+    } as never);
+    setSavingRegion(false);
+    toast.success("Região configurada! Agora é só pesquisar.");
+  };
+
+  // Valor exibido no campo CEP
+  const displayCep = isConfigured
+    ? formatCep(profile?.radar_cep ?? "")
+    : cepInput;
+
+  const activeCep = isConfigured
+    ? (profile?.radar_cep ?? "")
+    : cepInput.replace(/\D/g, "");
+
+  const canSearch = activeCep.length === 8 && !!resolvedLocation;
+
+  const search = async () => {
+    if (!canSearch) {
+      toast.error("Configure seu CEP antes de pesquisar");
       return;
     }
 
@@ -130,7 +182,7 @@ export default function BacksRadar() {
 
     try {
       const { data, error } = await supabase.functions.invoke("backs-radar-search", {
-        body: { cep: digits, radius_km: radius, category },
+        body: { cep: activeCep, radius_km: radius, category },
       });
 
       if (error) throw error;
@@ -138,7 +190,6 @@ export default function BacksRadar() {
 
       const found = (data?.places ?? []) as RadarPlace[];
 
-      // Atualiza localização resolvida com o retorno do servidor (mais confiável)
       if (data?.city && data?.state) {
         setResolvedLocation({ city: data.city, state: data.state });
       }
@@ -188,6 +239,16 @@ export default function BacksRadar() {
     setSavingId(null);
   };
 
+  if (profileLoading) {
+    return (
+      <Layout title="Backs Radar" subtitle="Carregando...">
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout
       title="Backs Radar"
@@ -209,7 +270,9 @@ export default function BacksRadar() {
               <div>
                 <h2 className="text-lg font-bold leading-tight">Radar de contatos</h2>
                 <p className="text-sm text-muted-foreground">
-                  Busque por CEP e escolha o raio de alcance para encontrar oportunidades ao redor de você.
+                  {isConfigured
+                    ? "Sua região está configurada. Escolha o raio e pesquise."
+                    : "Configure seu CEP uma única vez para definir sua região de atuação."}
                 </p>
               </div>
             </div>
@@ -218,27 +281,62 @@ export default function BacksRadar() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Seu CEP
+                  Seu CEP {isConfigured && <span className="text-emerald-500 ml-1">✓ configurado</span>}
                 </Label>
                 <div className="relative">
-                  <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  {isConfigured ? (
+                    <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  )}
                   <Input
-                    value={cep}
+                    value={displayCep}
                     onChange={handleCepChange}
                     placeholder="00000-000"
                     inputMode="numeric"
                     maxLength={9}
-                    className="pl-10 text-base font-medium"
+                    readOnly={isConfigured}
+                    className={`pl-10 text-base font-medium ${
+                      isConfigured
+                        ? "bg-muted/50 cursor-not-allowed text-muted-foreground select-none"
+                        : ""
+                    }`}
                   />
                   {cepLoading && (
                     <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
                   )}
                 </div>
+
+                {/* Localização resolvida */}
                 {resolvedLocation && (
                   <p className="text-xs text-primary flex items-center gap-1.5 pt-0.5">
                     <MapPin className="h-3.5 w-3.5 shrink-0" />
                     <span className="font-semibold">{resolvedLocation.city} / {resolvedLocation.state}</span>
                   </p>
+                )}
+
+                {/* Aviso de região travada */}
+                {isConfigured && (
+                  <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 pt-0.5">
+                    <Info className="h-3 w-3 shrink-0 mt-0.5" />
+                    Região definida. Para alterar, entre em contato com o suporte.
+                  </p>
+                )}
+
+                {/* Botão salvar (só aparece na primeira configuração) */}
+                {!isConfigured && resolvedLocation && (
+                  <Button
+                    onClick={saveRegion}
+                    disabled={savingRegion}
+                    size="sm"
+                    variant="outline"
+                    className="mt-1 gap-1.5 text-xs"
+                  >
+                    {savingRegion
+                      ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      : <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+                    Confirmar minha região
+                  </Button>
                 )}
               </div>
 
@@ -289,10 +387,10 @@ export default function BacksRadar() {
               </div>
             </div>
 
-            {/* Botão buscar */}
+            {/* Botão pesquisar */}
             <Button
               onClick={search}
-              disabled={loading || cep.replace(/\D/g, "").length !== 8}
+              disabled={loading || !canSearch}
               size="lg"
               className="w-full sm:w-auto gap-2 rounded-xl"
             >
@@ -342,8 +440,12 @@ export default function BacksRadar() {
                     <h3 className="text-lg font-bold">Contatos disponíveis no plano Executivo</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Encontramos{" "}
-                      <span className="font-bold text-foreground">{lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""}</span>{" "}
-                      {resolvedLocation ? `em ${resolvedLocation.city}/${resolvedLocation.state} ` : ""}
+                      <span className="font-bold text-foreground">
+                        {lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""}
+                      </span>{" "}
+                      {resolvedLocation
+                        ? `em ${resolvedLocation.city}/${resolvedLocation.state} `
+                        : ""}
                       no raio de {radius}km. Para ver nomes, telefones e enviar direto ao seu CRM, ative o plano Executivo.
                     </p>
                   </div>
@@ -364,21 +466,22 @@ export default function BacksRadar() {
         {/* ── Resultados visíveis (plano Executivo) ── */}
         {!locked && places && places.length > 0 && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span>
-                  <span className="font-bold text-foreground">{places.length}</span> contato{places.length !== 1 ? "s" : ""}
-                  {resolvedLocation ? ` em ${resolvedLocation.city}/${resolvedLocation.state}` : ""}
-                  {" "}— raio de {radius}km
-                  {source === "cache" && (
-                    <span className="ml-1.5 text-[11px] bg-muted px-1.5 py-0.5 rounded-full font-medium">
-                      cache
-                    </span>
-                  )}
-                </span>
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span>
+                <span className="font-bold text-foreground">{places.length}</span>{" "}
+                contato{places.length !== 1 ? "s" : ""}
+                {resolvedLocation
+                  ? ` em ${resolvedLocation.city}/${resolvedLocation.state}`
+                  : ""}{" "}
+                — raio de {radius}km
+                {source === "cache" && (
+                  <span className="ml-1.5 text-[11px] bg-muted px-1.5 py-0.5 rounded-full font-medium">
+                    cache
+                  </span>
+                )}
+              </span>
+            </p>
 
             <div className="grid gap-3 sm:grid-cols-2">
               {places.map((place) => (
@@ -474,7 +577,7 @@ export default function BacksRadar() {
           </div>
         )}
 
-        {/* ── Estado vazio após busca sem resultados (Executivo) ── */}
+        {/* ── Sem resultados após busca ── */}
         {!locked && places !== null && places.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
@@ -487,7 +590,7 @@ export default function BacksRadar() {
           </div>
         )}
 
-        {/* ── Estado inicial (ainda não buscou) ── */}
+        {/* ── Estado inicial ── */}
         {places === null && lockedCount === null && !loading && (
           <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
             <div className="relative w-20 h-20">
@@ -496,9 +599,13 @@ export default function BacksRadar() {
                 <Radar className="h-9 w-9 text-primary" />
               </div>
             </div>
-            <p className="font-semibold">Pronto para explorar?</p>
+            <p className="font-semibold">
+              {isConfigured ? "Pronto para explorar!" : "Configure sua região primeiro"}
+            </p>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Digite seu CEP, escolha o raio e pressione <span className="font-semibold">Pesquisar</span> para ver os locais que contratam música ao vivo na sua região.
+              {isConfigured
+                ? `Sua região é ${resolvedLocation?.city ?? ""} / ${resolvedLocation?.state ?? ""}. Escolha o raio e pressione Pesquisar.`
+                : "Digite seu CEP para definir sua região de atuação. Isso só precisa ser feito uma vez."}
             </p>
           </div>
         )}
