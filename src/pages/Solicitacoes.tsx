@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { StepWizard } from "@/components/links/StepWizard";
 import {
   Calendar, MapPin, User, Phone, Clock, Package, Trash2,
   CheckCircle, XCircle, Loader2, Link2, ExternalLink, Copy,
@@ -206,360 +207,313 @@ export default function Solicitacoes() {
 
         {/* ---- ABA: Configuração do Link ---- */}
         <TabsContent value="config" className="space-y-6">
-
-
-
-
-          {/* Seu Link Público */}
-          <Card className="p-6">
-            <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
-              <Link2 className="w-4 h-4 text-primary" />
-              Seu Link Público
-            </h3>
-            <div className="space-y-3">
-              {autoSlug ? (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    Gerado automaticamente a partir do seu nome artístico.
-                  </p>
-                  <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-                    <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <code className="flex-1 text-xs text-muted-foreground truncate">{publicUrl}</code>
-                    <Button size="sm" variant="outline" onClick={copyPublicLink} className="gap-1 shrink-0">
-                      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                      {copied ? "Copiado" : "Copiar"}
-                    </Button>
-                    <Button size="sm" variant="outline" asChild className="shrink-0">
-                      <a href={publicUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Para gerar seu link público, defina seu <strong>nome artístico</strong> abaixo:
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={newArtistName}
-                      onChange={(e) => setNewArtistName(e.target.value)}
-                      placeholder="Ex: Larissa Santos, Banda XYZ..."
-                      className="flex-1"
-                    />
-                    <Button onClick={handleSaveArtistName} disabled={savingName} className="shrink-0 gap-1.5">
-                      {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                      Gerar Link
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Descrição do Artista */}
-          <Card className="p-6">
-            <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
-              <User className="w-4 h-4 text-primary" />
-              Descrição do Artista
-            </h3>
-            <Textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Conte sobre você, seu estilo musical, experiência..."
-              rows={4}
-            />
-          </Card>
-
-          {/* Redes Sociais */}
-          <Card className="p-6">
-            <h3 className="text-base font-semibold mb-4">Redes Sociais</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <Instagram className="w-3.5 h-3.5 text-muted-foreground" />
-                  Instagram
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={instagramUrl}
-                    onChange={(e) => setInstagramUrl(e.target.value)}
-                    placeholder="https://instagram.com/seuartista"
-                    className="flex-1"
-                  />
-                  {instagramUrl && (
-                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
-                      <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-3 h-3" /> Ver
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <Youtube className="w-3.5 h-3.5 text-muted-foreground" />
-                  YouTube
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)}
-                    placeholder="https://youtube.com/@seucanal"
-                    className="flex-1"
-                  />
-                  {youtubeUrl && (
-                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
-                      <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-3 h-3" /> Ver
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <Music2 className="w-3.5 h-3.5 text-muted-foreground" />
-                  TikTok
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={tiktokUrl}
-                    onChange={(e) => setTiktokUrl(e.target.value)}
-                    placeholder="https://tiktok.com/@seuartista"
-                    className="flex-1"
-                  />
-                  {tiktokUrl && (
-                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
-                      <a href={tiktokUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-3 h-3" /> Ver
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <Music className="w-3.5 h-3.5 text-muted-foreground" />
-                  Spotify
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={spotifyUrl}
-                    onChange={(e) => setSpotifyUrl(e.target.value)}
-                    placeholder="https://open.spotify.com/artist/..."
-                    className="flex-1"
-                  />
-                  {spotifyUrl && (
-                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
-                      <a href={spotifyUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-3 h-3" /> Ver
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <div className="sm:col-span-1">
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-                  Site Pessoal
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={websiteUrl}
-                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                    placeholder="https://seusite.com"
-                    className="flex-1"
-                  />
-                  {websiteUrl && (
-                    <Button size="sm" variant="outline" asChild className="shrink-0 gap-1.5">
-                      <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-3 h-3" /> Ver
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Material / Portfólio */}
-          <Card className="p-6">
-            <h3 className="text-base font-semibold mb-4">Material / Portfólio</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-                  Mídia Kit (link)
-                </Label>
-                <Input
-                  value={mediaKitUrl}
-                  onChange={(e) => setMediaKitUrl(e.target.value)}
-                  placeholder="https://drive.google.com/..."
-                />
-              </div>
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <Video className="w-3.5 h-3.5 text-muted-foreground" />
-                  Vídeo de Show (link)
-                </Label>
-                <Input
-                  value={showVideoUrl}
-                  onChange={(e) => setShowVideoUrl(e.target.value)}
-                  placeholder="https://youtube.com/watch?v=..."
-                />
-              </div>
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <List className="w-3.5 h-3.5 text-muted-foreground" />
-                  Repertório (link)
-                </Label>
-                <Input
-                  value={repertoireUrl}
-                  onChange={(e) => setRepertoireUrl(e.target.value)}
-                  placeholder="https://docs.google.com/..."
-                />
-              </div>
-            </div>
-          </Card>
-
-          {/* Serviços Visíveis Online */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Package className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-foreground">Serviços Visíveis Online</h3>
-                  <p className="text-sm text-muted-foreground">Escolha quais serviços aparecerão na sua página pública</p>
-                </div>
-              </div>
-              <Switch
-                checked={bookingShowProducts}
-                onCheckedChange={setBookingShowProducts}
-              />
-            </div>
-            {bookingShowProducts && (
-              <div className="space-y-2 mt-4 border-t border-border pt-4">
-                {loadingProducts ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                  </div>
-                ) : onlineProducts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Nenhum serviço cadastrado. Crie serviços em <strong>Serviços e Produtos</strong>.
-                  </p>
-                ) : (
-                  onlineProducts.map((product) => (
-                    <div key={product.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <Package className="w-4 h-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{product.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            R$ {product.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </p>
+          <StepWizard
+            previewUrl={publicUrl || null}
+            previewTitle="Sua página de agendamento está pronta!"
+            previewDescription="Abra o link para ver como o contratante enxerga sua agenda."
+            onSave={handleSave}
+            steps={[
+              {
+                id: "link",
+                title: "Seu link público",
+                description: "Ele é criado a partir do seu nome artístico.",
+                icon: Link2,
+                content: (
+                  <div className="space-y-3">
+                    {autoSlug ? (
+                      <>
+                        <p className="text-sm text-muted-foreground">
+                          Gerado automaticamente a partir do seu nome artístico.
+                        </p>
+                        <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
+                          <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <code className="flex-1 text-xs text-muted-foreground truncate">{publicUrl}</code>
+                          <Button size="sm" variant="outline" onClick={copyPublicLink} className="gap-1 shrink-0">
+                            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            {copied ? "Copiado" : "Copiar"}
+                          </Button>
+                          <Button size="sm" variant="outline" asChild className="shrink-0">
+                            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-3">
+                        <p className="text-sm text-muted-foreground">
+                          Para gerar seu link público, defina seu <strong>nome artístico</strong> abaixo:
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={newArtistName}
+                            onChange={(e) => setNewArtistName(e.target.value)}
+                            placeholder="Ex: Larissa Santos, Banda XYZ..."
+                            className="flex-1"
+                          />
+                          <Button onClick={handleSaveArtistName} disabled={savingName} className="shrink-0 gap-1.5">
+                            {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                            Gerar Link
+                          </Button>
                         </div>
                       </div>
-                      <Switch
-                        checked={product.visible_online}
-                        onCheckedChange={(checked) => toggleProductOnline(product.id, checked)}
+                    )}
+                  </div>
+                ),
+              },
+              {
+                id: "bio",
+                title: "Descrição do artista",
+                description: "Conte em poucas linhas o que você faz e para quais eventos toca.",
+                icon: User,
+                content: (
+                  <Textarea
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Conte sobre você, seu estilo musical, experiência..."
+                    rows={4}
+                  />
+                ),
+              },
+              {
+                id: "redes",
+                title: "Redes sociais",
+                description: "Cole os endereços das suas redes. Deixe em branco as que não usa.",
+                icon: Instagram,
+                content: (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <Instagram className="w-3.5 h-3.5 text-muted-foreground" />
+                        Instagram
+                      </Label>
+                      <Input
+                        value={instagramUrl}
+                        onChange={(e) => setInstagramUrl(e.target.value)}
+                        placeholder="https://instagram.com/seuartista"
                       />
                     </div>
-                  ))
-                )}
-              </div>
-            )}
-          </Card>
-
-          {/* Configurações de Agendamento */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold flex items-center gap-2">
-                <Tag className="w-4 h-4 text-primary" />
-                Desconto por Múltiplas Datas
-              </h3>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="discount-toggle" className="text-sm text-muted-foreground">
-                  {bookingDiscountPercent > 0 ? "Ativado" : "Desativado"}
-                </Label>
-                <Switch
-                  id="discount-toggle"
-                  checked={bookingDiscountPercent > 0}
-                  onCheckedChange={(checked) => {
-                    if (!checked) {
-                      setBookingDiscountPercent(0);
-                    } else {
-                      setBookingDiscountPercent(10);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <Label className="flex items-center gap-1.5 mb-1">
-                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                  Máximo de datas
-                </Label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={bookingMaxDates}
-                  onChange={(e) => setBookingMaxDates(Math.max(1, Math.min(10, Number(e.target.value))))}
-                />
-                <p className="text-xs text-muted-foreground mt-1">De 1 a 10 datas por solicitação</p>
-              </div>
-              {bookingDiscountPercent > 0 && (
-                <>
-                  <div>
-                    <Label className="flex items-center gap-1.5 mb-1">
-                      <Gift className="w-3.5 h-3.5 text-muted-foreground" />
-                      Desconto (%)
-                    </Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={50}
-                      value={bookingDiscountPercent}
-                      onChange={(e) => setBookingDiscountPercent(Math.max(1, Math.min(50, Number(e.target.value))))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Desconto aplicado na última data</p>
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <Youtube className="w-3.5 h-3.5 text-muted-foreground" />
+                        YouTube
+                      </Label>
+                      <Input
+                        value={youtubeUrl}
+                        onChange={(e) => setYoutubeUrl(e.target.value)}
+                        placeholder="https://youtube.com/@seucanal"
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <Music2 className="w-3.5 h-3.5 text-muted-foreground" />
+                        TikTok
+                      </Label>
+                      <Input
+                        value={tiktokUrl}
+                        onChange={(e) => setTiktokUrl(e.target.value)}
+                        placeholder="https://tiktok.com/@seuartista"
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <Music className="w-3.5 h-3.5 text-muted-foreground" />
+                        Spotify
+                      </Label>
+                      <Input
+                        value={spotifyUrl}
+                        onChange={(e) => setSpotifyUrl(e.target.value)}
+                        placeholder="https://open.spotify.com/artist/..."
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                        Site Pessoal
+                      </Label>
+                      <Input
+                        value={websiteUrl}
+                        onChange={(e) => setWebsiteUrl(e.target.value)}
+                        placeholder="https://seusite.com"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label className="flex items-center gap-1.5 mb-1">
-                      <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                      Mín. datas p/ desconto
-                    </Label>
-                    <Input
-                      type="number"
-                      min={2}
-                      max={10}
-                      value={bookingMinDatesDiscount}
-                      onChange={(e) => setBookingMinDatesDiscount(Math.max(2, Math.min(10, Number(e.target.value))))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Quantas datas para ativar o desconto</p>
+                ),
+              },
+              {
+                id: "material",
+                title: "Material e portfólio",
+                description: "Mídia kit, vídeo do show e repertório para o contratante conhecer você.",
+                icon: FileText,
+                content: (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                        Mídia Kit (link)
+                      </Label>
+                      <Input
+                        value={mediaKitUrl}
+                        onChange={(e) => setMediaKitUrl(e.target.value)}
+                        placeholder="https://drive.google.com/..."
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <Video className="w-3.5 h-3.5 text-muted-foreground" />
+                        Vídeo de Show (link)
+                      </Label>
+                      <Input
+                        value={showVideoUrl}
+                        onChange={(e) => setShowVideoUrl(e.target.value)}
+                        placeholder="https://youtube.com/watch?v=..."
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-1.5 mb-1">
+                        <List className="w-3.5 h-3.5 text-muted-foreground" />
+                        Repertório (link)
+                      </Label>
+                      <Input
+                        value={repertoireUrl}
+                        onChange={(e) => setRepertoireUrl(e.target.value)}
+                        placeholder="https://docs.google.com/..."
+                      />
+                    </div>
                   </div>
-                </>
-              )}
-            </div>
-            {bookingDiscountPercent > 0 && (
-              <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Resumo:</strong> O cliente pode selecionar de 1 a {bookingMaxDates} datas. 
-                  Ao selecionar {bookingMinDatesDiscount} ou mais datas, ganha <strong className="text-primary">{bookingDiscountPercent}% de desconto</strong> no valor total, aplicado na última data.
-                </p>
-              </div>
-            )}
-          </Card>
+                ),
+              },
+              {
+                id: "servicos",
+                title: "Serviços visíveis online",
+                description: "Escolha quais serviços aparecem com preço na sua página pública.",
+                icon: Package,
+                content: (
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm text-muted-foreground">
+                        Mostrar meus serviços e preços na página
+                      </p>
+                      <Switch checked={bookingShowProducts} onCheckedChange={setBookingShowProducts} />
+                    </div>
+                    {bookingShowProducts && (
+                      <div className="space-y-2 mt-4 border-t border-border pt-4">
+                        {loadingProducts ? (
+                          <div className="flex items-center justify-center py-4">
+                            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                          </div>
+                        ) : onlineProducts.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            Nenhum serviço cadastrado. Crie serviços em <strong>Serviços e Produtos</strong>.
+                          </p>
+                        ) : (
+                          onlineProducts.map((product) => (
+                            <div key={product.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
+                              <div className="flex items-center gap-3">
+                                <Package className="w-4 h-4 text-muted-foreground" />
+                                <div>
+                                  <p className="text-sm font-medium text-foreground">{product.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    R$ {product.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                  </p>
+                                </div>
+                              </div>
+                              <Switch
+                                checked={product.visible_online}
+                                onCheckedChange={(checked) => toggleProductOnline(product.id, checked)}
+                              />
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                id: "desconto",
+                title: "Datas e desconto",
+                description: "Defina quantas datas o contratante pode pedir e o desconto por várias datas.",
+                icon: Tag,
+                content: (
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <Label htmlFor="discount-toggle" className="text-sm">
+                        Desconto por múltiplas datas
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {bookingDiscountPercent > 0 ? "Ativado" : "Desativado"}
+                        </span>
+                        <Switch
+                          id="discount-toggle"
+                          checked={bookingDiscountPercent > 0}
+                          onCheckedChange={(checked) => setBookingDiscountPercent(checked ? 10 : 0)}
+                        />
+                      </div>
+                    </div>
 
-          <Button onClick={handleSave} className="w-full sm:w-auto">
-            Salvar Configurações
-          </Button>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <Label className="flex items-center gap-1.5 mb-1">
+                          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                          Máximo de datas
+                        </Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={bookingMaxDates}
+                          onChange={(e) => setBookingMaxDates(Math.max(1, Math.min(10, Number(e.target.value))))}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">De 1 a 10 datas por solicitação</p>
+                      </div>
+                      {bookingDiscountPercent > 0 && (
+                        <>
+                          <div>
+                            <Label className="flex items-center gap-1.5 mb-1">
+                              <Gift className="w-3.5 h-3.5 text-muted-foreground" />
+                              Desconto (%)
+                            </Label>
+                            <Input
+                              type="number"
+                              min={1}
+                              max={50}
+                              value={bookingDiscountPercent}
+                              onChange={(e) => setBookingDiscountPercent(Math.max(1, Math.min(50, Number(e.target.value))))}
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">Desconto aplicado na última data</p>
+                          </div>
+                          <div>
+                            <Label className="flex items-center gap-1.5 mb-1">
+                              <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                              Mín. datas p/ desconto
+                            </Label>
+                            <Input
+                              type="number"
+                              min={2}
+                              max={10}
+                              value={bookingMinDatesDiscount}
+                              onChange={(e) => setBookingMinDatesDiscount(Math.max(2, Math.min(10, Number(e.target.value))))}
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">Quantas datas para ativar o desconto</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    {bookingDiscountPercent > 0 && (
+                      <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                        <p className="text-sm text-muted-foreground">
+                          <strong className="text-foreground">Resumo:</strong> O cliente pode selecionar de 1 a {bookingMaxDates} datas.
+                          Ao selecionar {bookingMinDatesDiscount} ou mais datas, ganha <strong className="text-primary">{bookingDiscountPercent}% de desconto</strong> no valor total, aplicado na última data.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
+          />
         </TabsContent>
 
         {/* ---- ABA: Solicitações ---- */}
