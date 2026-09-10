@@ -1,7 +1,7 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Download, MessageCircle, Loader2 } from "lucide-react";
 import { Budget, BudgetItem } from "@/hooks/useBudgets";
 import { formatDateBR } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
@@ -21,6 +21,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
   const printRef = useRef<HTMLDivElement>(null);
   const { profile } = useProfile();
   const { settings } = useCustomization();
+  const [generatingImage, setGeneratingImage] = useState(false);
 
   if (!budget) return null;
 
@@ -161,6 +162,30 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), "image/png", 0.98);
     });
+  };
+
+  /**
+   * ✅ Imagem para WhatsApp — gera PNG A4-like e abre para download/compartilhamento
+   */
+  const handleWhatsAppImage = async () => {
+    setGeneratingImage(true);
+    toast.loading("Gerando imagem...", { id: "img" });
+    try {
+      const blob = await generateImage("phone");
+      if (!blob) throw new Error("Falha ao gerar imagem");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Orcamento-${budget!.budget_number}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Imagem salva! Envie pelo WhatsApp.", { id: "img" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao gerar imagem", { id: "img" });
+    } finally {
+      setGeneratingImage(false);
+    }
   };
 
   /**
@@ -345,21 +370,18 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto bg-background p-0">
-        <DialogHeader className="p-4 border-b sticky top-0 bg-background z-10">
-          <div className="flex items-center justify-between">
-            <DialogTitle>Pré-visualização do Orçamento</DialogTitle>
-            <div className="flex items-center gap-2">
-              <Button variant="gradient" size="sm" onClick={handlePrintPDF}>
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimir
-              </Button>
-            </div>
-          </div>
+      <DialogContent className="max-w-4xl max-h-[95vh] flex flex-col bg-background p-0">
+        {/* Header sticky */}
+        <DialogHeader className="p-3 sm:p-4 border-b shrink-0">
+          <DialogTitle className="text-sm sm:text-base">
+            Orçamento {budget.budget_number}
+          </DialogTitle>
         </DialogHeader>
 
-        {/* Área capturada */}
-        <div ref={printRef} style={{ background: c.bg, padding: 40, width: "100%", boxSizing: "border-box" }}>
+        {/* Conteúdo scrollável */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Área capturada */}
+          <div ref={printRef} style={{ background: c.bg, padding: 40, width: "100%", boxSizing: "border-box" }}>
           <div style={{ maxWidth: 800, margin: "0 auto", fontFamily: "'Segoe UI', Arial, sans-serif", color: c.text, lineHeight: 1.5 }}>
             {renderHeader()}
 
@@ -523,6 +545,46 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
               </>
             )}
           </div>
+        </div>
+      </div>
+
+        {/* ── Barra de ações fixa no bottom ── */}
+        <div className="shrink-0 border-t bg-background px-3 py-3 flex flex-wrap gap-2">
+          {/* Baixar PDF */}
+          <Button
+            variant="gradient"
+            size="sm"
+            className="flex-1 min-w-[120px] gap-2"
+            onClick={handlePrintPDF}
+          >
+            <Download className="w-4 h-4" />
+            Baixar PDF
+          </Button>
+
+          {/* Imagem p/ WhatsApp */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 min-w-[140px] gap-2 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+            onClick={handleWhatsAppImage}
+            disabled={generatingImage}
+          >
+            {generatingImage
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <MessageCircle className="w-4 h-4" />}
+            Imagem WhatsApp
+          </Button>
+
+          {/* Imprimir */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 min-w-[100px] gap-2"
+            onClick={handlePrintPDF}
+          >
+            <Printer className="w-4 h-4" />
+            Imprimir
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

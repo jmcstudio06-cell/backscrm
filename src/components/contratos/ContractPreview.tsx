@@ -424,40 +424,39 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto bg-background p-0">
-        <DialogHeader className="p-4 border-b sticky top-0 bg-background z-10">
-          <div className="flex items-center justify-between">
-            <DialogTitle>Pré-visualização do Contrato</DialogTitle>
-            <div className="flex items-center gap-2">
-              <Button variant="gradient" size="sm" onClick={handlePrintLegacy}>
-                <Download className="w-4 h-4 mr-2" />
-                Imprimir
-              </Button>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+      <DialogContent className="max-w-4xl max-h-[95vh] flex flex-col bg-background p-0">
+        {/* Header sticky */}
+        <DialogHeader className="p-3 sm:p-4 border-b sticky top-0 bg-background z-10 shrink-0">
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="text-sm sm:text-base truncate">
+              Contrato {contract.contract_number}
+            </DialogTitle>
+            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         </DialogHeader>
 
-        <div className="p-8 bg-white">
-          <div
-            ref={printRef}
-            className="contract-container"
-            style={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: 12,
-              color: "#333",
-              lineHeight: 1.6,
-              maxWidth: 800,
-              margin: "0 auto",
-              padding: "30px 35px",
-              background: "#fff",
-              border: "1px solid #ddd",
-              borderRadius: 4,
-              boxSizing: "border-box",
-            }}
-          >
+        {/* Conteúdo scrollável */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-8 bg-white">
+            <div
+              ref={printRef}
+              className="contract-container"
+              style={{
+                fontFamily: "Arial, sans-serif",
+                fontSize: 12,
+                color: "#333",
+                lineHeight: 1.6,
+                maxWidth: 800,
+                margin: "0 auto",
+                padding: "30px 35px",
+                background: "#fff",
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                boxSizing: "border-box",
+              }}
+            >
             {/* Header */}
             <div
               style={{
@@ -697,6 +696,43 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+        {/* ── Barra de ações fixa no bottom ── */}
+        <div className="shrink-0 border-t bg-background px-3 py-3 flex flex-wrap gap-2">
+          <Button
+            variant="gradient"
+            size="sm"
+            className="flex-1 min-w-[120px] gap-2"
+            onClick={handlePrint}
+            disabled={generating}
+          >
+            {generating
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <Download className="w-4 h-4" />}
+            Baixar PDF
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 min-w-[100px] gap-2"
+            onClick={handlePrintLegacy}
+          >
+            <Send className="w-4 h-4" />
+            Imprimir
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 min-w-[120px] gap-2 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+            onClick={handleWhatsApp}
+          >
+            <MessageCircle className="w-4 h-4" />
+            WhatsApp
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

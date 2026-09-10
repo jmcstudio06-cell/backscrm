@@ -118,14 +118,31 @@ export function BudgetKanbanView({ budgets, onView, onEdit, onDelete, onChangeSt
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-end gap-0.5 pt-1.5 border-t border-border">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onView(b)}>
-                          <Eye className="w-3 h-3" />
+                      <div className="flex items-center gap-1.5 pt-1.5 border-t border-border">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 h-7 gap-1 text-[11px] px-1.5"
+                          onClick={() => onView(b)}
+                        >
+                          <Eye className="w-3 h-3 shrink-0" />
+                          Ver
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onEdit(b)}>
-                          <FileText className="w-3 h-3" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 h-7 gap-1 text-[11px] px-1.5"
+                          onClick={() => onEdit(b)}
+                        >
+                          <FileText className="w-3 h-3 shrink-0" />
+                          Editar
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => onDelete(b.id)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-destructive border-destructive/20 hover:bg-destructive/10"
+                          onClick={() => onDelete(b.id)}
+                        >
                           <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>

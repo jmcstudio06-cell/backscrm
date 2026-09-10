@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Can } from "@/components/auth/Can";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Download, Eye, MoreVertical, FileSignature, AlertTriangle, Link2, Lock } from "lucide-react";
+import { Plus, Search, FileText, CheckCircle2, Clock, Send, PenTool, Eye, MoreVertical, FileSignature, AlertTriangle, Link2, Lock, Pencil, Trash2, Calendar, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useContracts, Contract } from "@/hooks/useContracts";
 import { formatDateBR } from "@/lib/utils";
@@ -103,59 +102,99 @@ export default function Contratos() {
             {filteredContracts.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">Nenhum contrato encontrado.</div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Contrato</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Data Evento</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredContracts.map((contract) => {
-                    const status = statusConfig[contract.status as keyof typeof statusConfig] || statusConfig.draft;
-                    const StatusIcon = status.icon;
-                    return (
-                      <TableRow key={contract.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileSignature className="w-5 h-5 text-primary" /></div>
-                            <div><span className="font-medium text-foreground block">{contract.title}</span><span className="text-xs text-muted-foreground">{contract.contract_number}</span></div>
+              <div className="space-y-3">
+                {filteredContracts.map((contract) => {
+                  const status = statusConfig[contract.status as keyof typeof statusConfig] || statusConfig.draft;
+                  const StatusIcon = status.icon;
+                  return (
+                    <div key={contract.id} className="rounded-xl border bg-card/60 p-3 sm:p-4 hover:shadow-md transition-shadow">
+                      {/* Linha superior: ícone + título + status + menu */}
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileSignature className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm truncate">{contract.title}</p>
+                              <p className="text-xs text-muted-foreground">{contract.contract_number}</p>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Badge variant="outline" className={`${status.color} text-[10px] px-1.5 py-0.5 whitespace-nowrap`}>
+                                <StatusIcon className="w-2.5 h-2.5 mr-1" />{status.label}
+                              </Badge>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <MoreVertical className="w-3.5 h-3.5" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="bg-background border">
+                                  <DropdownMenuItem onClick={() => handleEdit(contract)}>
+                                    <Pencil className="w-3.5 h-3.5 mr-2" />Editar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => openSignatureLink(contract)}>
+                                    {signatureBlocked && <Lock className="w-3.5 h-3.5 mr-2" />}
+                                    {!signatureBlocked && <Link2 className="w-3.5 h-3.5 mr-2" />}
+                                    Link de assinatura
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "sent" })}>
+                                    <Send className="w-3.5 h-3.5 mr-2" />Marcar Enviado
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "signed", signed_at: new Date().toISOString() })}>
+                                    <CheckCircle2 className="w-3.5 h-3.5 mr-2" />Marcar Assinado
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem className="text-destructive" onClick={() => deleteContract(contract.id)}>
+                                    <Trash2 className="w-3.5 h-3.5 mr-2" />Excluir
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{contract.client_name}</TableCell>
-                        <TableCell><span className="font-semibold text-success">R$ {contract.total_value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span></TableCell>
-                        <TableCell className="text-muted-foreground">{contract.event_date ? formatDateBR(contract.event_date) : "-"}</TableCell>
-                        <TableCell><Badge variant="outline" className={status.color}><StatusIcon className="w-3 h-3 mr-1" />{status.label}</Badge></TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => handleView(contract)}><Eye className="w-4 h-4" /></Button>
-                            <Button variant="ghost" size="icon" title={signatureBlocked ? "Assinatura digital disponível no plano Empresarial" : "Link de assinatura digital"} onClick={() => openSignatureLink(contract)}>
-                              {signatureBlocked ? <Lock className="w-4 h-4 text-muted-foreground" /> : <Link2 className="w-4 h-4 text-primary" />}
-                            </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                              <DropdownMenuContent className="bg-background border">
-                                <DropdownMenuItem onClick={() => handleEdit(contract)}>Editar</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => openSignatureLink(contract)}>
-                                  {signatureBlocked && <Lock className="w-3.5 h-3.5 mr-2" />}Link de assinatura
-                                </DropdownMenuItem>
 
-                                <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "sent" })}>Marcar Enviado</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateContract(contract.id, { status: "signed", signed_at: new Date().toISOString() })}>Marcar Assinado</DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive" onClick={() => deleteContract(contract.id)}>Excluir</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                          {/* Metadados: cliente, valor, data */}
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-muted-foreground">
+                            <span className="truncate max-w-[140px] font-medium text-foreground/80">{contract.client_name}</span>
+                            <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                              <DollarSign className="w-3 h-3" />
+                              {contract.total_value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                            {contract.event_date && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />{formatDateBR(contract.event_date)}
+                              </span>
+                            )}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                        </div>
+                      </div>
+
+                      {/* Botões de ação — com ícone + texto */}
+                      <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border/60">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 min-w-[120px] gap-1.5 text-xs h-8"
+                          onClick={() => handleView(contract)}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Ver contrato
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`flex-1 min-w-[120px] gap-1.5 text-xs h-8 ${signatureBlocked ? "text-muted-foreground" : "text-primary border-primary/30 hover:bg-primary/5"}`}
+                          onClick={() => openSignatureLink(contract)}
+                        >
+                          {signatureBlocked
+                            ? <Lock className="w-3.5 h-3.5" />
+                            : <Link2 className="w-3.5 h-3.5" />}
+                          Assinatura digital
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </ChartCard>
 
