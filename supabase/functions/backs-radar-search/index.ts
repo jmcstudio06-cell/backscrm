@@ -22,7 +22,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-/** Resolve CEP → { lat, lng, city, state } usando ViaCEP + Nominatim */
+/** Resolve CEP → { lat, lng, city, state } */
 async function resolveCep(cep: string): Promise<{ lat: number; lng: number; city: string; state: string } | null> {
   try {
     const digits = cep.replace(/\D/g, "");
@@ -40,49 +40,27 @@ async function resolveCep(cep: string): Promise<{ lat: number; lng: number; city
     const state = String(cepData.uf ?? "").trim().toUpperCase();
     if (!city || !state) return null;
 
-    // 2. Nominatim → lat/lng via CEP
+    // 2. Nominatim via CEP
     const geoRes = await fetch(
       `https://nominatim.openstreetmap.org/search?postalcode=${digits}&country=BR&format=json&limit=1`,
-      {
-        headers: {
-          "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)",
-          "Accept-Language": "pt-BR",
-        },
-      }
+      { headers: { "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)" } }
     );
-
     if (geoRes.ok) {
       const geoData = await geoRes.json();
       if (geoData?.[0]?.lat && geoData?.[0]?.lon) {
-        return {
-          lat: parseFloat(geoData[0].lat),
-          lng: parseFloat(geoData[0].lon),
-          city,
-          state,
-        };
+        return { lat: parseFloat(geoData[0].lat), lng: parseFloat(geoData[0].lon), city, state };
       }
     }
 
-    // 3. Fallback: geocodifica por nome da cidade + estado via Nominatim
+    // 3. Fallback: geocodifica por cidade + estado
     const fallbackRes = await fetch(
       `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&country=BR&format=json&limit=1`,
-      {
-        headers: {
-          "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)",
-          "Accept-Language": "pt-BR",
-        },
-      }
+      { headers: { "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)" } }
     );
-
     if (fallbackRes.ok) {
       const fallbackData = await fallbackRes.json();
       if (fallbackData?.[0]?.lat && fallbackData?.[0]?.lon) {
-        return {
-          lat: parseFloat(fallbackData[0].lat),
-          lng: parseFloat(fallbackData[0].lon),
-          city,
-          state,
-        };
+        return { lat: parseFloat(fallbackData[0].lat), lng: parseFloat(fallbackData[0].lon), city, state };
       }
     }
 
@@ -100,10 +78,10 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-    const mapsKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    const serviceKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey     = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const lovableKey  = Deno.env.get("LOVABLE_API_KEY");
+    const mapsKey     = Deno.env.get("GOOGLE_MAPS_API_KEY");
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -121,26 +99,25 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
 
-    const cep = String(body.cep ?? "").replace(/\D/g, "");
-    const radiusKm = Number(body.radius_km ?? 25);
-    const category = String(body.category ?? "").trim();
-    const refresh = body.refresh === true;
+    const cep       = String(body.cep ?? "").replace(/\D/g, "");
+    const radiusKm  = Number(body.radius_km ?? 25);
+    const category  = String(body.category ?? "").trim();
+    const refresh   = body.refresh === true;
 
     const VALID_RADII = [10, 25, 50, 100];
-    const radius = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
+    const radius      = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
     const radiusMeters = radius * 1000;
 
-    if (cep.length !== 8) return json({ error: "CEP inválido. Informe 8 dígitos." }, 400);
-    if (!CATEGORIES[category]) return json({ error: "Categoria inválida" }, 400);
+    if (cep.length !== 8)       return json({ error: "CEP inválido. Informe 8 dígitos." }, 400);
+    if (!CATEGORIES[category])  return json({ error: "Categoria inválida" }, 400);
 
-    // Resolver CEP → coordenadas
+    // Resolver CEP → coordenadas + cidade/estado
     const location = await resolveCep(cep);
     if (!location) {
       return json({ error: "CEP não encontrado ou não foi possível obter as coordenadas. Verifique o CEP e tente novamente." }, 400);
     }
 
     const { lat, lng, city, state } = location;
-    const cacheKey = `${cep}_${radius}km`;
 
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -148,24 +125,9 @@ serve(async (req) => {
 
     const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString();
 
-    // Tenta cache — primeiro por cache_key (novo), depois por state+city (legado)
+    // Cache lookup — usa state+city+category (schema original, sem campos novos)
     if (!refresh) {
       const { data: cached } = await admin
-        .from("radar_places")
-        .select("*")
-        .eq("cache_key", cacheKey)
-        .eq("category", category)
-        .gte("fetched_at", cutoff)
-        .order("rating_count", { ascending: false })
-        .limit(MAX_RESULTS);
-
-      if (cached && cached.length > 0) {
-        console.log(`Cache hit: ${cacheKey} / ${category} (${cached.length} places)`);
-        return json({ places: cached, source: "cache", city, state, lat, lng, radius });
-      }
-
-      // Fallback: cache legado por state+city
-      const { data: legacyCached } = await admin
         .from("radar_places")
         .select("*")
         .eq("state", state)
@@ -175,9 +137,9 @@ serve(async (req) => {
         .order("rating_count", { ascending: false })
         .limit(MAX_RESULTS);
 
-      if (legacyCached && legacyCached.length > 0) {
-        console.log(`Legacy cache hit: ${city}/${state} / ${category} (${legacyCached.length} places)`);
-        return json({ places: legacyCached, source: "cache", city, state, lat, lng, radius });
+      if (cached && cached.length > 0) {
+        console.log(`Cache hit: ${city}/${state}/${category} (${cached.length} places)`);
+        return json({ places: cached, source: "cache", city, state, lat, lng, radius });
       }
     }
 
@@ -185,7 +147,7 @@ serve(async (req) => {
       return json({ error: "Integração do Google Maps não configurada. Entre em contato com o suporte." }, 500);
     }
 
-    console.log(`Google Places search: ${CATEGORIES[category]} @ (${lat},${lng}) radius=${radiusMeters}m`);
+    console.log(`Google Places: "${CATEGORIES[category]}" @ (${lat.toFixed(4)},${lng.toFixed(4)}) r=${radiusMeters}m`);
 
     const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
       method: "POST",
@@ -203,7 +165,6 @@ serve(async (req) => {
           "places.userRatingCount",
           "places.primaryTypeDisplayName",
           "places.googleMapsUri",
-          "places.location",
         ].join(","),
       },
       body: JSON.stringify({
@@ -221,8 +182,8 @@ serve(async (req) => {
     });
 
     if (response.status === 403) {
-      const details: Array<{ reason?: string }> =
-        (await response.json())?.error?.details ?? [];
+      const errBody = await response.json().catch(() => ({}));
+      const details: Array<{ reason?: string }> = errBody?.error?.details ?? [];
       const reason = details.find((d) => d.reason)?.reason;
       if (reason === "API_KEY_HTTP_REFERRER_BLOCKED") {
         return json({ error: "A chave do Google Maps está restrita por domínio. Ajuste para 'Nenhuma' ou 'Endereços IP'." }, 403);
@@ -236,48 +197,36 @@ serve(async (req) => {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`Places request failed [${response.status}]: ${errorBody}`);
-      return json({ error: `Falha na busca do Google Maps (${response.status})`, details: errorBody }, response.status);
+      return json({ error: `Falha na busca do Google Maps (${response.status})` }, response.status);
     }
 
     const result = await response.json();
     const places = (result.places ?? []) as any[];
     console.log(`Google returned ${places.length} places`);
 
+    // Monta rows apenas com colunas que existem no schema atual
     const rows = places.map((p) => ({
-      place_id: p.id,
-      cache_key: cacheKey,
+      place_id:     p.id,
       state,
       city,
       category,
-      name: p.displayName?.text ?? "Sem nome",
-      address: p.formattedAddress ?? null,
-      phone: p.nationalPhoneNumber ?? null,
-      website: p.websiteUri ?? null,
-      rating: p.rating ?? null,
+      name:         p.displayName?.text ?? "Sem nome",
+      address:      p.formattedAddress ?? null,
+      phone:        p.nationalPhoneNumber ?? null,
+      website:      p.websiteUri ?? null,
+      rating:       p.rating ?? null,
       rating_count: p.userRatingCount ?? null,
-      place_type: p.primaryTypeDisplayName?.text ?? null,
-      maps_uri: p.googleMapsUri ?? null,
-      lat: p.location?.latitude ?? null,
-      lng: p.location?.longitude ?? null,
-      fetched_at: new Date().toISOString(),
+      place_type:   p.primaryTypeDisplayName?.text ?? null,
+      maps_uri:     p.googleMapsUri ?? null,
+      fetched_at:   new Date().toISOString(),
     }));
 
     if (rows.length > 0) {
-      // Tenta upsert com cache_key — se a coluna ainda não existir no banco, faz sem ela
       const { error: upsertErr } = await admin
         .from("radar_places")
         .upsert(rows, { onConflict: "place_id,category" });
-
       if (upsertErr) {
-        console.error("Upsert failed:", upsertErr.message);
-        // Fallback: upsert sem campos novos (cache_key, lat, lng)
-        const rowsFallback = rows.map(({ cache_key: _ck, lat: _lat, lng: _lng, ...rest }) => rest);
-        const { error: upsertFallbackErr } = await admin
-          .from("radar_places")
-          .upsert(rowsFallback, { onConflict: "place_id,category" });
-        if (upsertFallbackErr) {
-          console.error("Fallback upsert also failed:", upsertFallbackErr.message);
-        }
+        console.error("Cache upsert failed:", upsertErr.message);
       }
     }
 
