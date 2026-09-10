@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
-const CACHE_DAYS = 7; // cache menor pois o raio faz parte da chave
+const CACHE_DAYS = 7;
 const MAX_RESULTS = 20;
 
 const CATEGORIES: Record<string, string> = {
@@ -22,38 +22,73 @@ function json(body: unknown, status = 200) {
   });
 }
 
-/** Resolve CEP via ViaCEP e retorna { lat, lng, city, state } */
+/** Resolve CEP → { lat, lng, city, state } usando ViaCEP + Nominatim */
 async function resolveCep(cep: string): Promise<{ lat: number; lng: number; city: string; state: string } | null> {
   try {
     const digits = cep.replace(/\D/g, "");
     if (digits.length !== 8) return null;
 
     // 1. ViaCEP → cidade e estado
-    const viaCep = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
-    if (!viaCep.ok) return null;
-    const cepData = await viaCep.json();
+    const viaCepRes = await fetch(`https://viacep.com.br/ws/${digits}/json/`, {
+      headers: { "Accept": "application/json" },
+    });
+    if (!viaCepRes.ok) return null;
+    const cepData = await viaCepRes.json();
     if (cepData?.erro) return null;
 
     const city = String(cepData.localidade ?? "").trim();
     const state = String(cepData.uf ?? "").trim().toUpperCase();
     if (!city || !state) return null;
 
-    // 2. Nominatim (OpenStreetMap) → lat/lng a partir do CEP
-    const geo = await fetch(
+    // 2. Nominatim → lat/lng via CEP
+    const geoRes = await fetch(
       `https://nominatim.openstreetmap.org/search?postalcode=${digits}&country=BR&format=json&limit=1`,
-      { headers: { "User-Agent": "BackstageProApp/1.0" } }
+      {
+        headers: {
+          "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)",
+          "Accept-Language": "pt-BR",
+        },
+      }
     );
-    if (!geo.ok) return null;
-    const geoData = await geo.json();
-    if (!geoData?.[0]) return null;
 
-    return {
-      lat: parseFloat(geoData[0].lat),
-      lng: parseFloat(geoData[0].lon),
-      city,
-      state,
-    };
-  } catch {
+    if (geoRes.ok) {
+      const geoData = await geoRes.json();
+      if (geoData?.[0]?.lat && geoData?.[0]?.lon) {
+        return {
+          lat: parseFloat(geoData[0].lat),
+          lng: parseFloat(geoData[0].lon),
+          city,
+          state,
+        };
+      }
+    }
+
+    // 3. Fallback: geocodifica por nome da cidade + estado via Nominatim
+    const fallbackRes = await fetch(
+      `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&country=BR&format=json&limit=1`,
+      {
+        headers: {
+          "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)",
+          "Accept-Language": "pt-BR",
+        },
+      }
+    );
+
+    if (fallbackRes.ok) {
+      const fallbackData = await fallbackRes.json();
+      if (fallbackData?.[0]?.lat && fallbackData?.[0]?.lon) {
+        return {
+          lat: parseFloat(fallbackData[0].lat),
+          lng: parseFloat(fallbackData[0].lon),
+          city,
+          state,
+        };
+      }
+    }
+
+    return null;
+  } catch (err) {
+    console.error("resolveCep error:", err);
     return null;
   }
 }
@@ -91,7 +126,6 @@ serve(async (req) => {
     const category = String(body.category ?? "").trim();
     const refresh = body.refresh === true;
 
-    // Raio aceito: 10, 25, 50, 100 km
     const VALID_RADII = [10, 25, 50, 100];
     const radius = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
     const radiusMeters = radius * 1000;
@@ -99,22 +133,22 @@ serve(async (req) => {
     if (cep.length !== 8) return json({ error: "CEP inválido. Informe 8 dígitos." }, 400);
     if (!CATEGORIES[category]) return json({ error: "Categoria inválida" }, 400);
 
-    // Resolver CEP → lat/lng + cidade/estado
+    // Resolver CEP → coordenadas
     const location = await resolveCep(cep);
     if (!location) {
-      return json({ error: "CEP não encontrado. Verifique e tente novamente." }, 400);
+      return json({ error: "CEP não encontrado ou não foi possível obter as coordenadas. Verifique o CEP e tente novamente." }, 400);
     }
 
     const { lat, lng, city, state } = location;
+    const cacheKey = `${cep}_${radius}km`;
 
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Cache key: cep + raio + categoria
-    const cacheKey = `${cep}_${radius}km`;
     const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString();
 
+    // Tenta cache — primeiro por cache_key (novo), depois por state+city (legado)
     if (!refresh) {
       const { data: cached } = await admin
         .from("radar_places")
@@ -126,15 +160,32 @@ serve(async (req) => {
         .limit(MAX_RESULTS);
 
       if (cached && cached.length > 0) {
+        console.log(`Cache hit: ${cacheKey} / ${category} (${cached.length} places)`);
         return json({ places: cached, source: "cache", city, state, lat, lng, radius });
+      }
+
+      // Fallback: cache legado por state+city
+      const { data: legacyCached } = await admin
+        .from("radar_places")
+        .select("*")
+        .eq("state", state)
+        .ilike("city", city)
+        .eq("category", category)
+        .gte("fetched_at", cutoff)
+        .order("rating_count", { ascending: false })
+        .limit(MAX_RESULTS);
+
+      if (legacyCached && legacyCached.length > 0) {
+        console.log(`Legacy cache hit: ${city}/${state} / ${category} (${legacyCached.length} places)`);
+        return json({ places: legacyCached, source: "cache", city, state, lat, lng, radius });
       }
     }
 
     if (!lovableKey || !mapsKey) {
-      return json({ error: "Integração do Google Maps não configurada" }, 500);
+      return json({ error: "Integração do Google Maps não configurada. Entre em contato com o suporte." }, 500);
     }
 
-    const textQuery = CATEGORIES[category];
+    console.log(`Google Places search: ${CATEGORIES[category]} @ (${lat},${lng}) radius=${radiusMeters}m`);
 
     const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
       method: "POST",
@@ -156,7 +207,7 @@ serve(async (req) => {
         ].join(","),
       },
       body: JSON.stringify({
-        textQuery,
+        textQuery: CATEGORIES[category],
         languageCode: "pt-BR",
         regionCode: "BR",
         maxResultCount: MAX_RESULTS,
@@ -185,11 +236,12 @@ serve(async (req) => {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`Places request failed [${response.status}]: ${errorBody}`);
-      return json({ error: "Falha na busca do Google Maps", details: errorBody }, response.status);
+      return json({ error: `Falha na busca do Google Maps (${response.status})`, details: errorBody }, response.status);
     }
 
     const result = await response.json();
     const places = (result.places ?? []) as any[];
+    console.log(`Google returned ${places.length} places`);
 
     const rows = places.map((p) => ({
       place_id: p.id,
@@ -211,15 +263,27 @@ serve(async (req) => {
     }));
 
     if (rows.length > 0) {
-      const { error: upsertError } = await admin
+      // Tenta upsert com cache_key — se a coluna ainda não existir no banco, faz sem ela
+      const { error: upsertErr } = await admin
         .from("radar_places")
         .upsert(rows, { onConflict: "place_id,category" });
-      if (upsertError) console.error("Cache upsert failed:", upsertError.message);
+
+      if (upsertErr) {
+        console.error("Upsert failed:", upsertErr.message);
+        // Fallback: upsert sem campos novos (cache_key, lat, lng)
+        const rowsFallback = rows.map(({ cache_key: _ck, lat: _lat, lng: _lng, ...rest }) => rest);
+        const { error: upsertFallbackErr } = await admin
+          .from("radar_places")
+          .upsert(rowsFallback, { onConflict: "place_id,category" });
+        if (upsertFallbackErr) {
+          console.error("Fallback upsert also failed:", upsertFallbackErr.message);
+        }
+      }
     }
 
     return json({ places: rows, source: "google", city, state, lat, lng, radius });
   } catch (err) {
     console.error("backs-radar-search error:", err);
-    return json({ error: err instanceof Error ? err.message : "Erro inesperado" }, 500);
+    return json({ error: err instanceof Error ? err.message : "Erro inesperado no servidor" }, 500);
   }
 });
