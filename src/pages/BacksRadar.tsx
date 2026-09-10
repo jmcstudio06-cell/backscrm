@@ -185,7 +185,23 @@ export default function BacksRadar() {
         body: { cep: activeCep, radius_km: radius, category },
       });
 
-      if (error) throw error;
+      // Log completo para debug
+      console.log("[BacksRadar] response:", { data, error });
+
+      if (error) {
+        // FunctionsHttpError traz o body real da resposta
+        const context = (error as any)?.context;
+        if (context) {
+          try {
+            const errBody = await context.json();
+            console.error("[BacksRadar] edge function error body:", errBody);
+            throw new Error(errBody?.error ?? error.message);
+          } catch {
+            throw error;
+          }
+        }
+        throw error;
+      }
       if (data?.error) throw new Error(data.error);
 
       const found = (data?.places ?? []) as RadarPlace[];
