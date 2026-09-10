@@ -15,6 +15,7 @@ import {
   Calendar,
   Zap,
   Users as UsersIcon,
+  Users2,
   Heart,
   AlertCircle,
   Search,
@@ -37,6 +38,7 @@ import {
   Trash2,
   MapPin,
   Wrench,
+  Settings,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -618,51 +620,66 @@ export default function Admin() {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="w-full overflow-x-auto flex whitespace-nowrap bg-muted/50 backdrop-blur rounded-xl p-1 h-auto">
-          <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <UsersIcon className="h-3.5 w-3.5" /> Usuários
-          </TabsTrigger>
-          <TabsTrigger value="referrals" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Megaphone className="h-3.5 w-3.5" /> Indicações
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Bell className="h-3.5 w-3.5" /> Push
-          </TabsTrigger>
-          <TabsTrigger value="guide-leads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <BookOpen className="h-3.5 w-3.5" /> Guia
-          </TabsTrigger>
+        {/* Wrapper com gradiente de overflow para indicar scroll */}
+        <div className="relative">
+          <div className="overflow-x-auto scrollbar-hide">
+            <TabsList className="flex whitespace-nowrap bg-muted/50 backdrop-blur rounded-xl p-1 h-auto min-w-max w-full">
+              {/* ── Gestão de Usuários ── */}
+              <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <UsersIcon className="h-3.5 w-3.5" /> Usuários
+              </TabsTrigger>
+              <TabsTrigger value="engagement" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Activity className="h-3.5 w-3.5" /> Engajamento
+              </TabsTrigger>
+              <TabsTrigger value="referrals" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Users2 className="h-3.5 w-3.5" /> Indicações
+              </TabsTrigger>
 
-          <TabsTrigger value="improvements" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Lightbulb className="h-3.5 w-3.5" /> Melhorias
-          </TabsTrigger>
-          <TabsTrigger value="ranking" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Trophy className="h-3.5 w-3.5" /> Ranking
-          </TabsTrigger>
-          <TabsTrigger value="ads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Megaphone className="h-3.5 w-3.5" /> Anúncios
-          </TabsTrigger>
-          <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <PartyPopper className="h-3.5 w-3.5" /> Marco
-          </TabsTrigger>
-          <TabsTrigger value="radar" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <MapPin className="h-3.5 w-3.5" /> Backs Radar
-          </TabsTrigger>
-          <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Cloud className="h-3.5 w-3.5" /> Cloud
-          </TabsTrigger>
-          <TabsTrigger value="maintenance" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Wrench className="h-3.5 w-3.5" /> Manutenção
-          </TabsTrigger>
-          <TabsTrigger value="engagement" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <Activity className="h-3.5 w-3.5" /> Engajamento
-          </TabsTrigger>
-          <TabsTrigger value="backup" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
-            <FileSpreadsheet className="h-3.5 w-3.5" /> Backup
-          </TabsTrigger>
+              {/* ── Comunicação ── */}
+              <TabsTrigger value="notifications" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Bell className="h-3.5 w-3.5" /> Push
+              </TabsTrigger>
+              <TabsTrigger value="ads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Megaphone className="h-3.5 w-3.5" /> Anúncios
+              </TabsTrigger>
 
+              {/* ── Analytics / Conteúdo ── */}
+              <TabsTrigger value="ranking" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Trophy className="h-3.5 w-3.5" /> Ranking
+              </TabsTrigger>
+              <TabsTrigger value="marco" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <PartyPopper className="h-3.5 w-3.5" /> Marco
+              </TabsTrigger>
+              <TabsTrigger value="guide-leads" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <BookOpen className="h-3.5 w-3.5" /> Guia Leads
+              </TabsTrigger>
+              <TabsTrigger value="radar" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <MapPin className="h-3.5 w-3.5" /> Backs Radar
+              </TabsTrigger>
 
+              {/* ── Produto / Infra ── */}
+              <TabsTrigger value="improvements" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Lightbulb className="h-3.5 w-3.5" /> Melhorias
+              </TabsTrigger>
+              <TabsTrigger value="backup" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <FileSpreadsheet className="h-3.5 w-3.5" /> Backup
+              </TabsTrigger>
+              <TabsTrigger value="cloud" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Cloud className="h-3.5 w-3.5" /> Cloud
+              </TabsTrigger>
+              <TabsTrigger value="maintenance" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Wrench className="h-3.5 w-3.5" /> Manutenção
+              </TabsTrigger>
 
-        </TabsList>
+              {/* ── Config do App ── */}
+              <TabsTrigger value="config" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <Settings className="h-3.5 w-3.5" /> Config App
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          {/* Gradiente direito indicando overflow */}
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-background to-transparent rounded-r-xl" />
+        </div>
 
         {/* Users Tab */}
         <TabsContent value="users" className="space-y-4">
@@ -973,40 +990,29 @@ export default function Admin() {
           )}
         </TabsContent>
 
-        {/* Referrals Tab */}
+        {/* ── Gestão de Usuários ── */}
+        <TabsContent value="engagement"><EngagementPanel /></TabsContent>
         <TabsContent value="referrals"><ReferralsAdminPanel /></TabsContent>
 
-        {/* Push Notifications Tab */}
+        {/* ── Comunicação ── */}
         <TabsContent value="notifications"><NotificationsAdminPanel /></TabsContent>
-
-        {/* Guide Leads Tab */}
-        <TabsContent value="guide-leads"><GuideLeadsPanel /></TabsContent>
-
-
-
-        {/* Improvements Tab */}
-        <TabsContent value="improvements"><ImprovementsPanel /></TabsContent>
-
-        {/* Marco Tab */}
-        <TabsContent value="ranking"><MonthlyShowRankingPanel /></TabsContent>
-
-        {/* Dashboard Ads Tab */}
         <TabsContent value="ads"><DashboardAdsPanel /></TabsContent>
 
+        {/* ── Analytics / Conteúdo ── */}
+        <TabsContent value="ranking"><MonthlyShowRankingPanel /></TabsContent>
+        <TabsContent value="guide-leads"><GuideLeadsPanel /></TabsContent>
         <TabsContent value="radar"><RadarRegionsPanel /></TabsContent>
 
+        {/* ── Produto / Infra ── */}
+        <TabsContent value="improvements"><ImprovementsPanel /></TabsContent>
+        <TabsContent value="backup"><UserBackupPanel /></TabsContent>
         <TabsContent value="cloud"><CloudUsagePanel /></TabsContent>
-
         <TabsContent value="maintenance"><MaintenancePanel /></TabsContent>
 
 
-        <TabsContent value="backup"><UserBackupPanel /></TabsContent>
-
-        <TabsContent value="engagement"><EngagementPanel /></TabsContent>
 
 
-
-
+        {/* ── Marco comemorativo ── */}
         <TabsContent value="marco">
           <Card className="overflow-hidden border-0 shadow-xl">
             <div className="bg-gradient-to-br from-primary via-blue-600 to-purple-600 p-8 md:p-12 text-white text-center relative overflow-hidden">
@@ -1048,6 +1054,94 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ── Config do App ── */}
+        <TabsContent value="config">
+          <div className="space-y-6 max-w-lg">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Image className="h-4 w-4 text-primary" /> Logo do App
+                </CardTitle>
+                <CardDescription>Substitua a logo exibida no app e na sidebar.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {logoPreview && (
+                  <img src={logoPreview} alt="Logo atual" className="h-14 w-auto rounded-lg border object-contain" />
+                )}
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 cursor-pointer px-4 py-2 border rounded-lg text-sm font-medium hover:bg-muted/50 transition-colors">
+                    <Upload className="h-4 w-4" />
+                    Escolher arquivo
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setLogoFile(file);
+                      const reader = new FileReader();
+                      reader.onload = (ev) => setLogoPreview(ev.target?.result as string);
+                      reader.readAsDataURL(file);
+                    }} />
+                  </label>
+                  {logoFile && (
+                    <Button
+                      onClick={async () => {
+                        if (!logoFile) return;
+                        setUploadingLogo(true);
+                        try {
+                          const ext = logoFile.name.split(".").pop();
+                          const path = `logos/app-logo-${Date.now()}.${ext}`;
+                          const { error: uploadError } = await supabase.storage.from("app-assets").upload(path, logoFile, { upsert: true });
+                          if (uploadError) throw uploadError;
+                          const { data: urlData } = supabase.storage.from("app-assets").getPublicUrl(path);
+                          const { error: updateError } = await supabase.from("app_settings").update({ logo_url: urlData.publicUrl }).eq("id", 1);
+                          if (updateError) throw updateError;
+                          toast.success("Logo atualizada!");
+                          refreshSettings();
+                        } catch (err) {
+                          toast.error("Erro ao fazer upload da logo");
+                        } finally {
+                          setUploadingLogo(false);
+                        }
+                      }}
+                      disabled={uploadingLogo}
+                      size="sm"
+                    >
+                      {uploadingLogo ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
+                      Salvar logo
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Settings className="h-4 w-4 text-primary" /> Nome do App
+                </CardTitle>
+                <CardDescription>Nome exibido no cabeçalho e em comunicações.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Input
+                  value={appName}
+                  onChange={(e) => setAppName(e.target.value)}
+                  placeholder="Ex: Backstage Pro"
+                />
+                <Button
+                  onClick={async () => {
+                    const { error } = await supabase.from("app_settings").update({ app_name: appName }).eq("id", 1);
+                    if (error) { toast.error("Erro ao salvar nome"); return; }
+                    toast.success("Nome do app atualizado!");
+                    refreshSettings();
+                  }}
+                  size="sm"
+                >
+                  Salvar nome
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
       </Tabs>
