@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
-const CACHE_DAYS = 30;
+const CACHE_DAYS = 7; // cache menor pois o raio faz parte da chave
 const MAX_RESULTS = 20;
 
 const CATEGORIES: Record<string, string> = {
@@ -22,6 +22,42 @@ function json(body: unknown, status = 200) {
   });
 }
 
+/** Resolve CEP via ViaCEP e retorna { lat, lng, city, state } */
+async function resolveCep(cep: string): Promise<{ lat: number; lng: number; city: string; state: string } | null> {
+  try {
+    const digits = cep.replace(/\D/g, "");
+    if (digits.length !== 8) return null;
+
+    // 1. ViaCEP → cidade e estado
+    const viaCep = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+    if (!viaCep.ok) return null;
+    const cepData = await viaCep.json();
+    if (cepData?.erro) return null;
+
+    const city = String(cepData.localidade ?? "").trim();
+    const state = String(cepData.uf ?? "").trim().toUpperCase();
+    if (!city || !state) return null;
+
+    // 2. Nominatim (OpenStreetMap) → lat/lng a partir do CEP
+    const geo = await fetch(
+      `https://nominatim.openstreetmap.org/search?postalcode=${digits}&country=BR&format=json&limit=1`,
+      { headers: { "User-Agent": "BackstageProApp/1.0" } }
+    );
+    if (!geo.ok) return null;
+    const geoData = await geo.json();
+    if (!geoData?.[0]) return null;
+
+    return {
+      lat: parseFloat(geoData[0].lat),
+      lng: parseFloat(geoData[0].lon),
+      city,
+      state,
+    };
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -38,44 +74,59 @@ serve(async (req) => {
     if (!authHeader?.startsWith("Bearer ")) {
       return json({ error: "Missing authorization header" }, 401);
     }
-    const token = authHeader.replace("Bearer ", "");
 
     const userClient = createClient(supabaseUrl, anonKey, {
       auth: { autoRefreshToken: false, persistSession: false },
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: { user }, error: userError } = await userClient.auth.getUser(token);
+    const { data: { user }, error: userError } = await userClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
     if (userError || !user) return json({ error: "Unauthorized" }, 401);
 
     const body = await req.json().catch(() => ({}));
-    const state = String(body.state ?? "").trim().toUpperCase().slice(0, 2);
-    const city = String(body.city ?? "").trim().slice(0, 80);
+
+    const cep = String(body.cep ?? "").replace(/\D/g, "");
+    const radiusKm = Number(body.radius_km ?? 25);
     const category = String(body.category ?? "").trim();
     const refresh = body.refresh === true;
 
-    if (!state || state.length !== 2) return json({ error: "Estado inválido" }, 400);
-    if (city.length < 2) return json({ error: "Informe a cidade" }, 400);
+    // Raio aceito: 10, 25, 50, 100 km
+    const VALID_RADII = [10, 25, 50, 100];
+    const radius = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
+    const radiusMeters = radius * 1000;
+
+    if (cep.length !== 8) return json({ error: "CEP inválido. Informe 8 dígitos." }, 400);
     if (!CATEGORIES[category]) return json({ error: "Categoria inválida" }, 400);
+
+    // Resolver CEP → lat/lng + cidade/estado
+    const location = await resolveCep(cep);
+    if (!location) {
+      return json({ error: "CEP não encontrado. Verifique e tente novamente." }, 400);
+    }
+
+    const { lat, lng, city, state } = location;
 
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    // Cache key: cep + raio + categoria
+    const cacheKey = `${cep}_${radius}km`;
     const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString();
 
     if (!refresh) {
       const { data: cached } = await admin
         .from("radar_places")
         .select("*")
-        .eq("state", state)
-        .ilike("city", city)
+        .eq("cache_key", cacheKey)
         .eq("category", category)
         .gte("fetched_at", cutoff)
         .order("rating_count", { ascending: false })
         .limit(MAX_RESULTS);
 
       if (cached && cached.length > 0) {
-        return json({ places: cached, source: "cache" });
+        return json({ places: cached, source: "cache", city, state, lat, lng, radius });
       }
     }
 
@@ -83,7 +134,7 @@ serve(async (req) => {
       return json({ error: "Integração do Google Maps não configurada" }, 500);
     }
 
-    const textQuery = `${CATEGORIES[category]} em ${city} - ${state}, Brasil`;
+    const textQuery = CATEGORIES[category];
 
     const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
       method: "POST",
@@ -101,6 +152,7 @@ serve(async (req) => {
           "places.userRatingCount",
           "places.primaryTypeDisplayName",
           "places.googleMapsUri",
+          "places.location",
         ].join(","),
       },
       body: JSON.stringify({
@@ -108,6 +160,12 @@ serve(async (req) => {
         languageCode: "pt-BR",
         regionCode: "BR",
         maxResultCount: MAX_RESULTS,
+        locationBias: {
+          circle: {
+            center: { latitude: lat, longitude: lng },
+            radius: radiusMeters,
+          },
+        },
       }),
     });
 
@@ -116,7 +174,7 @@ serve(async (req) => {
         (await response.json())?.error?.details ?? [];
       const reason = details.find((d) => d.reason)?.reason;
       if (reason === "API_KEY_HTTP_REFERRER_BLOCKED") {
-        return json({ error: "A chave do Google Maps está restrita por domínio. Ajuste as restrições para 'Nenhuma' ou 'Endereços IP'." }, 403);
+        return json({ error: "A chave do Google Maps está restrita por domínio. Ajuste para 'Nenhuma' ou 'Endereços IP'." }, 403);
       }
       if (reason === "API_KEY_SERVICE_BLOCKED") {
         return json({ error: "A chave do Google Maps não permite a API de Places. Libere essa API na chave." }, 403);
@@ -127,7 +185,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`Places request failed [${response.status}]: ${errorBody}`);
-      return json({ error: "Falha na busca do Google Maps", status: response.status, details: errorBody }, response.status);
+      return json({ error: "Falha na busca do Google Maps", details: errorBody }, response.status);
     }
 
     const result = await response.json();
@@ -135,6 +193,7 @@ serve(async (req) => {
 
     const rows = places.map((p) => ({
       place_id: p.id,
+      cache_key: cacheKey,
       state,
       city,
       category,
@@ -146,6 +205,8 @@ serve(async (req) => {
       rating_count: p.userRatingCount ?? null,
       place_type: p.primaryTypeDisplayName?.text ?? null,
       maps_uri: p.googleMapsUri ?? null,
+      lat: p.location?.latitude ?? null,
+      lng: p.location?.longitude ?? null,
       fetched_at: new Date().toISOString(),
     }));
 
@@ -156,7 +217,7 @@ serve(async (req) => {
       if (upsertError) console.error("Cache upsert failed:", upsertError.message);
     }
 
-    return json({ places: rows, source: "google" });
+    return json({ places: rows, source: "google", city, state, lat, lng, radius });
   } catch (err) {
     console.error("backs-radar-search error:", err);
     return json({ error: err instanceof Error ? err.message : "Erro inesperado" }, 500);
