@@ -181,22 +181,70 @@ export default function BacksRadar() {
     setLockedCount(null);
 
     try {
+      // Resolve lat/lng no frontend — evita dependência de Nominatim dentro da edge function
+      let lat: number | null = null;
+      let lng: number | null = null;
+
+      try {
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/search?postalcode=${activeCep}&country=BR&format=json&limit=1`,
+          { headers: { "User-Agent": "BackstageProApp/2.0" } }
+        );
+        if (geoRes.ok) {
+          const geoData = await geoRes.json();
+          if (geoData?.[0]?.lat) {
+            lat = parseFloat(geoData[0].lat);
+            lng = parseFloat(geoData[0].lon);
+          }
+        }
+      } catch { /* segue para fallback */ }
+
+      // Fallback: geocodifica por cidade + estado
+      if (lat === null && resolvedLocation) {
+        try {
+          const fbRes = await fetch(
+            `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(resolvedLocation.city)}&state=${encodeURIComponent(resolvedLocation.state)}&country=BR&format=json&limit=1`,
+            { headers: { "User-Agent": "BackstageProApp/2.0" } }
+          );
+          if (fbRes.ok) {
+            const fbData = await fbRes.json();
+            if (fbData?.[0]?.lat) {
+              lat = parseFloat(fbData[0].lat);
+              lng = parseFloat(fbData[0].lon);
+            }
+          }
+        } catch { /* ignora */ }
+      }
+
+      if (lat === null || lng === null) {
+        toast.error("Não foi possível localizar o CEP no mapa. Tente novamente em alguns segundos.");
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("backs-radar-search", {
-        body: { cep: activeCep, radius_km: radius, category },
+        body: {
+          cep: activeCep,
+          lat,
+          lng,
+          city: resolvedLocation?.city ?? "",
+          state: resolvedLocation?.state ?? "",
+          radius_km: radius,
+          category,
+        },
       });
 
-      // Log completo para debug
       console.log("[BacksRadar] response:", { data, error });
 
       if (error) {
-        // FunctionsHttpError traz o body real da resposta
         const context = (error as any)?.context;
         if (context) {
           try {
             const errBody = await context.json();
-            console.error("[BacksRadar] edge function error body:", errBody);
+            console.error("[BacksRadar] edge error:", JSON.stringify(errBody));
             throw new Error(errBody?.error ?? error.message);
-          } catch {
+          } catch (parseErr) {
+            console.error("[BacksRadar] parse error:", parseErr);
             throw error;
           }
         }

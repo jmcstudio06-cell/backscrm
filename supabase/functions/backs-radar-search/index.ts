@@ -22,55 +22,6 @@ function json(body: unknown, status = 200) {
   });
 }
 
-/** Resolve CEP → { lat, lng, city, state } */
-async function resolveCep(cep: string): Promise<{ lat: number; lng: number; city: string; state: string } | null> {
-  try {
-    const digits = cep.replace(/\D/g, "");
-    if (digits.length !== 8) return null;
-
-    // 1. ViaCEP → cidade e estado
-    const viaCepRes = await fetch(`https://viacep.com.br/ws/${digits}/json/`, {
-      headers: { "Accept": "application/json" },
-    });
-    if (!viaCepRes.ok) return null;
-    const cepData = await viaCepRes.json();
-    if (cepData?.erro) return null;
-
-    const city = String(cepData.localidade ?? "").trim();
-    const state = String(cepData.uf ?? "").trim().toUpperCase();
-    if (!city || !state) return null;
-
-    // 2. Nominatim via CEP
-    const geoRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?postalcode=${digits}&country=BR&format=json&limit=1`,
-      { headers: { "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)" } }
-    );
-    if (geoRes.ok) {
-      const geoData = await geoRes.json();
-      if (geoData?.[0]?.lat && geoData?.[0]?.lon) {
-        return { lat: parseFloat(geoData[0].lat), lng: parseFloat(geoData[0].lon), city, state };
-      }
-    }
-
-    // 3. Fallback: geocodifica por cidade + estado
-    const fallbackRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&country=BR&format=json&limit=1`,
-      { headers: { "User-Agent": "BackstageProApp/2.0 (contato@backstagepro.app)" } }
-    );
-    if (fallbackRes.ok) {
-      const fallbackData = await fallbackRes.json();
-      if (fallbackData?.[0]?.lat && fallbackData?.[0]?.lon) {
-        return { lat: parseFloat(fallbackData[0].lat), lng: parseFloat(fallbackData[0].lon), city, state };
-      }
-    }
-
-    return null;
-  } catch (err) {
-    console.error("resolveCep error:", err);
-    return null;
-  }
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -99,25 +50,25 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
 
-    const cep       = String(body.cep ?? "").replace(/\D/g, "");
-    const radiusKm  = Number(body.radius_km ?? 25);
-    const category  = String(body.category ?? "").trim();
-    const refresh   = body.refresh === true;
+    // Frontend resolve lat/lng e envia prontos — sem depender de Nominatim aqui
+    const lat      = Number(body.lat);
+    const lng      = Number(body.lng);
+    const city     = String(body.city ?? "").trim();
+    const state    = String(body.state ?? "").trim().toUpperCase();
+    const radiusKm = Number(body.radius_km ?? 25);
+    const category = String(body.category ?? "").trim();
+    const refresh  = body.refresh === true;
 
     const VALID_RADII = [10, 25, 50, 100];
-    const radius      = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
+    const radius       = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
     const radiusMeters = radius * 1000;
 
-    if (cep.length !== 8)       return json({ error: "CEP inválido. Informe 8 dígitos." }, 400);
-    if (!CATEGORIES[category])  return json({ error: "Categoria inválida" }, 400);
-
-    // Resolver CEP → coordenadas + cidade/estado
-    const location = await resolveCep(cep);
-    if (!location) {
-      return json({ error: "CEP não encontrado ou não foi possível obter as coordenadas. Verifique o CEP e tente novamente." }, 400);
+    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+      return json({ error: "Coordenadas inválidas. Tente novamente." }, 400);
     }
-
-    const { lat, lng, city, state } = location;
+    if (!city || city.length < 2)  return json({ error: "Cidade não informada." }, 400);
+    if (!state || state.length !== 2) return json({ error: "Estado não informado." }, 400);
+    if (!CATEGORIES[category])     return json({ error: "Categoria inválida." }, 400);
 
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -125,7 +76,7 @@ serve(async (req) => {
 
     const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString();
 
-    // Cache lookup — usa state+city+category (schema original, sem campos novos)
+    // Cache por state + city + category (schema existente)
     if (!refresh) {
       const { data: cached } = await admin
         .from("radar_places")
@@ -138,7 +89,7 @@ serve(async (req) => {
         .limit(MAX_RESULTS);
 
       if (cached && cached.length > 0) {
-        console.log(`Cache hit: ${city}/${state}/${category} (${cached.length} places)`);
+        console.log(`Cache hit: ${city}/${state}/${category} (${cached.length})`);
         return json({ places: cached, source: "cache", city, state, lat, lng, radius });
       }
     }
@@ -204,7 +155,6 @@ serve(async (req) => {
     const places = (result.places ?? []) as any[];
     console.log(`Google returned ${places.length} places`);
 
-    // Monta rows apenas com colunas que existem no schema atual
     const rows = places.map((p) => ({
       place_id:     p.id,
       state,
@@ -225,9 +175,7 @@ serve(async (req) => {
       const { error: upsertErr } = await admin
         .from("radar_places")
         .upsert(rows, { onConflict: "place_id,category" });
-      if (upsertErr) {
-        console.error("Cache upsert failed:", upsertErr.message);
-      }
+      if (upsertErr) console.error("Cache upsert failed:", upsertErr.message);
     }
 
     return json({ places: rows, source: "google", city, state, lat, lng, radius });
