@@ -836,14 +836,14 @@ export default function Agenda() {
                   <div
                     key={show.id}
                     className={cn(
-                      "p-3 sm:p-4 rounded-xl border bg-card/60 hover:bg-card transition-colors",
+                      "p-3 rounded-xl border bg-card/60 hover:bg-card transition-colors",
                       isCancelled && "opacity-60",
                     )}
                   >
-                    <div className="flex gap-3">
-                      {/* Coluna de data — destaque visual */}
+                    <div className="flex gap-3 items-stretch">
+                      {/* Coluna de data — altura fixa */}
                       <div className={cn(
-                        "flex-shrink-0 flex flex-col items-center justify-center rounded-xl w-12 h-14 sm:w-14 sm:h-16",
+                        "flex-shrink-0 flex flex-col items-center justify-center rounded-xl w-12 h-16",
                         isCancelled
                           ? "bg-destructive/10"
                           : show.status === "completed"
@@ -851,7 +851,7 @@ export default function Agenda() {
                             : "bg-primary/10"
                       )}>
                         <div className={cn(
-                          "text-2xl sm:text-3xl font-black leading-none",
+                          "text-2xl font-black leading-none",
                           isCancelled ? "text-destructive" : show.status === "completed" ? "text-green-600" : "text-primary"
                         )}>
                           {showDate.getDate()}
@@ -864,12 +864,12 @@ export default function Agenda() {
                         </div>
                       </div>
 
-                      {/* Corpo do card */}
-                      <div className="flex-1 min-w-0">
-                        {/* Linha 1: título + badge de status */}
-                        <div className="flex items-start justify-between gap-2 mb-1">
+                      {/* Corpo do card — altura fixa via flex-col justify-between */}
+                      <div className="flex-1 min-w-0 flex flex-col justify-between h-16">
+                        {/* Linha 1: título + badge */}
+                        <div className="flex items-center justify-between gap-2">
                           <h4 className={cn(
-                            "font-bold text-sm sm:text-base leading-tight",
+                            "font-bold text-sm leading-tight truncate",
                             isCancelled ? "text-destructive line-through" : "text-foreground",
                           )}>
                             {show.title}
@@ -877,7 +877,7 @@ export default function Agenda() {
                           <Badge
                             variant="outline"
                             className={cn(
-                              "text-[10px] px-2 py-0.5 whitespace-nowrap shrink-0",
+                              "text-[10px] px-1.5 py-0 h-5 whitespace-nowrap shrink-0",
                               statusBadgeStyles[show.status] || ""
                             )}
                           >
@@ -885,38 +885,36 @@ export default function Agenda() {
                           </Badge>
                         </div>
 
-                        {/* Linha 2: metadados */}
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        {/* Linha 2: metadados em uma linha só, sem quebra */}
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground overflow-hidden h-4">
                           {show.start_time && (
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 shrink-0">
                               <Clock className="w-3 h-3 shrink-0" />
                               {show.start_time}
-                              {show.end_time && ` – ${show.end_time}`}
                             </span>
                           )}
                           {show.venue && (
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 min-w-0">
                               <MapPin className="w-3 h-3 shrink-0" />
-                              <span className="truncate max-w-[160px] sm:max-w-xs">{show.venue}</span>
+                              <span className="truncate">{show.venue}</span>
                             </span>
                           )}
-                          {show.event_type && (
-                            <span className="flex items-center gap-1">
+                          {show.event_type && !show.venue && (
+                            <span className="flex items-center gap-1 min-w-0">
                               <Music className="w-3 h-3 shrink-0" />
-                              {show.event_type}
+                              <span className="truncate">{show.event_type}</span>
                             </span>
                           )}
                         </div>
 
                         {/* Linha 3: cachê + ações */}
-                        <div className="flex items-center justify-between gap-2 mt-2.5">
-                          {/* Cachê */}
+                        <div className="flex items-center justify-between gap-2">
                           {(show.cachet ?? 0) > 0 ? (
-                            <span className="text-sm font-bold text-emerald-600">
+                            <span className="text-sm font-bold text-emerald-600 shrink-0">
                               R$ {fmt(show.cachet ?? 0)}
                             </span>
                           ) : (
-                            <span className="text-xs text-muted-foreground">Sem cachê</span>
+                            <span className="text-xs text-muted-foreground shrink-0">Sem cachê</span>
                           )}
 
                           {/* Botões de ação com texto */}
