@@ -91,7 +91,7 @@ export default function BacksRadar() {
 
   // Estado de busca
   const [radius, setRadius] = useState(25);
-  const [category, setCategory] = useState("bares");
+  const [categories, setCategories] = useState<string[]>(["bares"]);
   const [loading, setLoading] = useState(false);
   const [places, setPlaces] = useState<RadarPlace[] | null>(null);
   const [lockedCount, setLockedCount] = useState<number | null>(null);
@@ -168,7 +168,7 @@ export default function BacksRadar() {
     ? (profile?.radar_cep ?? "")
     : cepInput.replace(/\D/g, "");
 
-  const canSearch = activeCep.length === 8 && !!resolvedLocation;
+  const canSearch = activeCep.length === 8 && !!resolvedLocation && categories.length > 0;
 
   const search = async () => {
     if (!canSearch) {
@@ -222,52 +222,65 @@ export default function BacksRadar() {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke("backs-radar-search", {
-        body: {
-          cep: activeCep,
-          lat,
-          lng,
-          city: resolvedLocation?.city ?? "",
-          state: resolvedLocation?.state ?? "",
-          radius_km: radius,
-          category,
-        },
-      });
+      // Busca para cada categoria selecionada em paralelo
+      const results = await Promise.all(
+        categories.map(cat =>
+          supabase.functions.invoke("backs-radar-search", {
+            body: {
+              cep: activeCep,
+              lat,
+              lng,
+              city: resolvedLocation?.city ?? "",
+              state: resolvedLocation?.state ?? "",
+              radius_km: radius,
+              category: cat,
+            },
+          })
+        )
+      );
 
-      console.log("[BacksRadar] response:", { data, error });
+      // Agrega erros
+      for (const { error } of results) {
+        if (error) {
+          const context = (error as any)?.context;
+          if (context) {
+            try {
+              const errBody = await context.json();
+              throw new Error(errBody?.error ?? error.message);
+            } catch { throw error; }
+          }
+          throw error;
+        }
+      }
 
-      if (error) {
-        const context = (error as any)?.context;
-        if (context) {
-          try {
-            const errBody = await context.json();
-            console.error("[BacksRadar] edge error:", JSON.stringify(errBody));
-            throw new Error(errBody?.error ?? error.message);
-          } catch (parseErr) {
-            console.error("[BacksRadar] parse error:", parseErr);
-            throw error;
+      // Junta todos os places removendo duplicatas pelo place_id
+      const allPlaces: RadarPlace[] = [];
+      const seen = new Set<string>();
+      for (const { data } of results) {
+        if (data?.error) throw new Error(data.error);
+        for (const place of (data?.places ?? []) as RadarPlace[]) {
+          if (!seen.has(place.place_id)) {
+            seen.add(place.place_id);
+            allPlaces.push(place);
           }
         }
-        throw error;
-      }
-      if (data?.error) throw new Error(data.error);
-
-      const found = (data?.places ?? []) as RadarPlace[];
-
-      if (data?.city && data?.state) {
-        setResolvedLocation({ city: data.city, state: data.state });
+        if (data?.city && data?.state) {
+          setResolvedLocation({ city: data.city, state: data.state });
+        }
       }
 
-      setSource(data?.source ?? null);
+      // Source: cache se todos vieram do cache, senão google
+      const sources = results.map(r => r.data?.source);
+      setSource(sources.every(s => s === "cache") ? "cache" : "google");
 
       if (locked) {
-        setLockedCount(found.length);
+        setLockedCount(allPlaces.length);
         setPlaces([]);
         return;
       }
 
-      setPlaces(found);
-      if (found.length === 0) {
+      setPlaces(allPlaces);
+      if (allPlaces.length === 0) {
         toast.info("Nenhum contato encontrado nesse raio. Tente aumentar o raio de busca.");
       }
     } catch (err: any) {
@@ -282,14 +295,16 @@ export default function BacksRadar() {
 
   const sendToCRM = async (place: RadarPlace) => {
     setSavingId(place.place_id);
-    const categoryLabel = CATEGORIES.find((c) => c.key === category)?.label ?? "";
+    const categoryLabels = categories
+      .map(c => CATEGORIES.find(cat => cat.key === c)?.label ?? c)
+      .join(", ");
     const notes = [
       place.address ? `Endereço: ${place.address}` : null,
       place.website ? `Site: ${place.website}` : null,
       place.maps_uri ? `Google Maps: ${place.maps_uri}` : null,
       resolvedLocation
-        ? `Origem: Backs Radar (${categoryLabel} — ${resolvedLocation.city}/${resolvedLocation.state}, raio ${radius}km)`
-        : `Origem: Backs Radar (${categoryLabel}, raio ${radius}km)`,
+        ? `Origem: Backs Radar (${categoryLabels} — ${resolvedLocation.city}/${resolvedLocation.state}, raio ${radius}km)`
+        : `Origem: Backs Radar (${categoryLabels}, raio ${radius}km)`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -435,21 +450,28 @@ export default function BacksRadar() {
                 Categoria
               </Label>
               <div className="flex flex-wrap gap-2">
-                {CATEGORIES.map(({ key, label, icon: Icon }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setCategory(key)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-                      category === key
-                        ? "bg-primary text-primary-foreground border-primary shadow-md"
-                        : "bg-secondary/40 border-border hover:bg-secondary"
-                    }`}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {label}
-                  </button>
-                ))}
+                {CATEGORIES.map(({ key, label, icon: Icon }) => {
+                  const selected = categories.includes(key);
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setCategories(prev =>
+                        prev.includes(key)
+                          ? prev.length > 1 ? prev.filter(c => c !== key) : prev // mínimo 1
+                          : [...prev, key]
+                      )}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                        selected
+                          ? "bg-primary text-primary-foreground border-primary shadow-md"
+                          : "bg-secondary/40 border-border hover:bg-secondary"
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
