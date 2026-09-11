@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backstage Pro brand colors -->
+    <color name="colorPrimary">#0066CC</color>
+    <color name="colorPrimaryDark">#004EA6</color>
+    <color name="colorAccent">#0066CC</color>
+    <!-- Splash screen background (branco limpo) -->
+    <color name="splashBackground">#FFFFFF</color>
+</resources>

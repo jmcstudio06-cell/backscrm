@@ -13,6 +13,7 @@ import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { CustomizationProvider } from "@/hooks/useCustomization";
 import { WorkspaceProvider } from "@/hooks/useWorkspace";
 import { RequireOwner } from "@/components/auth/RequireOwner";
+import { useAndroidBackButton } from "@/hooks/useAndroidBackButton";
 
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
@@ -105,6 +106,12 @@ function AuthPage({ children, featureKey }: { children: ReactNode; featureKey?: 
   );
 }
 
+/** Ativa o botão voltar do Android apenas quando dentro do Capacitor */
+function AndroidBackButtonHandler() {
+  useAndroidBackButton();
+  return null;
+}
+
 const App = () => (
   <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
@@ -121,6 +128,7 @@ const App = () => (
               <PushSubscriptionRefresher />
               <LastSeenTracker />
               <OnboardingGate />
+              <AndroidBackButtonHandler />
 
               <PlanActivatedCelebration />
               <MaintenanceGate>

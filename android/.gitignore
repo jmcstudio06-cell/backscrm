@@ -1,0 +1,30 @@
+# Android build outputs
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Gradle
+.gradle/
+build/
+app/build/
+app/release/
+
+# Android Studio
+*.iml
+.idea/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore (NUNCA commitar!)
+*.keystore
+*.jks
+app/keystore/
+
+# Google Services (pode conter chaves sensíveis)
+# app/google-services.json  ← descomente se não usar Firebase
+
+# Capacitor gerado
+app/src/main/assets/public/
