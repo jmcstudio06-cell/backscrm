@@ -17,7 +17,7 @@ import {
 import { useProfile } from "@/hooks/useProfile";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
 import { InstallAppSection } from "@/components/configuracoes/InstallAppSection";
-
+import { ImageCropModal } from "@/components/ui/ImageCropModal";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -99,6 +99,8 @@ export default function Configuracoes() {
 
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -173,40 +175,47 @@ export default function Configuracoes() {
 
   const handleSelectFile = () => fileInputRef.current?.click();
 
+  // Abre o seletor → lê o arquivo → abre o modal de crop
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !profile) return;
-    setUploading(true);
+    if (!file) return;
+    // Limpa o input para permitir selecionar o mesmo arquivo novamente
+    if (fileInputRef.current) fileInputRef.current.value = "";
 
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+      setCropModalOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Recebe o blob já recortado pelo modal e faz o upload
+  const handleCropComplete = async (blob: Blob) => {
+    if (!profile) return;
+    setUploading(true);
     try {
-      const result = await processImage(file);
+      const originalFile = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+      const result = await processImage(originalFile);
       if (!result.valid || !result.file) {
         toast.error(result.error || "Erro ao processar imagem");
-        setUploading(false);
         return;
       }
 
       const processedFile = result.file;
-      const originalSize = formatFileSize(file.size);
-      const newSize = formatFileSize(processedFile.size);
-      const extension = processedFile.type === 'image/webp' ? 'webp' : 'jpg';
+      const extension = processedFile.type === "image/webp" ? "webp" : "jpg";
       const fileName = `${profile.user_id}/${Date.now()}.${extension}`;
 
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, processedFile, {
-        upsert: true,
-        contentType: processedFile.type,
-      });
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, processedFile, { upsert: true, contentType: processedFile.type });
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
       if (!data.publicUrl) throw new Error("Não foi possível gerar a URL da imagem");
 
       await updateProfile({ avatar_url: data.publicUrl });
-      if (file.size !== processedFile.size) {
-        toast.success(`Foto otimizada: ${originalSize} → ${newSize}`);
-      } else {
-        toast.success("Foto atualizada com sucesso!");
-      }
+      toast.success("Foto de perfil atualizada!");
     } catch (error) {
       console.error(error);
       toast.error("Erro ao enviar foto");
@@ -780,6 +789,17 @@ export default function Configuracoes() {
           </div>
         </div>}
       </div>
+
+      {/* Modal de crop da foto de perfil */}
+      {cropImageSrc && (
+        <ImageCropModal
+          open={cropModalOpen}
+          imageSrc={cropImageSrc}
+          onClose={() => { setCropModalOpen(false); setCropImageSrc(null); }}
+          onCropComplete={handleCropComplete}
+          aspect={1}
+        />
+      )}
     </Layout>
   );
 }
