@@ -4,7 +4,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 const CACHE_DAYS = 7;
-const MAX_RESULTS = 20;
+const MAX_RESULTS = 60; // Google Places permite até 20 por chamada, mas fazemos paginação via nextPageToken
 
 const CATEGORIES: Record<string, string> = {
   bares: "bares com música ao vivo",
@@ -76,7 +76,7 @@ serve(async (req) => {
 
     const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString();
 
-    // Cache por state + city + category (schema existente)
+    // Cache por state + city + category — somente registros com telefone
     if (!refresh) {
       const { data: cached } = await admin
         .from("radar_places")
@@ -85,11 +85,12 @@ serve(async (req) => {
         .ilike("city", city)
         .eq("category", category)
         .gte("fetched_at", cutoff)
+        .not("phone", "is", null)
         .order("rating_count", { ascending: false })
         .limit(MAX_RESULTS);
 
       if (cached && cached.length > 0) {
-        console.log(`Cache hit: ${city}/${state}/${category} (${cached.length})`);
+        console.log(`Cache hit: ${city}/${state}/${category} (${cached.length} com telefone)`);
         return json({ places: cached, source: "cache", city, state, lat, lng, radius });
       }
     }
@@ -100,62 +101,89 @@ serve(async (req) => {
 
     console.log(`Google Places: "${CATEGORIES[category]}" @ (${lat.toFixed(4)},${lng.toFixed(4)}) r=${radiusMeters}m`);
 
-    const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": mapsKey,
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask": [
-          "places.id",
-          "places.displayName",
-          "places.formattedAddress",
-          "places.nationalPhoneNumber",
-          "places.websiteUri",
-          "places.rating",
-          "places.userRatingCount",
-          "places.primaryTypeDisplayName",
-          "places.googleMapsUri",
-        ].join(","),
-      },
-      body: JSON.stringify({
+    // Google Places retorna no máximo 20 por chamada.
+    // Usamos nextPageToken para buscar até MAX_RESULTS (60) em até 3 páginas.
+    const allPlacesRaw: any[] = [];
+    let pageToken: string | undefined;
+    let pagesLeft = Math.ceil(MAX_RESULTS / 20);
+
+    while (pagesLeft > 0) {
+      const requestBody: Record<string, any> = {
         textQuery: CATEGORIES[category],
         languageCode: "pt-BR",
         regionCode: "BR",
-        maxResultCount: MAX_RESULTS,
+        maxResultCount: 20,
         locationBias: {
           circle: {
             center: { latitude: lat, longitude: lng },
             radius: radiusMeters,
           },
         },
-      }),
-    });
+      };
+      if (pageToken) requestBody.pageToken = pageToken;
 
-    if (response.status === 403) {
-      const errBody = await response.json().catch(() => ({}));
-      const details: Array<{ reason?: string }> = errBody?.error?.details ?? [];
-      const reason = details.find((d) => d.reason)?.reason;
-      if (reason === "API_KEY_HTTP_REFERRER_BLOCKED") {
-        return json({ error: "A chave do Google Maps está restrita por domínio. Ajuste para 'Nenhuma' ou 'Endereços IP'." }, 403);
+      const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": mapsKey,
+          "Content-Type": "application/json",
+          "X-Goog-FieldMask": [
+            "places.id",
+            "places.displayName",
+            "places.formattedAddress",
+            "places.nationalPhoneNumber",
+            "places.websiteUri",
+            "places.rating",
+            "places.userRatingCount",
+            "places.primaryTypeDisplayName",
+            "places.googleMapsUri",
+            "nextPageToken",
+          ].join(","),
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.status === 403) {
+        const errBody = await response.json().catch(() => ({}));
+        const details: Array<{ reason?: string }> = errBody?.error?.details ?? [];
+        const reason = details.find((d) => d.reason)?.reason;
+        if (reason === "API_KEY_HTTP_REFERRER_BLOCKED") {
+          return json({ error: "A chave do Google Maps está restrita por domínio. Ajuste para 'Nenhuma' ou 'Endereços IP'." }, 403);
+        }
+        if (reason === "API_KEY_SERVICE_BLOCKED") {
+          return json({ error: "A chave do Google Maps não permite a API de Places. Libere essa API na chave." }, 403);
+        }
+        return json({ error: "Busca no Google Maps recusada (403)." }, 403);
       }
-      if (reason === "API_KEY_SERVICE_BLOCKED") {
-        return json({ error: "A chave do Google Maps não permite a API de Places. Libere essa API na chave." }, 403);
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`Places request failed [${response.status}]: ${errorBody}`);
+        // Não quebra — retorna o que já temos
+        break;
       }
-      return json({ error: "Busca no Google Maps recusada (403)." }, 403);
+
+      const result = await response.json();
+      const pagePlaces = (result.places ?? []) as any[];
+      allPlacesRaw.push(...pagePlaces);
+      pageToken = result.nextPageToken;
+      pagesLeft--;
+
+      // Para se não há próxima página
+      if (!pageToken) break;
+
+      // Pequena pausa entre páginas (requisito do Google)
+      await new Promise(r => setTimeout(r, 500));
     }
 
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`Places request failed [${response.status}]: ${errorBody}`);
-      return json({ error: `Falha na busca do Google Maps (${response.status})` }, response.status);
-    }
+    console.log(`Google returned ${allPlacesRaw.length} places total (antes do filtro de telefone)`);
 
-    const result = await response.json();
-    const places = (result.places ?? []) as any[];
-    console.log(`Google returned ${places.length} places`);
+    // Filtra apenas locais COM telefone — sem telefone não serve
+    const placesWithPhone = allPlacesRaw.filter(p => !!p.nationalPhoneNumber);
+    console.log(`Após filtro de telefone: ${placesWithPhone.length} places`);
 
-    const rows = places.map((p) => ({
+    const rows = placesWithPhone.map((p) => ({
       place_id:     p.id,
       state,
       city,
