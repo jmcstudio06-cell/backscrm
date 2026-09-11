@@ -39,6 +39,7 @@ import {
   MapPin,
   Wrench,
   Settings,
+  Download,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -596,26 +597,64 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Plan Stats Grid */}
-      <div className="grid grid-cols-4 md:grid-cols-8 gap-1.5 mb-6">
-        {Object.entries(PLAN_FILTERS).filter(([_, f]) => f.value !== "all").map(([_, filter]) => {
-          const colors = PLAN_COLORS[filter.value] || PLAN_COLORS.trial;
-          return (
-          <button
-            key={filter.value}
-            onClick={() => setPlanFilter(planFilter === filter.value ? "all" : filter.value)}
-            className={`relative rounded-lg p-2 text-center transition-all border aspect-square flex flex-col items-center justify-center ${colors.bg} ${colors.border} ${
-              planFilter === filter.value ? "ring-2 ring-primary shadow-lg scale-105" : "hover:scale-102"
-            }`}
-          >
-            <div className={`mb-0.5 ${colors.text}`}>{colors.icon}</div>
-            <p className={`text-lg font-black leading-tight ${colors.text}`}>{planStats[filter.value] || 0}</p>
-            <p className={`text-[8px] md:text-[9px] font-semibold ${colors.text} opacity-80 truncate w-full`}>
-              {filter.label}
-            </p>
-          </button>
-          );
-        })}
+      {/* Plan Stats — lista compacta com export CSV */}
+      <div className="rounded-xl border bg-card/60 mb-6 overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b bg-muted/30">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Planos</p>
+          <p className="text-xs text-muted-foreground font-semibold">{totalRegistered} total</p>
+        </div>
+        <div className="divide-y">
+          {Object.entries(PLAN_FILTERS).filter(([_, f]) => f.value !== "all").map(([_, filter]) => {
+            const colors = PLAN_COLORS[filter.value] || PLAN_COLORS.trial;
+            const count = planStats[filter.value] || 0;
+            const isActive = planFilter === filter.value;
+
+            const exportCSV = async (e: React.MouseEvent) => {
+              e.stopPropagation();
+              const values = PLAN_FILTER_VALUES[filter.value] || [filter.value];
+              let query = supabase
+                .from("profiles")
+                .select("name, email, phone, plan, trial_start, created_at")
+                .in("plan", values);
+              const { data, error } = await query;
+              if (error || !data?.length) { toast.error("Sem dados para exportar"); return; }
+              const header = "Nome,Email,Telefone,Plano,Início do plano,Cadastro";
+              const rows = data.map(r =>
+                [r.name || "", r.email || "", r.phone || "", r.plan || "", r.trial_start?.split("T")[0] || "", r.created_at?.split("T")[0] || ""]
+                .map(v => `"${v.replace(/"/g, '""')}"`)
+                .join(",")
+              );
+              const csv = [header, ...rows].join("\n");
+              const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url;
+              a.download = `leads-${filter.value}-${new Date().toISOString().slice(0,10)}.csv`;
+              a.click(); URL.revokeObjectURL(url);
+              toast.success(`${data.length} leads exportados`);
+            };
+
+            return (
+              <div
+                key={filter.value}
+                className={`flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors hover:bg-muted/30 ${isActive ? "bg-primary/5" : ""}`}
+                onClick={() => setPlanFilter(isActive ? "all" : filter.value)}
+              >
+                <div className={`shrink-0 ${colors.text}`}>{colors.icon}</div>
+                <span className={`flex-1 text-sm font-medium ${isActive ? "text-primary" : "text-foreground"}`}>
+                  {filter.label}
+                </span>
+                <span className={`text-sm font-black tabular-nums ${colors.text}`}>{count}</span>
+                <button
+                  onClick={exportCSV}
+                  title="Exportar CSV"
+                  className="ml-1 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tabs */}
