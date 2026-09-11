@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { processImage, formatFileSize } from "@/lib/imageUtils";
+import { StepWizard } from "@/components/links/StepWizard";
 
 import {
   Copy,
