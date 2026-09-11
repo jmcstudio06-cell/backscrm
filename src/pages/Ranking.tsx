@@ -233,7 +233,7 @@ export default function RankingPage() {
           <div className="flex items-center gap-3 rounded-xl bg-primary/5 border border-primary/15 px-4 py-3">
             <Flame className="w-5 h-5 text-primary flex-shrink-0" />
             <p className="text-sm text-foreground">
-              Você está a <strong>{showsToTop3} {showsToTop3 === 1 ? "show" : "shows"}</strong> do TOP 3 — seus shows este mês: <strong>{myShowCount}</strong>
+              Você está a <strong>{showsToTop3} {showsToTop3 === 1 ? "show" : "shows"}</strong> do TOP 3 — <strong>{myShowCount}</strong> {myShowCount === 1 ? "show" : "shows"} este mês
             </p>
           </div>
         )}
