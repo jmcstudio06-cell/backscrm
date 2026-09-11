@@ -486,14 +486,32 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             <DialogTitle className="text-sm sm:text-base truncate">
               Contrato {contract.contract_number}
             </DialogTitle>
-            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
+            {/* Controles de zoom */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => setScale(s => Math.max(0.35, parseFloat((s - 0.1).toFixed(2))))}
+                className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
+                title="Diminuir zoom"
+              >−</button>
+              <button
+                onClick={() => setScale(1)}
+                className="h-7 min-w-[42px] rounded-md border bg-muted/50 hover:bg-muted text-xs font-semibold px-1"
+                title="Zoom original"
+              >{Math.round(scale * 100)}%</button>
+              <button
+                onClick={() => setScale(s => Math.min(2, parseFloat((s + 0.1).toFixed(2))))}
+                className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
+                title="Aumentar zoom"
+              >+</button>
+              <Button variant="ghost" size="icon" className="shrink-0 h-7 w-7 ml-1" onClick={onClose}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 
         {/* Conteúdo scrollável */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-auto">
           {/* Wrapper de escala — mantém o visual A4 proporcional */}
           <div style={{
             width: "100%",

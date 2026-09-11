@@ -391,13 +391,33 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
       <DialogContent className="max-w-4xl max-h-[95vh] flex flex-col bg-background p-0">
         {/* Header sticky */}
         <DialogHeader className="p-3 sm:p-4 border-b shrink-0">
-          <DialogTitle className="text-sm sm:text-base">
-            Orçamento {budget.budget_number}
-          </DialogTitle>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="text-sm sm:text-base truncate">
+              Orçamento {budget.budget_number}
+            </DialogTitle>
+            {/* Controles de zoom */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => setScale(s => Math.max(0.35, parseFloat((s - 0.1).toFixed(2))))}
+                className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
+                title="Diminuir zoom"
+              >−</button>
+              <button
+                onClick={() => setScale(1)}
+                className="h-7 min-w-[42px] rounded-md border bg-muted/50 hover:bg-muted text-xs font-semibold px-1"
+                title="Zoom original"
+              >{Math.round(scale * 100)}%</button>
+              <button
+                onClick={() => setScale(s => Math.min(2, parseFloat((s + 0.1).toFixed(2))))}
+                className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
+                title="Aumentar zoom"
+              >+</button>
+            </div>
+          </div>
         </DialogHeader>
 
         {/* Conteúdo scrollável */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-auto">
           <div style={{
             width: "100%",
             display: "flex",
