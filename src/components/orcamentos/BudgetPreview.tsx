@@ -395,24 +395,6 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             <DialogTitle className="text-sm sm:text-base truncate">
               Orçamento {budget.budget_number}
             </DialogTitle>
-            {/* Controles de zoom */}
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                onClick={() => setScale(s => Math.max(0.35, parseFloat((s - 0.1).toFixed(2))))}
-                className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
-                title="Diminuir zoom"
-              >−</button>
-              <button
-                onClick={() => setScale(1)}
-                className="h-7 min-w-[42px] rounded-md border bg-muted/50 hover:bg-muted text-xs font-semibold px-1"
-                title="Zoom original"
-              >{Math.round(scale * 100)}%</button>
-              <button
-                onClick={() => setScale(s => Math.min(2, parseFloat((s + 0.1).toFixed(2))))}
-                className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
-                title="Aumentar zoom"
-              >+</button>
-            </div>
           </div>
         </DialogHeader>
 
@@ -603,7 +585,9 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
         </div>{/* fim scrollRef */}
 
         {/* ── Barra de ações fixa no bottom ── */}
-        <div className="shrink-0 border-t bg-background px-3 py-3 flex flex-wrap gap-2">
+        <div className="shrink-0 border-t bg-background px-3 py-3 space-y-2">
+          {/* Linha 1: ações principais */}
+          <div className="flex flex-wrap gap-2">
           {/* Baixar PDF */}
           <Button
             variant="gradient"
@@ -639,6 +623,23 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
             <Printer className="w-4 h-4" />
             Imprimir
           </Button>
+          </div>
+          {/* Linha 2: controles de zoom */}
+          <div className="flex items-center justify-center gap-2 pt-1 border-t border-border/50">
+            <span className="text-xs text-muted-foreground mr-1">Zoom:</span>
+            <button
+              onClick={() => setScale(s => Math.max(0.35, parseFloat((s - 0.1).toFixed(2))))}
+              className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
+            >−</button>
+            <button
+              onClick={() => setScale(1)}
+              className="h-7 min-w-[48px] rounded-md border bg-muted/50 hover:bg-muted text-xs font-semibold px-1"
+            >{Math.round(scale * 100)}%</button>
+            <button
+              onClick={() => setScale(s => Math.min(2, parseFloat((s + 0.1).toFixed(2))))}
+              className="h-7 w-7 rounded-md border bg-muted/50 hover:bg-muted flex items-center justify-center text-base font-bold leading-none"
+            >+</button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
