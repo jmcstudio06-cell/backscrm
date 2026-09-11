@@ -224,46 +224,39 @@ export default function Historico() {
 
   return (
     <Layout title="Histórico Completo" subtitle="Acompanhe toda a evolução da sua carreira">
-      <div className="mb-6 flex flex-wrap items-end gap-4">
-        <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-muted-foreground">Ano</p>
-          <Select value={String(selectedYear)} onValueChange={(value) => setSelectedYear(Number(value))}>
-            <SelectTrigger className="w-40 bg-secondary">
-              <SelectValue placeholder="Selecione o ano" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableYears.map((year) => (
-                <SelectItem key={year} value={String(year)}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Filtros de ano — linha horizontal compacta */}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <Select value={String(selectedYear)} onValueChange={(value) => setSelectedYear(Number(value))}>
+          <SelectTrigger className="h-9 w-32 bg-secondary text-sm">
+            <SelectValue placeholder="Ano" />
+          </SelectTrigger>
+          <SelectContent>
+            {availableYears.map((year) => (
+              <SelectItem key={year} value={String(year)}>{year}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {comparableYears.length > 0 && (
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-muted-foreground">Comparar com</p>
+          <>
+            <span className="text-xs text-muted-foreground shrink-0">vs.</span>
             <Select value={compareYear ? String(compareYear) : "none"} onValueChange={(v) => setCompareYear(v === "none" ? null : Number(v))}>
-              <SelectTrigger className="w-40 bg-secondary">
-                <SelectValue placeholder="Nenhum" />
+              <SelectTrigger className="h-9 w-32 bg-secondary text-sm">
+                <SelectValue placeholder="Comparar" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Nenhum</SelectItem>
                 {comparableYears.map((year) => (
-                  <SelectItem key={year} value={String(year)}>
-                    {year}
-                  </SelectItem>
+                  <SelectItem key={year} value={String(year)}>{year}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </>
         )}
-        <div className="ml-auto">
-          <Button onClick={() => setBreakdownOpen(true)} variant="outline" className="gap-2">
-            <Calculator className="w-4 h-4" />
-            Ver Detalhamento de Custos
-          </Button>
-        </div>
+        <Button onClick={() => setBreakdownOpen(true)} variant="outline" size="sm" className="gap-1.5 ml-auto">
+          <Calculator className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Ver Detalhamento</span>
+          <span className="sm:hidden">Detalhamento</span>
+        </Button>
       </div>
 
       <ShowCostBreakdownDialog

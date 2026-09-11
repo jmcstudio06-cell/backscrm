@@ -124,37 +124,44 @@ export default function Equipe() {
     <Layout title="Banda & Músicos" subtitle="Gerencie sua banda e colaboradores">
       <div className="space-y-6">
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="relative">
+        <div className="space-y-2">
+          {/* Linha 1: busca + botão adicionar */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar músico..."
-                className="pl-9 w-56 bg-secondary"
+                className="pl-9 bg-secondary"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-1.5">
+            <Can action="create">
+              <Button className="bg-primary hover:bg-primary/90 shrink-0" onClick={handleAdd}>
+                <Plus className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Adicionar Músico</span>
+              </Button>
+            </Can>
+          </div>
+          {/* Linha 2: filtros + ordenação + toggle de view */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+            <div className="flex items-center gap-1 shrink-0">
               {(["all", "fixo", "freelancer"] as const).map((f) => (
                 <Button
                   key={f}
                   variant={filter === f ? "outline" : "ghost"}
                   size="sm"
+                  className={cn("h-8 text-xs", filter === f ? "bg-primary/10" : "")}
                   onClick={() => setFilter(f)}
-                  className={filter === f ? "bg-primary/10" : ""}
                 >
                   {f === "all" ? "Todos" : f === "fixo" ? "Fixos" : "Freelancers"}
                 </Button>
               ))}
             </div>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Sort dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" className="h-8 shrink-0">
+                  <ArrowUpDown className="w-3.5 h-3.5 mr-1" />
                   {sortLabels[sortKey]}
                 </Button>
               </DropdownMenuTrigger>
@@ -168,35 +175,24 @@ export default function Equipe() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* View mode toggle */}
-            <div className="flex items-center gap-1 border border-border rounded-md p-0.5">
+            <div className="flex items-center gap-0.5 border border-border rounded-md p-0.5 ml-auto shrink-0">
               <Button
                 variant={viewMode === "grid" ? "secondary" : "ghost"}
                 size="sm"
-                className="h-8 px-2"
+                className="h-7 px-2"
                 onClick={() => setViewMode("grid")}
-                title="Visualização em grade"
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
               </Button>
               <Button
                 variant={viewMode === "list" ? "secondary" : "ghost"}
                 size="sm"
-                className="h-8 px-2"
+                className="h-7 px-2"
                 onClick={() => setViewMode("list")}
-                title="Visualização em lista"
               >
-                <List className="w-4 h-4" />
+                <List className="w-3.5 h-3.5" />
               </Button>
             </div>
-
-            <Can action="create">
-              <Button className="bg-primary hover:bg-primary/90" onClick={handleAdd}>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Músico
-              </Button>
-            </Can>
           </div>
         </div>
 

@@ -336,59 +336,42 @@ export default function Financeiro() {
 
   return (
     <Layout title="Resumo Mensal" subtitle={`RESUMO DE ${currentMonthName}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex flex-wrap items-center gap-2">
-          {isEmpresarial ? (
-            <div className="flex items-center gap-1 rounded-full border border-border/50 bg-secondary/30 p-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                aria-label="Mês anterior"
-                onClick={() => setMonthOffset((v) => v - 1)}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="px-2 text-sm font-semibold capitalize min-w-[130px] text-center">
-                {format(referenceDate, "MMMM 'de' yyyy", { locale: ptBR })}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                aria-label="Mês seguinte"
-                onClick={() => setMonthOffset((v) => v + 1)}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          ) : (
-            <Badge variant="secondary" className="px-3 py-1.5 text-sm font-semibold capitalize bg-secondary/50">
-              {format(referenceDate, "MMMM 'de' yyyy", { locale: ptBR })}
-            </Badge>
-          )}
-          {isEmpresarial && monthOffset !== 0 && (
-            <Button variant="outline" size="sm" className="rounded-full" onClick={() => setMonthOffset(0)}>
-              Mês atual
+      {/* Linha única: navegação de mês + botões de ação */}
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        {isEmpresarial ? (
+          <div className="flex items-center gap-1 rounded-full border border-border/50 bg-secondary/30 p-1 shrink-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setMonthOffset((v) => v - 1)}>
+              <ChevronLeft className="w-4 h-4" />
             </Button>
-          )}
-          <Badge variant="secondary" className="px-3 py-1 bg-secondary/50">
-            {showsThisMonth} {showsThisMonth === 1 ? "Show" : "Shows"} na agenda neste mês
+            <span className="px-2 text-sm font-semibold capitalize min-w-[110px] text-center">
+              {format(referenceDate, "MMM 'de' yyyy", { locale: ptBR })}
+            </span>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setMonthOffset((v) => v + 1)}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        ) : (
+          <Badge variant="secondary" className="px-3 py-1.5 text-sm font-semibold capitalize bg-secondary/50 shrink-0">
+            {format(referenceDate, "MMMM 'de' yyyy", { locale: ptBR })}
           </Badge>
-        </div>
-        <div className="flex items-center gap-3">
+        )}
+        {isEmpresarial && monthOffset !== 0 && (
+          <Button variant="outline" size="sm" className="rounded-full shrink-0" onClick={() => setMonthOffset(0)}>Hoje</Button>
+        )}
+        <Badge variant="secondary" className="px-2 py-1 bg-secondary/50 text-xs shrink-0">
+          {showsThisMonth} {showsThisMonth === 1 ? "Show" : "Shows"}
+        </Badge>
+        <div className="flex items-center gap-2 ml-auto">
           <Can action="create">
-            <Button
-              className="gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full px-6 shadow-sm"
-              onClick={() => { setModalType("expense"); setModalOpen(true); }}
-            >
-              <Plus className="w-4 h-4" /> Nova Despesa
+            <Button size="sm" className="gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full px-4 shadow-sm" onClick={() => { setModalType("expense"); setModalOpen(true); }}>
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Nova Despesa</span>
+              <span className="sm:hidden">Despesa</span>
             </Button>
-            <Button
-              className="gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 shadow-sm"
-              onClick={() => { setModalType("income"); setModalOpen(true); }}
-            >
-              <Plus className="w-4 h-4" /> Nova Receita
+            <Button size="sm" className="gap-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 shadow-sm" onClick={() => { setModalType("income"); setModalOpen(true); }}>
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Nova Receita</span>
+              <span className="sm:hidden">Receita</span>
             </Button>
           </Can>
         </div>

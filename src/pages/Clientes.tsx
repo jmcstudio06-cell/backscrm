@@ -160,35 +160,32 @@ export default function Clientes() {
         </div>
 
         {/* Actions Bar */}
-        <div className="flex flex-col sm:flex-row justify-between gap-3">
-          <div className="flex items-center gap-3 flex-1">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar clientes..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  {sortBy === "name" ? "A-Z" : sortBy === "total_spent" ? "Maior Valor" : "Mais Shows"}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem onClick={() => setSortBy("name")}>Ordem Alfabética (A-Z)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy("total_spent")}>Maior Valor Gasto</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy("shows_count")}>Mais Shows</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar clientes..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="shrink-0 h-10 w-10">
+                <Filter className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setSortBy("name")}>Ordem Alfabética (A-Z)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("total_spent")}>Maior Valor Gasto</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("shows_count")}>Mais Shows</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Can action="create">
-            <Button onClick={handleAddClient}>
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Cliente
+            <Button onClick={handleAddClient} className="shrink-0">
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Novo Cliente</span>
             </Button>
           </Can>
         </div>
