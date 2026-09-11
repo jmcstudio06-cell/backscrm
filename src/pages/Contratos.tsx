@@ -86,14 +86,16 @@ export default function Contratos() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-            <div className="relative">
+          {/* Busca + botão na mesma linha */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Buscar contratos..." className="pl-9 w-64 bg-secondary" value={search} onChange={e => setSearch(e.target.value)} />
+              <Input placeholder="Buscar contratos..." className="pl-9 bg-secondary" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <Can action="create">
-              <Button variant="gradient" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }}>
-                <Plus className="w-4 h-4 mr-2" />Novo Contrato
+              <Button variant="gradient" onClick={() => { setSelectedContract(null); setIsModalOpen(true); }} className="shrink-0">
+                <Plus className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Novo Contrato</span>
               </Button>
             </Can>
           </div>

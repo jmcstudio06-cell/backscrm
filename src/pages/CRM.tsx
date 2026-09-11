@@ -348,9 +348,9 @@ export default function CRM() {
           <Radar className="w-5 h-5 text-primary" />
           <span className="text-sm font-semibold text-muted-foreground">{totalOpportunities} oportunidades</span>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 gap-2" onClick={openNewModal}>
-          <Plus className="w-4 h-4" />
-          Nova Oportunidade
+        <Button className="bg-primary hover:bg-primary/90 gap-2 shrink-0" onClick={openNewModal}>
+          <Plus className="w-4 h-4 sm:mr-0" />
+          <span className="hidden sm:inline">Nova Oportunidade</span>
         </Button>
       </div>
 
@@ -375,55 +375,60 @@ export default function CRM() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar oportunidade..."
-            className="pl-9"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="flex flex-col gap-2 mb-5">
+        {/* Linha 1: busca + botão Nova Oportunidade (mobile) */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar oportunidade..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          {hasFilters && (
+            <Button variant="ghost" size="icon" onClick={() => { setSearchTerm(""); setFilterType(null); setFilterStatus(null); setFilterHorizon(null); }} className="h-10 w-10 shrink-0 text-muted-foreground">
+              <X className="w-4 h-4" />
+            </Button>
+          )}
         </div>
-        <Select value={filterType || "all"} onValueChange={(v) => setFilterType(v === "all" ? null : v)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os tipos</SelectItem>
-            {opportunityTypes.map((t) => (
-              <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus || "all"} onValueChange={(v) => setFilterStatus(v === "all" ? null : v)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os status</SelectItem>
-            {statusOptions.map((s) => (
-              <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterHorizon || "all"} onValueChange={(v) => setFilterHorizon(v === "all" ? null : v)}>
-          <SelectTrigger className="w-[190px]">
-            <SelectValue placeholder="Período" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Qualquer período</SelectItem>
-            {horizonOptions.map((h) => (
-              <SelectItem key={h.id} value={h.id}>{h.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={() => { setSearchTerm(""); setFilterType(null); setFilterStatus(null); setFilterHorizon(null); }} className="h-10 text-muted-foreground gap-1">
-
-            <X className="w-4 h-4" /> Limpar
-          </Button>
-        )}
+        {/* Linha 2: selects compactos */}
+        <div className="flex gap-2 overflow-x-auto pb-0.5">
+          <Select value={filterType || "all"} onValueChange={(v) => setFilterType(v === "all" ? null : v)}>
+            <SelectTrigger className="h-8 text-xs shrink-0 w-auto min-w-[120px]">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              {opportunityTypes.map((t) => (
+                <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus || "all"} onValueChange={(v) => setFilterStatus(v === "all" ? null : v)}>
+            <SelectTrigger className="h-8 text-xs shrink-0 w-auto min-w-[120px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os status</SelectItem>
+              {statusOptions.map((s) => (
+                <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterHorizon || "all"} onValueChange={(v) => setFilterHorizon(v === "all" ? null : v)}>
+            <SelectTrigger className="h-8 text-xs shrink-0 w-auto min-w-[120px]">
+              <SelectValue placeholder="Período" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Qualquer período</SelectItem>
+              {horizonOptions.map((h) => (
+                <SelectItem key={h.id} value={h.id}>{h.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Opportunity Cards */}

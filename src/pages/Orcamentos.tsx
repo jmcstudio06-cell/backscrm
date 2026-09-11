@@ -108,17 +108,18 @@ export default function Orcamentos() {
 
   return (
     <Layout title="Orçamentos" subtitle="Acompanhe a jornada de cada proposta no funil">
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <div className="relative">
+      {/* Busca + botão na mesma linha */}
+      <div className="flex items-center gap-2 mb-6">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Buscar orçamentos..." className="pl-9 w-64 bg-secondary" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Buscar orçamentos..." className="pl-9 bg-secondary" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <div className="flex gap-2">
-          <Can action="create"><Button variant="gradient" onClick={() => { setSelectedBudget(null); setIsModalOpen(true); }}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Orçamento
-          </Button></Can>
-        </div>
+        <Can action="create">
+          <Button variant="gradient" onClick={() => { setSelectedBudget(null); setIsModalOpen(true); }} className="shrink-0">
+            <Plus className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Novo Orçamento</span>
+          </Button>
+        </Can>
       </div>
 
       <Collapsible open={templateOpen} onOpenChange={setTemplateOpen} className="mb-6">
