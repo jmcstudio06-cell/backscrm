@@ -39,13 +39,15 @@ export function OnboardingGate() {
 
   const [showVideo, setShowVideo] = useState(false);
   const [showFlow, setShowFlow] = useState(false);
+  // Flag local para não reabrir o modal enquanto o banco ainda não confirmou
+  const [finished, setFinished] = useState(false);
 
   const isPublicRoute =
     pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));
 
   useEffect(() => {
     if (!user || loading || !profile || isPublicRoute) return;
-    if (profile.onboarding_completed) return;
+    if (profile.onboarding_completed || finished) return;
     if (showVideo || showFlow) return;
 
     const videoSeen = localStorage.getItem(`welcome_video_seen_${profile.user_id}`);
@@ -76,6 +78,12 @@ export function OnboardingGate() {
         userName={profile?.name || undefined}
         monthName={format(now, "MMMM", { locale: ptBR })}
         onFinish={async (goalTarget) => {
+          // Marca localmente para não reabrir enquanto o banco confirma
+          setFinished(true);
+          setShowFlow(false);
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+
+          // Salva meta em background
           if (goalTarget) {
             try {
               await addGoal({
@@ -91,8 +99,6 @@ export function OnboardingGate() {
               console.error("Erro ao salvar meta do onboarding:", e);
             }
           }
-          setShowFlow(false);
-          queryClient.invalidateQueries({ queryKey: ["profile"] });
         }}
       />
     </>

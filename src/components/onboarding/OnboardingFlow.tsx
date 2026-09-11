@@ -144,8 +144,16 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
 
   const handleFinish = async () => {
     setFinishing(true);
+
+    // Fecha o modal imediatamente — não trava o usuário esperando o Supabase
+    onFinish(selectedGoal);
+
+    // Grava onboarding_completed em background (com timeout de segurança)
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
+      const getUser = supabase.auth.getUser().then((r) => r.data?.user ?? null);
+      const user = await Promise.race([getUser, timeout]);
+
       if (user) {
         await supabase
           .from("profiles")
@@ -154,9 +162,7 @@ export function OnboardingFlow({ open, userName, monthName, onFinish }: Onboardi
       }
       localStorage.setItem("install_prompt_dismissed", Date.now().toString());
     } catch (e) {
-      console.error(e);
-    } finally {
-      onFinish(selectedGoal);
+      console.error("onboarding finish error:", e);
     }
   };
 
