@@ -24,7 +24,8 @@ export function Layout({ children, title, subtitle, headerRightSlot }: LayoutPro
       <div className="transition-all duration-300 pl-0 lg:pl-64">
         <Header title={title} subtitle={subtitle} rightSlot={headerRightSlot} />
 
-        <main className="p-3 sm:p-4 md:p-6 pb-24 lg:pb-6">{children}</main>
+        {/* pb compensa nav bar mobile (64px) + HelpFab + margem de segurança */}
+        <main className="p-3 sm:p-4 md:p-6 pb-32 lg:pb-6">{children}</main>
       </div>
 
       {/* Mobile Bottom Navigation */}

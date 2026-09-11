@@ -331,3 +331,15 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(10px); }
 }
+
+/* Compensação de safe-area para iPhones com home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  main {
+    padding-bottom: calc(8rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 1024px) {
+    main {
+      padding-bottom: 1.5rem;
+    }
+  }
+}
