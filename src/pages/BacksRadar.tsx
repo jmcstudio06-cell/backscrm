@@ -234,6 +234,7 @@ export default function BacksRadar() {
               state: resolvedLocation?.state ?? "",
               radius_km: radius,
               category: cat,
+              refresh: true, // força nova busca com locationRestriction — sem cache antigo fora do raio
             },
           })
         )

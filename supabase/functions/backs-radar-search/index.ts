@@ -77,6 +77,7 @@ serve(async (req) => {
     const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString();
 
     // Cache por state + city + category — somente registros com telefone
+    // Não usamos cache antigo que pode conter resultados fora do raio correto
     if (!refresh) {
       const { data: cached } = await admin
         .from("radar_places")
@@ -113,7 +114,8 @@ serve(async (req) => {
         languageCode: "pt-BR",
         regionCode: "BR",
         maxResultCount: 20,
-        locationBias: {
+        // locationRestriction é obrigatório — o Google NÃO retorna fora deste círculo
+        locationRestriction: {
           circle: {
             center: { latitude: lat, longitude: lng },
             radius: radiusMeters,
@@ -138,6 +140,7 @@ serve(async (req) => {
             "places.userRatingCount",
             "places.primaryTypeDisplayName",
             "places.googleMapsUri",
+            "places.location",
             "nextPageToken",
           ].join(","),
         },
@@ -183,7 +186,31 @@ serve(async (req) => {
     const placesWithPhone = allPlacesRaw.filter(p => !!p.nationalPhoneNumber);
     console.log(`Após filtro de telefone: ${placesWithPhone.length} places`);
 
-    const rows = placesWithPhone.map((p) => ({
+    // Segunda camada: filtra pelo raio real usando a distância haversine
+    // Garante que nenhum resultado fora do raio solicitado chegue ao usuário
+    const toRad = (v: number) => (v * Math.PI) / 180;
+    const haversine = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+      const R = 6371000; // metros
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    };
+
+    // Filtra locais com coordenadas conhecidas que estejam dentro do raio
+    const placesInRadius = placesWithPhone.filter((p) => {
+      const pLat = p.location?.latitude;
+      const pLng = p.location?.longitude;
+      if (!pLat || !pLng) return true; // sem coordenada: mantém (o Google já filtrou)
+      const dist = haversine(lat, lng, pLat, pLng);
+      return dist <= radiusMeters;
+    });
+
+    console.log(`Após filtro de raio (${radiusMeters}m): ${placesInRadius.length} places`);
+
+    const rows = placesInRadius.map((p) => ({
       place_id:     p.id,
       state,
       city,
