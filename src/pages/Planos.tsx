@@ -104,7 +104,6 @@ const plans: PlanDef[] = [
     planKeyMonthly: "mensal_profissional",
     planKeyYearly: "anual_profissional",
     features: [
-      "Dashboard",
       "Agenda ilimitada",
       "Clientes",
       "Repertório",
@@ -112,10 +111,9 @@ const plans: PlanDef[] = [
       "Precificação",
       "Orçamentos Automáticos",
       "Checklist de Show",
+      "CRM do Artista",
       "Link da Bio / Press Kit",
-      "Radar de Shows",
-      "Tutoriais",
-      "Configurações",
+      "Ideias de Post",
     ],
   },
   {
