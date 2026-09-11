@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Printer, Download, MessageCircle, Loader2 } from "lucide-react";
@@ -19,9 +19,27 @@ type ExportPreset = "print" | "phone";
 
 export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { profile } = useProfile();
   const { settings } = useCustomization();
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  // Calcula o scale proporcional ao container disponível
+  useEffect(() => {
+    if (!isOpen) return;
+    const calculate = () => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const available = container.clientWidth - 32;
+      const contentWidth = 880; // padding 40*2 + maxWidth 800
+      const s = available < contentWidth ? available / contentWidth : 1;
+      setScale(Math.max(s, 0.35));
+    };
+    const t = setTimeout(calculate, 80);
+    window.addEventListener("resize", calculate);
+    return () => { clearTimeout(t); window.removeEventListener("resize", calculate); };
+  }, [isOpen]);
 
   if (!budget) return null;
 
@@ -207,7 +225,7 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
     const clonedHtml = source.outerHTML;
 
     win.document.open();
-    win.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Orçamento ${budget.budget_number}</title><style>*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 portrait;margin:8mm}html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:#fff}#root{max-width:800px;margin:0 auto;padding:20px 0}table{border-collapse:collapse;width:100%}img{max-width:100%}</style></head><body><div id="root">${clonedHtml}</div><script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script></body></html>`);
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Orçamento ${budget.budget_number}</title><style>*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 portrait;margin:8mm}html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:#fff}#root{max-width:800px;margin:0 auto;padding:20px 0}table{border-collapse:collapse;width:100%}img{max-width:100%}.no-print{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f8f8f8;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:100}.no-print button{padding:6px 16px;border-radius:6px;border:1px solid #ccc;cursor:pointer;font-size:13px;font-weight:600;background:#fff}.no-print .btn-print{background:#4f46e5;color:#fff;border-color:#4f46e5}@media print{.no-print{display:none!important}}</style></head><body><div class="no-print"><button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button><button onclick="window.close()">✕ Fechar</button><span style="font-size:12px;color:#888;margin-left:8px">Orçamento ${budget.budget_number} — ${budget.client_name}</span></div><div id="root">${clonedHtml}</div></body></html>`);
     win.document.close();
 
     toast.success("Abrindo impressão...", { id: "pdf" });
@@ -379,7 +397,21 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
         </DialogHeader>
 
         {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: 16,
+            paddingBottom: 16,
+          }}>
+            <div style={{
+              transformOrigin: "top center",
+              transform: `scale(${scale})`,
+              width: 880,
+              minWidth: 880,
+              marginBottom: scale < 1 ? `calc((${scale} - 1) * 880px)` : 0,
+            }}>
           {/* Área capturada */}
           <div ref={printRef} style={{ background: c.bg, padding: 40, width: "100%", boxSizing: "border-box" }}>
           <div style={{ maxWidth: 800, margin: "0 auto", fontFamily: "'Segoe UI', Arial, sans-serif", color: c.text, lineHeight: 1.5 }}>
@@ -544,9 +576,11 @@ export function BudgetPreview({ isOpen, onClose, budget, items }: BudgetPreviewP
                 </div>
               </>
             )}
-          </div>
-        </div>
-      </div>
+          </div>{/* fim maxWidth inner */}
+          </div>{/* fim printRef */}
+          </div>{/* fim scale wrapper */}
+          </div>{/* fim flex center */}
+        </div>{/* fim scrollRef */}
 
         {/* ── Barra de ações fixa no bottom ── */}
         <div className="shrink-0 border-t bg-background px-3 py-3 flex flex-wrap gap-2">

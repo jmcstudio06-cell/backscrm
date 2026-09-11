@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, Send, MessageCircle, X, Loader2 } from "lucide-react";
@@ -17,8 +17,27 @@ interface ContractPreviewProps {
 
 export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { profile } = useProfile();
   const [generating, setGenerating] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  // Calcula o scale proporcional ao container disponível
+  useEffect(() => {
+    if (!isOpen) return;
+    const calculate = () => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const available = container.clientWidth - 32; // padding 16px cada lado
+      const contentWidth = 870; // maxWidth 800 + padding 35*2
+      const s = available < contentWidth ? available / contentWidth : 1;
+      setScale(Math.max(s, 0.35));
+    };
+    // Aguarda o Dialog abrir e renderizar
+    const t = setTimeout(calculate, 80);
+    window.addEventListener("resize", calculate);
+    return () => { clearTimeout(t); window.removeEventListener("resize", calculate); };
+  }, [isOpen]);
 
   if (!contract) return null;
 
@@ -110,6 +129,37 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
             color: #333;
             line-height: 1.6;
             font-size: 12px;
+          }
+
+          /* Barra de ações — só aparece na tela, não imprime */
+          .no-print {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+          }
+          .no-print button {
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            background: #fff;
+          }
+          .no-print .btn-print {
+            background: #4f46e5;
+            color: #fff;
+            border-color: #4f46e5;
+          }
+          @media print {
+            .no-print { display: none !important; }
+            html, body { padding: 10mm; }
           }
 
           .contract-container {
@@ -336,6 +386,11 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
       </head>
 
       <body>
+        <div class="no-print">
+          <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+          <button onclick="window.close()">✕ Fechar</button>
+          <span style="font-size:12px;color:#888;margin-left:8px">Contrato ${contract.contract_number} — ${contract.client_name}</span>
+        </div>
         ${printContent.outerHTML}
       </body>
     </html>
@@ -438,7 +493,23 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
         </DialogHeader>
 
         {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden">
+          {/* Wrapper de escala — mantém o visual A4 proporcional */}
+          <div style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: 16,
+            paddingBottom: 16,
+          }}>
+            <div style={{
+              transformOrigin: "top center",
+              transform: `scale(${scale})`,
+              width: 870,
+              minWidth: 870,
+              // Compensa o espaço "encolhido" pelo scale para não deixar gap embaixo
+              marginBottom: scale < 1 ? `calc((${scale} - 1) * 870px)` : 0,
+            }}>
           <div className="p-4 sm:p-8 bg-white">
             <div
               ref={printRef}
@@ -695,9 +766,11 @@ export function ContractPreview({ isOpen, onClose, contract }: ContractPreviewPr
                 )}
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </div>{/* fim printRef */}
+          </div>{/* fim p-4 wrapper */}
+          </div>{/* fim scale wrapper */}
+          </div>{/* fim flex center */}
+        </div>{/* fim scrollRef */}
 
         {/* ── Barra de ações fixa no bottom ── */}
         <div className="shrink-0 border-t bg-background px-3 py-3 flex flex-wrap gap-2">
