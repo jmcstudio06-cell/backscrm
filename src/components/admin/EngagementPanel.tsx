@@ -67,14 +67,22 @@ export function EngagementPanel() {
 
   const load = async () => {
     setLoading(true);
+
+    // Planos pagos válidos — exclui trial, expirados, parceiros e sem plano
+    const PAID_PLANS = [
+      "mensal_starter", "mensal_profissional", "mensal_completo", "mensal_executivo",
+      "anual_starter", "anual_profissional", "anual_completo", "anual_executivo",
+      // legados pagos
+      "mensal", "essencial", "completo", "anual", "base",
+    ];
+
     const { data, error } = await supabase
       .from("profiles")
       .select("user_id, name, email, phone, plan, last_seen, created_at")
-      // Apenas clientes com plano pago ativo — exclui trial, expirados e sem plano
-      .not("plan", "in", '("trial","expirado","comprou_expirado")')
-      .not("plan", "is", null)
+      .in("plan", PAID_PLANS)
       .order("last_seen", { ascending: true, nullsFirst: false })
       .limit(2000);
+
     if (error) toast.error("Não foi possível carregar os acessos");
     setRows((data as Row[]) || []);
     setLoading(false);
