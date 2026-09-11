@@ -803,7 +803,7 @@ export default function Agenda() {
             </div>
           </div>
 
-          <div className="divide-y divide-border">
+          <div className="space-y-2 p-2 sm:p-3">
             {(() => {
               const listShows = shows
                 .filter((show) => {
@@ -830,66 +830,150 @@ export default function Agenda() {
               return listShows.map((show) => {
                 const showDate = parseLocalDate(show.date);
                 const dayOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][showDate.getDay()];
+                const isCancelled = show.status === "cancelled";
 
                 return (
                   <div
                     key={show.id}
                     className={cn(
-                      "flex items-center gap-3 p-3 sm:p-4 hover:bg-muted/50 transition-colors",
-                      show.status === "cancelled" && "opacity-60",
+                      "p-3 sm:p-4 rounded-xl border bg-card/60 hover:bg-card transition-colors",
+                      isCancelled && "opacity-60",
                     )}
                   >
-                    <div className="flex-shrink-0 text-center w-10 sm:w-14">
-                      <div className="text-xl sm:text-2xl font-bold text-foreground">{showDate.getDate()}</div>
-                      <div className="text-[10px] sm:text-xs text-muted-foreground uppercase">{dayOfWeek}</div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className={cn(
-                        "font-medium text-xs sm:text-sm truncate",
-                        show.status === "cancelled" ? "text-destructive line-through" : "text-foreground",
+                    <div className="flex gap-3">
+                      {/* Coluna de data — destaque visual */}
+                      <div className={cn(
+                        "flex-shrink-0 flex flex-col items-center justify-center rounded-xl w-12 h-14 sm:w-14 sm:h-16",
+                        isCancelled
+                          ? "bg-destructive/10"
+                          : show.status === "completed"
+                            ? "bg-green-500/10"
+                            : "bg-primary/10"
                       )}>
-                        {show.title}
-                      </h4>
-                      <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                        {show.start_time && <span>{show.start_time}</span>}
-                        {show.venue && (
-                          <span className="flex items-center gap-1 truncate max-w-[80px] sm:max-w-none">
-                            <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
-                            <span className="truncate">{show.venue}</span>
-                          </span>
-                        )}
+                        <div className={cn(
+                          "text-2xl sm:text-3xl font-black leading-none",
+                          isCancelled ? "text-destructive" : show.status === "completed" ? "text-green-600" : "text-primary"
+                        )}>
+                          {showDate.getDate()}
+                        </div>
+                        <div className={cn(
+                          "text-[10px] font-bold uppercase tracking-wider",
+                          isCancelled ? "text-destructive/70" : show.status === "completed" ? "text-green-500" : "text-primary/70"
+                        )}>
+                          {dayOfWeek}
+                        </div>
                       </div>
-                    </div>
-                    <Badge variant="outline" className={cn("text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 flex-shrink-0", statusBadgeStyles[show.status] || "")}>
-                      {statusLabels[show.status] || show.status}
-                    </Badge>
-                    <div className="flex-shrink-0 w-16 sm:w-20 text-right">
-                      {(show.cachet ?? 0) > 0 ? (
-                        <div className="text-xs sm:text-sm font-semibold text-primary">R$ {fmt(show.cachet ?? 0)}</div>
-                      ) : (
-                        <div className="text-xs text-muted-foreground">-</div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleEditShow(show)}>
-                        <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-primary hover:text-primary" onClick={() => setMirrorShow(show)} title="Espelhar data">
-                        <CopyPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </Button>
-                      {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
-                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-green-500 hover:text-green-600" onClick={() => handleConfirmShow(show.id)} title="Confirmar">
-                          <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        </Button>
-                      )}
-                      {show.status !== "cancelled" && (
-                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-warning hover:text-warning" onClick={() => handleCancelShow(show.id)}>
-                          <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteShow(show.id)}>
-                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </Button>
+
+                      {/* Corpo do card */}
+                      <div className="flex-1 min-w-0">
+                        {/* Linha 1: título + badge de status */}
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className={cn(
+                            "font-bold text-sm sm:text-base leading-tight",
+                            isCancelled ? "text-destructive line-through" : "text-foreground",
+                          )}>
+                            {show.title}
+                          </h4>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] px-2 py-0.5 whitespace-nowrap shrink-0",
+                              statusBadgeStyles[show.status] || ""
+                            )}
+                          >
+                            {statusLabels[show.status] || show.status}
+                          </Badge>
+                        </div>
+
+                        {/* Linha 2: metadados */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          {show.start_time && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 shrink-0" />
+                              {show.start_time}
+                              {show.end_time && ` – ${show.end_time}`}
+                            </span>
+                          )}
+                          {show.venue && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3 shrink-0" />
+                              <span className="truncate max-w-[160px] sm:max-w-xs">{show.venue}</span>
+                            </span>
+                          )}
+                          {show.event_type && (
+                            <span className="flex items-center gap-1">
+                              <Music className="w-3 h-3 shrink-0" />
+                              {show.event_type}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Linha 3: cachê + ações */}
+                        <div className="flex items-center justify-between gap-2 mt-2.5">
+                          {/* Cachê */}
+                          {(show.cachet ?? 0) > 0 ? (
+                            <span className="text-sm font-bold text-emerald-600">
+                              R$ {fmt(show.cachet ?? 0)}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Sem cachê</span>
+                          )}
+
+                          {/* Botões de ação com texto */}
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 gap-1 px-2 text-[11px]"
+                              onClick={() => handleEditShow(show)}
+                            >
+                              <Edit className="w-3 h-3" />
+                              Editar
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 gap-1 px-2 text-[11px] text-primary border-primary/30"
+                              onClick={() => setMirrorShow(show)}
+                              title="Espelhar data"
+                            >
+                              <CopyPlus className="w-3 h-3" />
+                              Copiar
+                            </Button>
+                            {show.status !== "cancelled" && show.status !== "completed" && show.status !== "confirmed" && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 gap-1 px-2 text-[11px] text-green-600 border-green-500/30"
+                                onClick={() => handleConfirmShow(show.id)}
+                              >
+                                <CheckCircle2 className="w-3 h-3" />
+                                Confirmar
+                              </Button>
+                            )}
+                            {show.status !== "cancelled" && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-warning hover:text-warning"
+                                onClick={() => handleCancelShow(show.id)}
+                                title="Cancelar show"
+                              >
+                                <XCircle className="w-3.5 h-3.5" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={() => handleDeleteShow(show.id)}
+                              title="Excluir show"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
