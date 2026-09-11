@@ -70,6 +70,9 @@ export function EngagementPanel() {
     const { data, error } = await supabase
       .from("profiles")
       .select("user_id, name, email, phone, plan, last_seen, created_at")
+      // Apenas clientes com plano pago ativo — exclui trial, expirados e sem plano
+      .not("plan", "in", '("trial","expirado","comprou_expirado")')
+      .not("plan", "is", null)
       .order("last_seen", { ascending: true, nullsFirst: false })
       .limit(2000);
     if (error) toast.error("Não foi possível carregar os acessos");
@@ -112,7 +115,7 @@ export function EngagementPanel() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Engajamento</CardTitle>
-            <CardDescription>Último acesso de cada artista para você incentivar quem sumiu</CardDescription>
+            <CardDescription>Último acesso dos clientes com plano pago — incentive quem sumiu</CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
