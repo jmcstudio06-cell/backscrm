@@ -43,6 +43,7 @@ interface RadarPlace {
   rating_count: number | null;
   place_type: string | null;
   maps_uri: string | null;
+  distance_km?: number;
 }
 
 const CATEGORIES = [
@@ -91,7 +92,7 @@ export default function BacksRadar() {
 
   // Estado de busca
   const [radius, setRadius] = useState(25);
-  const [categories, setCategories] = useState<string[]>(["bares"]);
+  const [categories, setCategories] = useState<string[]>(() => CATEGORIES.map(({ key }) => key));
   const [loading, setLoading] = useState(false);
   const [places, setPlaces] = useState<RadarPlace[] | null>(null);
   const [lockedCount, setLockedCount] = useState<number | null>(null);
@@ -181,98 +182,31 @@ export default function BacksRadar() {
     setLockedCount(null);
 
     try {
-      // Resolve lat/lng no frontend — evita dependência de Nominatim dentro da edge function
-      let lat: number | null = null;
-      let lng: number | null = null;
+      const { data, error } = await supabase.functions.invoke("backs-radar-search", {
+        body: {
+          cep: activeCep,
+          city: resolvedLocation?.city ?? "",
+          state: resolvedLocation?.state ?? "",
+          radius_km: radius,
+          categories,
+        },
+      });
 
-      try {
-        const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/search?postalcode=${activeCep}&country=BR&format=json&limit=1`,
-          { headers: { "User-Agent": "BackstageProApp/2.0" } }
-        );
-        if (geoRes.ok) {
-          const geoData = await geoRes.json();
-          if (geoData?.[0]?.lat) {
-            lat = parseFloat(geoData[0].lat);
-            lng = parseFloat(geoData[0].lon);
-          }
+      if (error) {
+        const context = (error as { context?: Response })?.context;
+        if (context) {
+          const details = await context.clone().json().catch(() => null);
+          throw new Error(details?.error ?? error.message);
         }
-      } catch { /* segue para fallback */ }
-
-      // Fallback: geocodifica por cidade + estado
-      if (lat === null && resolvedLocation) {
-        try {
-          const fbRes = await fetch(
-            `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(resolvedLocation.city)}&state=${encodeURIComponent(resolvedLocation.state)}&country=BR&format=json&limit=1`,
-            { headers: { "User-Agent": "BackstageProApp/2.0" } }
-          );
-          if (fbRes.ok) {
-            const fbData = await fbRes.json();
-            if (fbData?.[0]?.lat) {
-              lat = parseFloat(fbData[0].lat);
-              lng = parseFloat(fbData[0].lon);
-            }
-          }
-        } catch { /* ignora */ }
+        throw error;
       }
+      if (data?.error) throw new Error(data.error);
 
-      if (lat === null || lng === null) {
-        toast.error("Não foi possível localizar o CEP no mapa. Tente novamente em alguns segundos.");
-        setLoading(false);
-        return;
+      const allPlaces = (data?.places ?? []) as RadarPlace[];
+      if (data?.city && data?.state) {
+        setResolvedLocation({ city: data.city, state: data.state });
       }
-
-      // Busca para cada categoria selecionada em paralelo
-      const results = await Promise.all(
-        categories.map(cat =>
-          supabase.functions.invoke("backs-radar-search", {
-            body: {
-              cep: activeCep,
-              lat,
-              lng,
-              city: resolvedLocation?.city ?? "",
-              state: resolvedLocation?.state ?? "",
-              radius_km: radius,
-              category: cat,
-              refresh: true, // força nova busca com locationRestriction — sem cache antigo fora do raio
-            },
-          })
-        )
-      );
-
-      // Agrega erros
-      for (const { error } of results) {
-        if (error) {
-          const context = (error as any)?.context;
-          if (context) {
-            try {
-              const errBody = await context.json();
-              throw new Error(errBody?.error ?? error.message);
-            } catch { throw error; }
-          }
-          throw error;
-        }
-      }
-
-      // Junta todos os places removendo duplicatas pelo place_id
-      const allPlaces: RadarPlace[] = [];
-      const seen = new Set<string>();
-      for (const { data } of results) {
-        if (data?.error) throw new Error(data.error);
-        for (const place of (data?.places ?? []) as RadarPlace[]) {
-          if (!seen.has(place.place_id)) {
-            seen.add(place.place_id);
-            allPlaces.push(place);
-          }
-        }
-        if (data?.city && data?.state) {
-          setResolvedLocation({ city: data.city, state: data.state });
-        }
-      }
-
-      // Source: cache se todos vieram do cache, senão google
-      const sources = results.map(r => r.data?.source);
-      setSource(sources.every(s => s === "cache") ? "cache" : "google");
+      setSource(data?.source ?? "google");
 
       if (locked) {
         setLockedCount(allPlaces.length);
@@ -459,7 +393,7 @@ export default function BacksRadar() {
                       type="button"
                       onClick={() => setCategories(prev =>
                         prev.includes(key)
-                          ? prev.length > 1 ? prev.filter(c => c !== key) : prev // mínimo 1
+                          ? prev.filter(c => c !== key)
                           : [...prev, key]
                       )}
                       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
@@ -601,6 +535,12 @@ export default function BacksRadar() {
                       <p className="flex items-start gap-1.5">
                         <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary/60" />
                         {place.address}
+                      </p>
+                    )}
+                    {place.distance_km != null && (
+                      <p className="flex items-center gap-1.5">
+                        <Navigation className="h-3.5 w-3.5 shrink-0 text-primary/60" />
+                        {place.distance_km.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} km do CEP configurado
                       </p>
                     )}
                     {place.phone && (
