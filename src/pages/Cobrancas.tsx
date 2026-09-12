@@ -10,12 +10,19 @@ import { useClients } from "@/hooks/useClients";
 import { normalizeShowStatus } from "@/lib/showStatus";
 import { formatDateBR, parseLocalDate } from "@/lib/utils";
 
-const CHARGEABLE_STATUSES = new Set(["negotiation", "pending", "partial"]);
+// Status cobráveis: shows passados que ainda têm valor a receber
+// confirmed = show confirmado mas pagamento pendente (status mais comum)
+// pending = pagamento pendente
+// negotiation = em negociação
+// partial = pagamento parcial (saldo restante)
+const CHARGEABLE_STATUSES = new Set(["confirmed", "negotiation", "pending", "partial", "scheduled"]);
 
 const STATUS_INFO: Record<string, { label: string; className: string }> = {
-  negotiation: { label: "Em negociação", className: "bg-amber-100 text-amber-700 border-amber-200" },
-  pending: { label: "Pagamento pendente", className: "bg-orange-100 text-orange-700 border-orange-200" },
-  partial: { label: "Pagamento parcial", className: "bg-blue-100 text-blue-700 border-blue-200" },
+  confirmed:   { label: "Pagamento pendente", className: "bg-orange-100 text-orange-700 border-orange-200" },
+  scheduled:   { label: "Pagamento pendente", className: "bg-orange-100 text-orange-700 border-orange-200" },
+  negotiation: { label: "Em negociação",      className: "bg-amber-100 text-amber-700 border-amber-200" },
+  pending:     { label: "Pagamento pendente", className: "bg-orange-100 text-orange-700 border-orange-200" },
+  partial:     { label: "Pagamento parcial",  className: "bg-blue-100 text-blue-700 border-blue-200" },
 };
 
 const formatBRL = (value: number) =>
@@ -82,7 +89,8 @@ export default function Cobrancas() {
         };
       })
       .filter((charge) => charge.amount > 0)
-      .sort((a, b) => (a.dueDate < b.dueDate ? 1 : a.dueDate > b.dueDate ? -1 : 0));
+      // Mais atrasadas no topo (ordem crescente de dueDate = mais antiga primeiro)
+      .sort((a, b) => (a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0));
   }, [shows, clients]);
 
   const filtered = useMemo(() => {
