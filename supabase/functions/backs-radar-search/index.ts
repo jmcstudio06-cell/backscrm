@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { z } from "npm:zod@3";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 const CACHE_DAYS = 7;
+const PAGE_SIZE = 20;
+
 const CATEGORIES: Record<string, string> = {
   bares: "bares com música ao vivo",
   restaurantes: "restaurantes com música ao vivo",
@@ -14,56 +15,22 @@ const CATEGORIES: Record<string, string> = {
   buffets: "buffets e espaços para festas",
 };
 
-const BodySchema = z.object({
-  cep: z.string().regex(/^\d{8}$/),
-  city: z.string().trim().min(2).max(120),
-  state: z.string().trim().length(2).transform((value) => value.toUpperCase()),
-  radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
-  categories: z.array(z.enum([
-    "bares",
-    "restaurantes",
-    "hoteis",
-    "casas_noturnas",
-    "casas_de_show",
-    "buffets",
-  ])).min(1).max(6),
-});
-
-type RawPlace = {
-  id?: string;
-  displayName?: { text?: string };
-  formattedAddress?: string;
-  nationalPhoneNumber?: string;
-  websiteUri?: string;
-  rating?: number;
-  userRatingCount?: number;
-  primaryTypeDisplayName?: { text?: string };
-  googleMapsUri?: string;
-  location?: { latitude?: number; longitude?: number };
-};
-
-const toRad = (value: number) => (value * Math.PI) / 180;
-
-function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number) {
-  const earthRadius = 6371000;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a = Math.sin(dLat / 2) ** 2
-    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-async function providerError(response: Response) {
-  const body = await response.text();
-  console.error(`Google Maps request failed [${response.status}]: ${body}`);
-  return { status: response.status, body };
-}
-
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000;
+  const toRad = (v: number) => (v * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 serve(async (req) => {
@@ -92,161 +59,172 @@ serve(async (req) => {
     );
     if (userError || !user) return json({ error: "Unauthorized" }, 401);
 
-    const parsed = BodySchema.safeParse(await req.json().catch(() => ({})));
-    if (!parsed.success) {
-      return json({ error: "Preencha um CEP, raio e ao menos uma categoria válidos." }, 400);
+    const body = await req.json().catch(() => ({}));
+
+    const lat      = Number(body.lat);
+    const lng      = Number(body.lng);
+    const city     = String(body.city ?? "").trim();
+    const state    = String(body.state ?? "").trim().toUpperCase();
+    const radiusKm = Number(body.radius_km ?? 25);
+    const category = String(body.category ?? "").trim();
+    const refresh  = body.refresh === true;
+
+    const VALID_RADII = [10, 25, 50, 100];
+    const radius         = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
+    const radiusMeters   = radius * 1000;
+    // Busca com raio 20% maior para não perder lugares na borda do raio
+    const searchMeters   = Math.round(radiusMeters * 1.2);
+
+    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+      return json({ error: "Coordenadas inválidas. Tente novamente." }, 400);
     }
-    const { cep, city, state, radius_km: radius, categories } = parsed.data;
-    const radiusMeters = radius * 1000;
+    if (!city || city.length < 2)     return json({ error: "Cidade não informada." }, 400);
+    if (!state || state.length !== 2) return json({ error: "Estado não informado." }, 400);
+    if (!CATEGORIES[category])        return json({ error: "Categoria inválida." }, 400);
 
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
     const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString();
-    const cacheKey = `${cep}:${radius}`;
+
+    // Cache
+    if (!refresh) {
+      const { data: cached } = await admin
+        .from("radar_places")
+        .select("*")
+        .eq("state", state)
+        .ilike("city", city)
+        .eq("category", category)
+        .gte("fetched_at", cutoff)
+        .not("phone", "is", null)
+        .order("rating_count", { ascending: false })
+        .limit(60);
+
+      if (cached && cached.length > 0) {
+        console.log(`Cache hit: ${city}/${state}/${category} (${cached.length})`);
+        return json({ places: cached, source: "cache", city, state, lat, lng, radius });
+      }
+    }
 
     if (!lovableKey || !mapsKey) {
-      return json({ error: "Integração do Google Maps não configurada. Entre em contato com o suporte." }, 500);
+      return json({ error: "Integração do Google Maps não configurada." }, 500);
     }
 
-    const geocodeParams = new URLSearchParams({
-      address: `${cep}, Brasil`,
-      components: `postal_code:${cep}|country:BR`,
-      language: "pt-BR",
-      region: "br",
-    });
-    const geocodeResponse = await fetch(`${GATEWAY_URL}/maps/api/geocode/json?${geocodeParams}`, {
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": mapsKey,
-      },
-    });
-    if (!geocodeResponse.ok) {
-      const failure = await providerError(geocodeResponse);
-      return json({ error: "Não foi possível localizar o CEP no Google Maps.", details: failure.body }, failure.status);
-    }
-    const geocode = await geocodeResponse.json();
-    const location = geocode.results?.[0]?.geometry?.location;
-    const lat = Number(location?.lat);
-    const lng = Number(location?.lng);
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      return json({ error: "CEP não localizado no Google Maps." }, 400);
-    }
+    console.log(`Google Places: "${CATEGORIES[category]}" @ (${lat.toFixed(4)},${lng.toFixed(4)}) bias=${searchMeters}m filter=${radiusMeters}m`);
 
-    const { data: cached } = await admin
-      .from("radar_places")
-      .select("*")
-      .eq("cache_key", cacheKey)
-      .in("category", categories)
-      .gte("fetched_at", cutoff)
-      .not("phone", "is", null)
-      .order("rating_count", { ascending: false });
+    // Busca até 3 páginas usando locationBias (sugestão, não restrição)
+    // Depois filtramos com haversine para garantir o raio
+    const allRaw: any[] = [];
+    let pageToken: string | undefined;
 
-    const cachedCategories = new Set((cached ?? []).map((place) => place.category));
-    if (cached && categories.every((category) => cachedCategories.has(category))) {
-      const strictCached = cached
-        .filter((place) => place.lat != null && place.lng != null)
-        .map((place) => ({
-          ...place,
-          distance_km: distanceMeters(lat, lng, Number(place.lat), Number(place.lng)) / 1000,
-        }))
-        .filter((place) => place.distance_km <= radius)
-        .sort((a, b) => a.distance_km - b.distance_km);
-      return json({ places: strictCached, source: "cache", city, state, lat, lng, radius });
-    }
-
-    const collected = new Map<string, RawPlace & { category: string }>();
-    for (const category of categories) {
-      let pageToken: string | undefined;
-      do {
-        const requestBody: Record<string, unknown> = {
-          textQuery: CATEGORIES[category],
-          languageCode: "pt-BR",
-          regionCode: "BR",
-          pageSize: 20,
-          locationRestriction: {
-            circle: { center: { latitude: lat, longitude: lng }, radius: radiusMeters },
+    for (let page = 0; page < 3; page++) {
+      const reqBody: Record<string, any> = {
+        textQuery: CATEGORIES[category],
+        languageCode: "pt-BR",
+        regionCode: "BR",
+        maxResultCount: PAGE_SIZE,
+        locationBias: {
+          circle: {
+            center: { latitude: lat, longitude: lng },
+            radius: searchMeters,
           },
-        };
-        if (pageToken) requestBody.pageToken = pageToken;
+        },
+      };
+      if (pageToken) reqBody.pageToken = pageToken;
 
-        const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${lovableKey}`,
-            "X-Connection-Api-Key": mapsKey,
-            "Content-Type": "application/json",
-            "X-Goog-FieldMask": [
-              "places.id", "places.displayName", "places.formattedAddress",
-              "places.nationalPhoneNumber", "places.websiteUri", "places.rating",
-              "places.userRatingCount", "places.primaryTypeDisplayName",
-              "places.googleMapsUri", "places.location", "nextPageToken",
-            ].join(","),
-          },
-          body: JSON.stringify(requestBody),
-        });
-        if (!response.ok) {
-          const failure = await providerError(response);
-          if (failure.status === 403) {
-            return json({ error: "A busca no Google Maps foi recusada. Verifique as permissões da chave para Geocoding e Places.", details: failure.body }, 403);
-          }
-          return json({ error: "O Google Maps não conseguiu concluir a busca.", details: failure.body }, failure.status);
-        }
+      const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": mapsKey,
+          "Content-Type": "application/json",
+          "X-Goog-FieldMask": [
+            "places.id",
+            "places.displayName",
+            "places.formattedAddress",
+            "places.nationalPhoneNumber",
+            "places.websiteUri",
+            "places.rating",
+            "places.userRatingCount",
+            "places.primaryTypeDisplayName",
+            "places.googleMapsUri",
+            "places.location",
+            "nextPageToken",
+          ].join(","),
+        },
+        body: JSON.stringify(reqBody),
+      });
 
-        const result = await response.json();
-        for (const place of (result.places ?? []) as RawPlace[]) {
-          if (place.id && !collected.has(place.id)) collected.set(place.id, { ...place, category });
-        }
-        pageToken = result.nextPageToken;
-        if (pageToken) await new Promise((resolve) => setTimeout(resolve, 500));
-      } while (pageToken);
+      if (res.status === 403) {
+        const errBody = await res.json().catch(() => ({}));
+        const reason = (errBody?.error?.details ?? []).find((d: any) => d.reason)?.reason;
+        if (reason === "API_KEY_HTTP_REFERRER_BLOCKED") return json({ error: "Chave do Google Maps restrita por domínio." }, 403);
+        if (reason === "API_KEY_SERVICE_BLOCKED") return json({ error: "Chave do Google Maps não permite API de Places." }, 403);
+        return json({ error: "Busca no Google Maps recusada (403)." }, 403);
+      }
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error(`Places failed [${res.status}]: ${errText}`);
+        break;
+      }
+
+      const result = await res.json();
+      const pagePlaces = (result.places ?? []) as any[];
+      allRaw.push(...pagePlaces);
+      pageToken = result.nextPageToken;
+
+      console.log(`Página ${page + 1}: ${pagePlaces.length} resultados, próxima=${!!pageToken}`);
+
+      if (!pageToken) break;
+      await new Promise(r => setTimeout(r, 500));
     }
 
-    const rows = [...collected.values()]
-      .filter((place) => {
-        const placeLat = Number(place.location?.latitude);
-        const placeLng = Number(place.location?.longitude);
-        return Boolean(place.nationalPhoneNumber)
-          && Number.isFinite(placeLat)
-          && Number.isFinite(placeLng)
-          && distanceMeters(lat, lng, placeLat, placeLng) <= radiusMeters;
-      })
-      .map((place) => {
-        const placeLat = Number(place.location?.latitude);
-        const placeLng = Number(place.location?.longitude);
-        return {
-          place_id: place.id,
-          state,
-          city,
-          category: place.category,
-          name: place.displayName?.text ?? "Sem nome",
-          address: place.formattedAddress ?? null,
-          phone: place.nationalPhoneNumber ?? null,
-          website: place.websiteUri ?? null,
-          rating: place.rating ?? null,
-          rating_count: place.userRatingCount ?? null,
-          place_type: place.primaryTypeDisplayName?.text ?? null,
-          maps_uri: place.googleMapsUri ?? null,
-          cache_key: cacheKey,
-          lat: placeLat,
-          lng: placeLng,
-          distance_km: distanceMeters(lat, lng, placeLat, placeLng) / 1000,
-          fetched_at: new Date().toISOString(),
-        };
-      })
-      .sort((a, b) => a.distance_km - b.distance_km);
+    console.log(`Total bruto: ${allRaw.length}`);
+
+    // Filtro 1: apenas com telefone
+    const withPhone = allRaw.filter(p => !!p.nationalPhoneNumber);
+    console.log(`Com telefone: ${withPhone.length}`);
+
+    // Filtro 2: haversine — remove resultados longe demais
+    // Se o place não tem coordenadas, mantém (veio pelo bias, provavelmente está perto)
+    const inRadius = withPhone.filter(p => {
+      const pLat = p.location?.latitude;
+      const pLng = p.location?.longitude;
+      if (!pLat || !pLng) return true;
+      return haversine(lat, lng, pLat, pLng) <= radiusMeters;
+    });
+
+    console.log(`Dentro de ${radius}km: ${inRadius.length}`);
+
+    const rows = inRadius.map(p => ({
+      place_id:     p.id,
+      state,
+      city,
+      category,
+      name:         p.displayName?.text ?? "Sem nome",
+      address:      p.formattedAddress ?? null,
+      phone:        p.nationalPhoneNumber ?? null,
+      website:      p.websiteUri ?? null,
+      rating:       p.rating ?? null,
+      rating_count: p.userRatingCount ?? null,
+      place_type:   p.primaryTypeDisplayName?.text ?? null,
+      maps_uri:     p.googleMapsUri ?? null,
+      fetched_at:   new Date().toISOString(),
+    }));
 
     if (rows.length > 0) {
       const { error: upsertErr } = await admin
         .from("radar_places")
-        .upsert(rows.map(({ distance_km: _distance, ...row }) => row), { onConflict: "place_id,category" });
+        .upsert(rows, { onConflict: "place_id,category" });
       if (upsertErr) console.error("Cache upsert failed:", upsertErr.message);
     }
 
     return json({ places: rows, source: "google", city, state, lat, lng, radius });
+
   } catch (err) {
     console.error("backs-radar-search error:", err);
-    return json({ error: err instanceof Error ? err.message : "Erro inesperado no servidor" }, 500);
+    return json({ error: err instanceof Error ? err.message : "Erro inesperado" }, 500);
   }
 });
