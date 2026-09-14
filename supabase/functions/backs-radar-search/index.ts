@@ -1,28 +1,37 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { z } from "npm:zod@3";
 
-/**
- * backs-radar-search v3 — OpenStreetMap + PostGIS
- *
- * Não usa mais Google Maps API.
- * Busca diretamente na tabela radar_places via função PostGIS search_radar_places().
- * Os dados são populados pelo script scripts/import-osm-radar.ts.
- *
- * Se não houver dados OSM suficientes para a região (< 3 resultados),
- * faz fallback para o Google Maps como complemento.
- */
+const CATEGORIES = [
+  "bares",
+  "restaurantes",
+  "hoteis",
+  "casas_noturnas",
+  "casas_de_show",
+  "buffets",
+] as const;
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
-const MIN_OSM_RESULTS = 3; // abaixo disso tenta complementar com Google
+const BodySchema = z.object({
+  cep: z.string().regex(/^\d{8}$/),
+  city: z.string().trim().min(2).max(120),
+  state: z.string().trim().length(2).transform((value) => value.toUpperCase()),
+  radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
+  categories: z.array(z.enum(CATEGORIES)).min(1).max(CATEGORIES.length),
+});
 
-const CATEGORIES: Record<string, string> = {
-  bares: "bares com música ao vivo",
-  restaurantes: "restaurantes com música ao vivo",
-  hoteis: "hotéis e resorts com eventos",
-  casas_noturnas: "casas noturnas e boates",
-  casas_de_show: "casas de show e espaços de eventos",
-  buffets: "buffets e espaços para festas",
+type CepLocation = {
+  city: string;
+  state: string;
+  lat: number;
+  lng: number;
+};
+
+type StoredPlace = {
+  id: string;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
 };
 
 function json(body: unknown, status = 200) {
@@ -32,137 +41,80 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371000;
-  const toRad = (v: number) => (v * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+function extractCep(address: string | null) {
+  return address?.match(/\b\d{5}-?\d{3}\b/)?.[0]?.replace(/\D/g, "") ?? null;
 }
 
-// ── Busca OSM via PostGIS ────────────────────────────────────
-async function searchPostGIS(
-  admin: any,
-  lat: number,
-  lng: number,
-  radiusMeters: number,
-  categories: string[]
-) {
-  const { data, error } = await admin.rpc("search_radar_places", {
-    p_lat: lat,
-    p_lng: lng,
-    p_radius_m: radiusMeters,
-    p_categories: categories,
+async function locateCep(cep: string): Promise<CepLocation | null> {
+  const response = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`, {
+    headers: { Accept: "application/json" },
   });
+  if (!response.ok) return null;
 
-  if (error) {
-    console.error("PostGIS search error:", error.message);
-    return [];
-  }
+  const data = await response.json();
+  const lat = Number(data?.location?.coordinates?.latitude);
+  const lng = Number(data?.location?.coordinates?.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !data?.city || !data?.state) return null;
 
-  return (data || []) as any[];
+  return { city: data.city, state: data.state, lat, lng };
 }
 
-// ── Fallback Google Maps ─────────────────────────────────────
-async function searchGoogle(
-  lovableKey: string,
-  mapsKey: string,
-  lat: number,
-  lng: number,
-  radiusMeters: number,
-  category: string
-): Promise<any[]> {
-  const searchMeters = Math.round(radiusMeters * 1.2);
-  const allRaw: any[] = [];
-  let pageToken: string | undefined;
+async function enrichStoredPlaces(admin: ReturnType<typeof createClient>) {
+  const places: StoredPlace[] = [];
+  const pageSize = 1000;
 
-  for (let page = 0; page < 2; page++) {
-    const reqBody: Record<string, any> = {
-      textQuery: CATEGORIES[category],
-      languageCode: "pt-BR",
-      regionCode: "BR",
-      maxResultCount: 20,
-      locationBias: {
-        circle: { center: { latitude: lat, longitude: lng }, radius: searchMeters },
-      },
-    };
-    if (pageToken) reqBody.pageToken = pageToken;
-
-    const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": mapsKey,
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask": [
-          "places.id", "places.displayName", "places.formattedAddress",
-          "places.nationalPhoneNumber", "places.websiteUri",
-          "places.rating", "places.userRatingCount",
-          "places.primaryTypeDisplayName", "places.googleMapsUri",
-          "places.location", "nextPageToken",
-        ].join(","),
-      },
-      body: JSON.stringify(reqBody),
-    });
-
-    if (!res.ok) break;
-
-    const result = await res.json();
-    allRaw.push(...(result.places ?? []));
-    pageToken = result.nextPageToken;
-    if (!pageToken) break;
-    await new Promise(r => setTimeout(r, 500));
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await admin
+      .from("radar_places")
+      .select("id,address,lat,lng")
+      .or("lat.is.null,lng.is.null")
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+    places.push(...((data ?? []) as StoredPlace[]));
+    if (!data || data.length < pageSize) break;
   }
 
-  // Filtra: só com telefone + dentro do raio
-  return allRaw
-    .filter(p => !!p.nationalPhoneNumber)
-    .filter(p => {
-      const pLat = p.location?.latitude;
-      const pLng = p.location?.longitude;
-      if (!pLat || !pLng) return true;
-      return haversine(lat, lng, pLat, pLng) <= radiusMeters;
-    })
-    .map(p => ({
-      place_id:     `google_${p.id}`,
-      osm_id:       null,
-      state:        "",
-      city:         "",
-      category,
-      name:         p.displayName?.text ?? "Sem nome",
-      address:      p.formattedAddress ?? null,
-      phone:        p.nationalPhoneNumber ?? null,
-      website:      p.websiteUri ?? null,
-      rating:       p.rating ?? null,
-      rating_count: p.userRatingCount ?? null,
-      place_type:   p.primaryTypeDisplayName?.text ?? null,
-      maps_uri:     p.googleMapsUri ?? null,
-      lat:          p.location?.latitude ?? null,
-      lng:          p.location?.longitude ?? null,
-      source:       "google",
-      distance_m:   p.location?.latitude
-        ? haversine(lat, lng, p.location.latitude, p.location.longitude)
-        : null,
+  const byCep = new Map<string, StoredPlace[]>();
+  for (const place of places) {
+    const cep = extractCep(place.address);
+    if (!cep) continue;
+    const matches = byCep.get(cep) ?? [];
+    matches.push(place);
+    byCep.set(cep, matches);
+  }
+
+  const entries = [...byCep.entries()];
+  const concurrency = 12;
+  for (let index = 0; index < entries.length; index += concurrency) {
+    const batch = entries.slice(index, index + concurrency);
+    await Promise.all(batch.map(async ([cep, matchingPlaces]) => {
+      const location = await locateCep(cep);
+      if (!location) return;
+      const ids = matchingPlaces.map(({ id }) => id);
+      const { error } = await admin
+        .from("radar_places")
+        .update({
+          city: location.city,
+          state: location.state,
+          lat: location.lat,
+          lng: location.lng,
+          source: "base_propria",
+        })
+        .in("id", ids);
+      if (error) console.error(`Failed to locate stored CEP ${cep}:`, error.message);
     }));
+  }
 }
 
-// ── Handler principal ────────────────────────────────────────
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey     = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const lovableKey  = Deno.env.get("LOVABLE_API_KEY");
-    const mapsKey     = Deno.env.get("GOOGLE_MAPS_API_KEY");
-
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const authHeader = req.headers.get("Authorization");
+
     if (!authHeader?.startsWith("Bearer ")) {
       return json({ error: "Missing authorization header" }, 401);
     }
@@ -172,118 +124,49 @@ serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: { user }, error: userError } = await userClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
+      authHeader.replace("Bearer ", ""),
     );
     if (userError || !user) return json({ error: "Unauthorized" }, 401);
 
-    const body = await req.json().catch(() => ({}));
-
-    const lat        = Number(body.lat);
-    const lng        = Number(body.lng);
-    const city       = String(body.city ?? "").trim();
-    const state      = String(body.state ?? "").trim().toUpperCase();
-    const radiusKm   = Number(body.radius_km ?? 25);
-    // Aceita string (categoria única) ou array (múltiplas categorias)
-    const rawCat     = body.category;
-    const categories: string[] = Array.isArray(rawCat)
-      ? rawCat.map(String)
-      : [String(rawCat ?? "bares")];
-
-    const VALID_RADII  = [10, 25, 50, 100];
-    const radius       = VALID_RADII.includes(radiusKm) ? radiusKm : 25;
-    const radiusMeters = radius * 1000;
-
-    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-      return json({ error: "Coordenadas inválidas." }, 400);
+    const parsed = BodySchema.safeParse(await req.json().catch(() => ({})));
+    if (!parsed.success) {
+      return json({ error: "Preencha um CEP, raio e ao menos uma categoria válidos." }, 400);
     }
-    if (!city || city.length < 2)     return json({ error: "Cidade não informada." }, 400);
-    if (!state || state.length !== 2) return json({ error: "Estado não informado." }, 400);
 
-    const invalidCats = categories.filter(c => !CATEGORIES[c]);
-    if (invalidCats.length) {
-      return json({ error: `Categoria(s) inválida(s): ${invalidCats.join(", ")}` }, 400);
-    }
+    const { cep, radius_km: radius, categories } = parsed.data;
+    const origin = await locateCep(cep);
+    if (!origin) return json({ error: "Não foi possível localizar esse CEP." }, 400);
 
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    console.log(`Backs Radar OSM: lat=${lat},lng=${lng} r=${radius}km cats=${categories.join(",")}`);
+    await enrichStoredPlaces(admin);
 
-    // ── 1. Busca no banco OSM via PostGIS ─────────────────────
-    const osmResults = await searchPostGIS(admin, lat, lng, radiusMeters, categories);
-    console.log(`PostGIS: ${osmResults.length} resultados`);
+    const { data, error } = await admin.rpc("search_radar_places", {
+      p_lat: origin.lat,
+      p_lng: origin.lng,
+      p_radius_m: radius * 1000,
+      p_categories: categories,
+    });
+    if (error) throw error;
 
-    let allResults = osmResults;
-    let source = "osm";
-
-    // ── 2. Fallback Google se OSM tiver poucos dados ──────────
-    if (osmResults.length < MIN_OSM_RESULTS && lovableKey && mapsKey) {
-      console.log(`OSM insuficiente (${osmResults.length} < ${MIN_OSM_RESULTS}), complementando com Google...`);
-
-      const seen = new Set(osmResults.map((r: any) => r.place_id));
-
-      for (const cat of categories) {
-        const googleResults = await searchGoogle(lovableKey, mapsKey, lat, lng, radiusMeters, cat);
-
-        // Salva resultados Google no banco para futuras buscas (aprendizado)
-        const toSave = googleResults
-          .filter(r => r.lat && r.lng)
-          .map(r => ({
-            place_id:     r.place_id,
-            state,
-            city,
-            category:     cat,
-            name:         r.name,
-            address:      r.address,
-            phone:        r.phone,
-            website:      r.website,
-            rating:       r.rating,
-            rating_count: r.rating_count,
-            place_type:   r.place_type,
-            maps_uri:     r.maps_uri,
-            lat:          r.lat,
-            lng:          r.lng,
-            source:       "google",
-            fetched_at:   new Date().toISOString(),
-          }));
-
-        if (toSave.length > 0) {
-          await admin.from("radar_places")
-            .upsert(toSave, { onConflict: "place_id,category" });
-          console.log(`Google: salvou ${toSave.length} no banco para ${cat}`);
-        }
-
-        // Adiciona ao resultado sem duplicar
-        for (const r of googleResults) {
-          if (!seen.has(r.place_id)) {
-            seen.add(r.place_id);
-            allResults.push(r);
-          }
-        }
-      }
-
-      source = osmResults.length > 0 ? "osm+google" : "google";
-    }
-
-    // Ordena por distância
-    allResults.sort((a: any, b: any) => (a.distance_m ?? 0) - (b.distance_m ?? 0));
-
-    console.log(`Total final: ${allResults.length} (source=${source})`);
+    const places = (data ?? []).map((place: Record<string, unknown>) => ({
+      ...place,
+      distance_km: Number(place.distance_m) / 1000,
+    }));
 
     return json({
-      places: allResults,
-      source,
-      city,
-      state,
-      lat,
-      lng,
+      places,
+      source: "base_propria",
+      city: origin.city,
+      state: origin.state,
+      lat: origin.lat,
+      lng: origin.lng,
       radius,
-      total: allResults.length,
     });
-
-  } catch (err) {
-    console.error("backs-radar-search error:", err);
-    return json({ error: err instanceof Error ? err.message : "Erro inesperado" }, 500);
+  } catch (error) {
+    console.error("backs-radar-search error:", error);
+    return json({ error: error instanceof Error ? error.message : "Erro inesperado no servidor" }, 500);
   }
 });
