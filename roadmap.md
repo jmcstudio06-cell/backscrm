@@ -1,7 +1,8 @@
 # Roadmap
 
-- [ ] Centralizar o Backs Radar nas coordenadas validadas do CEP.
-- [ ] Aplicar o raio estritamente e impedir cache de outra região/raio.
+- [ ] Remover a dependência do Google Maps nas buscas do Backs Radar.
+- [ ] Usar a base própria de oportunidades já armazenadas.
+- [ ] Filtrar contatos exatamente por CEP/região, raio e categorias selecionadas.
 - [ ] Selecionar todas as categorias inicialmente e permitir removê-las.
-- [ ] Ampliar a cobertura das oportunidades sem cortes adicionais do app.
-- [ ] Publicar e validar a busca do Backs Radar.
+- [ ] Exibir todos os resultados armazenados, sem corte de 1.000 registros.
+- [ ] Validar a busca do Backs Radar e o bloqueio do plano Executivo.
