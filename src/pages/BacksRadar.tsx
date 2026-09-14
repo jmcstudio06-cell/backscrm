@@ -206,7 +206,7 @@ export default function BacksRadar() {
       if (data?.city && data?.state) {
         setResolvedLocation({ city: data.city, state: data.state });
       }
-      setSource(data?.source ?? "google");
+      setSource(data?.source ?? "base_propria");
 
       if (locked) {
         setLockedCount(allPlaces.length);
@@ -236,7 +236,6 @@ export default function BacksRadar() {
     const notes = [
       place.address ? `Endereço: ${place.address}` : null,
       place.website ? `Site: ${place.website}` : null,
-      place.maps_uri ? `Google Maps: ${place.maps_uri}` : null,
       resolvedLocation
         ? `Origem: Backs Radar (${categoryLabels} — ${resolvedLocation.city}/${resolvedLocation.state}, raio ${radius}km)`
         : `Origem: Backs Radar (${categoryLabels}, raio ${radius}km)`,
@@ -498,9 +497,9 @@ export default function BacksRadar() {
                   ? ` em ${resolvedLocation.city}/${resolvedLocation.state}`
                   : ""}{" "}
                 — raio de {radius}km
-                {source === "cache" && (
+                {source === "base_propria" && (
                   <span className="ml-1.5 text-[11px] bg-muted px-1.5 py-0.5 rounded-full font-medium">
-                    cache
+                    Base Backs Radar
                   </span>
                 )}
               </span>
@@ -574,17 +573,6 @@ export default function BacksRadar() {
                       >
                         <MessageCircle className="h-3.5 w-3.5" />
                         WhatsApp
-                      </a>
-                    )}
-                    {place.maps_uri && (
-                      <a
-                        href={place.maps_uri}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-500/20 transition-colors"
-                      >
-                        <MapPin className="h-3.5 w-3.5" />
-                        Mapa
                       </a>
                     )}
                     <button
