@@ -53,6 +53,8 @@ const CATEGORIES = [
   { key: "casas_de_show", label: "Casas de show", icon: Mic2 },
 ];
 
+const CATEGORY_KEYS = new Set(CATEGORIES.map(({ key }) => key));
+
 const RADII = [
   { km: 10, label: "10 km" },
   { km: 25, label: "25 km" },
@@ -170,7 +172,8 @@ export default function BacksRadar() {
   const canSearch = activeCep.length === 8 && !!resolvedLocation && categories.length > 0;
 
   const search = async () => {
-    if (!canSearch) {
+    const validCategories = categories.filter((category) => CATEGORY_KEYS.has(category));
+    if (!canSearch || validCategories.length === 0) {
       toast.error("Configure seu CEP antes de pesquisar");
       return;
     }
@@ -186,7 +189,7 @@ export default function BacksRadar() {
           city: resolvedLocation?.city ?? "",
           state: resolvedLocation?.state ?? "",
           radius_km: radius,
-          categories,
+          categories: validCategories,
         },
       });
 
