@@ -5,4 +5,4 @@
 - [x] Filtrar contatos exatamente por CEP/região, raio e categorias selecionadas.
 - [x] Selecionar todas as categorias inicialmente e permitir removê-las.
 - [x] Exibir todos os resultados armazenados, sem corte de 1.000 registros.
-- [ ] Validar a busca do Backs Radar e o bloqueio do plano Executivo.
+- [x] Validar a busca do Backs Radar e o bloqueio do plano Executivo.
