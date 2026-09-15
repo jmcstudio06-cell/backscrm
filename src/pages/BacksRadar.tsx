@@ -25,7 +25,6 @@ import {
   Hotel,
   Disc3,
   Mic2,
-  PartyPopper,
   Lock,
   Crown,
   Navigation,
@@ -52,7 +51,6 @@ const CATEGORIES = [
   { key: "hoteis", label: "Hotéis", icon: Hotel },
   { key: "casas_noturnas", label: "Casas noturnas", icon: Disc3 },
   { key: "casas_de_show", label: "Casas de show", icon: Mic2 },
-  { key: "buffets", label: "Buffets e eventos", icon: PartyPopper },
 ];
 
 const RADII = [
