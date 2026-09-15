@@ -9,7 +9,6 @@ const CATEGORIES = [
   "hoteis",
   "casas_noturnas",
   "casas_de_show",
-  "buffets",
 ] as const;
 
 const BodySchema = z.object({
