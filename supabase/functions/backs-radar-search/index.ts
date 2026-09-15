@@ -11,12 +11,16 @@ const CATEGORIES = [
   "casas_de_show",
 ] as const;
 
+const CATEGORY_SET = new Set<string>(CATEGORIES);
+
 const BodySchema = z.object({
   cep: z.string().regex(/^\d{8}$/),
-  city: z.string().trim().min(2).max(120),
-  state: z.string().trim().length(2).transform((value) => value.toUpperCase()),
+  city: z.string().trim().max(120).optional(),
+  state: z.string().trim().max(2).optional(),
   radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
-  categories: z.array(z.enum(CATEGORIES)).min(1).max(CATEGORIES.length),
+  categories: z.array(z.string().max(40)).max(12)
+    .transform((values) => [...new Set(values.filter((value) => CATEGORY_SET.has(value)))])
+    .refine((values) => values.length > 0),
 });
 
 type CepLocation = {
