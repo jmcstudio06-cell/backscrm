@@ -1,7 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 const CATEGORIES = [
   "bares",
@@ -18,9 +22,14 @@ const BodySchema = z.object({
   city: z.string().trim().max(120).optional(),
   state: z.string().trim().max(2).optional(),
   radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
-  categories: z.array(z.string().max(40)).max(12)
-    .transform((values) => [...new Set(values.filter((value) => CATEGORY_SET.has(value)))])
-    .refine((values) => values.length > 0),
+  categories: z.array(z.string().max(40)).max(12).optional(),
+  category: z.string().max(40).optional(),
+}).transform((body) => ({
+  ...body,
+  categories: [...new Set((body.categories ?? (body.category ? [body.category] : []))
+    .filter((value) => CATEGORY_SET.has(value)))],
+})).refine((body) => body.categories.length > 0, {
+  path: ["categories"],
 });
 
 type CepLocation = {
