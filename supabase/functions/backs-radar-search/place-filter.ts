@@ -41,6 +41,17 @@ const BAR_TERMS = [
   "lounge",
 ];
 
+const BAR_PLACE_TYPES = [
+  "bar",
+  "bares",
+  "bar e grill",
+  "lounge bar",
+  "cervejaria",
+  "choperia",
+  "pub",
+  "gastrobar",
+];
+
 const NIGHTLIFE_TERMS = [
   "casa noturna",
   "boate",
@@ -73,19 +84,21 @@ export function isMusicOpportunity(place: RadarPlaceCandidate): boolean {
   if (!name || includesAny(searchable, EXCLUDED_TERMS)) return false;
 
   if (category === "bares") {
-    return includesAny(searchable, BAR_TERMS);
+    return BAR_PLACE_TYPES.includes(placeType);
   }
 
   if (category === "casas noturnas") {
-    return includesAny(searchable, NIGHTLIFE_TERMS);
+    return placeType === "casa noturna" || includesAny(placeType, NIGHTLIFE_TERMS);
   }
 
   if (category === "restaurantes") {
-    return includesAny(searchable, LIVE_MUSIC_TERMS) || includesAny(searchable, BAR_TERMS);
+    const isRestaurant = placeType.includes("restaurante") || placeType === "bistro" || placeType === "churrascaria";
+    return isRestaurant && includesAny(name, LIVE_MUSIC_TERMS);
   }
 
   if (category === "hoteis") {
-    return includesAny(searchable, LIVE_MUSIC_TERMS);
+    const isHotel = placeType.includes("hotel") || placeType === "resort";
+    return isHotel && includesAny(name, LIVE_MUSIC_TERMS);
   }
 
   if (category === "casas de show") {

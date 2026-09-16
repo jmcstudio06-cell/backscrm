@@ -12,6 +12,15 @@ Deno.test("exclui espaços de festas, eventos e lojas", () => {
   for (const place of invalidPlaces) assertEquals(isMusicOpportunity(place), false);
 });
 
+Deno.test("filtro de bares não aceita restaurantes e hamburguerias cadastrados incorretamente", () => {
+  const wrongBarPlaces = [
+    { category: "bares", name: "Restaurante Essência do Vale", place_type: "Restaurante" },
+    { category: "bares", name: "Snack bar crz", place_type: "Hamburgueria" },
+  ];
+
+  for (const place of wrongBarPlaces) assertEquals(isMusicOpportunity(place), false);
+});
+
 Deno.test("mantém locais com oportunidade clara para música", () => {
   const validPlaces = [
     { category: "bares", name: "Ferreira Lounge Bar", place_type: "Lounge bar" },
