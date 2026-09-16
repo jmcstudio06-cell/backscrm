@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
+import { isMusicOpportunity } from "./place-filter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -163,10 +164,12 @@ serve(async (req) => {
     });
     if (error) throw error;
 
-    const places = (data ?? []).map((place: Record<string, unknown>) => ({
-      ...place,
-      distance_km: Number(place.distance_m) / 1000,
-    }));
+    const places = (data ?? [])
+      .filter((place: Record<string, unknown>) => isMusicOpportunity(place))
+      .map((place: Record<string, unknown>) => ({
+        ...place,
+        distance_km: Number(place.distance_m) / 1000,
+      }));
 
     return json({
       places,

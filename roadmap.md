@@ -6,3 +6,4 @@
 - [x] Selecionar todas as categorias inicialmente e permitir removê-las.
 - [x] Exibir todos os resultados armazenados, sem corte de 1.000 registros.
 - [x] Validar a busca do Backs Radar e o bloqueio do plano Executivo.
+- [x] Restringir resultados a locais com oportunidade real para música ao vivo.
