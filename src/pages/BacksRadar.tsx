@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import {
   Radar, Search, Loader2, Phone, Globe, MapPin, Star,
   MessageCircle, UserPlus, Sparkles, Beer, UtensilsCrossed,
-  Hotel, Disc3, Mic2, PartyPopper, Lock, Crown,
+  Hotel, Disc3, Mic2, Lock, Crown,
   Navigation, CheckCircle2, Info, Building2, X,
 } from "lucide-react";
 
@@ -36,7 +36,6 @@ const CATEGORIES = [
   { key: "hoteis",         label: "Hotéis",            icon: Hotel },
   { key: "casas_noturnas", label: "Casas noturnas",    icon: Disc3 },
   { key: "casas_de_show",  label: "Casas de show",     icon: Mic2 },
-  { key: "buffets",        label: "Buffets e eventos",  icon: PartyPopper },
 ];
 
 function whatsappLink(phone: string) {
@@ -188,28 +187,26 @@ export default function BacksRadar() {
         const geo = await geocodeCity(city, resolvedLocation?.state ?? "");
         if (!geo) { console.warn(`Não foi possível geocodificar: ${city}`); continue; }
 
-        for (const category of categories) {
-          const { data, error } = await supabase.functions.invoke("backs-radar-search", {
-            body: {
-              cep: activeCep,
-              lat: geo.lat,
-              lng: geo.lng,
-              city,
-              state: resolvedLocation?.state ?? "",
-              radius_km: 10,   // raio pequeno centrado na cidade
-              category,
-              refresh: false,
-            },
-          });
+        const { data, error } = await supabase.functions.invoke("backs-radar-search", {
+          body: {
+            cep: activeCep,
+            lat: geo.lat,
+            lng: geo.lng,
+            city,
+            state: resolvedLocation?.state ?? "",
+            radius_km: 10,
+            categories,
+            refresh: false,
+          },
+        });
 
-          if (error || data?.error) continue;
+        if (error || data?.error) continue;
 
-          for (const place of (data?.places ?? []) as RadarPlace[]) {
-            const key = `${place.place_id}_${category}`;
-            if (!seen.has(key)) {
-              seen.add(key);
-              allResults.push({ ...place, city });
-            }
+        for (const place of (data?.places ?? []) as RadarPlace[]) {
+          const key = place.place_id;
+          if (!seen.has(key)) {
+            seen.add(key);
+            allResults.push({ ...place, city });
           }
         }
       }

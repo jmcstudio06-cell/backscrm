@@ -18,10 +18,19 @@ const BodySchema = z.object({
   city: z.string().trim().max(120).optional(),
   state: z.string().trim().max(2).optional(),
   radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
-  categories: z.array(z.string().max(40)).max(12)
+  categories: z.array(z.string().max(40)).max(12).optional(),
+  category: z.string().max(40).optional(),
+}).transform((body) => ({
+  ...body,
+  categories: [...new Set((body.categories ?? (body.category ? [body.category] : []))
+    .filter((value) => CATEGORY_SET.has(value)))],
+})).refine((body) => body.categories.length > 0, {
+  path: ["categories"],
+}).transform((body) => ({
+  ...body,
+  categories: body.categories
     .transform((values) => [...new Set(values.filter((value) => CATEGORY_SET.has(value)))])
-    .refine((values) => values.length > 0),
-});
+}));
 
 type CepLocation = {
   city: string;
