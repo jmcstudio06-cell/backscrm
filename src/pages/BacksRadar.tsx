@@ -32,8 +32,8 @@ interface RadarPlace {
 
 const CATEGORIES = [
   { key: "bares",          label: "Bares",             icon: Beer },
-  { key: "restaurantes",   label: "Restaurantes",      icon: UtensilsCrossed },
-  { key: "hoteis",         label: "Hotéis",            icon: Hotel },
+  { key: "restaurantes",   label: "Restaurantes com música ao vivo", icon: UtensilsCrossed },
+  { key: "hoteis",         label: "Hotéis com música ao vivo", icon: Hotel },
   { key: "casas_noturnas", label: "Casas noturnas",    icon: Disc3 },
   { key: "casas_de_show",  label: "Casas de show",     icon: Mic2 },
 ];
@@ -248,7 +248,7 @@ export default function BacksRadar() {
   );
 
   return (
-    <Layout title="Backs Radar" subtitle="Encontre bares, restaurantes e casas de show por cidade">
+    <Layout title="Backs Radar" subtitle="Encontre locais com oportunidade real para música ao vivo">
       <div className="max-w-5xl mx-auto space-y-6">
 
         {/* ── Painel de busca ── */}
