@@ -200,7 +200,9 @@ export default function BacksRadar() {
           },
         });
 
-        if (error || data?.error) continue;
+        if (error || data?.error) {
+          throw new Error(data?.error ?? "Não foi possível concluir a pesquisa.");
+        }
 
         for (const place of (data?.places ?? []) as RadarPlace[]) {
           const key = place.place_id;
