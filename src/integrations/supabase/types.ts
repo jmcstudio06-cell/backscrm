@@ -3505,6 +3505,7 @@ export type Database = {
         Returns: {
           address: string
           category: string
+          city: string
           distance_m: number
           lat: number
           lng: number
@@ -3515,6 +3516,7 @@ export type Database = {
           place_type: string
           rating: number
           rating_count: number
+          state: string
           website: string
         }[]
       }
