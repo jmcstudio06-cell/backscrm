@@ -87,22 +87,18 @@ export function isMusicOpportunity(place: RadarPlaceCandidate): boolean {
     return BAR_PLACE_TYPES.includes(placeType);
   }
 
-  if (category === "casas noturnas") {
-    return placeType === "casa noturna" || includesAny(placeType, NIGHTLIFE_TERMS);
-  }
-
   if (category === "restaurantes") {
-    const isRestaurant = placeType.includes("restaurante") || placeType === "bistro" || placeType === "churrascaria";
-    return isRestaurant && includesAny(name, LIVE_MUSIC_TERMS);
+    return placeType.includes("restaurante");
   }
 
   if (category === "hoteis") {
-    const isHotel = placeType.includes("hotel") || placeType === "resort";
-    return isHotel && includesAny(name, LIVE_MUSIC_TERMS);
+    return placeType === "hotel" || placeType === "hotel resort";
   }
 
   if (category === "casas de show") {
-    return includesAny(searchable, LIVE_MUSIC_TERMS) || includesAny(searchable, NIGHTLIFE_TERMS) || includesAny(searchable, BAR_TERMS);
+    return placeType === "casa de show" ||
+      ((placeType === "teatro" || placeType === "auditorio") && includesAny(name, LIVE_MUSIC_TERMS)) ||
+      (placeType.length === 0 && includesAny(name, ["casa de show", "music bar", "musica ao vivo"]));
   }
 
   return false;

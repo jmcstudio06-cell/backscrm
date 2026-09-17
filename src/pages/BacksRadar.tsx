@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import {
   Radar, Search, Loader2, Phone, Globe, MapPin, Star,
   MessageCircle, UserPlus, Sparkles, Beer, UtensilsCrossed,
-  Hotel, Disc3, Mic2, Lock, Crown,
+  Hotel, Mic2, Lock, Crown,
   Navigation, CheckCircle2, Info, Building2, X,
 } from "lucide-react";
 
@@ -32,9 +32,8 @@ interface RadarPlace {
 
 const CATEGORIES = [
   { key: "bares",          label: "Bares",             icon: Beer },
-  { key: "restaurantes",   label: "Restaurantes com música ao vivo", icon: UtensilsCrossed },
-  { key: "hoteis",         label: "Hotéis com música ao vivo", icon: Hotel },
-  { key: "casas_noturnas", label: "Casas noturnas",    icon: Disc3 },
+  { key: "restaurantes",   label: "Restaurantes",      icon: UtensilsCrossed },
+  { key: "hoteis",         label: "Hotéis",            icon: Hotel },
   { key: "casas_de_show",  label: "Casas de show",     icon: Mic2 },
 ];
 

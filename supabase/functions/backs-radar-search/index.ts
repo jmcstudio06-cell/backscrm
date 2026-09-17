@@ -12,7 +12,6 @@ const CATEGORIES = [
   "bares",
   "restaurantes",
   "hoteis",
-  "casas_noturnas",
   "casas_de_show",
 ] as const;
 
