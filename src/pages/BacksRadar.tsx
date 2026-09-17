@@ -30,6 +30,12 @@ interface RadarPlace {
   city?: string;
 }
 
+interface NearbyCity {
+  city: string;
+  distance_km: number;
+  count: number;
+}
+
 const CATEGORIES = [
   { key: "bares",          label: "Bares",             icon: Beer },
   { key: "restaurantes",   label: "Restaurantes",      icon: UtensilsCrossed },
@@ -48,34 +54,6 @@ function formatCep(v: string) {
   return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
 }
 
-async function fetchCitiesOfState(uf: string): Promise<string[]> {
-  try {
-    const res = await fetch(
-      `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`
-    );
-    if (!res.ok) return [];
-    const data = await res.json() as Array<{ nome: string }>;
-    return data.map(c => c.nome).sort((a, b) => a.localeCompare(b, "pt-BR"));
-  } catch {
-    return [];
-  }
-}
-
-async function geocodeCity(city: string, state: string): Promise<{ lat: number; lng: number } | null> {
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&country=BR&format=json&limit=1`,
-      { headers: { "User-Agent": "BackstageProApp/2.0" } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data?.[0]?.lat) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export default function BacksRadar() {
   const { addLead }                                           = useLeads();
   const { profile, loading: profileLoading, updateProfile }  = useProfile();
@@ -92,7 +70,7 @@ export default function BacksRadar() {
   const [resolvedLocation, setResolvedLocation] = useState<{ city: string; state: string } | null>(null);
 
   // ── Cidades ──────────────────────────────────────────────
-  const [allCities, setAllCities]             = useState<string[]>([]);
+  const [nearbyCities, setNearbyCities]       = useState<NearbyCity[]>([]);
   const [loadingCities, setLoadingCities]     = useState(false);
   const [selectedCities, setSelectedCities]   = useState<string[]>([]);
   const [citySearch, setCitySearch]           = useState("");
@@ -113,13 +91,8 @@ export default function BacksRadar() {
 
   useEffect(() => {
     if (!resolvedLocation) return;
-    setLoadingCities(true);
-    fetchCitiesOfState(resolvedLocation.state).then(cities => {
-      setAllCities(cities);
-      if (selectedCities.length === 0) setSelectedCities([resolvedLocation.city]);
-      setLoadingCities(false);
-    });
-  }, [resolvedLocation?.state]);
+    if (selectedCities.length === 0) setSelectedCities([resolvedLocation.city]);
+  }, [resolvedLocation?.city, resolvedLocation?.state]);
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isConfigured) return;
@@ -160,8 +133,8 @@ export default function BacksRadar() {
   const canSearch  = activeCep.length === 8 && !!resolvedLocation
                      && selectedCities.length > 0 && categories.length > 0;
 
-  const filteredCities = allCities.filter(c =>
-    c.toLowerCase().includes(citySearch.toLowerCase())
+  const filteredCities = nearbyCities.filter(({ city }) =>
+    city.toLowerCase().includes(citySearch.toLowerCase())
   );
 
   const toggleCity = (city: string) =>
@@ -178,39 +151,24 @@ export default function BacksRadar() {
     setPlaces(null);
     setLockedCount(null);
 
-    const allResults: RadarPlace[] = [];
-    const seen = new Set<string>();
-
     try {
-      for (const city of selectedCities) {
-        const geo = await geocodeCity(city, resolvedLocation?.state ?? "");
-        if (!geo) { console.warn(`Não foi possível geocodificar: ${city}`); continue; }
+      const { data, error } = await supabase.functions.invoke("backs-radar-search", {
+        body: {
+          cep: activeCep,
+          city: resolvedLocation?.city ?? "",
+          state: resolvedLocation?.state ?? "",
+          radius_km: 100,
+          categories,
+          selected_cities: selectedCities,
+        },
+      });
 
-        const { data, error } = await supabase.functions.invoke("backs-radar-search", {
-          body: {
-            cep: activeCep,
-            lat: geo.lat,
-            lng: geo.lng,
-            city,
-            state: resolvedLocation?.state ?? "",
-            radius_km: 10,
-            categories,
-            refresh: false,
-          },
-        });
-
-        if (error || data?.error) {
-          throw new Error(data?.error ?? "Não foi possível concluir a pesquisa.");
-        }
-
-        for (const place of (data?.places ?? []) as RadarPlace[]) {
-          const key = place.place_id;
-          if (!seen.has(key)) {
-            seen.add(key);
-            allResults.push({ ...place, city });
-          }
-        }
+      if (error || data?.error) {
+        throw new Error(data?.error ?? "Não foi possível concluir a pesquisa.");
       }
+
+      const allResults = (data?.places ?? []) as RadarPlace[];
+      setNearbyCities((data?.nearby_cities ?? []) as NearbyCity[]);
 
       setSearchedCities([...selectedCities]);
 
@@ -349,14 +307,17 @@ export default function BacksRadar() {
                     {filteredCities.length === 0 ? (
                       <p className="p-3 text-sm text-muted-foreground">Nenhuma cidade encontrada</p>
                     ) : (
-                      filteredCities.slice(0, 30).map(city => (
+                      filteredCities.slice(0, 30).map(({ city, distance_km, count }) => (
                         <button key={city} type="button"
                           onClick={() => { toggleCity(city); setCitySearch(""); }}
                           className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-secondary flex items-center justify-between ${selectedCities.includes(city) ? "bg-primary/10 text-primary font-semibold" : ""}`}>
                           <span className="flex items-center gap-2">
                             <Building2 className="h-3.5 w-3.5 text-muted-foreground" />{city}
                           </span>
-                          {selectedCities.includes(city) && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                          <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                            {count} contato{count !== 1 ? "s" : ""} · {distance_km.toFixed(0)} km
+                            {selectedCities.includes(city) && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                          </span>
                         </button>
                       ))
                     )}
@@ -366,6 +327,9 @@ export default function BacksRadar() {
                 <p className="text-[11px] text-muted-foreground">
                   {selectedCities.length} cidade{selectedCities.length !== 1 ? "s" : ""} selecionada{selectedCities.length !== 1 ? "s" : ""} — busque e adicione cidades vizinhas
                 </p>
+                {!loading && nearbyCities.length === 0 && (
+                  <p className="text-xs text-muted-foreground">Pressione Pesquisar para carregar cidades vizinhas com oportunidades.</p>
+                )}
               </div>
             )}
 

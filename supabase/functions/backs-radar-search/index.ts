@@ -24,6 +24,7 @@ const BodySchema = z.object({
   radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
   categories: z.array(z.string().max(40)).max(12).optional(),
   category: z.string().max(40).optional(),
+  selected_cities: z.array(z.string().trim().min(1).max(120)).max(30).optional(),
 }).transform((body) => ({
   ...body,
   categories: [...new Set((body.categories ?? (body.category ? [body.category] : []))
@@ -56,6 +57,12 @@ function json(body: unknown, status = 200) {
 function extractCep(address: string | null) {
   return address?.match(/\b\d{5}-?\d{3}\b/)?.[0]?.replace(/\D/g, "") ?? null;
 }
+
+const normalizeCity = (value: unknown) => String(value ?? "")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase()
+  .trim();
 
 async function locateCep(cep: string): Promise<CepLocation | null> {
   const response = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`, {
@@ -145,7 +152,7 @@ serve(async (req) => {
       return json({ error: "Preencha um CEP, raio e ao menos uma categoria válidos." }, 400);
     }
 
-    const { cep, radius_km: radius, categories } = parsed.data;
+    const { cep, radius_km: radius, categories, selected_cities: selectedCities } = parsed.data;
     const origin = await locateCep(cep);
     if (!origin) return json({ error: "Não foi possível localizar esse CEP." }, 400);
 
@@ -163,15 +170,41 @@ serve(async (req) => {
     });
     if (error) throw error;
 
-    const places = (data ?? [])
-      .filter((place: Record<string, unknown>) => isMusicOpportunity(place))
+    const eligiblePlaces = (data ?? [])
+      .map((place: Record<string, unknown>) => ({
+        ...place,
+        category: place.category === "casas_noturnas" ? "casas_de_show" : place.category,
+      }))
+      .filter((place: Record<string, unknown>) => isMusicOpportunity(place));
+
+    const nearbyByCity = new Map<string, { city: string; distance_km: number; count: number }>();
+    for (const place of eligiblePlaces) {
+      const city = String(place.city ?? "").trim();
+      if (!city) continue;
+      const key = normalizeCity(city);
+      const distance = Number(place.distance_m) / 1000;
+      const current = nearbyByCity.get(key);
+      if (!current) nearbyByCity.set(key, { city, distance_km: distance, count: 1 });
+      else {
+        current.count += 1;
+        current.distance_km = Math.min(current.distance_km, distance);
+      }
+    }
+
+    const selectedSet = new Set((selectedCities ?? [origin.city]).map(normalizeCity));
+    const places = eligiblePlaces
+      .filter((place: Record<string, unknown>) => selectedSet.has(normalizeCity(place.city)))
       .map((place: Record<string, unknown>) => ({
         ...place,
         distance_km: Number(place.distance_m) / 1000,
       }));
 
+    const nearby_cities = [...nearbyByCity.values()]
+      .sort((a, b) => a.distance_km - b.distance_km || a.city.localeCompare(b.city, "pt-BR"));
+
     return json({
       places,
+      nearby_cities,
       source: "base_propria",
       city: origin.city,
       state: origin.state,

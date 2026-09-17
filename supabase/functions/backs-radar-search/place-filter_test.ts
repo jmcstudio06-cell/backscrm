@@ -26,7 +26,7 @@ Deno.test("cada local aparece somente em sua categoria correta", () => {
     { category: "bares", name: "Restaurante Central", place_type: "Restaurante" },
     { category: "restaurantes", name: "Bar Central", place_type: "Bar" },
     { category: "hoteis", name: "Pousada Central", place_type: "Pousada" },
-    { category: "casas_de_show", name: "Secret Club", place_type: "Casa noturna" },
+    { category: "casas_de_show", name: "Restaurante Central", place_type: "Restaurante" },
   ];
 
   for (const place of mismatchedPlaces) assertEquals(isMusicOpportunity(place), false);
@@ -38,6 +38,7 @@ Deno.test("mantém locais com oportunidade clara para música", () => {
     { category: "restaurantes", name: "Restaurante Central", place_type: "Restaurante" },
     { category: "hoteis", name: "Hotel Central", place_type: "Hotel" },
     { category: "casas_de_show", name: "Casa de Show Central", place_type: "Casa de show" },
+    { category: "casas_noturnas", name: "Secret Club", place_type: "Casa noturna" },
   ];
 
   for (const place of validPlaces) assertEquals(isMusicOpportunity(place), true);
