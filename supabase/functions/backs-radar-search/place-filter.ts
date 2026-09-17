@@ -76,7 +76,8 @@ const LIVE_MUSIC_TERMS = [
 ];
 
 export function isMusicOpportunity(place: RadarPlaceCandidate): boolean {
-  const category = normalize(place.category);
+  const storedCategory = normalize(place.category);
+  const category = storedCategory === "casas noturnas" ? "casas de show" : storedCategory;
   const name = normalize(place.name);
   const placeType = normalize(place.place_type);
   const searchable = `${name} ${placeType}`;
@@ -96,7 +97,7 @@ export function isMusicOpportunity(place: RadarPlaceCandidate): boolean {
   }
 
   if (category === "casas de show") {
-    return placeType === "casa de show" ||
+    return placeType === "casa de show" || includesAny(placeType, NIGHTLIFE_TERMS) ||
       ((placeType === "teatro" || placeType === "auditorio") && includesAny(name, LIVE_MUSIC_TERMS)) ||
       (placeType.length === 0 && includesAny(name, ["casa de show", "music bar", "musica ao vivo"]));
   }
