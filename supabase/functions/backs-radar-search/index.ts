@@ -47,6 +47,10 @@ type StoredPlace = {
   lng: number | null;
 };
 
+type IbgeCity = {
+  nome?: unknown;
+};
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -76,6 +80,20 @@ async function locateCep(cep: string): Promise<CepLocation | null> {
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || !data?.city || !data?.state) return null;
 
   return { city: data.city, state: data.state, lat, lng };
+}
+
+async function getStateCities(state: string) {
+  const response = await fetch(
+    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${encodeURIComponent(state)}/municipios`,
+    { headers: { Accept: "application/json" } },
+  );
+  if (!response.ok) throw new Error("Não foi possível validar as cidades deste estado.");
+
+  const data = (await response.json()) as IbgeCity[];
+  return data
+    .map(({ nome }) => String(nome ?? "").trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
 async function enrichStoredPlaces(admin: ReturnType<typeof createClient>) {
@@ -156,16 +174,28 @@ serve(async (req) => {
     const origin = await locateCep(cep);
     if (!origin) return json({ error: "Não foi possível localizar esse CEP." }, 400);
 
+    const stateCities = await getStateCities(origin.state);
+    const stateCitiesByKey = new Map(stateCities.map((city) => [normalizeCity(city), city]));
+    const requestedCities = selectedCities?.length ? selectedCities : [origin.city];
+    const invalidCity = requestedCities.find((city) => !stateCitiesByKey.has(normalizeCity(city)));
+    if (invalidCity) {
+      return json({ error: `${invalidCity} não pertence ao estado ${origin.state}.` }, 400);
+    }
+    const canonicalCities = [...new Set(requestedCities.map((city) =>
+      stateCitiesByKey.get(normalizeCity(city)) ?? city
+    ))];
+
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
     await enrichStoredPlaces(admin);
 
-    const { data, error } = await admin.rpc("search_radar_places", {
+    const { data, error } = await admin.rpc("search_radar_places_by_cities", {
       p_lat: origin.lat,
       p_lng: origin.lng,
-      p_radius_m: radius * 1000,
+      p_state: origin.state,
+      p_cities: canonicalCities,
       p_categories: categories,
     });
     if (error) throw error;
@@ -177,34 +207,15 @@ serve(async (req) => {
       }))
       .filter((place: Record<string, unknown>) => isMusicOpportunity(place));
 
-    const nearbyByCity = new Map<string, { city: string; distance_km: number; count: number }>();
-    for (const place of eligiblePlaces) {
-      const city = String(place.city ?? "").trim();
-      if (!city) continue;
-      const key = normalizeCity(city);
-      const distance = Number(place.distance_m) / 1000;
-      const current = nearbyByCity.get(key);
-      if (!current) nearbyByCity.set(key, { city, distance_km: distance, count: 1 });
-      else {
-        current.count += 1;
-        current.distance_km = Math.min(current.distance_km, distance);
-      }
-    }
-
-    const selectedSet = new Set((selectedCities ?? [origin.city]).map(normalizeCity));
     const places = eligiblePlaces
-      .filter((place: Record<string, unknown>) => selectedSet.has(normalizeCity(place.city)))
       .map((place: Record<string, unknown>) => ({
         ...place,
         distance_km: Number(place.distance_m) / 1000,
       }));
 
-    const nearby_cities = [...nearbyByCity.values()]
-      .sort((a, b) => a.distance_km - b.distance_km || a.city.localeCompare(b.city, "pt-BR"));
-
     return json({
       places,
-      nearby_cities,
+      state_cities: stateCities,
       source: "base_propria",
       city: origin.city,
       state: origin.state,

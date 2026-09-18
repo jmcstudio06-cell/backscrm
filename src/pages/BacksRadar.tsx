@@ -30,12 +30,6 @@ interface RadarPlace {
   city?: string;
 }
 
-interface NearbyCity {
-  city: string;
-  distance_km: number;
-  count: number;
-}
-
 const CATEGORIES = [
   { key: "bares",          label: "Bares",             icon: Beer },
   { key: "restaurantes",   label: "Restaurantes",      icon: UtensilsCrossed },
@@ -70,10 +64,16 @@ export default function BacksRadar() {
   const [resolvedLocation, setResolvedLocation] = useState<{ city: string; state: string } | null>(null);
 
   // ── Cidades ──────────────────────────────────────────────
-  const [nearbyCities, setNearbyCities]       = useState<NearbyCity[]>([]);
+  const [stateCities, setStateCities]         = useState<string[]>([]);
   const [loadingCities, setLoadingCities]     = useState(false);
   const [selectedCities, setSelectedCities]   = useState<string[]>([]);
   const [citySearch, setCitySearch]           = useState("");
+
+  const normalizeCity = (value: string) => value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 
   // ── Busca ────────────────────────────────────────────────
   const [categories, setCategories]         = useState<string[]>(CATEGORIES.map(c => c.key));
@@ -134,31 +134,32 @@ export default function BacksRadar() {
                      && selectedCities.length > 0 && categories.length > 0;
 
   useEffect(() => {
-    if (activeCep.length !== 8 || !resolvedLocation || categories.length === 0) return;
+    if (!resolvedLocation?.state) return;
 
     let cancelled = false;
     setLoadingCities(true);
-    supabase.functions.invoke("backs-radar-search", {
-      body: {
-        cep: activeCep,
-        city: resolvedLocation.city,
-        state: resolvedLocation.state,
-        radius_km: 100,
-        categories,
-        selected_cities: [resolvedLocation.city],
-      },
-    }).then(({ data, error }) => {
-      if (cancelled) return;
-      if (!error && !data?.error) setNearbyCities((data?.nearby_cities ?? []) as NearbyCity[]);
-    }).finally(() => {
-      if (!cancelled) setLoadingCities(false);
-    });
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${resolvedLocation.state}/municipios`)
+      .then((response) => {
+        if (!response.ok) throw new Error("IBGE request failed");
+        return response.json() as Promise<Array<{ nome: string }>>;
+      })
+      .then((cities) => {
+        if (!cancelled) {
+          setStateCities(cities.map(({ nome }) => nome).sort((a, b) => a.localeCompare(b, "pt-BR")));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Não foi possível carregar as cidades do estado.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingCities(false);
+      });
 
     return () => { cancelled = true; };
-  }, [activeCep, resolvedLocation?.city, resolvedLocation?.state, categories.join(",")]);
+  }, [resolvedLocation?.state]);
 
-  const filteredCities = nearbyCities.filter(({ city }) =>
-    city.toLowerCase().includes(citySearch.toLowerCase())
+  const filteredCities = stateCities.filter((city) =>
+    normalizeCity(city).includes(normalizeCity(citySearch))
   );
 
   const toggleCity = (city: string) =>
@@ -192,8 +193,6 @@ export default function BacksRadar() {
       }
 
       const allResults = (data?.places ?? []) as RadarPlace[];
-      setNearbyCities((data?.nearby_cities ?? []) as NearbyCity[]);
-
       setSearchedCities([...selectedCities]);
 
       if (locked) { setLockedCount(allResults.length); setPlaces([]); return; }
@@ -320,7 +319,7 @@ export default function BacksRadar() {
                   <Input
                     value={citySearch}
                     onChange={e => setCitySearch(e.target.value)}
-                    placeholder={loadingCities ? "Carregando cidades próximas..." : "Buscar entre cidades próximas..."}
+                    placeholder={loadingCities ? "Carregando cidades do estado..." : `Buscar cidade em ${resolvedLocation.state}...`}
                     className="pl-9"
                     disabled={loadingCities}
                   />
@@ -331,17 +330,14 @@ export default function BacksRadar() {
                     {filteredCities.length === 0 ? (
                       <p className="p-3 text-sm text-muted-foreground">Nenhuma cidade encontrada</p>
                     ) : (
-                      filteredCities.slice(0, 30).map(({ city, distance_km, count }) => (
+                      filteredCities.slice(0, 50).map((city) => (
                         <button key={city} type="button"
                           onClick={() => { toggleCity(city); setCitySearch(""); }}
                           className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-secondary flex items-center justify-between ${selectedCities.includes(city) ? "bg-primary/10 text-primary font-semibold" : ""}`}>
                           <span className="flex items-center gap-2">
                             <Building2 className="h-3.5 w-3.5 text-muted-foreground" />{city}
                           </span>
-                          <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                            {count} contato{count !== 1 ? "s" : ""} · {distance_km.toFixed(0)} km
-                            {selectedCities.includes(city) && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                          </span>
+                          {selectedCities.includes(city) && <CheckCircle2 className="h-4 w-4 text-primary" />}
                         </button>
                       ))
                     )}
@@ -349,10 +345,10 @@ export default function BacksRadar() {
                 )}
 
                 <p className="text-[11px] text-muted-foreground">
-                  {selectedCities.length} cidade{selectedCities.length !== 1 ? "s" : ""} selecionada{selectedCities.length !== 1 ? "s" : ""} — busque e adicione cidades vizinhas
+                  {selectedCities.length} cidade{selectedCities.length !== 1 ? "s" : ""} selecionada{selectedCities.length !== 1 ? "s" : ""} — escolha qualquer cidade de {resolvedLocation.state}
                 </p>
-                {!loadingCities && nearbyCities.length === 0 && (
-                  <p className="text-xs text-muted-foreground">Nenhuma outra cidade com oportunidades foi encontrada perto deste CEP.</p>
+                {!loadingCities && stateCities.length === 0 && (
+                  <p className="text-xs text-muted-foreground">Nenhuma cidade do estado foi encontrada.</p>
                 )}
               </div>
             )}
