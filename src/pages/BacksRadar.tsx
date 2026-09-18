@@ -133,6 +133,30 @@ export default function BacksRadar() {
   const canSearch  = activeCep.length === 8 && !!resolvedLocation
                      && selectedCities.length > 0 && categories.length > 0;
 
+  useEffect(() => {
+    if (activeCep.length !== 8 || !resolvedLocation || categories.length === 0) return;
+
+    let cancelled = false;
+    setLoadingCities(true);
+    supabase.functions.invoke("backs-radar-search", {
+      body: {
+        cep: activeCep,
+        city: resolvedLocation.city,
+        state: resolvedLocation.state,
+        radius_km: 100,
+        categories,
+        selected_cities: [resolvedLocation.city],
+      },
+    }).then(({ data, error }) => {
+      if (cancelled) return;
+      if (!error && !data?.error) setNearbyCities((data?.nearby_cities ?? []) as NearbyCity[]);
+    }).finally(() => {
+      if (!cancelled) setLoadingCities(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [activeCep, resolvedLocation?.city, resolvedLocation?.state, categories.join(",")]);
+
   const filteredCities = nearbyCities.filter(({ city }) =>
     city.toLowerCase().includes(citySearch.toLowerCase())
   );
@@ -296,7 +320,7 @@ export default function BacksRadar() {
                   <Input
                     value={citySearch}
                     onChange={e => setCitySearch(e.target.value)}
-                    placeholder={loadingCities ? "Carregando cidades..." : `Buscar cidade em ${resolvedLocation.state}...`}
+                    placeholder={loadingCities ? "Carregando cidades próximas..." : "Buscar entre cidades próximas..."}
                     className="pl-9"
                     disabled={loadingCities}
                   />
@@ -327,8 +351,8 @@ export default function BacksRadar() {
                 <p className="text-[11px] text-muted-foreground">
                   {selectedCities.length} cidade{selectedCities.length !== 1 ? "s" : ""} selecionada{selectedCities.length !== 1 ? "s" : ""} — busque e adicione cidades vizinhas
                 </p>
-                {!loading && nearbyCities.length === 0 && (
-                  <p className="text-xs text-muted-foreground">Pressione Pesquisar para carregar cidades vizinhas com oportunidades.</p>
+                {!loadingCities && nearbyCities.length === 0 && (
+                  <p className="text-xs text-muted-foreground">Nenhuma outra cidade com oportunidades foi encontrada perto deste CEP.</p>
                 )}
               </div>
             )}
