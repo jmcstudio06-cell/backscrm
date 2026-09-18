@@ -3520,6 +3520,32 @@ export type Database = {
           website: string
         }[]
       }
+      search_radar_places_by_cities: {
+        Args: {
+          p_categories: string[]
+          p_cities: string[]
+          p_lat: number
+          p_lng: number
+          p_state: string
+        }
+        Returns: {
+          address: string
+          category: string
+          city: string
+          distance_m: number
+          lat: number
+          lng: number
+          maps_uri: string
+          name: string
+          phone: string
+          place_id: string
+          place_type: string
+          rating: number
+          rating_count: number
+          state: string
+          website: string
+        }[]
+      }
       slugify_artist_name: { Args: { _name: string }; Returns: string }
       st_3dclosestpoint: {
         Args: { geom1: unknown; geom2: unknown }
