@@ -24,7 +24,7 @@ const BodySchema = z.object({
   radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
   categories: z.array(z.string().max(40)).max(12).optional(),
   category: z.string().max(40).optional(),
-  selected_cities: z.array(z.string().trim().min(1).max(120)).max(30).optional(),
+  selected_cities: z.array(z.string().trim().min(1).max(120)).max(1000).optional(),
 }).transform((body) => ({
   ...body,
   categories: [...new Set((body.categories ?? (body.category ? [body.category] : []))

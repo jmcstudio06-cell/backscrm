@@ -91,7 +91,8 @@ export default function BacksRadar() {
 
   useEffect(() => {
     if (!resolvedLocation) return;
-    if (selectedCities.length === 0) setSelectedCities([resolvedLocation.city]);
+    setSelectedCities([resolvedLocation.city]);
+    setCitySearch("");
   }, [resolvedLocation?.city, resolvedLocation?.state]);
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
