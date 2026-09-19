@@ -48,6 +48,10 @@ function formatCep(v: string) {
   return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
 }
 
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Erro ao buscar contatos";
+}
+
 export default function BacksRadar() {
   const { addLead }                                           = useLeads();
   const { profile, loading: profileLoading, updateProfile }  = useProfile();
@@ -91,8 +95,9 @@ export default function BacksRadar() {
 
   useEffect(() => {
     if (!resolvedLocation) return;
-    if (selectedCities.length === 0) setSelectedCities([resolvedLocation.city]);
-  }, [resolvedLocation?.city, resolvedLocation?.state]);
+    setSelectedCities([resolvedLocation.city]);
+    setCitySearch("");
+  }, [resolvedLocation]);
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isConfigured) return;
@@ -200,8 +205,8 @@ export default function BacksRadar() {
       setPlaces(allResults);
       if (allResults.length === 0) toast.info("Nenhum contato encontrado. Adicione mais cidades ou categorias.");
 
-    } catch (err: any) {
-      toast.error(err?.message ?? "Erro ao buscar contatos");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
