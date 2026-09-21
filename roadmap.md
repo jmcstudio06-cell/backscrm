@@ -8,3 +8,4 @@
 - [x] Validar a busca do Backs Radar e o bloqueio do plano Executivo.
 - [x] Restringir resultados a locais com oportunidade real para música ao vivo.
 - [x] Permitir selecionar qualquer cidade do estado definido pelo CEP e bloquear outros estados.
+- [x] Preencher cidades sem contatos usando fonte pública sem Google e salvar na base própria.
