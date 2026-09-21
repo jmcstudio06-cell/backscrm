@@ -50,6 +50,7 @@ const BAR_PLACE_TYPES = [
   "choperia",
   "pub",
   "gastrobar",
+  "pub",
 ];
 
 const NIGHTLIFE_TERMS = [
@@ -89,15 +90,16 @@ export function isMusicOpportunity(place: RadarPlaceCandidate): boolean {
   }
 
   if (category === "restaurantes") {
-    return placeType.includes("restaurante");
+    return placeType.includes("restaurante") || placeType === "restaurant";
   }
 
   if (category === "hoteis") {
-    return placeType === "hotel" || placeType === "hotel resort";
+    return placeType === "hotel" || placeType === "hotel resort" || placeType === "resort";
   }
 
   if (category === "casas de show") {
-    return placeType === "casa de show" || includesAny(placeType, NIGHTLIFE_TERMS) ||
+    return placeType === "casa de show" || placeType === "music venue" ||
+      placeType === "nightclub" || includesAny(placeType, NIGHTLIFE_TERMS) ||
       ((placeType === "teatro" || placeType === "auditorio") && includesAny(name, LIVE_MUSIC_TERMS)) ||
       (placeType.length === 0 && includesAny(name, ["casa de show", "music bar", "musica ao vivo"]));
   }

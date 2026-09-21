@@ -51,6 +51,24 @@ type IbgeCity = {
   nome?: unknown;
 };
 
+type OsmElement = {
+  id?: unknown;
+  type?: unknown;
+  lat?: unknown;
+  lon?: unknown;
+  center?: { lat?: unknown; lon?: unknown };
+  tags?: Record<string, unknown>;
+};
+
+type PublicCityLocation = {
+  areaId: number;
+};
+
+const OVERPASS_ENDPOINTS = [
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
+];
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -94,6 +112,170 @@ async function getStateCities(state: string) {
     .map(({ nome }) => String(nome ?? "").trim())
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function firstText(...values: unknown[]) {
+  return values.map((value) => String(value ?? "").trim()).find(Boolean) ?? "";
+}
+
+function publicCategory(tags: Record<string, unknown>) {
+  const amenity = normalizeCity(tags.amenity);
+  const tourism = normalizeCity(tags.tourism);
+  const leisure = normalizeCity(tags.leisure);
+  if (amenity === "bar" || amenity === "pub") return "bares";
+  if (amenity === "restaurant") return "restaurantes";
+  if (tourism === "hotel" || tourism === "resort") return "hoteis";
+  if (amenity === "nightclub" || amenity === "music venue" ||
+      leisure === "music venue" || amenity === "theatre") return "casas_de_show";
+  return null;
+}
+
+function publicPlaceType(tags: Record<string, unknown>) {
+  return firstText(tags.amenity, tags.tourism, tags.leisure).replaceAll("_", " ");
+}
+
+function publicPhone(tags: Record<string, unknown>) {
+  const raw = firstText(tags.phone, tags["contact:phone"], tags["phone:BR"]);
+  const first = raw.split(";")[0]?.trim() ?? "";
+  return first.replace(/\D/g, "").length >= 8 ? first : null;
+}
+
+function publicCenter(element: OsmElement) {
+  const lat = Number(element.type === "node" ? element.lat : element.center?.lat);
+  const lng = Number(element.type === "node" ? element.lon : element.center?.lon);
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+}
+
+async function locatePublicCity(city: string, state: string): Promise<PublicCityLocation | null> {
+  const params = new URLSearchParams({
+    city,
+    state,
+    country: "Brasil",
+    countrycodes: "br",
+    format: "jsonv2",
+    addressdetails: "1",
+    limit: "5",
+  });
+  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+    headers: { Accept: "application/json", "User-Agent": "BackstageProRadar/1.0" },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) return null;
+
+  const results = await response.json() as Array<Record<string, unknown>>;
+  const match = results.find((result) => {
+    const address = (result.address ?? {}) as Record<string, unknown>;
+    const isoState = String(address["ISO3166-2-lvl4"] ?? "").split("-").pop();
+    const resultCity = firstText(address.city, address.town, address.municipality, address.village);
+    return result.osm_type === "relation" && isoState?.toUpperCase() === state.toUpperCase() &&
+      normalizeCity(resultCity) === normalizeCity(city);
+  });
+  const osmId = Number(match?.osm_id);
+  return Number.isFinite(osmId) ? { areaId: 3_600_000_000 + osmId } : null;
+}
+
+async function queryPublicPlaces(areaId: number, categories: string[]) {
+  const filters: string[] = [];
+  if (categories.includes("bares")) filters.push('nwr["amenity"~"^(bar|pub)$"](area.city);');
+  if (categories.includes("restaurantes")) filters.push('nwr["amenity"="restaurant"](area.city);');
+  if (categories.includes("hoteis")) filters.push('nwr["tourism"~"^(hotel|resort)$"](area.city);');
+  if (categories.includes("casas_de_show")) {
+    filters.push('nwr["amenity"~"^(nightclub|music_venue|theatre)$"](area.city);');
+    filters.push('nwr["leisure"="music_venue"](area.city);');
+  }
+  if (filters.length === 0) return [] as OsmElement[];
+
+  const query = `[out:json][timeout:35];area(${areaId})->.city;(${filters.join("")});out tags center;`;
+  let lastError: unknown = null;
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": "BackstageProRadar/1.0",
+        },
+        body: new URLSearchParams({ data: query }),
+        signal: AbortSignal.timeout(45000),
+      });
+      if (!response.ok) throw new Error(`OpenStreetMap respondeu ${response.status}`);
+      const payload = await response.json() as { elements?: OsmElement[] };
+      return payload.elements ?? [];
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Fonte pública indisponível");
+}
+
+async function fillCityFromPublicSource(
+  admin: ReturnType<typeof createClient>,
+  city: string,
+  state: string,
+  categories: string[],
+) {
+  const location = await locatePublicCity(city, state);
+  if (!location) return 0;
+  const elements = await queryPublicPlaces(location.areaId, categories);
+  const rows = elements.flatMap((element) => {
+    const tags = element.tags ?? {};
+    const category = publicCategory(tags);
+    const center = publicCenter(element);
+    const phone = publicPhone(tags);
+    const name = firstText(tags.name, tags["name:pt"]);
+    if (!category || !categories.includes(category) || !center || !phone || !name) return [];
+
+    const placeType = publicPlaceType(tags);
+    const candidate = { category, name, place_type: placeType };
+    if (!isMusicOpportunity(candidate)) return [];
+    const osmType = String(element.type ?? "node");
+    const osmId = `${osmType}/${String(element.id ?? "")}`;
+    const street = firstText(tags["addr:street"]);
+    const number = firstText(tags["addr:housenumber"]);
+    const address = [street && number ? `${street}, ${number}` : street, city, state].filter(Boolean).join(" - ");
+
+    return [{
+      place_id: `osm_${osmType}_${String(element.id ?? "")}`,
+      osm_id: osmId,
+      state,
+      city,
+      category,
+      name,
+      address: address || null,
+      phone,
+      website: firstText(tags.website, tags["contact:website"]) || null,
+      rating: null,
+      rating_count: null,
+      place_type: placeType,
+      maps_uri: `https://www.openstreetmap.org/${osmId}`,
+      lat: center.lat,
+      lng: center.lng,
+      source: "base_propria",
+      fetched_at: new Date().toISOString(),
+    }];
+  });
+
+  if (rows.length === 0) return 0;
+  const { error } = await admin.from("radar_places").upsert(rows, {
+    onConflict: "place_id,category",
+  });
+  if (error) throw error;
+  return rows.length;
+}
+
+async function searchStoredPlaces(
+  admin: ReturnType<typeof createClient>,
+  origin: CepLocation,
+  cities: string[],
+  categories: string[],
+) {
+  return await admin.rpc("search_radar_places_by_cities", {
+    p_lat: origin.lat,
+    p_lng: origin.lng,
+    p_state: origin.state,
+    p_cities: cities,
+    p_categories: categories,
+  });
 }
 
 async function enrichStoredPlaces(admin: ReturnType<typeof createClient>) {
@@ -191,14 +373,25 @@ serve(async (req) => {
 
     await enrichStoredPlaces(admin);
 
-    const { data, error } = await admin.rpc("search_radar_places_by_cities", {
-      p_lat: origin.lat,
-      p_lng: origin.lng,
-      p_state: origin.state,
-      p_cities: canonicalCities,
-      p_categories: categories,
-    });
+    let { data, error } = await searchStoredPlaces(admin, origin, canonicalCities, categories);
     if (error) throw error;
+
+    const citiesWithResults = new Set((data ?? []).map((place: Record<string, unknown>) =>
+      normalizeCity(place.city)
+    ));
+    const missingCities = canonicalCities.filter((city) => !citiesWithResults.has(normalizeCity(city)));
+    if (missingCities.length > 0) {
+      const concurrency = 3;
+      for (let index = 0; index < missingCities.length; index += concurrency) {
+        const batch = missingCities.slice(index, index + concurrency);
+        await Promise.allSettled(batch.map((city) =>
+          fillCityFromPublicSource(admin, city, origin.state, categories)
+        ));
+      }
+      const refreshed = await searchStoredPlaces(admin, origin, canonicalCities, categories);
+      if (refreshed.error) throw refreshed.error;
+      data = refreshed.data;
+    }
 
     const eligiblePlaces = (data ?? [])
       .map((place: Record<string, unknown>) => ({

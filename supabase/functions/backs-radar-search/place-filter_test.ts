@@ -43,3 +43,15 @@ Deno.test("mantém locais com oportunidade clara para música", () => {
 
   for (const place of validPlaces) assertEquals(isMusicOpportunity(place), true);
 });
+
+Deno.test("aceita os tipos equivalentes vindos da base pública", () => {
+  const validPlaces = [
+    { category: "bares", name: "Central Pub", place_type: "pub" },
+    { category: "restaurantes", name: "Cozinha Central", place_type: "restaurant" },
+    { category: "hoteis", name: "Resort Central", place_type: "resort" },
+    { category: "casas_de_show", name: "Arena Central", place_type: "music_venue" },
+    { category: "casas_de_show", name: "Clube Central", place_type: "nightclub" },
+  ];
+
+  for (const place of validPlaces) assertEquals(isMusicOpportunity(place), true);
+});
