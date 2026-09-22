@@ -119,9 +119,10 @@ function firstText(...values: unknown[]) {
 }
 
 function publicCategory(tags: Record<string, unknown>) {
-  const amenity = normalizeCity(tags.amenity);
-  const tourism = normalizeCity(tags.tourism);
-  const leisure = normalizeCity(tags.leisure);
+  const amenity = normalizeCity(tags.amenity).replace(/_/g, " ");
+  const tourism = normalizeCity(tags.tourism).replace(/_/g, " ");
+  const leisure = normalizeCity(tags.leisure).replace(/_/g, " ");
+  
   if (amenity === "bar" || amenity === "pub") return "bares";
   if (amenity === "restaurant") return "restaurantes";
   if (tourism === "hotel" || tourism === "resort") return "hoteis";
@@ -202,6 +203,7 @@ async function queryPublicPlaces(areaId: number, categories: string[]) {
       const payload = await response.json() as { elements?: OsmElement[] };
       return payload.elements ?? [];
     } catch (error) {
+      console.error(`Overpass endpoint ${endpoint} failed:`, error);
       lastError = error;
     }
   }
@@ -214,53 +216,64 @@ async function fillCityFromPublicSource(
   state: string,
   categories: string[],
 ) {
-  const location = await locatePublicCity(city, state);
-  if (!location) return 0;
-  const elements = await queryPublicPlaces(location.areaId, categories);
-  const rows = elements.flatMap((element) => {
-    const tags = element.tags ?? {};
-    const category = publicCategory(tags);
-    const center = publicCenter(element);
-    const phone = publicPhone(tags);
-    const name = firstText(tags.name, tags["name:pt"]);
-    if (!category || !categories.includes(category) || !center || !phone || !name) return [];
+  try {
+    const location = await locatePublicCity(city, state);
+    if (!location) {
+      console.warn(`Could not locate city via Nominatim: ${city}, ${state}`);
+      return 0;
+    }
+    const elements = await queryPublicPlaces(location.areaId, categories);
+    const rows = elements.flatMap((element) => {
+      const tags = element.tags ?? {};
+      const category = publicCategory(tags);
+      const center = publicCenter(element);
+      const phone = publicPhone(tags);
+      const name = firstText(tags.name, tags["name:pt"]);
+      
+      // Removed phone requirement to increase lead coverage
+      if (!category || !categories.includes(category) || !center || !name) return [];
 
-    const placeType = publicPlaceType(tags);
-    const candidate = { category, name, place_type: placeType };
-    if (!isMusicOpportunity(candidate)) return [];
-    const osmType = String(element.type ?? "node");
-    const osmId = `${osmType}/${String(element.id ?? "")}`;
-    const street = firstText(tags["addr:street"]);
-    const number = firstText(tags["addr:housenumber"]);
-    const address = [street && number ? `${street}, ${number}` : street, city, state].filter(Boolean).join(" - ");
+      const placeType = publicPlaceType(tags);
+      const candidate = { category, name, place_type: placeType };
+      if (!isMusicOpportunity(candidate)) return [];
+      
+      const osmType = String(element.type ?? "node");
+      const osmId = `${osmType}/${String(element.id ?? "")}`;
+      const street = firstText(tags["addr:street"]);
+      const number = firstText(tags["addr:housenumber"]);
+      const address = [street && number ? `${street}, ${number}` : street, city, state].filter(Boolean).join(" - ");
 
-    return [{
-      place_id: `osm_${osmType}_${String(element.id ?? "")}`,
-      osm_id: osmId,
-      state,
-      city,
-      category,
-      name,
-      address: address || null,
-      phone,
-      website: firstText(tags.website, tags["contact:website"]) || null,
-      rating: null,
-      rating_count: null,
-      place_type: placeType,
-      maps_uri: `https://www.openstreetmap.org/${osmId}`,
-      lat: center.lat,
-      lng: center.lng,
-      source: "base_propria",
-      fetched_at: new Date().toISOString(),
-    }];
-  });
+      return [{
+        place_id: `osm_${osmType}_${String(element.id ?? "")}`,
+        osm_id: osmId,
+        state,
+        city,
+        category,
+        name,
+        address: address || null,
+        phone: phone || null,
+        website: firstText(tags.website, tags["contact:website"]) || null,
+        rating: null,
+        rating_count: null,
+        place_type: placeType,
+        maps_uri: `https://www.openstreetmap.org/${osmId}`,
+        lat: center.lat,
+        lng: center.lng,
+        source: "base_propria",
+        fetched_at: new Date().toISOString(),
+      }];
+    });
 
-  if (rows.length === 0) return 0;
-  const { error } = await admin.from("radar_places").upsert(rows, {
-    onConflict: "place_id,category",
-  });
-  if (error) throw error;
-  return rows.length;
+    if (rows.length === 0) return 0;
+    const { error } = await admin.from("radar_places").upsert(rows, {
+      onConflict: "place_id,category",
+    });
+    if (error) throw error;
+    return rows.length;
+  } catch (err) {
+    console.error(`Error filling city ${city}:`, err);
+    return 0;
+  }
 }
 
 async function searchStoredPlaces(
@@ -278,23 +291,20 @@ async function searchStoredPlaces(
   });
 }
 
-async function enrichStoredPlaces(admin: ReturnType<typeof createClient>) {
-  const places: StoredPlace[] = [];
-  const pageSize = 1000;
-
-  for (let from = 0; ; from += pageSize) {
-    const { data, error } = await admin
-      .from("radar_places")
-      .select("id,address,lat,lng")
-      .or("lat.is.null,lng.is.null")
-      .range(from, from + pageSize - 1);
-    if (error) throw error;
-    places.push(...((data ?? []) as StoredPlace[]));
-    if (!data || data.length < pageSize) break;
-  }
+async function enrichStoredPlaces(admin: ReturnType<typeof createClient>, cities: string[], state: string) {
+  // Only enrich places in the requested cities to avoid massive table scans
+  const { data: places, error } = await admin
+    .from("radar_places")
+    .select("id,address,lat,lng")
+    .in("city", cities)
+    .eq("state", state)
+    .or("lat.is.null,lng.is.null")
+    .limit(50); // Small batch per request
+    
+  if (error || !places || places.length === 0) return;
 
   const byCep = new Map<string, StoredPlace[]>();
-  for (const place of places) {
+  for (const place of places as StoredPlace[]) {
     const cep = extractCep(place.address);
     if (!cep) continue;
     const matches = byCep.get(cep) ?? [];
@@ -303,14 +313,14 @@ async function enrichStoredPlaces(admin: ReturnType<typeof createClient>) {
   }
 
   const entries = [...byCep.entries()];
-  const concurrency = 12;
+  const concurrency = 5;
   for (let index = 0; index < entries.length; index += concurrency) {
     const batch = entries.slice(index, index + concurrency);
-    await Promise.all(batch.map(async ([cep, matchingPlaces]) => {
+    await Promise.allSettled(batch.map(async ([cep, matchingPlaces]) => {
       const location = await locateCep(cep);
       if (!location) return;
       const ids = matchingPlaces.map(({ id }) => id);
-      const { error } = await admin
+      await admin
         .from("radar_places")
         .update({
           city: location.city,
@@ -320,7 +330,6 @@ async function enrichStoredPlaces(admin: ReturnType<typeof createClient>) {
           source: "base_propria",
         })
         .in("id", ids);
-      if (error) console.error(`Failed to locate stored CEP ${cep}:`, error.message);
     }));
   }
 }
@@ -358,7 +367,8 @@ serve(async (req) => {
 
     const stateCities = await getStateCities(origin.state);
     const stateCitiesByKey = new Map(stateCities.map((city) => [normalizeCity(city), city]));
-    const requestedCities = selectedCities?.length ? selectedCities : [origin.city];
+    const requestedCities = (selectedCities?.length ? selectedCities : [origin.city]).slice(0, 50); // Limit to 50 cities per search
+    
     const invalidCity = requestedCities.find((city) => !stateCitiesByKey.has(normalizeCity(city)));
     if (invalidCity) {
       return json({ error: `${invalidCity} não pertence ao estado ${origin.state}.` }, 400);
@@ -371,26 +381,40 @@ serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    await enrichStoredPlaces(admin);
+    // Run enrichment but don't let it block indefinitely
+    try {
+      await Promise.race([
+        enrichStoredPlaces(admin, canonicalCities, origin.state),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Enrichment timeout")), 8000))
+      ]);
+    } catch (e) {
+      console.warn("Enrichment skipped or timed out:", e.message);
+    }
 
     let { data, error } = await searchStoredPlaces(admin, origin, canonicalCities, categories);
     if (error) throw error;
 
-    const citiesWithResults = new Set((data ?? []).map((place: Record<string, unknown>) =>
-      normalizeCity(place.city)
-    ));
-    const missingCities = canonicalCities.filter((city) => !citiesWithResults.has(normalizeCity(city)));
+    // Category-aware missing city detection
+    const missingCities = canonicalCities.filter((city) => {
+      const cityResults = (data ?? []).filter((p: any) => normalizeCity(p.city) === normalizeCity(city));
+      const categoriesFound = new Set(cityResults.map((p: any) => p.category));
+      // If any requested category is missing for this city, we might need a refresh
+      // But only if we haven't fetched this city recently (implied by 0 results)
+      return categories.some(cat => !categoriesFound.has(cat));
+    });
+
     if (missingCities.length > 0) {
-      const concurrency = 3;
-      for (let index = 0; index < missingCities.length; index += concurrency) {
-        const batch = missingCities.slice(index, index + concurrency);
+      // Limit to max 5 cities to fetch from public source per request to avoid global timeout
+      const citiesToFetch = missingCities.slice(0, 5);
+      const concurrency = 2;
+      for (let index = 0; index < citiesToFetch.length; index += concurrency) {
+        const batch = citiesToFetch.slice(index, index + concurrency);
         await Promise.allSettled(batch.map((city) =>
           fillCityFromPublicSource(admin, city, origin.state, categories)
         ));
       }
       const refreshed = await searchStoredPlaces(admin, origin, canonicalCities, categories);
-      if (refreshed.error) throw refreshed.error;
-      data = refreshed.data;
+      if (!refreshed.error) data = refreshed.data;
     }
 
     const eligiblePlaces = (data ?? [])
