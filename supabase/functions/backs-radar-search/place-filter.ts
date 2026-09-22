@@ -34,7 +34,7 @@ const EXCLUDED_TERMS = [
 const BAR_TERMS = [
   "bar",
   "boteco",
-  "pub",
+  "pub"
   "choperia",
   "cervejaria",
   "gastrobar",
@@ -48,9 +48,9 @@ const BAR_PLACE_TYPES = [
   "lounge bar",
   "cervejaria",
   "choperia",
-  "pub",
+  "pub"
   "gastrobar",
-  "pub",
+  "pub"
 ];
 
 const NIGHTLIFE_TERMS = [
