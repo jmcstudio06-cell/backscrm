@@ -51,23 +51,38 @@ type IbgeCity = {
   nome?: unknown;
 };
 
-type OsmElement = {
+type GooglePlace = {
   id?: unknown;
-  type?: unknown;
-  lat?: unknown;
-  lon?: unknown;
-  center?: { lat?: unknown; lon?: unknown };
-  tags?: Record<string, unknown>;
+  displayName?: { text?: unknown };
+  formattedAddress?: unknown;
+  location?: { latitude?: unknown; longitude?: unknown };
+  rating?: unknown;
+  userRatingCount?: unknown;
+  types?: unknown;
+  primaryType?: unknown;
+  nationalPhoneNumber?: unknown;
+  internationalPhoneNumber?: unknown;
+  websiteUri?: unknown;
+  googleMapsUri?: unknown;
+  addressComponents?: Array<{ longText?: unknown; shortText?: unknown; types?: unknown }>;
 };
 
-type PublicCityLocation = {
-  areaId: number;
-};
+const GOOGLE_GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
+const GOOGLE_FIELD_MASK = [
+  "places.id", "places.displayName", "places.formattedAddress", "places.location",
+  "places.rating", "places.userRatingCount", "places.types", "places.primaryType",
+  "places.nationalPhoneNumber", "places.internationalPhoneNumber", "places.websiteUri",
+  "places.googleMapsUri", "places.addressComponents",
+].join(",");
+const CACHE_TARGET_PER_CATEGORY = 10;
+const MAX_CITIES_PER_SEARCH = 5;
 
-const OVERPASS_ENDPOINTS = [
-  "https://overpass.kumi.systems/api/interpreter",
-  "https://overpass-api.de/api/interpreter",
-];
+const GOOGLE_QUERIES: Record<string, string> = {
+  bares: "bares e pubs",
+  restaurantes: "restaurantes",
+  hoteis: "hotéis e resorts",
+  casas_de_show: "casas de show e casas noturnas",
+};
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -118,162 +133,128 @@ function firstText(...values: unknown[]) {
   return values.map((value) => String(value ?? "").trim()).find(Boolean) ?? "";
 }
 
-function publicCategory(tags: Record<string, unknown>) {
-  const amenity = normalizeCity(tags.amenity).replace(/_/g, " ");
-  const tourism = normalizeCity(tags.tourism).replace(/_/g, " ");
-  const leisure = normalizeCity(tags.leisure).replace(/_/g, " ");
-  
-  if (amenity === "bar" || amenity === "pub") return "bares";
-  if (amenity === "restaurant") return "restaurantes";
-  if (tourism === "hotel" || tourism === "resort") return "hoteis";
-  if (amenity === "nightclub" || amenity === "music venue" ||
-      leisure === "music venue" || amenity === "theatre") return "casas_de_show";
-  return null;
-}
-
-function publicPlaceType(tags: Record<string, unknown>) {
-  return firstText(tags.amenity, tags.tourism, tags.leisure).replaceAll("_", " ");
-}
-
-function publicPhone(tags: Record<string, unknown>) {
-  const raw = firstText(tags.phone, tags["contact:phone"], tags["phone:BR"]);
-  const first = raw.split(";")[0]?.trim() ?? "";
-  return first.replace(/\D/g, "").length >= 8 ? first : null;
-}
-
-function publicCenter(element: OsmElement) {
-  const lat = Number(element.type === "node" ? element.lat : element.center?.lat);
-  const lng = Number(element.type === "node" ? element.lon : element.center?.lon);
+function googleLocation(place: GooglePlace) {
+  const lat = Number(place.location?.latitude);
+  const lng = Number(place.location?.longitude);
   return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
 }
 
-async function locatePublicCity(city: string, state: string): Promise<PublicCityLocation | null> {
-  const params = new URLSearchParams({
-    city,
-    state,
-    country: "Brasil",
-    countrycodes: "br",
-    format: "jsonv2",
-    addressdetails: "1",
-    limit: "5",
-  });
-  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
-    headers: { Accept: "application/json", "User-Agent": "BackstageProRadar/1.0" },
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!response.ok) return null;
-
-  const results = await response.json() as Array<Record<string, unknown>>;
-  const match = results.find((result) => {
-    const address = (result.address ?? {}) as Record<string, unknown>;
-    const isoState = String(address["ISO3166-2-lvl4"] ?? "").split("-").pop();
-    const resultCity = firstText(address.city, address.town, address.municipality, address.village);
-    return result.osm_type === "relation" && isoState?.toUpperCase() === state.toUpperCase() &&
-      normalizeCity(resultCity) === normalizeCity(city);
-  });
-  const osmId = Number(match?.osm_id);
-  return Number.isFinite(osmId) ? { areaId: 3_600_000_000 + osmId } : null;
+function googleCityAndState(place: GooglePlace) {
+  const components = Array.isArray(place.addressComponents) ? place.addressComponents : [];
+  const hasType = (component: GooglePlace["addressComponents"][number], type: string) =>
+    Array.isArray(component.types) && component.types.includes(type);
+  const cityComponent = components.find((component) =>
+    hasType(component, "administrative_area_level_2") || hasType(component, "locality"));
+  const stateComponent = components.find((component) => hasType(component, "administrative_area_level_1"));
+  return {
+    city: firstText(cityComponent?.longText),
+    state: firstText(stateComponent?.shortText),
+  };
 }
 
-async function queryPublicPlaces(areaId: number, categories: string[]) {
-  const filters: string[] = [];
-  if (categories.includes("bares")) filters.push('nwr["amenity"~"^(bar|pub)$"](area.city);');
-  if (categories.includes("restaurantes")) filters.push('nwr["amenity"="restaurant"](area.city);');
-  if (categories.includes("hoteis")) filters.push('nwr["tourism"~"^(hotel|resort)$"](area.city);');
-  if (categories.includes("casas_de_show")) {
-    filters.push('nwr["amenity"~"^(nightclub|music_venue|theatre)$"](area.city);');
-    filters.push('nwr["leisure"="music_venue"](area.city);');
-  }
-  if (filters.length === 0) return [] as OsmElement[];
-
-  const query = `[out:json][timeout:35];area(${areaId})->.city;(${filters.join("")});out tags center;`;
-  let lastError: unknown = null;
-  for (const endpoint of OVERPASS_ENDPOINTS) {
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": "BackstageProRadar/1.0",
-        },
-        body: new URLSearchParams({ data: query }),
-        signal: AbortSignal.timeout(45000),
-      });
-      if (!response.ok) throw new Error(`OpenStreetMap respondeu ${response.status}`);
-      const payload = await response.json() as { elements?: OsmElement[] };
-      return payload.elements ?? [];
-    } catch (error) {
-      console.error(`Overpass endpoint ${endpoint} failed:`, error);
-      lastError = error;
-    }
-  }
-  throw lastError instanceof Error ? lastError : new Error("Fonte pública indisponível");
+function googlePlaceType(place: GooglePlace) {
+  const primaryType = firstText(place.primaryType).replaceAll("_", " ");
+  if (primaryType) return primaryType;
+  const types = Array.isArray(place.types) ? place.types.map(String) : [];
+  return firstText(types[0]).replaceAll("_", " ");
 }
 
-async function fillCityFromPublicSource(
+async function fillCityFromGoogle(
   admin: ReturnType<typeof createClient>,
   city: string,
   state: string,
-  categories: string[],
+  category: string,
 ) {
-  try {
-    const location = await locatePublicCity(city, state);
-    if (!location) {
-      console.warn(`Could not locate city via Nominatim: ${city}, ${state}`);
-      return 0;
-    }
-    const elements = await queryPublicPlaces(location.areaId, categories);
-    const rows = elements.flatMap((element) => {
-      const tags = element.tags ?? {};
-      const category = publicCategory(tags);
-      const center = publicCenter(element);
-      const phone = publicPhone(tags);
-      const name = firstText(tags.name, tags["name:pt"]);
-      
-      // Removed phone requirement to increase lead coverage
-      if (!category || !categories.includes(category) || !center || !name) return [];
+  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+  const mapsKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
+  if (!lovableKey || !mapsKey) throw new Error("Integração do Google Maps não configurada.");
 
-      const placeType = publicPlaceType(tags);
-      const candidate = { category, name, place_type: placeType };
-      if (!isMusicOpportunity(candidate)) return [];
-      
-      const osmType = String(element.type ?? "node");
-      const osmId = `${osmType}/${String(element.id ?? "")}`;
-      const street = firstText(tags["addr:street"]);
-      const number = firstText(tags["addr:housenumber"]);
-      const address = [street && number ? `${street}, ${number}` : street, city, state].filter(Boolean).join(" - ");
+  const response = await fetch(`${GOOGLE_GATEWAY}/places/v1/places:searchText`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": mapsKey,
+      "Content-Type": "application/json",
+      "X-Goog-FieldMask": GOOGLE_FIELD_MASK,
+    },
+    body: JSON.stringify({
+      textQuery: `${GOOGLE_QUERIES[category]} em ${city}, ${state}, Brasil`,
+      pageSize: 20,
+      languageCode: "pt-BR",
+      regionCode: "BR",
+    }),
+    signal: AbortSignal.timeout(12000),
+  });
 
-      return [{
-        place_id: `osm_${osmType}_${String(element.id ?? "")}`,
-        osm_id: osmId,
-        state,
-        city,
-        category,
-        name,
-        address: address || null,
-        phone: phone || null,
-        website: firstText(tags.website, tags["contact:website"]) || null,
-        rating: null,
-        rating_count: null,
-        place_type: placeType,
-        maps_uri: `https://www.openstreetmap.org/${osmId}`,
-        lat: center.lat,
-        lng: center.lng,
-        source: "base_propria",
-        fetched_at: new Date().toISOString(),
-      }];
-    });
-
-    if (rows.length === 0) return 0;
-    const { error } = await admin.from("radar_places").upsert(rows, {
-      onConflict: "place_id,category",
-    });
-    if (error) throw error;
-    return rows.length;
-  } catch (err) {
-    console.error(`Error filling city ${city}:`, err);
-    return 0;
+  if (!response.ok) {
+    const details = await response.text();
+    console.error(`Google Places failed [${response.status}]: ${details}`);
+    if (response.status === 403) throw new Error("A busca do Google precisa ser reconfigurada pelo suporte.");
+    throw new Error("A fonte de busca está temporariamente indisponível.");
   }
+
+  const payload = await response.json() as { places?: GooglePlace[] };
+  const rows = (payload.places ?? []).flatMap((place) => {
+    const placeId = firstText(place.id);
+    const name = firstText(place.displayName?.text);
+    const center = googleLocation(place);
+    const location = googleCityAndState(place);
+    const placeType = googlePlaceType(place);
+    if (!placeId || !name || !center) return [];
+    if (normalizeCity(location.city) !== normalizeCity(city) || location.state.toUpperCase() !== state.toUpperCase()) return [];
+    if (!isMusicOpportunity({ category, name, place_type: placeType })) return [];
+
+    return [{
+      place_id: placeId,
+      state,
+      city,
+      category,
+      name,
+      address: firstText(place.formattedAddress) || null,
+      phone: firstText(place.internationalPhoneNumber, place.nationalPhoneNumber) || null,
+      website: firstText(place.websiteUri) || null,
+      rating: Number.isFinite(Number(place.rating)) ? Number(place.rating) : null,
+      rating_count: Number.isFinite(Number(place.userRatingCount)) ? Number(place.userRatingCount) : null,
+      place_type: placeType || null,
+      maps_uri: firstText(place.googleMapsUri) || null,
+      lat: center.lat,
+      lng: center.lng,
+      source: "google_places",
+      fetched_at: new Date().toISOString(),
+    }];
+  });
+
+  if (rows.length > 0) {
+    const { error } = await admin.from("radar_places").upsert(rows, { onConflict: "place_id,category" });
+    if (error) throw error;
+  }
+  return rows.length;
+}
+
+async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: string) {
+  const { data: isAdmin } = await admin.rpc("has_role", { _user_id: userId, _role: "admin" });
+  if (isAdmin) return true;
+
+  let ownerId = userId;
+  const { data: membership } = await admin.from("workspace_members")
+    .select("owner_id,allowed_features,is_active")
+    .eq("member_user_id", userId)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (membership?.owner_id) {
+    const allowed = Array.isArray(membership.allowed_features) ? membership.allowed_features : [];
+    if (!allowed.includes("backs-radar")) return false;
+    ownerId = membership.owner_id;
+  }
+
+  const { data: profile } = await admin.from("profiles")
+    .select("plan,feature_blocks")
+    .eq("user_id", ownerId)
+    .maybeSingle();
+  const manualSetting = profile?.feature_blocks?.["backs-radar"];
+  if (manualSetting === false) return true;
+  if (manualSetting === true) return false;
+  return ["mensal_executivo", "anual_executivo"].includes(profile?.plan ?? "");
 }
 
 async function searchStoredPlaces(
@@ -367,7 +348,7 @@ serve(async (req) => {
 
     const stateCities = await getStateCities(origin.state);
     const stateCitiesByKey = new Map(stateCities.map((city) => [normalizeCity(city), city]));
-    const requestedCities = (selectedCities?.length ? selectedCities : [origin.city]).slice(0, 50); // Limit to 50 cities per search
+    const requestedCities = (selectedCities?.length ? selectedCities : [origin.city]).slice(0, MAX_CITIES_PER_SEARCH);
     
     const invalidCity = requestedCities.find((city) => !stateCitiesByKey.has(normalizeCity(city)));
     if (invalidCity) {
@@ -380,6 +361,10 @@ serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
+
+    if (!(await hasRadarAccess(admin, user.id))) {
+      return json({ error: "O Backs Radar está disponível no plano Executivo." }, 403);
+    }
 
     // Run enrichment but don't let it block indefinitely
     try {
@@ -394,23 +379,20 @@ serve(async (req) => {
     let { data, error } = await searchStoredPlaces(admin, origin, canonicalCities, categories);
     if (error) throw error;
 
-    // Category-aware missing city detection
-    const missingCities = canonicalCities.filter((city) => {
-      const cityResults = (data ?? []).filter((p: any) => normalizeCity(p.city) === normalizeCity(city));
-      const categoriesFound = new Set(cityResults.map((p: any) => p.category));
-      // If any requested category is missing for this city, we might need a refresh
-      // But only if we haven't fetched this city recently (implied by 0 results)
-      return categories.some(cat => !categoriesFound.has(cat));
-    });
+    const missingSearches = canonicalCities.flatMap((city) => categories.flatMap((category) => {
+      const count = (data ?? []).filter((place: Record<string, unknown>) =>
+        normalizeCity(place.city) === normalizeCity(city) &&
+        (place.category === category || (category === "casas_de_show" && place.category === "casas_noturnas"))
+      ).length;
+      return count < CACHE_TARGET_PER_CATEGORY ? [{ city, category }] : [];
+    }));
 
-    if (missingCities.length > 0) {
-      // Limit to max 5 cities to fetch from public source per request to avoid global timeout
-      const citiesToFetch = missingCities.slice(0, 5);
-      const concurrency = 2;
-      for (let index = 0; index < citiesToFetch.length; index += concurrency) {
-        const batch = citiesToFetch.slice(index, index + concurrency);
-        await Promise.allSettled(batch.map((city) =>
-          fillCityFromPublicSource(admin, city, origin.state, categories)
+    if (missingSearches.length > 0) {
+      const concurrency = 3;
+      for (let index = 0; index < missingSearches.length; index += concurrency) {
+        const batch = missingSearches.slice(index, index + concurrency);
+        await Promise.allSettled(batch.map(({ city, category }) =>
+          fillCityFromGoogle(admin, city, origin.state, category)
         ));
       }
       const refreshed = await searchStoredPlaces(admin, origin, canonicalCities, categories);

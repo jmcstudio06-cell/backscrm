@@ -52,6 +52,9 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Erro ao buscar contatos";
 }
 
+const SEARCH_TIMEOUT_MS = 30_000;
+const MAX_SELECTED_CITIES = 5;
+
 export default function BacksRadar() {
   const { addLead }                                           = useLeads();
   const { profile, loading: profileLoading, updateProfile }  = useProfile();
@@ -171,7 +174,9 @@ export default function BacksRadar() {
     setSelectedCities(prev =>
       prev.includes(city)
         ? prev.length > 1 ? prev.filter(c => c !== city) : prev
-        : [...prev, city]
+        : prev.length >= MAX_SELECTED_CITIES
+          ? (toast.info(`Você pode pesquisar até ${MAX_SELECTED_CITIES} cidades por vez.`), prev)
+          : [...prev, city]
     );
 
   // ── Pesquisar por cidade ──────────────────────────────────
@@ -182,7 +187,7 @@ export default function BacksRadar() {
     setLockedCount(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke("backs-radar-search", {
+      const invocation = supabase.functions.invoke("backs-radar-search", {
         body: {
           cep: activeCep,
           city: resolvedLocation?.city ?? "",
@@ -192,6 +197,10 @@ export default function BacksRadar() {
           selected_cities: selectedCities,
         },
       });
+      const timeout = new Promise<never>((_, reject) => {
+        window.setTimeout(() => reject(new Error("A busca demorou demais. Tente novamente em instantes.")), SEARCH_TIMEOUT_MS);
+      });
+      const { data, error } = await Promise.race([invocation, timeout]);
 
       if (error || data?.error) {
         throw new Error(data?.error ?? "Não foi possível concluir a pesquisa.");
@@ -350,7 +359,7 @@ export default function BacksRadar() {
                 )}
 
                 <p className="text-[11px] text-muted-foreground">
-                  {selectedCities.length} cidade{selectedCities.length !== 1 ? "s" : ""} selecionada{selectedCities.length !== 1 ? "s" : ""} — escolha qualquer cidade de {resolvedLocation.state}
+                   {selectedCities.length} de {MAX_SELECTED_CITIES} cidades selecionadas — escolha qualquer cidade de {resolvedLocation.state}
                 </p>
                 {!loadingCities && stateCities.length === 0 && (
                   <p className="text-xs text-muted-foreground">Nenhuma cidade do estado foi encontrada.</p>
