@@ -41,13 +41,6 @@ type CepLocation = {
   lng: number;
 };
 
-type StoredPlace = {
-  id: string;
-  address: string | null;
-  lat: number | null;
-  lng: number | null;
-};
-
 type IbgeCity = {
   nome?: unknown;
 };
@@ -304,6 +297,7 @@ async function fillCityFromGoogle(
     const placeType = googlePlaceType(place);
     if (!placeId || !name || !center) return [];
     if (normalizeCity(location.city) !== normalizeCity(city) || location.state.toUpperCase() !== state.toUpperCase()) return [];
+    if (!firstText(place.internationalPhoneNumber, place.nationalPhoneNumber)) return [];
     if (!isMusicOpportunity({ category, name, place_type: placeType })) return [];
 
     return [{
@@ -374,49 +368,6 @@ async function searchStoredPlaces(
   });
 }
 
-async function enrichStoredPlaces(admin: ReturnType<typeof createClient>, cities: string[], state: string) {
-  // Only enrich places in the requested cities to avoid massive table scans
-  const { data: places, error } = await admin
-    .from("radar_places")
-    .select("id,address,lat,lng")
-    .in("city", cities)
-    .eq("state", state)
-    .or("lat.is.null,lng.is.null")
-    .limit(50); // Small batch per request
-    
-  if (error || !places || places.length === 0) return;
-
-  const byCep = new Map<string, StoredPlace[]>();
-  for (const place of places as StoredPlace[]) {
-    const cep = extractCep(place.address);
-    if (!cep) continue;
-    const matches = byCep.get(cep) ?? [];
-    matches.push(place);
-    byCep.set(cep, matches);
-  }
-
-  const entries = [...byCep.entries()];
-  const concurrency = 5;
-  for (let index = 0; index < entries.length; index += concurrency) {
-    const batch = entries.slice(index, index + concurrency);
-    await Promise.allSettled(batch.map(async ([cep, matchingPlaces]) => {
-      const location = await locateCep(cep);
-      if (!location) return;
-      const ids = matchingPlaces.map(({ id }) => id);
-      await admin
-        .from("radar_places")
-        .update({
-          city: location.city,
-          state: location.state,
-          lat: location.lat,
-          lng: location.lng,
-          source: "base_propria",
-        })
-        .in("id", ids);
-    }));
-  }
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -450,7 +401,10 @@ serve(async (req) => {
 
     const stateCities = await getStateCities(origin.state);
     const stateCitiesByKey = new Map(stateCities.map((city) => [normalizeCity(city), city]));
-    const requestedCities = (selectedCities?.length ? selectedCities : [origin.city]).slice(0, MAX_CITIES_PER_SEARCH);
+    const requestedCities = selectedCities?.length ? selectedCities : [origin.city];
+    if (requestedCities.length > MAX_CITIES_PER_SEARCH) {
+      return json({ error: `Selecione no máximo ${MAX_CITIES_PER_SEARCH} cidades por pesquisa.` }, 400);
+    }
     
     const invalidCity = requestedCities.find((city) => !stateCitiesByKey.has(normalizeCity(city)));
     if (invalidCity) {
