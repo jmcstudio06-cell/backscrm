@@ -340,23 +340,17 @@ async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: st
   }
 
   const { data: profile } = await admin.from("profiles")
-    .select("plan,feature_blocks")
+    .select("plan,feature_blocks,trial_start,trial_days")
     .eq("user_id", ownerId)
     .maybeSingle();
   const manualSetting = profile?.feature_blocks?.["backs-radar"];
-  // Admin-granted access still requires an active paid plan; trial accounts cannot use Radar.
+  // Trial accounts never receive free Radar access, even through stale manual overrides.
   if (profile?.plan === "trial" || profile?.plan === "expirado" || profile?.plan === "comprou_expirado") return false;
+  if (profile?.trial_start && profile?.trial_days &&
+    new Date(profile.trial_start).getTime() + profile.trial_days * 86400000 < Date.now()) return false;
   if (manualSetting === false) return true;
   if (manualSetting === true) return false;
-  if (!["mensal_executivo", "anual_executivo"].includes(profile?.plan ?? "")) return false;
-  const { data: currentProfile } = await admin.from("profiles")
-    .select("trial_start,trial_days")
-    .eq("user_id", ownerId).maybeSingle();
-  if (currentProfile?.trial_start && currentProfile?.trial_days) {
-    const expiry = new Date(currentProfile.trial_start).getTime() + currentProfile.trial_days * 86400000;
-    if (expiry < Date.now()) return false;
-  }
-  return true;
+  return ["mensal_executivo", "anual_executivo"].includes(profile?.plan ?? "");
 }
 
 async function searchStoredPlaces(
