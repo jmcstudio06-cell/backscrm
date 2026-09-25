@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 import { isMusicOpportunity } from "./place-filter.ts";
+import { BACKSAI_URL, BACKSAI_PUBLISHABLE_KEY } from "./backsai-source.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,13 +41,6 @@ type CepLocation = {
   lng: number;
 };
 
-type StoredPlace = {
-  id: string;
-  address: string | null;
-  lat: number | null;
-  lng: number | null;
-};
-
 type IbgeCity = {
   nome?: unknown;
 };
@@ -67,6 +61,21 @@ type GooglePlace = {
   addressComponents?: Array<{ longText?: unknown; shortText?: unknown; types?: unknown }>;
 };
 
+type BacksAiPlace = {
+  place_id: string;
+  name: string;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  types: string[] | null;
+  rating: number | null;
+  user_rating_count: number | null;
+  phone: string | null;
+  website: string | null;
+};
+
 const GOOGLE_GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
 const GOOGLE_FIELD_MASK = [
   "places.id", "places.displayName", "places.formattedAddress", "places.location",
@@ -76,6 +85,92 @@ const GOOGLE_FIELD_MASK = [
 ].join(",");
 const CACHE_TARGET_PER_CATEGORY = 10;
 const MAX_CITIES_PER_SEARCH = 5;
+
+function backsAiCategory(place: BacksAiPlace): { category: string; placeType: string } | null {
+  const types = new Set((place.types ?? []).map((type) => type.toLowerCase()));
+  let category: string;
+  let placeType: string;
+  if (types.has("night_club") || types.has("nightclub") || types.has("music_venue") || types.has("concert_hall") ||
+    /casa de shows?|casa noturna|night ?club/i.test(place.name)) {
+    category = "casas_de_show";
+    placeType = "casa de show";
+  } else if (types.has("hotel") || types.has("resort_hotel") || types.has("lodging")) {
+    category = "hoteis";
+    placeType = "hotel";
+  } else if (types.has("bar") || types.has("pub") || types.has("cocktail_bar")) {
+    category = "bares";
+    placeType = types.has("pub") ? "pub" : "bar";
+  } else if (types.has("restaurant")) {
+    category = "restaurantes";
+    placeType = "restaurante";
+  } else return null;
+
+  return isMusicOpportunity({ name: place.name, place_type: placeType, category })
+    ? { category, placeType }
+    : null;
+}
+
+async function fillCityFromBacksAi(
+  admin: ReturnType<typeof createClient>, city: string, state: string, categories: string[],
+): Promise<boolean> {
+  try {
+    let offset = 0;
+    const rows: Array<Record<string, unknown>> = [];
+    for (let page = 0; page < 10; page++) {
+      const params = new URLSearchParams({
+        select: "place_id,name,address,city,state,latitude,longitude,types,rating,user_rating_count,phone,website",
+        city: `ilike.${city}`,
+        state: `eq.${state}`,
+        order: "place_id.asc",
+      });
+      const response = await fetch(`${BACKSAI_URL}/rest/v1/global_places?${params}`, {
+        headers: {
+          apikey: BACKSAI_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${BACKSAI_PUBLISHABLE_KEY}`,
+          Range: `${offset}-${offset + 999}`,
+        },
+        signal: AbortSignal.timeout(9000),
+      });
+      if (!response.ok) throw new Error(`BacksAI respondeu ${response.status}`);
+      const places = await response.json() as BacksAiPlace[];
+      for (const place of places) {
+        const classification = backsAiCategory(place);
+        if (!classification || !categories.includes(classification.category) || !place.phone?.trim() ||
+          !place.place_id || !place.name || !Number.isFinite(place.latitude) || !Number.isFinite(place.longitude) ||
+          normalizeCity(place.city) !== normalizeCity(city) || place.state?.toUpperCase() !== state.toUpperCase()) continue;
+        rows.push({
+          place_id: place.place_id,
+          name: place.name,
+          address: place.address,
+          city,
+          state,
+          lat: place.latitude,
+          lng: place.longitude,
+          phone: place.phone,
+          website: place.website,
+          rating: place.rating,
+          rating_count: place.user_rating_count,
+          category: classification.category,
+          place_type: classification.placeType,
+          maps_uri: `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(place.place_id)}`,
+          source: "backsai",
+          fetched_at: new Date().toISOString(),
+        });
+      }
+      if (places.length < 1000) break;
+      offset += 1000;
+    }
+    for (let start = 0; start < rows.length; start += 200) {
+      const { error } = await admin.from("radar_places")
+        .upsert(rows.slice(start, start + 200), { onConflict: "place_id,category" });
+      if (error) throw error;
+    }
+    return true;
+  } catch (error) {
+    console.error(`BacksAI import failed for ${city}, ${state}:`, error);
+    return false;
+  }
+}
 
 const GOOGLE_QUERIES: Record<string, string> = {
   bares: "bares e pubs",
@@ -89,10 +184,6 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-}
-
-function extractCep(address: string | null) {
-  return address?.match(/\b\d{5}-?\d{3}\b/)?.[0]?.replace(/\D/g, "") ?? null;
 }
 
 const normalizeCity = (value: unknown) => String(value ?? "")
@@ -202,6 +293,7 @@ async function fillCityFromGoogle(
     const placeType = googlePlaceType(place);
     if (!placeId || !name || !center) return [];
     if (normalizeCity(location.city) !== normalizeCity(city) || location.state.toUpperCase() !== state.toUpperCase()) return [];
+    if (!firstText(place.internationalPhoneNumber, place.nationalPhoneNumber)) return [];
     if (!isMusicOpportunity({ category, name, place_type: placeType })) return [];
 
     return [{
@@ -248,10 +340,14 @@ async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: st
   }
 
   const { data: profile } = await admin.from("profiles")
-    .select("plan,feature_blocks")
+    .select("plan,feature_blocks,trial_start,trial_days")
     .eq("user_id", ownerId)
     .maybeSingle();
   const manualSetting = profile?.feature_blocks?.["backs-radar"];
+  // Trial accounts never receive free Radar access, even through stale manual overrides.
+  if (profile?.plan === "trial" || profile?.plan === "expirado" || profile?.plan === "comprou_expirado") return false;
+  if (profile?.trial_start && profile?.trial_days &&
+    new Date(profile.trial_start).getTime() + profile.trial_days * 86400000 < Date.now()) return false;
   if (manualSetting === false) return true;
   if (manualSetting === true) return false;
   return ["mensal_executivo", "anual_executivo"].includes(profile?.plan ?? "");
@@ -270,49 +366,6 @@ async function searchStoredPlaces(
     p_cities: cities,
     p_categories: categories,
   });
-}
-
-async function enrichStoredPlaces(admin: ReturnType<typeof createClient>, cities: string[], state: string) {
-  // Only enrich places in the requested cities to avoid massive table scans
-  const { data: places, error } = await admin
-    .from("radar_places")
-    .select("id,address,lat,lng")
-    .in("city", cities)
-    .eq("state", state)
-    .or("lat.is.null,lng.is.null")
-    .limit(50); // Small batch per request
-    
-  if (error || !places || places.length === 0) return;
-
-  const byCep = new Map<string, StoredPlace[]>();
-  for (const place of places as StoredPlace[]) {
-    const cep = extractCep(place.address);
-    if (!cep) continue;
-    const matches = byCep.get(cep) ?? [];
-    matches.push(place);
-    byCep.set(cep, matches);
-  }
-
-  const entries = [...byCep.entries()];
-  const concurrency = 5;
-  for (let index = 0; index < entries.length; index += concurrency) {
-    const batch = entries.slice(index, index + concurrency);
-    await Promise.allSettled(batch.map(async ([cep, matchingPlaces]) => {
-      const location = await locateCep(cep);
-      if (!location) return;
-      const ids = matchingPlaces.map(({ id }) => id);
-      await admin
-        .from("radar_places")
-        .update({
-          city: location.city,
-          state: location.state,
-          lat: location.lat,
-          lng: location.lng,
-          source: "base_propria",
-        })
-        .in("id", ids);
-    }));
-  }
 }
 
 serve(async (req) => {
@@ -348,7 +401,10 @@ serve(async (req) => {
 
     const stateCities = await getStateCities(origin.state);
     const stateCitiesByKey = new Map(stateCities.map((city) => [normalizeCity(city), city]));
-    const requestedCities = (selectedCities?.length ? selectedCities : [origin.city]).slice(0, MAX_CITIES_PER_SEARCH);
+    const requestedCities = selectedCities?.length ? selectedCities : [origin.city];
+    if (requestedCities.length > MAX_CITIES_PER_SEARCH) {
+      return json({ error: `Selecione no máximo ${MAX_CITIES_PER_SEARCH} cidades por pesquisa.` }, 400);
+    }
     
     const invalidCity = requestedCities.find((city) => !stateCitiesByKey.has(normalizeCity(city)));
     if (invalidCity) {
@@ -366,37 +422,36 @@ serve(async (req) => {
       return json({ error: "O Backs Radar está disponível no plano Executivo." }, 403);
     }
 
-    // Run enrichment but don't let it block indefinitely
-    try {
-      await Promise.race([
-        enrichStoredPlaces(admin, canonicalCities, origin.state),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Enrichment timeout")), 8000))
-      ]);
-    } catch (e) {
-      console.warn("Enrichment skipped or timed out:", e.message);
-    }
-
     let { data, error } = await searchStoredPlaces(admin, origin, canonicalCities, categories);
     if (error) throw error;
 
-    const missingSearches = canonicalCities.flatMap((city) => categories.flatMap((category) => {
+    const missingCities = canonicalCities.filter((city) => categories.some((category) => {
       const count = (data ?? []).filter((place: Record<string, unknown>) =>
         normalizeCity(place.city) === normalizeCity(city) &&
         (place.category === category || (category === "casas_de_show" && place.category === "casas_noturnas"))
       ).length;
-      return count < CACHE_TARGET_PER_CATEGORY ? [{ city, category }] : [];
+      return count < CACHE_TARGET_PER_CATEGORY;
     }));
 
-    if (missingSearches.length > 0) {
-      const concurrency = 3;
-      for (let index = 0; index < missingSearches.length; index += concurrency) {
-        const batch = missingSearches.slice(index, index + concurrency);
-        await Promise.allSettled(batch.map(({ city, category }) =>
-          fillCityFromGoogle(admin, city, origin.state, category)
-        ));
-      }
+    if (missingCities.length > 0) {
+      const fetched = await Promise.all(missingCities.map(async (city) => ({
+        city,
+        success: await fillCityFromBacksAi(admin, city, origin.state, categories),
+      })));
       const refreshed = await searchStoredPlaces(admin, origin, canonicalCities, categories);
       if (!refreshed.error) data = refreshed.data;
+
+      // Use the already-linked Google connector only when the public BacksAI source fails.
+      for (const { city, success } of fetched) {
+        if (success) continue;
+        const missing = categories.filter((category) => !(data ?? []).some((place: Record<string, unknown>) =>
+          normalizeCity(place.city) === normalizeCity(city) && place.category === category));
+        await Promise.allSettled(missing.map((category) => fillCityFromGoogle(admin, city, origin.state, category)));
+      }
+      if (fetched.some(({ success }) => !success)) {
+        const fallback = await searchStoredPlaces(admin, origin, canonicalCities, categories);
+        if (!fallback.error) data = fallback.data;
+      }
     }
 
     const eligiblePlaces = (data ?? [])
