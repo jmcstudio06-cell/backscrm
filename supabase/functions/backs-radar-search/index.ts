@@ -186,10 +186,6 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function extractCep(address: string | null) {
-  return address?.match(/\b\d{5}-?\d{3}\b/)?.[0]?.replace(/\D/g, "") ?? null;
-}
-
 const normalizeCity = (value: unknown) => String(value ?? "")
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
@@ -348,9 +344,19 @@ async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: st
     .eq("user_id", ownerId)
     .maybeSingle();
   const manualSetting = profile?.feature_blocks?.["backs-radar"];
+  // Admin-granted access still requires an active paid plan; trial accounts cannot use Radar.
+  if (profile?.plan === "trial" || profile?.plan === "expirado" || profile?.plan === "comprou_expirado") return false;
   if (manualSetting === false) return true;
   if (manualSetting === true) return false;
-  return ["mensal_executivo", "anual_executivo"].includes(profile?.plan ?? "");
+  if (!["mensal_executivo", "anual_executivo"].includes(profile?.plan ?? "")) return false;
+  const { data: currentProfile } = await admin.from("profiles")
+    .select("trial_start,trial_days")
+    .eq("user_id", ownerId).maybeSingle();
+  if (currentProfile?.trial_start && currentProfile?.trial_days) {
+    const expiry = new Date(currentProfile.trial_start).getTime() + currentProfile.trial_days * 86400000;
+    if (expiry < Date.now()) return false;
+  }
+  return true;
 }
 
 async function searchStoredPlaces(
