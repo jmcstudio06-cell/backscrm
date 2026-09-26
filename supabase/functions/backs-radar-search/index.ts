@@ -1,14 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
 import { isMusicOpportunity } from "./place-filter.ts";
 import { BACKSAI_URL, BACKSAI_PUBLISHABLE_KEY } from "./backsai-source.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 const CATEGORIES = [
   "bares",
@@ -26,7 +22,7 @@ const BodySchema = z.object({
   radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
   categories: z.array(z.string().max(40)).max(12).optional(),
   category: z.string().max(40).optional(),
-  selected_cities: z.array(z.string().trim().min(1).max(120)).max(1000).optional(),
+  selected_cities: z.array(z.string().trim().min(1).max(120)).max(5).optional(),
 }).transform((body) => ({
   ...body,
   categories: [...new Set((body.categories ?? (body.category ? [body.category] : []))
@@ -113,6 +109,7 @@ async function fillCityFromBacksAi(
       });
       if (!response.ok) throw new Error(`BacksAI respondeu ${response.status}`);
       const places = await response.json() as BacksAiPlace[];
+      if (!Array.isArray(places)) throw new Error("Resposta inválida da base BacksAI");
       for (const place of places) {
         const classification = backsAiCategory(place);
         if (!classification || !categories.includes(classification.category) || !place.phone?.trim() ||
@@ -168,6 +165,7 @@ const normalizeCity = (value: unknown) => String(value ?? "")
 async function locateCep(cep: string): Promise<CepLocation | null> {
   const response = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`, {
     headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(8000),
   });
   if (!response.ok) return null;
 
@@ -182,7 +180,7 @@ async function locateCep(cep: string): Promise<CepLocation | null> {
 async function getStateCities(state: string) {
   const response = await fetch(
     `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${encodeURIComponent(state)}/municipios`,
-    { headers: { Accept: "application/json" } },
+    { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8000) },
   );
   if (!response.ok) throw new Error("Não foi possível validar as cidades deste estado.");
 
@@ -246,9 +244,10 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !serviceKey || !anonKey) return json({ error: "Serviço indisponível." }, 503);
     const authHeader = req.headers.get("Authorization");
 
     if (!authHeader?.startsWith("Bearer ")) {
