@@ -81,7 +81,7 @@ export function isMusicOpportunity(place: RadarPlaceCandidate): boolean {
 
   // For bares and restaurantes, if the category matches and it's not excluded, we're more lenient
   if (category === "bares") {
-    return BAR_PLACE_TYPES.includes(placeType) || includesAny(searchable, ["bar", "pub", "choperia", "cervejaria"]);
+    return BAR_PLACE_TYPES.includes(placeType);
   }
 
   if (category === "restaurantes") {
