@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 import { isMusicOpportunity } from "./place-filter.ts";
 import { BACKSAI_URL, BACKSAI_PUBLISHABLE_KEY } from "./backsai-source.ts";
@@ -25,7 +26,7 @@ const BodySchema = z.object({
   radius_km: z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
   categories: z.array(z.string().max(40)).max(12).optional(),
   category: z.string().max(40).optional(),
-  selected_cities: z.array(z.string().trim().min(1).max(120)).max(1000).optional(),
+  selected_cities: z.array(z.string().trim().min(1).max(120)).max(5).optional(),
 }).transform((body) => ({
   ...body,
   categories: [...new Set((body.categories ?? (body.category ? [body.category] : []))
@@ -45,21 +46,7 @@ type IbgeCity = {
   nome?: unknown;
 };
 
-type GooglePlace = {
-  id?: unknown;
-  displayName?: { text?: unknown };
-  formattedAddress?: unknown;
-  location?: { latitude?: unknown; longitude?: unknown };
-  rating?: unknown;
-  userRatingCount?: unknown;
-  types?: unknown;
-  primaryType?: unknown;
-  nationalPhoneNumber?: unknown;
-  internationalPhoneNumber?: unknown;
-  websiteUri?: unknown;
-  googleMapsUri?: unknown;
-  addressComponents?: Array<{ longText?: unknown; shortText?: unknown; types?: unknown }>;
-};
+type AdminClient = SupabaseClient<any, "public", "public", any, any>;
 
 type BacksAiPlace = {
   place_id: string;
@@ -76,13 +63,6 @@ type BacksAiPlace = {
   website: string | null;
 };
 
-const GOOGLE_GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
-const GOOGLE_FIELD_MASK = [
-  "places.id", "places.displayName", "places.formattedAddress", "places.location",
-  "places.rating", "places.userRatingCount", "places.types", "places.primaryType",
-  "places.nationalPhoneNumber", "places.internationalPhoneNumber", "places.websiteUri",
-  "places.googleMapsUri", "places.addressComponents",
-].join(",");
 const CACHE_TARGET_PER_CATEGORY = 10;
 const MAX_CITIES_PER_SEARCH = 5;
 
@@ -111,7 +91,7 @@ function backsAiCategory(place: BacksAiPlace): { category: string; placeType: st
 }
 
 async function fillCityFromBacksAi(
-  admin: ReturnType<typeof createClient>, city: string, state: string, categories: string[],
+  admin: AdminClient, city: string, state: string, categories: string[],
 ): Promise<boolean> {
   try {
     let offset = 0;
@@ -133,6 +113,7 @@ async function fillCityFromBacksAi(
       });
       if (!response.ok) throw new Error(`BacksAI respondeu ${response.status}`);
       const places = await response.json() as BacksAiPlace[];
+      if (!Array.isArray(places)) throw new Error("Resposta inválida da base BacksAI");
       for (const place of places) {
         const classification = backsAiCategory(place);
         if (!classification || !categories.includes(classification.category) || !place.phone?.trim() ||
@@ -172,13 +153,6 @@ async function fillCityFromBacksAi(
   }
 }
 
-const GOOGLE_QUERIES: Record<string, string> = {
-  bares: "bares e pubs",
-  restaurantes: "restaurantes",
-  hoteis: "hotéis e resorts",
-  casas_de_show: "casas de show e casas noturnas",
-};
-
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -195,6 +169,7 @@ const normalizeCity = (value: unknown) => String(value ?? "")
 async function locateCep(cep: string): Promise<CepLocation | null> {
   const response = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`, {
     headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(8000),
   });
   if (!response.ok) return null;
 
@@ -209,7 +184,7 @@ async function locateCep(cep: string): Promise<CepLocation | null> {
 async function getStateCities(state: string) {
   const response = await fetch(
     `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${encodeURIComponent(state)}/municipios`,
-    { headers: { Accept: "application/json" } },
+    { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8000) },
   );
   if (!response.ok) throw new Error("Não foi possível validar as cidades deste estado.");
 
@@ -224,106 +199,7 @@ function firstText(...values: unknown[]) {
   return values.map((value) => String(value ?? "").trim()).find(Boolean) ?? "";
 }
 
-function googleLocation(place: GooglePlace) {
-  const lat = Number(place.location?.latitude);
-  const lng = Number(place.location?.longitude);
-  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
-}
-
-function googleCityAndState(place: GooglePlace) {
-  const components = Array.isArray(place.addressComponents) ? place.addressComponents : [];
-  const hasType = (component: GooglePlace["addressComponents"][number], type: string) =>
-    Array.isArray(component.types) && component.types.includes(type);
-  const cityComponent = components.find((component) =>
-    hasType(component, "administrative_area_level_2") || hasType(component, "locality"));
-  const stateComponent = components.find((component) => hasType(component, "administrative_area_level_1"));
-  return {
-    city: firstText(cityComponent?.longText),
-    state: firstText(stateComponent?.shortText),
-  };
-}
-
-function googlePlaceType(place: GooglePlace) {
-  const primaryType = firstText(place.primaryType).replaceAll("_", " ");
-  if (primaryType) return primaryType;
-  const types = Array.isArray(place.types) ? place.types.map(String) : [];
-  return firstText(types[0]).replaceAll("_", " ");
-}
-
-async function fillCityFromGoogle(
-  admin: ReturnType<typeof createClient>,
-  city: string,
-  state: string,
-  category: string,
-) {
-  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-  const mapsKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
-  if (!lovableKey || !mapsKey) throw new Error("Integração do Google Maps não configurada.");
-
-  const response = await fetch(`${GOOGLE_GATEWAY}/places/v1/places:searchText`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": mapsKey,
-      "Content-Type": "application/json",
-      "X-Goog-FieldMask": GOOGLE_FIELD_MASK,
-    },
-    body: JSON.stringify({
-      textQuery: `${GOOGLE_QUERIES[category]} em ${city}, ${state}, Brasil`,
-      pageSize: 20,
-      languageCode: "pt-BR",
-      regionCode: "BR",
-    }),
-    signal: AbortSignal.timeout(12000),
-  });
-
-  if (!response.ok) {
-    const details = await response.text();
-    console.error(`Google Places failed [${response.status}]: ${details}`);
-    if (response.status === 403) throw new Error("A busca do Google precisa ser reconfigurada pelo suporte.");
-    throw new Error("A fonte de busca está temporariamente indisponível.");
-  }
-
-  const payload = await response.json() as { places?: GooglePlace[] };
-  const rows = (payload.places ?? []).flatMap((place) => {
-    const placeId = firstText(place.id);
-    const name = firstText(place.displayName?.text);
-    const center = googleLocation(place);
-    const location = googleCityAndState(place);
-    const placeType = googlePlaceType(place);
-    if (!placeId || !name || !center) return [];
-    if (normalizeCity(location.city) !== normalizeCity(city) || location.state.toUpperCase() !== state.toUpperCase()) return [];
-    if (!firstText(place.internationalPhoneNumber, place.nationalPhoneNumber)) return [];
-    if (!isMusicOpportunity({ category, name, place_type: placeType })) return [];
-
-    return [{
-      place_id: placeId,
-      state,
-      city,
-      category,
-      name,
-      address: firstText(place.formattedAddress) || null,
-      phone: firstText(place.internationalPhoneNumber, place.nationalPhoneNumber) || null,
-      website: firstText(place.websiteUri) || null,
-      rating: Number.isFinite(Number(place.rating)) ? Number(place.rating) : null,
-      rating_count: Number.isFinite(Number(place.userRatingCount)) ? Number(place.userRatingCount) : null,
-      place_type: placeType || null,
-      maps_uri: firstText(place.googleMapsUri) || null,
-      lat: center.lat,
-      lng: center.lng,
-      source: "google_places",
-      fetched_at: new Date().toISOString(),
-    }];
-  });
-
-  if (rows.length > 0) {
-    const { error } = await admin.from("radar_places").upsert(rows, { onConflict: "place_id,category" });
-    if (error) throw error;
-  }
-  return rows.length;
-}
-
-async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: string) {
+async function hasRadarAccess(admin: AdminClient, userId: string) {
   const { data: isAdmin } = await admin.rpc("has_role", { _user_id: userId, _role: "admin" });
   if (isAdmin) return true;
 
@@ -346,7 +222,7 @@ async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: st
   const manualSetting = profile?.feature_blocks?.["backs-radar"];
   // Trial accounts never receive free Radar access, even through stale manual overrides.
   if (profile?.plan === "trial" || profile?.plan === "expirado" || profile?.plan === "comprou_expirado") return false;
-  if (profile?.trial_start && profile?.trial_days &&
+  if (profile?.trial_start && profile?.trial_days && profile.trial_days > 0 &&
     new Date(profile.trial_start).getTime() + profile.trial_days * 86400000 < Date.now()) return false;
   if (manualSetting === false) return true;
   if (manualSetting === true) return false;
@@ -354,7 +230,7 @@ async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: st
 }
 
 async function searchStoredPlaces(
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   origin: CepLocation,
   cities: string[],
   categories: string[],
@@ -372,9 +248,10 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !serviceKey || !anonKey) return json({ error: "Serviço indisponível." }, 503);
     const authHeader = req.headers.get("Authorization");
 
     if (!authHeader?.startsWith("Bearer ")) {
@@ -441,16 +318,8 @@ serve(async (req) => {
       const refreshed = await searchStoredPlaces(admin, origin, canonicalCities, categories);
       if (!refreshed.error) data = refreshed.data;
 
-      // Use the already-linked Google connector only when the public BacksAI source fails.
-      for (const { city, success } of fetched) {
-        if (success) continue;
-        const missing = categories.filter((category) => !(data ?? []).some((place: Record<string, unknown>) =>
-          normalizeCity(place.city) === normalizeCity(city) && place.category === category));
-        await Promise.allSettled(missing.map((category) => fillCityFromGoogle(admin, city, origin.state, category)));
-      }
-      if (fetched.some(({ success }) => !success)) {
-        const fallback = await searchStoredPlaces(admin, origin, canonicalCities, categories);
-        if (!fallback.error) data = fallback.data;
+      if (fetched.some(({ success }) => !success) && !(data ?? []).length) {
+        return json({ error: "A base de contatos está indisponível no momento. Tente novamente mais tarde." }, 503);
       }
     }
 
