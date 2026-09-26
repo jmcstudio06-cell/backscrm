@@ -218,7 +218,7 @@ async function hasRadarAccess(admin: AdminClient, userId: string) {
   const manualSetting = profile?.feature_blocks?.["backs-radar"];
   // Trial accounts never receive free Radar access, even through stale manual overrides.
   if (profile?.plan === "trial" || profile?.plan === "expirado" || profile?.plan === "comprou_expirado") return false;
-  if (profile?.trial_start && profile?.trial_days &&
+  if (profile?.trial_start && profile?.trial_days && profile.trial_days > 0 &&
     new Date(profile.trial_start).getTime() + profile.trial_days * 86400000 < Date.now()) return false;
   if (manualSetting === false) return true;
   if (manualSetting === true) return false;
