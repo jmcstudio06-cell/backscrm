@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import {
   Radar, Search, Loader2, Phone, Globe, MapPin, Star,
   MessageCircle, UserPlus, Sparkles, Beer, UtensilsCrossed,
   Hotel, Mic2, Lock, Crown,
-  Navigation, CheckCircle2, Info, Building2, X,
+  Navigation, CheckCircle2, Building2, X,
 } from "lucide-react";
 
 interface RadarPlace {
@@ -66,6 +66,7 @@ export default function BacksRadar() {
 
   // ── CEP ─────────────────────────────────────────────────
   const [cepInput, setCepInput]           = useState("");
+  const cepInputRef                     = useRef("");
   const [cepLoading, setCepLoading]       = useState(false);
   const [savingRegion, setSavingRegion]   = useState(false);
   const [editingRegion, setEditingRegion] = useState(false);
@@ -107,9 +108,10 @@ export default function BacksRadar() {
     if (isConfigured && !editingRegion) return;
     const formatted = formatCep(e.target.value);
     setCepInput(formatted);
+    cepInputRef.current = formatted.replace(/\D/g, "");
     setResolvedLocation(null);
     setPlaces(null);
-    if (formatted.replace(/\D/g, "").length === 8) previewCep(formatted.replace(/\D/g, ""));
+    if (cepInputRef.current.length === 8) previewCep(cepInputRef.current);
   };
 
   const previewCep = async (digits: string) => {
@@ -119,7 +121,7 @@ export default function BacksRadar() {
       if (!res.ok) throw new Error("CEP indisponível");
       const data = await res.json();
       if (data?.erro || !data?.localidade || !data?.uf) { toast.error("CEP não encontrado."); return; }
-      if (cepInput.replace(/\D/g, "") !== digits) return;
+      if (cepInputRef.current !== digits) return;
       setResolvedLocation({ city: data.localidade, state: data.uf });
     } catch { toast.error("Não foi possível consultar o CEP"); }
     finally   { setCepLoading(false); }
@@ -310,6 +312,7 @@ export default function BacksRadar() {
                  <Button onClick={() => {
                    setEditingRegion(true);
                    setCepInput("");
+                   cepInputRef.current = "";
                    setResolvedLocation(null);
                    setPlaces(null);
                  }} size="sm" variant="outline">Alterar CEP</Button>
