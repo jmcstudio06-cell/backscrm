@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] Permitir corrigir o CEP salvo do Radar quando a cidade foi configurada com um CEP inválido.
 - [x] Integrar a base pública do BacksAI ao Backs Radar com cache local, sem Google na busca.
 - [x] Usar a base própria de oportunidades já armazenadas.
 - [x] Filtrar contatos exatamente por CEP/região, raio e categorias selecionadas.

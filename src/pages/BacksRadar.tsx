@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import {
   Radar, Search, Loader2, Phone, Globe, MapPin, Star,
   MessageCircle, UserPlus, Sparkles, Beer, UtensilsCrossed,
   Hotel, Mic2, Lock, Crown,
-  Navigation, CheckCircle2, Info, Building2, X,
+  Navigation, CheckCircle2, Building2, X,
 } from "lucide-react";
 
 interface RadarPlace {
@@ -57,7 +57,7 @@ const MAX_SELECTED_CITIES = 5;
 
 export default function BacksRadar() {
   const { addLead }                                           = useLeads();
-  const { profile, loading: profileLoading, updateProfile }  = useProfile();
+  const { profile, loading: profileLoading, fetchProfile }  = useProfile();
   const { isBlocked, loading: blocksLoading }                 = useFeatureBlocks();
   const navigate                                              = useNavigate();
 
@@ -66,8 +66,10 @@ export default function BacksRadar() {
 
   // ── CEP ─────────────────────────────────────────────────
   const [cepInput, setCepInput]           = useState("");
+  const cepInputRef                     = useRef("");
   const [cepLoading, setCepLoading]       = useState(false);
   const [savingRegion, setSavingRegion]   = useState(false);
+  const [editingRegion, setEditingRegion] = useState(false);
   const [resolvedLocation, setResolvedLocation] = useState<{ city: string; state: string } | null>(null);
 
   // ── Cidades ──────────────────────────────────────────────
@@ -103,19 +105,23 @@ export default function BacksRadar() {
   }, [resolvedLocation]);
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isConfigured) return;
+    if (isConfigured && !editingRegion) return;
     const formatted = formatCep(e.target.value);
     setCepInput(formatted);
+    cepInputRef.current = formatted.replace(/\D/g, "");
     setResolvedLocation(null);
-    if (formatted.replace(/\D/g, "").length === 8) previewCep(formatted.replace(/\D/g, ""));
+    setPlaces(null);
+    if (cepInputRef.current.length === 8) previewCep(cepInputRef.current);
   };
 
   const previewCep = async (digits: string) => {
     setCepLoading(true);
     try {
       const res  = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      if (!res.ok) throw new Error("CEP indisponível");
       const data = await res.json();
-      if (data?.erro) { toast.error("CEP não encontrado."); return; }
+      if (data?.erro || !data?.localidade || !data?.uf) { toast.error("CEP não encontrado."); return; }
+      if (cepInputRef.current !== digits) return;
       setResolvedLocation({ city: data.localidade, state: data.uf });
     } catch { toast.error("Não foi possível consultar o CEP"); }
     finally   { setCepLoading(false); }
@@ -126,20 +132,29 @@ export default function BacksRadar() {
     const digits = cepInput.replace(/\D/g, "");
     if (digits.length !== 8) { toast.error("CEP inválido"); return; }
     setSavingRegion(true);
-    await updateProfile({
-      radar_cep: digits,
-      radar_city: resolvedLocation.city,
-      radar_state: resolvedLocation.state,
-      radar_configured_at: new Date().toISOString(),
-    } as never);
-    setSavingRegion(false);
-    toast.success("Região configurada!");
+    try {
+      if (!profile) throw new Error("Perfil indisponível");
+      const { error } = await supabase.from("profiles").update({
+        radar_cep: digits,
+        radar_city: resolvedLocation.city,
+        radar_state: resolvedLocation.state,
+        radar_configured_at: new Date().toISOString(),
+      }).eq("id", profile.id);
+      if (error) throw error;
+      setEditingRegion(false);
+      fetchProfile();
+      toast.success("Região configurada!");
+    } catch {
+      toast.error("Não foi possível salvar o CEP. Tente novamente.");
+    } finally {
+      setSavingRegion(false);
+    }
   };
 
-  const displayCep = isConfigured ? formatCep(profile?.radar_cep ?? "") : cepInput;
-  const activeCep  = isConfigured ? (profile?.radar_cep ?? "") : cepInput.replace(/\D/g, "");
+  const displayCep = isConfigured && !editingRegion ? formatCep(profile?.radar_cep ?? "") : cepInput;
+  const activeCep  = isConfigured && !editingRegion ? (profile?.radar_cep ?? "") : cepInput.replace(/\D/g, "");
   const canSearch  = activeCep.length === 8 && !!resolvedLocation
-                     && selectedCities.length > 0 && categories.length > 0;
+                     && !editingRegion && selectedCities.length > 0 && categories.length > 0;
 
   useEffect(() => {
     if (!resolvedLocation?.state) return;
@@ -281,8 +296,8 @@ export default function BacksRadar() {
                     placeholder="00000-000"
                     inputMode="numeric"
                     maxLength={9}
-                    readOnly={isConfigured}
-                    className={`pl-10 text-base font-medium ${isConfigured ? "bg-muted/50 cursor-not-allowed text-muted-foreground" : ""}`}
+                     readOnly={isConfigured && !editingRegion}
+                     className={`pl-10 text-base font-medium ${isConfigured && !editingRegion ? "bg-muted/50 cursor-not-allowed text-muted-foreground" : ""}`}
                   />
                   {cepLoading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />}
                 </div>
@@ -293,13 +308,23 @@ export default function BacksRadar() {
                   </p>
                 )}
               </div>
-              {isConfigured && (
-                <p className="text-[11px] text-muted-foreground flex items-start gap-1.5">
-                  <Info className="h-3 w-3 shrink-0 mt-0.5" />
-                  Para alterar a cidade base, entre em contato com o suporte.
-                </p>
-              )}
-              {!isConfigured && resolvedLocation && (
+               {isConfigured && !editingRegion && (
+                 <Button onClick={() => {
+                   setEditingRegion(true);
+                   setCepInput("");
+                   cepInputRef.current = "";
+                   setResolvedLocation(null);
+                   setPlaces(null);
+                 }} size="sm" variant="outline">Alterar CEP</Button>
+               )}
+               {editingRegion && (
+                 <Button onClick={() => {
+                   setEditingRegion(false);
+                   setResolvedLocation(profile?.radar_city && profile?.radar_state
+                     ? { city: profile.radar_city, state: profile.radar_state } : null);
+                 }} size="sm" variant="ghost">Cancelar</Button>
+               )}
+               {(!isConfigured || editingRegion) && resolvedLocation && (
                 <Button onClick={saveRegion} disabled={savingRegion} size="sm" variant="outline" className="gap-1.5 text-xs">
                   {savingRegion ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
                   Confirmar minha região
