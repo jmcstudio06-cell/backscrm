@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 import { isMusicOpportunity } from "./place-filter.ts";
 import { BACKSAI_URL, BACKSAI_PUBLISHABLE_KEY } from "./backsai-source.ts";
@@ -44,6 +45,8 @@ type CepLocation = {
 type IbgeCity = {
   nome?: unknown;
 };
+
+type AdminClient = SupabaseClient<any, "public", "public", any, any>;
 
 type GooglePlace = {
   id?: unknown;
@@ -111,7 +114,7 @@ function backsAiCategory(place: BacksAiPlace): { category: string; placeType: st
 }
 
 async function fillCityFromBacksAi(
-  admin: ReturnType<typeof createClient>, city: string, state: string, categories: string[],
+  admin: AdminClient, city: string, state: string, categories: string[],
 ): Promise<boolean> {
   try {
     let offset = 0;
@@ -232,7 +235,7 @@ function googleLocation(place: GooglePlace) {
 
 function googleCityAndState(place: GooglePlace) {
   const components = Array.isArray(place.addressComponents) ? place.addressComponents : [];
-  const hasType = (component: GooglePlace["addressComponents"][number], type: string) =>
+  const hasType = (component: NonNullable<GooglePlace["addressComponents"]>[number], type: string) =>
     Array.isArray(component.types) && component.types.includes(type);
   const cityComponent = components.find((component) =>
     hasType(component, "administrative_area_level_2") || hasType(component, "locality"));
@@ -251,7 +254,7 @@ function googlePlaceType(place: GooglePlace) {
 }
 
 async function fillCityFromGoogle(
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   city: string,
   state: string,
   category: string,
@@ -323,7 +326,7 @@ async function fillCityFromGoogle(
   return rows.length;
 }
 
-async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: string) {
+async function hasRadarAccess(admin: AdminClient, userId: string) {
   const { data: isAdmin } = await admin.rpc("has_role", { _user_id: userId, _role: "admin" });
   if (isAdmin) return true;
 
@@ -354,7 +357,7 @@ async function hasRadarAccess(admin: ReturnType<typeof createClient>, userId: st
 }
 
 async function searchStoredPlaces(
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   origin: CepLocation,
   cities: string[],
   categories: string[],
