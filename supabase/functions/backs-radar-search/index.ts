@@ -48,22 +48,6 @@ type IbgeCity = {
 
 type AdminClient = SupabaseClient<any, "public", "public", any, any>;
 
-type GooglePlace = {
-  id?: unknown;
-  displayName?: { text?: unknown };
-  formattedAddress?: unknown;
-  location?: { latitude?: unknown; longitude?: unknown };
-  rating?: unknown;
-  userRatingCount?: unknown;
-  types?: unknown;
-  primaryType?: unknown;
-  nationalPhoneNumber?: unknown;
-  internationalPhoneNumber?: unknown;
-  websiteUri?: unknown;
-  googleMapsUri?: unknown;
-  addressComponents?: Array<{ longText?: unknown; shortText?: unknown; types?: unknown }>;
-};
-
 type BacksAiPlace = {
   place_id: string;
   name: string;
@@ -79,13 +63,6 @@ type BacksAiPlace = {
   website: string | null;
 };
 
-const GOOGLE_GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
-const GOOGLE_FIELD_MASK = [
-  "places.id", "places.displayName", "places.formattedAddress", "places.location",
-  "places.rating", "places.userRatingCount", "places.types", "places.primaryType",
-  "places.nationalPhoneNumber", "places.internationalPhoneNumber", "places.websiteUri",
-  "places.googleMapsUri", "places.addressComponents",
-].join(",");
 const CACHE_TARGET_PER_CATEGORY = 10;
 const MAX_CITIES_PER_SEARCH = 5;
 
@@ -175,13 +152,6 @@ async function fillCityFromBacksAi(
   }
 }
 
-const GOOGLE_QUERIES: Record<string, string> = {
-  bares: "bares e pubs",
-  restaurantes: "restaurantes",
-  hoteis: "hotéis e resorts",
-  casas_de_show: "casas de show e casas noturnas",
-};
-
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -225,105 +195,6 @@ async function getStateCities(state: string) {
 
 function firstText(...values: unknown[]) {
   return values.map((value) => String(value ?? "").trim()).find(Boolean) ?? "";
-}
-
-function googleLocation(place: GooglePlace) {
-  const lat = Number(place.location?.latitude);
-  const lng = Number(place.location?.longitude);
-  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
-}
-
-function googleCityAndState(place: GooglePlace) {
-  const components = Array.isArray(place.addressComponents) ? place.addressComponents : [];
-  const hasType = (component: NonNullable<GooglePlace["addressComponents"]>[number], type: string) =>
-    Array.isArray(component.types) && component.types.includes(type);
-  const cityComponent = components.find((component) =>
-    hasType(component, "administrative_area_level_2") || hasType(component, "locality"));
-  const stateComponent = components.find((component) => hasType(component, "administrative_area_level_1"));
-  return {
-    city: firstText(cityComponent?.longText),
-    state: firstText(stateComponent?.shortText),
-  };
-}
-
-function googlePlaceType(place: GooglePlace) {
-  const primaryType = firstText(place.primaryType).replaceAll("_", " ");
-  if (primaryType) return primaryType;
-  const types = Array.isArray(place.types) ? place.types.map(String) : [];
-  return firstText(types[0]).replaceAll("_", " ");
-}
-
-async function fillCityFromGoogle(
-  admin: AdminClient,
-  city: string,
-  state: string,
-  category: string,
-) {
-  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-  const mapsKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
-  if (!lovableKey || !mapsKey) throw new Error("Integração do Google Maps não configurada.");
-
-  const response = await fetch(`${GOOGLE_GATEWAY}/places/v1/places:searchText`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": mapsKey,
-      "Content-Type": "application/json",
-      "X-Goog-FieldMask": GOOGLE_FIELD_MASK,
-    },
-    body: JSON.stringify({
-      textQuery: `${GOOGLE_QUERIES[category]} em ${city}, ${state}, Brasil`,
-      pageSize: 20,
-      languageCode: "pt-BR",
-      regionCode: "BR",
-    }),
-    signal: AbortSignal.timeout(12000),
-  });
-
-  if (!response.ok) {
-    const details = await response.text();
-    console.error(`Google Places failed [${response.status}]: ${details}`);
-    if (response.status === 403) throw new Error("A busca do Google precisa ser reconfigurada pelo suporte.");
-    throw new Error("A fonte de busca está temporariamente indisponível.");
-  }
-
-  const payload = await response.json() as { places?: GooglePlace[] };
-  const rows = (payload.places ?? []).flatMap((place) => {
-    const placeId = firstText(place.id);
-    const name = firstText(place.displayName?.text);
-    const center = googleLocation(place);
-    const location = googleCityAndState(place);
-    const placeType = googlePlaceType(place);
-    if (!placeId || !name || !center) return [];
-    if (normalizeCity(location.city) !== normalizeCity(city) || location.state.toUpperCase() !== state.toUpperCase()) return [];
-    if (!firstText(place.internationalPhoneNumber, place.nationalPhoneNumber)) return [];
-    if (!isMusicOpportunity({ category, name, place_type: placeType })) return [];
-
-    return [{
-      place_id: placeId,
-      state,
-      city,
-      category,
-      name,
-      address: firstText(place.formattedAddress) || null,
-      phone: firstText(place.internationalPhoneNumber, place.nationalPhoneNumber) || null,
-      website: firstText(place.websiteUri) || null,
-      rating: Number.isFinite(Number(place.rating)) ? Number(place.rating) : null,
-      rating_count: Number.isFinite(Number(place.userRatingCount)) ? Number(place.userRatingCount) : null,
-      place_type: placeType || null,
-      maps_uri: firstText(place.googleMapsUri) || null,
-      lat: center.lat,
-      lng: center.lng,
-      source: "google_places",
-      fetched_at: new Date().toISOString(),
-    }];
-  });
-
-  if (rows.length > 0) {
-    const { error } = await admin.from("radar_places").upsert(rows, { onConflict: "place_id,category" });
-    if (error) throw error;
-  }
-  return rows.length;
 }
 
 async function hasRadarAccess(admin: AdminClient, userId: string) {
@@ -444,16 +315,8 @@ serve(async (req) => {
       const refreshed = await searchStoredPlaces(admin, origin, canonicalCities, categories);
       if (!refreshed.error) data = refreshed.data;
 
-      // Use the already-linked Google connector only when the public BacksAI source fails.
-      for (const { city, success } of fetched) {
-        if (success) continue;
-        const missing = categories.filter((category) => !(data ?? []).some((place: Record<string, unknown>) =>
-          normalizeCity(place.city) === normalizeCity(city) && place.category === category));
-        await Promise.allSettled(missing.map((category) => fillCityFromGoogle(admin, city, origin.state, category)));
-      }
-      if (fetched.some(({ success }) => !success)) {
-        const fallback = await searchStoredPlaces(admin, origin, canonicalCities, categories);
-        if (!fallback.error) data = fallback.data;
+      if (fetched.some(({ success }) => !success) && !(data ?? []).length) {
+        return json({ error: "A base de contatos está indisponível no momento. Tente novamente mais tarde." }, 503);
       }
     }
 
