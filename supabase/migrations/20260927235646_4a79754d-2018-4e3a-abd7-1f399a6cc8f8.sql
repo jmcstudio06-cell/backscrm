@@ -1,0 +1,1 @@
+CREATE POLICY "Radar contacts are only available through the protected search" ON public.radar_places FOR SELECT TO authenticated USING (false);

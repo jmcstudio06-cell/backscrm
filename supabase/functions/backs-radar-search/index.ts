@@ -295,9 +295,7 @@ serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    if (!(await hasRadarAccess(admin, user.id))) {
-      return json({ error: "O Backs Radar está disponível no plano Executivo." }, 403);
-    }
+    const hasAccess = await hasRadarAccess(admin, user.id);
 
     let { data, error } = await searchStoredPlaces(admin, origin, canonicalCities, categories);
     if (error) throw error;
@@ -337,7 +335,10 @@ serve(async (req) => {
       }));
 
     return json({
-      places,
+      // Return only the filtered count to accounts without Radar access.
+      locked: !hasAccess,
+      count: places.length,
+      places: hasAccess ? places : [],
       state_cities: stateCities,
       source: "base_propria",
       city: origin.city,

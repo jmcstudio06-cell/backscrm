@@ -1,5 +1,6 @@
 # Roadmap
 
+- [ ] Permitir pesquisar no Backs Radar sem plano Executivo e mostrar apenas a contagem de oportunidades e convite para upgrade, sem expor contatos.
 - [x] Permitir ao administrador apagar a região cadastrada no Backs Radar para o artista configurar novamente.
 - [x] Permitir corrigir o CEP salvo do Radar quando a cidade foi configurada com um CEP inválido.
 - [x] Integrar a base pública do BacksAI ao Backs Radar com cache local, sem Google na busca.
