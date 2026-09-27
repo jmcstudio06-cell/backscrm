@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] Permitir ao administrador apagar a região cadastrada no Backs Radar para o artista configurar novamente.
 - [x] Permitir corrigir o CEP salvo do Radar quando a cidade foi configurada com um CEP inválido.
 - [x] Integrar a base pública do BacksAI ao Backs Radar com cache local, sem Google na busca.
 - [x] Usar a base própria de oportunidades já armazenadas.
