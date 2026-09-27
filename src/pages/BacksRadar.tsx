@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLeads } from "@/hooks/useLeads";
 import { useProfile } from "@/hooks/useProfile";
-import { useFeatureBlocks } from "@/hooks/useFeatureBlocks";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -58,10 +57,8 @@ const MAX_SELECTED_CITIES = 5;
 export default function BacksRadar() {
   const { addLead }                                           = useLeads();
   const { profile, loading: profileLoading, fetchProfile }  = useProfile();
-  const { isBlocked, loading: blocksLoading }                 = useFeatureBlocks();
   const navigate                                              = useNavigate();
 
-  const locked      = !blocksLoading && isBlocked("backs-radar");
   const isConfigured = !!(profile?.radar_cep && profile?.radar_city && profile?.radar_state);
 
   // ── CEP ─────────────────────────────────────────────────
@@ -221,11 +218,15 @@ export default function BacksRadar() {
         throw new Error(data?.error ?? "Não foi possível concluir a pesquisa.");
       }
 
-      const allResults = (data?.places ?? []) as RadarPlace[];
       setSearchedCities([...selectedCities]);
 
-      if (locked) { setLockedCount(allResults.length); setPlaces([]); return; }
+      if (data?.locked === true) {
+        setLockedCount(Number(data.count) || 0);
+        setPlaces(null);
+        return;
+      }
 
+      const allResults = (data?.places ?? []) as RadarPlace[];
       setPlaces(allResults);
       if (allResults.length === 0) toast.info("Nenhum contato encontrado. Adicione mais cidades ou categorias.");
 
@@ -424,11 +425,11 @@ export default function BacksRadar() {
         </div>
 
         {/* ── Bloqueado ── */}
-        {locked && lockedCount !== null && (
+        {lockedCount !== null && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              {lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""} em {searchedCities.join(", ")}
+              {lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""} nas cidades selecionadas
             </p>
             <div className="relative">
               <div className="grid gap-3 sm:grid-cols-2 select-none pointer-events-none blur-[6px] opacity-60">
@@ -441,7 +442,7 @@ export default function BacksRadar() {
                   </div>
                 ))}
               </div>
-              <div className="absolute inset-0 flex items-center justify-center p-4">
+              <div className="relative sm:absolute sm:inset-0 flex items-center justify-center p-4">
                 <div className="max-w-md w-full rounded-3xl border bg-card/95 backdrop-blur-xl p-6 text-center shadow-2xl space-y-4">
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg">
                     <Lock className="h-7 w-7" />
@@ -449,7 +450,7 @@ export default function BacksRadar() {
                   <div className="space-y-1.5">
                     <h3 className="text-lg font-bold">Contatos disponíveis no plano Executivo</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Encontramos <span className="font-bold text-foreground">{lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""}</span> em {searchedCities.join(", ")}. Ative o Executivo para ver nomes e telefones.
+                      Encontramos <span className="font-bold text-foreground">{lockedCount} oportunidade{lockedCount !== 1 ? "s" : ""}</span> em {searchedCities.join(", ")}. Desbloqueie o plano Executivo para ver os locais e contatos.
                     </p>
                   </div>
                   <Button onClick={() => navigate("/planos")} size="lg" className="w-full rounded-xl gap-2">
@@ -462,7 +463,7 @@ export default function BacksRadar() {
         )}
 
         {/* ── Resultados ── */}
-        {!locked && places && places.length > 0 && (
+        {places && places.length > 0 && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
@@ -527,7 +528,7 @@ export default function BacksRadar() {
         )}
 
         {/* ── Sem resultados ── */}
-        {!locked && places !== null && places.length === 0 && (
+        {places !== null && places.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
               <Radar className="h-8 w-8 text-muted-foreground/50" />
