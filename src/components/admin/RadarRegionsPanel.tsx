@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { RegionPicker } from "@/components/radar/RegionPicker";
 import { toast } from "sonner";
-import { Loader2, MapPin, Radar, Search, Pencil } from "lucide-react";
+import { Loader2, MapPin, Radar, Search, Pencil, Trash2 } from "lucide-react";
 
 interface RadarProfile {
   id: string;
@@ -25,6 +26,7 @@ export function RadarRegionsPanel() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<RadarProfile | null>(null);
+  const [resetting, setResetting] = useState<RadarProfile | null>(null);
   const [draft, setDraft] = useState({ state: "", city: "", cep: "" });
   const [saving, setSaving] = useState(false);
 
@@ -76,6 +78,29 @@ export function RadarRegionsPanel() {
     }
     toast.success("Região atualizada");
     setEditing(null);
+    load();
+  };
+
+  const resetRegion = async () => {
+    if (!resetting) return;
+    setSaving(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({
+        radar_state: null,
+        radar_city: null,
+        radar_cep: null,
+        radar_configured_at: null,
+      })
+      .eq("id", resetting.id)
+      .select("id");
+    setSaving(false);
+    if (error || !data?.length) {
+      toast.error("Não foi possível apagar a região. Tente novamente.");
+      return;
+    }
+    toast.success("Região apagada. O artista pode configurar novamente.");
+    setResetting(null);
     load();
   };
 
@@ -137,6 +162,11 @@ export function RadarRegionsPanel() {
                   <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => openEdit(row)}>
                     <Pencil className="h-3.5 w-3.5" /> Alterar
                   </Button>
+                  {(row.radar_city || row.radar_state || row.radar_cep) && (
+                    <Button size="icon" variant="outline" className="shrink-0 text-destructive" title="Apagar região" aria-label={`Apagar região de ${row.artist_name || row.name || "artista"}`} onClick={() => setResetting(row)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -168,6 +198,24 @@ export function RadarRegionsPanel() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!resetting} onOpenChange={(open) => !open && !saving && setResetting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apagar região cadastrada?</AlertDialogTitle>
+            <AlertDialogDescription>
+              O CEP e a cidade de {resetting?.artist_name || resetting?.name || "este artista"} serão apagados. O artista poderá configurar a região novamente no Backs Radar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={(event) => { event.preventDefault(); void resetRegion(); }} disabled={saving} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Apagar região
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
