@@ -70,8 +70,8 @@ export function EngagementPanel() {
 
     // Planos pagos válidos — exclui trial, expirados, parceiros e sem plano
     const PAID_PLANS = [
-      "mensal_starter", "mensal_profissional", "mensal_completo", "mensal_executivo",
-      "anual_starter", "anual_profissional", "anual_completo", "anual_executivo",
+      "mensal_starter", "mensal_profissional", "mensal_completo", "mensal_empresarial", "mensal_executivo",
+      "anual_starter", "anual_profissional", "anual_completo", "anual_empresarial", "anual_executivo",
       // legados pagos
       "mensal", "essencial", "completo", "anual", "base",
     ];
@@ -123,7 +123,7 @@ export function EngagementPanel() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Engajamento</CardTitle>
-            <CardDescription>Último acesso dos clientes com plano pago — incentive quem sumiu</CardDescription>
+            <CardDescription>Última visita ao app dos clientes com plano pago — não conta apenas o login</CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
