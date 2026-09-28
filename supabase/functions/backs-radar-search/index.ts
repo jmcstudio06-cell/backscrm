@@ -200,9 +200,6 @@ function firstText(...values: unknown[]) {
 }
 
 async function hasRadarAccess(admin: AdminClient, userId: string) {
-  const { data: isAdmin } = await admin.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (isAdmin) return true;
-
   let ownerId = userId;
   const { data: membership } = await admin.from("workspace_members")
     .select("owner_id,allowed_features,is_active")
