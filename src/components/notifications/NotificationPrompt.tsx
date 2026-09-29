@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { isWebPushSubscribed, subscribeToWebPush } from "@/lib/webPush";
+import { subscribeToWebPush } from "@/lib/webPush";
 import { Bell, X } from "lucide-react";
 
 const PROMPT_DISMISSED_KEY = "notification_prompt_dismissed";
+const PROMPT_ANSWERED_KEY = "notification_prompt_answered";
 const PROMPT_DISMISSED_DURATION = 2 * 24 * 60 * 60 * 1000; // 2 days
 
 export function NotificationPrompt() {
@@ -53,21 +54,23 @@ export function NotificationPrompt() {
 
       // Already denied — can't prompt again
       if (permission === "denied") {
+        localStorage.setItem(PROMPT_ANSWERED_KEY, "denied");
         console.log("[NotifPrompt] Permission denied, can't show prompt");
         return;
       }
 
-      // Already granted — check if subscribed
+      // Permission and subscription are separate. Once permission is granted,
+      // the silent refresher repairs/syncs the subscription without bothering
+      // the user with the activation banner again.
       if (permission === "granted") {
-        try {
-          const subscribed = await isWebPushSubscribed();
-          console.log("[NotifPrompt] Already granted, subscribed:", subscribed);
-          if (subscribed) return;
-          // Permission granted but not subscribed — show banner to re-subscribe
-        } catch (e) {
-          console.log("[NotifPrompt] Error checking subscription:", e);
-        }
+        localStorage.setItem(PROMPT_ANSWERED_KEY, "granted");
+        console.log("[NotifPrompt] Permission already granted, skipping prompt");
+        return;
       }
+
+      // A previous explicit answer should not be presented again. Browser
+      // permission changes are still respected first by the checks above.
+      if (localStorage.getItem(PROMPT_ANSWERED_KEY)) return;
 
       // Dismissed recently
       const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
@@ -92,9 +95,12 @@ export function NotificationPrompt() {
       const granted = await subscribeToWebPush();
       console.log("[NotifPrompt] subscribeToWebPush result:", granted);
       if (granted) {
+        localStorage.setItem(PROMPT_ANSWERED_KEY, "granted");
         toast.success("Notificações ativadas!", {
           description: "Você receberá alertas importantes sobre seus shows.",
         });
+      } else if ("Notification" in window && Notification.permission === "denied") {
+        localStorage.setItem(PROMPT_ANSWERED_KEY, "denied");
       }
     } catch (error) {
       console.error("[NotifPrompt] Error:", error);

@@ -122,7 +122,11 @@ export async function subscribeToWebPush(): Promise<boolean> {
   if (!("Notification" in window)) return false;
   if (!("serviceWorker" in navigator)) return false;
 
-  const permission = await Notification.requestPermission();
+  // Never ask again when the browser already has a final answer. This function
+  // is also called by the silent refresher on every new app session.
+  const permission = Notification.permission === "default"
+    ? await Notification.requestPermission()
+    : Notification.permission;
   if (permission !== "granted") return false;
 
   const reg = await ensurePushServiceWorker();
