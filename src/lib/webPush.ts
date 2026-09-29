@@ -67,7 +67,7 @@ export async function ensurePushServiceWorker(): Promise<ServiceWorkerRegistrati
 export async function getExistingPushSubscription(): Promise<PushSubscription | null> {
   if (!("serviceWorker" in navigator)) return null;
   const reg = await navigator.serviceWorker.ready;
-  return (reg as any).pushManager.getSubscription();
+  return reg.pushManager.getSubscription();
 }
 
 export async function isWebPushSubscribed(): Promise<boolean> {
@@ -122,14 +122,18 @@ export async function subscribeToWebPush(): Promise<boolean> {
   if (!("Notification" in window)) return false;
   if (!("serviceWorker" in navigator)) return false;
 
-  const permission = await Notification.requestPermission();
+  // Never ask again when the browser already has a final answer. This function
+  // is also called by the silent refresher on every new app session.
+  const permission = Notification.permission === "default"
+    ? await Notification.requestPermission()
+    : Notification.permission;
   if (permission !== "granted") return false;
 
   const reg = await ensurePushServiceWorker();
   const publicKey = await getVapidPublicKey();
   const applicationServerKey = urlBase64ToUint8Array(publicKey);
 
-  const existing = await (reg as any).pushManager.getSubscription();
+  const existing = await reg.pushManager.getSubscription();
 
   if (existing) {
     const existingKey = existing.options?.applicationServerKey;
@@ -148,7 +152,7 @@ export async function subscribeToWebPush(): Promise<boolean> {
     }
   }
 
-  const sub = await (reg as any).pushManager.subscribe({
+  const sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey,
   });
