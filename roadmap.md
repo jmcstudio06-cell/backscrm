@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] Impedir que o pedido de notificações reapareça depois de aceito e renovar a inscrição silenciosamente.
 - [x] Medir engajamento por visita e atividade no app, não por login ou cadastro; incluir planos Empresariais no painel.
 - [x] Permitir pesquisar no Backs Radar sem plano Executivo e mostrar apenas a contagem de oportunidades e convite para upgrade, sem expor contatos.
 - [x] Fazer a pesquisa respeitar o plano escolhido mesmo em uma conta administradora, mantendo liberações individuais explícitas.
