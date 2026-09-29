@@ -33,10 +33,10 @@ export function NotificationPrompt() {
         // iPhone/iPad no Safari: push só funciona com o app na tela inicial.
         const isIOS =
           /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-          (navigator.platform === "MacIntel" && (navigator as any).maxTouchPoints > 1);
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
         const standalone =
           window.matchMedia?.("(display-mode: standalone)").matches ||
-          (window.navigator as any).standalone === true;
+          (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
 
         if (isIOS && !standalone) {
           const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
