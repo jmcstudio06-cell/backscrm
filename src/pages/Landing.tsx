@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { 
@@ -71,6 +77,37 @@ const EXECUTIVO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/exe
 
 const DEMO_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Gostaria de solicitar uma demo do Backstage Pro.");
 const SUPPORT_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Tenho dúvidas sobre o Backstage Pro e gostaria de falar com um atendente humano.");
+
+const faqItems = [
+  {
+    question: "Posso testar o Backstage Pro antes de assinar?",
+    answer: "Sim. Ao criar sua conta, você recebe 3 horas de acesso gratuito para conhecer o app, sem precisar cadastrar cartão de crédito.",
+  },
+  {
+    question: "Consigo usar no celular e no computador?",
+    answer: "Sim. O Backstage Pro funciona no celular, tablet e computador. Seus dados ficam sincronizados na mesma conta para você acessar onde estiver.",
+  },
+  {
+    question: "Qual é a diferença entre os planos?",
+    answer: "Cada plano libera um conjunto diferente de ferramentas. O Profissional organiza sua operação comercial, o Empresarial amplia a gestão da carreira e o Executivo inclui tudo, além do Backs Radar.",
+  },
+  {
+    question: "O que é o Backs Radar?",
+    answer: "É uma ferramenta exclusiva do plano Executivo que ajuda você a encontrar oportunidades em bares, restaurantes, hotéis e casas de show nas cidades selecionadas e enviar os contatos para o seu CRM.",
+  },
+  {
+    question: "Meus dados ficam seguros?",
+    answer: "Sim. Cada artista acessa somente os dados da própria conta, com proteção de acesso e isolamento das informações.",
+  },
+  {
+    question: "Posso cancelar quando quiser?",
+    answer: "Sim. Você pode cancelar sua assinatura quando quiser. O acesso ao plano permanece disponível durante o período já contratado.",
+  },
+  {
+    question: "E se eu precisar de ajuda?",
+    answer: "Você encontra tutoriais dentro do app e também pode falar diretamente com nosso atendimento pelo WhatsApp.",
+  },
+];
 
 
 const plans = [
@@ -234,6 +271,7 @@ const Landing = () => {
           <nav className="hidden md:flex items-center gap-8">
             <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
+             <a href="#faq" className="text-slate-600 hover:text-[#0066CC] transition-colors">FAQ</a>
             <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
             <a
               href="/kit-profissional"
@@ -806,12 +844,40 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section id="faq" className="scroll-mt-24 bg-slate-50 py-20">
+        <div className="container mx-auto px-6">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-10 text-center">
+              <span className="text-sm font-semibold uppercase tracking-wider text-[#0066CC]">Tire suas dúvidas</span>
+              <h2 className="mt-3 text-3xl font-bold text-slate-800 md:text-5xl">Perguntas frequentes</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-slate-500">
+                Tudo o que você precisa saber para começar a organizar sua carreira com o Backstage Pro.
+              </p>
+            </div>
+
+            <Accordion type="single" collapsible className="overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 shadow-sm sm:px-8">
+              {faqItems.map((item, index) => (
+                <AccordionItem key={item.question} value={`faq-${index}`} className="border-slate-200 last:border-b-0">
+                  <AccordionTrigger className="gap-4 py-5 text-left text-base font-semibold text-slate-800 hover:text-[#0066CC] hover:no-underline sm:text-lg">
+                    {item.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="pr-8 text-sm leading-relaxed text-slate-600 sm:text-base">
+                    {item.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
 
 
 
 
       {/* Contact Section - Only WhatsApp */}
-      <section id="contato" className="py-20 bg-slate-50">
+      <section id="contato" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <span className="text-[#0066CC] font-semibold uppercase tracking-wider text-sm">Fale Conosco</span>
