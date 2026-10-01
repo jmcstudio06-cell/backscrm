@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,21 +14,14 @@ import {
   Calendar, 
   DollarSign, 
   Users, 
-  CalendarDays,
-  CalendarRange,
-  Heart,
   TrendingUp,
   Check,
   Star,
   Sparkles,
-  Smartphone,
-  Monitor,
   MessageCircle,
   Quote,
   Gift,
   X,
-  Clock,
-  Zap,
   ClipboardCheck,
   FileText,
   Music,
@@ -59,23 +51,12 @@ import fabioGoogle from "@/assets/testimonials/fabio-google.png";
 import { useNavigate } from "react-router-dom";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
 import { ArtistAnalysisForm } from "@/components/landing/ArtistAnalysisForm";
-import { Shield, HeadphonesIcon, XCircle, AlertTriangle, Briefcase, Crown } from "lucide-react";
+import { Briefcase, Building2, Crown } from "lucide-react";
 import { AppLogo } from "@/components/layout/AppLogo";
 import linkAgendaMockup from "@/assets/mockups/link-agenda-mockup-v2.png";
 import baIconImg from "@/assets/ba-icon.png";
 import appShowcaseImg from "@/assets/landing-app-showcase.png";
 
-const STARTER_URL = "https://checkout.infinitepay.io/backstagegroup/98BOGv1XH";
-const STARTER_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/7MbHszYGv3";
-const PRO_URL = "https://checkout.infinitepay.io/backstagegroup/jevBUGiJB";
-const FULL_URL = "https://checkout.infinitepay.io/backstagegroup/3gIdDhCDDl";
-const EXECUTIVO_URL = "https://checkout.infinitepay.io/backstagegroup/executivo-mensal";
-
-const PRO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/1q9KDGVzhP";
-const FULL_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/v4fKMVbOh";
-const EXECUTIVO_YEARLY_URL = "https://checkout.infinitepay.io/backstagegroup/executivo-anual";
-
-const DEMO_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Gostaria de solicitar uma demo do Backstage Pro.");
 const SUPPORT_WHATSAPP_URL = "https://wa.me/5512992423317?text=" + encodeURIComponent("Olá! Tenho dúvidas sobre o Backstage Pro e gostaria de falar com um atendente humano.");
 
 const faqItems = [
@@ -112,66 +93,33 @@ const faqItems = [
 
 const plans = [
   {
-    id: "starter",
-    name: "Starter",
-    subtitle: "Comece a organizar sua carreira musical com o essencial.",
-    price: "R$ 19,90",
-    period: "/mês",
-    buttonText: "Começar Starter",
-    url: STARTER_URL,
-    highlight: false,
-    badgeText: "ESSENCIAL",
-    icon: Sparkles,
-    socialProof: "",
-    features: ["Dashboard", "Agenda ilimitada", "Resumo Financeiro", "Precificação", "Tutoriais", "Configurações"],
-  },
-  {
     id: "pro",
     name: "Profissional",
     subtitle: "Organize sua área comercial e feche mais shows com processos profissionais.",
-    price: "R$ 24,90",
-    period: "/mês",
-    buttonText: "Começar Profissional",
-    url: PRO_URL,
-    highlight: true,
-    badgeText: "MAIS POPULAR",
+    badgeText: "PARA COMEÇAR",
     icon: Briefcase,
-    socialProof: "47 artistas estão nesse plano!",
-    features: ["Tudo do Starter +", "Clientes", "Repertório", "Radar de Shows", "Orçamentos Automáticos", "Checklist de Show", "Equipe & Freelancers"],
+    features: ["Agenda ilimitada", "Clientes e CRM", "Repertório", "Financeiro", "Precificação", "Orçamentos automáticos", "Checklist de show", "Link da Bio / Press Kit"],
   },
   {
     id: "full",
     name: "Empresarial",
     subtitle: "Controle total da carreira, com metas, performance e gestão completa do seu negócio.",
-    price: "R$ 39,90",
-    period: "/mês",
-    buttonText: "Começar Empresarial",
-    url: FULL_URL,
-    highlight: false,
-    badgeText: "TUDO LIBERADO",
+    badgeText: "MAIS POPULAR",
     icon: Crown,
-    socialProof: "21 artistas estão nesse plano!",
-    features: ["Tudo do Profissional +", "Link Agendamento Online", "Contratos Automáticos", "Histórico Financeiro", "Mapeamento de Palco", "Metas", "Bônus"],
+    features: ["Tudo do Profissional", "Equipe e freelancers", "Link de agendamento", "Contratos automáticos", "Histórico financeiro", "Cobranças pendentes", "Mapeamento de palco", "Metas e bônus"],
   },
   {
     id: "executivo",
     name: "Executivo",
-    subtitle: "Tudo do Empresarial + Backs Radar: encontre bares, restaurantes e casas de show da sua região.",
-    price: "R$ 79,90",
-    period: "/mês",
-    buttonText: "Começar Executivo",
-    url: EXECUTIVO_URL,
-    highlight: false,
+    subtitle: "Tenha a gestão completa e encontre novas oportunidades para cantar com o Backs Radar.",
     badgeText: "MAIS COMPLETO",
-    icon: Crown,
-    socialProof: "27 artistas estão nesse plano!",
-    features: ["Tudo do Empresarial +", "Backs Radar", "Oportunidades perto de você", "Contatos de bares e casas", "Envio direto ao CRM"],
+    icon: Building2,
+    features: ["Tudo do Empresarial", "Backs Radar", "Oportunidades perto de você", "Contatos de bares, restaurantes, hotéis e casas de show", "Envio direto ao CRM", "Gestão de usuários"],
   },
 ];
 
 const Landing = () => {
   const navigate = useNavigate();
-  const [isYearly, setIsYearly] = useState(false);
 
 
   const features = [
@@ -271,6 +219,7 @@ const Landing = () => {
           <nav className="hidden md:flex items-center gap-8">
             <a href="#recursos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Recursos</a>
             <a href="#depoimentos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Depoimentos</a>
+             <a href="#planos" className="text-slate-600 hover:text-[#0066CC] transition-colors">Planos</a>
              <a href="#faq" className="text-slate-600 hover:text-[#0066CC] transition-colors">FAQ</a>
             <a href="#contato" className="text-slate-600 hover:text-[#0066CC] transition-colors">Contato</a>
             <a
@@ -840,6 +789,69 @@ const Landing = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Plans Section */}
+      <section id="planos" className="scroll-mt-24 bg-slate-50 py-20">
+        <div className="container mx-auto px-6">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <span className="text-sm font-semibold uppercase tracking-wider text-[#0066CC]">Planos</span>
+            <h2 className="mt-3 text-3xl font-bold text-slate-800 md:text-5xl">Escolha o plano para sua carreira</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-slate-500">
+              Comece grátis e conheça o Backstage Pro antes de escolher o plano ideal.
+            </p>
+          </div>
+
+          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-3 lg:items-stretch">
+            {plans.map((plan) => {
+              const PlanIcon = plan.icon;
+              const highlighted = plan.id === "full";
+
+              return (
+                <Card
+                  key={plan.id}
+                  className={`relative flex h-full flex-col overflow-visible border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                    highlighted ? "border-[#0066CC] ring-2 ring-[#0066CC]/15" : "border-slate-200"
+                  }`}
+                >
+                  <div className={`absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-1 text-xs font-bold text-white shadow-md ${highlighted ? "bg-[#0066CC]" : "bg-slate-700"}`}>
+                    {plan.badgeText}
+                  </div>
+                  <CardContent className="flex h-full flex-col p-7 pt-9">
+                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#0066CC]/10">
+                      <PlanIcon className="h-6 w-6 text-[#0066CC]" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-800">{plan.name}</h3>
+                    <p className="mt-2 min-h-[72px] text-sm leading-relaxed text-slate-500">{plan.subtitle}</p>
+
+                    <div className="my-6 h-px bg-slate-200" />
+                    <p className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500">O que inclui</p>
+                    <ul className="mb-8 flex-1 space-y-3">
+                      {plan.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-3 text-sm text-slate-600">
+                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500">
+                            <Check className="h-3 w-3 text-white" />
+                          </span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Button
+                      size="lg"
+                      onClick={() => navigate('/auth')}
+                      className={`w-full font-bold ${highlighted ? "bg-[#0066CC] text-white hover:bg-[#0055BB]" : "bg-slate-800 text-white hover:bg-slate-700"}`}
+                    >
+                      Testar grátis
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                    <p className="mt-3 text-center text-xs text-slate-500">Sem cartão de crédito</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] Adicionar os planos Profissional, Empresarial e Executivo à landing sem preços, com CTA “Testar grátis”.
 - [x] Adicionar FAQ expansível à landing com atalho no menu.
 - [x] Impedir que o pedido de notificações reapareça depois de aceito e renovar a inscrição silenciosamente.
 - [x] Medir engajamento por visita e atividade no app, não por login ou cadastro; incluir planos Empresariais no painel.
