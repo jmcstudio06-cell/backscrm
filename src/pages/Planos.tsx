@@ -245,15 +245,17 @@ export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [lastPaidPlan, setLastPaidPlan] = useState<string | null>(null);
   const [monthlyBlocked, setMonthlyBlocked] = useState(false);
 
   useEffect(() => {
     async function fetchPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("plan, feature_blocks").eq("user_id", user.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("plan, last_paid_plan, feature_blocks").eq("user_id", user.id).maybeSingle();
       if (data) {
         setUserPlan(data.plan);
+        setLastPaidPlan(data.last_paid_plan);
         const fb = (data.feature_blocks ?? {}) as Record<string, boolean>;
         if (fb.block_monthly_billing === true) {
           setMonthlyBlocked(true);
@@ -264,17 +266,21 @@ export default function Planos() {
     fetchPlan();
   }, []);
 
-  const isActiveOrExpiredPaid = userPlan && !["trial", "expirado", null].includes(userPlan);
+  const planUsedForRenewal = userPlan === "comprou_expirado" ? lastPaidPlan : userPlan;
 
   const getUserPlanTier = (): string | null => {
-    if (!userPlan) return null;
-    if (userPlan.includes("starter")) return "starter";
-    if (userPlan.includes("profissional")) return "pro";
-    if (userPlan.includes("completo") || userPlan.includes("empresarial")) return "full";
-    if (userPlan === "comprou_expirado") return "comprou_expirado";
+    if (!planUsedForRenewal) return null;
+    if (planUsedForRenewal.includes("starter")) return "starter";
+    if (planUsedForRenewal.includes("profissional")) return "pro";
+    if (planUsedForRenewal.includes("completo") || planUsedForRenewal.includes("empresarial")) return "full";
+    if (planUsedForRenewal.includes("executivo")) return "executivo";
     return null;
   };
   const userTier = getUserPlanTier();
+  const paidTierRank: Record<string, number> = { starter: 0, pro: 1, full: 2, executivo: 3 };
+  const minimumVisibleRank = userTier ? paidTierRank[userTier] : 1;
+  const visiblePlans = plans.filter((plan) => paidTierRank[plan.id] >= minimumVisibleRank);
+  const hasPaidPlan = userTier !== null;
 
   const handleSubscribe = async (planKey: string) => {
     setLoadingPlan(planKey);
@@ -345,9 +351,12 @@ export default function Planos() {
         )}
 
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch justify-center">
+          <div className={cn(
+            "grid grid-cols-1 gap-6 items-stretch justify-center",
+            visiblePlans.length === 1 ? "max-w-md mx-auto" : visiblePlans.length === 2 ? "sm:grid-cols-2 max-w-4xl mx-auto" : "sm:grid-cols-2 lg:grid-cols-3",
+          )}>
 
-            {plans.map((p) => {
+            {visiblePlans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
                 starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
                 pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "16,66" },
@@ -509,7 +518,7 @@ export default function Planos() {
                         disabled={isLoading}
                         className={cn(
                           "w-full rounded-2xl text-white font-semibold shadow-md transition-all hover:shadow-lg bg-gradient-to-r",
-                          isActiveOrExpiredPaid && userTier === p.id
+                          hasPaidPlan && userTier === p.id
                             ? "from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600"
                             : p.highlight
                             ? "from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
@@ -523,14 +532,14 @@ export default function Planos() {
                               <Loader2 className="w-4 h-4 animate-spin" />
                               Processando...
                             </>
-                          ) : isActiveOrExpiredPaid && userTier === p.id ? (
+                          ) : hasPaidPlan && userTier === p.id ? (
                             <>
                               Renovar assinatura
                               <ArrowRight className="w-4 h-4" />
                             </>
-                          ) : isActiveOrExpiredPaid ? (
+                          ) : hasPaidPlan ? (
                             <>
-                              Renovar plano
+                              Fazer upgrade
                               <ArrowRight className="w-4 h-4" />
                             </>
                           ) : (
