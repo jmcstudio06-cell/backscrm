@@ -1635,6 +1635,7 @@ export type Database = {
           has_interval: boolean | null
           id: string
           instagram_url: string | null
+          last_paid_plan: string | null
           last_seen: string | null
           late_fee_percentage: number | null
           link_bg_image_url: string | null
@@ -1717,6 +1718,7 @@ export type Database = {
           has_interval?: boolean | null
           id?: string
           instagram_url?: string | null
+          last_paid_plan?: string | null
           last_seen?: string | null
           late_fee_percentage?: number | null
           link_bg_image_url?: string | null
@@ -1799,6 +1801,7 @@ export type Database = {
           has_interval?: boolean | null
           id?: string
           instagram_url?: string | null
+          last_paid_plan?: string | null
           last_seen?: string | null
           late_fee_percentage?: number | null
           link_bg_image_url?: string | null
