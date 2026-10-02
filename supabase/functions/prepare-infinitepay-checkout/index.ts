@@ -22,6 +22,15 @@ const PLAN_CONFIG: Record<string, { checkoutUrl: string; amountCents: number; la
   anual_executivo: { checkoutUrl: "https://checkout.infinitepay.io/backstagegroup/a6uxgUzjqB", amountCents: 49990, label: "Backstage PRO - Plano Executivo Anual" },
 };
 
+function planTier(planKey: string | null | undefined): number {
+  if (!planKey) return 0;
+  if (planKey.includes("executivo")) return 3;
+  if (planKey.includes("empresarial") || planKey.includes("completo")) return 2;
+  if (planKey.includes("profissional")) return 1;
+  if (planKey.includes("starter")) return 0;
+  return 0;
+}
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -74,12 +83,23 @@ serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    const { data: profile, error: profileError } = await adminClient
+      .from("profiles")
+      .select("plan, last_paid_plan, feature_blocks")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    const renewalPlan = profile?.plan === "comprou_expirado" ? profile.last_paid_plan : profile?.plan;
+    if (planTier(planKey) < planTier(renewalPlan)) {
+      return new Response(
+        JSON.stringify({ error: "Não é possível renovar em um plano inferior ao já adquirido." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     if (planKey.startsWith("mensal_")) {
-      const { data: profile } = await adminClient
-        .from("profiles")
-        .select("feature_blocks")
-        .eq("user_id", user.id)
-        .maybeSingle();
       const fb = (profile?.feature_blocks ?? {}) as Record<string, boolean>;
       if (fb.block_monthly_billing === true) {
         return new Response(

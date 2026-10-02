@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] No gerenciador de acesso, mostrar somente o plano comprado e os upgrades, com opções mensal e anual, bloqueando downgrade também no pagamento.
 - [x] Adicionar os planos Profissional, Empresarial e Executivo à landing sem preços, com CTA “Testar grátis”.
 - [x] Adicionar FAQ expansível à landing com atalho no menu.
 - [x] Impedir que o pedido de notificações reapareça depois de aceito e renovar a inscrição silenciosamente.
