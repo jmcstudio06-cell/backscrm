@@ -11,15 +11,15 @@ const APP_URL = "https://backstagepro.online";
 
 const PLAN_CONFIG: Record<string, { checkoutUrl: string; amountCents: number; label: string }> = {
   mensal_starter: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/TBD", amountCents: 1990, label: "Backstage PRO - Plano Starter Mensal" },
-  mensal_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/vvDeJ1vEGB", amountCents: 2490, label: "Backstage PRO - Mensal Profissional" },
-  mensal_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/XgF6C4JUwG", amountCents: 3990, label: "Backstage PRO - Mensal Completo" },
-  mensal_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/XgF6C4JUwG", amountCents: 3990, label: "Backstage PRO - Mensal Completo" },
-  mensal_executivo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/xw9tGrCEKJ", amountCents: 7990, label: "Backstage PRO - Mensal Executivo" },
+  mensal_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/wKsewawhB0", amountCents: 2490, label: "Backstage PRO - Mensal Profissional" },
+  mensal_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/9Rl7ZYHpL5", amountCents: 3990, label: "Backstage PRO - Mensal Completo" },
+  mensal_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/yZ1C3ji4X4", amountCents: 7990, label: "Backstage PRO - Mensal Empresarial" },
+  mensal_executivo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/yZ1C3ji4X4", amountCents: 7990, label: "Backstage PRO - Mensal Empresarial" },
   anual_starter: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/TBD", amountCents: 14990, label: "Backstage PRO - Starter Anual" },
-  anual_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/5srJxLvPzB", amountCents: 19990, label: "Backstage PRO - Anual Profissional" },
-  anual_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/eWRLkFlQQt", amountCents: 29880, label: "Backstage PRO - Anual Completo" },
-  anual_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/eWRLkFlQQt", amountCents: 29880, label: "Backstage PRO - Anual Completo" },
-  anual_executivo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/B4O4wcsu0y", amountCents: 49990, label: "Backstage PRO - Anual Executivo" },
+  anual_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/8EfYDXAHYO", amountCents: 19990, label: "Backstage PRO - Anual Profissional" },
+  anual_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/DfDpwY8AAs", amountCents: 29980, label: "Backstage PRO - Anual Completo" },
+  anual_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/xkRACK3A9V", amountCents: 49990, label: "Backstage PRO - Anual Empresarial" },
+  anual_executivo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/xkRACK3A9V", amountCents: 49990, label: "Backstage PRO - Anual Empresarial" },
 };
 
 function planTier(planKey: string | null | undefined): number {

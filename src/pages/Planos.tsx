@@ -29,13 +29,13 @@ import { toast } from "sonner";
 // InfinitePay checkout URLs
 const CHECKOUT_URLS: Record<string, string> = {
   mensal_starter: "https://checkout.infinitepay.io/backstageprooficial/TBD",
-  mensal_profissional: "https://checkout.infinitepay.io/backstageprooficial/vvDeJ1vEGB",
-  mensal_empresarial: "https://checkout.infinitepay.io/backstageprooficial/XgF6C4JUwG",
-  mensal_executivo: "https://checkout.infinitepay.io/backstageprooficial/xw9tGrCEKJ",
+  mensal_profissional: "https://checkout.infinitepay.io/backstageprooficial/wKsewawhB0",
+  mensal_empresarial: "https://checkout.infinitepay.io/backstageprooficial/yZ1C3ji4X4",
+  mensal_executivo: "https://checkout.infinitepay.io/backstageprooficial/yZ1C3ji4X4",
   anual_starter: "https://checkout.infinitepay.io/backstageprooficial/TBD",
-  anual_profissional: "https://checkout.infinitepay.io/backstageprooficial/5srJxLvPzB",
-  anual_empresarial: "https://checkout.infinitepay.io/backstageprooficial/eWRLkFlQQt",
-  anual_executivo: "https://checkout.infinitepay.io/backstageprooficial/B4O4wcsu0y",
+  anual_profissional: "https://checkout.infinitepay.io/backstageprooficial/8EfYDXAHYO",
+  anual_empresarial: "https://checkout.infinitepay.io/backstageprooficial/xkRACK3A9V",
+  anual_executivo: "https://checkout.infinitepay.io/backstageprooficial/xkRACK3A9V",
 };
 
 const PLAN_AMOUNTS: Record<string, number> = {
