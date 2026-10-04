@@ -26,6 +26,9 @@ export function normalizeShowStatus(status: string | null | undefined): string {
 export const isCompletedShowStatus = (status: string | null | undefined) =>
   normalizeShowStatus(status) === "completed";
 
+export const isConfirmedShowStatus = (status: string | null | undefined) =>
+  normalizeShowStatus(status) === "confirmed";
+
 export const isProjectedShowStatus = (status: string | null | undefined) => {
   const normalized = normalizeShowStatus(status);
   return (
@@ -36,6 +39,29 @@ export const isProjectedShowStatus = (status: string | null | undefined) => {
     normalized === "partial"
   );
 };
+
+export const isOpenShowStatus = (status: string | null | undefined) => {
+  const normalized = normalizeShowStatus(status);
+  return (
+    normalized === "confirmed" ||
+    normalized === "pending" ||
+    normalized === "scheduled" ||
+    normalized === "negotiation" ||
+    normalized === "partial"
+  );
+};
+
+export function getShowStatusCounts<T extends { status: string | null | undefined }>(shows: T[]) {
+  return shows.reduce(
+    (counts, show) => {
+      if (isOpenShowStatus(show.status)) counts.open += 1;
+      if (isConfirmedShowStatus(show.status)) counts.confirmed += 1;
+      if (isCompletedShowStatus(show.status)) counts.completed += 1;
+      return counts;
+    },
+    { open: 0, confirmed: 0, completed: 0 },
+  );
+}
 
 export const isCancelledShowStatus = (status: string | null | undefined) =>
   normalizeShowStatus(status) === "cancelled";
