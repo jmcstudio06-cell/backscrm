@@ -30,6 +30,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
+import { getShowStatusCounts } from "@/lib/showStatus";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -71,16 +72,12 @@ const Dashboard = () => {
     );
   }, [goals, currentMonth, currentYear]);
 
-  // Count confirmed + completed + partial shows this month (all except cancelled)
-  const completedShowsThisMonth = useMemo(() => {
-    return shows.filter((show) => {
-      const showDate = new Date(show.date + "T12:00:00");
-      return (
-        (show.status === "completed" || show.status === "confirmed" || show.status === "partial") &&
-        showDate >= currentMonthStart &&
-        showDate <= currentMonthEnd
-      );
-    }).length;
+  const currentMonthStatusCounts = useMemo(() => {
+    const monthShows = shows.filter((show) => {
+      const showDate = parseLocalDate(show.date);
+      return showDate >= currentMonthStart && showDate <= currentMonthEnd;
+    });
+    return getShowStatusCounts(monthShows);
   }, [shows, currentMonthStart, currentMonthEnd]);
 
   // Contadores leves (o onboarding é tratado no OnboardingGate)
@@ -186,23 +183,21 @@ const Dashboard = () => {
     }).length;
   }, [leads, lastMonthStart, lastMonthEnd]);
 
-  // Calculate shows this month vs last month (all statuses except cancelled)
+  // Compare only performed shows; open and confirmed agendas remain separate statuses.
   const showsThisMonth = useMemo(() => {
-    return shows.filter((show) => {
+    return getShowStatusCounts(shows.filter((show) => {
       const showDate = parseLocalDate(show.date);
-      return show.status !== "cancelled" && 
-             showDate >= currentMonthStart && 
+      return showDate >= currentMonthStart &&
              showDate <= currentMonthEnd;
-    }).length;
+    })).completed;
   }, [shows, currentMonthStart, currentMonthEnd]);
 
   const showsLastMonth = useMemo(() => {
-    return shows.filter((show) => {
+    return getShowStatusCounts(shows.filter((show) => {
       const showDate = parseLocalDate(show.date);
-      return show.status !== "cancelled" && 
-             showDate >= lastMonthStart && 
+      return showDate >= lastMonthStart &&
              showDate <= lastMonthEnd;
-    }).length;
+    })).completed;
   }, [shows, lastMonthStart, lastMonthEnd]);
 
   // Calculate revenue this month vs last month
@@ -437,11 +432,11 @@ const Dashboard = () => {
           bestFee={bestFeeShow}
           monthlyGoalProgress={
             currentShowGoal && currentShowGoal.target_value > 0
-              ? (completedShowsThisMonth / currentShowGoal.target_value) * 100
+              ? (currentMonthStatusCounts.completed / currentShowGoal.target_value) * 100
               : 0
           }
           monthlyGoalTarget={currentShowGoal?.target_value || 0}
-          monthlyGoalAchieved={completedShowsThisMonth}
+          monthlyGoalAchieved={currentMonthStatusCounts.completed}
           annualProjection={annualProjection}
         />
 
@@ -457,7 +452,7 @@ const Dashboard = () => {
             monthlyGoal={currentShowGoal?.target_value || 0}
             monthlyGoalProgress={
               currentShowGoal && currentShowGoal.target_value > 0
-                ? (completedShowsThisMonth / currentShowGoal.target_value) * 100
+                ? (currentMonthStatusCounts.completed / currentShowGoal.target_value) * 100
                 : 0
             }
             revenueThisMonth={revenueThisMonth}
@@ -493,7 +488,7 @@ const Dashboard = () => {
             shows={upcomingShows}
             monthlySummary={{
               monthName: `${currentMonthName} ${currentYear}`,
-              showsCount: showsThisMonth,
+              showsCount: currentMonthStatusCounts.open,
               totalValue: pendingCachetData.pendingShows
                 .filter((s) => {
                   // pending shows that fall in current month
@@ -511,7 +506,7 @@ const Dashboard = () => {
         {currentShowGoal && (
           <div className="animate-fade-in">
             <MonthlyShowGoalProgress
-              current={completedShowsThisMonth}
+              current={currentMonthStatusCounts.completed}
               target={currentShowGoal.target_value}
               monthName={currentMonthName}
             />

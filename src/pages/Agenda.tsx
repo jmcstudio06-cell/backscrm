@@ -41,6 +41,7 @@ import { useShows, type Show } from "@/contexts/shows/ShowsContext";
 import { useGoals } from "@/hooks/useGoals";
 import { useMonthlyShowLimit } from "@/hooks/useMonthlyShowLimit";
 import { useFinancialMode } from "@/hooks/useFinancialMode";
+import { getShowStatusCounts } from "@/lib/showStatus";
 
 const statusColors: Record<string, string> = {
   confirmed: "bg-primary",
@@ -241,8 +242,8 @@ export default function Agenda() {
     });
   }, [shows, currentMonth]);
 
-  const completedShowsThisMonth = useMemo(() => {
-    return monthShows.filter((s) => s.status === "completed" || s.status === "confirmed").length;
+  const monthStatusCounts = useMemo(() => {
+    return getShowStatusCounts(monthShows);
   }, [monthShows]);
 
   const currentShowGoal = useMemo(() => {
@@ -605,15 +606,15 @@ export default function Agenda() {
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-xl bg-muted/30 border border-border/30 p-2.5 text-center">
-                  <p className="text-lg font-bold text-foreground">{monthShows.length}</p>
-                  <p className="text-[10px] text-muted-foreground font-semibold">Total</p>
+                  <p className="text-lg font-bold text-foreground">{monthStatusCounts.open}</p>
+                  <p className="text-[10px] text-muted-foreground font-semibold">Abertas</p>
                 </div>
                 <div className="rounded-xl bg-muted/30 border border-border/30 p-2.5 text-center">
-                  <p className="text-lg font-bold text-primary">{monthShows.filter((s) => s.status === "confirmed").length}</p>
+                  <p className="text-lg font-bold text-primary">{monthStatusCounts.confirmed}</p>
                   <p className="text-[10px] text-muted-foreground font-semibold">Confirmados</p>
                 </div>
                 <div className="rounded-xl bg-muted/30 border border-border/30 p-2.5 text-center">
-                  <p className="text-lg font-bold text-green-500">{monthShows.filter((s) => s.status === "completed").length}</p>
+                  <p className="text-lg font-bold text-green-500">{monthStatusCounts.completed}</p>
                   <p className="text-[10px] text-muted-foreground font-semibold">Realizados</p>
                 </div>
               </div>
@@ -627,13 +628,13 @@ export default function Agenda() {
                       <span className="text-xs font-bold text-foreground">Meta de Shows</span>
                     </div>
                     <span className="text-sm font-bold text-foreground">
-                      {completedShowsThisMonth}
+                      {monthStatusCounts.completed}
                       <span className="text-muted-foreground font-semibold">/{currentShowGoal.target_value}</span>
                     </span>
                   </div>
                   {(() => {
-                    const progress = Math.min(Math.round((completedShowsThisMonth / currentShowGoal.target_value) * 100), 100);
-                    const isCompleted = completedShowsThisMonth >= currentShowGoal.target_value;
+                    const progress = Math.min(Math.round((monthStatusCounts.completed / currentShowGoal.target_value) * 100), 100);
+                    const isCompleted = monthStatusCounts.completed >= currentShowGoal.target_value;
                     return (
                       <>
                         <Progress value={progress} className="h-2.5" />
