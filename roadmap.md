@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Corrigir o checkout Empresarial mensal/anual e impedir redirecionamento a links de outro plano.
+- [x] Corrigir o checkout Empresarial mensal/anual e impedir redirecionamento a links de outro plano; valores conferidos na InfinitePay.
 
 - [x] Corrigir os indicadores de outubro para separar agendas abertas, confirmadas e realizadas pelos status reais.
 - [x] No gerenciador de acesso, mostrar somente o plano comprado e os upgrades, com opções mensal e anual, bloqueando downgrade também no pagamento.
