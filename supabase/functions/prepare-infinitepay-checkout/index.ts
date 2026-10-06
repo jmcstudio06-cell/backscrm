@@ -1,26 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { getCheckoutPlan } from "./plan-config.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
 
 const INFINITEPAY_HANDLE = "backstageprooficial";
 const APP_URL = "https://backstagepro.online";
 
-const PLAN_CONFIG: Record<string, { checkoutUrl: string; amountCents: number; label: string }> = {
-  mensal_starter: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/TBD", amountCents: 1990, label: "Backstage PRO - Plano Starter Mensal" },
-  mensal_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/wKsewawhB0", amountCents: 2490, label: "Backstage PRO - Mensal Profissional" },
-  mensal_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/9Rl7ZYHpL5", amountCents: 3990, label: "Backstage PRO - Mensal Completo" },
-  mensal_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/yZ1C3ji4X4", amountCents: 7990, label: "Backstage PRO - Mensal Empresarial" },
-  mensal_executivo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/yZ1C3ji4X4", amountCents: 7990, label: "Backstage PRO - Mensal Empresarial" },
-  anual_starter: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/TBD", amountCents: 14990, label: "Backstage PRO - Starter Anual" },
-  anual_profissional: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/8EfYDXAHYO", amountCents: 19990, label: "Backstage PRO - Anual Profissional" },
-  anual_completo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/DfDpwY8AAs", amountCents: 29980, label: "Backstage PRO - Anual Completo" },
-  anual_empresarial: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/xkRACK3A9V", amountCents: 49990, label: "Backstage PRO - Anual Empresarial" },
-  anual_executivo: { checkoutUrl: "https://checkout.infinitepay.io/backstageprooficial/xkRACK3A9V", amountCents: 49990, label: "Backstage PRO - Anual Empresarial" },
-};
 
 function planTier(planKey: string | null | undefined): number {
   if (!planKey) return 0;
@@ -56,7 +42,7 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => null);
     const planKey = typeof body?.plan_key === "string" ? body.plan_key : "";
-    const plan = PLAN_CONFIG[planKey];
+    const plan = getCheckoutPlan(planKey);
 
     if (!plan) {
       return new Response(JSON.stringify({ error: "Plano inválido" }), {
@@ -135,7 +121,7 @@ serve(async (req) => {
 
     // Gera um link de checkout dinâmico para que a InfinitePay possa notificar
     // nosso webhook (order_nsu = id do pending_payment) e liberar o plano na hora.
-    let checkoutUrl = plan.checkoutUrl;
+    let checkoutUrl: string;
     try {
       const { data: profile } = await adminClient
         .from("profiles")
@@ -161,17 +147,24 @@ serve(async (req) => {
       });
 
       const linkJson = await linkResponse.json().catch(() => null);
-      if (linkResponse.ok && typeof linkJson?.url === "string") {
+      if (linkResponse.ok && typeof linkJson?.url === "string" &&
+        linkJson.url.startsWith("https://checkout.infinitepay.io/")) {
         checkoutUrl = linkJson.url;
         await adminClient
           .from("pending_payments")
           .update({ provider_payload: { checkout_url: checkoutUrl, order_nsu: pending.id } })
           .eq("id", pending.id);
       } else {
-        console.error("Falha ao criar link InfinitePay, usando link fixo:", linkResponse.status, linkJson);
+        throw new Error(`InfinitePay link creation failed (${linkResponse.status})`);
       }
     } catch (linkError) {
-      console.error("Erro ao criar link InfinitePay, usando link fixo:", linkError);
+      console.error("Erro ao criar link InfinitePay:", linkError);
+      await adminClient.from("pending_payments")
+        .update({ status: "cancelled" }).eq("id", pending.id);
+      return new Response(JSON.stringify({ error: "Não foi possível gerar o pagamento do plano escolhido. Tente novamente em instantes." }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(JSON.stringify({ checkout_url: checkoutUrl, payment_id: pending.id }), {
