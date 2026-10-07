@@ -87,6 +87,11 @@ export default function Termos() {
                 protegidos por leis de direitos autorais. Você retém a propriedade de todos os dados 
                 que você inserir no sistema.
               </p>
+              <p className="mt-2">
+                A marca <strong>Backstage Pro®</strong> é uma marca registrada, com registro de marca
+                mantido pela empresa, titularidade registrada por Jose Mario Campos, CNPJ 69.458.195/0001-14.
+                O uso do nome, logotipo e identidade visual sem autorização expressa não é permitido.
+              </p>
             </section>
 
             <section>
@@ -134,6 +139,9 @@ export default function Termos() {
                 >
                   (12) 99154-5726
                 </a>
+              </p>
+              <p className="mt-2">
+                Backstage Pro — CNPJ 69.458.195/0001-14. Marca registrada, titularidade registrada por Jose Mario Campos.
               </p>
             </section>
           </div>
