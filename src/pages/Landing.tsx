@@ -985,7 +985,7 @@ const Landing = () => {
 
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">
             <p className="text-slate-500 text-xs leading-relaxed">
-              Marca registrada — Backstage Pro®. Empresa com registro de marca no INPI, titularidade registrada por Jose Mario Campos.
+              Backstage Pro® — marca registrada. Empresa com registro de marca, titularidade registrada por Jose Mario Campos.
             </p>
             <p className="text-slate-400 text-xs mt-1">
               CNPJ 69.458.195/0001-14
