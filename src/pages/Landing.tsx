@@ -973,8 +973,8 @@ const Landing = () => {
             </div>
             
             <nav className="flex items-center gap-6 text-sm text-slate-600">
-              <a href="#" className="hover:text-[#0066CC] transition-colors">Termos de Uso</a>
-              <a href="#" className="hover:text-[#0066CC] transition-colors">Privacidade</a>
+              <a href="/termos" onClick={(e) => { e.preventDefault(); navigate('/termos'); }} className="hover:text-[#0066CC] transition-colors">Termos de Uso</a>
+              <a href="/privacidade" onClick={(e) => { e.preventDefault(); navigate('/privacidade'); }} className="hover:text-[#0066CC] transition-colors">Privacidade</a>
               <a href="#" className="hover:text-[#0066CC] transition-colors">Suporte</a>
             </nav>
 
