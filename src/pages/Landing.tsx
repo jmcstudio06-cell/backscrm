@@ -979,7 +979,16 @@ const Landing = () => {
             </nav>
 
             <p className="text-slate-500 text-sm">
-              © 2024 Backstage Pro. Todos os direitos reservados.
+              © 2026 Backstage Pro. Todos os direitos reservados.
+            </p>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-slate-200 text-center">
+            <p className="text-slate-500 text-xs leading-relaxed">
+              Backstage Pro® — marca registrada. Empresa com registro de marca, titularidade registrada por Jose Mario Campos.
+            </p>
+            <p className="text-slate-400 text-xs mt-1">
+              CNPJ 69.458.195/0001-14
             </p>
           </div>
         </div>
