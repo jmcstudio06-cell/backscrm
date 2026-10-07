@@ -979,7 +979,7 @@ const Landing = () => {
             </nav>
 
             <p className="text-slate-500 text-sm">
-              © 2026 Backstage Pro. Todos os direitos reservados.
+              © 2024 Backstage Pro. Todos os direitos reservados.
             </p>
           </div>
 
