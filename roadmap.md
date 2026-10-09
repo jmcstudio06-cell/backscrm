@@ -3,7 +3,7 @@
 - [x] Corrigir o checkout Empresarial mensal/anual e impedir redirecionamento a links de outro plano; valores conferidos na InfinitePay.
 
 - [x] Corrigir os indicadores de outubro para separar agendas abertas, confirmadas e realizadas pelos status reais.
-- [x] No gerenciador de acesso, mostrar somente o plano comprado e os upgrades, com opções mensal e anual, bloqueando downgrade também no pagamento.
+- [x] No gerenciador de acesso, mostrar todos os planos, com renovação no plano atual e planos inferiores visíveis sem permitir downgrade.
 - [x] Adicionar os planos Profissional, Empresarial e Executivo à landing sem preços, com CTA “Testar grátis”.
 - [x] Adicionar FAQ expansível à landing com atalho no menu.
 - [x] Impedir que o pedido de notificações reapareça depois de aceito e renovar a inscrição silenciosamente.
