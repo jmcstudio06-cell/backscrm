@@ -255,8 +255,6 @@ export default function Planos() {
   };
   const userTier = getUserPlanTier();
   const paidTierRank: Record<string, number> = { starter: 0, pro: 1, full: 2, executivo: 3 };
-  const minimumVisibleRank = userTier ? paidTierRank[userTier] : 1;
-  const visiblePlans = plans.filter((plan) => paidTierRank[plan.id] >= minimumVisibleRank);
   const hasPaidPlan = userTier !== null;
 
   const handleSubscribe = async (planKey: string) => {
@@ -328,12 +326,9 @@ export default function Planos() {
         )}
 
         <div className="max-w-6xl mx-auto">
-          <div className={cn(
-            "grid grid-cols-1 gap-6 items-stretch justify-center",
-            visiblePlans.length === 1 ? "max-w-md mx-auto" : visiblePlans.length === 2 ? "sm:grid-cols-2 max-w-4xl mx-auto" : "sm:grid-cols-2 lg:grid-cols-3",
-          )}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch justify-center">
 
-            {visiblePlans.map((p) => {
+            {plans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
                 starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
                 pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "16,66" },
@@ -351,6 +346,7 @@ export default function Planos() {
               
               const finalPeriod = isYearly ? "/ano" : "/mês";
               const isLoading = loadingPlan === finalPlanKey;
+              const isLowerTier = userTier !== null && paidTierRank[p.id] < paidTierRank[userTier];
 
               const theme = {
                 starter: {
@@ -492,7 +488,7 @@ export default function Planos() {
                     <div className="mt-auto">
                       <Button
                         size="lg"
-                        disabled={isLoading}
+                        disabled={isLoading || isLowerTier}
                         className={cn(
                           "w-full rounded-2xl text-white font-semibold shadow-md transition-all hover:shadow-lg bg-gradient-to-r",
                           hasPaidPlan && userTier === p.id
@@ -514,6 +510,8 @@ export default function Planos() {
                               Renovar assinatura
                               <ArrowRight className="w-4 h-4" />
                             </>
+                          ) : isLowerTier ? (
+                            <>Plano inferior ao atual</>
                           ) : hasPaidPlan ? (
                             <>
                               Fazer upgrade
