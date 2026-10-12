@@ -481,7 +481,7 @@
 .landing-plan-popular { background: hsl(var(--landing-blue-wash)); border-color: hsl(var(--primary)); box-shadow: 0 0 0 1px hsl(var(--primary)); }
 .landing-plan-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: hsl(var(--primary)); font-size: 13px; font-weight: 700; margin-bottom: 26px; }
 .landing-plan h3 { font-size: 25px; font-weight: 700; }
-.landing-plan > p { font-size: 16px; color: hsl(var(--muted-foreground)); line-height: 1.7; margin-top: 12px; min-height: 70px; }
+.landing-plan > p { font-size: 16px; color: hsl(var(--muted-foreground)); line-height: 1.7; margin-top: 12px; min-height: 110px; }
 .landing-plan ul { display: flex; flex-direction: column; gap: 15px; margin: 25px 0 30px; padding-top: 23px; border-top: 1px solid hsl(var(--border)); flex: 1; }
 .landing-plan li { display: flex; align-items: flex-start; gap: 10px; font-size: 16px; line-height: 1.5; }
 .landing-plan li svg { flex-shrink: 0; margin-top: 1px; }
@@ -508,6 +508,7 @@
 .landing-app-sidebar > p { font-size: 14px; }
 .landing-nav-link { font-size: 15px; }
 .landing-hero-reassurance, .landing-hero-bottom { color: hsl(var(--foreground)); }
+.landing-hero-bottom > a { padding: 8px 12px; border-radius: 6px; background: hsl(var(--card) / .94); }
 .landing-hero-description { color: hsl(var(--foreground)); }
 .landing-workflow-band .landing-workflow-step { border-color: hsl(var(--landing-blue-band-foreground) / .4); }
 .landing-workflow-band .landing-workflow-step p,

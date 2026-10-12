@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Melhorar legibilidade da landing, equilibrar azul e branco e adicionar animações suaves; verificar apresentação e interações públicas.
+- [x] Melhorar legibilidade da landing, equilibrar azul e branco e adicionar animações suaves; apresentação, abas, calendário e FAQ verificados em telas grandes e pequenas, sem erros ou transbordamento.
 
 - [x] Renovar a landing com apresentação musical, exploração interativa do app, depoimentos compactos e navegação móvel; preservar planos sem preços, FAQ e informações legais. Fluxos públicos verificados em computador e celular, sem erros de execução ou imagens quebradas.
 
