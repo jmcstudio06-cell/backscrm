@@ -1,5 +1,7 @@
 # Project decisions
 
+- Keep landing share metadata in the static HTML head as well as the route head; social crawlers do not execute client-side metadata updates.
+
 - Checkout amounts and tier identity come from the server plan configuration, and provider link creation must fail closed without static-link fallback; stale links can charge for a different tier.
 
 - Backs Radar imports public BacksAI places into `radar_places` on demand and queries the local cache by selected cities; this preserves a single login and avoids Google in lead search.
