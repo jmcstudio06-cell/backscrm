@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronLeft, ChevronRight, Crown, FileText, Gift, Menu, MessageCircle, Mic2, Play, Pause, ShieldCheck, Users, Wallet, X, MapPin, Music2, Briefcase, Building2, Quote } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronLeft, ChevronRight, Crown, FileText, Gift, Menu, MessageCircle, Mic2, Play, ShieldCheck, Users, Wallet, X, MapPin, Music2, Briefcase, Building2, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -100,7 +100,6 @@ export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [video, setVideo] = useState<"app" | "victor" | null>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
-  const [motionEnabled, setMotionEnabled] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const currentReview = reviews[reviewIndex];
   const landingRef = useRef<HTMLDivElement>(null);
 
@@ -118,7 +117,7 @@ export default function Landing() {
     return () => observer.disconnect();
   }, []);
   return (
-    <div className={`landing-page ${motionEnabled ? "landing-motion-enabled" : "landing-motion-paused"}`} ref={landingRef}>
+    <div className="landing-page" ref={landingRef}>
       <Helmet>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" />
         <title>Backstage Pro — Sistema de Gestão para Artistas e Músicos</title>
@@ -159,7 +158,6 @@ export default function Landing() {
         <div className="landing-marquee-track" aria-hidden="true">
           {[0, 1, 2, 3].map(copy => <div className="landing-marquee-group" key={copy}>{["ORGANIZAÇÃO", "CONTROLE", "GESTÃO DE CARREIRA", "BACKSTAGE PRO"].map(word => <span className="landing-marquee-word" key={word}>{word}<Music2 /></span>)}</div>)}
         </div>
-        <Button variant="ghost" size="icon" className="landing-marquee-toggle" onClick={() => setMotionEnabled(!motionEnabled)} aria-label={motionEnabled ? "Pausar animações" : "Ativar animações"} title={motionEnabled ? "Pausar animações" : "Ativar animações"} aria-pressed={motionEnabled}>{motionEnabled ? <Pause /> : <Play />}</Button>
       </div>
 
       <section id="recursos" className="landing-section">
