@@ -78,6 +78,9 @@ interface UserProfile {
   name: string | null;
   email: string | null;
   phone: string | null;
+  city: string | null;
+  state: string | null;
+  monthly_show_range: string | null;
   plan: string | null;
   trial_start: string | null;
   trial_days: number | null;
@@ -790,6 +793,10 @@ export default function Admin() {
 
                   {expandedUser === userProfile.user_id && (
                     <CardContent className="border-t bg-muted/20 pt-4 space-y-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div><p className="text-xs text-muted-foreground">Cidade / Estado</p><p className="text-sm font-semibold mt-1">{[userProfile.city, userProfile.state].filter(Boolean).join(" / ") || "Não informado"}</p></div>
+                        <div><p className="text-xs text-muted-foreground">Média de shows por mês (cadastro)</p><p className="text-sm font-semibold mt-1">{userProfile.monthly_show_range ? `${userProfile.monthly_show_range} por mês` : "Não informado"}</p></div>
+                      </div>
 
                       {/* Plan Start Date */}
                       <div>

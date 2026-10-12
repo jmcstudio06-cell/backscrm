@@ -8,7 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
 import baIconImg from "@/assets/ba-icon.png";
-import appShowcase from "@/assets/landing-app-showcase.png";
+import appShowcase from "@/assets/auth-devices.png";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BRAZIL_STATES, MONTHLY_SHOW_RANGES, signupArtistInfoSchema } from "@/lib/signupArtistInfo";
 import "@/styles/auth.css";
 
 import { ArrowRight, ArrowLeft, Eye, EyeOff, Phone, Check, Shield, Mail, Calendar, Wallet, FileText, Loader2, Circle, TriangleAlert } from "lucide-react";
@@ -26,6 +28,9 @@ const Auth = () => {
     name: "",
     email: "",
     phone: "",
+    city: "",
+    state: "",
+    monthly_show_range: "",
     password: "",
     confirmPassword: "",
     acceptTerms: false,
@@ -120,6 +125,11 @@ const Auth = () => {
     }
 
     if (!isLogin) {
+      const artistInfo = signupArtistInfoSchema.safeParse(formData);
+      if (!artistInfo.success) {
+        toast({ title: "Confira seu cadastro", description: artistInfo.error.issues[0]?.message, variant: "destructive" });
+        return;
+      }
       if (!passwordIsStrong) {
         toast({
           title: "Senha fraca",
@@ -155,6 +165,7 @@ const Auth = () => {
             data: {
               name: formData.name,
               phone: formData.phone.replace(/\D/g, ''),
+              ...signupArtistInfoSchema.parse(formData),
             },
           },
         });
@@ -233,7 +244,7 @@ const Auth = () => {
           <h1 id="auth-title">Backstage Pro</h1>
           <p className="auth-tagline">Seu talento no palco.<br />Sua carreira no controle.</p>
           <p className="auth-description">Um lugar para organizar seus shows, seus cachês e os próximos passos da sua carreira.</p>
-          <div className="auth-product"><img src={appShowcase} alt="Backstage Pro no computador, tablet e celular" width={1024} height={1024} /></div>
+          <div className="auth-product"><img src={appShowcase} alt="Backstage Pro no computador, tablet e celular" width={921} height={640} /></div>
           <div className="auth-tools">{[{icon: Calendar, label: "Sua agenda"}, {icon: Wallet, label: "Seus cachês"}, {icon: FileText, label: "Seus contratos"}].map(({icon: Icon,label}) => <span key={label}><Icon className="h-4 w-4" />{label}</span>)}</div>
         </section>
         <section className="auth-form-panel" aria-labelledby="auth-form-title">
@@ -397,6 +408,11 @@ const Auth = () => {
                           />
                           <p className="text-xs text-muted-foreground">Usaremos para contato e suporte</p>
                         </div>
+                        <div className="grid grid-cols-[1fr_90px] gap-3">
+                          <div className="space-y-2"><Label htmlFor="city">Cidade *</Label><Input id="city" value={formData.city} maxLength={100} required placeholder="Sua cidade" className="h-12" onChange={e => setFormData({ ...formData, city: e.target.value })} /></div>
+                          <div className="space-y-2"><Label htmlFor="state">Estado *</Label><Select value={formData.state} onValueChange={state => setFormData({ ...formData, state })}><SelectTrigger id="state" className="h-12"><SelectValue placeholder="UF" /></SelectTrigger><SelectContent>{BRAZIL_STATES.map(state => <SelectItem key={state} value={state}>{state}</SelectItem>)}</SelectContent></Select></div>
+                        </div>
+                        <div className="space-y-2"><Label htmlFor="monthly-show-range">Quantos shows você faz por mês, em média? *</Label><Select value={formData.monthly_show_range} onValueChange={monthly_show_range => setFormData({ ...formData, monthly_show_range })}><SelectTrigger id="monthly-show-range" className="h-12"><SelectValue placeholder="Selecione sua média" /></SelectTrigger><SelectContent>{MONTHLY_SHOW_RANGES.map(range => <SelectItem key={range} value={range}>{range} por mês</SelectItem>)}</SelectContent></Select></div>
                       </>
                     )}
 
