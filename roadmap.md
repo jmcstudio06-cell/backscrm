@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Renovar a landing com apresentação musical, exploração interativa do app, depoimentos compactos e navegação móvel; preservar planos sem preços, FAQ e informações legais.
+
 - [x] Adicionar tags Open Graph estáticas para compartilhamento da landing e imagem pública de 1200×630.
 
 - [x] Corrigir o checkout Empresarial mensal/anual e impedir redirecionamento a links de outro plano; valores conferidos na InfinitePay.
