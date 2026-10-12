@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Adicionar tags Open Graph estáticas para compartilhamento da landing e imagem pública de 1200×630.
+
 - [x] Corrigir o checkout Empresarial mensal/anual e impedir redirecionamento a links de outro plano; valores conferidos na InfinitePay.
 
 - [x] Corrigir os indicadores de outubro para separar agendas abertas, confirmadas e realizadas pelos status reais.

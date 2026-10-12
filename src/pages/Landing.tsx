@@ -202,10 +202,14 @@ const Landing = () => {
       <Helmet>
         <title>Backstage Pro — Sistema de Gestão para Artistas e Músicos</title>
         <meta name="description" content="Plataforma completa para artistas: agenda de shows, financeiro, CRM de leads, contratos, orçamentos e equipe. Comece grátis." />
-        <link rel="canonical" href="https://backstagepro.online/landing" />
-        <meta property="og:title" content="Backstage Pro — Sistema de Gestão para Artistas" />
-        <meta property="og:description" content="Agenda, financeiro, CRM, contratos e equipe num só lugar para artistas e músicos." />
-        <meta property="og:url" content="https://backstagepro.online/landing" />
+        <link rel="canonical" href="https://backstageproapp.com/landing" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Backstage Pro — Plataforma para Músicos" />
+        <meta property="og:description" content="Organize sua agenda, cachês, contratos e contatos em um único painel. Feito para artistas." />
+        <meta property="og:url" content="https://backstageproapp.com/landing" />
+        <meta property="og:image" content="https://backstageproapp.com/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
       </Helmet>
 
       {/* Header */}
