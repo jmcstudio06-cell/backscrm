@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Melhorar legibilidade da landing, equilibrar azul e branco e adicionar animações suaves; verificar apresentação e interações públicas.
+
 - [x] Renovar a landing com apresentação musical, exploração interativa do app, depoimentos compactos e navegação móvel; preservar planos sem preços, FAQ e informações legais. Fluxos públicos verificados em computador e celular, sem erros de execução ou imagens quebradas.
 
 - [x] Adicionar tags Open Graph estáticas para compartilhamento da landing e imagem pública de 1200×630.
