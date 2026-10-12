@@ -1642,6 +1642,7 @@ export type Database = {
           link_cover_type: string | null
           media_kit_url: string | null
           min_fee: number | null
+          monthly_show_range: string | null
           music_style: string | null
           name: string | null
           next_consultoria_at: string | null
@@ -1663,6 +1664,7 @@ export type Database = {
           slug: string | null
           spotify_url: string | null
           start_time_limit: string | null
+          state: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: string | null
@@ -1725,6 +1727,7 @@ export type Database = {
           link_cover_type?: string | null
           media_kit_url?: string | null
           min_fee?: number | null
+          monthly_show_range?: string | null
           music_style?: string | null
           name?: string | null
           next_consultoria_at?: string | null
@@ -1746,6 +1749,7 @@ export type Database = {
           slug?: string | null
           spotify_url?: string | null
           start_time_limit?: string | null
+          state?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
@@ -1808,6 +1812,7 @@ export type Database = {
           link_cover_type?: string | null
           media_kit_url?: string | null
           min_fee?: number | null
+          monthly_show_range?: string | null
           music_style?: string | null
           name?: string | null
           next_consultoria_at?: string | null
@@ -1829,6 +1834,7 @@ export type Database = {
           slug?: string | null
           spotify_url?: string | null
           start_time_limit?: string | null
+          state?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
