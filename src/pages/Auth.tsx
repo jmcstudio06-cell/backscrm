@@ -166,8 +166,8 @@ const Auth = () => {
         }
         toast({ title: "Cadastro realizado!", description: "Bem-vindo ao Backstage Pro!" });
       }
-    } catch (error: any) {
-      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Erro", description: translateError(error instanceof Error ? error.message : ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -186,8 +186,8 @@ const Auth = () => {
       if (error) throw error;
       toast({ title: "E-mail enviado!", description: "Verifique sua caixa de entrada e spam." });
       setView("reset-sent");
-    } catch (error: any) {
-      toast({ title: "Erro", description: translateError(error?.message || ""), variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Erro", description: translateError(error instanceof Error ? error.message : ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }

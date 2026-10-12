@@ -2,6 +2,7 @@
 
 - Keep interactive landing previews in a separate presentation-only module with empty user data; visitors explore features without changing account data.
 - Scope landing visual tokens and styles to the landing root so public marketing changes cannot affect signed-in artist themes.
+- Scope authentication presentation styles to its page root and preserve existing auth handlers; visual updates must not affect artist themes or account behavior.
 
 - Keep landing share metadata in the static HTML head as well as the route head; social crawlers do not execute client-side metadata updates.
 
