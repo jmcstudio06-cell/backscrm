@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronLeft, ChevronRight, CircleCheck, Crown, FileText, Gift, Menu, MessageCircle, Mic2, Play, ShieldCheck, Users, Wallet, X, MapPin, Music2, Briefcase, Building2, Quote } from "lucide-react";
@@ -101,8 +101,23 @@ export default function Landing() {
   const [video, setVideo] = useState<"app" | "victor" | null>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
   const currentReview = reviews[reviewIndex];
+  const landingRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = landingRef.current;
+    if (!root || !('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('landing-scroll-reveal');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.12 });
+    root.querySelectorAll('.landing-section-heading, .landing-experience, .landing-tool, .landing-workflow-step, .landing-reviews-grid, .landing-founder-copy, .landing-founder-photo, .landing-plan, .landing-faq-grid, .landing-final-band .landing-container').forEach(element => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
   return (
-    <div className="landing-page">
+    <div className="landing-page" ref={landingRef}>
       <Helmet>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" />
         <title>Backstage Pro — Sistema de Gestão para Artistas e Músicos</title>
@@ -152,7 +167,7 @@ export default function Landing() {
 
       <section className="landing-workflow-band"><div className="landing-container"><p className="landing-eyebrow">TUDO CONVERSA ENTRE SI</p><h2>Um show não é só uma data.</h2><div className="landing-workflow">{[{ icon: Users, title: "O contato", desc: "A oportunidade chega." }, { icon: FileText, title: "O combinado", desc: "Orçamento e contrato." }, { icon: CalendarDays, title: "O show", desc: "Agenda, equipe e repertório." }, { icon: Wallet, title: "O resultado", desc: "Cachê, despesas e histórico." }].map(({ icon: Icon, title, desc }, i) => <div className="landing-workflow-step" key={title}><span className="landing-step-number">0{i + 1}</span><Icon className="h-6 w-6" /><h3>{title}</h3><p>{desc}</p>{i < 3 && <ArrowRight className="landing-step-arrow h-5 w-5" />}</div>)}</div></div></section>
 
-      <section id="depoimentos" className="landing-section"><div className="landing-container"><div className="landing-section-heading"><div><p className="landing-eyebrow">02 / QUEM JÁ ESTÁ NO PALCO</p><h2>Gente de verdade.<br />Rotinas de verdade.</h2></div><p>Conheça a experiência de artistas que usam o Backstage Pro no dia a dia.</p></div><div className="landing-reviews-grid"><div className="landing-video-review"><Quote className="h-8 w-8 text-primary" /><h3>Victor Viola</h3><p>A experiência de quem vive de música, contada em primeira pessoa.</p><Button variant="outline" onClick={() => setVideo("victor")}><Play />Assistir ao depoimento</Button><span className="mt-auto pt-8 text-xs text-muted-foreground">DEPOIMENTO EM VÍDEO</span></div><div className="landing-review-carousel" aria-roledescription="carrossel"><div className="flex items-center justify-between gap-3"><span className="text-xs text-muted-foreground">AVALIAÇÕES NO GOOGLE</span><div className="flex gap-1"><Button size="icon" variant="ghost" aria-label="Avaliação anterior" onClick={() => setReviewIndex((reviewIndex + reviews.length - 1) % reviews.length)}><ChevronLeft /></Button><Button size="icon" variant="ghost" aria-label="Próxima avaliação" onClick={() => setReviewIndex((reviewIndex + 1) % reviews.length)}><ChevronRight /></Button></div></div>{currentReview && <div aria-live="polite" className="landing-review-image"><img src={currentReview.image} alt={`Avaliação de ${currentReview.name} no Google`} loading="lazy" /><div className="flex items-center justify-between gap-2 pt-5"><h3>{currentReview.name}</h3><span className="text-xs text-muted-foreground">{reviewIndex + 1} / {reviews.length}</span></div></div>}</div></div></div></section>
+      <section id="depoimentos" className="landing-section"><div className="landing-container"><div className="landing-section-heading"><div><p className="landing-eyebrow">02 / QUEM JÁ ESTÁ NO PALCO</p><h2>Gente de verdade.<br />Rotinas de verdade.</h2></div><p>Conheça a experiência de artistas que usam o Backstage Pro no dia a dia.</p></div><div className="landing-reviews-grid"><div className="landing-video-review"><Quote className="h-8 w-8 text-primary" /><h3>Victor Viola</h3><p>A experiência de quem vive de música, contada em primeira pessoa.</p><Button variant="outline" onClick={() => setVideo("victor")}><Play />Assistir ao depoimento</Button><span className="mt-auto pt-8 text-xs text-muted-foreground">DEPOIMENTO EM VÍDEO</span></div><div className="landing-review-carousel" aria-roledescription="carrossel"><div className="flex items-center justify-between gap-3"><span className="text-xs text-muted-foreground">AVALIAÇÕES NO GOOGLE</span><div className="flex gap-1"><Button size="icon" variant="ghost" aria-label="Avaliação anterior" onClick={() => setReviewIndex((reviewIndex + reviews.length - 1) % reviews.length)}><ChevronLeft /></Button><Button size="icon" variant="ghost" aria-label="Próxima avaliação" onClick={() => setReviewIndex((reviewIndex + 1) % reviews.length)}><ChevronRight /></Button></div></div>{currentReview && <div key={currentReview.name} aria-live="polite" className="landing-review-image"><img src={currentReview.image} alt={`Avaliação de ${currentReview.name} no Google`} loading="lazy" /><div className="flex items-center justify-between gap-2 pt-5"><h3>{currentReview.name}</h3><span className="text-xs text-muted-foreground">{reviewIndex + 1} / {reviews.length}</span></div></div>}</div></div></div></section>
 
       <section id="quem-somos" className="landing-founder-band"><div className="landing-container landing-founder-grid"><div className="landing-founder-photo"><img src={founderPhoto} alt="José Mario Campos, fundador do Backstage Pro" loading="lazy" /></div><div className="landing-founder-copy"><p className="landing-eyebrow">CRIADO POR UM ARTISTA. PARA ARTISTAS.</p><h2>Nasceu fora da planilha.<br />E dentro da vida real.</h2><p>José Mario Campos, também conhecido como Mario Oliveira, é cantor. Como muitos artistas, organizava shows, contatos e ideias em planilhas — mas sentia falta de enxergar seus próprios resultados.</p><p>O Backstage Pro nasceu dessa necessidade: uma ferramenta que entendesse a rotina de quem vive de palco.</p><div className="landing-founder-signature"><strong>José Mario Campos</strong><span>Artista e fundador do Backstage Pro</span></div></div></div></section>
 
