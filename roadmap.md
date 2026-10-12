@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Remover o bloqueio de compatibilidade da landing e reforçar movimentos contínuos; faixa, foto, dispositivos e etapas verificados em movimento real, com pausa/ativação e acesso explícito para movimento reduzido, sem erros.
+
 - [x] Substituir a faixa abaixo do cantor por palavras em loop sobre azul e reforçar movimentos visuais em seções da landing; loop, pausa, movimento dos dispositivos e acessibilidade verificados, sem erros ou transbordamento.
 
 - [x] Melhorar legibilidade da landing, equilibrar azul e branco e adicionar animações suaves; apresentação, abas, calendário e FAQ verificados em telas grandes e pequenas, sem erros ou transbordamento.
