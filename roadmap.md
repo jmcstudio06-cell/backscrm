@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Substituir a faixa abaixo do cantor por palavras em loop sobre azul e reforçar movimentos visuais em seções da landing.
+- [x] Substituir a faixa abaixo do cantor por palavras em loop sobre azul e reforçar movimentos visuais em seções da landing; loop, pausa, movimento dos dispositivos e acessibilidade verificados, sem erros ou transbordamento.
 
 - [x] Melhorar legibilidade da landing, equilibrar azul e branco e adicionar animações suaves; apresentação, abas, calendário e FAQ verificados em telas grandes e pequenas, sem erros ou transbordamento.
 
