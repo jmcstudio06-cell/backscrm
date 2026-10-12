@@ -537,8 +537,8 @@
   .landing-tool:hover { transform: translateY(-3px); }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .landing-marquee-track { animation: landing-marquee-slide 24s linear infinite; }
-  .landing-overview-image img { animation: landing-device-float 6s ease-in-out infinite; }
+  .landing-marquee-track { animation: landing-marquee-slide 14s linear infinite; }
+  .landing-overview-image img { animation: landing-device-float 4s ease-in-out infinite; }
   .landing-workflow-step > svg:not(.landing-step-arrow) { animation: landing-icon-beat 8s ease-in-out infinite; }
   .landing-workflow-step:nth-child(2) > svg:not(.landing-step-arrow) { animation-delay: 2s; }
   .landing-workflow-step:nth-child(3) > svg:not(.landing-step-arrow) { animation-delay: 4s; }
@@ -546,7 +546,7 @@
   .landing-review-image { animation: landing-section-arrive .5s ease-out both; }
   .landing-final-band > div > svg { animation: landing-device-float 4s ease-in-out infinite; }
   @keyframes landing-marquee-slide { to { transform: translateX(-25%); } }
-  @keyframes landing-device-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes landing-device-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
   @keyframes landing-icon-beat { 0%, 35%, 100% { transform: translateY(0) scale(1); } 12%, 22% { transform: translateY(-7px) scale(1.14); } }
   .landing-scroll-reveal { animation: landing-section-arrive .7s cubic-bezier(.2,.7,.2,1) both; }
   .landing-hero-copy > * { animation: landing-section-arrive .7s ease-out both; }
@@ -559,6 +559,14 @@
   .landing-workflow-step:nth-child(4)::after { animation-delay: 3s; }
   @keyframes landing-section-arrive { from { opacity: .25; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes landing-flow-line { 0%, 100% { transform: scaleX(0); opacity: 0; } 20%, 65% { transform: scaleX(1); opacity: 1; } 85% { transform: scaleX(1); opacity: 0; } }
+  /* Lightweight public motion must not inherit the artist's compatibility lock. */
+  .lite-mode .landing-page .landing-marquee-track { animation-duration: 14s !important; animation-iteration-count: infinite !important; }
+  .lite-mode .landing-page .landing-overview-image img,
+  .lite-mode .landing-page .landing-final-band > div > svg { animation-duration: 4s !important; animation-iteration-count: infinite !important; }
+  .lite-mode .landing-page .landing-workflow-step > svg:not(.landing-step-arrow),
+  .lite-mode .landing-page .landing-workflow-step::after { animation-duration: 8s !important; animation-iteration-count: infinite !important; }
+  .lite-mode .landing-page .landing-scroll-reveal,
+  .lite-mode .landing-page .landing-hero-copy > * { animation-duration: .7s !important; }
 }
 @media (min-width: 1600px) { .landing-hero-copy { padding-top: 100px; padding-bottom: 80px; } }
 @media (max-width: 1023px) {
