@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { MONTHLY_SHOW_RANGES, signupArtistInfoSchema } from "./signupArtistInfo";
+import { MONTHLY_SHOW_RANGES, signupArtistInfoSchema } from "../src/lib/signupArtistInfo";
 
 test("accepts the five requested monthly ranges with city and state", () => {
   expect([...MONTHLY_SHOW_RANGES]).toEqual(["0 a 2", "2 a 5", "5 a 10", "10 a 15", "Mais de 15"]);
