@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronLeft, ChevronRight, CircleCheck, Crown, FileText, Gift, Menu, MessageCircle, Mic2, Play, ShieldCheck, Users, Wallet, X, MapPin, Music2, Briefcase, Building2, Quote } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronLeft, ChevronRight, Crown, FileText, Gift, Menu, MessageCircle, Mic2, Play, Pause, ShieldCheck, Users, Wallet, X, MapPin, Music2, Briefcase, Building2, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -100,6 +100,7 @@ export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [video, setVideo] = useState<"app" | "victor" | null>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
+  const [marqueePaused, setMarqueePaused] = useState(false);
   const currentReview = reviews[reviewIndex];
   const landingRef = useRef<HTMLDivElement>(null);
 
@@ -154,7 +155,12 @@ export default function Landing() {
           <div className="landing-hero-bottom"><span>MENOS IMPROVISO. MAIS CARREIRA.</span><a href="#recursos" className="inline-flex items-center gap-2">Conheça o seu backstage<ArrowRight className="h-4 w-4" /></a></div>
         </div>
       </section>
-      <div className="landing-capability-band"><div className="landing-container flex flex-wrap items-center justify-between gap-x-6 gap-y-3">{[{ icon: CalendarDays, label: "Agenda ilimitada" }, { icon: Wallet, label: "Financeiro conectado" }, { icon: FileText, label: "Contratos profissionais" }, { icon: Users, label: "Sua equipe organizada" }].map(({ icon: Icon, label }) => <span key={label} className="inline-flex items-center gap-2.5"><Icon className="h-4 w-4" />{label}</span>)}</div></div>
+      <div className={`landing-marquee ${marqueePaused ? "is-paused" : ""}`} role="region" aria-label="Organização, controle, gestão de carreira, Backstage Pro">
+        <div className="landing-marquee-track" aria-hidden="true">
+          {[0, 1, 2, 3].map(copy => <div className="landing-marquee-group" key={copy}>{["ORGANIZAÇÃO", "CONTROLE", "GESTÃO DE CARREIRA", "BACKSTAGE PRO"].map(word => <span className="landing-marquee-word" key={word}>{word}<Music2 /></span>)}</div>)}
+        </div>
+        <Button variant="ghost" size="icon" className="landing-marquee-toggle" onClick={() => setMarqueePaused(!marqueePaused)} aria-label={marqueePaused ? "Retomar animação da faixa" : "Pausar animação da faixa"} title={marqueePaused ? "Retomar animação" : "Pausar animação"}>{marqueePaused ? <Play /> : <Pause />}</Button>
+      </div>
 
       <section id="recursos" className="landing-section">
         <div className="landing-container">
