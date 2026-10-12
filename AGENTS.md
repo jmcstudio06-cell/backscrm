@@ -1,5 +1,8 @@
 # Project decisions
 
+- Keep interactive landing previews in a separate presentation-only module with empty user data; visitors explore features without changing account data.
+- Scope landing visual tokens and styles to the landing root so public marketing changes cannot affect signed-in artist themes.
+
 - Keep landing share metadata in the static HTML head as well as the route head; social crawlers do not execute client-side metadata updates.
 
 - Checkout amounts and tier identity come from the server plan configuration, and provider link creation must fail closed without static-link fallback; stale links can charge for a different tier.
