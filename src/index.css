@@ -536,7 +536,7 @@
   .landing-plan:hover { transform: translateY(-5px); box-shadow: var(--landing-hover-shadow); }
   .landing-tool:hover { transform: translateY(-3px); }
 }
-.landing-page {
+@media (min-width: 0px) {
   .landing-marquee-track { animation: landing-marquee-slide 10s linear infinite; will-change: transform; }
   .landing-hero { overflow: hidden; }
   .landing-stage-photo { animation: landing-stage-drift 12s ease-in-out infinite alternate; }
