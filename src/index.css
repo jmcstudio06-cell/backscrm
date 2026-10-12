@@ -95,9 +95,9 @@
 /* Lite Mode - Modo Compatibilidade
    Desabilita efeitos pesados (blur, sombras grandes, animações infinitas)
    para aparelhos antigos / WebViews com GPU limitada */
-.lite-mode *,
-.lite-mode *::before,
-.lite-mode *::after {
+.lite-mode *:not(.landing-page, .landing-page *),
+.lite-mode *:not(.landing-page, .landing-page *)::before,
+.lite-mode *:not(.landing-page, .landing-page *)::after {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   animation-duration: 0.01ms !important;
@@ -536,18 +536,21 @@
   .landing-plan:hover { transform: translateY(-5px); box-shadow: var(--landing-hover-shadow); }
   .landing-tool:hover { transform: translateY(-3px); }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .landing-marquee-track { animation: landing-marquee-slide 14s linear infinite; }
-  .landing-overview-image img { animation: landing-device-float 4s ease-in-out infinite; }
-  .landing-workflow-step > svg:not(.landing-step-arrow) { animation: landing-icon-beat 8s ease-in-out infinite; }
-  .landing-workflow-step:nth-child(2) > svg:not(.landing-step-arrow) { animation-delay: 2s; }
-  .landing-workflow-step:nth-child(3) > svg:not(.landing-step-arrow) { animation-delay: 4s; }
-  .landing-workflow-step:nth-child(4) > svg:not(.landing-step-arrow) { animation-delay: 6s; }
+.landing-page {
+  .landing-marquee-track { animation: landing-marquee-slide 10s linear infinite; will-change: transform; }
+  .landing-hero { overflow: hidden; }
+  .landing-stage-photo { animation: landing-stage-drift 12s ease-in-out infinite alternate; }
+  .landing-overview-image img { animation: landing-device-float 3s ease-in-out infinite; }
+  .landing-workflow-step > svg:not(.landing-step-arrow) { animation: landing-icon-beat 3s ease-in-out infinite; }
+  .landing-workflow-step:nth-child(2) > svg:not(.landing-step-arrow) { animation-delay: .4s; }
+  .landing-workflow-step:nth-child(3) > svg:not(.landing-step-arrow) { animation-delay: .8s; }
+  .landing-workflow-step:nth-child(4) > svg:not(.landing-step-arrow) { animation-delay: 1.2s; }
   .landing-review-image { animation: landing-section-arrive .5s ease-out both; }
   .landing-final-band > div > svg { animation: landing-device-float 4s ease-in-out infinite; }
   @keyframes landing-marquee-slide { to { transform: translateX(-25%); } }
-  @keyframes landing-device-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
-  @keyframes landing-icon-beat { 0%, 35%, 100% { transform: translateY(0) scale(1); } 12%, 22% { transform: translateY(-7px) scale(1.14); } }
+  @keyframes landing-stage-drift { from { transform: scale(1); } to { transform: scale(1.06); } }
+  @keyframes landing-device-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+  @keyframes landing-icon-beat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-9px) scale(1.16); } }
   .landing-scroll-reveal { animation: landing-section-arrive .7s cubic-bezier(.2,.7,.2,1) both; }
   .landing-hero-copy > * { animation: landing-section-arrive .7s ease-out both; }
   .landing-hero-copy > :nth-child(2) { animation-delay: .1s; }
@@ -557,16 +560,8 @@
   .landing-workflow-step:nth-child(2)::after { animation-delay: 1s; }
   .landing-workflow-step:nth-child(3)::after { animation-delay: 2s; }
   .landing-workflow-step:nth-child(4)::after { animation-delay: 3s; }
-  @keyframes landing-section-arrive { from { opacity: .25; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes landing-section-arrive { from { opacity: .25; transform: translateY(36px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes landing-flow-line { 0%, 100% { transform: scaleX(0); opacity: 0; } 20%, 65% { transform: scaleX(1); opacity: 1; } 85% { transform: scaleX(1); opacity: 0; } }
-  /* Lightweight public motion must not inherit the artist's compatibility lock. */
-  .lite-mode .landing-page .landing-marquee-track { animation-duration: 14s !important; animation-iteration-count: infinite !important; }
-  .lite-mode .landing-page .landing-overview-image img,
-  .lite-mode .landing-page .landing-final-band > div > svg { animation-duration: 4s !important; animation-iteration-count: infinite !important; }
-  .lite-mode .landing-page .landing-workflow-step > svg:not(.landing-step-arrow),
-  .lite-mode .landing-page .landing-workflow-step::after { animation-duration: 8s !important; animation-iteration-count: infinite !important; }
-  .lite-mode .landing-page .landing-scroll-reveal,
-  .lite-mode .landing-page .landing-hero-copy > * { animation-duration: .7s !important; }
 }
 @media (min-width: 1600px) { .landing-hero-copy { padding-top: 100px; padding-bottom: 80px; } }
 @media (max-width: 1023px) {
@@ -668,10 +663,13 @@
   .landing-app-content { animation: landing-reveal .25s ease-out; }
   @keyframes landing-reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 }
-@media (prefers-reduced-motion: reduce) { .landing-page *, .landing-page *::before, .landing-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+.landing-page.landing-motion-paused *, .landing-page.landing-motion-paused *::before, .landing-page.landing-motion-paused *::after { animation-play-state: paused !important; }
 @media (prefers-reduced-motion: reduce) {
-  .landing-marquee-track { width: 100%; }
-  .landing-marquee-group { width: 100%; flex-wrap: wrap; justify-content: center; gap: 14px 24px; padding: 0 20px; }
-  .landing-marquee-group:not(:first-child), .landing-marquee-toggle { display: none; }
-  .landing-marquee-word { font-size: 18px; gap: 16px; padding-right: 0; }
+  .landing-page:not(.landing-motion-enabled) *, .landing-page:not(.landing-motion-enabled) *::before, .landing-page:not(.landing-motion-enabled) *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-page:not(.landing-motion-enabled) .landing-marquee-track { width: 100%; }
+  .landing-page:not(.landing-motion-enabled) .landing-marquee-group { width: 100%; flex-wrap: wrap; justify-content: center; gap: 14px 24px; padding: 0 60px 0 20px; }
+  .landing-page:not(.landing-motion-enabled) .landing-marquee-group:not(:first-child) { display: none; }
+  .landing-page:not(.landing-motion-enabled) .landing-marquee-word { font-size: 18px; gap: 16px; padding-right: 0; }
 }
