@@ -655,17 +655,7 @@
   .landing-mobile-cta > span { font-size: 14px; }
   .landing-mobile-cta .landing-trial { height: 42px; padding: 0 16px; font-size: 14px; }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .landing-hero-copy { animation: landing-reveal .7s ease-out; }
-  .landing-app-content { animation: landing-reveal .25s ease-out; }
-  @keyframes landing-reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-}
-@media (prefers-reduced-motion: reduce) {
-  .landing-page *, .landing-page *::before, .landing-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .landing-page .landing-marquee-track { width: 100%; }
-  .landing-page .landing-marquee-group { width: 100%; flex-wrap: wrap; justify-content: center; gap: 14px 24px; padding: 0 20px; }
-  .landing-page .landing-marquee-group:not(:first-child) { display: none; }
-  .landing-page .landing-marquee-word { font-size: 18px; gap: 16px; padding-right: 0; }
-}
+/* Landing motion is part of the public presentation and runs continuously on every device. */
+.landing-hero-copy { animation: landing-reveal .7s ease-out; }
+.landing-app-content { animation: landing-reveal .25s ease-out; }
+@keyframes landing-reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

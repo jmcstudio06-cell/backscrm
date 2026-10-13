@@ -1,7 +1,7 @@
 # Project decisions
 
 - Keep interactive landing previews in a separate presentation-only module with empty user data; visitors explore features without changing account data.
-- Scope landing visual tokens, typography and automatic motion to the landing root; exclude it from artist compatibility locks, use once-per-element scroll reveals, and honor system reduced-motion preferences so account settings cannot silently disable public presentation or compromise accessibility.
+- Scope landing visual tokens, typography and continuous motion to the landing root; exclude it from artist compatibility locks and system motion settings, and use once-per-element scroll reveals, so the public presentation always looks alive without affecting signed-in artist themes.
 - Scope authentication presentation styles to its page root and preserve existing auth handlers; visual updates must not affect artist themes or account behavior.
 - Persist signup artist details through a validated profile trigger reading auth metadata; capture registration details even when email confirmation delays the first session, without changing trial provisioning.
 
