@@ -113,7 +113,7 @@ export default function Landing() {
         observer.unobserve(entry.target);
       });
     }, { threshold: 0.12 });
-    root.querySelectorAll('.landing-section-heading, .landing-experience, .landing-tool, .landing-workflow-step, .landing-reviews-grid, .landing-founder-copy, .landing-founder-photo, .landing-plan, .landing-faq-grid, .landing-final-band .landing-container').forEach(element => observer.observe(element));
+    root.querySelectorAll('.landing-section-heading, .landing-experience, .landing-tool, .landing-workflow-step, .landing-reviews-grid, .landing-founder-copy, .landing-founder-photo, .landing-plan, .landing-faq-grid, .landing-contact-grid').forEach(element => observer.observe(element));
     return () => observer.disconnect();
   }, []);
   return (
@@ -156,12 +156,16 @@ export default function Landing() {
           <div className="landing-hero-bottom"><span>MENOS IMPROVISO. MAIS CARREIRA.</span><a href="#recursos" className="inline-flex items-center gap-2">Conheça o seu backstage<ArrowRight className="h-4 w-4" /></a></div>
         </div>
       </section>
-      <div className="landing-marquee" role="region" aria-label="Organização, controle, gestão de carreira, Backstage Pro">
-        <div className="landing-marquee-track" aria-hidden="true">
-          {[0, 1, 2, 3].map(copy => <div className="landing-marquee-group" key={copy}>{["ORGANIZAÇÃO", "CONTROLE", "GESTÃO DE CARREIRA", "BACKSTAGE PRO"].map(word => <span className="landing-marquee-word" key={word}>{word}<Music2 /></span>)}</div>)}
+      <div className="landing-diagonal" role="region" aria-label="Organização, controle, gestão de carreira, Backstage Pro">
+        <div className="landing-diagonal-band landing-diagonal-band-a" aria-hidden="true">
+          <div className="landing-marquee-track">
+            {[0, 1, 2, 3].map(copy => <div className="landing-marquee-group" key={copy}>{["ORGANIZAÇÃO", "CONTROLE", "GESTÃO DE CARREIRA", "BACKSTAGE PRO"].map(word => <span className="landing-marquee-word" key={word}>{word}<Music2 /></span>)}</div>)}
+          </div>
         </div>
-        <div className="landing-marquee-track is-reverse" aria-hidden="true">
-          {[0, 1, 2, 3].map(copy => <div className="landing-marquee-group" key={copy}>{["ORGANIZAÇÃO", "CONTROLE", "GESTÃO DE CARREIRA", "BACKSTAGE PRO"].map(word => <span className="landing-marquee-word" key={word}>{word}<Music2 /></span>)}</div>)}
+        <div className="landing-diagonal-band landing-diagonal-band-b" aria-hidden="true">
+          <div className="landing-marquee-track is-reverse">
+            {[0, 1, 2, 3].map(copy => <div className="landing-marquee-group" key={copy}>{["TESTE GRÁTIS", "SEM CARTÃO", "FEITO PARA ARTISTAS", "BACKSTAGE PRO"].map(word => <span className="landing-marquee-word" key={word}>{word}<Music2 /></span>)}</div>)}
+          </div>
         </div>
       </div>
 
@@ -184,10 +188,15 @@ export default function Landing() {
 
       <section id="faq" className="landing-section landing-faq-band"><div className="landing-container landing-faq-grid"><div><p className="landing-eyebrow">SEM DÚVIDAS NO CAMINHO</p><h2>Perguntas<br />frequentes.</h2><p className="mt-5 text-muted-foreground">Prefere conversar com alguém?</p><Button variant="link" asChild className="px-0 mt-2"><a href={SUPPORT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Falar com um atendente<ArrowUpRight /></a></Button></div><Accordion type="single" collapsible>{faqItems.map((item, i) => <AccordionItem value={`faq-${i}`} key={item.question} className="landing-faq-item"><AccordionTrigger className="landing-faq-trigger">{item.question}</AccordionTrigger><AccordionContent className="text-muted-foreground leading-relaxed pr-6">{item.answer}</AccordionContent></AccordionItem>)}</Accordion></div></section>
 
-      <section id="contato" className="landing-final-band"><span className="landing-orb landing-orb-a" aria-hidden="true" /><span className="landing-orb landing-orb-c" aria-hidden="true" /><div className="landing-container"><Mic2 className="h-8 w-8 mb-6" /><h2>O próximo show é seu.<br />A organização é com a gente.</h2><p>Comece a construir uma carreira mais organizada hoje.</p><div className="flex flex-wrap justify-center gap-3 mt-8"><TrialButton /><Button variant="outline" asChild className="landing-watch" size="lg"><a href={SUPPORT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer"><MessageCircle />Falar no WhatsApp</a></Button></div><p className="text-xs mt-5">3 horas de teste · Sem cartão de crédito</p></div></section>
+      <section id="contato" className="landing-contact-band"><span className="landing-orb landing-orb-a" aria-hidden="true" /><span className="landing-orb landing-orb-c" aria-hidden="true" /><div className="landing-container landing-contact-grid"><div className="landing-contact-copy"><p className="landing-eyebrow">FALE COM A GENTE</p><h2>O próximo show é seu.<br />A organização é com a gente.</h2><p>Comece a construir uma carreira mais organizada hoje. Escolha como quer começar:</p></div><div className="landing-contact-cards">{[
+        { icon: MessageCircle, title: "WhatsApp", note: "Atendimento humano", href: SUPPORT_WHATSAPP_URL, external: true },
+        { icon: Play, title: "Testar grátis", note: "3 horas · sem cartão", href: "/auth", external: false },
+        { icon: Gift, title: "Kit Profissional", note: "Ferramentas grátis", href: "/kit-profissional", external: false },
+        { icon: Mic2, title: "Ver o app em ação", note: "Vídeo de 1 minuto", action: () => setVideo("app") },
+      ].map(({ icon: Icon, title, note, href, external, action }) => action ? <button key={title} type="button" className="landing-contact-card" onClick={action}><span className="landing-contact-icon"><Icon className="h-7 w-7" /></span><strong>{title}</strong><span className="landing-contact-note">{note}</span></button> : <a key={title} className="landing-contact-card" href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}><span className="landing-contact-icon"><Icon className="h-7 w-7" /></span><strong>{title}</strong><span className="landing-contact-note">{note}</span></a>)}</div></div></section>
       <div className="landing-kit-band"><div className="landing-container flex flex-wrap justify-between items-center gap-3"><span className="inline-flex items-center gap-3"><Gift className="h-5 w-5 text-primary" />Mais ferramentas para sua carreira.</span><Button variant="link" asChild><Link to="/kit-profissional">Conhecer o Kit Profissional grátis<ArrowUpRight /></Link></Button></div></div>
       <footer className="landing-footer"><div className="landing-container"><div className="landing-footer-top"><Brand /><nav aria-label="Links legais" className="flex flex-wrap gap-x-6 gap-y-2"><Link to="/termos">Termos de Uso</Link><Link to="/privacidade">Privacidade</Link><a href={SUPPORT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Suporte</a></nav><p>© 2024 Backstage Pro.</p></div><div className="landing-registration"><ShieldCheck className="h-5 w-5 shrink-0 text-primary" /><div><p>Backstage Pro® — marca registrada. Empresa com registro de marca, titularidade registrada por Jose Mario Campos.</p><p className="mt-1">CNPJ 69.458.195/0001-14</p></div></div></div></footer>
-      <div className="landing-mobile-cta"><span>Sua carreira no controle.</span><TrialButton /></div>
+      <div className="landing-bottom-bar"><a href={SUPPORT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="landing-bottom-whatsapp"><MessageCircle className="h-5 w-5" />Falar no WhatsApp</a><span className="landing-bottom-text">Sua carreira no controle.</span><TrialButton /></div>
       <Dialog open={video !== null} onOpenChange={open => { if (!open) setVideo(null); }}><DialogContent className="landing-video-dialog"><DialogTitle>{video === "victor" ? "Depoimento de Victor Viola" : "Backstage Pro em ação"}</DialogTitle><DialogDescription>Conheça o Backstage Pro em vídeo.</DialogDescription>{video && <iframe src={`https://www.youtube.com/embed/${video === "victor" ? "_nUOr9qoNgI" : "d-Hx3NwVuIM"}?autoplay=1`} title={video === "victor" ? "Depoimento Victor Viola" : "Veja o app na prática"} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="aspect-video w-full rounded-lg" />}</DialogContent></Dialog>
     </div>
   );
