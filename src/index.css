@@ -661,6 +661,8 @@
 @media (max-width: 1180px) { .landing-hero-chips { display: none; } }
 @media (min-width: 1181px) and (max-width: 1360px) { .landing-hero-chips { right: 230px; } }
 @media (max-width: 1023px) {
+  .landing-contact-grid { grid-template-columns: 1fr; gap: 40px; }
+  .landing-contact-copy h2 { font-size: 36px; }
   .landing-container { width: calc(100% - 48px); }
   .landing-hero-copy { padding-top: 72px; padding-bottom: 56px; }
   .landing-hero h1 { font-size: 56px; }
