@@ -696,7 +696,7 @@
   .landing-section { padding: 64px 0; scroll-margin-top: 85px; }
   .landing-section-heading { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 30px; }
   .landing-page h2, .landing-workflow-band h2 { font-size: 31px; }
-  .landing-final-band h2 { font-size: 33px; }
+  .landing-contact-copy h2 { font-size: 33px; }
   .landing-section-heading > p { max-width: none; }
   .landing-module-tabs { width: 100%; justify-content: flex-start; }
   .landing-module-tab { padding: 10px 14px; font-size: 14px; }
@@ -733,12 +733,15 @@
   .landing-plan > p { min-height: auto; }
   .landing-faq-item { padding: 0 18px; }
   .landing-faq-trigger { font-size: 17px; }
-  .landing-final-band { padding: 72px 0; }
-  .landing-final-band .landing-watch { font-size: 14px; padding: 0 16px; }
+  .landing-contact-band { padding: 72px 0; }
+  .landing-contact-grid { grid-template-columns: 1fr; gap: 36px; }
+  .landing-contact-cards { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .landing-contact-card { padding: 22px 12px; }
   .landing-kit-band a { white-space: normal; text-align: left; padding-left: 0; }
-  .landing-footer { padding-bottom: 110px; }
+  .landing-footer { padding-bottom: 130px; }
   .landing-footer-top { flex-direction: column; align-items: flex-start; gap: 20px; }
-  .landing-mobile-cta { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); position: fixed; bottom: 0; left: 0; right: 0; z-index: 35; background: hsl(var(--card) / .96); backdrop-filter: blur(12px); border-top: 1px solid hsl(var(--border)); }
-  .landing-mobile-cta > span { font-size: 14px; font-weight: 600; }
-  .landing-mobile-cta .landing-trial { height: 42px; padding: 0 16px; font-size: 14px; }
+  .landing-bottom-bar { left: 12px; right: 12px; transform: none; justify-content: space-between; gap: 10px; padding: 8px 8px 8px 14px; }
+  .landing-bottom-text { display: none; }
+  .landing-bottom-whatsapp { padding: 10px 14px; font-size: 14px; }
+  .landing-bottom-bar .landing-trial { height: 42px; padding: 0 16px; font-size: 14px; }
 }

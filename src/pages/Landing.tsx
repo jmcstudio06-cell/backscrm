@@ -113,7 +113,7 @@ export default function Landing() {
         observer.unobserve(entry.target);
       });
     }, { threshold: 0.12 });
-    root.querySelectorAll('.landing-section-heading, .landing-experience, .landing-tool, .landing-workflow-step, .landing-reviews-grid, .landing-founder-copy, .landing-founder-photo, .landing-plan, .landing-faq-grid, .landing-final-band .landing-container').forEach(element => observer.observe(element));
+    root.querySelectorAll('.landing-section-heading, .landing-experience, .landing-tool, .landing-workflow-step, .landing-reviews-grid, .landing-founder-copy, .landing-founder-photo, .landing-plan, .landing-faq-grid, .landing-contact-grid').forEach(element => observer.observe(element));
     return () => observer.disconnect();
   }, []);
   return (
