@@ -153,7 +153,7 @@ export default function Landing() {
             <p className="landing-hero-reassurance"><Check className="h-4 w-4" />3 horas para conhecer · Sem cartão de crédito</p>
           </div>
           <div className="landing-hero-chips" aria-hidden="true">{[{ icon: CalendarDays, title: "Show confirmado", note: "Agenda atualizada" }, { icon: FileText, title: "Contrato enviado", note: "Pronto para assinar" }, { icon: Wallet, title: "Cachê recebido", note: "Financeiro em dia" }].map(({ icon: Icon, title, note }) => <div className="landing-hero-chip" key={title}><span><Icon className="h-5 w-5" /></span><span>{title}<small>{note}</small></span></div>)}</div>
-          <div className="landing-hero-bottom"><span>MENOS IMPROVISO. MAIS CARREIRA.</span><a href="#recursos" className="inline-flex items-center gap-2">Conheça o seu backstage<ArrowRight className="h-4 w-4" /></a></div>
+          <div className="landing-hero-bottom"><span>MENOS IMPROVISO. MAIS CARREIRA.</span></div>
         </div>
       </section>
       <div className="landing-diagonal" role="region" aria-label="Organização, controle, gestão de carreira, Backstage Pro">

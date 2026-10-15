@@ -433,7 +433,7 @@
 .landing-hero-bottom > a:hover { background: hsl(var(--landing-on-vibrant) / .28); }
 
 /* Diagonal crossing bands (Alterdata-style) */
-.landing-diagonal { position: relative; overflow: hidden; background: hsl(var(--landing-ice)); padding: 64px 0; }
+.landing-diagonal { position: relative; overflow: hidden; background: linear-gradient(180deg, hsl(222 60% 14%) 0%, hsl(var(--primary)) 100%); padding: 36px 0; }
 .landing-diagonal-band { position: relative; left: -5%; width: 110%; padding: 14px 0; overflow: hidden; }
 .landing-diagonal-band-a { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); transform: rotate(-2.2deg); box-shadow: var(--landing-card-shadow); }
 .landing-diagonal-band-b { margin-top: -6px; background: hsl(var(--landing-cyan)); color: hsl(222 60% 14%); transform: rotate(1.6deg); }
