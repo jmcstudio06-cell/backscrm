@@ -141,7 +141,7 @@ export default function Landing() {
       </header>
 
       <section className="landing-hero" aria-labelledby="landing-title">
-        <img src={stagePhoto} alt="Cantor se apresentando ao vivo com sua banda" width={1600} height={912} className="landing-stage-photo" fetchPriority="high" />
+        <img src={stagePhoto} alt="Cantor se apresentando ao vivo com sua banda" width={1600} height={912} className="landing-stage-photo" fetchpriority="high" />
         <div className="landing-hero-shade" />
         <span className="landing-orb landing-orb-a" aria-hidden="true" /><span className="landing-orb landing-orb-b" aria-hidden="true" />
         <div className="landing-container relative z-10">
