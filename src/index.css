@@ -436,7 +436,7 @@
 .landing-diagonal { position: relative; z-index: 5; overflow: visible; background: transparent; margin-top: -46px; margin-bottom: -30px; padding: 0; pointer-events: none; }
 .landing-diagonal-band { position: relative; left: -5%; width: 110%; padding: 14px 0; overflow: hidden; }
 .landing-diagonal-band-a { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); transform: rotate(-1deg); box-shadow: var(--landing-card-shadow); }
-.landing-diagonal-band-b { margin-top: 38px; background: hsl(var(--landing-cyan)); color: hsl(222 60% 14%); transform: rotate(1deg); }
+.landing-diagonal-band-b { margin-top: 20px; background: hsl(var(--landing-cyan)); color: hsl(222 60% 14%); transform: rotate(1deg); }
 .landing-marquee-track { display: flex; width: max-content; animation: landing-marquee-slide 18s linear infinite; will-change: transform; }
 .landing-marquee-track.is-reverse { animation: landing-marquee-reverse 26s linear infinite; }
 .landing-marquee-group { display: flex; flex-shrink: 0; align-items: center; }
