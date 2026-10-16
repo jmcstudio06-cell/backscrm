@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useClients } from "@/hooks/useClients";
 import { useShows, type Show } from "@/contexts/shows/ShowsContext";
+import { prepareMirroredShow } from "@/lib/mirroredShow";
 
 interface MirrorShowDialogProps {
   open: boolean;
@@ -84,30 +85,30 @@ export function MirrorShowDialog({ open, onOpenChange, show }: MirrorShowDialogP
         title = show.event_type ? `${client.name} - ${show.event_type}` : client.name;
       }
 
-      await addShow(
-        {
+      const mirroredShow = await addShow(
+        prepareMirroredShow({
           title,
           date: newDate,
           start_time: startTime || null,
           end_time: endTime || null,
-          duration_minutes: (show as any).duration_minutes ?? null,
-          performance_format: (show as any).performance_format ?? null,
+          duration_minutes: show.duration_minutes ?? null,
+          performance_format: show.performance_format ?? null,
           venue: venue || null,
           address: address || null,
           cachet: show.cachet ?? 0,
-          status: "pending",
           event_type: show.event_type,
           client_id: finalClientId,
           notes: show.notes,
           advance_amount: 0,
           advance_received_date: null,
           balance_due_date: null,
-        } as any,
+        }),
         musicians,
         expenses,
       );
 
-      toast.success("Show espelhado com sucesso!");
+      if (!mirroredShow) return;
+      toast.success("Show espelhado com status Pagamento pendente!");
       onOpenChange(false);
     } catch (err) {
       console.error("Erro ao espelhar show:", err);

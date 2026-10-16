@@ -1,5 +1,7 @@
 # Project decisions
 
+- Build mirrored show payloads through `prepareMirroredShow` using the status selected by the app's pending-payment option; legacy `pending` is not selectable in the show form.
+
 - Keep interactive landing previews in a separate presentation-only module with empty user data; visitors explore features without changing account data.
 - Scope landing visual tokens, typography and continuous motion to the landing root; exclude it from artist compatibility locks and system motion settings, and use once-per-element scroll reveals, so the public presentation always looks alive without affecting signed-in artist themes.
 - Scope authentication presentation styles to its page root and preserve existing auth handlers; visual updates must not affect artist themes or account behavior.
