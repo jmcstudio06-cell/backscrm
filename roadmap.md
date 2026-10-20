@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Reduzir o excesso de branco em entrar/cadastro com a identidade azul, preservando os formulários.
+- [ ] Configurar Meta Pixel e conversões após a análise inicial. Bloqueios: ID do Pixel, restante do pedido truncado e escolha de consentimento ainda não recebidos.
+
 
 - [x] Refazer o visual da landing com gradiente azul/ciano, cartões organizados e mais movimento; verificada no computador e no celular, sem erros ou transbordamento.
 - [x] Remover o bloqueio de compatibilidade da landing e reforçar movimentos contínuos; faixa, foto, dispositivos e etapas verificados em movimento real, com pausa/ativação e acesso explícito para movimento reduzido, sem erros.
