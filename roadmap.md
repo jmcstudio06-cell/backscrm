@@ -38,3 +38,5 @@
 - [x] Preencher cidades selecionadas a partir da base do BacksAI quando faltarem registros locais.
 - [x] Importar e deduplicar sob demanda os contatos das cidades pesquisadas, por local e categoria.
 - [ ] Validar o fluxo autenticado de Cruzeiro e São José dos Campos, CRM e bloqueio do plano Executivo. Bloqueio: projeto externo sem sessão de teste autenticada.
+
+- [ ] Criar vídeo animado estilo motion da planilha (produto de entrada), formato vertical.
