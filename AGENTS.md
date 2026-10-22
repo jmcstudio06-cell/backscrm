@@ -1,5 +1,6 @@
 # Project decisions
 
+- Keep the spreadsheet sales page standalone and scope its light theme tokens to its root; public product presentation must not inherit signed-in artist themes or app navigation.
 - Build mirrored show payloads through `prepareMirroredShow` using the status selected by the app's pending-payment option; legacy `pending` is not selectable in the show form.
 
 - Keep interactive landing previews in a separate presentation-only module with empty user data; visitors explore features without changing account data.
