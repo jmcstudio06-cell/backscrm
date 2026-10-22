@@ -1,482 +1,131 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout";
+import { Link } from "react-router-dom";
+import { ArrowRight, BarChart3, CalendarDays, Check, CircleCheck, CreditCard, FileSpreadsheet, FileText, Infinity as InfinityIcon, Loader2, Music2, ShieldCheck, Sparkles, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Check, Star, Zap, TrendingUp, Music, Calendar, DollarSign, FileText, ArrowRight, Gift } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { cn } from "@/lib/utils";
+import logo from "@/assets/logo-azul.png";
+import kitPlanilha from "@/assets/kit-planilha.png";
 
 const CHECKOUT_URL = "https://checkout.infinitepay.io/backstageprooficial/Vw3hOE2C8z";
 const ORIGINAL_PRICE = 39.90;
 const SALE_PRICE = 14.90;
 const DISCOUNT_PERCENT = Math.round(((ORIGINAL_PRICE - SALE_PRICE) / ORIGINAL_PRICE) * 100);
+const brl = (value: number) => `R$${value.toFixed(2).replace(".", ",")}`;
 
-interface Benefit {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}
+const benefits = [
+  { icon: CalendarDays, title: "Seus shows, em ordem", description: "Organize apresentações, datas e compromissos sem depender de anotações espalhadas." },
+  { icon: Wallet, title: "Cachês sob controle", description: "Acompanhe o valor de cada apresentação e tenha mais clareza sobre seus ganhos." },
+  { icon: BarChart3, title: "Veja seus resultados", description: "Dashboards visuais para acompanhar o financeiro e tomar decisões com mais informação." },
+  { icon: CreditCard, title: "Despesas no lugar certo", description: "Registre os custos da sua rotina musical e entenda para onde vai o dinheiro." },
+  { icon: FileText, title: "Relatórios prontos", description: "Consulte os resultados da sua carreira em uma visão organizada, sem começar do zero." },
+  { icon: FileSpreadsheet, title: "Do seu jeito", description: "Uma planilha editável para adaptar à sua rotina, no Excel ou no Google Sheets." },
+];
+const faqs = [
+  { question: "Preciso pagar todo mês?", answer: "Não. A planilha tem pagamento único de R$14,90 e acesso vitalício. A assinatura do aplicativo Backstage Pro é um produto separado." },
+  { question: "Onde posso usar a planilha?", answer: "No Excel ou no Google Sheets. Você pode editar a planilha e adaptar os controles à sua rotina de shows." },
+  { question: "Como faço a compra?", answer: "O botão de compra leva ao checkout da InfinitePay. Confira os dados e o valor na página de pagamento antes de finalizar." },
+  { question: "A planilha é o aplicativo Backstage Pro?", answer: "Não. A planilha é um material para organizar shows, cachês e despesas. O Backstage Pro é o aplicativo completo, com agenda, contatos, contratos e recursos disponíveis conforme o plano." },
+  { question: "Já sou cliente do Backstage Pro. Preciso comprar?", answer: "Se você já tem acesso à planilha pelo Backstage Pro, não precisa comprá-la novamente. Acesse o aplicativo para consultar seus materiais." },
+];
 
 export default function PlanilhaCantoressVenda() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [userPlan, setUserPlan] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [scrollPosition, setScrollPosition] = useState(0);
-
   useEffect(() => {
-    const fetchUserPlan = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
+    let active = true;
+    if (authLoading) return;
+    setLoading(true);
+    setUserPlan(null);
+    if (!user) { setLoading(false); return; }
+    const fetchPlan = async () => {
       try {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("plan")
-          .eq("user_id", user.id)
-          .single();
-
-        setUserPlan(profile?.plan || null);
-      } catch (error) {
-        console.error("Erro ao buscar plano:", error);
-      } finally {
-        setLoading(false);
-      }
+        const { data } = await supabase.from("profiles").select("plan").eq("user_id", user.id).single();
+        if (active) setUserPlan(data?.plan || null);
+      } catch (error) { console.error("Erro ao buscar plano:", error); }
+      finally { if (active) setLoading(false); }
     };
-
-    fetchUserPlan();
-  }, [user]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollPosition(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const hasPlan = userPlan && userPlan !== "free";
-
-  const benefits: Benefit[] = [
-    {
-      icon: Music,
-      title: "Organiza seus cachês",
-      description: "Acompanhe cada apresentação e quanto você recebeu",
-    },
-    {
-      icon: Calendar,
-      title: "Calendário de shows",
-      description: "Veja todos os seus compromissos em um só lugar",
-    },
-    {
-      icon: DollarSign,
-      title: "Controle de despesas",
-      description: "Saiba exatamente onde seu dinheiro está indo",
-    },
-    {
-      icon: TrendingUp,
-      title: "Análise de rentabilidade",
-      description: "Veja qual tipo de show é mais lucrativo pra você",
-    },
-    {
-      icon: FileText,
-      title: "Relatórios automáticos",
-      description: "Gere relatórios mensais e anuais em segundos",
-    },
-    {
-      icon: Zap,
-      title: "Fácil de usar",
-      description: "Sem complicação, sem aprender a usar sistema complexo",
-    },
-  ];
-
-  const promos = [
-    "✅ Acesso vitalício - pague uma vez, use para sempre",
-    "✅ Atualizações gratuitas - novas funcionalidades sem custo",
-    "✅ Suporte via chat - time pronto pra ajudar",
-    "✅ Compatível com Excel e Google Sheets",
-  ];
+    void fetchPlan();
+    return () => { active = false; };
+  }, [user, authLoading]);
+  const hasPlan = Boolean(userPlan && userPlan !== "free");
+  const checking = loading || authLoading;
+  const purchaseButton = () => hasPlan ? (
+    <Button asChild className="sheet-buy"><Link to="/dashboard"><CircleCheck /> Acessar meu Backstage Pro <ArrowRight /></Link></Button>
+  ) : (
+    <Button className="sheet-buy" disabled={checking} onClick={() => { window.location.href = CHECKOUT_URL; }}>
+      {checking ? <><Loader2 className="animate-spin" /> Carregando…</> : <><FileSpreadsheet /> Quero minha planilha <ArrowRight /></>}
+    </Button>
+  );
 
   return (
-    <Layout title="" subtitle="">
-      {/* Hero Section */}
-      <div className="relative min-h-screen pt-20 pb-20 bg-gradient-to-b from-violet-950/40 via-background to-background overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-10 w-72 h-72 bg-violet-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-40 left-10 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl"></div>
+    <div className="spreadsheet-sales min-h-screen">
+      <header className="sheet-header">
+        <div className="sheet-container flex items-center justify-between gap-4">
+          <Link to="/landing" aria-label="Backstage Pro — página inicial"><img src={logo} alt="Backstage Pro" className="w-36 sm:w-44 h-auto" /></Link>
+          <Button asChild variant="ghost" className="text-primary"><a href="#oferta">Ver oferta <ArrowRight /></a></Button>
         </div>
-
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
-          {/* Discount Badge */}
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
-              <Zap className="w-4 h-4 text-red-400" />
-              <span className="text-sm font-bold text-red-300">
-                🔥 DESCONTO DE {DISCOUNT_PERCENT}% - Apenas agora!
-              </span>
+      </header>
+      <main>
+        <section className="sheet-hero" id="oferta">
+          <div className="sheet-container sheet-hero-grid">
+            <div>
+              <p className="sheet-eyebrow"><Music2 className="size-4" /> Um novo ritmo para sua organização</p>
+              <h1 className="sheet-title">Planilha de controle <span>do artista.</span></h1>
+              <p className="text-lg text-muted-foreground max-w-lg">Shows, cachês e despesas no mesmo lugar. Menos contas soltas, mais clareza para cuidar da sua carreira.</p>
+              <ul className="flex flex-wrap gap-x-5 gap-y-2 mt-6 mb-7 text-sm font-semibold">
+                {["Pronta para usar", "100% editável", "Pagamento único"].map(item => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-primary" />{item}</li>)}
+              </ul>
+              <div className="max-w-md border-t border-border pt-6">
+                {hasPlan ? <p className="font-semibold mb-4">Você já tem acesso ao Backstage Pro.</p> : <>
+                  <div className="flex flex-wrap gap-3 items-center mb-2"><span className="text-muted-foreground">De <s>{brl(ORIGINAL_PRICE)}</s> por</span><span className="bg-secondary text-primary font-bold text-sm px-3 py-1 rounded-md">{DISCOUNT_PERCENT}% de desconto</span></div>
+                  <p className="sheet-price">{brl(SALE_PRICE)}</p>
+                  <p className="text-muted-foreground text-sm mt-2 mb-5">Uma única compra. Acesso vitalício.</p>
+                </>}
+                {purchaseButton()}
+                <p className="flex justify-center items-center gap-2 text-sm text-muted-foreground mt-3"><ShieldCheck className="size-4" />{hasPlan ? "Consulte seus materiais no aplicativo" : "Pagamento pelo checkout da InfinitePay"}</p>
+              </div>
+            </div>
+            <div>
+              <img src={kitPlanilha} alt="Planilha de controle do artista: shows, gestão financeira, dashboards e relatórios" className="sheet-art" />
+              <p className="sheet-image-caption"><FileSpreadsheet className="size-4" /> Excel e Google Sheets · Edite e faça do seu jeito</p>
             </div>
           </div>
-
-          {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left - Content */}
-            <div className="space-y-8">
-              <div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-4">
-                  Planilha para{" "}
-                  <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
-                    Cantores
-                  </span>
-                </h1>
-                <p className="text-lg sm:text-xl text-white/70 leading-relaxed">
-                  Organize seus cachês, shows e despesas em um só lugar. Saiba exatamente quanto você está ganhando.
-                </p>
-              </div>
-
-              {/* Price Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <div className="text-sm text-white/60 line-through">
-                      R$ {ORIGINAL_PRICE.toFixed(2).replace(".", ",")}
-                    </div>
-                    <div className="text-5xl font-black text-white">
-                      R$ {SALE_PRICE.toFixed(2).replace(".", ",")}
-                    </div>
-                    <div className="text-sm text-white/60 mt-1">
-                      Pagamento único. Acesso vitalício.
-                    </div>
-                  </div>
-                  <div className="hidden sm:flex flex-col items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center">
-                      <span className="text-2xl font-black text-red-400">{DISCOUNT_PERCENT}%</span>
-                    </div>
-                    <span className="text-xs text-red-400 font-bold mt-2">OFF</span>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                {!hasPlan ? (
-                  <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
-                    <Button
-                      size="lg"
-                      className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold text-lg py-6 rounded-xl shadow-lg hover:shadow-2xl transition-all"
-                    >
-                      <Music className="w-5 h-5 mr-2" />
-                      COMPRAR AGORA - R$ {SALE_PRICE.toFixed(2).replace(".", ",")}
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </a>
-                ) : (
-                  <Button
-                    size="lg"
-                    disabled
-                    className="w-full bg-green-600/50 text-white font-bold text-lg py-6 rounded-xl"
-                  >
-                    <Check className="w-5 h-5 mr-2" />
-                    Você tem acesso ao Backstage PRO
-                  </Button>
-                )}
-              </div>
-
-              {/* Promos */}
-              <div className="space-y-2">
-                {promos.map((promo, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm text-white/80">
-                    <span>{promo}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right - Visual */}
-            <div className="relative hidden lg:block">
-              <div className="space-y-4">
-                {/* Mock spreadsheet visual */}
-                <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-900/20 to-fuchsia-900/20 p-6 backdrop-blur-sm">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="w-3/4 h-4 bg-white/10 rounded"></div>
-                      <div className="w-1/4 h-4 bg-green-500/20 rounded"></div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="w-1/2 h-4 bg-white/10 rounded"></div>
-                      <div className="w-1/3 h-4 bg-blue-500/20 rounded"></div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="w-2/3 h-4 bg-white/10 rounded"></div>
-                      <div className="w-1/4 h-4 bg-purple-500/20 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="h-24 rounded-lg bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 backdrop-blur-sm"
-                    ></div>
-                  ))}
-                </div>
-              </div>
-            </div>
+        </section>
+        <div className="border-y border-border bg-card">
+          <div className="sheet-container grid grid-cols-1 sm:grid-cols-3 gap-5 py-6">
+            {[{ icon: InfinityIcon, title: "Sua, sem mensalidade", text: "Pague uma vez, use sempre." }, { icon: FileSpreadsheet, title: "Sem começar do zero", text: "Controles prontos para sua rotina." }, { icon: Music2, title: "Feita para artistas", text: "O financeiro acompanha seus shows." }].map(({ icon: Icon, title, text }) => <div key={title} className="flex items-center gap-3"><Icon className="size-6 text-primary shrink-0" /><div><p className="font-bold">{title}</p><p className="text-sm text-muted-foreground">{text}</p></div></div>)}
           </div>
         </div>
-      </div>
-
-      {/* Benefits Section */}
-      <div className="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-black mb-4">O que você vai conseguir</h2>
-          <p className="text-lg text-white/60">
-            Tudo o que você precisa para organizar sua carreira musical
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {benefits.map((benefit, idx) => {
-            const Icon = benefit.icon;
-            return (
-              <div
-                key={idx}
-                className="group p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-violet-500/50 hover:shadow-lg hover:shadow-violet-500/20"
-              >
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-lg mb-2">{benefit.title}</h3>
-                <p className="text-sm text-white/60">{benefit.description}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* How It Works */}
-      <div className="py-20 px-4 sm:px-6 bg-white/5 border-y border-white/10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black mb-4">Como funciona</h2>
+        <section className="sheet-section">
+          <div className="sheet-container">
+            <p className="sheet-eyebrow mb-3"><Sparkles className="size-4" /> Mais controle. Menos improviso.</p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8"><h2 className="sheet-heading max-w-lg">A organização que sua<br className="hidden sm:block" /> carreira merece.</h2><p className="text-muted-foreground max-w-sm">Você cuida do palco. A planilha ajuda a colocar os bastidores em ordem.</p></div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{benefits.map(({ icon: Icon, title, description }) => <article key={title} className="sheet-benefit"><div className="sheet-icon"><Icon className="size-5" /></div><h3 className="font-bold text-lg mt-4 mb-2">{title}</h3><p className="text-muted-foreground">{description}</p></article>)}</div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                number: "1",
-                title: "Compre agora",
-                description: "Acesso imediato após o pagamento",
-              },
-              {
-                number: "2",
-                title: "Baixe a planilha",
-                description: "Receba por email pronta pra usar",
-              },
-              {
-                number: "3",
-                title: "Comece a organizar",
-                description: "Organize seus shows e ganhe mais",
-              },
-            ].map((step, idx) => (
-              <div key={idx} className="text-center">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center mx-auto mb-4 text-2xl font-black">
-                  {step.number}
-                </div>
-                <h3 className="text-lg font-bold mb-2">{step.title}</h3>
-                <p className="text-white/60">{step.description}</p>
-              </div>
-            ))}
+        </section>
+        <section className="bg-secondary sheet-section">
+          <div className="sheet-container">
+            <h2 className="sheet-heading mb-8">Seu próximo show, mais organizado.</h2>
+            <div className="grid md:grid-cols-3 gap-8">{[{ title: "Garanta sua planilha", text: "Finalize sua compra pelo checkout da InfinitePay." }, { title: "Prepare seus controles", text: "Abra no Excel ou no Google Sheets e adapte à sua rotina." }, { title: "Acompanhe sua carreira", text: "Registre shows, cachês e despesas para visualizar seus resultados." }].map((step, index) => <div key={step.title} className="border-t border-border pt-5"><span className="text-primary font-bold text-sm">0{index + 1}</span><h3 className="font-bold text-xl my-2">{step.title}</h3><p className="text-muted-foreground">{step.text}</p></div>)}</div>
           </div>
-        </div>
-      </div>
-
-      {/* Testimonial Section */}
-      <div className="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-black mb-4">Quem já usa</h2>
-          <p className="text-lg text-white/60">
-            Centenas de cantores já organizaram sua carreira com a Planilha
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {[
-            {
-              name: "Marina S.",
-              role: "Cantora",
-              comment: "Finalmente sei quanto estou ganhando em cada show!",
-            },
-            {
-              name: "Lucas B.",
-              role: "Músico",
-              comment: "Organizei todas minhas despesas e achei onde cortava gastos",
-            },
-          ].map((testimonial, idx) => (
-            <div
-              key={idx}
-              className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
-            >
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <p className="text-white/80 mb-4 italic">"{testimonial.comment}"</p>
-              <div>
-                <p className="font-bold">{testimonial.name}</p>
-                <p className="text-sm text-white/60">{testimonial.role}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CTA Before Upsell */}
-      <div className="py-12 px-4 sm:px-6 max-w-6xl mx-auto text-center">
-        {!hasPlan && (
-          <>
-            <h2 className="text-3xl font-black mb-4">Ainda está na dúvida?</h2>
-            <p className="text-lg text-white/60 mb-8">
-              Garanta seu acesso agora com {DISCOUNT_PERCENT}% de desconto
-            </p>
-            <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold text-lg py-6 px-8 rounded-xl shadow-lg hover:shadow-2xl transition-all"
-              >
-                FINALIZAR COMPRA - R$ {SALE_PRICE.toFixed(2).replace(".", ",")}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </a>
-          </>
-        )}
-      </div>
-
-      {/* Upsell - Backstage PRO */}
-      <div className="py-20 px-4 sm:px-6 bg-gradient-to-b from-violet-950/40 to-background border-t border-white/10">
-        <div className="max-w-6xl mx-auto">
-          <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-900/20 to-fuchsia-900/20 p-8 sm:p-12 backdrop-blur-sm">
-            <div className="flex items-start gap-4 mb-6">
-              <Gift className="w-8 h-8 text-violet-400 flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-sm font-bold text-violet-300 uppercase tracking-wider mb-2">
-                  Próximo passo
-                </h3>
-                <h2 className="text-3xl sm:text-4xl font-black mb-4">
-                  Quer organizar tudo sua carreira?
-                </h2>
-                <p className="text-lg text-white/70 mb-8 max-w-2xl">
-                  Com <span className="font-bold text-violet-300">Backstage PRO</span>, você tem acesso a ferramentas completas: Backs Radar pra encontrar oportunidades, gestão de contatos, contratos, financeiro e muito mais.
-                </p>
-
-                <div className="space-y-3 mb-8">
-                  {[
-                    "🎯 Backs Radar - encontre oportunidades de shows",
-                    "📊 Dashboard com todas suas métricas",
-                    "💼 Gestão de contratos e cachês",
-                    "📱 App mobile completo",
-                    "🚀 Suporte prioritário",
-                  ].map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-white/80">
-                      <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <Button
-                  onClick={() => navigate("/planos")}
-                  size="lg"
-                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-lg py-6 px-8 rounded-xl shadow-lg hover:shadow-2xl transition-all"
-                >
-                  CONHEÇA OS PLANOS
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </div>
-            </div>
+        </section>
+        <section className="sheet-upsell">
+          <div className="sheet-container grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
+            <div><p className="sheet-eyebrow mb-4"><Sparkles className="size-4" /> Quer ir além da planilha?</p><h2 className="sheet-heading">Seu escritório de artista.<br />Isso é Backstage Pro.</h2><p className="mt-5 text-lg opacity-90 max-w-lg">Transforme a organização em gestão de carreira: agenda, financeiro, contatos e contratos conectados em um só aplicativo.</p><div className="flex flex-wrap gap-3 mt-7"><Button asChild className="sheet-trial"><Link to="/auth">Testar grátis <ArrowRight /></Link></Button><Button asChild variant="link" className="text-primary-foreground"><Link to="/planos">Conhecer os planos <ArrowRight /></Link></Button></div></div>
+            <div className="grid sm:grid-cols-2 gap-x-8 gap-y-6">{[{ icon: CalendarDays, title: "Agenda de shows", text: "Compromissos e status organizados." }, { icon: Wallet, title: "Gestão financeira", text: "Cachês e despesas acompanhados." }, { icon: FileText, title: "Contratos e orçamentos", text: "Mais profissionalismo na negociação." }, { icon: Music2, title: "Backs Radar", text: "Oportunidades no plano Executivo." }].map(({ icon: Icon, title, text }) => <div key={title}><Icon className="size-6 mb-3" /><h3 className="font-bold text-lg">{title}</h3><p className="opacity-90 text-sm mt-1">{text}</p></div>)}</div>
           </div>
-        </div>
-      </div>
-
-      {/* FAQ */}
-      <div className="py-20 px-4 sm:px-6 max-w-4xl mx-auto">
-        <h2 className="text-4xl font-black text-center mb-16">Dúvidas comuns</h2>
-
-        <div className="space-y-4">
-          {[
-            {
-              q: "Como funciona a compra?",
-              a: "Você clica no botão 'Comprar Agora', faz o pagamento de forma segura e recebe a planilha por email imediatamente.",
-            },
-            {
-              q: "É seguro comprar?",
-              a: "Sim! Usamos a InfinityPay, uma plataforma de pagamento 100% segura e confiável.",
-            },
-            {
-              q: "Posso usar em qualquer lugar?",
-              a: "Sim! A planilha funciona em Excel, Google Sheets e qualquer programa de planilhas.",
-            },
-            {
-              q: "Tem suporte?",
-              a: "Claro! Você tem suporte via chat caso tenha dúvidas sobre como usar a planilha.",
-            },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
-            >
-              <h3 className="font-bold text-lg mb-2">{item.q}</h3>
-              <p className="text-white/70">{item.a}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Final CTA */}
-      <div className="py-20 px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          {!hasPlan && (
-            <>
-              <h2 className="text-4xl font-black mb-6">
-                Pronto pra organizar sua carreira?
-              </h2>
-              <p className="text-lg text-white/60 mb-8">
-                Invista R$ {SALE_PRICE.toFixed(2).replace(".", ",")} e receba a Planilha para Cantores
-              </p>
-              <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
-                <Button
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold text-lg py-6 rounded-xl shadow-lg hover:shadow-2xl transition-all"
-                >
-                  COMPRAR AGORA - R$ {SALE_PRICE.toFixed(2).replace(".", ",")}
-                </Button>
-              </a>
-              <p className="text-sm text-white/50 mt-4">
-                Pagamento seguro via InfinityPay • Acesso vitalício • Garantia de satisfação
-              </p>
-            </>
-          )}
-          {hasPlan && (
-            <div className="p-8 rounded-xl border border-green-500/30 bg-green-500/10 backdrop-blur-sm">
-              <Check className="w-12 h-12 text-green-400 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Você tem acesso completo!
-              </h3>
-              <p className="text-white/70 mb-6">
-                Como cliente Backstage PRO, você já tem acesso à Planilha para Cantores e muitas outras ferramentas.
-              </p>
-              <Button
-                onClick={() => navigate("/dashboard")}
-                size="lg"
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-6 px-8 rounded-xl"
-              >
-                IR PARA O DASHBOARD
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-    </Layout>
+        </section>
+        <section className="sheet-section">
+          <div className="sheet-container grid md:grid-cols-[.8fr_1.2fr] gap-8 md:gap-16"><div><p className="sheet-eyebrow mb-3">Antes de começar</p><h2 className="sheet-heading">Tudo certo?<br />Tire suas dúvidas.</h2></div><Accordion type="single" collapsible>{faqs.map((faq, index) => <AccordionItem key={faq.question} value={`faq-${index}`} className="sheet-faq-item"><AccordionTrigger className="text-left text-base font-semibold py-5 hover:text-primary hover:no-underline">{faq.question}</AccordionTrigger><AccordionContent className="text-muted-foreground text-base leading-relaxed">{faq.answer}</AccordionContent></AccordionItem>)}</Accordion></div>
+        </section>
+        <section className="bg-secondary border-y border-border py-12">
+          <div className="sheet-container flex flex-col md:flex-row items-start md:items-center justify-between gap-6"><div><h2 className="text-2xl font-bold">Mais música. Menos contas espalhadas.</h2><p className="text-muted-foreground mt-2">{hasPlan ? "Continue organizando sua carreira no Backstage Pro." : `Comece com sua planilha por ${brl(SALE_PRICE)}, sem mensalidade.`}</p></div><div className="w-full md:w-80 shrink-0">{purchaseButton()}</div></div>
+        </section>
+      </main>
+      <footer className="sheet-container flex flex-col sm:flex-row justify-between gap-4 py-8 text-sm text-muted-foreground"><p>Backstage Pro · Feito para artistas.</p><nav className="flex gap-5"><Link to="/termos" className="hover:text-primary">Termos de uso</Link><Link to="/privacidade" className="hover:text-primary">Privacidade</Link></nav></footer>
+    </div>
   );
 }
