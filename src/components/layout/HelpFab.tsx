@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Lightbulb, Gift, Palette, X, Smartphone, Loader2 } from "lucide-react";
+import { BookOpen, Lightbulb, Gift, Palette, X, Smartphone, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import backstageIcon from "@/assets/backstage-icon.png";
 import { InstallAppDialog } from "@/components/install/InstallAppDialog";
@@ -48,6 +48,10 @@ export function HelpFab() {
   // iOS (and browsers without the native sheet): show the step-by-step tutorial.
   const handleInstall = async () => {
     setOpen(false);
+    if (installed) {
+      toast.success("Você já está usando o app instalado neste aparelho.");
+      return;
+    }
     if (platform !== "ios" && !isInAppBrowser() && canPromptInstall()) {
       setInstalling(true);
       try {
@@ -66,7 +70,11 @@ export function HelpFab() {
     setInstallOpen(true);
   };
 
-  const installDesc = platform === "ios" ? "Veja como adicionar no iPhone" : "Adicione à tela inicial";
+  const installDesc = installed
+    ? "Já instalado neste aparelho"
+    : platform === "ios"
+      ? "Veja como adicionar no iPhone"
+      : "Adicione à tela inicial";
 
   return (
     <>
@@ -92,21 +100,19 @@ export function HelpFab() {
               </button>
             </div>
             <div className="p-2">
-              {!installed && (
-                <button
-                  onClick={handleInstall}
-                  disabled={installing}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 mb-1 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sky-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform shrink-0">
-                    {installing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Smartphone className="w-5 h-5" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">Instalar app</p>
-                    <p className="text-xs text-muted-foreground truncate">{installDesc}</p>
-                  </div>
-                </button>
-              )}
+              <button
+                onClick={handleInstall}
+                disabled={installing}
+                className="w-full flex items-center gap-3 px-3 py-2.5 mb-1 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sky-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform shrink-0">
+                  {installing ? <Loader2 className="w-5 h-5 animate-spin" /> : installed ? <CheckCircle2 className="w-5 h-5" /> : <Smartphone className="w-5 h-5" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground">Instalar app</p>
+                  <p className="text-xs text-muted-foreground truncate">{installDesc}</p>
+                </div>
+              </button>
               {items.map((it) => (
                 <button
                   key={it.path}
