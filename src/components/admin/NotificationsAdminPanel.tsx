@@ -30,6 +30,7 @@ import {
   ClipboardList,
   Sparkles,
   Calendar,
+  Eye,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -61,12 +62,33 @@ const parseConfig = (config: unknown): Record<string, unknown> => {
   return {};
 };
 
+// Placeholders each automation fills with the client's real data (see run-automated-notifications).
+// If a placeholder has no value for a client, or the text contradicts the data, the built-in message is used.
+const AUTOMATION_VARIABLES: Record<string, string[]> = {
+  show_reminder: ["user_name", "show_title", "show_date", "show_time", "venue", "when"],
+  checklist_reminder: ["user_name", "show_title", "show_date", "show_time", "venue", "when"],
+  pending_payment: ["user_name", "count", "amount", "show_title", "show_date"],
+  monthly_goal: ["user_name", "goal_name", "current", "target", "remaining", "percent", "month"],
+  goal_reminder: ["user_name", "goals_summary", "month", "interval_days"],
+  low_performance: ["user_name", "last_show_date"],
+  inactivity: ["user_name", "days"],
+  weekly_motivation: ["user_name"],
+  plan_expiring: ["user_name", "days", "expiry_date"],
+};
+
+interface AutomationPreview {
+  eligible: number;
+  alreadySent: number;
+  previews: { user: string; title: string; body: string }[];
+  error?: string;
+}
+
 const AUTOMATION_CONFIG = [
   {
     key: "show_reminder",
     icon: Bell,
     title: "Lembrete de Show",
-    description: "Enviar notificação X horas antes de um show agendado",
+    description: "Lembrar X horas antes de cada show confirmado (nunca em negociação ou cancelado), com data, hora e local",
     configField: "hours_before",
     configLabel: "Horas antes do show",
     configType: "number",
@@ -76,7 +98,7 @@ const AUTOMATION_CONFIG = [
     key: "pending_payment",
     icon: DollarSign,
     title: "Cachê Pendente",
-    description: "Notificar quando existir show realizado com pagamento pendente",
+    description: "Avisar o total de cachês a receber de shows passados, com os mesmos valores da tela Cobranças",
     configField: null,
     configLabel: null,
     configType: null,
@@ -116,7 +138,7 @@ const AUTOMATION_CONFIG = [
     key: "low_performance",
     icon: TrendingDown,
     title: "Desempenho Baixo",
-    description: "Notificar usuários que não agendaram shows nos últimos 30 dias",
+    description: "Avisar quem está sem shows na agenda há mais de 30 dias (e sem próximos shows), com a data do último show",
     configField: null,
     configLabel: null,
     configType: null,
@@ -126,7 +148,7 @@ const AUTOMATION_CONFIG = [
     key: "checklist_reminder",
     icon: ClipboardList,
     title: "Lembrete de Checklist",
-    description: "Notificar quando houver checklist pendente para shows nas próximas 48h",
+    description: "Lembrar de revisar o checklist dos shows confirmados nas próximas 48h",
     configField: null,
     configLabel: null,
     configType: null,
@@ -147,7 +169,7 @@ const AUTOMATION_CONFIG = [
     icon: Calendar,
     title: "Mensalidade Vencendo",
     description:
-      "Avisar clientes do plano mensal 5, 3 e 0 dias antes do vencimento (renove para manter o benefício mensal — caso contrário só fica disponível o plano anual). Use {days} no texto para o número de dias.",
+      "Avisar clientes do plano mensal 5, 3, 1 e 0 dias antes do vencimento (renove para manter o benefício mensal — caso contrário só fica disponível o plano anual).",
     configField: null,
     configLabel: null,
     configType: null,
@@ -188,6 +210,7 @@ export function NotificationsAdminPanel() {
   const [editingTimes, setEditingTimes] = useState<Record<string, string>>({});
   const [editingIntervals, setEditingIntervals] = useState<Record<string, number>>({});
   const [runningIndividual, setRunningIndividual] = useState<Record<string, boolean>>({});
+  const [previews, setPreviews] = useState<Record<string, AutomationPreview>>({});
 
   useEffect(() => {
     fetchData();
@@ -321,6 +344,28 @@ export function NotificationsAdminPanel() {
     }
   };
 
+  // Step 1: preview exactly what each client would receive. Nothing is sent.
+  const previewAutomation = async (settingKey: string) => {
+    setRunningIndividual((prev) => ({ ...prev, [settingKey]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke("run-automated-notifications", {
+        body: { automation_key: settingKey, dry_run: true },
+      });
+      if (error) throw error;
+      const result = (data?.results ?? []).find((r: { key: string }) => r.key === settingKey);
+      setPreviews((prev) => ({
+        ...prev,
+        [settingKey]: result ?? { eligible: 0, alreadySent: 0, previews: [] },
+      }));
+    } catch (error) {
+      console.error("Error previewing automation:", error);
+      toast.error("Erro ao gerar a prévia");
+    } finally {
+      setRunningIndividual((prev) => ({ ...prev, [settingKey]: false }));
+    }
+  };
+
+  // Step 2: real send, only after the admin has seen the preview.
   const runSingleAutomation = async (settingKey: string) => {
     setRunningIndividual((prev) => ({ ...prev, [settingKey]: true }));
     try {
@@ -330,14 +375,20 @@ export function NotificationsAdminPanel() {
 
       if (error) throw error;
 
-      const sent = data?.sent || 0;
+      const result = (data?.results ?? []).find((r: { key: string }) => r.key === settingKey);
       const automation = AUTOMATION_CONFIG.find((a) => a.key === settingKey);
-      if (sent > 0) {
-        toast.success(`🔔 ${automation?.title}: ${sent} notificações enviadas!`);
+      if (result?.error) {
+        toast.error(`${automation?.title}: ${result.error}`);
+      } else if ((result?.sent ?? 0) > 0) {
+        toast.success(`🔔 ${automation?.title}: ${result.sent} clientes receberam a notificação.`);
       } else {
-        toast.info(`${automation?.title}: nenhum usuário se enquadrou nos critérios.`);
+        toast.info(`${automation?.title}: nenhum envio novo (ninguém se enquadra ou já foi avisado).`);
       }
-
+      setPreviews((prev) => {
+        const next = { ...prev };
+        delete next[settingKey];
+        return next;
+      });
       fetchData();
     } catch (error) {
       console.error("Error running automation:", error);
@@ -670,7 +721,10 @@ export function NotificationsAdminPanel() {
                       />
                       <p className="text-xs text-muted-foreground">
                         <Info className="inline h-3 w-3 mr-1" />
-                        Variáveis disponíveis: {"{show_title}"}, {"{remaining}"}, {"{user_name}"}
+                        Variáveis desta automação:{" "}
+                        {(AUTOMATION_VARIABLES[automation.key] ?? []).map((v) => `{${v}}`).join(", ")}.
+                        {" "}Deixe vazio para usar a mensagem padrão. Se faltar um dado do cliente ou o texto
+                        contradizer os dados (ex.: "amanhã" para um show de hoje), a mensagem padrão é usada.
                       </p>
                     </div>
 
@@ -688,17 +742,79 @@ export function NotificationsAdminPanel() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => runSingleAutomation(automation.key)}
+                        onClick={() => previewAutomation(automation.key)}
                         disabled={runningIndividual[automation.key]}
                       >
                         {runningIndividual[automation.key] ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : (
-                          <Play className="h-4 w-4 mr-2" />
+                          <Eye className="h-4 w-4 mr-2" />
                         )}
-                        Testar Agora
+                        Ver prévia
                       </Button>
                     </div>
+
+                    {previews[automation.key] && (
+                      <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-medium">
+                            {previews[automation.key].eligible} cliente(s) receberiam agora
+                            {previews[automation.key].alreadySent > 0 &&
+                              ` · ${previews[automation.key].alreadySent} já foram avisados deste evento`}
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              setPreviews((prev) => {
+                                const next = { ...prev };
+                                delete next[automation.key];
+                                return next;
+                              })
+                            }
+                          >
+                            Fechar
+                          </Button>
+                        </div>
+                        {previews[automation.key].error && (
+                          <p className="text-sm text-destructive">{previews[automation.key].error}</p>
+                        )}
+                        {previews[automation.key].previews.length > 0 ? (
+                          <ul className="space-y-2">
+                            {previews[automation.key].previews.map((p, i) => (
+                              <li key={i} className="rounded-md bg-background border p-3 text-sm">
+                                <p className="text-xs text-muted-foreground">Para: {p.user}</p>
+                                <p className="font-medium">{p.title}</p>
+                                <p className="text-muted-foreground">{p.body}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            Ninguém se enquadra agora (ou o cliente não tem notificações ativas no aparelho).
+                          </p>
+                        )}
+                        {previews[automation.key].previews.length < previews[automation.key].eligible && (
+                          <p className="text-xs text-muted-foreground">
+                            Mostrando {previews[automation.key].previews.length} de {previews[automation.key].eligible}.
+                          </p>
+                        )}
+                        {previews[automation.key].eligible > 0 && (
+                          <Button
+                            size="sm"
+                            onClick={() => runSingleAutomation(automation.key)}
+                            disabled={runningIndividual[automation.key] || !isEnabled}
+                          >
+                            {runningIndividual[automation.key] ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <Play className="h-4 w-4 mr-2" />
+                            )}
+                            Enviar agora para {previews[automation.key].eligible} cliente(s)
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

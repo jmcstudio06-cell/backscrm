@@ -111,487 +111,128 @@ async function sendPush(
   return { status: res.status, body: resBody };
 }
 
-// ---- Send to specific user IDs ----
-async function sendToUsers(
-  supabase: any, userIds: string[], title: string, body: string, url: string,
-  vapidPub: string, vapidPriv: string, vapidSub: string, notificationType: string,
-): Promise<number> {
-  if (userIds.length === 0) return 0;
 
-  const { data: allSubs } = await supabase
-    .from("user_push_subscriptions")
-    .select("id,user_id,endpoint,p256dh,auth,created_at")
-    .eq("is_active", true)
-    .in("user_id", userIds)
-    .order("created_at", { ascending: false });
+/* =====================================================================================
+ * ACCURACY RULES (every automated push)
+ * 1. Each push goes ONLY to the user who owns the data, built from that user's own rows.
+ * 2. Business rules mirror the screens the artist sees (Cobranças, Metas, Agenda), so the
+ *    numbers in the push are the same numbers inside the app.
+ * 3. Dates use the Brasília calendar. Show times combine date + start_time in São Paulo.
+ * 4. A custom admin text is used only if every {placeholder} resolves for that user and it
+ *    does not contradict the real data (e.g. "amanhã" when the show is today). Otherwise the
+ *    built-in message, generated from the real data, is used.
+ * 5. Each event is sent at most once per user (logged in user_notifications), so hourly runs,
+ *    retries and "Testar Agora" never duplicate.
+ * 6. When data is missing or inconsistent, the user is skipped. Silent is better than wrong.
+ * ===================================================================================== */
 
-  if (!allSubs || allSubs.length === 0) return 0;
-
-  const seenEndpoints = new Set<string>();
-  const subs = allSubs.filter((s: any) => {
-    if (seenEndpoints.has(s.endpoint)) return false;
-    seenEndpoints.add(s.endpoint);
-    return true;
-  });
-
-  const payload = JSON.stringify({
-    title, body,
-    icon: "/icons/icon-192.png",
-    badge: "/icons/mono-192.png",
-    url: url || "/dashboard",
-  });
-
-  const results = await Promise.allSettled(
-    subs.map(async (s: any) => {
-      if (!s.endpoint.startsWith("http")) {
-        await supabase.from("user_push_subscriptions").update({ is_active: false }).eq("id", s.id);
-        return false;
-      }
-      try {
-        const result = await sendPush(s.endpoint, s.p256dh, s.auth, payload, vapidPub, vapidPriv, vapidSub);
-        if (result.status === 404 || result.status === 410) {
-          await supabase.from("user_push_subscriptions").update({ is_active: false }).eq("id", s.id);
-          return false;
-        }
-        return result.status >= 200 && result.status < 300;
-      } catch (err) {
-        console.error(`Push error ${s.id}:`, err);
-        return false;
-      }
-    }),
-  );
-
-  const sent = results.reduce((acc, r) => acc + (r.status === "fulfilled" && r.value ? 1 : 0), 0);
-
-  if (sent > 0 || subs.length > 0) {
-    await supabase.from("notification_history").insert({
-      title, message: body, action_url: url,
-      notification_type: notificationType, target_audience: "automated", users_reached: sent,
-    });
-  }
-
-  return sent;
-}
-
-// ---- Automation handlers ----
-
-async function handleInactivity(supabase: any, config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const daysInactive = config?.days_inactive || 7;
-  const cutoff = new Date(Date.now() - daysInactive * 24 * 60 * 60 * 1000).toISOString();
-  const { data: inactiveUsers } = await supabase.from("profiles").select("user_id, name, artist_name").or(`last_seen.is.null,last_seen.lt.${cutoff}`);
-  if (!inactiveUsers || inactiveUsers.length === 0) return 0;
-  const userIds = inactiveUsers.map((u: any) => u.user_id);
-  const message = text || "👋 Sentimos sua falta! Volte e continue evoluindo sua carreira musical.";
-  console.log(`[Inactivity] Found ${userIds.length} inactive users (>${daysInactive} days)`);
-  return sendToUsers(supabase, userIds, "⏰ Você sumiu!", message, "/dashboard", vapidPub, vapidPriv, vapidSub, "inactivity");
-}
-
-async function handleShowReminder(supabase: any, config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const hoursBefore = config?.hours_before || 24;
-  const now = new Date();
-  const target = new Date(now.getTime() + hoursBefore * 60 * 60 * 1000);
-  const todayStr = now.toISOString().split("T")[0];
-  const targetStr = target.toISOString().split("T")[0];
-  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmed", "scheduled"]).gte("date", todayStr).lte("date", targetStr);
-  if (!upcomingShows || upcomingShows.length === 0) return 0;
-  let totalSent = 0;
-  const byUser = new Map<string, any[]>();
-  for (const show of upcomingShows) {
-    if (!byUser.has(show.user_id)) byUser.set(show.user_id, []);
-    byUser.get(show.user_id)!.push(show);
-  }
-  for (const [userId, shows] of byUser) {
-    const showTitle = shows[0].title;
-    const message = text ? text.replace(/{show_title}/g, showTitle) : `🎤 Seu show "${showTitle}" é em breve! Confira os detalhes.`;
-    const sent = await sendToUsers(supabase, [userId], "🎤 Show chegando!", message.trim(), "/agenda", vapidPub, vapidPriv, vapidSub, "show_reminder");
-    totalSent += sent;
-  }
-  console.log(`[ShowReminder] Notified about ${upcomingShows.length} shows, sent ${totalSent}`);
-  return totalSent;
-}
-
-async function handleGoalReminder(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
-  const { data: usersWithGoals } = await supabase.from("goals").select("user_id").eq("month", month).eq("year", year);
-  if (!usersWithGoals || usersWithGoals.length === 0) return 0;
-  const userIds = [...new Set(usersWithGoals.map((g: any) => g.user_id))];
-  const message = text || "🎯 Como estão suas metas? Bora manter o foco!";
-  console.log(`[GoalReminder] Sending to ${userIds.length} users with goals`);
-  return sendToUsers(supabase, userIds as string[], "🎯 Lembrete de Metas", message.trim(), "/metas", vapidPub, vapidPriv, vapidSub, "goal_reminder");
-}
-
-async function handleLowPerformance(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-  const today = new Date().toISOString().split("T")[0];
-  const { data: allProfiles } = await supabase.from("profiles").select("user_id").not("plan", "eq", "free");
-  if (!allProfiles || allProfiles.length === 0) return 0;
-  const { data: activeShowUsers } = await supabase.from("shows").select("user_id").gte("date", thirtyDaysAgo).lte("date", today);
-  const activeUserIds = new Set((activeShowUsers || []).map((s: any) => s.user_id));
-  const lowPerfUsers = allProfiles.filter((p: any) => !activeUserIds.has(p.user_id)).map((p: any) => p.user_id);
-  if (lowPerfUsers.length === 0) return 0;
-  const message = text || "📉 Seu desempenho está abaixo do esperado. Que tal agendar mais shows?";
-  console.log(`[LowPerformance] Found ${lowPerfUsers.length} users with 0 shows in 30 days`);
-  return sendToUsers(supabase, lowPerfUsers, "📉 Desempenho Baixo", message.trim(), "/agenda", vapidPub, vapidPriv, vapidSub, "low_performance");
-}
-
-async function handlePendingPayment(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const { data: completedShows } = await supabase.from("shows").select("id, user_id, title, cachet").eq("status", "completed").gt("cachet", 0);
-  if (!completedShows || completedShows.length === 0) return 0;
-  const showIds = completedShows.map((s: any) => s.id);
-  const { data: paidShows } = await supabase.from("transactions").select("show_id").in("show_id", showIds);
-  const paidShowIds = new Set((paidShows || []).map((t: any) => t.show_id));
-  const unpaidShows = completedShows.filter((s: any) => !paidShowIds.has(s.id));
-  if (unpaidShows.length === 0) return 0;
-  const userIds = [...new Set(unpaidShows.map((s: any) => s.user_id))];
-  const message = text || "💰 Você tem cachês pendentes! Confira no financeiro.";
-  console.log(`[PendingPayment] Found ${unpaidShows.length} unpaid shows for ${userIds.length} users`);
-  return sendToUsers(supabase, userIds as string[], "💰 Cachê Pendente", message.trim(), "/financeiro", vapidPub, vapidPriv, vapidSub, "pending_payment");
-}
-
-async function handleChecklistReminder(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const now = new Date();
-  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
-  const todayStr = now.toISOString().split("T")[0];
-  const targetStr = in48h.toISOString().split("T")[0];
-  const { data: upcomingShows } = await supabase.from("shows").select("id, title, user_id, date").in("status", ["confirmed", "scheduled"]).gte("date", todayStr).lte("date", targetStr);
-  if (!upcomingShows || upcomingShows.length === 0) return 0;
-  // Checklist agora é 100% local — notificamos todos os usuários com shows próximos.
-  const usersToNotify = new Map<string, string>();
-  for (const show of upcomingShows) {
-    if (!usersToNotify.has(show.user_id)) {
-      usersToNotify.set(show.user_id, show.title);
-    }
-  }
-  if (usersToNotify.size === 0) return 0;
-  let totalSent = 0;
-  for (const [userId, showTitle] of usersToNotify) {
-    const message = text ? text.replace(/{show_title}/g, showTitle) : `📋 Seu checklist para "${showTitle}" tem itens pendentes! Confira antes do show.`;
-    const sent = await sendToUsers(supabase, [userId], "📋 Checklist Pendente!", message.trim(), "/checklist", vapidPub, vapidPriv, vapidSub, "checklist_reminder");
-    totalSent += sent;
-  }
-  console.log(`[ChecklistReminder] Notified ${usersToNotify.size} users, sent ${totalSent}`);
-  return totalSent;
-}
-
-async function handleWeeklyMotivation(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: activeUsers } = await supabase.from("profiles").select("user_id").gte("last_seen", cutoff);
-  if (!activeUsers || activeUsers.length === 0) return 0;
-  const userIds = activeUsers.map((u: any) => u.user_id);
-  const messages = [
-    "🚀 Continue evoluindo! Cada show é um passo a mais na sua carreira.",
-    "💪 Você está no caminho certo! Mantenha o foco e os resultados virão.",
-    "🎵 A consistência é a chave do sucesso. Bora manter o ritmo!",
-    "⭐ Artistas de sucesso não param. Continue organizando sua carreira!",
-    "🔥 Sua dedicação faz a diferença. Continue usando o Backstage Pro!",
-  ];
-  const message = text || messages[Math.floor(Math.random() * messages.length)];
-  console.log(`[WeeklyMotivation] Sending to ${userIds.length} active users`);
-  return sendToUsers(supabase, userIds, "💡 Dica da Semana", message.trim(), "/dashboard", vapidPub, vapidPriv, vapidSub, "weekly_motivation");
-}
-
-async function handleMonthlyGoal(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
-  const { data: goals } = await supabase.from("goals").select("user_id, target_value, type").eq("month", month).eq("year", year);
-  if (!goals || goals.length === 0) return 0;
-  const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
-  const lastDay = month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, "0")}-01`;
-  const userIds = [...new Set(goals.map((g: any) => g.user_id))];
-  const { data: monthShows } = await supabase.from("shows").select("user_id").gte("date", firstDay).lt("date", lastDay).in("user_id", userIds);
-  const showCountByUser = new Map<string, number>();
-  for (const s of (monthShows || [])) {
-    showCountByUser.set(s.user_id, (showCountByUser.get(s.user_id) || 0) + 1);
-  }
-  const dayOfMonth = now.getDate();
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const expectedProgress = dayOfMonth / daysInMonth;
-  const behindUsers: string[] = [];
-  for (const goal of goals) {
-    if (goal.type === "shows") {
-      const actual = showCountByUser.get(goal.user_id) || 0;
-      const expected = Math.floor(goal.target_value * expectedProgress);
-      if (actual < expected) behindUsers.push(goal.user_id);
-    }
-  }
-  if (behindUsers.length === 0) return 0;
-  const uniqueUsers = [...new Set(behindUsers)];
-  const message = text || "📊 Sua meta mensal precisa de atenção! Confira seu progresso.";
-  console.log(`[MonthlyGoal] Found ${uniqueUsers.length} users behind on goals`);
-  return sendToUsers(supabase, uniqueUsers, "📊 Meta Mensal", message.trim(), "/metas", vapidPub, vapidPriv, vapidSub, "monthly_goal");
-}
-
-// ---- Plan expiring (monthly subscriptions only) ----
-// Accuracy rules:
-// - Only paid monthly plans (mensal_*).
-// - Expiry date comes from real sources, in priority order:
-//   1) current_period_end (gateway/Stripe truth) when it is in the future;
-//   2) latest confirmed payment activation (pending_payments.activated_at);
-//   3) trial_start (used as activation date on manual/admin activations).
-//   If none of these exists, the user is NEVER notified (better silent than wrong).
-// - Day math is done on calendar days in Brasília, so "vence em 3 dias" is exact.
-// - Message never claims a charge will happen; it only informs the end of access.
-async function handlePlanExpiring(supabase: any, _config: any, text: string, vapidPub: string, vapidPriv: string, vapidSub: string) {
-  const { data: monthlyUsers } = await supabase
-    .from("profiles")
-    .select("user_id, plan, trial_start, current_period_end, subscription_status")
-    .like("plan", "mensal_%");
-
-  if (!monthlyUsers || monthlyUsers.length === 0) return 0;
-
-  const userIdsAll = monthlyUsers.map((u: any) => u.user_id);
-
-  // Latest confirmed payment per user
-  const { data: payments } = await supabase
-    .from("pending_payments")
-    .select("user_id, activated_at, status")
-    .in("user_id", userIdsAll)
-    .in("status", ["activated", "approved"])
-    .not("activated_at", "is", null);
-
-  const lastPaidAt = new Map<string, number>();
-  for (const p of payments || []) {
-    const t = new Date(p.activated_at).getTime();
-    if (Number.isNaN(t)) continue;
-    if (!lastPaidAt.has(p.user_id) || t > lastPaidAt.get(p.user_id)!) lastPaidAt.set(p.user_id, t);
-  }
-
-  const PLAN_DURATION_DAYS = 30;
-  const MS_PER_DAY = 1000 * 60 * 60 * 24;
-  const TRIGGER_DAYS = new Set([5, 3, 1, 0]);
-  const nowMs = Date.now();
-
-  // Calendar day index in Brasília (UTC-3)
-  const brDayIndex = (ms: number) => Math.floor((ms - 3 * 60 * 60 * 1000) / MS_PER_DAY);
-  const todayIdx = brDayIndex(nowMs);
-
-  const buckets = new Map<number, string[]>();
-
-  for (const u of monthlyUsers) {
-    let expiryMs: number | null = null;
-
-    // 1) gateway period end (only if still in the future — stale/past values are ignored)
-    if (u.current_period_end) {
-      const t = new Date(u.current_period_end).getTime();
-      if (!Number.isNaN(t) && t > nowMs - 2 * MS_PER_DAY) expiryMs = t;
-    }
-
-    // 2/3) latest real activation date + 30 days
-    if (expiryMs === null) {
-      const paid = lastPaidAt.get(u.user_id) ?? null;
-      const trial = u.trial_start ? new Date(u.trial_start).getTime() : NaN;
-      const candidates = [paid, Number.isNaN(trial) ? null : trial].filter((v): v is number => v !== null);
-      if (candidates.length === 0) continue; // no reliable date → never notify
-      const activation = Math.max(...candidates);
-      if (activation > nowMs) continue; // inconsistent data → skip
-      expiryMs = activation + PLAN_DURATION_DAYS * MS_PER_DAY;
-    }
-
-    const daysRemaining = brDayIndex(expiryMs) - todayIdx;
-    if (!TRIGGER_DAYS.has(daysRemaining)) continue;
-
-    if (!buckets.has(daysRemaining)) buckets.set(daysRemaining, []);
-    buckets.get(daysRemaining)!.push(u.user_id);
-  }
-
-  if (buckets.size === 0) return 0;
-
-  const messageFor = (days: number) => {
-    if (text) return text.replace(/{days}/g, String(days));
-    if (days === 0) {
-      return "Seu acesso mensal termina hoje. Não há cobrança automática: se quiser continuar, renove pelo app quando preferir. 💙";
-    }
-    if (days === 1) {
-      return "Seu acesso mensal termina amanhã. Não há cobrança automática — a renovação é feita por você no app. 💙";
-    }
-    return `Seu acesso mensal termina em ${days} dias. Não há cobrança automática — se quiser seguir com o Backstage, a renovação é feita por você no app. 💙`;
-  };
-
-  const titleFor = (days: number) => {
-    if (days === 0) return "Seu acesso termina hoje";
-    if (days === 1) return "Seu acesso termina amanhã";
-    return `Seu acesso termina em ${days} dias`;
-  };
-
-  let totalSent = 0;
-  for (const [days, userIds] of buckets) {
-    const sent = await sendToUsers(
-      supabase, userIds, titleFor(days), messageFor(days), "/planos",
-      vapidPub, vapidPriv, vapidSub, "plan_expiring",
-    );
-    totalSent += sent;
-    console.log(`[PlanExpiring] D-${days}: ${userIds.length} users, ${sent} push sent`);
-  }
-  return totalSent;
-}
-
-
+import { AUTOMATIONS, deliver, type AutomationResult, type Ctx } from "./automations.ts";
+import { brNow, DAY_MS } from "./rules.ts";
 
 // ---- Main handler ----
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY")!;
-    const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
-    const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY") ?? "";
+    const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY") ?? "";
+    const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "";
+    const supabase = createClient(supabaseUrl, serviceKey);
 
-    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !VAPID_SUBJECT) {
-      throw new Error("VAPID env vars not configured");
+    // Only the scheduler (service key) or a signed-in admin may run automations.
+    const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+    let authorized = token !== "" && token === serviceKey;
+    if (!authorized && token) {
+      const { data: userData } = await supabase.auth.getUser(token);
+      if (userData?.user) {
+        const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userData.user.id, _role: "admin" });
+        authorized = isAdmin === true;
+      }
     }
-    if (!hasValidVapidKeys(VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)) {
-      throw new Error("VAPID keys are invalid (placeholder?). Set real VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY secrets.");
-    }
+    if (!authorized) return json({ error: "Unauthorized" }, 401);
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Parse optional body
     let automationKey: string | null = null;
+    let dryRun = false;
     try {
       const body = await req.json();
-      automationKey = body?.automation_key || null;
+      automationKey = typeof body?.automation_key === "string" ? body.automation_key : null;
+      dryRun = body?.dry_run === true;
     } catch {
-      // no body or invalid json - run all
+      // no body: scheduled run of all automations
     }
 
-    // 1. Cleanup old history (48h)
-    await supabase.rpc("cleanup_old_notifications");
-    console.log("[Cleanup] Old notifications cleaned up");
-
-    // 2. Fetch enabled automations
-    let query = supabase
-      .from("notification_settings")
-      .select("*")
-      .eq("is_enabled", true);
-
-    if (automationKey) {
-      query = query.eq("setting_key", automationKey);
+    if (!dryRun) {
+      if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !VAPID_SUBJECT) throw new Error("VAPID env vars not configured");
+      if (!hasValidVapidKeys(VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)) {
+        throw new Error("VAPID keys are invalid (placeholder?). Set real VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY secrets.");
+      }
+      await supabase.rpc("cleanup_old_notifications");
     }
 
-    const { data: settings } = await query;
+    let query = supabase.from("notification_settings").select("*");
+    if (automationKey) query = query.eq("setting_key", automationKey);
+    // Previews may be run for disabled automations, real sends never.
+    if (!dryRun) query = query.eq("is_enabled", true);
+    const { data: settings, error: settingsError } = await query;
+    if (settingsError) throw settingsError;
+    if (!settings || settings.length === 0) return json({ message: "No enabled automations", sent: 0, results: [] });
 
-    if (!settings || settings.length === 0) {
-      console.log("[Automations] No enabled automations found");
-      return new Response(JSON.stringify({ message: "No enabled automations", sent: 0 }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Current time in Brasília (UTC-3)
-    const now = new Date();
-    const currentHour = now.getUTCHours();
-    const brasiliaOffset = -3;
-    const brasiliaHour = (currentHour + brasiliaOffset + 24) % 24;
-    const brasiliaMinute = now.getUTCMinutes();
-    const brasiliaTimeStr = `${String(brasiliaHour).padStart(2, "0")}:${String(brasiliaMinute).padStart(2, "0")}`;
-
-    const filteredSettings = automationKey
-      ? settings // Manual test: always run
+    const br = brNow();
+    const due = automationKey
+      ? settings // manual run from the admin panel
       : settings.filter((s: any) => {
           const config = s.config && typeof s.config === "object" ? s.config : {};
-
-          // Check scheduled_time (hour must match)
-          const scheduledTime = (config as any).scheduled_time;
-          if (scheduledTime) {
-            const [schedH] = scheduledTime.split(":");
-            if (parseInt(schedH) !== brasiliaHour) return false;
+          if (config.scheduled_time) {
+            const [h] = String(config.scheduled_time).split(":");
+            if (Number(h) !== br.hour) return false;
           }
-
-          // Check repeat_every_days interval
-          const repeatDays = (config as any).repeat_every_days;
-          const lastSentAt = (config as any).last_sent_at;
-
-          if (repeatDays && repeatDays > 0 && lastSentAt) {
-            const lastSent = new Date(lastSentAt);
-            const daysSinceLast = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60 * 24);
-            if (daysSinceLast < repeatDays) {
-              console.log(`[Automations] Skipping ${s.setting_key}: last sent ${daysSinceLast.toFixed(1)} days ago, interval is ${repeatDays} days`);
-              return false;
-            }
+          const repeatDays = Number(config.repeat_every_days) || 0;
+          if (repeatDays > 0 && config.last_sent_at) {
+            const since = (br.nowMs - new Date(config.last_sent_at).getTime()) / DAY_MS;
+            if (since < repeatDays - 1 / 24) return false;
           }
-
           return true;
         });
 
-    if (filteredSettings.length === 0) {
-      console.log(`[Automations] No automations scheduled for ${brasiliaTimeStr} (Brasília) or interval not met`);
-      return new Response(JSON.stringify({ message: "No automations scheduled for this time", sent: 0 }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const ctx: Ctx = {
+      supabase, br, dryRun,
+      sendPush: (endpoint, p256dh, auth, payload) => sendPush(endpoint, p256dh, auth, payload, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT),
+    };
+    const results: (AutomationResult & { error?: string })[] = [];
 
-    console.log(`[Automations] Running ${filteredSettings.length} automations at ${brasiliaTimeStr} (Brasília)`);
-
-    let totalSent = 0;
-
-    for (const setting of filteredSettings) {
+    for (const setting of due) {
+      const run = AUTOMATIONS[setting.setting_key];
+      if (!run) {
+        console.log(`[Automations] Unknown key: ${setting.setting_key}`);
+        continue;
+      }
       const config = setting.config && typeof setting.config === "object" ? setting.config : {};
-      const text = setting.notification_text || "";
-
       try {
-        let sent = 0;
-        switch (setting.setting_key) {
-          case "inactivity":
-            sent = await handleInactivity(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "show_reminder":
-            sent = await handleShowReminder(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "goal_reminder":
-            sent = await handleGoalReminder(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "low_performance":
-            sent = await handleLowPerformance(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "pending_payment":
-            sent = await handlePendingPayment(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "monthly_goal":
-            sent = await handleMonthlyGoal(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "checklist_reminder":
-            sent = await handleChecklistReminder(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "weekly_motivation":
-            sent = await handleWeeklyMotivation(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          case "plan_expiring":
-            sent = await handlePlanExpiring(supabase, config, text, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT);
-            break;
-          default:
-            console.log(`[Automations] Unknown key: ${setting.setting_key}`);
+        const candidates = await run(ctx, config, setting.notification_text || "");
+        const result = await deliver(ctx, setting.setting_key, candidates);
+        results.push(result);
+        console.log(`[Automations] ${setting.setting_key}: eligible=${result.eligible} alreadySent=${result.alreadySent} sent=${result.sent} dryRun=${dryRun}`);
+        if (!dryRun) {
+          await supabase.from("notification_settings")
+            .update({ config: { ...config, last_sent_at: new Date(br.nowMs).toISOString() } })
+            .eq("id", setting.id);
         }
-        totalSent += sent;
-        console.log(`[Automations] ${setting.setting_key}: sent ${sent}`);
-
-        // Update last_sent_at in config
-        const updatedConfig = { ...(config as any), last_sent_at: now.toISOString() };
-        await supabase
-          .from("notification_settings")
-          .update({ config: updatedConfig })
-          .eq("id", setting.id);
-
       } catch (err) {
         console.error(`[Automations] Error in ${setting.setting_key}:`, err);
+        results.push({ key: setting.setting_key, eligible: 0, alreadySent: 0, sent: 0, previews: [], error: err instanceof Error ? err.message : String(err) });
       }
     }
 
-    return new Response(
-      JSON.stringify({ message: "Automations executed", sent: totalSent }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    const sent = results.reduce((s, r) => s + r.sent, 0);
+    const eligible = results.reduce((s, r) => s + r.eligible, 0);
+    return json({ message: dryRun ? "Preview" : "Automations executed", dry_run: dryRun, sent, eligible, results });
   } catch (error: unknown) {
     console.error("[Automations] Fatal error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return json({ error: error instanceof Error ? error.message : "Unknown error" }, 500);
   }
 });
