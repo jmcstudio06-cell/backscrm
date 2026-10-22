@@ -2,6 +2,7 @@
 
 - [x] Refazer /planilha-cantores no estilo da planilha gratuita, com apresentação clara, oferta de compra e convite ao Backstage Pro; página verificada no computador e no celular, FAQ e redirecionamento ao checkout conferidos.
 - [ ] Reduzir o excesso de branco em entrar/cadastro com a identidade azul, preservando os formulários.
+- [x] Deixar /planilha-cantores apenas com a venda da planilha, sem FAQ e sem convite ao Backstage Pro; checkout da InfinitePay integrado.
 - [ ] Configurar Meta Pixel e conversões após a análise inicial. Bloqueios: ID do Pixel, restante do pedido truncado e escolha de consentimento ainda não recebidos.
 
 
