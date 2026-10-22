@@ -13,9 +13,9 @@ serve(async (req) => {
   }
 
   try {
-    const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
+    const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY")?.trim();
 
-    if (!vapidPublicKey) {
+    if (!vapidPublicKey || vapidPublicKey.startsWith("PLACEHOLDER")) {
       console.error("VAPID_PUBLIC_KEY not configured");
       return new Response(JSON.stringify({ error: "VAPID key not configured" }), {
         status: 500,

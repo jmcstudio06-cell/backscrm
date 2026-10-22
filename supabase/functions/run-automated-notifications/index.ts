@@ -18,6 +18,17 @@ function b64url(buf: ArrayBuffer | Uint8Array): string {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+/** Public key: 65-byte uncompressed P-256 point. Private key: 32 bytes. */
+function hasValidVapidKeys(publicKeyB64: string, privateKeyB64: string): boolean {
+  try {
+    const pub = b64urlDecode(publicKeyB64.trim());
+    const priv = b64urlDecode(privateKeyB64.trim());
+    return pub.length === 65 && pub[0] === 0x04 && priv.length === 32;
+  } catch {
+    return false;
+  }
+}
+
 function b64urlDecode(str: string): Uint8Array {
   str = str.replace(/-/g, "+").replace(/_/g, "/");
   while (str.length % 4) str += "=";
@@ -434,6 +445,9 @@ serve(async (req) => {
 
     if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !VAPID_SUBJECT) {
       throw new Error("VAPID env vars not configured");
+    }
+    if (!hasValidVapidKeys(VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)) {
+      throw new Error("VAPID keys are invalid (placeholder?). Set real VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY secrets.");
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);

@@ -151,14 +151,10 @@
         const publicKeyRaw = await crypto.subtle.exportKey('raw', keyPair.publicKey);
         const publicKeyBase64 = arrayBufferToBase64Url(publicKeyRaw);
 
-        // Export private key (PKCS8 format, then extract the raw key)
-        const privateKeyPkcs8 = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
-        // The raw private key is the last 32 bytes of the PKCS8 structure for P-256
-        const privateKeyBytes = new Uint8Array(privateKeyPkcs8);
-        // For P-256 PKCS8, the private key d value is at a specific offset
-        // We need to extract just the 32-byte private scalar
-        const privateKeyRaw = privateKeyBytes.slice(-32);
-        const privateKeyBase64 = arrayBufferToBase64Url(privateKeyRaw);
+        // Private key: the JWK "d" value is exactly the raw 32-byte scalar (base64url).
+        // (The last 32 bytes of a PKCS8 export are part of the PUBLIC key in Chrome, not "d".)
+        const privateJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+        const privateKeyBase64 = privateJwk.d;
 
         document.getElementById('publicKey').value = publicKeyBase64;
         document.getElementById('privateKey').value = privateKeyBase64;

@@ -30,19 +30,41 @@ function uint8ArraysEqual(a: Uint8Array, b: Uint8Array) {
   return true;
 }
 
-async function getVapidPublicKey(): Promise<string> {
-  const CACHE_KEY = "push_vapid_public_key";
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached) return cached;
+/** A real VAPID public key is an uncompressed P-256 point: 65 bytes starting with 0x04. */
+function isValidVapidPublicKey(key: string): boolean {
+  try {
+    const bytes = urlBase64ToUint8Array(key);
+    return bytes.length === 65 && bytes[0] === 0x04;
+  } catch {
+    return false;
+  }
+}
 
-  console.log("[WebPush] Fetching new VAPID key...");
+/**
+ * Fetches the server key once per app session. It used to be cached in localStorage forever,
+ * so a placeholder or rotated key stayed stuck on the device and push never recovered.
+ */
+async function getVapidPublicKey(): Promise<string> {
+  const SESSION_KEY = "push_vapid_public_key";
+  try {
+    localStorage.removeItem(SESSION_KEY); // legacy permanent cache
+  } catch {
+    /* ignore */
+  }
+
+  const cached = sessionStorage.getItem(SESSION_KEY);
+  if (cached && isValidVapidPublicKey(cached)) return cached;
+
+  console.log("[WebPush] Fetching VAPID key...");
   const { data, error } = await supabase.functions.invoke("get-vapid-key");
   if (error) throw error;
 
-  const publicKey = (data as { publicKey?: string } | null)?.publicKey;
-  if (!publicKey) throw new Error("VAPID public key not available");
+  const publicKey = (data as { publicKey?: string } | null)?.publicKey?.trim();
+  if (!publicKey || !isValidVapidPublicKey(publicKey)) {
+    throw new Error("VAPID public key is missing or invalid on the server");
+  }
 
-  localStorage.setItem(CACHE_KEY, publicKey);
+  sessionStorage.setItem(SESSION_KEY, publicKey);
   return publicKey;
 }
 
