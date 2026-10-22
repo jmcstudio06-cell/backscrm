@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { trackEvent } from "@/lib/metaPixel";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -273,6 +274,7 @@ export default function Planos() {
         toast.error("Não foi possível preparar o checkout.");
         return;
       }
+      trackEvent("InitiateCheckout", { content_name: planKey });
       toast.success("Redirecionando para pagamento...");
       window.location.href = data.checkout_url;
     } catch (err) {

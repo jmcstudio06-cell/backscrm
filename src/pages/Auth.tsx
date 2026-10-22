@@ -12,6 +12,7 @@ import appShowcase from "@/assets/auth-devices.png";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BRAZIL_STATES, MONTHLY_SHOW_RANGES, signupArtistInfoSchema } from "@/lib/signupArtistInfo";
 import { Helmet } from "react-helmet-async";
+import { trackEvent } from "@/lib/metaPixel";
 import "@/styles/auth.css";
 
 import { ArrowRight, ArrowLeft, Eye, EyeOff, Phone, Check, Shield, Mail, Calendar, Wallet, FileText, Loader2, Circle, TriangleAlert } from "lucide-react";
@@ -176,6 +177,7 @@ const Auth = () => {
           }
           throw error;
         }
+        trackEvent("CompleteRegistration", { content_name: "trial", status: true });
         toast({ title: "Cadastro realizado!", description: "Bem-vindo ao Backstage Pro!" });
       }
     } catch (error: unknown) {

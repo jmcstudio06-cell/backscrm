@@ -1,4 +1,5 @@
 import { ArrowRight, BarChart3, CalendarDays, Check, CreditCard, FileSpreadsheet, FileText, Infinity as InfinityIcon, Music2, ShieldCheck, Sparkles, Wallet } from "lucide-react";
+import { trackEvent } from "@/lib/metaPixel";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo-azul.png";
 import kitPlanilha from "@/assets/kit-planilha.png";
@@ -32,7 +33,7 @@ const strip = [
 
 export default function PlanilhaCantoressVenda() {
   const purchaseButton = (label = "Quero minha planilha") => (
-    <Button className="sheet-buy" onClick={() => { window.location.href = CHECKOUT_URL; }}>
+    <Button className="sheet-buy" onClick={() => { trackEvent("InitiateCheckout", { content_name: "planilha_cantores", value: SALE_PRICE }); window.location.href = CHECKOUT_URL; }}>
       <FileSpreadsheet /> {label} <ArrowRight />
     </Button>
   );

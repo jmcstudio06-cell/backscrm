@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { trackEvent } from "@/lib/metaPixel";
 import {
   MessageCircle,
   FileText,
@@ -271,6 +272,7 @@ export default function GuiaAtendimento() {
         source: "guia_atendimento",
       });
       
+      trackEvent("Lead", { content_name: "guia_atendimento" });
       localStorage.setItem("guia_lead_captured", "true");
       setUnlocked(true);
       toast.success("Acesso liberado! Aproveite o guia.");

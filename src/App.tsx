@@ -69,6 +69,7 @@ import { NotificationPrompt } from "@/components/notifications/NotificationPromp
 import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscriptionRefresher";
 import { LastSeenTracker } from "@/components/auth/LastSeenTracker";
 import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
+import { MetaPixelTracker } from "@/components/analytics/MetaPixelTracker";
 
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 import { SplashScreen } from "@/components/layout/SplashScreen";
@@ -125,6 +126,7 @@ const App = () => (
           <WorkspaceProvider>
           <AppSettingsProvider>
             <CustomizationProvider>
+              <MetaPixelTracker />
               <NotificationPrompt />
               <PushSubscriptionRefresher />
               <LastSeenTracker />

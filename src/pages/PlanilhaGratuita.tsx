@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { trackEvent } from "@/lib/metaPixel";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -134,6 +135,7 @@ export default function PlanilhaGratuita() {
       });
       // #endregion
 
+      trackEvent("Lead", { content_name: "planilha_gratuita" });
       localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify(leadData));
       setUnlocked(true);
       toast.success("Planilha liberada com sucesso!");

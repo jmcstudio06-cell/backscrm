@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { trackEvent } from "@/lib/metaPixel";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -543,6 +544,7 @@ export default function KitProfissional() {
         source: "kit_profissional",
       };
       await insertGuideLeadWithFallback(leadData);
+      trackEvent("Lead", { content_name: "kit_profissional" });
       localStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify(leadData));
       localStorage.setItem("guia_lead_captured", "true");
       setIsLeadRegistered(true);
