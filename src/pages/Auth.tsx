@@ -11,6 +11,7 @@ import baIconImg from "@/assets/ba-icon.png";
 import appShowcase from "@/assets/auth-devices.png";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BRAZIL_STATES, MONTHLY_SHOW_RANGES, signupArtistInfoSchema } from "@/lib/signupArtistInfo";
+import { Helmet } from "react-helmet-async";
 import "@/styles/auth.css";
 
 import { ArrowRight, ArrowLeft, Eye, EyeOff, Phone, Check, Shield, Mail, Calendar, Wallet, FileText, Loader2, Circle, TriangleAlert } from "lucide-react";
@@ -234,18 +235,29 @@ const Auth = () => {
 
   return (
     <div className="auth-page">
+      <Helmet>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" />
+      </Helmet>
       <header className="auth-header">
         <Button variant="ghost" onClick={() => navigate('/landing')} className="auth-brand"><img src={baIconImg} alt="" width={34} height={34} /><span>Backstage <span className="font-normal">Pro</span></span></Button>
         <Button variant="ghost" onClick={showForm ? handleBack : () => navigate('/landing')}><ArrowLeft className="h-4 w-4" />{showForm ? "Voltar" : "Conhecer o app"}</Button>
       </header>
       <main className="auth-layout">
         <section className="auth-intro" aria-labelledby="auth-title">
-          <p className="auth-eyebrow">O SEU BACKSTAGE COMEÇA AQUI</p>
-          <h1 id="auth-title">Backstage Pro</h1>
-          <p className="auth-tagline">Seu talento no palco.<br />Sua carreira no controle.</p>
-          <p className="auth-description">Um lugar para organizar seus shows, seus cachês e os próximos passos da sua carreira.</p>
-          <div className="auth-product"><img src={appShowcase} alt="Backstage Pro no computador, tablet e celular" width={921} height={640} /></div>
-          <div className="auth-tools">{[{icon: Calendar, label: "Sua agenda"}, {icon: Wallet, label: "Seus cachês"}, {icon: FileText, label: "Seus contratos"}].map(({icon: Icon,label}) => <span key={label}><Icon className="h-4 w-4" />{label}</span>)}</div>
+          <span className="auth-grid-bg" aria-hidden="true" />
+          <span className="auth-glow auth-glow-a" aria-hidden="true" />
+          <span className="auth-glow auth-glow-b" aria-hidden="true" />
+          <div className="auth-intro-inner">
+            <p className="auth-eyebrow"><span className="auth-eyebrow-dot" />O SEU BACKSTAGE COMEÇA AQUI</p>
+            <h1 id="auth-title">{isLogin ? "Bem-vindo de volta." : "Seu talento no palco."}<span>{isLogin ? "Sua carreira continua aqui." : "Sua carreira no controle."}</span></h1>
+            <p className="auth-description">Um lugar para organizar seus shows, seus cachês e os próximos passos da sua carreira.</p>
+            <div className="auth-product">
+              <img src={appShowcase} alt="Backstage Pro no computador, tablet e celular" width={921} height={640} />
+              <div className="auth-float auth-float-a" aria-hidden="true"><span><Calendar className="h-4 w-4" /></span>Show confirmado</div>
+              <div className="auth-float auth-float-b" aria-hidden="true"><span><Wallet className="h-4 w-4" /></span>Cachê recebido</div>
+            </div>
+            <div className="auth-tools">{[{icon: Calendar, label: "Sua agenda"}, {icon: Wallet, label: "Seus cachês"}, {icon: FileText, label: "Seus contratos"}].map(({icon: Icon,label}) => <span key={label}><Icon className="h-4 w-4" />{label}</span>)}</div>
+          </div>
         </section>
         <section className="auth-form-panel" aria-labelledby="auth-form-title">
           {!showForm ? <>
