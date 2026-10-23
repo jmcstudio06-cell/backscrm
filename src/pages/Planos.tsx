@@ -333,15 +333,16 @@ export default function Planos() {
             {plans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
                 starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
-                pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "16,66" },
-                full: { monthly: 39.9, yearlyOld: "478,80", yearlyNew: "298,80", installment: "24,90" },
-                executivo: { monthly: 79.9, yearlyOld: "958,80", yearlyNew: "499,90", installment: "41,66" },
+                pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "19,99" },
+                full: { monthly: 39.9, yearlyOld: "478,80", yearlyNew: "298,80", installment: "29,88" },
+                executivo: { monthly: 79.9, yearlyOld: "958,80", yearlyNew: "499,90", installment: "49,99" },
               };
               const planPricing = pricing[p.id];
               const monthlyValue = planPricing.monthly;
               const yearlyOldPrice = planPricing.yearlyOld;
               const yearlyNewPrice = planPricing.yearlyNew;
               const yearlyInstallment = planPricing.installment;
+              const yearlyInstallmentTotal = (Number(planPricing.installment.replace(',', '.')) * 12).toFixed(2).replace('.', ',');
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
@@ -453,10 +454,14 @@ export default function Planos() {
                       {isYearly ? (
                         <>
                           <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-extrabold tracking-tight">12x R$ {yearlyInstallment}</span>
+                            <span className="text-sm font-semibold text-muted-foreground">até 12x de</span>
+                            <span className="text-3xl font-extrabold tracking-tight">R$ {yearlyInstallment}</span>
                           </div>
                           <p className="text-sm text-muted-foreground font-medium mt-1">
                             ou <span className="font-bold text-foreground">R$ {yearlyNewPrice}</span> à vista /ano
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Em 12x o total é R$ {yearlyInstallmentTotal}. Quanto menos parcelas, menor o valor total.
                           </p>
                         </>
                       ) : (
