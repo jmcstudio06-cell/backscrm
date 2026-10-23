@@ -439,7 +439,7 @@ export default function Landing() {
               <Link to="/kit-profissional">Kit Profissional</Link>
               <a href={SUPPORT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Suporte</a>
             </nav>
-            <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Backstage Pro.</p>
+            <p className="text-sm text-muted-foreground">© 2024 Backstage Pro.</p>
           </div>
           <div className="lp-registration">
             <ShieldCheck className="h-5 w-5 shrink-0 text-primary" />
