@@ -342,7 +342,6 @@ export default function Planos() {
               const yearlyOldPrice = planPricing.yearlyOld;
               const yearlyNewPrice = planPricing.yearlyNew;
               const yearlyInstallment = planPricing.installment;
-              const yearlyInstallmentTotal = (Number(planPricing.installment.replace(',', '.')) * 12).toFixed(2).replace('.', ',');
 
               const finalPrice = isYearly ? `R$ ${yearlyNewPrice}` : `R$ ${monthlyValue.toFixed(2).replace(".", ",")}`;
               const finalPlanKey = isYearly ? p.planKeyYearly : p.planKeyMonthly;
@@ -459,9 +458,6 @@ export default function Planos() {
                           </div>
                           <p className="text-sm text-muted-foreground font-medium mt-1">
                             ou <span className="font-bold text-foreground">R$ {yearlyNewPrice}</span> à vista /ano
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Em 12x o total é R$ {yearlyInstallmentTotal}. Quanto menos parcelas, menor o valor total.
                           </p>
                         </>
                       ) : (
