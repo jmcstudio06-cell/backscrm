@@ -8,16 +8,6 @@ const INFINITEPAY_HANDLE = "backstageprooficial";
 const APP_URL = "https://backstagepro.online";
 
 
-function planTier(planKey: string | null | undefined): number {
-  if (!planKey) return 0;
-  if (planKey.includes("executivo")) return 3;
-  if (planKey.includes("empresarial") || planKey.includes("completo")) return 2;
-  if (planKey.includes("profissional")) return 1;
-  if (planKey.includes("starter")) return 0;
-  return 0;
-}
-
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -76,14 +66,6 @@ serve(async (req) => {
       .maybeSingle();
 
     if (profileError) throw profileError;
-
-    const renewalPlan = profile?.plan === "comprou_expirado" ? profile.last_paid_plan : profile?.plan;
-    if (planTier(planKey) < planTier(renewalPlan)) {
-      return new Response(
-        JSON.stringify({ error: "Não é possível renovar em um plano inferior ao já adquirido." }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
 
     if (planKey.startsWith("mensal_")) {
       const fb = (profile?.feature_blocks ?? {}) as Record<string, boolean>;

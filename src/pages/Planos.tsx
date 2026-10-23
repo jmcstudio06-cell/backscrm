@@ -490,7 +490,7 @@ export default function Planos() {
                     <div className="mt-auto">
                       <Button
                         size="lg"
-                        disabled={isLoading || isLowerTier}
+                        disabled={isLoading}
                         className={cn(
                           "w-full rounded-2xl text-white font-semibold shadow-md transition-all hover:shadow-lg bg-gradient-to-r",
                           hasPaidPlan && userTier === p.id
@@ -513,7 +513,10 @@ export default function Planos() {
                               <ArrowRight className="w-4 h-4" />
                             </>
                           ) : isLowerTier ? (
-                            <>Plano inferior ao atual</>
+                            <>
+                              Mudar para este plano
+                              <ArrowRight className="w-4 h-4" />
+                            </>
                           ) : hasPaidPlan ? (
                             <>
                               Fazer upgrade
