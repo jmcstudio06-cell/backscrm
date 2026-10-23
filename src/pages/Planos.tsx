@@ -443,9 +443,7 @@ export default function Planos() {
                       <p className="text-sm text-muted-foreground font-medium leading-relaxed mt-1">{p.subtitle}</p>
                     </div>
 
-                    {/* Altura mínima fixa mantém o bloco "O que inclui" alinhado entre mensal e anual,
-                        sem precisar reservar linhas em branco que criam buracos no mensal. */}
-                    <div className="mb-6 flex flex-col justify-end min-h-[8.5rem]">
+                    <div className="mb-6">
                       {isYearly ? (
                         <>
                           <p className="text-sm text-muted-foreground line-through mb-1 font-semibold">
