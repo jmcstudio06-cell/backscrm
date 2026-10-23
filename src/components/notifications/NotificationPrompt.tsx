@@ -1,159 +1,132 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { Bell, CalendarDays, CheckCircle2, Target, Wallet } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { subscribeToWebPush } from "@/lib/webPush";
-import { Bell, X } from "lucide-react";
+import { isAppInstalled } from "@/lib/pwaInstall";
+import { PUBLIC_PREFIXES } from "@/components/onboarding/OnboardingGate";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
-const PROMPT_DISMISSED_KEY = "notification_prompt_dismissed";
-const PROMPT_ANSWERED_KEY = "notification_prompt_answered";
-const PROMPT_DISMISSED_DURATION = 2 * 24 * 60 * 60 * 1000; // 2 days
+/**
+ * Asked exactly once per device. The flag is written the moment the explanation is shown, so it never
+ * returns, whether the person accepts, declines or simply closes the app.
+ */
+const PROMPT_SHOWN_KEY = "notification_prompt_shown_v2";
+
+const BENEFITS = [
+  { icon: CalendarDays, text: "Lembrete do seu show, com dia, hora e local" },
+  { icon: Wallet, text: "Aviso de cachês que ainda faltam receber" },
+  { icon: Target, text: "Como estão suas metas do mês" },
+  { icon: Bell, text: "Aviso antes do seu acesso vencer" },
+];
 
 export function NotificationPrompt() {
   const { user } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
+  const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [iosHint, setIosHint] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const isPublicRoute = pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));
 
   useEffect(() => {
-    if (!user) {
-      console.log("[NotifPrompt] No user, skipping");
-      return;
+    if (!user || profileLoading || !profile || isPublicRoute || visible) return;
+
+    // Only inside the installed app (home-screen icon). On iPhone, push does not work anywhere else.
+    if (!isAppInstalled()) return;
+    if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
+
+    // Permission already answered (granted or denied): never ask again. A granted permission is
+    // repaired silently by PushSubscriptionRefresher.
+    if (Notification.permission !== "default") return;
+
+    // Let the first-access onboarding finish before showing anything else.
+    if (!profile.onboarding_completed) return;
+
+    try {
+      if (localStorage.getItem(PROMPT_SHOWN_KEY)) return;
+    } catch {
+      return; // can't remember the answer: better to never ask than to ask every time
     }
 
-    const check = async () => {
-      const hasNotification = "Notification" in window;
-      const hasSW = "serviceWorker" in navigator;
-      const hasPush = "PushManager" in window;
-
-      console.log("[NotifPrompt] Support check:", { hasNotification, hasSW, hasPush });
-
-      if (!hasNotification || !hasSW || !hasPush) {
-        console.log("[NotifPrompt] Browser doesn't support push notifications");
-
-        // iPhone/iPad no Safari: push só funciona com o app na tela inicial.
-        const isIOS =
-          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-        const standalone =
-          window.matchMedia?.("(display-mode: standalone)").matches ||
-          (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
-
-        if (isIOS && !standalone) {
-          const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
-          if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < PROMPT_DISMISSED_DURATION) return;
-          setIosHint(true);
-          setVisible(true);
-        }
+    const timer = window.setTimeout(() => {
+      try {
+        localStorage.setItem(PROMPT_SHOWN_KEY, String(Date.now()));
+      } catch {
         return;
       }
-
-
-
-      const permission = Notification.permission;
-      console.log("[NotifPrompt] Current permission:", permission);
-
-      // Already denied — can't prompt again
-      if (permission === "denied") {
-        localStorage.setItem(PROMPT_ANSWERED_KEY, "denied");
-        console.log("[NotifPrompt] Permission denied, can't show prompt");
-        return;
-      }
-
-      // Permission and subscription are separate. Once permission is granted,
-      // the silent refresher repairs/syncs the subscription without bothering
-      // the user with the activation banner again.
-      if (permission === "granted") {
-        localStorage.setItem(PROMPT_ANSWERED_KEY, "granted");
-        console.log("[NotifPrompt] Permission already granted, skipping prompt");
-        return;
-      }
-
-      // A previous explicit answer should not be presented again. Browser
-      // permission changes are still respected first by the checks above.
-      if (localStorage.getItem(PROMPT_ANSWERED_KEY)) return;
-
-      // Dismissed recently
-      const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
-      if (dismissedAt) {
-        const elapsed = Date.now() - parseInt(dismissedAt, 10);
-        console.log("[NotifPrompt] Dismissed", Math.round(elapsed / 1000 / 60), "minutes ago");
-        if (elapsed < PROMPT_DISMISSED_DURATION) return;
-      }
-
-      console.log("[NotifPrompt] Showing banner!");
       setVisible(true);
-    };
-
-    // Delay to not block initial render
-    const timer = setTimeout(check, 2000);
-    return () => clearTimeout(timer);
-  }, [user]);
+    }, 1500);
+    return () => window.clearTimeout(timer);
+  }, [user, profile, profileLoading, isPublicRoute, visible]);
 
   const handleEnable = async () => {
-    setLoading(true);
+    setBusy(true);
     try {
       const granted = await subscribeToWebPush();
-      console.log("[NotifPrompt] subscribeToWebPush result:", granted);
       if (granted) {
-        localStorage.setItem(PROMPT_ANSWERED_KEY, "granted");
-        toast.success("Notificações ativadas!", {
-          description: "Você receberá alertas importantes sobre seus shows.",
-        });
-      } else if ("Notification" in window && Notification.permission === "denied") {
-        localStorage.setItem(PROMPT_ANSWERED_KEY, "denied");
+        toast.success("Notificações ativadas!", { description: "Você vai receber seus avisos importantes." });
       }
     } catch (error) {
+      // Permission may have been granted even if the subscription failed; the silent refresher retries it.
       console.error("[NotifPrompt] Error:", error);
     } finally {
       setVisible(false);
-      setLoading(false);
+      setBusy(false);
     }
-  };
-
-  const handleDismiss = () => {
-    localStorage.setItem(PROMPT_DISMISSED_KEY, Date.now().toString());
-    setVisible(false);
   };
 
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-card border border-border rounded-xl shadow-lg p-4 flex items-start gap-3">
-        <div className="flex-shrink-0 bg-primary/10 rounded-full p-2.5">
-          <Bell className="h-5 w-5 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground">Ativar notificações</p>
-          {iosHint ? (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              No iPhone, adicione o Backstage Pro à tela de início (botão Compartilhar → Adicionar à Tela de Início) e
-              abra pelo ícone para receber os avisos.
-            </p>
-          ) : (
-            <>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Receba lembretes de shows, cobranças e alertas importantes.
-              </p>
-              <button
-                onClick={handleEnable}
-                disabled={loading}
-                className="mt-2 bg-primary text-primary-foreground text-xs font-medium px-4 py-1.5 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {loading ? "Ativando..." : "Ativar agora"}
-              </button>
-            </>
-          )}
+    <Dialog open onOpenChange={() => undefined}>
+      <DialogContent
+        className="max-w-sm gap-0 p-0 overflow-hidden [&>button:last-child]:hidden"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
+        <div className="bg-gradient-to-br from-primary to-sky-500 px-6 pb-6 pt-7 text-center text-white">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-white/20">
+            <Bell className="h-7 w-7" />
+          </span>
+          <DialogTitle className="mt-4 text-xl text-white">Não perca nenhum aviso</DialogTitle>
+          <DialogDescription className="mt-1 text-white/85">
+            Ative as notificações para o Backstage Pro te avisar na hora certa.
+          </DialogDescription>
         </div>
 
-        <button
-          onClick={handleDismiss}
-          className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
-          aria-label="Fechar"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
+        <div className="space-y-4 px-6 py-5">
+          <ul className="space-y-3">
+            {BENEFITS.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3 text-sm text-foreground">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <Icon className="h-4 w-4" />
+                </span>
+                {text}
+              </li>
+            ))}
+          </ul>
+
+          <p className="rounded-lg bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
+            <CheckCircle2 className="mr-1 inline h-3.5 w-3.5 text-primary" />
+            Sem isso, você só vê esses avisos se abrir o app por conta própria, e pode perder o horário de um show ou
+            deixar um cachê passar. Em seguida o aparelho vai perguntar: toque em <strong>Permitir</strong>. Esta
+            pergunta aparece uma única vez.
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <Button size="lg" onClick={handleEnable} disabled={busy} className="w-full">
+              {busy ? "Ativando..." : "Ativar notificações"}
+            </Button>
+            <Button variant="ghost" onClick={() => setVisible(false)} disabled={busy} className="w-full text-muted-foreground">
+              Agora não
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

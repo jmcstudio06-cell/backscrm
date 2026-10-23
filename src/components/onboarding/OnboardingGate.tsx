@@ -10,7 +10,7 @@ import { WelcomeVideoModal } from "@/components/onboarding/WelcomeVideoModal";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
 /** Rotas públicas / de terceiros onde o onboarding nunca deve aparecer. */
-const PUBLIC_PREFIXES = [
+export const PUBLIC_PREFIXES = [
   "/auth",
   "/landing",
   "/reset-password",
