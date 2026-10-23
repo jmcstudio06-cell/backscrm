@@ -443,19 +443,15 @@ export default function Planos() {
                       <p className="text-sm text-muted-foreground font-medium leading-relaxed mt-1">{p.subtitle}</p>
                     </div>
 
-                    <div className="mb-6">
-                      {/* Linha "De:" riscada: reserva a altura também no mensal para manter o valor na mesma posição */}
-                      <p className="text-sm text-muted-foreground line-through mb-1 font-semibold min-h-[1.25rem]">
-                        {isYearly ? `De: R$ ${yearlyOldPrice}` : "\u00A0"}
-                      </p>
-
-                      {/* Rótulo "até 12x de": reserva a altura também no mensal para manter o valor na mesma posição */}
-                      <p className="text-sm font-semibold text-muted-foreground min-h-[1.25rem]">
-                        {isYearly ? "até 12x de" : "\u00A0"}
-                      </p>
-
+                    {/* Altura mínima fixa mantém o bloco "O que inclui" alinhado entre mensal e anual,
+                        sem precisar reservar linhas em branco que criam buracos no mensal. */}
+                    <div className="mb-6 flex flex-col justify-end min-h-[8.5rem]">
                       {isYearly ? (
                         <>
+                          <p className="text-sm text-muted-foreground line-through mb-1 font-semibold">
+                            De: R$ {yearlyOldPrice}
+                          </p>
+                          <span className="text-sm font-semibold text-muted-foreground">até 12x de</span>
                           <div className="flex items-baseline gap-2">
                             <span className="text-4xl font-extrabold tracking-tight">R$ {yearlyInstallment}</span>
                           </div>
@@ -464,15 +460,10 @@ export default function Planos() {
                           </p>
                         </>
                       ) : (
-                        <>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-extrabold tracking-tight">{finalPrice}</span>
-                            <span className="text-sm text-muted-foreground font-medium">{finalPeriod}</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground font-medium mt-1 min-h-[1.25rem]">
-                            &nbsp;
-                          </p>
-                        </>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-extrabold tracking-tight">{finalPrice}</span>
+                          <span className="text-sm text-muted-foreground font-medium">{finalPeriod}</span>
+                        </div>
                       )}
 
                       <p className="text-xs text-muted-foreground mt-2 font-medium">
