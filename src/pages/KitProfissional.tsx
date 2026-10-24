@@ -693,7 +693,7 @@ export default function KitProfissional() {
                 <BookOpen className="w-3.5 h-3.5" />
                 {chapterIdx + 1}/{totalChapters}
               </span>
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-warning bg-warning border border-warning/80 px-2.5 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary bg-secondary border border-warning/80 px-2.5 py-1.5 rounded-full">
                 {remaining === 0 ? (
                   <>
                     <Sparkles className="w-3.5 h-3.5" /> Bônus prontos
@@ -709,7 +709,7 @@ export default function KitProfissional() {
           )}
 
           {isLeadRegistered && view === "unlocked" && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success border border-success px-3 py-1.5 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success/10 border border-success px-3 py-1.5 rounded-full">
               <Trophy className="w-3.5 h-3.5" /> Material concluído
             </span>
           )}
@@ -744,10 +744,10 @@ export default function KitProfissional() {
                   <ol className="space-y-1">
                     {CHAPTERS.map((c, i) => (
                       <li key={c.id}>
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => goToChapter(i)}
                           className={cn(
-                            "w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all group",
+                            "h-auto whitespace-normal w-full text-left justify-start flex items-start gap-3 px-3 py-3 rounded-lg transition-all group",
                             i === chapterIdx
                               ? "bg-card shadow-sm ring-1 ring-border"
                               : "hover:bg-card/70",
@@ -808,7 +808,7 @@ export default function KitProfissional() {
               </AnimatePresence>
 
               {/* Encouragement */}
-              <div className="mt-14 rounded-3xl border border-warning/70 bg-gradient-to-br from-warning to-card p-6 sm:p-7 flex items-start gap-4">
+              <div className="mt-14 rounded-3xl border border-border bg-gradient-to-br from-secondary to-card p-6 sm:p-7 flex items-start gap-4">
                 <div className="w-11 h-11 rounded-2xl bg-warning/20 flex items-center justify-center shrink-0">
                   <Gift className="w-5 h-5 text-warning" />
                 </div>
@@ -828,12 +828,12 @@ export default function KitProfissional() {
               {/* Chapter dots (mobile) */}
               <div className="mt-10 flex items-center justify-center gap-2 lg:hidden">
                 {CHAPTERS.map((c, i) => (
-                  <Button
+                  <Button variant="ghost"
                     key={c.id}
                     onClick={() => goToChapter(i)}
                     aria-label={`Ir para capítulo ${i + 1}`}
                     className={cn(
-                      "h-1.5 rounded-full transition-all",
+                      "h-2 p-0 rounded-full transition-all",
                       i === chapterIdx
                         ? "w-8 bg-foreground"
                         : i < chapterIdx
@@ -846,7 +846,7 @@ export default function KitProfissional() {
 
               {/* Desktop nav */}
               <div className="mt-10 hidden lg:flex items-center justify-between gap-4">
-                <Button
+                <Button variant="ghost"
                   onClick={goPrev}
                   disabled={chapterIdx === 0}
                   className={cn(
@@ -868,7 +868,7 @@ export default function KitProfissional() {
 
           {/* Mobile sticky nav */}
           <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-card/90 backdrop-blur-xl border-t border-border px-4 py-3 flex items-center gap-3">
-            <Button
+            <Button variant="ghost"
               onClick={goPrev}
               disabled={chapterIdx === 0}
               className={cn(
@@ -934,11 +934,11 @@ function NextButton({
     <Button
       onClick={onClick}
       className={cn(
-        "group relative inline-flex items-center justify-center gap-2 font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 overflow-hidden",
+        "group relative h-auto min-h-12 whitespace-normal inline-flex items-center justify-center gap-2 font-bold text-sm sm:text-base px-4 sm:px-8 py-3.5 rounded-lg transition-all hover:-translate-y-0.5 overflow-hidden",
         full ? "flex-1" : "",
         isLast
-          ? "bg-gradient-to-r from-warning to-warning text-primary-foreground shadow-lg shadow-warning/25"
-          : "bg-foreground hover:bg-foreground text-primary-foreground shadow-lg shadow-foreground/15",
+          ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+          : "bg-primary hover:bg-primary/90 text-primary-foreground",
       )}
     >
       <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-card/25 to-transparent" />
@@ -1022,7 +1022,7 @@ function RewardTracker({
               <span
                 className={cn(
                   "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                  done ? "bg-success text-success" : "bg-muted text-muted-foreground",
+                  done ? "bg-success/10 text-success" : "bg-muted text-muted-foreground",
                 )}
               >
                 {done ? <Icon className="w-3.5 h-3.5" /> : <Lock className="w-3 h-3" />}
@@ -1054,10 +1054,10 @@ function ChapterView({
   const Icon = chapter.icon;
   const accentBg: Record<string, string> = {
     rose: "bg-destructive text-destructive ring-destructive/70",
-    blue: "bg-primary text-primary ring-primary/70",
-    emerald: "bg-success text-success ring-success/70",
-    violet: "bg-primary text-primary ring-primary/70",
-    amber: "bg-warning text-warning ring-warning/70",
+    blue: "bg-secondary text-primary ring-primary/70",
+    emerald: "bg-success/10 text-success ring-success/70",
+    violet: "bg-secondary text-primary ring-primary/70",
+    amber: "bg-warning/10 text-warning ring-warning/70",
   };
 
   let firstParagraph = true;
@@ -1156,8 +1156,8 @@ function BlockRenderer({
       );
     case "tip":
       return (
-        <div className="rounded-xl border border-success bg-success/50 p-5 flex gap-3.5">
-          <div className="w-8 h-8 rounded-lg bg-success flex items-center justify-center shrink-0">
+        <div className="rounded-xl border border-success bg-success/5 p-5 flex gap-3.5">
+          <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
             <Lightbulb className="w-4 h-4 text-success" strokeWidth={2} />
           </div>
           <div className="space-y-1">
@@ -1170,8 +1170,8 @@ function BlockRenderer({
       );
     case "warn":
       return (
-        <div className="rounded-xl border border-warning bg-warning/50 p-5 flex gap-3.5">
-          <div className="w-8 h-8 rounded-lg bg-warning flex items-center justify-center shrink-0">
+        <div className="rounded-xl border border-warning bg-warning/5 p-5 flex gap-3.5">
+          <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-4 h-4 text-warning" strokeWidth={2} />
           </div>
           <div className="space-y-1">
@@ -1218,7 +1218,7 @@ function BlockRenderer({
             </p>
             <p className="text-[14px] text-muted-foreground leading-relaxed">{block.wrong}</p>
           </div>
-          <div className="rounded-xl border border-success bg-success/40 p-5 space-y-2.5">
+          <div className="rounded-xl border border-success bg-success/5 p-5 space-y-2.5">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-success flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" /> Certo
             </p>
@@ -1228,7 +1228,7 @@ function BlockRenderer({
       );
     case "gap":
       return (
-        <div className="rounded-2xl border border-foreground bg-foreground text-primary-foreground p-6 sm:p-7 space-y-4">
+        <div className="rounded-lg border border-border bg-secondary text-foreground p-6 sm:p-7 space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-card/10 flex items-center justify-center shrink-0">
               <PuzzleIcon className="w-4.5 h-4.5 text-muted-foreground" strokeWidth={2} />
@@ -1282,6 +1282,22 @@ function LeadCaptureModal(props: {
   setShowsPerMonth: (v: string) => void;
   onSubmit: () => void;
 }) {
+  useEffect(() => {
+    const previous = document.activeElement;
+    const bodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.querySelector<HTMLInputElement>('[aria-label="Nome e sobrenome"]')?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") props.onCancel();
+      if (event.key !== "Tab") return;
+      const nodes = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"] button, [role="dialog"] input, [role="dialog"] [tabindex="0"]')).filter(el => !el.hasAttribute("disabled"));
+      const first = nodes[0]; const last = nodes[nodes.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => { document.body.style.overflow = bodyOverflow; document.removeEventListener("keydown", handleKey); if (previous instanceof HTMLElement) previous.focus(); };
+  }, []);
   return (
     <div className="kit-modal-backdrop fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md px-4 py-6 overflow-y-auto">
       <div role="dialog" aria-modal="true" aria-labelledby="kit-lead-title" className="kit-modal relative w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-300 my-auto"><Button variant="ghost" size="icon" className="kit-modal-close" aria-label="Fechar cadastro do kit" onClick={props.onCancel}><X /></Button>
@@ -1289,7 +1305,7 @@ function LeadCaptureModal(props: {
         <div className="kit-modal-heading relative p-8 pb-6 text-center border-b border-border overflow-hidden">
           <div className="absolute inset-x-0 -top-20 h-44 bg-secondary" />
           <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-success flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
               <BookOpen className="w-7 h-7 text-primary-foreground" />
             </div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold mb-2">
@@ -1306,7 +1322,7 @@ function LeadCaptureModal(props: {
               {["Aula em vídeo", "Artes no Canva", "Mensagens prontas", "Teste grátis"].map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-1 text-[10px] font-bold text-warning bg-warning ring-1 ring-warning/70 px-2.5 py-1 rounded-full"
+                  className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-secondary ring-1 ring-warning/70 px-2.5 py-1 rounded-full"
                 >
                   <Gift className="w-2.5 h-2.5" /> {t}
                 </span>
@@ -1363,7 +1379,7 @@ function LeadCaptureModal(props: {
           </FormField>
 
           <Button
-            className="w-full gap-2 text-base py-6 bg-foreground hover:bg-foreground text-primary-foreground border-0 font-bold rounded-xl mt-2"
+            className="w-full gap-2 text-base py-6 bg-primary hover:bg-primary/90 text-primary-foreground border-0 font-bold rounded-xl mt-2"
             onClick={props.onSubmit}
             disabled={props.submitting}
           >

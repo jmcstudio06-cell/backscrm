@@ -74,20 +74,20 @@ function Reflection({
         {interaction.question}
       </p>
       <div className="mt-4 flex flex-wrap gap-3" role="group" aria-label={interaction.question}>
-        <Button
+        <Button variant="outline"
           type="button"
           aria-pressed={isYes}
           onClick={() => onChange(interaction.key, true)}
           className={cn(
             "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2",
             isYes
-              ? "bg-success text-primary-foreground"
+              ? "bg-success text-success-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted",
           )}
         >
           <CheckCircle2 className="w-4 h-4" /> Sim
         </Button>
-        <Button
+        <Button variant="outline"
           type="button"
           aria-pressed={isNo}
           onClick={() => onChange(interaction.key, false)}
@@ -139,7 +139,7 @@ function Scenario({
           const selected = chosen === opt.id;
           return (
             <li key={opt.id}>
-              <Button
+              <Button variant="outline"
                 type="button"
                 role="radio"
                 aria-checked={selected}
@@ -148,7 +148,7 @@ function Scenario({
                   "h-auto whitespace-normal w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2",
                   selected
                     ? opt.best
-                      ? "border-success bg-success"
+                      ? "border-success/30 bg-success/5"
                       : "border-border bg-muted"
                     : "border-border bg-card hover:border-border hover:bg-muted",
                 )}
@@ -183,7 +183,7 @@ function Scenario({
           className={cn(
             "mt-4 rounded-xl border p-4 text-[14px] leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300",
             chosenOption.best
-              ? "border-success bg-success text-success"
+              ? "border-success/30 bg-success/5 text-success"
               : "border-border bg-muted text-muted-foreground",
           )}
           role="status"
@@ -225,7 +225,7 @@ function Checklist({
           const checked = values[key] === true;
           return (
             <li key={it.id}>
-              <Button
+              <Button variant="outline"
                 type="button"
                 role="checkbox"
                 aria-checked={checked}
@@ -233,7 +233,7 @@ function Checklist({
                 className={cn(
                   "h-auto whitespace-normal w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2",
                   checked
-                    ? "border-success bg-success"
+                    ? "border-success/30 bg-success/5"
                     : "border-border bg-card hover:border-border hover:bg-muted",
                 )}
               >
