@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { CheckCircle2, Circle, HelpCircle, ListChecks, Sparkles, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ChapterInteraction as ChapterInteractionType } from "@/lib/manual-interactions";
 import type { ManualInteractions as StoredInteractions } from "@/lib/manual-progress";
@@ -38,14 +39,14 @@ function Shell({
 }) {
   return (
     <section
-      className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"
+      className="mt-10 rounded-2xl border border-border bg-card p-5 sm:p-6"
       aria-label={eyebrow}
     >
       <div className="flex items-center gap-2.5 mb-4">
-        <span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+        <span className="w-8 h-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
           {icon}
         </span>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           {eyebrow}
         </p>
       </div>
@@ -69,40 +70,40 @@ function Reflection({
 
   return (
     <Shell eyebrow="Reflexão" icon={<HelpCircle className="w-4 h-4" />}>
-      <p className="text-[17px] sm:text-lg font-semibold text-slate-900 -tracking-[0.01em] leading-snug">
+      <p className="text-[17px] sm:text-lg font-semibold text-foreground  leading-snug">
         {interaction.question}
       </p>
       <div className="mt-4 flex flex-wrap gap-3" role="group" aria-label={interaction.question}>
-        <button
+        <Button
           type="button"
           aria-pressed={isYes}
           onClick={() => onChange(interaction.key, true)}
           className={cn(
-            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2",
             isYes
-              ? "bg-emerald-600 text-white"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200",
+              ? "bg-success text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted",
           )}
         >
           <CheckCircle2 className="w-4 h-4" /> Sim
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           aria-pressed={isNo}
           onClick={() => onChange(interaction.key, false)}
           className={cn(
-            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2",
             isNo
-              ? "bg-slate-900 text-white"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200",
+              ? "bg-foreground text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted",
           )}
         >
           Ainda não
-        </button>
+        </Button>
       </div>
       {answered !== undefined && (
         <div
-          className="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-4 text-[14px] text-slate-600 leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300"
+          className="mt-4 rounded-xl bg-muted border border-border p-4 text-[14px] text-muted-foreground leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300"
           role="status"
         >
           {isYes ? interaction.feedbackYes : interaction.feedbackNo}
@@ -129,8 +130,8 @@ function Scenario({
 
   return (
     <Shell eyebrow="Cenário de decisão" icon={<Sparkles className="w-4 h-4" />}>
-      <p className="text-[15px] text-slate-600 leading-relaxed">{interaction.situation}</p>
-      <p className="mt-3 text-[17px] font-semibold text-slate-900 -tracking-[0.01em]">
+      <p className="text-[15px] text-muted-foreground leading-relaxed">{interaction.situation}</p>
+      <p className="mt-3 text-[17px] font-semibold text-foreground ">
         {interaction.prompt}
       </p>
       <ul className="mt-4 space-y-2.5" role="radiogroup" aria-label={interaction.prompt}>
@@ -138,28 +139,28 @@ function Scenario({
           const selected = chosen === opt.id;
           return (
             <li key={opt.id}>
-              <button
+              <Button
                 type="button"
                 role="radio"
                 aria-checked={selected}
                 onClick={() => onChange(interaction.key, opt.id)}
                 className={cn(
-                  "w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+                  "h-auto whitespace-normal w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2",
                   selected
                     ? opt.best
-                      ? "border-emerald-300 bg-emerald-50"
-                      : "border-slate-300 bg-slate-50"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
+                      ? "border-success bg-success"
+                      : "border-border bg-muted"
+                    : "border-border bg-card hover:border-border hover:bg-muted",
                 )}
               >
                 <span
                   className={cn(
-                    "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-white",
+                    "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-primary-foreground",
                     selected
                       ? opt.best
-                        ? "bg-emerald-600"
-                        : "bg-slate-700"
-                      : "bg-slate-200",
+                        ? "bg-success"
+                        : "bg-muted"
+                      : "bg-muted",
                   )}
                   aria-hidden="true"
                 >
@@ -171,8 +172,8 @@ function Scenario({
                     )
                   ) : null}
                 </span>
-                <span className="text-[15px] text-slate-700 leading-relaxed">{opt.label}</span>
-              </button>
+                <span className="text-[15px] text-muted-foreground leading-relaxed">{opt.label}</span>
+              </Button>
             </li>
           );
         })}
@@ -182,8 +183,8 @@ function Scenario({
           className={cn(
             "mt-4 rounded-xl border p-4 text-[14px] leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300",
             chosenOption.best
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-slate-200 bg-slate-50 text-slate-700",
+              ? "border-success bg-success text-success"
+              : "border-border bg-muted text-muted-foreground",
           )}
           role="status"
         >
@@ -213,10 +214,10 @@ function Checklist({
 
   return (
     <Shell eyebrow="Checklist prático" icon={<ListChecks className="w-4 h-4" />}>
-      <p className="text-[17px] sm:text-lg font-semibold text-slate-900 -tracking-[0.01em] leading-snug">
+      <p className="text-[17px] sm:text-lg font-semibold text-foreground  leading-snug">
         {interaction.title}
       </p>
-      <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{interaction.helper}</p>
+      <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{interaction.helper}</p>
 
       <ul className="mt-4 space-y-2.5">
         {interaction.items.map((it) => {
@@ -224,40 +225,40 @@ function Checklist({
           const checked = values[key] === true;
           return (
             <li key={it.id}>
-              <button
+              <Button
                 type="button"
                 role="checkbox"
                 aria-checked={checked}
                 onClick={() => onChange(key, !checked)}
                 className={cn(
-                  "w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+                  "h-auto whitespace-normal w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2",
                   checked
-                    ? "border-emerald-300 bg-emerald-50"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
+                    ? "border-success bg-success"
+                    : "border-border bg-card hover:border-border hover:bg-muted",
                 )}
               >
                 <span className="mt-0.5 shrink-0" aria-hidden="true">
                   {checked ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <CheckCircle2 className="w-5 h-5 text-success" />
                   ) : (
-                    <Circle className="w-5 h-5 text-slate-300" />
+                    <Circle className="w-5 h-5 text-muted-foreground" />
                   )}
                 </span>
                 <span
                   className={cn(
                     "text-[15px] leading-relaxed",
-                    checked ? "text-slate-900" : "text-slate-700",
+                    checked ? "text-foreground" : "text-muted-foreground",
                   )}
                 >
                   {it.label}
                 </span>
-              </button>
+              </Button>
             </li>
           );
         })}
       </ul>
 
-      <p className="mt-4 text-sm font-semibold text-slate-500" aria-live="polite">
+      <p className="mt-4 text-sm font-semibold text-muted-foreground" aria-live="polite">
         {checkedCount} de {total} marcados
         {checkedCount < total
           ? " — os itens em aberto são seus próximos pontos de melhoria."

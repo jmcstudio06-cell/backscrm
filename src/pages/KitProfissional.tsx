@@ -35,6 +35,7 @@ import {
   TrendingUp,
   PuzzleIcon,
   Lock,
+  X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -57,7 +58,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import baIcon from "@/assets/ba-icon.png";
+import { AppLogo } from "@/components/layout/AppLogo";
+import { KitIntro } from "@/components/kit/KitIntro";
+import manualCover from "@/assets/kit-manual.png";
+import artsCover from "@/assets/kit-artes.png";
+import messagesCover from "@/assets/kit-mensagens.png";
+import appCover from "@/assets/kit-backstage.png";
+import "@/styles/kit.css";
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
 const MATERIAL_COMPLETED_KEY = "manual_artista_video_completed"; // reused for backward compat
@@ -632,7 +639,7 @@ export default function KitProfissional() {
       trackEvent("ViewContent", { content_name: "manual_chapter_1" });
       // semeia o progresso inicial vinculado ao telefone recém-capturado
       saveManualProgress(digits, { chapterIndex: 0, completed: false, interactions: {} });
-      toast.success("Bem-vindo! Seu material está liberado 📖");
+      toast.success("Bem-vindo! Seu material está liberado");
     } catch (err) {
       console.error(err);
       toast.error("Erro ao salvar. Tente novamente.");
@@ -660,7 +667,7 @@ export default function KitProfissional() {
       persist({ completed: true });
       trackEvent("ViewContent", { content_name: "manual_completed" });
       window.scrollTo({ top: 0, behavior: "smooth" });
-      toast.success("Bônus desbloqueados! 🎉");
+      toast.success("Bônus desbloqueados!");
     }
   };
 
@@ -675,33 +682,18 @@ export default function KitProfissional() {
   }, [currentChapter]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-slate-900 selection:text-white">
-      {/* ── HEADER ── */}
-      <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-slate-200/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <img
-              src={baIcon}
-              alt="Backstage"
-              className="w-9 h-9 rounded-xl object-cover ring-1 ring-slate-200"
-            />
-            <div className="flex flex-col leading-tight min-w-0">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold">
-                Backstage Pro
-              </span>
-              <span className="font-semibold text-sm sm:text-base text-slate-900 -mt-0.5 truncate">
-                Manual do Artista
-              </span>
-            </div>
-          </div>
-
+    <div className="kit-page min-h-screen bg-background text-foreground">
+      <header className="kit-header">
+        <div className="kit-shell kit-header-inner">
+          <div className="kit-brand"><AppLogo collapsed size="md" /><div><strong>Backstage Pro</strong><span>Kit Profissional do Artista</span></div></div>
+          {!isLeadRegistered && <nav className="kit-header-links" aria-label="Kit Profissional"><a href="#conteudo">O manual</a><a href="#bonus">Os bônus</a><Button className="kit-top-cta" onClick={() => setView("reading")}>Acessar grátis <ArrowRight /></Button></nav>}
           {isLeadRegistered && view === "reading" && (
             <div className="flex items-center gap-3">
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
                 <BookOpen className="w-3.5 h-3.5" />
                 {chapterIdx + 1}/{totalChapters}
               </span>
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-warning bg-warning border border-warning/80 px-2.5 py-1.5 rounded-full">
                 {remaining === 0 ? (
                   <>
                     <Sparkles className="w-3.5 h-3.5" /> Bônus prontos
@@ -717,63 +709,58 @@ export default function KitProfissional() {
           )}
 
           {isLeadRegistered && view === "unlocked" && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success border border-success px-3 py-1.5 rounded-full">
               <Trophy className="w-3.5 h-3.5" /> Material concluído
             </span>
           )}
         </div>
         {isLeadRegistered && view === "reading" && (
-          <div className="h-[3px] w-full bg-slate-200/70">
+          <div className="h-[3px] w-full bg-muted/70">
             <div
-              className="h-full bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 transition-all duration-700 ease-out"
+              className="h-full kit-progress-bar transition-all duration-700 ease-out"
               style={{ width: `${progressPct}%` }}
             />
           </div>
         )}
       </header>
 
-      {/* ── ENTRY / INTRO VIEW ── */}
-      {!isLeadRegistered && view === "intro" && (
-        <IntroView
-          totalChapters={totalChapters}
-          onStart={() => {
-            trackEvent("ViewContent", { content_name: "manual_start_click" });
-            setView("reading");
-          }}
-        />
-      )}
+      {!isLeadRegistered && <KitIntro
+        chapters={CHAPTERS}
+        readMinutes={Math.max(10, Math.round(JSON.stringify(CHAPTERS.map(c => c.blocks)).split(/\s+/).length / 190))}
+        onStart={() => { trackEvent("ViewContent", { content_name: "manual_start_click" }); setView("reading"); }}
+      />}
 
       {/* ── READING VIEW ── */}
       {isLeadRegistered && view === "reading" && (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16 pb-32 lg:pb-16">
+        <div className="kit-shell kit-reading">
           <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-14">
             {/* Rail */}
             <aside className="hidden lg:block">
               <div className="sticky top-28 space-y-8">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground mb-4">
                     Sumário
                   </p>
                   <ol className="space-y-1">
                     {CHAPTERS.map((c, i) => (
                       <li key={c.id}>
-                        <button
+                        <Button
                           onClick={() => goToChapter(i)}
                           className={cn(
                             "w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all group",
                             i === chapterIdx
-                              ? "bg-white shadow-sm ring-1 ring-slate-200"
-                              : "hover:bg-white/70",
+                              ? "bg-card shadow-sm ring-1 ring-border"
+                              : "hover:bg-card/70",
                           )}
                         >
                           <span
                             className={cn(
                               "mt-0.5 w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 transition",
                               i < chapterIdx
-                                ? "bg-emerald-500 text-white"
+                                ? "bg-success text-primary-foreground"
                                 : i === chapterIdx
-                                  ? "bg-slate-900 text-white"
-                                  : "bg-slate-200 text-slate-500",
+                                  ? "bg-foreground text-primary-foreground"
+                                  : "bg-muted text-muted-foreground",
                             )}
                           >
                             {i < chapterIdx ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
@@ -781,12 +768,12 @@ export default function KitProfissional() {
                           <span
                             className={cn(
                               "text-[13px] leading-snug font-medium",
-                              i === chapterIdx ? "text-slate-900" : "text-slate-500",
+                              i === chapterIdx ? "text-foreground" : "text-muted-foreground",
                             )}
                           >
                             {c.title}
                           </span>
-                        </button>
+                        </Button>
                       </li>
                     ))}
                   </ol>
@@ -802,6 +789,7 @@ export default function KitProfissional() {
 
             {/* Article */}
             <main>
+              <div className="kit-mobile-chapters"><label className="block text-sm font-semibold mb-2" htmlFor="kit-reading-chapter">Seu capítulo</label><select id="kit-reading-chapter" value={chapterIdx} onChange={e => goToChapter(Number(e.target.value))} className="w-full border border-border bg-card rounded-lg px-3 py-3 text-sm">{CHAPTERS.map((c, i) => <option key={c.id} value={i}>{i + 1}. {c.title}</option>)}</select></div>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentChapter.id}
@@ -820,17 +808,17 @@ export default function KitProfissional() {
               </AnimatePresence>
 
               {/* Encouragement */}
-              <div className="mt-14 rounded-3xl border border-amber-200/70 bg-gradient-to-br from-amber-50 to-white p-6 sm:p-7 flex items-start gap-4">
-                <div className="w-11 h-11 rounded-2xl bg-amber-400/20 flex items-center justify-center shrink-0">
-                  <Gift className="w-5 h-5 text-amber-700" />
+              <div className="mt-14 rounded-3xl border border-warning/70 bg-gradient-to-br from-warning to-card p-6 sm:p-7 flex items-start gap-4">
+                <div className="w-11 h-11 rounded-2xl bg-warning/20 flex items-center justify-center shrink-0">
+                  <Gift className="w-5 h-5 text-warning" />
                 </div>
                 <div className="space-y-1">
-                  <p className="font-semibold text-lg text-slate-900 leading-tight">
+                  <p className="font-semibold text-lg text-foreground leading-tight">
                     {remaining === 0
                       ? "Você chegou ao último capítulo"
                       : `Faltam ${remaining} ${remaining === 1 ? "capítulo" : "capítulos"} para liberar seus bônus`}
                   </p>
-                  <p className="text-sm text-slate-600 leading-relaxed">
+                  <p className="text-sm text-foreground leading-relaxed">
                     Aula completa em vídeo, artes editáveis no Canva, mensagens prontas para
                     contratantes e teste grátis do sistema — tudo liberado no fim da leitura.
                   </p>
@@ -840,17 +828,17 @@ export default function KitProfissional() {
               {/* Chapter dots (mobile) */}
               <div className="mt-10 flex items-center justify-center gap-2 lg:hidden">
                 {CHAPTERS.map((c, i) => (
-                  <button
+                  <Button
                     key={c.id}
                     onClick={() => goToChapter(i)}
                     aria-label={`Ir para capítulo ${i + 1}`}
                     className={cn(
                       "h-1.5 rounded-full transition-all",
                       i === chapterIdx
-                        ? "w-8 bg-slate-900"
+                        ? "w-8 bg-foreground"
                         : i < chapterIdx
-                          ? "w-1.5 bg-emerald-500"
-                          : "w-1.5 bg-slate-300",
+                          ? "w-1.5 bg-success"
+                          : "w-1.5 bg-muted",
                     )}
                   />
                 ))}
@@ -858,18 +846,18 @@ export default function KitProfissional() {
 
               {/* Desktop nav */}
               <div className="mt-10 hidden lg:flex items-center justify-between gap-4">
-                <button
+                <Button
                   onClick={goPrev}
                   disabled={chapterIdx === 0}
                   className={cn(
                     "inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl transition",
                     chapterIdx === 0
-                      ? "text-slate-300 cursor-not-allowed"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white",
+                      ? "text-muted-foreground cursor-not-allowed"
+                      : "text-foreground hover:text-foreground hover:bg-card",
                   )}
                 >
                   <ArrowLeft className="w-4 h-4" /> Anterior
-                </button>
+                </Button>
                 <NextButton
                   isLast={chapterIdx === totalChapters - 1}
                   onClick={goNext}
@@ -879,20 +867,20 @@ export default function KitProfissional() {
           </div>
 
           {/* Mobile sticky nav */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-xl border-t border-slate-200 px-4 py-3 flex items-center gap-3">
-            <button
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-card/90 backdrop-blur-xl border-t border-border px-4 py-3 flex items-center gap-3">
+            <Button
               onClick={goPrev}
               disabled={chapterIdx === 0}
               className={cn(
                 "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition",
                 chapterIdx === 0
-                  ? "text-slate-300"
-                  : "text-slate-700 bg-slate-100 hover:bg-slate-200",
+                  ? "text-muted-foreground"
+                  : "text-foreground bg-muted hover:bg-muted",
               )}
               aria-label="Capítulo anterior"
             >
               <ArrowLeft className="w-4 h-4" />
-            </button>
+            </Button>
             <NextButton
               isLast={chapterIdx === totalChapters - 1}
               onClick={goNext}
@@ -902,118 +890,16 @@ export default function KitProfissional() {
         </div>
       )}
 
-      {/* ── UNLOCKED VIEW ── */}
-      {isLeadRegistered && view === "unlocked" && (
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-14">
-          {/* Hero */}
-          <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 sm:px-12 py-12 sm:py-16 text-center shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)]">
-            <div className="absolute inset-x-0 -top-24 h-56 bg-[radial-gradient(closest-side,rgba(251,191,36,0.22),transparent)]" />
-            <div className="relative space-y-5">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/25">
-                <Trophy className="w-8 h-8 text-white" />
-              </div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-bold">
-                Leitura concluída
-              </p>
-              <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight leading-[1.05] text-slate-900">
-                Seus 4 bônus estão
-                <br className="hidden sm:block" />{" "}
-                <span className="italic bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
-                  liberados
-                </span>
-              </h1>
-              <p className="text-base sm:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
-                Você terminou o Manual do Artista Contratado. Agora é hora de aplicar — comece pelo
-                bônus que resolve sua maior dor hoje.
-              </p>
-              <button
-                onClick={() => {
-                  setView("reading");
-                  goToChapter(0);
-                }}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition"
-              >
-                <BookOpen className="w-4 h-4" /> Revisar o material escrito
-              </button>
-            </div>
-          </section>
-
-          {/* Benefits grid */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">
-                Suas recompensas
-              </span>
-              <div className="h-px flex-1 bg-slate-200" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {benefits.map((b, i) => (
-                <BenefitCard key={b.id} benefit={b} index={i + 1} />
-              ))}
-            </div>
-          </section>
-
-          {/* Video anchor */}
-          <section id="video-anchor" className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 flex items-center justify-center">
-                <PlayCircle className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-slate-400 font-bold">
-                  Aula em vídeo
-                </p>
-                <h2 className="font-semibold text-lg sm:text-xl text-slate-900">
-                  Manual do Artista — versão completa
-                </h2>
-              </div>
-            </div>
-            <div className="rounded-[1.75rem] overflow-hidden border border-slate-200 bg-slate-950 shadow-xl">
-              <div className="flex justify-center py-6 px-4">
-                <div className="relative w-full max-w-[420px] aspect-[9/16] rounded-2xl overflow-hidden ring-1 ring-white/10">
-                  <iframe
-                    className="absolute inset-0 w-full h-full"
-                    src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
-                    title="Manual do Artista Contratado"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Closing card */}
-          <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-8 sm:p-14 text-center space-y-5">
-            <div className="absolute inset-x-0 -top-20 h-52 bg-[radial-gradient(closest-side,rgba(59,130,246,0.35),transparent)]" />
-            <div className="relative space-y-5">
-              <Star className="w-8 h-8 text-amber-300 mx-auto" />
-              <h3 className="text-2xl sm:text-4xl font-semibold text-white leading-tight">
-                Agora é hora de colocar em prática
-              </h3>
-              <p className="text-slate-300 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
-                Você tem mais clareza sobre abordar contratantes, valorizar seu trabalho, organizar
-                negociações e construir uma rotina profissional. A Backstage Pro ajuda a organizar
-                agenda, clientes, orçamentos, contratos e financeiro — e o Backs Radar ajuda a
-                encontrar novos locais para prospectar.
-              </p>
-              <button
-                onClick={() => {
-                  trackEvent("Lead", { content_name: "manual_signup_click" });
-                  window.open(SIGNUP_URL, "_blank", "noopener,noreferrer");
-                }}
-                className="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm sm:text-base px-7 sm:px-9 py-4 rounded-xl transition-all hover:shadow-2xl hover:-translate-y-0.5"
-              >
-                Conhecer a Backstage Pro gratuitamente
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </section>
-        </main>
-      )}
+      {isLeadRegistered && view === "unlocked" && <main>
+        <section className="kit-unlocked-banner"><div className="kit-shell"><Trophy className="mx-auto" size={36} /><h1>Seu próximo passo está liberado.</h1><p>Manual concluído. Agora você tem quatro bônus para transformar o conhecimento em prática.</p><Button variant="ghost" className="kit-revisit" onClick={() => { setView("reading"); goToChapter(0); }}><BookOpen /> Revisar o material escrito</Button></div></section>
+        <div className="kit-shell kit-section"><div className="kit-section-heading"><div><p className="kit-eyebrow text-primary">SEU KIT COMPLETO</p><h2>Escolha por onde continuar.</h2></div></div><div className="grid grid-cols-1 sm:grid-cols-2 gap-6">{benefits.map((b, i) => <BenefitCard key={b.id} benefit={b} index={i + 1} />)}</div>
+          <section id="video-anchor" className="kit-video"><div className="flex gap-3 items-center"><PlayCircle className="text-primary" /><h2 className="text-xl font-bold">Manual do Artista — aula completa</h2></div><div className="kit-video-frame"><iframe src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`} title="Manual do Artista Contratado" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /></div></section>
+        </div>
+      </main>}
 
       {/* ── LEAD CAPTURE MODAL ── */}
       {!isLeadRegistered && view !== "intro" && <LeadCaptureModal
+        onCancel={() => setView("intro")}
         name={name}
         phone={phone}
         city={city}
@@ -1032,114 +918,6 @@ export default function KitProfissional() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry / intro view — primeira tela, antes da captura de lead
 // ─────────────────────────────────────────────────────────────────────────────
-function IntroView({
-  totalChapters,
-  onStart,
-}: {
-  totalChapters: number;
-  onStart: () => void;
-}) {
-  const highlights = [
-    { icon: MessageSquare, text: "Responder contratantes e fechar mais shows" },
-    { icon: DollarSign, text: "Precificar e apresentar propostas sem parecer caro" },
-    { icon: Handshake, text: "Fechar com contrato e sinal, sem desmarcações" },
-    { icon: TrendingUp, text: "Enxergar o dinheiro real que entra e sai da carreira" },
-  ];
-  const readMinutes = useMemo(() => {
-    const words = JSON.stringify(CHAPTERS.map((c) => c.blocks)).split(/\s+/).length;
-    return Math.max(10, Math.round(words / 190));
-  }, []);
-
-  const container = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
-  };
-  const item = {
-    hidden: { opacity: 0, y: 12 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
-  };
-
-  return (
-    <main className="relative mx-auto max-w-2xl px-5 sm:px-6 py-16 sm:py-24">
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="flex flex-col items-center text-center"
-      >
-        <motion.span
-          variants={item}
-          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          Material gratuito
-        </motion.span>
-
-        <motion.h1
-          variants={item}
-          className="mt-6 text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 leading-[1.08]"
-        >
-          Manual do Artista Contratado
-        </motion.h1>
-
-        <motion.p
-          variants={item}
-          className="mt-4 max-w-xl text-base sm:text-lg leading-relaxed text-slate-500"
-        >
-          Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua
-          carreira musical.
-        </motion.p>
-
-        <motion.div variants={item} className="mt-8 w-full">
-          <div className="grid gap-2.5 sm:grid-cols-2 text-left">
-            {highlights.map((h) => {
-              const Icon = h.icon;
-              return (
-                <div
-                  key={h.text}
-                  className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white px-4 py-3 transition-colors hover:border-slate-300"
-                >
-                  <Icon className="h-4 w-4 shrink-0 text-slate-400" strokeWidth={2} />
-                  <span className="text-sm leading-snug text-slate-700">{h.text}</span>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        <motion.div
-          variants={item}
-          className="mt-7 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-slate-400"
-        >
-          <span className="inline-flex items-center gap-1.5">
-            <BookOpen className="h-3.5 w-3.5" /> {totalChapters} capítulos
-          </span>
-          <span className="text-slate-300">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" /> ~{readMinutes} min
-          </span>
-          <span className="text-slate-300">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <Gift className="h-3.5 w-3.5" /> 4 bônus no final
-          </span>
-        </motion.div>
-
-        <motion.div variants={item} className="mt-9 flex flex-col items-center gap-3">
-          <Button
-            size="lg"
-            onClick={onStart}
-            className="group h-12 rounded-full bg-slate-900 px-8 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-slate-800"
-          >
-            Começar meu manual
-            <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Button>
-          <p className="text-xs text-slate-400">Conteúdo gratuito. Sem compromisso.</p>
-        </motion.div>
-      </motion.div>
-    </main>
-  );
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Next button
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1153,17 +931,17 @@ function NextButton({
   full?: boolean;
 }) {
   return (
-    <button
+    <Button
       onClick={onClick}
       className={cn(
         "group relative inline-flex items-center justify-center gap-2 font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 overflow-hidden",
         full ? "flex-1" : "",
         isLast
-          ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25"
-          : "bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/15",
+          ? "bg-gradient-to-r from-warning to-warning text-primary-foreground shadow-lg shadow-warning/25"
+          : "bg-foreground hover:bg-foreground text-primary-foreground shadow-lg shadow-foreground/15",
       )}
     >
-      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-card/25 to-transparent" />
       <span className="relative inline-flex items-center gap-2">
         {isLast ? (
           <>
@@ -1177,7 +955,7 @@ function NextButton({
           </>
         )}
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -1196,39 +974,34 @@ function RewardTracker({
   const r = 26;
   const c = 2 * Math.PI * r;
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+    <div className="kit-reward-tracker space-y-4">
       <div className="flex items-center gap-4">
         <div className="relative w-16 h-16 shrink-0">
-          <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
-            <circle cx="32" cy="32" r={r} fill="none" stroke="#e2e8f0" strokeWidth="6" />
+          <svg viewBox="0 0 64 64" className="kit-progress-circle w-16 h-16 -rotate-90">
+            <circle cx="32" cy="32" r={r} fill="none"  strokeWidth="6" />
             <circle
               cx="32"
               cy="32"
               r={r}
               fill="none"
-              stroke="url(#rewardGrad)"
+              
               strokeWidth="6"
               strokeLinecap="round"
               strokeDasharray={c}
               strokeDashoffset={c - (c * progressPct) / 100}
               className="transition-all duration-700"
             />
-            <defs>
-              <linearGradient id="rewardGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#2563eb" />
-                <stop offset="100%" stopColor="#10b981" />
-              </linearGradient>
-            </defs>
+
           </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-slate-800">
+          <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-foreground">
             {progressPct}%
           </span>
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
             Prêmio final
           </p>
-          <p className="font-semibold text-slate-900 leading-tight">
+          <p className="font-semibold text-foreground leading-tight">
             4 bônus liberados no fim
           </p>
         </div>
@@ -1243,13 +1016,13 @@ function RewardTracker({
               key={b.id}
               className={cn(
                 "flex items-center gap-2.5 text-[12px] font-medium transition",
-                done ? "text-slate-800" : "text-slate-400",
+                done ? "text-foreground" : "text-muted-foreground",
               )}
             >
               <span
                 className={cn(
                   "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                  done ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400",
+                  done ? "bg-success text-success" : "bg-muted text-muted-foreground",
                 )}
               >
                 {done ? <Icon className="w-3.5 h-3.5" /> : <Lock className="w-3 h-3" />}
@@ -1280,11 +1053,11 @@ function ChapterView({
   const interaction = CHAPTER_INTERACTIONS[chapter.id];
   const Icon = chapter.icon;
   const accentBg: Record<string, string> = {
-    rose: "bg-rose-50 text-rose-700 ring-rose-200/70",
-    blue: "bg-blue-50 text-blue-700 ring-blue-200/70",
-    emerald: "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
-    violet: "bg-violet-50 text-violet-700 ring-violet-200/70",
-    amber: "bg-amber-50 text-amber-700 ring-amber-200/70",
+    rose: "bg-destructive text-destructive ring-destructive/70",
+    blue: "bg-primary text-primary ring-primary/70",
+    emerald: "bg-success text-success ring-success/70",
+    violet: "bg-primary text-primary ring-primary/70",
+    amber: "bg-warning text-warning ring-warning/70",
   };
 
   let firstParagraph = true;
@@ -1297,29 +1070,29 @@ function ChapterView({
           <span
             className={cn(
               "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] ring-1",
-              accentBg[chapter.accent] || "bg-slate-50 text-slate-700 ring-slate-200",
+              accentBg[chapter.accent] || "bg-muted text-foreground ring-border",
             )}
           >
             <Icon className="w-3.5 h-3.5" />
             {chapter.eyebrow}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
             <Clock className="w-3 h-3" /> {readMinutes} min de leitura
           </span>
         </div>
-        <h1 className="text-[1.75rem] sm:text-[2.5rem] font-semibold -tracking-[0.02em] leading-[1.1] text-slate-900">
+        <h1 className="text-[1.75rem] sm:text-[2.5rem] font-semibold  leading-[1.1] text-foreground">
           {chapter.title}
         </h1>
-        <p className="text-base sm:text-lg text-slate-500 leading-relaxed">
+        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
           {chapter.intro}
         </p>
       </header>
 
       {/* Divider */}
       <div className="my-9 flex items-center gap-3">
-        <span className="h-px flex-1 bg-slate-200" />
-        <Music className="w-3.5 h-3.5 text-slate-300" />
-        <span className="h-px flex-1 bg-slate-200" />
+        <span className="h-px flex-1 bg-muted" />
+        <Music className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="h-px flex-1 bg-muted" />
       </div>
 
       {/* Blocks */}
@@ -1357,8 +1130,8 @@ function BlockRenderer({
       return (
         <p
           className={cn(
-            "text-[1.05rem] sm:text-[1.1rem] text-slate-600 leading-[1.75]",
-            lead && "text-slate-800",
+            "text-[1.05rem] sm:text-[1.1rem] text-foreground leading-[1.75]",
+            lead && "text-foreground",
           )}
         >
           {block.text}
@@ -1366,30 +1139,30 @@ function BlockRenderer({
       );
     case "h":
       return (
-        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 pt-4 -tracking-[0.01em] leading-tight">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground pt-4  leading-tight">
           {block.text}
         </h2>
       );
     case "quote":
       return (
-        <blockquote className="rounded-xl border-l-2 border-slate-900 bg-slate-50 px-6 py-5">
-          <p className="text-lg sm:text-xl font-medium text-slate-800 leading-snug -tracking-[0.01em]">
+        <blockquote className="rounded-xl border-l-2 border-foreground bg-muted px-6 py-5">
+          <p className="text-lg sm:text-xl font-medium text-foreground leading-snug ">
             {block.text}
           </p>
           {block.author && (
-            <p className="text-[12px] text-slate-400 mt-2.5 font-medium">— {block.author}</p>
+            <p className="text-[12px] text-muted-foreground mt-2.5 font-medium">— {block.author}</p>
           )}
         </blockquote>
       );
     case "tip":
       return (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5 flex gap-3.5">
-          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-            <Lightbulb className="w-4 h-4 text-emerald-600" strokeWidth={2} />
+        <div className="rounded-xl border border-success bg-success/50 p-5 flex gap-3.5">
+          <div className="w-8 h-8 rounded-lg bg-success flex items-center justify-center shrink-0">
+            <Lightbulb className="w-4 h-4 text-success" strokeWidth={2} />
           </div>
           <div className="space-y-1">
-            <p className="font-semibold text-emerald-900 text-[13px]">{block.title}</p>
-            <p className="text-emerald-900/75 text-[14px] sm:text-[15px] leading-relaxed">
+            <p className="font-semibold text-success text-[13px]">{block.title}</p>
+            <p className="text-success/75 text-[14px] sm:text-[15px] leading-relaxed">
               {block.text}
             </p>
           </div>
@@ -1397,13 +1170,13 @@ function BlockRenderer({
       );
     case "warn":
       return (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-5 flex gap-3.5">
-          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-            <AlertTriangle className="w-4 h-4 text-amber-600" strokeWidth={2} />
+        <div className="rounded-xl border border-warning bg-warning/50 p-5 flex gap-3.5">
+          <div className="w-8 h-8 rounded-lg bg-warning flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-4 h-4 text-warning" strokeWidth={2} />
           </div>
           <div className="space-y-1">
-            <p className="font-semibold text-amber-900 text-[13px]">{block.title}</p>
-            <p className="text-amber-900/75 text-[14px] sm:text-[15px] leading-relaxed">
+            <p className="font-semibold text-warning text-[13px]">{block.title}</p>
+            <p className="text-warning/75 text-[14px] sm:text-[15px] leading-relaxed">
               {block.text}
             </p>
           </div>
@@ -1415,9 +1188,9 @@ function BlockRenderer({
           {block.items.map((it, i) => (
             <li
               key={i}
-              className="group flex gap-3.5 items-start text-[0.98rem] sm:text-[1.02rem] text-slate-600 leading-relaxed rounded-xl border border-slate-200/80 bg-white px-4 py-3 transition-colors hover:border-slate-300"
+              className="group flex gap-3.5 items-start text-[0.98rem] sm:text-[1.02rem] text-foreground leading-relaxed rounded-xl border border-border/80 bg-card px-4 py-3 transition-colors hover:border-border"
             >
-              <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-[12px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-muted text-foreground text-[12px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
                 {i + 1}
               </span>
               <span>{it}</span>
@@ -1427,11 +1200,11 @@ function BlockRenderer({
       );
     case "stat":
       return (
-        <div className="rounded-2xl border border-slate-200 bg-white p-7 sm:p-8 text-center shadow-sm">
-          <p className="text-5xl sm:text-6xl font-semibold -tracking-[0.02em] text-slate-900 leading-none">
+        <div className="rounded-2xl border border-border bg-card p-7 sm:p-8 text-center shadow-sm">
+          <p className="text-5xl sm:text-6xl font-semibold  text-foreground leading-none">
             {block.value}
           </p>
-          <p className="mx-auto mt-3 max-w-md text-sm sm:text-[15px] leading-relaxed text-slate-500">
+          <p className="mx-auto mt-3 max-w-md text-sm sm:text-[15px] leading-relaxed text-muted-foreground">
             {block.label}
           </p>
         </div>
@@ -1439,41 +1212,41 @@ function BlockRenderer({
     case "compare":
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-2.5">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-rose-500 flex items-center gap-1.5">
+          <div className="rounded-xl border border-border bg-card p-5 space-y-2.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-destructive flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" /> Errado
             </p>
-            <p className="text-[14px] text-slate-500 leading-relaxed">{block.wrong}</p>
+            <p className="text-[14px] text-muted-foreground leading-relaxed">{block.wrong}</p>
           </div>
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-5 space-y-2.5">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-600 flex items-center gap-1.5">
+          <div className="rounded-xl border border-success bg-success/40 p-5 space-y-2.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-success flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" /> Certo
             </p>
-            <p className="text-[14px] text-slate-700 leading-relaxed">{block.right}</p>
+            <p className="text-[14px] text-foreground leading-relaxed">{block.right}</p>
           </div>
         </div>
       );
     case "gap":
       return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 text-white p-6 sm:p-7 space-y-4">
+        <div className="rounded-2xl border border-foreground bg-foreground text-primary-foreground p-6 sm:p-7 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-              <PuzzleIcon className="w-4.5 h-4.5 text-slate-300" strokeWidth={2} />
+            <div className="w-9 h-9 rounded-lg bg-card/10 flex items-center justify-center shrink-0">
+              <PuzzleIcon className="w-4.5 h-4.5 text-muted-foreground" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Backstage Pro
               </p>
-              <p className="font-semibold text-[17px] leading-tight -tracking-[0.01em]">
+              <p className="font-semibold text-[17px] leading-tight ">
                 {block.title}
               </p>
             </div>
           </div>
-          <p className="text-slate-300 text-[14px] sm:text-[15px] leading-relaxed">{block.text}</p>
+          <p className="text-muted-foreground text-[14px] sm:text-[15px] leading-relaxed">{block.text}</p>
           <ul className="space-y-2.5">
             {block.items.map((it, i) => (
-              <li key={i} className="flex gap-2.5 items-start text-[14px] sm:text-[15px] text-slate-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+              <li key={i} className="flex gap-2.5 items-start text-[14px] sm:text-[15px] text-muted-foreground">
+                <CheckCircle2 className="w-4 h-4 text-success mt-0.5 shrink-0" />
                 <span>{it}</span>
               </li>
             ))}
@@ -1488,73 +1261,16 @@ function BlockRenderer({
 // ─────────────────────────────────────────────────────────────────────────────
 // Benefit card
 // ─────────────────────────────────────────────────────────────────────────────
-function BenefitCard({ benefit, index }: { benefit: Benefit; index?: number }) {
-  const Icon = benefit.icon;
-  const accents: Record<string, { bg: string; text: string; ring: string; btn: string }> = {
-    blue: {
-      bg: "bg-blue-50",
-      text: "text-blue-700",
-      ring: "hover:ring-blue-300",
-      btn: "bg-blue-600 hover:bg-blue-700 text-white",
-    },
-    emerald: {
-      bg: "bg-emerald-50",
-      text: "text-emerald-700",
-      ring: "hover:ring-emerald-300",
-      btn: "bg-emerald-600 hover:bg-emerald-700 text-white",
-    },
-    violet: {
-      bg: "bg-violet-50",
-      text: "text-violet-700",
-      ring: "hover:ring-violet-300",
-      btn: "bg-violet-600 hover:bg-violet-700 text-white",
-    },
-    amber: {
-      bg: "bg-amber-50",
-      text: "text-amber-700",
-      ring: "hover:ring-amber-300",
-      btn: "bg-amber-600 hover:bg-amber-700 text-white",
-    },
-  };
-  const a = accents[benefit.accent] || accents.blue;
-
-  return (
-    <div
-      className={cn(
-        "group relative rounded-[1.6rem] bg-white ring-1 ring-slate-200 p-6 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300",
-        a.ring,
-      )}
-    >
-      {index && (
-        <span className="absolute top-5 right-6 text-3xl font-semibold text-slate-100 group-hover:text-slate-200 transition">
-          0{index}
-        </span>
-      )}
-      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4", a.bg)}>
-        <Icon className={cn("w-6 h-6", a.text)} />
-      </div>
-      <h3 className="font-semibold text-slate-900 text-lg leading-tight">
-        {benefit.title}
-      </h3>
-      <p className="text-sm text-slate-500 mt-2 leading-relaxed flex-1">{benefit.description}</p>
-      <button
-        onClick={benefit.action}
-        className={cn(
-          "mt-5 inline-flex items-center justify-center gap-1.5 font-bold text-sm px-5 py-3 rounded-xl transition-all",
-          a.btn,
-        )}
-      >
-        {benefit.cta}
-        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-      </button>
-    </div>
-  );
+function BenefitCard({ benefit }: { benefit: Benefit; index?: number }) {
+  const covers: Record<string, string> = { video: manualCover, trial: appCover, artes: artsCover, mensagens: messagesCover };
+  return <article className="kit-bonus-card"><img src={covers[benefit.id]} alt={benefit.title} loading="lazy" /><div><h3>{benefit.title}</h3><p>{benefit.description}</p><Button onClick={benefit.action}>{benefit.cta}<ArrowRight /></Button></div></article>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Lead capture modal
 // ─────────────────────────────────────────────────────────────────────────────
 function LeadCaptureModal(props: {
+  onCancel: () => void;
   name: string;
   phone: string;
   city: string;
@@ -1567,30 +1283,30 @@ function LeadCaptureModal(props: {
   onSubmit: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-md px-4 py-6 overflow-y-auto">
-      <div className="w-full max-w-md rounded-[2rem] bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 ring-1 ring-slate-200 my-auto">
+    <div className="kit-modal-backdrop fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md px-4 py-6 overflow-y-auto">
+      <div role="dialog" aria-modal="true" aria-labelledby="kit-lead-title" className="kit-modal relative w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-300 my-auto"><Button variant="ghost" size="icon" className="kit-modal-close" aria-label="Fechar cadastro do kit" onClick={props.onCancel}><X /></Button>
         {/* Top */}
-        <div className="relative p-8 pb-6 text-center border-b border-slate-100 overflow-hidden">
-          <div className="absolute inset-x-0 -top-20 h-44 bg-[radial-gradient(closest-side,rgba(37,99,235,0.16),transparent)]" />
+        <div className="kit-modal-heading relative p-8 pb-6 text-center border-b border-border overflow-hidden">
+          <div className="absolute inset-x-0 -top-20 h-44 bg-secondary" />
           <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25">
-              <BookOpen className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-success flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
+              <BookOpen className="w-7 h-7 text-primary-foreground" />
             </div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold mb-2">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold mb-2">
               Manual do Artista Contratado
             </p>
-            <h2 className="text-2xl sm:text-[1.7rem] font-semibold text-slate-900 leading-tight">
+            <h2 id="kit-lead-title" className="text-2xl sm:text-[1.7rem] font-semibold text-foreground leading-tight">
               O material que organiza sua carreira
             </h2>
-            <p className="text-sm text-slate-500 mt-2.5 leading-relaxed">
+            <p className="text-sm text-muted-foreground mt-2.5 leading-relaxed">
               7 capítulos práticos. No fim da leitura você libera{" "}
-              <strong className="text-slate-700">4 bônus gratuitos</strong>.
+              <strong className="text-foreground">4 bônus gratuitos</strong>.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
               {["Aula em vídeo", "Artes no Canva", "Mensagens prontas", "Teste grátis"].map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 ring-1 ring-amber-200/70 px-2.5 py-1 rounded-full"
+                  className="inline-flex items-center gap-1 text-[10px] font-bold text-warning bg-warning ring-1 ring-warning/70 px-2.5 py-1 rounded-full"
                 >
                   <Gift className="w-2.5 h-2.5" /> {t}
                 </span>
@@ -1603,38 +1319,38 @@ function LeadCaptureModal(props: {
         <div className="p-7 pt-6 space-y-4">
           <FormField label="Nome e sobrenome" icon={<User className="w-4 h-4" />}>
             <Input
-              placeholder="Ex: João Silva"
+              aria-label="Nome e sobrenome" placeholder="Ex: João Silva"
               value={props.name}
               onChange={(e) => props.setName(e.target.value)}
               maxLength={100}
-              className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-500"
+              className="bg-card border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
             />
           </FormField>
 
           <FormField label="WhatsApp (com DDD)" icon={<Phone className="w-4 h-4" />}>
             <Input
-              placeholder="(11) 98765-4321"
+              aria-label="WhatsApp (com DDD)" placeholder="(11) 98765-4321"
               value={props.phone}
               onChange={(e) => props.setPhone(e.target.value)}
               maxLength={15}
               inputMode="tel"
-              className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-500"
+              className="bg-card border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
             />
           </FormField>
 
           <FormField label="De qual cidade você é?" icon={<MapPin className="w-4 h-4" />}>
             <Input
-              placeholder="Ex: São Paulo - SP"
+              aria-label="De qual cidade você é?" placeholder="Ex: São Paulo - SP"
               value={props.city}
               onChange={(e) => props.setCity(e.target.value)}
               maxLength={100}
-              className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-500"
+              className="bg-card border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
             />
           </FormField>
 
           <FormField label="Quantos shows você faz por mês?" icon={<Music className="w-4 h-4" />}>
             <Select value={props.showsPerMonth} onValueChange={props.setShowsPerMonth}>
-              <SelectTrigger className="bg-white border-slate-200 text-slate-900">
+              <SelectTrigger aria-label="Quantos shows você faz por mês?" className="bg-card border-border text-foreground">
                 <SelectValue placeholder="Selecione uma opção" />
               </SelectTrigger>
               <SelectContent>
@@ -1647,7 +1363,7 @@ function LeadCaptureModal(props: {
           </FormField>
 
           <Button
-            className="w-full gap-2 text-base py-6 bg-slate-900 hover:bg-slate-800 text-white border-0 font-bold rounded-xl mt-2"
+            className="w-full gap-2 text-base py-6 bg-foreground hover:bg-foreground text-primary-foreground border-0 font-bold rounded-xl mt-2"
             onClick={props.onSubmit}
             disabled={props.submitting}
           >
@@ -1655,7 +1371,7 @@ function LeadCaptureModal(props: {
             <ArrowRight className="w-4 h-4" />
           </Button>
 
-          <p className="text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
+          <p className="text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
             <Shield className="w-3 h-3" /> Seus dados estão seguros. Não enviamos spam.
           </p>
         </div>
@@ -1675,8 +1391,8 @@ function FormField({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-        <span className="text-slate-400">{icon}</span>
+      <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+        <span className="text-muted-foreground">{icon}</span>
         {label}
       </label>
       {children}
