@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { Check, HelpCircle, ListChecks, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ChapterInteraction as ChapterInteractionType } from "@/lib/manual-interactions";
+import {
+  checklistConfirmedKey,
+  type ChapterInteraction as ChapterInteractionType,
+} from "@/lib/manual-interactions";
 import type { ManualInteractions as StoredInteractions } from "@/lib/manual-progress";
 
 type Props = {
@@ -10,42 +13,66 @@ type Props = {
   values: StoredInteractions;
   /** Atualiza uma chave de interação (persistência fica a cargo do pai). */
   onChange: (key: string, value: string | boolean | number) => void;
+  /** Rótulo de etapa, ex.: "Atividade 1 de 2". */
+  step?: string;
+  /** Já respondida (mostra o selo de concluída). */
+  answered?: boolean;
+  /** Id usado para rolar até a próxima atividade pendente. */
+  id?: string;
 };
+
+type Meta = Pick<Props, "step" | "answered" | "id">;
 
 /**
  * Interação do capítulo (reflexão, cenário de decisão ou checklist).
  * Componente controlado: o estado vive no pai e é persistido por lá.
  * Estilos vêm de src/styles/kit.css (escopo .kit-page).
  */
-export function ChapterInteraction({ interaction, values, onChange }: Props) {
+export function ChapterInteraction({ interaction, values, onChange, step, answered, id }: Props) {
+  const meta: Meta = { step, answered, id };
   if (interaction.type === "reflection") {
-    return <Reflection interaction={interaction} values={values} onChange={onChange} />;
+    return <Reflection interaction={interaction} values={values} onChange={onChange} meta={meta} />;
   }
   if (interaction.type === "scenario") {
-    return <Scenario interaction={interaction} values={values} onChange={onChange} />;
+    return <Scenario interaction={interaction} values={values} onChange={onChange} meta={meta} />;
   }
-  return <Checklist interaction={interaction} values={values} onChange={onChange} />;
+  return <Checklist interaction={interaction} values={values} onChange={onChange} meta={meta} />;
 }
 
 function Shell({
   eyebrow,
   icon,
+  meta,
   children,
 }: {
   eyebrow: string;
   icon: React.ReactNode;
+  meta: Meta;
   children: React.ReactNode;
 }) {
   return (
-    <section className="kp-interact" aria-label={eyebrow}>
+    <section
+      id={meta.id}
+      className={cn("kp-interact", meta.answered && "is-answered")}
+      aria-label={`${meta.step ? `${meta.step}: ` : ""}${eyebrow}`}
+    >
       <div className="kp-interact-head">
         <span className="kp-icon-tile" aria-hidden="true">
           {icon}
         </span>
         <div>
-          <small>Pare e pense</small>
+          <small>{meta.step ?? "Pare e pense"}</small>
           <strong>{eyebrow}</strong>
         </div>
+        <span className={cn("kp-interact-status", meta.answered && "is-done")}>
+          {meta.answered ? (
+            <>
+              <Check aria-hidden="true" /> Respondida
+            </>
+          ) : (
+            "Responda para continuar"
+          )}
+        </span>
       </div>
       {children}
     </section>
@@ -56,17 +83,19 @@ function Reflection({
   interaction,
   values,
   onChange,
+  meta,
 }: {
   interaction: Extract<ChapterInteractionType, { type: "reflection" }>;
   values: StoredInteractions;
   onChange: Props["onChange"];
+  meta: Meta;
 }) {
   const answered = values[interaction.key];
   const isYes = answered === true;
   const isNo = answered === false;
 
   return (
-    <Shell eyebrow="Reflexão sobre a sua carreira" icon={<HelpCircle />}>
+    <Shell eyebrow="Reflexão sobre a sua carreira" icon={<HelpCircle />} meta={meta}>
       <p className="kp-interact-question">{interaction.question}</p>
       <div className="kp-choice-row" role="group" aria-label={interaction.question}>
         <button
@@ -99,10 +128,12 @@ function Scenario({
   interaction,
   values,
   onChange,
+  meta,
 }: {
   interaction: Extract<ChapterInteractionType, { type: "scenario" }>;
   values: StoredInteractions;
   onChange: Props["onChange"];
+  meta: Meta;
 }) {
   const chosen = values[interaction.key] as string | undefined;
   const chosenOption = useMemo(
@@ -111,7 +142,7 @@ function Scenario({
   );
 
   return (
-    <Shell eyebrow="Cenário de decisão" icon={<Sparkles />}>
+    <Shell eyebrow={interaction.key.includes("_quiz_") ? "Checagem rápida" : "Cenário de decisão"} icon={<Sparkles />} meta={meta}>
       <div className="kp-scenario">
         <span className="kp-scenario-label">A situação</span>
         <p>{interaction.situation}</p>
@@ -156,19 +187,22 @@ function Checklist({
   interaction,
   values,
   onChange,
+  meta,
 }: {
   interaction: Extract<ChapterInteractionType, { type: "checklist" }>;
   values: StoredInteractions;
   onChange: Props["onChange"];
+  meta: Meta;
 }) {
   const checkedCount = interaction.items.filter(
     (it) => values[`${interaction.key}:${it.id}`] === true,
   ).length;
   const total = interaction.items.length;
   const pct = Math.round((checkedCount / total) * 100);
+  const confirmed = values[checklistConfirmedKey(interaction.key)] === true;
 
   return (
-    <Shell eyebrow="Checklist prático" icon={<ListChecks />}>
+    <Shell eyebrow="Checklist prático" icon={<ListChecks />} meta={meta}>
       <p className="kp-interact-question">{interaction.title}</p>
       <p className="kp-interact-helper">{interaction.helper}</p>
 
@@ -208,6 +242,23 @@ function Checklist({
             : "· rotina completa. Agora é manter isso em todo show."}
         </p>
       </div>
+
+      {confirmed ? (
+        <div className="kp-feedback is-good" role="status">
+          <strong>Checklist registrado. </strong>
+          {checkedCount === total
+            ? "Você já pratica todos os itens."
+            : `Seus próximos pontos de melhoria: ${total - checkedCount} ${total - checkedCount === 1 ? "item" : "itens"} em aberto. Você pode voltar e atualizar quando quiser.`}
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="kp-btn kp-btn-primary kp-confirm"
+          onClick={() => onChange(checklistConfirmedKey(interaction.key), true)}
+        >
+          <Check /> Confirmar meu checklist
+        </button>
+      )}
     </Shell>
   );
 }

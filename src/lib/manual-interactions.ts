@@ -49,8 +49,8 @@ export type ChapterInteraction =
   | ScenarioInteraction
   | ChecklistInteraction;
 
-/** Mapeia o id do capítulo (CHAPTERS[].id) para sua interação. */
-export const CHAPTER_INTERACTIONS: Record<string, ChapterInteraction> = {
+/** Atividade principal de cada capítulo (reflexão, cenário ou checklist). */
+const PRIMARY: Record<string, ChapterInteraction> = {
   intro: {
     type: "reflection",
     key: "ch1_reflexao_organizacao",
@@ -168,3 +168,185 @@ export const CHAPTER_INTERACTIONS: Record<string, ChapterInteraction> = {
     ],
   },
 };
+
+/**
+ * Checagem rápida de cada capítulo: pergunta de compreensão baseada no texto
+ * do próprio capítulo. Todas as opções trazem um feedback que ensina algo.
+ */
+const QUICK_CHECK: Record<string, ChapterInteraction> = {
+  intro: {
+    type: "scenario",
+    key: "ch1_quiz_erros",
+    prompt: "O que os 5 erros silenciosos têm em comum?",
+    situation: "Pense nos cinco erros que você acabou de ler, da demora para responder até não saber quanto entrou no mês.",
+    options: [
+      {
+        id: "a",
+        label: "Todos vêm de falta de talento ou de técnica musical.",
+        feedback: "Nenhum dos cinco erros fala de música. O capítulo mostra que artistas talentosos perdem shows justamente por detalhes fora do palco.",
+      },
+      {
+        id: "b",
+        label: "Todos são problemas de organização, não de música.",
+        best: true,
+        feedback: "Isso mesmo. Responder, apresentar valor, guardar o histórico e saber os números são hábitos de organização, e é isso que os próximos capítulos ensinam a construir.",
+      },
+      {
+        id: "c",
+        label: "Todos acontecem só com quem está começando a carreira.",
+        feedback: "Não. Esses erros aparecem principalmente quando a agenda enche e o artista fica sem tempo, inclusive em carreiras já estabelecidas.",
+      },
+    ],
+  },
+  "primeiro-contato": {
+    type: "scenario",
+    key: "ch2_quiz_prazo",
+    prompt: "Qual é a regra para o primeiro retorno ao contratante?",
+    situation: "Um contratante acabou de pedir disponibilidade e valores pelo WhatsApp.",
+    options: [
+      {
+        id: "a",
+        label: "Responder em até 24 horas, com a proposta completa.",
+        feedback: "Em 24 horas o contratante provavelmente já falou com outros artistas. O capítulo recomenda um retorno bem mais rápido, mesmo sem a proposta pronta.",
+      },
+      {
+        id: "b",
+        label: "Responder em até 30 minutos, nem que seja para dizer quando a proposta chega.",
+        best: true,
+        feedback: "Exato. A regra dos 30 minutos mantém sua autoridade: um retorno curto, com prazo claro, já mostra organização.",
+      },
+      {
+        id: "c",
+        label: "Confirmar a data na hora e verificar a agenda depois.",
+        feedback: "Esse é o erro que o capítulo aponta como o mais caro. Disponibilidade precisa ser consultada, não lembrada.",
+      },
+    ],
+  },
+  precificacao: {
+    type: "reflection",
+    key: "ch3_reflexao_custos",
+    question:
+      "Você sabe quanto sai do seu cachê (músicos, transporte, alimentação, equipamento e imposto) antes de virar lucro?",
+    feedbackYes:
+      "Ótimo. Com o custo real em mãos, você consegue recusar shows que dariam prejuízo e defender seu valor com segurança.",
+    feedbackNo:
+      "Esse é o primeiro número a descobrir. Sem ele, um show que parece bom pode estar dando prejuízo. Comece somando os custos do seu próximo show.",
+  },
+  fechamento: {
+    type: "scenario",
+    key: "ch4_quiz_sinal",
+    prompt: "Qual é a recomendação do capítulo para o pagamento?",
+    situation: "O contratante topou a proposta e você vai formalizar o show.",
+    options: [
+      {
+        id: "a",
+        label: "Não pedir sinal, para não parecer desconfiança.",
+        feedback: "O capítulo mostra o contrário: o sinal é sobre comprometimento, e todo contratante sério entende isso.",
+      },
+      {
+        id: "b",
+        label: "Sinal de 30% a 50% na assinatura e saldo até 7 dias antes do show.",
+        best: true,
+        feedback: "Isso. Assim a data fica garantida no nome do contratante e você não depende de cobrar tudo no dia.",
+      },
+      {
+        id: "c",
+        label: "Receber 100% no dia do show, depois da apresentação.",
+        feedback: "Assim todo o risco fica com você. Se o evento for desmarcado na véspera, não sobra nenhuma garantia.",
+      },
+    ],
+  },
+  rotina: {
+    type: "scenario",
+    key: "ch5_quiz_confirmacao",
+    prompt: "Quando o capítulo recomenda confirmar horário, local e formato?",
+    situation: "Você tem um show fechado na próxima semana.",
+    options: [
+      {
+        id: "a",
+        label: "No próprio dia do show, quando estiver indo para o local.",
+        feedback: "No dia já não dá tempo de resolver um desencontro. A confirmação precisa acontecer com antecedência.",
+      },
+      {
+        id: "b",
+        label: "Três dias antes (72 horas).",
+        best: true,
+        feedback: "Exato. A confirmação 72 horas antes evita a maior parte dos desencontros e passa uma impressão de organização.",
+      },
+      {
+        id: "c",
+        label: "Não precisa confirmar se já está tudo no contrato.",
+        feedback: "O contrato registra o combinado, mas a confirmação garante que todos lembram dele. São coisas diferentes.",
+      },
+    ],
+  },
+  dinheiro: {
+    type: "scenario",
+    key: "ch6_quiz_sinal_mes",
+    prompt: "Em que mês esse sinal deve ser registrado?",
+    situation: "Você recebeu 50% de sinal em março para um show que acontece em maio.",
+    options: [
+      {
+        id: "a",
+        label: "Em maio, o mês do show.",
+        feedback: "Se for para maio, você vai achar que faturou menos em março e mais em maio, e pode tomar decisões erradas nos dois meses.",
+      },
+      {
+        id: "b",
+        label: "Em março, quando o dinheiro entrou, com o saldo previsto para maio.",
+        best: true,
+        feedback: "Isso. O recebido entra no mês em que caiu na conta e o saldo fica como “a receber”, com data.",
+      },
+      {
+        id: "c",
+        label: "Não precisa registrar sinal, só o valor total.",
+        feedback: "Sem registrar o sinal, você perde a visão do que já entrou e do que ainda falta receber.",
+      },
+    ],
+  },
+  "pos-show": {
+    type: "scenario",
+    key: "ch7_quiz_movimento",
+    prompt: "Qual movimento o capítulo chama de mais valioso e mais esquecido?",
+    situation: "O show foi um sucesso e o contratante ficou satisfeito.",
+    options: [
+      {
+        id: "a",
+        label: "Mandar a mensagem de agradecimento em até 24 horas.",
+        feedback: "É importante, mas não é o mais esquecido. O capítulo destaca um movimento que acontece meses depois.",
+      },
+      {
+        id: "b",
+        label: "Marcar a data provável do próximo evento dele e voltar a falar antes dos concorrentes.",
+        best: true,
+        feedback: "Exato. Quase todo contratante repete. Quem aparece antes de ele começar a procurar não disputa preço com ninguém.",
+      },
+      {
+        id: "c",
+        label: "Pedir fotos e vídeos do evento.",
+        feedback: "Ajuda na próxima venda, mas o capítulo aponta outro movimento como o que mais gera novos contratos.",
+      },
+    ],
+  },
+};
+
+/** Atividades de cada capítulo, na ordem em que aparecem. */
+export const CHAPTER_INTERACTIONS: Record<string, ChapterInteraction[]> = Object.fromEntries(
+  Object.keys(PRIMARY).map((id) => [id, [PRIMARY[id], QUICK_CHECK[id]].filter(Boolean)]),
+);
+
+/** Chave que marca o checklist como revisado (o artista pode não marcar nenhum item). */
+export function checklistConfirmedKey(key: string) {
+  return `${key}:confirmed`;
+}
+
+/** Diz se a atividade já foi respondida. É o que libera a conclusão do capítulo. */
+export function isInteractionAnswered(
+  interaction: ChapterInteraction,
+  values: Record<string, string | boolean | number>,
+): boolean {
+  if (interaction.type === "checklist") {
+    return values[checklistConfirmedKey(interaction.key)] === true;
+  }
+  return values[interaction.key] !== undefined;
+}
