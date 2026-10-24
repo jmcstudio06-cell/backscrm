@@ -38,14 +38,14 @@ function Shell({
 }) {
   return (
     <section
-      className="mt-10 rounded-[1.75rem] border border-slate-200 bg-white p-6 sm:p-7 shadow-sm"
+      className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"
       aria-label={eyebrow}
     >
       <div className="flex items-center gap-2.5 mb-4">
-        <span className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0">
+        <span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
           {icon}
         </span>
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
           {eyebrow}
         </p>
       </div>
@@ -69,7 +69,7 @@ function Reflection({
 
   return (
     <Shell eyebrow="Reflexão" icon={<HelpCircle className="w-4 h-4" />}>
-      <p className="font-editorial text-lg sm:text-xl font-semibold text-slate-900 leading-snug">
+      <p className="text-[17px] sm:text-lg font-semibold text-slate-900 -tracking-[0.01em] leading-snug">
         {interaction.question}
       </p>
       <div className="mt-4 flex flex-wrap gap-3" role="group" aria-label={interaction.question}>
@@ -78,7 +78,7 @@ function Reflection({
           aria-pressed={isYes}
           onClick={() => onChange(interaction.key, true)}
           className={cn(
-            "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
             isYes
               ? "bg-emerald-600 text-white"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200",
@@ -91,7 +91,7 @@ function Reflection({
           aria-pressed={isNo}
           onClick={() => onChange(interaction.key, false)}
           className={cn(
-            "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
             isNo
               ? "bg-slate-900 text-white"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200",
@@ -102,7 +102,7 @@ function Reflection({
       </div>
       {answered !== undefined && (
         <div
-          className="mt-4 rounded-2xl bg-slate-50 border border-slate-200 p-4 text-[15px] text-slate-700 leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300"
+          className="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-4 text-[14px] text-slate-600 leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300"
           role="status"
         >
           {isYes ? interaction.feedbackYes : interaction.feedbackNo}
@@ -129,8 +129,8 @@ function Scenario({
 
   return (
     <Shell eyebrow="Cenário de decisão" icon={<Sparkles className="w-4 h-4" />}>
-      <p className="text-[15px] text-slate-700 leading-relaxed">{interaction.situation}</p>
-      <p className="mt-3 font-editorial text-lg font-semibold text-slate-900">
+      <p className="text-[15px] text-slate-600 leading-relaxed">{interaction.situation}</p>
+      <p className="mt-3 text-[17px] font-semibold text-slate-900 -tracking-[0.01em]">
         {interaction.prompt}
       </p>
       <ul className="mt-4 space-y-2.5" role="radiogroup" aria-label={interaction.prompt}>
@@ -144,7 +144,7 @@ function Scenario({
                 aria-checked={selected}
                 onClick={() => onChange(interaction.key, opt.id)}
                 className={cn(
-                  "w-full text-left flex gap-3 items-start rounded-2xl border px-4 py-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+                  "w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
                   selected
                     ? opt.best
                       ? "border-emerald-300 bg-emerald-50"
@@ -180,7 +180,7 @@ function Scenario({
       {chosenOption && (
         <div
           className={cn(
-            "mt-4 rounded-2xl border p-4 text-[15px] leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300",
+            "mt-4 rounded-xl border p-4 text-[14px] leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300",
             chosenOption.best
               ? "border-emerald-200 bg-emerald-50 text-emerald-900"
               : "border-slate-200 bg-slate-50 text-slate-700",
@@ -213,7 +213,7 @@ function Checklist({
 
   return (
     <Shell eyebrow="Checklist prático" icon={<ListChecks className="w-4 h-4" />}>
-      <p className="font-editorial text-lg sm:text-xl font-semibold text-slate-900 leading-snug">
+      <p className="text-[17px] sm:text-lg font-semibold text-slate-900 -tracking-[0.01em] leading-snug">
         {interaction.title}
       </p>
       <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{interaction.helper}</p>
@@ -230,7 +230,7 @@ function Checklist({
                 aria-checked={checked}
                 onClick={() => onChange(key, !checked)}
                 className={cn(
-                  "w-full text-left flex gap-3 items-start rounded-2xl border px-4 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+                  "w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
                   checked
                     ? "border-emerald-300 bg-emerald-50"
                     : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
