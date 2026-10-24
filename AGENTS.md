@@ -18,3 +18,4 @@
 - Push permission is requested only while the browser state is `default`; granted subscriptions are repaired silently and must never reopen the activation prompt.
 - The access manager displays every current tier and marks the user's tier for renewal; lower tiers stay enabled ("Mudar para este plano") and checkout accepts them, so large-plan customers can downgrade. Owner decision: no warning about lost remaining time.
 - Agenda indicators use normalized status roles: open excludes completed/cancelled, confirmed is exact, and performed is completed only; this prevents overlapping KPI meanings.
+- Keep the public Kit presentation in its own scoped theme and preview module; preserve lead capture, chapter progress and bonus gating in the page so visual changes never change access rules.

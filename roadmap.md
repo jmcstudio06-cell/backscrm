@@ -42,3 +42,5 @@
 - [ ] Validar o fluxo autenticado de Cruzeiro e São José dos Campos, CRM e bloqueio do plano Executivo. Bloqueio: projeto externo sem sessão de teste autenticada.
 
 - [x] Criar vídeo animado estilo motion da planilha (produto de entrada), formato vertical; entregue na conversa anterior.
+
+- [ ] Renovar o Kit Profissional, os capítulos interativos, a leitura e os bônus, preservando o acesso atual.
