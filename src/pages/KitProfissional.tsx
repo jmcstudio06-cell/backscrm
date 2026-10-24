@@ -13,7 +13,6 @@ import {
   Clock,
   DollarSign,
   Gift,
-  FileText,
   Handshake,
   Lightbulb,
   Loader2,
@@ -58,8 +57,7 @@ import {
 } from "@/components/ui/select";
 
 import baIcon from "@/assets/ba-icon.png";
-import stagePhoto from "@/assets/landing-stage.jpg";
-import { useTilt } from "@/components/landing/useTilt";
+
 
 const LEAD_STORAGE_KEY = "kit_profissional_lead";
 const MATERIAL_COMPLETED_KEY = "manual_artista_video_completed"; // reused for backward compat
@@ -1200,13 +1198,188 @@ const BONUS_PREVIEW = [
   { icon: MessageSquare, label: "Mensagens prontas para contratantes" },
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Diagnóstico de abertura: 4 perguntas rápidas que apontam por onde começar.
+// Apenas apresentação: as respostas não são salvas nem enviadas.
+// ─────────────────────────────────────────────────────────────────────────────
+type DiagAnswer = "sim" | "as-vezes" | "nao";
+
+const DIAG_QUESTIONS = [
+  {
+    chapter: 1,
+    question: "Você responde um pedido de orçamento em até 30 minutos?",
+    focus: "Responder rápido e com prazo claro",
+  },
+  {
+    chapter: 2,
+    question: "Suas propostas mostram formatos e o que está incluso, não só o valor?",
+    focus: "Apresentar valor sem parecer caro",
+  },
+  {
+    chapter: 3,
+    question: "Você fecha seus shows com contrato e sinal?",
+    focus: "Formalizar com contrato e sinal",
+  },
+  {
+    chapter: 6,
+    question: "Você volta a falar com o contratante depois do show?",
+    focus: "Transformar o pós-show em novo contrato",
+  },
+] as const;
+
+const DIAG_OPTIONS: { value: DiagAnswer; label: string }[] = [
+  { value: "sim", label: "Sim, sempre" },
+  { value: "as-vezes", label: "Às vezes" },
+  { value: "nao", label: "Ainda não" },
+];
+
+function HeroDiagnostic({ onFinish }: { onFinish: () => void }) {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<DiagAnswer[]>([]);
+  const total = DIAG_QUESTIONS.length;
+  const finished = answers.length === total;
+
+  const answer = (value: DiagAnswer) => {
+    const next = [...answers.slice(0, step), value];
+    setAnswers(next);
+    if (step === 0) trackEvent("ViewContent", { content_name: "manual_diagnostic_start" });
+    if (next.length === total) {
+      trackEvent("ViewContent", { content_name: "manual_diagnostic_complete" });
+    } else {
+      window.setTimeout(() => setStep(step + 1), 260);
+    }
+  };
+
+  const restart = () => {
+    setAnswers([]);
+    setStep(0);
+  };
+
+  const focusItems = DIAG_QUESTIONS.filter((_, i) => answers[i] && answers[i] !== "sim");
+  const strong = total - focusItems.length;
+  const q = DIAG_QUESTIONS[step];
+
+  return (
+    <div className="kp-diag" aria-live="polite">
+      <div className="kp-diag-inner">
+        <div className="kp-diag-top">
+          <span className="kp-capture-badge">
+            <Target aria-hidden="true" /> Diagnóstico de 30 segundos
+          </span>
+          {!finished && (
+            <span className="kp-diag-count">
+              {step + 1}/{total}
+            </span>
+          )}
+        </div>
+
+        <div className="kp-diag-steps" aria-hidden="true">
+          {DIAG_QUESTIONS.map((_, i) => (
+            <span
+              key={i}
+              className={cn(
+                answers[i] === "sim" && "is-good",
+                answers[i] && answers[i] !== "sim" && "is-focus",
+                !finished && i === step && "is-current",
+              )}
+            />
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {!finished ? (
+            <motion.div
+              key={`q-${step}`}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <h2 className="kp-diag-question">{q.question}</h2>
+              <div className="kp-diag-options" role="group" aria-label={q.question}>
+                {DIAG_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    aria-pressed={answers[step] === opt.value}
+                    className={cn("kp-diag-option", answers[step] === opt.value && "is-selected")}
+                    onClick={() => answer(opt.value)}
+                  >
+                    <span className="kp-diag-dot" aria-hidden="true" />
+                    {opt.label}
+                    <ArrowRight className="kp-diag-arrow" aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+              {step > 0 && (
+                <button type="button" className="kp-diag-back" onClick={() => setStep(step - 1)}>
+                  <ArrowLeft aria-hidden="true" /> Voltar
+                </button>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="kp-diag-score">
+                <div className="kp-diag-ring" style={{ ["--kp-pct" as string]: `${(strong / total) * 100}%` }}>
+                  <strong>
+                    {strong}/{total}
+                    <small>em dia</small>
+                  </strong>
+                </div>
+                <div>
+                  <h2>
+                    {focusItems.length === 0
+                      ? "Você já tem uma boa base."
+                      : focusItems.length <= 2
+                        ? "Alguns pontos podem estar custando shows."
+                        : "Seu talento pode estar perdendo shows fora do palco."}
+                  </h2>
+                  <p>
+                    {focusItems.length === 0
+                      ? "O manual ajuda a transformar esses hábitos em rotina, mesmo nas semanas cheias."
+                      : "Estes são os capítulos para você prestar mais atenção:"}
+                  </p>
+                </div>
+              </div>
+
+              {focusItems.length > 0 && (
+                <ul className="kp-diag-focus">
+                  {focusItems.map((item) => (
+                    <li key={item.chapter}>
+                      <span>Cap. {item.chapter + 1}</span>
+                      {item.focus}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <button type="button" className="kp-btn kp-btn-primary kp-diag-cta" onClick={onFinish}>
+                Liberar meu manual <ArrowRight />
+              </button>
+              <div className="kp-diag-foot">
+                <span>Resultado indicativo, com base nas suas respostas. Nada é salvo.</span>
+                <button type="button" onClick={restart}>
+                  Refazer
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
 function IntroView(props: IntroProps) {
   const totalMinutes = useMemo(() => {
     const words = JSON.stringify(CHAPTERS.map((c) => c.blocks)).split(/\s+/).length;
     return Math.max(10, Math.round(words / 190));
   }, []);
-
-  const tilt = useTilt<HTMLDivElement>(7);
 
   const focusForm = () => {
     const el = document.getElementById("kp-capture");
@@ -1227,12 +1400,12 @@ function IntroView(props: IntroProps) {
               <span className="kp-eyebrow-dot" /> Material gratuito para artistas
             </span>
             <h1 id="kp-title">
-              Seu talento no palco.
-              <span className="kp-text-gradient">Seu show contratado.</span>
+              Manual do Artista
+              <span className="kp-text-gradient">Contratado.</span>
             </h1>
             <p className="kp-hero-lead">
-              O <strong>Manual do Artista Contratado</strong> ensina, na prática, a conquistar mais
-              shows, valorizar seu trabalho e profissionalizar sua carreira musical.
+              Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua
+              carreira musical. Comece pelo diagnóstico ao lado e descubra por onde começar.
             </p>
             <div className="kp-hero-ctas">
               <button type="button" className="kp-btn kp-btn-primary" onClick={focusForm}>
@@ -1258,34 +1431,7 @@ function IntroView(props: IntroProps) {
             </ul>
           </div>
 
-          <div className="kp-hero-visual" aria-hidden="true">
-            <div className="kp-tilt" {...tilt}>
-              <div className="kp-tilt-inner">
-                <img src={stagePhoto} alt="" width={1600} height={912} fetchPriority="high" />
-                <div className="kp-tilt-caption">
-                  <strong>
-                    Menos improviso.
-                    <br />
-                    Mais contratos.
-                  </strong>
-                  <span>Do primeiro “oi” ao próximo show.</span>
-                </div>
-              </div>
-            </div>
-            <div className="kp-badge-orb"><BookOpen /></div>
-            <div className="kp-float-card kp-float-a">
-              <span className="kp-float-icon"><MessageSquare /></span>
-              <span>Resposta em 30 min<small>Primeiro contato</small></span>
-            </div>
-            <div className="kp-float-card kp-float-b">
-              <span className="kp-float-icon"><FileText /></span>
-              <span>Contrato e sinal<small>Show garantido</small></span>
-            </div>
-            <div className="kp-float-card kp-float-c">
-              <span className="kp-float-icon"><CalendarDays /></span>
-              <span>Próximo show<small>Pós-show em dia</small></span>
-            </div>
-          </div>
+          <HeroDiagnostic onFinish={focusForm} />
         </div>
       </section>
 
