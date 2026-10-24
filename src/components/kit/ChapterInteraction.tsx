@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { CheckCircle2, Circle, HelpCircle, ListChecks, Sparkles, X } from "lucide-react";
+import { Check, HelpCircle, ListChecks, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ChapterInteraction as ChapterInteractionType } from "@/lib/manual-interactions";
 import type { ManualInteractions as StoredInteractions } from "@/lib/manual-progress";
@@ -13,9 +13,9 @@ type Props = {
 };
 
 /**
- * Renderiza a interação de um capítulo (reflexão, cenário ou checklist).
- * O estado vive no pai (persistido no Supabase/localStorage); este componente
- * é controlado e acessível por teclado.
+ * Interação do capítulo (reflexão, cenário de decisão ou checklist).
+ * Componente controlado: o estado vive no pai e é persistido por lá.
+ * Estilos vêm de src/styles/kit.css (escopo .kit-page).
  */
 export function ChapterInteraction({ interaction, values, onChange }: Props) {
   if (interaction.type === "reflection") {
@@ -37,17 +37,15 @@ function Shell({
   children: React.ReactNode;
 }) {
   return (
-    <section
-      className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"
-      aria-label={eyebrow}
-    >
-      <div className="flex items-center gap-2.5 mb-4">
-        <span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+    <section className="kp-interact" aria-label={eyebrow}>
+      <div className="kp-interact-head">
+        <span className="kp-icon-tile" aria-hidden="true">
           {icon}
         </span>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-          {eyebrow}
-        </p>
+        <div>
+          <small>Pare e pense</small>
+          <strong>{eyebrow}</strong>
+        </div>
       </div>
       {children}
     </section>
@@ -68,43 +66,28 @@ function Reflection({
   const isNo = answered === false;
 
   return (
-    <Shell eyebrow="Reflexão" icon={<HelpCircle className="w-4 h-4" />}>
-      <p className="text-[17px] sm:text-lg font-semibold text-slate-900 -tracking-[0.01em] leading-snug">
-        {interaction.question}
-      </p>
-      <div className="mt-4 flex flex-wrap gap-3" role="group" aria-label={interaction.question}>
+    <Shell eyebrow="Reflexão sobre a sua carreira" icon={<HelpCircle />}>
+      <p className="kp-interact-question">{interaction.question}</p>
+      <div className="kp-choice-row" role="group" aria-label={interaction.question}>
         <button
           type="button"
           aria-pressed={isYes}
           onClick={() => onChange(interaction.key, true)}
-          className={cn(
-            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
-            isYes
-              ? "bg-emerald-600 text-white"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200",
-          )}
+          className={cn("kp-choice", isYes && "is-selected is-good")}
         >
-          <CheckCircle2 className="w-4 h-4" /> Sim
+          <Check aria-hidden="true" /> Sim, já faço
         </button>
         <button
           type="button"
           aria-pressed={isNo}
           onClick={() => onChange(interaction.key, false)}
-          className={cn(
-            "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
-            isNo
-              ? "bg-slate-900 text-white"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200",
-          )}
+          className={cn("kp-choice", isNo && "is-selected")}
         >
           Ainda não
         </button>
       </div>
       {answered !== undefined && (
-        <div
-          className="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-4 text-[14px] text-slate-600 leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300"
-          role="status"
-        >
+        <div className="kp-feedback" role="status">
           {isYes ? interaction.feedbackYes : interaction.feedbackNo}
         </div>
       )}
@@ -128,13 +111,14 @@ function Scenario({
   );
 
   return (
-    <Shell eyebrow="Cenário de decisão" icon={<Sparkles className="w-4 h-4" />}>
-      <p className="text-[15px] text-slate-600 leading-relaxed">{interaction.situation}</p>
-      <p className="mt-3 text-[17px] font-semibold text-slate-900 -tracking-[0.01em]">
-        {interaction.prompt}
-      </p>
-      <ul className="mt-4 space-y-2.5" role="radiogroup" aria-label={interaction.prompt}>
-        {interaction.options.map((opt) => {
+    <Shell eyebrow="Cenário de decisão" icon={<Sparkles />}>
+      <div className="kp-scenario">
+        <span className="kp-scenario-label">A situação</span>
+        <p>{interaction.situation}</p>
+      </div>
+      <p className="kp-interact-question">{interaction.prompt}</p>
+      <ul className="kp-options" role="radiogroup" aria-label={interaction.prompt}>
+        {interaction.options.map((opt, i) => {
           const selected = chosen === opt.id;
           return (
             <li key={opt.id}>
@@ -144,52 +128,23 @@ function Scenario({
                 aria-checked={selected}
                 onClick={() => onChange(interaction.key, opt.id)}
                 className={cn(
-                  "w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
-                  selected
-                    ? opt.best
-                      ? "border-emerald-300 bg-emerald-50"
-                      : "border-slate-300 bg-slate-50"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
+                  "kp-option",
+                  selected && "is-selected",
+                  selected && (opt.best ? "is-good" : "is-meh"),
                 )}
               >
-                <span
-                  className={cn(
-                    "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-white",
-                    selected
-                      ? opt.best
-                        ? "bg-emerald-600"
-                        : "bg-slate-700"
-                      : "bg-slate-200",
-                  )}
-                  aria-hidden="true"
-                >
-                  {selected ? (
-                    opt.best ? (
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                    ) : (
-                      <X className="w-3.5 h-3.5" />
-                    )
-                  ) : null}
+                <span className="kp-option-key" aria-hidden="true">
+                  {selected ? opt.best ? <Check /> : <X /> : String.fromCharCode(65 + i)}
                 </span>
-                <span className="text-[15px] text-slate-700 leading-relaxed">{opt.label}</span>
+                <span>{opt.label}</span>
               </button>
             </li>
           );
         })}
       </ul>
       {chosenOption && (
-        <div
-          className={cn(
-            "mt-4 rounded-xl border p-4 text-[14px] leading-relaxed animate-in fade-in slide-in-from-bottom-1 duration-300",
-            chosenOption.best
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-slate-200 bg-slate-50 text-slate-700",
-          )}
-          role="status"
-        >
-          <span className="font-bold">
-            {chosenOption.best ? "Melhor escolha. " : "Vale repensar. "}
-          </span>
+        <div className={cn("kp-feedback", chosenOption.best && "is-good")} role="status">
+          <strong>{chosenOption.best ? "Melhor escolha. " : "Vale repensar. "}</strong>
           {chosenOption.feedback}
         </div>
       )}
@@ -210,15 +165,14 @@ function Checklist({
     (it) => values[`${interaction.key}:${it.id}`] === true,
   ).length;
   const total = interaction.items.length;
+  const pct = Math.round((checkedCount / total) * 100);
 
   return (
-    <Shell eyebrow="Checklist prático" icon={<ListChecks className="w-4 h-4" />}>
-      <p className="text-[17px] sm:text-lg font-semibold text-slate-900 -tracking-[0.01em] leading-snug">
-        {interaction.title}
-      </p>
-      <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{interaction.helper}</p>
+    <Shell eyebrow="Checklist prático" icon={<ListChecks />}>
+      <p className="kp-interact-question">{interaction.title}</p>
+      <p className="kp-interact-helper">{interaction.helper}</p>
 
-      <ul className="mt-4 space-y-2.5">
+      <ul className="kp-options">
         {interaction.items.map((it) => {
           const key = `${interaction.key}:${it.id}`;
           const checked = values[key] === true;
@@ -229,40 +183,31 @@ function Checklist({
                 role="checkbox"
                 aria-checked={checked}
                 onClick={() => onChange(key, !checked)}
-                className={cn(
-                  "w-full text-left flex gap-3 items-start rounded-xl border px-4 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
-                  checked
-                    ? "border-emerald-300 bg-emerald-50"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
-                )}
+                className={cn("kp-option", checked && "is-selected is-good")}
               >
-                <span className="mt-0.5 shrink-0" aria-hidden="true">
-                  {checked ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-slate-300" />
-                  )}
+                <span className="kp-checkbox" aria-hidden="true">
+                  {checked && <Check />}
                 </span>
-                <span
-                  className={cn(
-                    "text-[15px] leading-relaxed",
-                    checked ? "text-slate-900" : "text-slate-700",
-                  )}
-                >
-                  {it.label}
-                </span>
+                <span>{it.label}</span>
               </button>
             </li>
           );
         })}
       </ul>
 
-      <p className="mt-4 text-sm font-semibold text-slate-500" aria-live="polite">
-        {checkedCount} de {total} marcados
-        {checkedCount < total
-          ? " — os itens em aberto são seus próximos pontos de melhoria."
-          : " — rotina completa. Agora é manter isso em todo show."}
-      </p>
+      <div className="kp-checklist-foot" aria-live="polite">
+        <div className="kp-bar" aria-hidden="true">
+          <span style={{ width: `${pct}%` }} />
+        </div>
+        <p>
+          <strong>
+            {checkedCount} de {total}
+          </strong>{" "}
+          {checkedCount < total
+            ? "· os itens em aberto são seus próximos pontos de melhoria."
+            : "· rotina completa. Agora é manter isso em todo show."}
+        </p>
+      </div>
     </Shell>
   );
 }

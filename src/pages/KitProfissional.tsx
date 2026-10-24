@@ -4,37 +4,34 @@ import { motion, AnimatePresence } from "framer-motion";
 import { trackEvent } from "@/lib/metaPixel";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowRight,
-  ArrowLeft,
-  ExternalLink,
-  Shield,
-  User,
-  Phone,
-  CheckCircle2,
-  PlayCircle,
-  Sparkles,
-  Gift,
-  MapPin,
-  Music,
-  BookOpen,
-  Palette,
-  MessageSquare,
-  Rocket,
-  Lightbulb,
   AlertTriangle,
-  Target,
-  Handshake,
-  Trophy,
-  Quote,
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  CalendarDays,
+  Check,
   Clock,
   DollarSign,
-  Star,
-  CalendarDays,
-  FileSignature,
-  Users,
+  Gift,
+  Handshake,
+  Lightbulb,
+  Loader2,
+  MapPin,
+  MessageSquare,
+  Music,
+  Palette,
+  Phone,
+  PlayCircle,
+  Puzzle,
+  Quote,
+  Rocket,
+  ShieldCheck,
+  Sparkles,
+  Target,
   TrendingUp,
-  PuzzleIcon,
-  Lock,
+  Trophy,
+  User,
+  X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -46,8 +43,9 @@ import {
 } from "@/lib/manual-progress";
 import { CHAPTER_INTERACTIONS } from "@/lib/manual-interactions";
 import { ChapterInteraction } from "@/components/kit/ChapterInteraction";
+import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import "@/styles/kit.css";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -441,6 +439,8 @@ type Benefit = {
   title: string;
   description: string;
   icon: LucideIcon;
+  /** Formato do recurso, exibido no card (ex.: "Vídeo no YouTube"). */
+  format?: string;
   cta: string;
   action: () => void;
   accent: string;
@@ -510,8 +510,11 @@ export default function KitProfissional() {
 
 
   const totalChapters = CHAPTERS.length;
-  const progressPct = Math.round(((chapterIdx + 1) / totalChapters) * 100);
   const currentChapter = CHAPTERS[chapterIdx];
+  // Progresso real: um capítulo só conta como concluído quando o artista
+  // chega ao final dele e confirma em "Concluir capítulo" (chave done:<id>).
+  const doneCount = CHAPTERS.filter((c) => interactions[`done:${c.id}`] === true).length;
+  const progressPct = Math.round((doneCount / totalChapters) * 100);
 
   // Persiste o progresso sempre que o capítulo atual ou as interações mudam.
   const persist = useCallback(
@@ -545,6 +548,7 @@ export default function KitProfissional() {
         description:
           "Assista à versão em vídeo do Manual do Artista Contratado, com exemplos reais.",
         icon: PlayCircle,
+        format: "Vídeo no YouTube",
         cta: "Assistir agora",
         action: () => {
           trackEvent("ViewContent", { content_name: "manual_bonus_video" });
@@ -554,11 +558,12 @@ export default function KitProfissional() {
       },
       {
         id: "trial",
-        title: "Conheça a Backstage Pro gratuitamente",
+        title: "Teste gratuito da Backstage Pro",
         description:
           "Organize sua carreira em um só lugar: agenda, clientes, orçamentos, contratos, financeiro e o Backs Radar para encontrar novos contratantes.",
         icon: Rocket,
-        cta: "Testar o app",
+        format: "Cadastro gratuito · abre em nova aba",
+        cta: "Criar minha conta grátis",
         action: () => {
           trackEvent("ViewContent", { content_name: "manual_bonus_trial" });
           trackEvent("Lead", { content_name: "manual_signup_click" });
@@ -572,6 +577,7 @@ export default function KitProfissional() {
         description:
           "Divulgue seus shows com arte profissional. Templates prontos no Canva, é só editar.",
         icon: Palette,
+        format: "Modelos editáveis no Canva",
         cta: "Abrir artes",
         action: () => {
           trackEvent("ViewContent", { content_name: "manual_bonus_artes" });
@@ -585,6 +591,7 @@ export default function KitProfissional() {
         description:
           "Textos copy-paste para primeiro contato, envio de orçamento, fechamento e pós-show.",
         icon: MessageSquare,
+        format: "Textos prontos para copiar",
         cta: "Abrir mensagens",
         action: () => {
           trackEvent("ViewContent", { content_name: "manual_bonus_mensagens" });
@@ -629,6 +636,8 @@ export default function KitProfissional() {
       localStorage.setItem("guia_lead_captured", "true");
       setLeadPhone(digits);
       setIsLeadRegistered(true);
+      setView("reading");
+      window.scrollTo({ top: 0, behavior: "smooth" });
       trackEvent("ViewContent", { content_name: "manual_chapter_1" });
       // semeia o progresso inicial vinculado ao telefone recém-capturado
       saveManualProgress(digits, { chapterIndex: 0, completed: false, interactions: {} });
@@ -651,16 +660,25 @@ export default function KitProfissional() {
 
   const goNext = () => {
     trackEvent("ViewContent", { content_name: `manual_chapter_${chapterIdx + 1}_complete` });
+    // Marca o capítulo atual como concluído e persiste numa única escrita,
+    // para que a navegação não sobrescreva o registro com dados antigos.
+    const nextInteractions = { ...interactions, [`done:${currentChapter.id}`]: true };
+    setInteractions(nextInteractions);
+
     if (chapterIdx < totalChapters - 1) {
-      goToChapter(chapterIdx + 1);
+      const nextIdx = chapterIdx + 1;
+      setChapterIdx(nextIdx);
+      persist({ chapterIndex: nextIdx, interactions: nextInteractions });
+      trackEvent("ViewContent", { content_name: `manual_chapter_${nextIdx + 1}` });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       // último capítulo → conclui e libera os bônus
       localStorage.setItem(MATERIAL_COMPLETED_KEY, "true");
       setView("unlocked");
-      persist({ completed: true });
+      persist({ completed: true, interactions: nextInteractions });
       trackEvent("ViewContent", { content_name: "manual_completed" });
       window.scrollTo({ top: 0, behavior: "smooth" });
-      toast.success("Bônus desbloqueados! 🎉");
+      toast.success("Bônus liberados");
     }
   };
 
@@ -668,150 +686,185 @@ export default function KitProfissional() {
     if (chapterIdx > 0) goToChapter(chapterIdx - 1);
   };
 
-  const remaining = totalChapters - (chapterIdx + 1);
+  const remaining = totalChapters - doneCount;
   const readMinutes = useMemo(() => {
     const words = JSON.stringify(currentChapter.blocks).split(/\s+/).length;
     return Math.max(2, Math.round(words / 190));
   }, [currentChapter]);
 
+
+  const isDone = (id: string) => interactions[`done:${id}`] === true;
+  const isReading = isLeadRegistered && progressLoaded && view !== "unlocked";
+  const isUnlocked = isLeadRegistered && progressLoaded && view === "unlocked";
+
+  const openSignup = () => {
+    trackEvent("Lead", { content_name: "manual_signup_click" });
+    window.open(SIGNUP_URL, "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-slate-900 selection:text-white">
+    <div className="kit-page">
+      <Helmet>
+        <title>Manual do Artista Contratado | Backstage Pro</title>
+        <meta
+          name="description"
+          content="Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua carreira musical. Material gratuito com 7 capítulos e 4 bônus."
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap"
+        />
+      </Helmet>
+
       {/* ── HEADER ── */}
-      <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-slate-200/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <img
-              src={baIcon}
-              alt="Backstage"
-              className="w-9 h-9 rounded-xl object-cover ring-1 ring-slate-200"
-            />
-            <div className="flex flex-col leading-tight min-w-0">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold">
-                Backstage Pro
-              </span>
-              <span className="font-semibold text-sm sm:text-base text-slate-900 -mt-0.5 truncate">
-                Manual do Artista
-              </span>
-            </div>
+      <header className="kp-header">
+        <div className="kp-container kp-header-row">
+          <div className="kp-brand">
+            <img src={baIcon} alt="" width={36} height={36} />
+            <span>
+              <strong>Backstage Pro</strong>
+              <small>Manual do Artista</small>
+            </span>
           </div>
 
-          {isLeadRegistered && view === "reading" && (
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
-                <BookOpen className="w-3.5 h-3.5" />
-                {chapterIdx + 1}/{totalChapters}
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-full">
-                {remaining === 0 ? (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5" /> Bônus prontos
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-3 h-3" /> 4 bônus em {remaining}{" "}
-                    {remaining === 1 ? "capítulo" : "capítulos"}
-                  </>
-                )}
-              </span>
-            </div>
+          {isReading && (
+            <span className="kp-header-chip">
+              <BookOpen aria-hidden="true" />
+              Capítulo {chapterIdx + 1} de {totalChapters}
+            </span>
           )}
-
-          {isLeadRegistered && view === "unlocked" && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-              <Trophy className="w-3.5 h-3.5" /> Material concluído
+          {isUnlocked && (
+            <span className="kp-header-chip is-done">
+              <Trophy aria-hidden="true" /> Manual concluído
+            </span>
+          )}
+          {!isLeadRegistered && (
+            <span className="kp-header-chip">
+              <Gift aria-hidden="true" /> Material gratuito
             </span>
           )}
         </div>
-        {isLeadRegistered && view === "reading" && (
-          <div className="h-[3px] w-full bg-slate-200/70">
-            <div
-              className="h-full bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 transition-all duration-700 ease-out"
-              style={{ width: `${progressPct}%` }}
-            />
+        {isReading && (
+          <div
+            className="kp-header-bar"
+            role="progressbar"
+            aria-label="Progresso do manual"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progressPct}
+          >
+            <span style={{ width: `${progressPct}%` }} />
           </div>
         )}
       </header>
 
-      {/* ── ENTRY / INTRO VIEW ── */}
-      {!isLeadRegistered && view === "intro" && (
+      {/* ── ENTRADA + CAPTURA DO LEAD ── */}
+      {!isLeadRegistered && (
         <IntroView
           totalChapters={totalChapters}
-          onStart={() => {
-            trackEvent("ViewContent", { content_name: "manual_start_click" });
-            setView("reading");
-          }}
+          name={name}
+          phone={phone}
+          city={city}
+          showsPerMonth={showsPerMonth}
+          submitting={submitting}
+          setName={setName}
+          setPhone={(v) => setPhone(formatPhone(v))}
+          setCity={setCity}
+          setShowsPerMonth={setShowsPerMonth}
+          onSubmit={handleSubmitLead}
         />
       )}
 
-      {/* ── READING VIEW ── */}
-      {isLeadRegistered && view === "reading" && (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16 pb-32 lg:pb-16">
-          <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-14">
-            {/* Rail */}
-            <aside className="hidden lg:block">
-              <div className="sticky top-28 space-y-8">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-4">
-                    Sumário
-                  </p>
-                  <ol className="space-y-1">
-                    {CHAPTERS.map((c, i) => (
-                      <li key={c.id}>
-                        <button
-                          onClick={() => goToChapter(i)}
-                          className={cn(
-                            "w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all group",
-                            i === chapterIdx
-                              ? "bg-white shadow-sm ring-1 ring-slate-200"
-                              : "hover:bg-white/70",
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "mt-0.5 w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 transition",
-                              i < chapterIdx
-                                ? "bg-emerald-500 text-white"
-                                : i === chapterIdx
-                                  ? "bg-slate-900 text-white"
-                                  : "bg-slate-200 text-slate-500",
-                            )}
-                          >
-                            {i < chapterIdx ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
-                          </span>
-                          <span
-                            className={cn(
-                              "text-[13px] leading-snug font-medium",
-                              i === chapterIdx ? "text-slate-900" : "text-slate-500",
-                            )}
-                          >
-                            {c.title}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
+      {/* ── CARREGANDO PROGRESSO ── */}
+      {isLeadRegistered && !progressLoaded && (
+        <div className="kp-loading" role="status">
+          <Loader2 className="kp-spin" aria-hidden="true" />
+          <p>Carregando seu progresso…</p>
+        </div>
+      )}
 
-                <RewardTracker
-                  benefits={benefits}
-                  progressPct={progressPct}
-                  remaining={remaining}
-                />
+      {/* ── LEITURA ── */}
+      {isReading && (
+        <>
+          <div className="kp-container kp-reader">
+            <aside className="kp-toc" aria-label="Sumário do manual">
+              <p className="kp-toc-label">Sumário</p>
+              <ol>
+                {CHAPTERS.map((c, i) => {
+                  const done = isDone(c.id);
+                  const active = i === chapterIdx;
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => goToChapter(i)}
+                        aria-current={active ? "step" : undefined}
+                        className={cn("kp-toc-item", active && "is-active", done && "is-done")}
+                      >
+                        <span className="kp-toc-num" aria-hidden="true">
+                          {done ? <Check /> : i + 1}
+                        </span>
+                        <span className="kp-toc-title">
+                          {c.title}
+                          {done && <span className="sr-only"> (concluído)</span>}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+
+              <div className="kp-toc-progress">
+                <div className="kp-toc-progress-top">
+                  <span>Seu progresso</span>
+                  <strong>
+                    {doneCount}/{totalChapters}
+                  </strong>
+                </div>
+                <div className="kp-bar" aria-hidden="true">
+                  <span style={{ width: `${progressPct}%` }} />
+                </div>
+                <p>
+                  {remaining === 0
+                    ? "Todos os capítulos concluídos."
+                    : `Conclua ${remaining} ${remaining === 1 ? "capítulo" : "capítulos"} para liberar os 4 bônus.`}
+                </p>
               </div>
             </aside>
 
-            {/* Article */}
-            <main>
+            <main className="kp-main">
+              <nav className="kp-pills" aria-label="Capítulos">
+                {CHAPTERS.map((c, i) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => goToChapter(i)}
+                    aria-label={`Capítulo ${i + 1}: ${c.title}${isDone(c.id) ? " (concluído)" : ""}`}
+                    aria-current={i === chapterIdx ? "step" : undefined}
+                    className={cn(
+                      "kp-pill",
+                      i === chapterIdx && "is-active",
+                      isDone(c.id) && "is-done",
+                    )}
+                  >
+                    {isDone(c.id) && i !== chapterIdx ? <Check aria-hidden="true" /> : i + 1}
+                  </button>
+                ))}
+              </nav>
+
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentChapter.id}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <ChapterView
                     chapter={currentChapter}
+                    index={chapterIdx}
+                    total={totalChapters}
                     readMinutes={readMinutes}
                     interactions={interactions}
                     onInteractionChange={handleInteractionChange}
@@ -819,519 +872,489 @@ export default function KitProfissional() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Encouragement */}
-              <div className="mt-14 rounded-3xl border border-amber-200/70 bg-gradient-to-br from-amber-50 to-white p-6 sm:p-7 flex items-start gap-4">
-                <div className="w-11 h-11 rounded-2xl bg-amber-400/20 flex items-center justify-center shrink-0">
-                  <Gift className="w-5 h-5 text-amber-700" />
+              <div className="kp-end">
+                <div className="kp-end-card">
+                  <span className="kp-icon-tile">
+                    <Gift />
+                  </span>
+                  <div>
+                    <strong>
+                      {chapterIdx === totalChapters - 1
+                        ? "Último capítulo. Conclua para liberar seus bônus."
+                        : `Próximo: ${CHAPTERS[chapterIdx + 1].title}`}
+                    </strong>
+                    <p>
+                      No final: aula em vídeo, teste gratuito da Backstage Pro, artes no Canva e
+                      mensagens prontas para contratantes.
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="font-semibold text-lg text-slate-900 leading-tight">
-                    {remaining === 0
-                      ? "Você chegou ao último capítulo"
-                      : `Faltam ${remaining} ${remaining === 1 ? "capítulo" : "capítulos"} para liberar seus bônus`}
-                  </p>
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    Aula completa em vídeo, artes editáveis no Canva, mensagens prontas para
-                    contratantes e teste grátis do sistema — tudo liberado no fim da leitura.
-                  </p>
-                </div>
-              </div>
 
-              {/* Chapter dots (mobile) */}
-              <div className="mt-10 flex items-center justify-center gap-2 lg:hidden">
-                {CHAPTERS.map((c, i) => (
+                <div className="kp-nav">
                   <button
-                    key={c.id}
-                    onClick={() => goToChapter(i)}
-                    aria-label={`Ir para capítulo ${i + 1}`}
-                    className={cn(
-                      "h-1.5 rounded-full transition-all",
-                      i === chapterIdx
-                        ? "w-8 bg-slate-900"
-                        : i < chapterIdx
-                          ? "w-1.5 bg-emerald-500"
-                          : "w-1.5 bg-slate-300",
+                    type="button"
+                    className="kp-btn kp-btn-ghost"
+                    onClick={goPrev}
+                    disabled={chapterIdx === 0}
+                  >
+                    <ArrowLeft className="kp-flip" /> Anterior
+                  </button>
+                  <button type="button" className="kp-btn kp-btn-primary" onClick={goNext}>
+                    {chapterIdx === totalChapters - 1 ? (
+                      <>
+                        Concluir e liberar bônus <Sparkles />
+                      </>
+                    ) : (
+                      <>
+                        Concluir capítulo <ArrowRight />
+                      </>
                     )}
-                  />
-                ))}
-              </div>
-
-              {/* Desktop nav */}
-              <div className="mt-10 hidden lg:flex items-center justify-between gap-4">
-                <button
-                  onClick={goPrev}
-                  disabled={chapterIdx === 0}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl transition",
-                    chapterIdx === 0
-                      ? "text-slate-300 cursor-not-allowed"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white",
-                  )}
-                >
-                  <ArrowLeft className="w-4 h-4" /> Anterior
-                </button>
-                <NextButton
-                  isLast={chapterIdx === totalChapters - 1}
-                  onClick={goNext}
-                />
+                  </button>
+                </div>
               </div>
             </main>
           </div>
 
-          {/* Mobile sticky nav */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-xl border-t border-slate-200 px-4 py-3 flex items-center gap-3">
+          {/* Navegação fixa no celular */}
+          <nav className="kp-dock" aria-label="Navegação entre capítulos">
             <button
+              type="button"
+              className="kp-btn kp-btn-ghost kp-dock-prev"
               onClick={goPrev}
               disabled={chapterIdx === 0}
-              className={cn(
-                "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition",
-                chapterIdx === 0
-                  ? "text-slate-300"
-                  : "text-slate-700 bg-slate-100 hover:bg-slate-200",
-              )}
               aria-label="Capítulo anterior"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="kp-flip" />
             </button>
-            <NextButton
-              isLast={chapterIdx === totalChapters - 1}
-              onClick={goNext}
-              full
-            />
-          </div>
-        </div>
+            <button type="button" className="kp-btn kp-btn-primary" onClick={goNext}>
+              {chapterIdx === totalChapters - 1 ? (
+                <>
+                  Liberar bônus <Sparkles />
+                </>
+              ) : (
+                <>
+                  Concluir capítulo <ArrowRight />
+                </>
+              )}
+            </button>
+          </nav>
+        </>
       )}
 
-      {/* ── UNLOCKED VIEW ── */}
-      {isLeadRegistered && view === "unlocked" && (
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-14">
-          {/* Hero */}
-          <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 sm:px-12 py-12 sm:py-16 text-center shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)]">
-            <div className="absolute inset-x-0 -top-24 h-56 bg-[radial-gradient(closest-side,rgba(251,191,36,0.22),transparent)]" />
-            <div className="relative space-y-5">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/25">
-                <Trophy className="w-8 h-8 text-white" />
-              </div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-bold">
-                Leitura concluída
-              </p>
-              <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight leading-[1.05] text-slate-900">
-                Seus 4 bônus estão
-                <br className="hidden sm:block" />{" "}
-                <span className="italic bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
-                  liberados
-                </span>
-              </h1>
-              <p className="text-base sm:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
-                Você terminou o Manual do Artista Contratado. Agora é hora de aplicar — comece pelo
-                bônus que resolve sua maior dor hoje.
-              </p>
-              <button
-                onClick={() => {
-                  setView("reading");
-                  goToChapter(0);
-                }}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition"
-              >
-                <BookOpen className="w-4 h-4" /> Revisar o material escrito
-              </button>
-            </div>
-          </section>
-
-          {/* Benefits grid */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">
-                Suas recompensas
+      {/* ── CONCLUSÃO + BÔNUS ── */}
+      {isUnlocked && (
+        <main>
+          <section className="kp-done-hero" aria-labelledby="kp-done-title">
+            <div className="kp-grid-bg is-dark" aria-hidden="true" />
+            <span className="kp-glow kp-glow-blue" style={{ width: 380, height: 380, top: -140, left: -120 }} aria-hidden="true" />
+            <span className="kp-glow kp-glow-cyan" style={{ width: 380, height: 380, bottom: -160, right: -100 }} aria-hidden="true" />
+            <motion.div
+              className="kp-container kp-done-inner"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <span className="kp-done-icon" aria-hidden="true">
+                <Trophy />
               </span>
-              <div className="h-px flex-1 bg-slate-200" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {benefits.map((b, i) => (
-                <BenefitCard key={b.id} benefit={b} index={i + 1} />
-              ))}
+              <span className="kp-eyebrow is-dark">
+                <span className="kp-eyebrow-dot" /> Manual concluído
+              </span>
+              <h1 id="kp-done-title">
+                Você chegou ao final do
+                <span className="kp-text-gradient">Manual do Artista Contratado!</span>
+              </h1>
+              <p>
+                Agora você tem mais clareza sobre como abordar contratantes, valorizar seu trabalho,
+                organizar negociações e construir uma rotina profissional. O próximo passo é colocar
+                esses conhecimentos em prática.
+              </p>
+              <div className="kp-done-actions">
+                <button type="button" className="kp-btn kp-btn-primary" onClick={openSignup}>
+                  Conhecer a Backstage Pro gratuitamente <ArrowRight />
+                </button>
+                <button
+                  type="button"
+                  className="kp-btn kp-btn-dark"
+                  onClick={() => {
+                    setView("reading");
+                    goToChapter(0);
+                  }}
+                >
+                  <BookOpen /> Revisar o manual
+                </button>
+              </div>
+              <p className="kp-done-note">
+                A Backstage Pro reúne agenda, clientes, orçamentos, contratos, financeiro e o Backs
+                Radar em uma única plataforma. Abre em uma nova aba.
+              </p>
+            </motion.div>
+          </section>
+
+          <section className="kp-section" aria-labelledby="kp-bonus-title">
+            <div className="kp-container">
+              <div className="kp-heading">
+                <span className="kp-eyebrow">
+                  <Gift /> Seus bônus
+                </span>
+                <h2 id="kp-bonus-title">
+                  4 recursos para
+                  <span className="kp-text-gradient"> aplicar o que aprendeu.</span>
+                </h2>
+                <p>Comece pelo que resolve a sua maior necessidade hoje.</p>
+              </div>
+              <div className="kp-bonus-grid">
+                {benefits.map((b, i) => (
+                  <BenefitCard key={b.id} benefit={b} index={i + 1} />
+                ))}
+              </div>
             </div>
           </section>
 
-          {/* Video anchor */}
-          <section id="video-anchor" className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 flex items-center justify-center">
-                <PlayCircle className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-slate-400 font-bold">
-                  Aula em vídeo
-                </p>
-                <h2 className="font-semibold text-lg sm:text-xl text-slate-900">
-                  Manual do Artista — versão completa
+          <section id="video-anchor" className="kp-section kp-section-soft" aria-labelledby="kp-video-title">
+            <div className="kp-container">
+              <div className="kp-heading">
+                <span className="kp-eyebrow">
+                  <PlayCircle /> Bônus 1 · Aula em vídeo
+                </span>
+                <h2 id="kp-video-title">
+                  O manual completo,
+                  <span className="kp-text-gradient"> em vídeo.</span>
                 </h2>
               </div>
-            </div>
-            <div className="rounded-[1.75rem] overflow-hidden border border-slate-200 bg-slate-950 shadow-xl">
-              <div className="flex justify-center py-6 px-4">
-                <div className="relative w-full max-w-[420px] aspect-[9/16] rounded-2xl overflow-hidden ring-1 ring-white/10">
-                  <iframe
-                    className="absolute inset-0 w-full h-full"
-                    src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
-                    title="Manual do Artista Contratado"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
+              <div className="kp-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
+                  title="Aula em vídeo: Manual do Artista Contratado"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
               </div>
             </div>
           </section>
 
-          {/* Closing card */}
-          <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-8 sm:p-14 text-center space-y-5">
-            <div className="absolute inset-x-0 -top-20 h-52 bg-[radial-gradient(closest-side,rgba(59,130,246,0.35),transparent)]" />
-            <div className="relative space-y-5">
-              <Star className="w-8 h-8 text-amber-300 mx-auto" />
-              <h3 className="text-2xl sm:text-4xl font-semibold text-white leading-tight">
-                Agora é hora de colocar em prática
-              </h3>
-              <p className="text-slate-300 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
-                Você tem mais clareza sobre abordar contratantes, valorizar seu trabalho, organizar
-                negociações e construir uma rotina profissional. A Backstage Pro ajuda a organizar
-                agenda, clientes, orçamentos, contratos e financeiro — e o Backs Radar ajuda a
-                encontrar novos locais para prospectar.
-              </p>
-              <button
-                onClick={() => {
-                  trackEvent("Lead", { content_name: "manual_signup_click" });
-                  window.open(SIGNUP_URL, "_blank", "noopener,noreferrer");
-                }}
-                className="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm sm:text-base px-7 sm:px-9 py-4 rounded-xl transition-all hover:shadow-2xl hover:-translate-y-0.5"
-              >
-                Conhecer a Backstage Pro gratuitamente
-                <ArrowRight className="w-4 h-4" />
-              </button>
+          <section className="kp-section">
+            <div className="kp-container">
+              <div className="kp-cta-wrap">
+                <div className="kp-cta">
+                  <div className="kp-grid-bg is-dark" aria-hidden="true" />
+                  <span className="kp-glow kp-glow-blue" style={{ width: 320, height: 320, top: -120, left: -100 }} aria-hidden="true" />
+                  <span className="kp-glow kp-glow-cyan" style={{ width: 320, height: 320, bottom: -140, right: -80 }} aria-hidden="true" />
+                  <span className="kp-icon-tile kp-cta-icon" aria-hidden="true">
+                    <Music />
+                  </span>
+                  <h2>
+                    Agora é hora de
+                    <span className="kp-text-gradient"> colocar em prática.</span>
+                  </h2>
+                  <p>
+                    A Backstage Pro pode ajudar você a organizar diferentes áreas da sua carreira em
+                    uma única plataforma.
+                  </p>
+                  <button type="button" className="kp-btn kp-btn-primary" onClick={openSignup}>
+                    Conhecer a Backstage Pro gratuitamente <ArrowRight />
+                  </button>
+                </div>
+              </div>
             </div>
           </section>
         </main>
       )}
 
-      {/* ── LEAD CAPTURE MODAL ── */}
-      {!isLeadRegistered && view !== "intro" && <LeadCaptureModal
-        name={name}
-        phone={phone}
-        city={city}
-        showsPerMonth={showsPerMonth}
-        submitting={submitting}
-        setName={setName}
-        setPhone={(v) => setPhone(formatPhone(v))}
-        setCity={setCity}
-        setShowsPerMonth={setShowsPerMonth}
-        onSubmit={handleSubmitLead}
-      />}
+      <footer className="kp-footer">
+        <div className="kp-container">
+          <span>© Backstage Pro®</span>
+          <span>Manual do Artista Contratado · material gratuito</span>
+        </div>
+      </footer>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Entry / intro view — primeira tela, antes da captura de lead
+// Entrada: hero no padrão da landing + formulário de lead embutido
 // ─────────────────────────────────────────────────────────────────────────────
-function IntroView({
-  totalChapters,
-  onStart,
-}: {
+type IntroProps = {
   totalChapters: number;
-  onStart: () => void;
-}) {
-  const highlights = [
-    { icon: MessageSquare, text: "Responder contratantes e fechar mais shows" },
-    { icon: DollarSign, text: "Precificar e apresentar propostas sem parecer caro" },
-    { icon: Handshake, text: "Fechar com contrato e sinal, sem desmarcações" },
-    { icon: TrendingUp, text: "Enxergar o dinheiro real que entra e sai da carreira" },
-  ];
-  const readMinutes = useMemo(() => {
+  name: string;
+  phone: string;
+  city: string;
+  showsPerMonth: string;
+  submitting: boolean;
+  setName: (v: string) => void;
+  setPhone: (v: string) => void;
+  setCity: (v: string) => void;
+  setShowsPerMonth: (v: string) => void;
+  onSubmit: () => void;
+};
+
+const BONUS_PREVIEW = [
+  { icon: PlayCircle, label: "Aula completa em vídeo" },
+  { icon: Rocket, label: "Teste gratuito da Backstage Pro" },
+  { icon: Palette, label: "Artes editáveis no Canva" },
+  { icon: MessageSquare, label: "Mensagens prontas para contratantes" },
+];
+
+function IntroView(props: IntroProps) {
+  const totalMinutes = useMemo(() => {
     const words = JSON.stringify(CHAPTERS.map((c) => c.blocks)).split(/\s+/).length;
     return Math.max(10, Math.round(words / 190));
   }, []);
 
-  const container = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
-  };
-  const item = {
-    hidden: { opacity: 0, y: 12 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+  const focusForm = () => {
+    const el = document.getElementById("kp-capture");
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => document.getElementById("kp-name")?.focus(), 450);
   };
 
   return (
-    <main className="relative mx-auto max-w-2xl px-5 sm:px-6 py-16 sm:py-24">
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="flex flex-col items-center text-center"
-      >
-        <motion.span
-          variants={item}
-          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          Material gratuito
-        </motion.span>
+    <main>
+      <section className="kp-hero" aria-labelledby="kp-title">
+        <div className="kp-grid-bg" aria-hidden="true" />
+        <span className="kp-glow kp-glow-blue" style={{ width: 420, height: 420, top: -140, left: -160 }} aria-hidden="true" />
+        <span className="kp-glow kp-glow-cyan" style={{ width: 420, height: 420, bottom: -180, right: -140 }} aria-hidden="true" />
 
-        <motion.h1
-          variants={item}
-          className="mt-6 text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 leading-[1.08]"
-        >
-          Manual do Artista Contratado
-        </motion.h1>
+        <div className="kp-container kp-hero-grid">
+          <div className="kp-hero-copy">
+            <span className="kp-eyebrow">
+              <span className="kp-eyebrow-dot" /> Material gratuito para artistas
+            </span>
+            <h1 id="kp-title">
+              Manual do Artista
+              <span className="kp-text-gradient">Contratado</span>
+            </h1>
+            <p className="kp-hero-lead">
+              Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua
+              carreira musical.
+            </p>
+            <ul className="kp-hero-checks">
+              <li>
+                <span className="kp-check"><Check /></span> Do primeiro contato ao pós-show
+              </li>
+              <li>
+                <span className="kp-check"><Check /></span> Exercícios e checklists práticos
+              </li>
+              <li>
+                <span className="kp-check"><Check /></span> Continue de onde parou
+              </li>
+            </ul>
+            <div className="kp-hero-meta">
+              <span><BookOpen /> {props.totalChapters} capítulos</span>
+              <span><Clock /> cerca de {totalMinutes} min de leitura</span>
+              <span><Gift /> 4 bônus no final</span>
+            </div>
+          </div>
 
-        <motion.p
-          variants={item}
-          className="mt-4 max-w-xl text-base sm:text-lg leading-relaxed text-slate-500"
-        >
-          Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua
-          carreira musical.
-        </motion.p>
+          <LeadCaptureCard {...props} />
+        </div>
+      </section>
 
-        <motion.div variants={item} className="mt-8 w-full">
-          <div className="grid gap-2.5 sm:grid-cols-2 text-left">
-            {highlights.map((h) => {
-              const Icon = h.icon;
+      <section className="kp-section" aria-labelledby="kp-learn-title">
+        <div className="kp-container">
+          <div className="kp-heading">
+            <span className="kp-eyebrow">O que você vai aprender</span>
+            <h2 id="kp-learn-title">
+              Sete capítulos.
+              <span className="kp-text-gradient"> Uma carreira mais profissional.</span>
+            </h2>
+            <p>Cada capítulo complementa o anterior, do primeiro “oi” até o próximo contrato.</p>
+          </div>
+          <ol className="kp-chapters">
+            {CHAPTERS.map((c, i) => {
+              const Icon = c.icon;
               return (
-                <div
-                  key={h.text}
-                  className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white px-4 py-3 transition-colors hover:border-slate-300"
-                >
-                  <Icon className="h-4 w-4 shrink-0 text-slate-400" strokeWidth={2} />
-                  <span className="text-sm leading-snug text-slate-700">{h.text}</span>
-                </div>
+                <li key={c.id} className="kp-chapter-card">
+                  <div className="kp-chapter-top">
+                    <span className="kp-icon-tile"><Icon /></span>
+                    <span className="kp-chapter-num">{String(i + 1).padStart(2, "0")}</span>
+                  </div>
+                  <h3>{c.title}</h3>
+                  <p>{c.intro}</p>
+                </li>
               );
             })}
+            <li className="kp-chapter-card is-bonus">
+              <div className="kp-chapter-top">
+                <span className="kp-icon-tile"><Gift /></span>
+                <span className="kp-chapter-num">+4</span>
+              </div>
+              <h3>Bônus liberados no final</h3>
+              <ul className="kp-bonus-mini">
+                {BONUS_PREVIEW.map((b) => (
+                  <li key={b.label}>
+                    <b.icon aria-hidden="true" /> {b.label}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          </ol>
+          <div className="kp-center">
+            <button type="button" className="kp-btn kp-btn-primary" onClick={focusForm}>
+              Começar meu manual <ArrowRight />
+            </button>
           </div>
-        </motion.div>
-
-        <motion.div
-          variants={item}
-          className="mt-7 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-slate-400"
-        >
-          <span className="inline-flex items-center gap-1.5">
-            <BookOpen className="h-3.5 w-3.5" /> {totalChapters} capítulos
-          </span>
-          <span className="text-slate-300">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" /> ~{readMinutes} min
-          </span>
-          <span className="text-slate-300">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <Gift className="h-3.5 w-3.5" /> 4 bônus no final
-          </span>
-        </motion.div>
-
-        <motion.div variants={item} className="mt-9 flex flex-col items-center gap-3">
-          <Button
-            size="lg"
-            onClick={onStart}
-            className="group h-12 rounded-full bg-slate-900 px-8 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-slate-800"
-          >
-            Começar meu manual
-            <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Button>
-          <p className="text-xs text-slate-400">Conteúdo gratuito. Sem compromisso.</p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </section>
     </main>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Next button
-// ─────────────────────────────────────────────────────────────────────────────
-function NextButton({
-  isLast,
-  onClick,
-  full,
-}: {
-  isLast: boolean;
-  onClick: () => void;
-  full?: boolean;
-}) {
+function LeadCaptureCard(props: IntroProps) {
   return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "group relative inline-flex items-center justify-center gap-2 font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 overflow-hidden",
-        full ? "flex-1" : "",
-        isLast
-          ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25"
-          : "bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/15",
-      )}
-    >
-      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-      <span className="relative inline-flex items-center gap-2">
-        {isLast ? (
-          <>
-            Concluir e liberar bônus
-            <Sparkles className="w-4 h-4" />
-          </>
-        ) : (
-          <>
-            Continuar leitura
-            <ArrowRight className="w-4 h-4" />
-          </>
-        )}
-      </span>
-    </button>
-  );
-}
+    <div className="kp-capture" id="kp-capture">
+      <form
+        className="kp-capture-inner"
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          props.onSubmit();
+        }}
+      >
+        <span className="kp-capture-badge">
+          <Sparkles aria-hidden="true" /> Acesso gratuito
+        </span>
+        <h2>Receba seu manual agora</h2>
+        <p>Preencha para liberar a leitura. Seu progresso fica salvo neste número.</p>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Reward tracker (rail)
-// ─────────────────────────────────────────────────────────────────────────────
-function RewardTracker({
-  benefits,
-  progressPct,
-  remaining,
-}: {
-  benefits: Benefit[];
-  progressPct: number;
-  remaining: number;
-}) {
-  const r = 26;
-  const c = 2 * Math.PI * r;
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="relative w-16 h-16 shrink-0">
-          <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
-            <circle cx="32" cy="32" r={r} fill="none" stroke="#e2e8f0" strokeWidth="6" />
-            <circle
-              cx="32"
-              cy="32"
-              r={r}
-              fill="none"
-              stroke="url(#rewardGrad)"
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={c}
-              strokeDashoffset={c - (c * progressPct) / 100}
-              className="transition-all duration-700"
+        <div className="kp-field">
+          <label htmlFor="kp-name">
+            <User aria-hidden="true" /> Nome e sobrenome
+          </label>
+          <Input
+            id="kp-name"
+            className="kp-input"
+            placeholder="Ex.: João Silva"
+            autoComplete="name"
+            value={props.name}
+            onChange={(e) => props.setName(e.target.value)}
+            maxLength={100}
+          />
+        </div>
+
+        <div className="kp-field">
+          <label htmlFor="kp-phone">
+            <Phone aria-hidden="true" /> WhatsApp com DDD
+          </label>
+          <Input
+            id="kp-phone"
+            className="kp-input"
+            placeholder="(11) 98765-4321"
+            inputMode="tel"
+            autoComplete="tel"
+            value={props.phone}
+            onChange={(e) => props.setPhone(e.target.value)}
+            maxLength={15}
+          />
+        </div>
+
+        <div className="kp-field-row">
+          <div className="kp-field">
+            <label htmlFor="kp-city">
+              <MapPin aria-hidden="true" /> Cidade
+            </label>
+            <Input
+              id="kp-city"
+              className="kp-input"
+              placeholder="Ex.: São Paulo - SP"
+              autoComplete="address-level2"
+              value={props.city}
+              onChange={(e) => props.setCity(e.target.value)}
+              maxLength={100}
             />
-            <defs>
-              <linearGradient id="rewardGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#2563eb" />
-                <stop offset="100%" stopColor="#10b981" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-slate-800">
-            {progressPct}%
-          </span>
-        </div>
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-            Prêmio final
-          </p>
-          <p className="font-semibold text-slate-900 leading-tight">
-            4 bônus liberados no fim
-          </p>
-        </div>
-      </div>
+          </div>
 
-      <ul className="space-y-2 pt-1">
-        {benefits.map((b) => {
-          const Icon = b.icon;
-          const done = remaining === 0;
-          return (
-            <li
-              key={b.id}
-              className={cn(
-                "flex items-center gap-2.5 text-[12px] font-medium transition",
-                done ? "text-slate-800" : "text-slate-400",
-              )}
-            >
-              <span
-                className={cn(
-                  "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                  done ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400",
-                )}
-              >
-                {done ? <Icon className="w-3.5 h-3.5" /> : <Lock className="w-3 h-3" />}
-              </span>
-              <span className="leading-tight">{b.title}</span>
-            </li>
-          );
-        })}
-      </ul>
+          <div className="kp-field">
+            <label htmlFor="kp-shows">
+              <Music aria-hidden="true" /> Shows por mês
+            </label>
+            <Select value={props.showsPerMonth} onValueChange={props.setShowsPerMonth}>
+              <SelectTrigger id="kp-shows" className="kp-input">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent className="bg-white text-slate-900 border-slate-200">
+                <SelectItem value="0-3">0 a 3 shows</SelectItem>
+                <SelectItem value="3-5">3 a 5 shows</SelectItem>
+                <SelectItem value="5-10">5 a 10 shows</SelectItem>
+                <SelectItem value="10+">Mais de 10 shows</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <button type="submit" className="kp-btn kp-btn-primary" disabled={props.submitting}>
+          {props.submitting ? (
+            <>
+              <Loader2 className="kp-spin" /> Liberando acesso…
+            </>
+          ) : (
+            <>
+              Começar meu manual <ArrowRight />
+            </>
+          )}
+        </button>
+
+        <p className="kp-capture-note">
+          <ShieldCheck aria-hidden="true" /> Seus dados ficam protegidos. Não enviamos spam.
+        </p>
+
+        <div className="kp-capture-chips" aria-label="Bônus incluídos">
+          {BONUS_PREVIEW.map((b) => (
+            <span key={b.label} className="kp-chip">
+              <b.icon aria-hidden="true" /> {b.label}
+            </span>
+          ))}
+        </div>
+      </form>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Chapter view
+// Capítulo
 // ─────────────────────────────────────────────────────────────────────────────
 function ChapterView({
   chapter,
+  index,
+  total,
   readMinutes,
   interactions,
   onInteractionChange,
 }: {
   chapter: Chapter;
+  index: number;
+  total: number;
   readMinutes: number;
   interactions: ManualInteractions;
   onInteractionChange: (key: string, value: string | boolean | number) => void;
 }) {
-  const interaction = CHAPTER_INTERACTIONS[chapter.id];
   const Icon = chapter.icon;
-  const accentBg: Record<string, string> = {
-    rose: "bg-rose-50 text-rose-700 ring-rose-200/70",
-    blue: "bg-blue-50 text-blue-700 ring-blue-200/70",
-    emerald: "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
-    violet: "bg-violet-50 text-violet-700 ring-violet-200/70",
-    amber: "bg-amber-50 text-amber-700 ring-amber-200/70",
-  };
-
+  const interaction = CHAPTER_INTERACTIONS[chapter.id];
   let firstParagraph = true;
 
   return (
-    <article className="max-w-[680px]">
-      {/* Chapter header */}
-      <header className="space-y-5">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span
-            className={cn(
-              "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] ring-1",
-              accentBg[chapter.accent] || "bg-slate-50 text-slate-700 ring-slate-200",
-            )}
-          >
-            <Icon className="w-3.5 h-3.5" />
-            {chapter.eyebrow}
+    <article className="kp-article" aria-labelledby={`kp-ch-${chapter.id}`}>
+      <header className="kp-chapter-head">
+        <div className="kp-chapter-meta">
+          <span className="kp-eyebrow">
+            <Icon aria-hidden="true" /> Capítulo {index + 1} de {total}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
-            <Clock className="w-3 h-3" /> {readMinutes} min de leitura
+          <span className="kp-readtime">
+            <Clock aria-hidden="true" /> {readMinutes} min de leitura
           </span>
         </div>
-        <h1 className="text-[1.75rem] sm:text-[2.5rem] font-semibold -tracking-[0.02em] leading-[1.1] text-slate-900">
-          {chapter.title}
-        </h1>
-        <p className="text-base sm:text-lg text-slate-500 leading-relaxed">
-          {chapter.intro}
-        </p>
+        <h1 id={`kp-ch-${chapter.id}`}>{chapter.title}</h1>
+        <p className="kp-chapter-intro">{chapter.intro}</p>
       </header>
 
-      {/* Divider */}
-      <div className="my-9 flex items-center gap-3">
-        <span className="h-px flex-1 bg-slate-200" />
-        <Music className="w-3.5 h-3.5 text-slate-300" />
-        <span className="h-px flex-1 bg-slate-200" />
-      </div>
-
-      {/* Blocks */}
-      <div className="space-y-7">
+      <div className="kp-blocks">
         {chapter.blocks.map((block, i) => {
           const isLead = block.type === "p" && firstParagraph;
           if (isLead) firstParagraph = false;
-          return <BlockRenderer key={i} block={block} accent={chapter.accent} lead={isLead} />;
+          return <BlockRenderer key={i} block={block} lead={isLead} />;
         })}
       </div>
 
-      {/* Interação real do capítulo (reflexão / cenário / checklist) */}
       {interaction && (
         <ChapterInteraction
           interaction={interaction}
@@ -1343,142 +1366,106 @@ function ChapterView({
   );
 }
 
-function BlockRenderer({
-  block,
-  accent,
-  lead,
-}: {
-  block: Block;
-  accent: string;
-  lead?: boolean;
-}) {
+function BlockRenderer({ block, lead }: { block: Block; lead?: boolean }) {
   switch (block.type) {
     case "p":
-      return (
-        <p
-          className={cn(
-            "text-[1.05rem] sm:text-[1.1rem] text-slate-600 leading-[1.75]",
-            lead && "text-slate-800",
-          )}
-        >
-          {block.text}
-        </p>
-      );
+      return <p className={cn("kp-p", lead && "is-lead")}>{block.text}</p>;
     case "h":
-      return (
-        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 pt-4 -tracking-[0.01em] leading-tight">
-          {block.text}
-        </h2>
-      );
+      return <h2 className="kp-h2">{block.text}</h2>;
     case "quote":
       return (
-        <blockquote className="rounded-xl border-l-2 border-slate-900 bg-slate-50 px-6 py-5">
-          <p className="text-lg sm:text-xl font-medium text-slate-800 leading-snug -tracking-[0.01em]">
-            {block.text}
-          </p>
-          {block.author && (
-            <p className="text-[12px] text-slate-400 mt-2.5 font-medium">— {block.author}</p>
-          )}
+        <blockquote className="kp-quote">
+          <Quote aria-hidden="true" />
+          <p>{block.text}</p>
+          {block.author && <cite>— {block.author}</cite>}
         </blockquote>
       );
     case "tip":
       return (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5 flex gap-3.5">
-          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-            <Lightbulb className="w-4 h-4 text-emerald-600" strokeWidth={2} />
+        <aside className="kp-callout is-tip">
+          <span className="kp-callout-icon" aria-hidden="true">
+            <Lightbulb />
+          </span>
+          <div>
+            <strong>{block.title}</strong>
+            <p>{block.text}</p>
           </div>
-          <div className="space-y-1">
-            <p className="font-semibold text-emerald-900 text-[13px]">{block.title}</p>
-            <p className="text-emerald-900/75 text-[14px] sm:text-[15px] leading-relaxed">
-              {block.text}
-            </p>
-          </div>
-        </div>
+        </aside>
       );
     case "warn":
       return (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-5 flex gap-3.5">
-          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-            <AlertTriangle className="w-4 h-4 text-amber-600" strokeWidth={2} />
+        <aside className="kp-callout is-warn">
+          <span className="kp-callout-icon" aria-hidden="true">
+            <AlertTriangle />
+          </span>
+          <div>
+            <strong>{block.title}</strong>
+            <p>{block.text}</p>
           </div>
-          <div className="space-y-1">
-            <p className="font-semibold text-amber-900 text-[13px]">{block.title}</p>
-            <p className="text-amber-900/75 text-[14px] sm:text-[15px] leading-relaxed">
-              {block.text}
-            </p>
-          </div>
-        </div>
+        </aside>
       );
     case "list":
       return (
-        <ul className="space-y-3.5">
+        <ol className="kp-list">
           {block.items.map((it, i) => (
-            <li
-              key={i}
-              className="group flex gap-3.5 items-start text-[0.98rem] sm:text-[1.02rem] text-slate-600 leading-relaxed rounded-xl border border-slate-200/80 bg-white px-4 py-3 transition-colors hover:border-slate-300"
-            >
-              <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-[12px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
+            <li key={i}>
+              <span className="kp-list-num" aria-hidden="true">
                 {i + 1}
               </span>
               <span>{it}</span>
             </li>
           ))}
-        </ul>
+        </ol>
       );
     case "stat":
       return (
-        <div className="rounded-2xl border border-slate-200 bg-white p-7 sm:p-8 text-center shadow-sm">
-          <p className="text-5xl sm:text-6xl font-semibold -tracking-[0.02em] text-slate-900 leading-none">
-            {block.value}
-          </p>
-          <p className="mx-auto mt-3 max-w-md text-sm sm:text-[15px] leading-relaxed text-slate-500">
-            {block.label}
-          </p>
-        </div>
+        <figure className="kp-stat">
+          <span className="kp-stat-value">{block.value}</span>
+          <figcaption>{block.label}</figcaption>
+        </figure>
       );
     case "compare":
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-2.5">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-rose-500 flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" /> Errado
-            </p>
-            <p className="text-[14px] text-slate-500 leading-relaxed">{block.wrong}</p>
+        <div className="kp-compare">
+          <div className="kp-compare-card is-wrong">
+            <span className="kp-compare-label">
+              <X aria-hidden="true" /> Evite
+            </span>
+            <p>{block.wrong}</p>
           </div>
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-5 space-y-2.5">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-600 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Certo
-            </p>
-            <p className="text-[14px] text-slate-700 leading-relaxed">{block.right}</p>
+          <div className="kp-compare-card is-right">
+            <span className="kp-compare-label">
+              <Check aria-hidden="true" /> Prefira
+            </span>
+            <p>{block.right}</p>
           </div>
         </div>
       );
     case "gap":
       return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 text-white p-6 sm:p-7 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-              <PuzzleIcon className="w-4.5 h-4.5 text-slate-300" strokeWidth={2} />
-            </div>
+        <section className="kp-gap" aria-label={block.title}>
+          <span className="kp-glow kp-glow-blue" style={{ width: 220, height: 220, top: -90, right: -60 }} aria-hidden="true" />
+          <div className="kp-gap-head">
+            <span className="kp-icon-tile" aria-hidden="true">
+              <Puzzle />
+            </span>
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                Backstage Pro
-              </p>
-              <p className="font-semibold text-[17px] leading-tight -tracking-[0.01em]">
-                {block.title}
-              </p>
+              <small>Na prática com a Backstage Pro</small>
+              <strong>{block.title}</strong>
             </div>
           </div>
-          <p className="text-slate-300 text-[14px] sm:text-[15px] leading-relaxed">{block.text}</p>
-          <ul className="space-y-2.5">
+          <p>{block.text}</p>
+          <ul>
             {block.items.map((it, i) => (
-              <li key={i} className="flex gap-2.5 items-start text-[14px] sm:text-[15px] text-slate-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                <span>{it}</span>
+              <li key={i}>
+                <span className="kp-check" aria-hidden="true">
+                  <Check />
+                </span>
+                {it}
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       );
     default:
       return null;
@@ -1486,201 +1473,24 @@ function BlockRenderer({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Benefit card
+// Card de bônus
 // ─────────────────────────────────────────────────────────────────────────────
-function BenefitCard({ benefit, index }: { benefit: Benefit; index?: number }) {
+function BenefitCard({ benefit, index }: { benefit: Benefit; index: number }) {
   const Icon = benefit.icon;
-  const accents: Record<string, { bg: string; text: string; ring: string; btn: string }> = {
-    blue: {
-      bg: "bg-blue-50",
-      text: "text-blue-700",
-      ring: "hover:ring-blue-300",
-      btn: "bg-blue-600 hover:bg-blue-700 text-white",
-    },
-    emerald: {
-      bg: "bg-emerald-50",
-      text: "text-emerald-700",
-      ring: "hover:ring-emerald-300",
-      btn: "bg-emerald-600 hover:bg-emerald-700 text-white",
-    },
-    violet: {
-      bg: "bg-violet-50",
-      text: "text-violet-700",
-      ring: "hover:ring-violet-300",
-      btn: "bg-violet-600 hover:bg-violet-700 text-white",
-    },
-    amber: {
-      bg: "bg-amber-50",
-      text: "text-amber-700",
-      ring: "hover:ring-amber-300",
-      btn: "bg-amber-600 hover:bg-amber-700 text-white",
-    },
-  };
-  const a = accents[benefit.accent] || accents.blue;
-
   return (
-    <div
-      className={cn(
-        "group relative rounded-[1.6rem] bg-white ring-1 ring-slate-200 p-6 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300",
-        a.ring,
-      )}
-    >
-      {index && (
-        <span className="absolute top-5 right-6 text-3xl font-semibold text-slate-100 group-hover:text-slate-200 transition">
-          0{index}
+    <article className="kp-bonus">
+      <div className="kp-bonus-top">
+        <span className="kp-icon-tile">
+          <Icon />
         </span>
-      )}
-      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4", a.bg)}>
-        <Icon className={cn("w-6 h-6", a.text)} />
+        <span className="kp-bonus-num">0{index}</span>
       </div>
-      <h3 className="font-semibold text-slate-900 text-lg leading-tight">
-        {benefit.title}
-      </h3>
-      <p className="text-sm text-slate-500 mt-2 leading-relaxed flex-1">{benefit.description}</p>
-      <button
-        onClick={benefit.action}
-        className={cn(
-          "mt-5 inline-flex items-center justify-center gap-1.5 font-bold text-sm px-5 py-3 rounded-xl transition-all",
-          a.btn,
-        )}
-      >
-        {benefit.cta}
-        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+      {benefit.format && <span className="kp-bonus-format">{benefit.format}</span>}
+      <h3>{benefit.title}</h3>
+      <p>{benefit.description}</p>
+      <button type="button" className="kp-btn kp-btn-ghost" onClick={benefit.action}>
+        {benefit.cta} <ArrowRight />
       </button>
-    </div>
+    </article>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Lead capture modal
-// ─────────────────────────────────────────────────────────────────────────────
-function LeadCaptureModal(props: {
-  name: string;
-  phone: string;
-  city: string;
-  showsPerMonth: string;
-  submitting: boolean;
-  setName: (v: string) => void;
-  setPhone: (v: string) => void;
-  setCity: (v: string) => void;
-  setShowsPerMonth: (v: string) => void;
-  onSubmit: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-md px-4 py-6 overflow-y-auto">
-      <div className="w-full max-w-md rounded-[2rem] bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 ring-1 ring-slate-200 my-auto">
-        {/* Top */}
-        <div className="relative p-8 pb-6 text-center border-b border-slate-100 overflow-hidden">
-          <div className="absolute inset-x-0 -top-20 h-44 bg-[radial-gradient(closest-side,rgba(37,99,235,0.16),transparent)]" />
-          <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25">
-              <BookOpen className="w-7 h-7 text-white" />
-            </div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold mb-2">
-              Manual do Artista Contratado
-            </p>
-            <h2 className="text-2xl sm:text-[1.7rem] font-semibold text-slate-900 leading-tight">
-              O material que organiza sua carreira
-            </h2>
-            <p className="text-sm text-slate-500 mt-2.5 leading-relaxed">
-              7 capítulos práticos. No fim da leitura você libera{" "}
-              <strong className="text-slate-700">4 bônus gratuitos</strong>.
-            </p>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
-              {["Aula em vídeo", "Artes no Canva", "Mensagens prontas", "Teste grátis"].map((t) => (
-                <span
-                  key={t}
-                  className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 ring-1 ring-amber-200/70 px-2.5 py-1 rounded-full"
-                >
-                  <Gift className="w-2.5 h-2.5" /> {t}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Form */}
-        <div className="p-7 pt-6 space-y-4">
-          <FormField label="Nome e sobrenome" icon={<User className="w-4 h-4" />}>
-            <Input
-              placeholder="Ex: João Silva"
-              value={props.name}
-              onChange={(e) => props.setName(e.target.value)}
-              maxLength={100}
-              className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-500"
-            />
-          </FormField>
-
-          <FormField label="WhatsApp (com DDD)" icon={<Phone className="w-4 h-4" />}>
-            <Input
-              placeholder="(11) 98765-4321"
-              value={props.phone}
-              onChange={(e) => props.setPhone(e.target.value)}
-              maxLength={15}
-              inputMode="tel"
-              className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-500"
-            />
-          </FormField>
-
-          <FormField label="De qual cidade você é?" icon={<MapPin className="w-4 h-4" />}>
-            <Input
-              placeholder="Ex: São Paulo - SP"
-              value={props.city}
-              onChange={(e) => props.setCity(e.target.value)}
-              maxLength={100}
-              className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-500"
-            />
-          </FormField>
-
-          <FormField label="Quantos shows você faz por mês?" icon={<Music className="w-4 h-4" />}>
-            <Select value={props.showsPerMonth} onValueChange={props.setShowsPerMonth}>
-              <SelectTrigger className="bg-white border-slate-200 text-slate-900">
-                <SelectValue placeholder="Selecione uma opção" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0-3">0 a 3 shows</SelectItem>
-                <SelectItem value="3-5">3 a 5 shows</SelectItem>
-                <SelectItem value="5-10">5 a 10 shows</SelectItem>
-                <SelectItem value="10+">Mais de 10 shows</SelectItem>
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          <Button
-            className="w-full gap-2 text-base py-6 bg-slate-900 hover:bg-slate-800 text-white border-0 font-bold rounded-xl mt-2"
-            onClick={props.onSubmit}
-            disabled={props.submitting}
-          >
-            {props.submitting ? "Liberando acesso..." : "Começar a leitura grátis"}
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-
-          <p className="text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
-            <Shield className="w-3 h-3" /> Seus dados estão seguros. Não enviamos spam.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FormField({
-  label,
-  icon,
-  children,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-        <span className="text-slate-400">{icon}</span>
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
