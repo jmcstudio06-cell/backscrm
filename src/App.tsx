@@ -46,6 +46,7 @@ import ResetPassword from "./pages/ResetPassword";
 import AuthConfirm from "./pages/AuthConfirm";
 import GuiaAtendimento from "./pages/GuiaAtendimento";
 import KitProfissional from "./pages/KitProfissional";
+import BacksRadarLanding from "./pages/BacksRadarLanding";
 import PlanilhaGratuita from "./pages/PlanilhaGratuita";
 import PlanilhaCantoressVenda from "./pages/PlanilhaCantoressVenda";
 import MensagensProntas from "./pages/MensagensProntas";
@@ -138,6 +139,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Auth />} />
                 <Route path="/landing" element={<Landing />} />
+                <Route path="/radar" element={<ErrorBoundary><BacksRadarLanding /></ErrorBoundary>} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<AuthPage featureKey="dashboard"><Dashboard /></AuthPage>} />
                 <Route path="/agenda" element={<AuthPage featureKey="agenda"><Agenda /></AuthPage>} />

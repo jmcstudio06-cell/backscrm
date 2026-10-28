@@ -13,6 +13,7 @@ import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 export const PUBLIC_PREFIXES = [
   "/auth",
   "/landing",
+  "/radar",
   "/reset-password",
   "/termos",
   "/privacidade",

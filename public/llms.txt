@@ -6,6 +6,7 @@
 
 - [Início / Login](/): Acesso à plataforma e visão geral do produto.
 - [Landing](/landing): Página institucional com recursos, planos e depoimentos.
+- [Backs Radar](/radar): Apresentação do Backs Radar, ferramenta que encontra bares, restaurantes, hotéis e casas de show nas cidades escolhidas, com cadastro gratuito no Backstage Pro.
 - [Termos de Uso](/termos): Termos e condições de uso da plataforma.
 - [Política de Privacidade](/privacidade): Como tratamos dados pessoais (LGPD).
 

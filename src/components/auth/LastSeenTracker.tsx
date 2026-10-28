@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 
 const STORAGE_KEY = "last_seen_ping_at";
 const MIN_INTERVAL_MS = 15 * 60 * 1000;
-const PUBLIC_PATHS = new Set(["/", "/auth", "/landing", "/reset-password", "/auth/confirm"]);
+const PUBLIC_PATHS = new Set(["/", "/auth", "/landing", "/radar", "/reset-password", "/auth/confirm"]);
 
 /**
  * Registra uma visita ao aplicativo e interações reais enquanto ele está visível.
