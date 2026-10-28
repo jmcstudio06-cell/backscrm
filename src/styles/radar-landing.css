@@ -4,6 +4,30 @@
    e acrescenta apenas o que é específico do Radar. */
 .landing-page.radar-landing main { padding-bottom: 0; }
 
+/* Paleta própria do Radar: verde de radar sobre fundo quase preto.
+   Tudo o que é cor da página está neste bloco; trocar a paleta é mexer só aqui. */
+.landing-page.radar-landing {
+  --primary: 160 84% 27%;
+  --ring: 160 84% 27%;
+  --foreground: 165 40% 10%;
+  --muted-foreground: 165 12% 36%;
+  --muted: 150 30% 96%;
+  --secondary: 150 45% 94%;
+  --accent: 150 45% 94%;
+  --border: 150 22% 87%;
+  --lp-sky: 156 76% 33%;
+  --lp-cyan: 146 72% 52%; /* verde fosforescente: varredor, pontos e destaques sobre o escuro */
+  --lp-navy: 165 45% 6%;
+  --lp-navy-2: 165 38% 11%;
+  --lp-ice: 150 45% 96%;
+  --lp-gradient: linear-gradient(135deg, hsl(160 84% 24%) 0%, hsl(157 76% 30%) 55%, hsl(153 66% 36%) 100%);
+  --lp-gradient-wide: linear-gradient(110deg, hsl(160 84% 24%), hsl(157 76% 30%), hsl(153 66% 36%), hsl(157 76% 30%), hsl(160 84% 24%));
+}
+/* Texto em degradê sobre fundo escuro precisa de um verde mais claro para ter contraste. */
+.landing-page.radar-landing .rl-hero .lp-text-gradient,
+.landing-page.radar-landing .lp-cta .lp-text-gradient { background: linear-gradient(135deg, hsl(150 82% 56%), hsl(128 80% 64%)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.landing-page.radar-landing .lp-eyebrow-dot { animation-name: rl-dot; }
+
 /* Hero escuro com radar animado */
 .landing-page .rl-hero { position: relative; overflow: hidden; padding: 84px 0 104px; color: hsl(0 0% 100%); background: hsl(var(--lp-navy)); }
 .landing-page .rl-hero .lp-grid-bg { background-image: linear-gradient(to right, hsl(0 0% 100% / .05) 1px, transparent 1px), linear-gradient(to bottom, hsl(0 0% 100% / .05) 1px, transparent 1px); }
@@ -130,11 +154,12 @@
 .landing-page .rl-card-actions span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid; }
 .landing-page .rl-card-actions svg { width: 13px; height: 13px; }
 .landing-page .rl-card-actions .is-wa { color: hsl(152 60% 30%); background: hsl(152 70% 95%); border-color: hsl(152 55% 40% / .3); }
-.landing-page .rl-card-actions .is-map { color: hsl(221 82% 40%); background: hsl(221 90% 96%); border-color: hsl(221 80% 50% / .25); }
+.landing-page .rl-card-actions .is-map { color: hsl(200 30% 30%); background: hsl(200 30% 95%); border-color: hsl(200 25% 45% / .25); }
 .landing-page .rl-card-actions .is-crm { color: hsl(var(--primary)); background: hsl(var(--lp-ice)); border-color: hsl(var(--primary) / .25); }
 .landing-page .rl-results-note { margin-top: 14px; font-size: 13px; color: hsl(var(--muted-foreground)); }
 
 @keyframes rl-sweep { to { transform: rotate(360deg); } }
+@keyframes rl-dot { 0% { box-shadow: 0 0 0 0 hsl(146 72% 52% / .7); } 100% { box-shadow: 0 0 0 10px hsl(146 72% 52% / 0); } }
 @keyframes rl-blip { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
 @keyframes rl-ping { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(2.4); opacity: 0; } }
 @keyframes rl-pulse { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
