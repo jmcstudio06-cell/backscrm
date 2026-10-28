@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo-azul.png";
 import kitPlanilha from "@/assets/kit-planilha.png";
 
-const CHECKOUT_URL = "https://checkout.infinitepay.io/backstageprooficial/Vw3hOE2C8z";
-const ORIGINAL_PRICE = 39.90;
-const SALE_PRICE = 14.90;
+// Oferta de Black Friday. O valor cobrado é o do link do checkout da InfinitePay:
+// ao mudar o preço aqui, o link precisa ser gerado com o mesmo valor.
+const CHECKOUT_URL = "https://checkout.infinitepay.io/backstageprooficial/k57nfKeqP7";
+const ORIGINAL_PRICE = 49.90;
+const SALE_PRICE = 9.90;
 const DISCOUNT_PERCENT = Math.round(((ORIGINAL_PRICE - SALE_PRICE) / ORIGINAL_PRICE) * 100);
 const brl = (value: number) => `R$${value.toFixed(2).replace(".", ",")}`;
 
@@ -40,6 +42,10 @@ export default function PlanilhaCantoressVenda() {
 
   return (
     <div className="spreadsheet-sales min-h-screen">
+      <div className="sheet-bf-bar" role="note">
+        <span className="sheet-bf-tag">Black Friday</span>
+        <span>Planilha de <s>{brl(ORIGINAL_PRICE)}</s> por <strong>{brl(SALE_PRICE)}</strong></span>
+      </div>
       <header className="sheet-header">
         <div className="sheet-container flex items-center justify-between gap-4">
           <img src={logo} alt="Backstage Pro" className="w-36 sm:w-44 h-auto" />
@@ -57,7 +63,7 @@ export default function PlanilhaCantoressVenda() {
                 {["Pronta para usar", "100% editável", "Pagamento único"].map(item => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-primary" />{item}</li>)}
               </ul>
               <div className="max-w-md border-t border-border pt-6">
-                <div className="flex flex-wrap gap-3 items-center mb-2"><span className="text-muted-foreground">De <s>{brl(ORIGINAL_PRICE)}</s> por</span><span className="bg-secondary text-primary font-bold text-sm px-3 py-1 rounded-md">{DISCOUNT_PERCENT}% de desconto</span></div>
+                <div className="flex flex-wrap gap-3 items-center mb-2"><span className="text-muted-foreground">De <s>{brl(ORIGINAL_PRICE)}</s> por</span><span className="sheet-bf-tag">Black Friday</span><span className="bg-secondary text-primary font-bold text-sm px-3 py-1 rounded-md">{DISCOUNT_PERCENT}% de desconto</span></div>
                 <p className="sheet-price">{brl(SALE_PRICE)}</p>
                 <p className="text-muted-foreground text-sm mt-2 mb-5">Uma única compra. Acesso vitalício.</p>
                 {purchaseButton()}
@@ -89,7 +95,7 @@ export default function PlanilhaCantoressVenda() {
           </div>
         </section>
         <section className="bg-secondary border-y border-border py-12">
-          <div className="sheet-container flex flex-col md:flex-row items-start md:items-center justify-between gap-6"><div><h2 className="text-2xl font-bold">Mais música. Menos contas espalhadas.</h2><p className="text-muted-foreground mt-2">Comece com sua planilha por {brl(SALE_PRICE)}, sem mensalidade.</p></div><div className="w-full md:w-80 shrink-0">{purchaseButton("Comprar minha planilha")}</div></div>
+          <div className="sheet-container flex flex-col md:flex-row items-start md:items-center justify-between gap-6"><div><h2 className="text-2xl font-bold">Mais música. Menos contas espalhadas.</h2><p className="text-muted-foreground mt-2">Na Black Friday, comece com sua planilha por {brl(SALE_PRICE)}, sem mensalidade.</p></div><div className="w-full md:w-80 shrink-0">{purchaseButton("Comprar minha planilha")}</div></div>
         </section>
       </main>
       <footer className="sheet-container flex flex-col sm:flex-row justify-between gap-4 py-8 text-sm text-muted-foreground"><p>Backstage Pro · Feito para artistas.</p><nav className="flex gap-5"><a href="/termos" className="hover:text-primary">Termos de uso</a><a href="/privacidade" className="hover:text-primary">Privacidade</a></nav></footer>

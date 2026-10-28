@@ -36,6 +36,10 @@
 }
 .spreadsheet-sales * { letter-spacing: 0; }
 .sheet-container { width: min(1152px, calc(100% - 48px)); margin-inline: auto; }
+.sheet-bf-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; padding: 10px 20px; font-size: 14px; font-weight: 600; text-align: center; color: hsl(var(--primary-foreground)); background: var(--sheet-gradient); }
+.sheet-bf-bar s { opacity: .8; }
+.sheet-bf-bar strong { font-weight: 800; }
+.sheet-bf-tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: hsl(var(--primary)); background: hsl(var(--card)); }
 .sheet-header { padding: 22px 0; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--card) / .8); }
 .sheet-hero { padding: 62px 0 68px; background: var(--sheet-canvas); }
 .sheet-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
