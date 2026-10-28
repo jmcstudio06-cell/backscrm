@@ -17,7 +17,6 @@ import {
   Lightbulb,
   Loader2,
   Lock,
-  MapPin,
   MessageSquare,
   Music,
   Palette,
@@ -48,13 +47,6 @@ import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import "@/styles/kit.css";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import baIcon from "@/assets/ba-icon.png";
 
@@ -66,7 +58,7 @@ const YT_VIDEO_ID = "xKQ8Dajx7x4";
 const SIGNUP_URL = "https://backstageproapp.com/kit-profissional";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CONTEÚDO DO MATERIAL — capítulos escritos, interativos
+// CONTEÚDO DO CURSO — aulas escritas e interativas
 // ─────────────────────────────────────────────────────────────────────────────
 type Chapter = {
   id: string;
@@ -92,7 +84,7 @@ type Block =
 const CHAPTERS: Chapter[] = [
   {
     id: "intro",
-    eyebrow: "Capítulo 1",
+    eyebrow: "Aula 1",
     title: "Por que artistas talentosos perdem shows",
     intro:
       "Talento não é o suficiente. A cada semana, milhares de artistas perdem contratações por detalhes de gestão que ninguém ensina.",
@@ -130,7 +122,7 @@ const CHAPTERS: Chapter[] = [
       {
         type: "gap",
         title: "O que falta quando não existe sistema",
-        text: "Cada dica deste material funciona uma vez na força de vontade. Repetida 30 vezes por mês, ela só se sustenta dentro de um sistema. É esse o buraco que o Backstage Pro fecha.",
+        text: "Cada dica deste curso funciona uma vez na força de vontade. Repetida 30 vezes por mês, ela só se sustenta dentro de um sistema. É esse o buraco que o Backstage Pro fecha.",
         items: [
           "Todo contato de show entra no CRM e nunca se perde no meio das conversas.",
           "Agenda, financeiro e clientes no mesmo lugar, atualizados sozinhos.",
@@ -141,7 +133,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "primeiro-contato",
-    eyebrow: "Capítulo 2",
+    eyebrow: "Aula 2",
     title: "O primeiro contato que fecha shows",
     intro:
       "Os primeiros 5 minutos definem se o contratante continua com você ou procura outro artista. Existe uma forma certa de responder.",
@@ -193,7 +185,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "precificacao",
-    eyebrow: "Capítulo 3",
+    eyebrow: "Aula 3",
     title: "Como valorizar seu trabalho sem parecer caro",
     intro:
       "Preço não é número — é percepção. O mesmo valor pode parecer barato ou absurdo dependendo de como você apresenta.",
@@ -244,7 +236,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "fechamento",
-    eyebrow: "Capítulo 4",
+    eyebrow: "Aula 4",
     title: "Fechamento, contrato e sinal",
     intro:
       "Aqui é onde amadores viram profissionais: conduzir o fechamento sem dar margem para desistência ou desorganização.",
@@ -293,7 +285,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "rotina",
-    eyebrow: "Capítulo 5",
+    eyebrow: "Aula 5",
     title: "A rotina que sustenta uma agenda cheia",
     intro:
       "Fechar shows é uma habilidade. Sustentar 15 shows no mês sem esquecer nada é outra — e é a que quebra a maioria.",
@@ -340,7 +332,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "dinheiro",
-    eyebrow: "Capítulo 6",
+    eyebrow: "Aula 6",
     title: "Onde o dinheiro do artista desaparece",
     intro:
       "Faturar bem e não sobrar nada é o sintoma mais comum da carreira musical. O problema quase nunca é o cachê.",
@@ -383,7 +375,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "pos-show",
-    eyebrow: "Capítulo 7",
+    eyebrow: "Aula 7",
     title: "Pós-show: onde nasce o próximo contrato",
     intro:
       "O show foi um sucesso — e é aí que 90% dos artistas param. Quem entende o pós-show multiplica indicações.",
@@ -425,8 +417,8 @@ const CHAPTERS: Chapter[] = [
       },
       {
         type: "tip",
-        title: "Você concluiu o material 🎓",
-        text: "Você tem agora a visão completa: primeiro contato, precificação, contrato, rotina, dinheiro e pós-show. Repare que todo capítulo terminava no mesmo ponto — a técnica só se sustenta com estrutura. Na próxima tela, o vídeo completo e todos os bônus foram desbloqueados.",
+        title: "Você concluiu o mini-curso 🎓",
+        text: "Você tem agora a visão completa: primeiro contato, precificação, contrato, rotina, dinheiro e pós-show. Repare que toda aula terminava no mesmo ponto — a técnica só se sustenta com estrutura. Na próxima tela, o vídeo completo e todos os bônus foram desbloqueados.",
       },
     ],
   },
@@ -474,8 +466,6 @@ export default function KitProfissional() {
   // form
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("");
-  const [showsPerMonth, setShowsPerMonth] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   // Restaura o lead salvo e, a partir do telefone, carrega o progresso do Supabase
@@ -631,16 +621,12 @@ export default function KitProfissional() {
     if (digits.length < 10 || digits.length > 11)
       return toast.error("Digite um WhatsApp válido com DDD");
     if (/^(.)\1+$/.test(digits)) return toast.error("Insira um WhatsApp válido");
-    if (!city.trim()) return toast.error("Digite sua cidade");
-    if (!showsPerMonth) return toast.error("Selecione a quantidade de shows");
 
     setSubmitting(true);
     try {
       const leadData = {
         name: trimmed,
         phone: digits,
-        city: city.trim(),
-        shows_per_month: showsPerMonth,
         source: "kit_profissional",
       };
       await insertGuideLeadWithFallback(leadData);
@@ -654,7 +640,7 @@ export default function KitProfissional() {
       trackEvent("ViewContent", { content_name: "manual_chapter_1" });
       // semeia o progresso inicial vinculado ao telefone recém-capturado
       saveManualProgress(digits, { chapterIndex: 0, completed: false, interactions: {} });
-      toast.success("Bem-vindo! Seu material está liberado 📖");
+      toast.success("Você está dentro! A aula 1 já está liberada.");
     } catch (err) {
       console.error(err);
       toast.error("Erro ao salvar. Tente novamente.");
@@ -663,7 +649,7 @@ export default function KitProfissional() {
     }
   };
 
-  // Capítulos só abrem em ordem: até o primeiro ainda não concluído.
+  // Aulas só abrem em ordem: até a primeira ainda não concluída.
   const maxReachable = lastReachableIndex(interactions);
   const currentActivities = CHAPTER_INTERACTIONS[currentChapter.id] ?? [];
   const pendingActivities = currentActivities.filter(
@@ -675,8 +661,8 @@ export default function KitProfissional() {
   const goToChapter = (i: number) => {
     const clamped = Math.max(0, Math.min(i, totalChapters - 1));
     if (clamped > maxReachable) {
-      toast("Conclua os capítulos em ordem", {
-        description: `Responda as atividades do capítulo ${maxReachable + 1} para liberar o próximo.`,
+      toast("Conclua as aulas em ordem", {
+        description: `Responda as atividades da aula ${maxReachable + 1} para liberar a próxima.`,
       });
       return;
     }
@@ -696,8 +682,8 @@ export default function KitProfissional() {
       toast("Responda para continuar", {
         description:
           pendingActivities.length === 1
-            ? "Falta 1 atividade neste capítulo."
-            : `Faltam ${pendingActivities.length} atividades neste capítulo.`,
+            ? "Falta 1 atividade nesta aula."
+            : `Faltam ${pendingActivities.length} atividades nesta aula.`,
       });
       return;
     }
@@ -729,10 +715,7 @@ export default function KitProfissional() {
   };
 
   const remaining = totalChapters - doneCount;
-  const readMinutes = useMemo(() => {
-    const words = JSON.stringify(currentChapter.blocks).split(/\s+/).length;
-    return Math.max(2, Math.round(words / 190));
-  }, [currentChapter]);
+  const readMinutes = useMemo(() => minutesFor(currentChapter), [currentChapter]);
 
 
   const isDone = (id: string) => interactions[`done:${id}`] === true;
@@ -745,12 +728,12 @@ export default function KitProfissional() {
   };
 
   return (
-    <div className="kit-page">
+    <div className={cn("kit-page", isReading && "has-dock")}>
       <Helmet>
-        <title>Manual do Artista Contratado | Backstage Pro</title>
+        <title>Mini-curso Manual do Artista Contratado | Backstage Pro</title>
         <meta
           name="description"
-          content="Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua carreira musical. Material gratuito com 7 capítulos e 4 bônus."
+          content="Mini-curso gratuito com 7 aulas curtas para aprender a conquistar mais shows, valorizar seu trabalho e profissionalizar sua carreira musical. Inclui 4 bônus."
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -766,24 +749,24 @@ export default function KitProfissional() {
             <img src={baIcon} alt="" width={36} height={36} />
             <span>
               <strong>Backstage Pro</strong>
-              <small>Manual do Artista</small>
+              <small>Mini-curso gratuito</small>
             </span>
           </div>
 
           {isReading && (
             <span className="kp-header-chip">
               <BookOpen aria-hidden="true" />
-              Capítulo {chapterIdx + 1} de {totalChapters}
+              Aula {chapterIdx + 1} de {totalChapters}
             </span>
           )}
           {isUnlocked && (
             <span className="kp-header-chip is-done">
-              <Trophy aria-hidden="true" /> Manual concluído
+              <Trophy aria-hidden="true" /> Curso concluído
             </span>
           )}
           {!isLeadRegistered && (
             <span className="kp-header-chip">
-              <Gift aria-hidden="true" /> Material gratuito
+              <Gift aria-hidden="true" /> 100% gratuito
             </span>
           )}
         </div>
@@ -791,7 +774,7 @@ export default function KitProfissional() {
           <div
             className="kp-header-bar"
             role="progressbar"
-            aria-label="Progresso do manual"
+            aria-label="Progresso do curso"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={progressPct}
@@ -807,13 +790,9 @@ export default function KitProfissional() {
           totalChapters={totalChapters}
           name={name}
           phone={phone}
-          city={city}
-          showsPerMonth={showsPerMonth}
           submitting={submitting}
           setName={setName}
           setPhone={(v) => setPhone(formatPhone(v))}
-          setCity={setCity}
-          setShowsPerMonth={setShowsPerMonth}
           onSubmit={handleSubmitLead}
         />
       )}
@@ -830,8 +809,8 @@ export default function KitProfissional() {
       {isReading && (
         <>
           <div className="kp-container kp-reader">
-            <aside className="kp-toc" aria-label="Sumário do manual">
-              <p className="kp-toc-label">Sumário</p>
+            <aside className="kp-toc" aria-label="Aulas do curso">
+              <p className="kp-toc-label">Conteúdo do curso</p>
               <ol>
                 {CHAPTERS.map((c, i) => {
                   const done = isDone(c.id);
@@ -855,6 +834,9 @@ export default function KitProfissional() {
                           {done ? <Check /> : locked ? <Lock /> : i + 1}
                         </span>
                         <span className="kp-toc-title">
+                          <small className="kp-toc-meta">
+                            Aula {i + 1} · {minutesFor(c)} min
+                          </small>
                           {c.title}
                           {done && <span className="sr-only"> (concluído)</span>}
                           {locked && <span className="sr-only"> (bloqueado)</span>}
@@ -877,20 +859,20 @@ export default function KitProfissional() {
                 </div>
                 <p>
                   {remaining === 0
-                    ? "Todos os capítulos concluídos."
-                    : `Conclua ${remaining} ${remaining === 1 ? "capítulo" : "capítulos"} para liberar os 4 bônus.`}
+                    ? "Todas as aulas concluídas."
+                    : `Conclua ${remaining} ${remaining === 1 ? "aula" : "aulas"} para liberar os 4 bônus.`}
                 </p>
               </div>
             </aside>
 
             <main className="kp-main">
-              <nav className="kp-pills" aria-label="Capítulos">
+              <nav className="kp-pills" aria-label="Aulas">
                 {CHAPTERS.map((c, i) => (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => goToChapter(i)}
-                    aria-label={`Capítulo ${i + 1}: ${c.title}${isDone(c.id) ? " (concluído)" : i > maxReachable ? " (bloqueado)" : ""}`}
+                    aria-label={`Aula ${i + 1}: ${c.title}${isDone(c.id) ? " (concluído)" : i > maxReachable ? " (bloqueado)" : ""}`}
                     aria-current={i === chapterIdx ? "step" : undefined}
                     aria-disabled={i > maxReachable || undefined}
                     className={cn(
@@ -938,7 +920,7 @@ export default function KitProfissional() {
                       {canComplete
                         ? chapterIdx === totalChapters - 1
                           ? "Tudo respondido. Conclua para liberar seus bônus."
-                          : `Tudo respondido. Próximo: ${CHAPTERS[chapterIdx + 1].title}`
+                          : `Tudo respondido. Próxima aula: ${CHAPTERS[chapterIdx + 1].title}`
                         : `Responda as atividades para continuar (${answeredCount} de ${currentActivities.length})`}
                     </strong>
                     <div className="kp-bar kp-end-bar" aria-hidden="true">
@@ -951,7 +933,7 @@ export default function KitProfissional() {
                     <p>
                       {canComplete
                         ? "No final: aula em vídeo, teste gratuito da Backstage Pro, artes no Canva e mensagens prontas para contratantes."
-                        : "As atividades ajudam a aplicar o capítulo na sua carreira. Suas respostas não são compartilhadas."}
+                        : "As atividades ajudam a aplicar a aula na sua carreira. Suas respostas não são compartilhadas."}
                     </p>
                   </div>
                 </div>
@@ -977,13 +959,13 @@ export default function KitProfissional() {
           </div>
 
           {/* Navegação fixa no celular */}
-          <nav className="kp-dock" aria-label="Navegação entre capítulos">
+          <nav className="kp-dock" aria-label="Navegação entre aulas">
             <button
               type="button"
               className="kp-btn kp-btn-ghost kp-dock-prev"
               onClick={goPrev}
               disabled={chapterIdx === 0}
-              aria-label="Capítulo anterior"
+              aria-label="Aula anterior"
             >
               <ArrowLeft className="kp-flip" />
             </button>
@@ -1015,10 +997,10 @@ export default function KitProfissional() {
                 <Trophy />
               </span>
               <span className="kp-eyebrow is-dark">
-                <span className="kp-eyebrow-dot" /> Manual concluído
+                <span className="kp-eyebrow-dot" /> Curso concluído
               </span>
               <h1 id="kp-done-title">
-                Você chegou ao final do
+                Você concluiu o mini-curso
                 <span className="kp-text-gradient">Manual do Artista Contratado!</span>
               </h1>
               <p>
@@ -1038,7 +1020,7 @@ export default function KitProfissional() {
                     goToChapter(0);
                   }}
                 >
-                  <BookOpen /> Revisar o manual
+                  <BookOpen /> Rever as aulas
                 </button>
               </div>
               <p className="kp-done-note">
@@ -1122,7 +1104,7 @@ export default function KitProfissional() {
       <footer className="kp-footer">
         <div className="kp-container">
           <span>© Backstage Pro®</span>
-          <span>Manual do Artista Contratado · material gratuito</span>
+          <span>Mini-curso Manual do Artista Contratado · gratuito</span>
         </div>
       </footer>
     </div>
@@ -1167,7 +1149,7 @@ function NextChapterButton({
         </>
       ) : (
         <>
-          Concluir capítulo <ArrowRight />
+          Concluir aula <ArrowRight />
         </>
       )}
     </button>
@@ -1175,356 +1157,103 @@ function NextChapterButton({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Entrada: hero no padrão da landing + formulário de lead embutido
+// Entrada: tela única de inscrição no mini-curso (curta, sem rolagem longa)
 // ─────────────────────────────────────────────────────────────────────────────
+/** Estimativa de tempo da aula a partir do texto real (≈190 palavras por minuto). */
+function minutesFor(chapter: Chapter): number {
+  const words = JSON.stringify(chapter.blocks).split(/\s+/).length;
+  return Math.max(2, Math.round(words / 190));
+}
+
 type IntroProps = {
   totalChapters: number;
   name: string;
   phone: string;
-  city: string;
-  showsPerMonth: string;
   submitting: boolean;
   setName: (v: string) => void;
   setPhone: (v: string) => void;
-  setCity: (v: string) => void;
-  setShowsPerMonth: (v: string) => void;
   onSubmit: () => void;
 };
 
-const BONUS_PREVIEW = [
-  { icon: PlayCircle, label: "Aula completa em vídeo" },
-  { icon: Rocket, label: "Teste gratuito da Backstage Pro" },
-  { icon: Palette, label: "Artes editáveis no Canva" },
-  { icon: MessageSquare, label: "Mensagens prontas para contratantes" },
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Diagnóstico de abertura: 4 perguntas rápidas que apontam por onde começar.
-// Apenas apresentação: as respostas não são salvas nem enviadas.
-// ─────────────────────────────────────────────────────────────────────────────
-type DiagAnswer = "sim" | "as-vezes" | "nao";
-
-const DIAG_QUESTIONS = [
-  {
-    chapter: 1,
-    question: "Você responde um pedido de orçamento em até 30 minutos?",
-    focus: "Responder rápido e com prazo claro",
-  },
-  {
-    chapter: 2,
-    question: "Suas propostas mostram formatos e o que está incluso, não só o valor?",
-    focus: "Apresentar valor sem parecer caro",
-  },
-  {
-    chapter: 3,
-    question: "Você fecha seus shows com contrato e sinal?",
-    focus: "Formalizar com contrato e sinal",
-  },
-  {
-    chapter: 6,
-    question: "Você volta a falar com o contratante depois do show?",
-    focus: "Transformar o pós-show em novo contrato",
-  },
-] as const;
-
-const DIAG_OPTIONS: { value: DiagAnswer; label: string }[] = [
-  { value: "sim", label: "Sim, sempre" },
-  { value: "as-vezes", label: "Às vezes" },
-  { value: "nao", label: "Ainda não" },
-];
-
-function HeroDiagnostic({ onFinish }: { onFinish: () => void }) {
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<DiagAnswer[]>([]);
-  const total = DIAG_QUESTIONS.length;
-  const finished = answers.length === total;
-
-  const answer = (value: DiagAnswer) => {
-    const next = [...answers.slice(0, step), value];
-    setAnswers(next);
-    if (step === 0) trackEvent("ViewContent", { content_name: "manual_diagnostic_start" });
-    if (next.length === total) {
-      trackEvent("ViewContent", { content_name: "manual_diagnostic_complete" });
-    } else {
-      window.setTimeout(() => setStep(step + 1), 260);
-    }
-  };
-
-  const restart = () => {
-    setAnswers([]);
-    setStep(0);
-  };
-
-  const focusItems = DIAG_QUESTIONS.filter((_, i) => answers[i] && answers[i] !== "sim");
-  const strong = total - focusItems.length;
-  const q = DIAG_QUESTIONS[step];
-
-  return (
-    <div className="kp-diag" aria-live="polite">
-      <div className="kp-diag-inner">
-        <div className="kp-diag-top">
-          <span className="kp-capture-badge">
-            <Target aria-hidden="true" /> Diagnóstico de 30 segundos
-          </span>
-          {!finished && (
-            <span className="kp-diag-count">
-              {step + 1}/{total}
-            </span>
-          )}
-        </div>
-
-        <div className="kp-diag-steps" aria-hidden="true">
-          {DIAG_QUESTIONS.map((_, i) => (
-            <span
-              key={i}
-              className={cn(
-                answers[i] === "sim" && "is-good",
-                answers[i] && answers[i] !== "sim" && "is-focus",
-                !finished && i === step && "is-current",
-              )}
-            />
-          ))}
-        </div>
-
-        <AnimatePresence mode="wait">
-          {!finished ? (
-            <motion.div
-              key={`q-${step}`}
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <h2 className="kp-diag-question">{q.question}</h2>
-              <div className="kp-diag-options" role="group" aria-label={q.question}>
-                {DIAG_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    aria-pressed={answers[step] === opt.value}
-                    className={cn("kp-diag-option", answers[step] === opt.value && "is-selected")}
-                    onClick={() => answer(opt.value)}
-                  >
-                    <span className="kp-diag-dot" aria-hidden="true" />
-                    {opt.label}
-                    <ArrowRight className="kp-diag-arrow" aria-hidden="true" />
-                  </button>
-                ))}
-              </div>
-              {step > 0 && (
-                <button type="button" className="kp-diag-back" onClick={() => setStep(step - 1)}>
-                  <ArrowLeft aria-hidden="true" /> Voltar
-                </button>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="result"
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="kp-diag-score">
-                <div className="kp-diag-ring" style={{ ["--kp-pct" as string]: `${(strong / total) * 100}%` }}>
-                  <strong>
-                    {strong}/{total}
-                    <small>em dia</small>
-                  </strong>
-                </div>
-                <div>
-                  <h2>
-                    {focusItems.length === 0
-                      ? "Você já tem uma boa base."
-                      : focusItems.length <= 2
-                        ? "Alguns pontos podem estar custando shows."
-                        : "Seu talento pode estar perdendo shows fora do palco."}
-                  </h2>
-                  <p>
-                    {focusItems.length === 0
-                      ? "O manual ajuda a transformar esses hábitos em rotina, mesmo nas semanas cheias."
-                      : "Estes são os capítulos para você prestar mais atenção:"}
-                  </p>
-                </div>
-              </div>
-
-              {focusItems.length > 0 && (
-                <ul className="kp-diag-focus">
-                  {focusItems.map((item) => (
-                    <li key={item.chapter}>
-                      <span>Cap. {item.chapter + 1}</span>
-                      {item.focus}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <button type="button" className="kp-btn kp-btn-primary kp-diag-cta" onClick={onFinish}>
-                Liberar meu manual <ArrowRight />
-              </button>
-              <div className="kp-diag-foot">
-                <span>Resultado indicativo, com base nas suas respostas. Nada é salvo.</span>
-                <button type="button" onClick={restart}>
-                  Refazer
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
 function IntroView(props: IntroProps) {
-  const totalMinutes = useMemo(() => {
-    const words = JSON.stringify(CHAPTERS.map((c) => c.blocks)).split(/\s+/).length;
-    return Math.max(10, Math.round(words / 190));
-  }, []);
-
-  const focusForm = () => {
-    const el = document.getElementById("kp-capture");
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
-    window.setTimeout(() => document.getElementById("kp-name")?.focus({ preventScroll: true }), 500);
-  };
+  const totalMinutes = useMemo(() => CHAPTERS.reduce((sum, c) => sum + minutesFor(c), 0), []);
 
   return (
-    <main>
-      <section className="kp-hero" aria-labelledby="kp-title">
-        <div className="kp-grid-bg" aria-hidden="true" />
-        <span className="kp-glow kp-glow-blue" style={{ width: 420, height: 420, top: -140, left: -160 }} aria-hidden="true" />
-        <span className="kp-glow kp-glow-cyan" style={{ width: 420, height: 420, bottom: -180, right: -140 }} aria-hidden="true" />
+    <main className="kp-enroll" aria-labelledby="kp-title">
+      <div className="kp-grid-bg" aria-hidden="true" />
+      <span className="kp-glow kp-glow-blue" style={{ width: 420, height: 420, top: -160, left: -160 }} aria-hidden="true" />
+      <span className="kp-glow kp-glow-cyan" style={{ width: 420, height: 420, bottom: -200, right: -140 }} aria-hidden="true" />
 
-        <div className="kp-container kp-hero-grid">
-          <div className="kp-hero-copy">
-            <span className="kp-eyebrow">
-              <span className="kp-eyebrow-dot" /> Material gratuito para artistas
-            </span>
-            <h1 id="kp-title">
-              Manual do Artista
-              <span className="kp-text-gradient">Contratado.</span>
-            </h1>
-            <p className="kp-hero-lead">
-              Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua
-              carreira musical. Comece pelo diagnóstico ao lado e descubra por onde começar.
-            </p>
-            <div className="kp-hero-ctas">
-              <button type="button" className="kp-btn kp-btn-primary" onClick={focusForm}>
-                Começar meu manual <ArrowRight />
-              </button>
-              <a href="#kp-learn-title" className="kp-btn kp-btn-ghost">
-                <BookOpen /> Ver os capítulos
-              </a>
-            </div>
-            <ul className="kp-hero-trust">
-              <li>
-                <span className="kp-check"><Check /></span> {props.totalChapters} capítulos práticos
-              </li>
-              <li>
-                <span className="kp-check"><Check /></span> Atividades em cada capítulo
-              </li>
-              <li>
-                <span className="kp-check"><Check /></span> 4 bônus no final
-              </li>
-              <li>
-                <span className="kp-check"><Check /></span> Cerca de {totalMinutes} min de leitura
-              </li>
-            </ul>
-          </div>
-
-          <HeroDiagnostic onFinish={focusForm} />
-        </div>
-      </section>
-
-      <section className="kp-capture-band" aria-labelledby="kp-capture-title">
-        <div className="kp-container kp-capture-grid">
-          <div className="kp-capture-aside">
-            <span className="kp-eyebrow">
-              <Gift /> Acesso gratuito
-            </span>
-            <h2>
-              Comece agora.
-              <span className="kp-text-gradient"> Seu progresso fica salvo.</span>
-            </h2>
-            <p>
-              Informe seus dados para liberar a leitura. Você pode parar quando quiser e continuar
-              de onde parou.
-            </p>
-            <ol className="kp-howto">
-              <li><b>1</b> Leia cada capítulo no seu ritmo</li>
-              <li><b>2</b> Responda as atividades para avançar</li>
-              <li><b>3</b> Conclua os 7 e libere os 4 bônus</li>
-            </ol>
-          </div>
-          <LeadCaptureCard {...props} />
-        </div>
-      </section>
-
-      <section className="kp-section" aria-labelledby="kp-learn-title">
-        <div className="kp-container">
-          <div className="kp-heading">
-            <span className="kp-eyebrow">O que você vai aprender</span>
-            <h2 id="kp-learn-title">
-              Sete capítulos.
-              <span className="kp-text-gradient"> Uma carreira mais profissional.</span>
-            </h2>
-            <p>Cada capítulo complementa o anterior, do primeiro “oi” até o próximo contrato.</p>
-          </div>
-          <ol className="kp-chapters">
-            {CHAPTERS.map((c, i) => {
-              const Icon = c.icon;
-              return (
-                <li key={c.id} className="kp-chapter-card">
-                  <div className="kp-chapter-top">
-                    <span className="kp-icon-tile"><Icon /></span>
-                    <span className="kp-chapter-num">{String(i + 1).padStart(2, "0")}</span>
-                  </div>
-                  <h3>{c.title}</h3>
-                  <p>{c.intro}</p>
-                </li>
-              );
-            })}
-            <li className="kp-chapter-card is-bonus">
-              <div className="kp-chapter-top">
-                <span className="kp-icon-tile"><Gift /></span>
-                <span className="kp-chapter-num">+4</span>
-              </div>
-              <h3>Bônus liberados no final</h3>
-              <ul className="kp-bonus-mini">
-                {BONUS_PREVIEW.map((b) => (
-                  <li key={b.label}>
-                    <b.icon aria-hidden="true" /> {b.label}
-                  </li>
-                ))}
-              </ul>
+      <div className="kp-container kp-enroll-grid">
+        <div className="kp-enroll-copy">
+          <span className="kp-eyebrow">
+            <span className="kp-eyebrow-dot" /> Mini-curso gratuito
+          </span>
+          <h1 id="kp-title">
+            Manual do Artista
+            <span className="kp-text-gradient">Contratado</span>
+          </h1>
+          <p className="kp-enroll-lead">
+            Aprenda a conquistar mais shows, valorizar seu trabalho e profissionalizar sua carreira
+            musical. Aulas curtas, no seu ritmo.
+          </p>
+          <ul className="kp-enroll-facts">
+            <li>
+              <BookOpen aria-hidden="true" /> {props.totalChapters} aulas
             </li>
-          </ol>
-          <div className="kp-center">
-            <button type="button" className="kp-btn kp-btn-primary" onClick={focusForm}>
-              Começar meu manual <ArrowRight />
-            </button>
-          </div>
+            <li>
+              <Clock aria-hidden="true" /> ~{totalMinutes} min
+            </li>
+            <li>
+              <Gift aria-hidden="true" /> 4 bônus
+            </li>
+          </ul>
         </div>
-      </section>
+
+        <EnrollCard {...props} />
+
+        <section className="kp-lessons" aria-labelledby="kp-lessons-title">
+          <h2 id="kp-lessons-title">O que você vai ver</h2>
+          <ol>
+            {CHAPTERS.map((c, i) => (
+              <li key={c.id}>
+                <span className="kp-lesson-num" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span className="kp-lesson-title">{c.title}</span>
+                <span className="kp-lesson-min">{minutesFor(c)} min</span>
+              </li>
+            ))}
+          </ol>
+          <p className="kp-lessons-bonus">
+            <Gift aria-hidden="true" />
+            <span>
+              Ao concluir: 4 bônus (vídeo, teste grátis, artes no Canva e mensagens prontas).
+            </span>
+          </p>
+        </section>
+      </div>
     </main>
   );
 }
 
-function LeadCaptureCard(props: IntroProps) {
+function EnrollCard(props: IntroProps) {
   return (
     <div className="kp-capture" id="kp-capture">
       <form
         className="kp-capture-inner"
         noValidate
+        aria-labelledby="kp-capture-title"
         onSubmit={(e) => {
           e.preventDefault();
           props.onSubmit();
         }}
       >
         <span className="kp-capture-badge">
-          <Sparkles aria-hidden="true" /> Acesso gratuito
+          <Sparkles aria-hidden="true" /> 100% gratuito
         </span>
-        <h2 id="kp-capture-title">Receba seu manual agora</h2>
-        <p>Preencha para liberar a leitura. Seu progresso fica salvo neste número.</p>
+        <h2 id="kp-capture-title">Entre no mini-curso</h2>
+        <p>Leva menos de 1 minuto. A primeira aula abre na hora.</p>
 
         <div className="kp-field">
           <label htmlFor="kp-name">
@@ -1535,6 +1264,7 @@ function LeadCaptureCard(props: IntroProps) {
             className="kp-input"
             placeholder="Ex.: João Silva"
             autoComplete="name"
+            enterKeyHint="next"
             value={props.name}
             onChange={(e) => props.setName(e.target.value)}
             maxLength={100}
@@ -1551,69 +1281,40 @@ function LeadCaptureCard(props: IntroProps) {
             placeholder="(11) 98765-4321"
             inputMode="tel"
             autoComplete="tel"
+            enterKeyHint="go"
             value={props.phone}
             onChange={(e) => props.setPhone(e.target.value)}
             maxLength={15}
           />
         </div>
 
-        <div className="kp-field-row">
-          <div className="kp-field">
-            <label htmlFor="kp-city">
-              <MapPin aria-hidden="true" /> Cidade
-            </label>
-            <Input
-              id="kp-city"
-              className="kp-input"
-              placeholder="Ex.: São Paulo - SP"
-              autoComplete="address-level2"
-              value={props.city}
-              onChange={(e) => props.setCity(e.target.value)}
-              maxLength={100}
-            />
-          </div>
-
-          <div className="kp-field">
-            <label htmlFor="kp-shows">
-              <Music aria-hidden="true" /> Shows por mês
-            </label>
-            <Select value={props.showsPerMonth} onValueChange={props.setShowsPerMonth}>
-              <SelectTrigger id="kp-shows" className="kp-input">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent className="bg-white text-slate-900 border-slate-200">
-                <SelectItem value="0-3">0 a 3 shows</SelectItem>
-                <SelectItem value="3-5">3 a 5 shows</SelectItem>
-                <SelectItem value="5-10">5 a 10 shows</SelectItem>
-                <SelectItem value="10+">Mais de 10 shows</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
         <button type="submit" className="kp-btn kp-btn-primary" disabled={props.submitting}>
           {props.submitting ? (
             <>
-              <Loader2 className="kp-spin" /> Liberando acesso…
+              <Loader2 className="kp-spin" /> Abrindo a aula 1…
             </>
           ) : (
             <>
-              Começar meu manual <ArrowRight />
+              Quero entrar agora <ArrowRight />
             </>
           )}
         </button>
 
+        <ul className="kp-enroll-perks">
+          <li>
+            <Check aria-hidden="true" /> Sem cartão
+          </li>
+          <li>
+            <Check aria-hidden="true" /> Pelo celular
+          </li>
+          <li>
+            <Check aria-hidden="true" /> Continue de onde parou
+          </li>
+        </ul>
+
         <p className="kp-capture-note">
           <ShieldCheck aria-hidden="true" /> Seus dados ficam protegidos. Não enviamos spam.
         </p>
-
-        <div className="kp-capture-chips" aria-label="Bônus incluídos">
-          {BONUS_PREVIEW.map((b) => (
-            <span key={b.label} className="kp-chip">
-              <b.icon aria-hidden="true" /> {b.label}
-            </span>
-          ))}
-        </div>
       </form>
     </div>
   );
@@ -1646,7 +1347,7 @@ function ChapterView({
       <header className="kp-chapter-head">
         <div className="kp-chapter-meta">
           <span className="kp-eyebrow">
-            <Icon aria-hidden="true" /> Capítulo {index + 1} de {total}
+            <Icon aria-hidden="true" /> Aula {index + 1} de {total}
           </span>
           <span className="kp-readtime">
             <Clock aria-hidden="true" /> {readMinutes} min de leitura
@@ -1670,7 +1371,7 @@ function ChapterView({
             <span className="kp-eyebrow">
               <Sparkles aria-hidden="true" /> Sua vez
             </span>
-            <p>Responda para concluir o capítulo e liberar o próximo.</p>
+            <p>Responda para concluir a aula e liberar a próxima.</p>
           </div>
           {activities.map((activity, i) => (
             <ChapterInteraction

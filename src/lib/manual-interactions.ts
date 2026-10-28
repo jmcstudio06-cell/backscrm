@@ -49,7 +49,7 @@ export type ChapterInteraction =
   | ScenarioInteraction
   | ChecklistInteraction;
 
-/** Atividade principal de cada capítulo (reflexão, cenário ou checklist). */
+/** Atividade principal de cada aula (reflexão, cenário ou checklist). */
 const PRIMARY: Record<string, ChapterInteraction> = {
   intro: {
     type: "reflection",
@@ -59,7 +59,7 @@ const PRIMARY: Record<string, ChapterInteraction> = {
     feedbackYes:
       "Ótimo sinal. Quem acompanha os orçamentos em aberto perde muito menos oportunidade por esquecimento. O próximo passo é garantir que esse controle não dependa só da memória nos dias cheios.",
     feedbackNo:
-      "Você não está sozinho — é o ponto que mais faz talento virar show perdido. Repare, ao longo dos capítulos, como cada técnica depende de ter esse histórico em algum lugar além da cabeça e do WhatsApp.",
+      "Você não está sozinho — é o ponto que mais faz talento virar show perdido. Repare, ao longo das aulas, como cada técnica depende de ter esse histórico em algum lugar além da cabeça e do WhatsApp.",
   },
   "primeiro-contato": {
     type: "scenario",
@@ -170,8 +170,8 @@ const PRIMARY: Record<string, ChapterInteraction> = {
 };
 
 /**
- * Checagem rápida de cada capítulo: pergunta de compreensão baseada no texto
- * do próprio capítulo. Todas as opções trazem um feedback que ensina algo.
+ * Checagem rápida de cada aula: pergunta de compreensão baseada no texto
+ * da própria aula. Todas as opções trazem um feedback que ensina algo.
  */
 const QUICK_CHECK: Record<string, ChapterInteraction> = {
   intro: {
@@ -183,13 +183,13 @@ const QUICK_CHECK: Record<string, ChapterInteraction> = {
       {
         id: "a",
         label: "Todos vêm de falta de talento ou de técnica musical.",
-        feedback: "Nenhum dos cinco erros fala de música. O capítulo mostra que artistas talentosos perdem shows justamente por detalhes fora do palco.",
+        feedback: "Nenhum dos cinco erros fala de música. A aula mostra que artistas talentosos perdem shows justamente por detalhes fora do palco.",
       },
       {
         id: "b",
         label: "Todos são problemas de organização, não de música.",
         best: true,
-        feedback: "Isso mesmo. Responder, apresentar valor, guardar o histórico e saber os números são hábitos de organização, e é isso que os próximos capítulos ensinam a construir.",
+        feedback: "Isso mesmo. Responder, apresentar valor, guardar o histórico e saber os números são hábitos de organização, e é isso que as próximas aulas ensinam a construir.",
       },
       {
         id: "c",
@@ -207,7 +207,7 @@ const QUICK_CHECK: Record<string, ChapterInteraction> = {
       {
         id: "a",
         label: "Responder em até 24 horas, com a proposta completa.",
-        feedback: "Em 24 horas o contratante provavelmente já falou com outros artistas. O capítulo recomenda um retorno bem mais rápido, mesmo sem a proposta pronta.",
+        feedback: "Em 24 horas o contratante provavelmente já falou com outros artistas. A aula recomenda um retorno bem mais rápido, mesmo sem a proposta pronta.",
       },
       {
         id: "b",
@@ -218,7 +218,7 @@ const QUICK_CHECK: Record<string, ChapterInteraction> = {
       {
         id: "c",
         label: "Confirmar a data na hora e verificar a agenda depois.",
-        feedback: "Esse é o erro que o capítulo aponta como o mais caro. Disponibilidade precisa ser consultada, não lembrada.",
+        feedback: "Esse é o erro que a aula aponta como o mais caro. Disponibilidade precisa ser consultada, não lembrada.",
       },
     ],
   },
@@ -235,13 +235,13 @@ const QUICK_CHECK: Record<string, ChapterInteraction> = {
   fechamento: {
     type: "scenario",
     key: "ch4_quiz_sinal",
-    prompt: "Qual é a recomendação do capítulo para o pagamento?",
+    prompt: "Qual é a recomendação da aula para o pagamento?",
     situation: "O contratante topou a proposta e você vai formalizar o show.",
     options: [
       {
         id: "a",
         label: "Não pedir sinal, para não parecer desconfiança.",
-        feedback: "O capítulo mostra o contrário: o sinal é sobre comprometimento, e todo contratante sério entende isso.",
+        feedback: "A aula mostra o contrário: o sinal é sobre comprometimento, e todo contratante sério entende isso.",
       },
       {
         id: "b",
@@ -259,7 +259,7 @@ const QUICK_CHECK: Record<string, ChapterInteraction> = {
   rotina: {
     type: "scenario",
     key: "ch5_quiz_confirmacao",
-    prompt: "Quando o capítulo recomenda confirmar horário, local e formato?",
+    prompt: "Quando a aula recomenda confirmar horário, local e formato?",
     situation: "Você tem um show fechado na próxima semana.",
     options: [
       {
@@ -307,13 +307,13 @@ const QUICK_CHECK: Record<string, ChapterInteraction> = {
   "pos-show": {
     type: "scenario",
     key: "ch7_quiz_movimento",
-    prompt: "Qual movimento o capítulo chama de mais valioso e mais esquecido?",
+    prompt: "Qual movimento a aula chama de mais valioso e mais esquecido?",
     situation: "O show foi um sucesso e o contratante ficou satisfeito.",
     options: [
       {
         id: "a",
         label: "Mandar a mensagem de agradecimento em até 24 horas.",
-        feedback: "É importante, mas não é o mais esquecido. O capítulo destaca um movimento que acontece meses depois.",
+        feedback: "É importante, mas não é o mais esquecido. A aula destaca um movimento que acontece meses depois.",
       },
       {
         id: "b",
@@ -324,13 +324,13 @@ const QUICK_CHECK: Record<string, ChapterInteraction> = {
       {
         id: "c",
         label: "Pedir fotos e vídeos do evento.",
-        feedback: "Ajuda na próxima venda, mas o capítulo aponta outro movimento como o que mais gera novos contratos.",
+        feedback: "Ajuda na próxima venda, mas a aula aponta outro movimento como o que mais gera novos contratos.",
       },
     ],
   },
 };
 
-/** Atividades de cada capítulo, na ordem em que aparecem. */
+/** Atividades de cada aula, na ordem em que aparecem. */
 export const CHAPTER_INTERACTIONS: Record<string, ChapterInteraction[]> = Object.fromEntries(
   Object.keys(PRIMARY).map((id) => [id, [PRIMARY[id], QUICK_CHECK[id]].filter(Boolean)]),
 );
@@ -340,7 +340,7 @@ export function checklistConfirmedKey(key: string) {
   return `${key}:confirmed`;
 }
 
-/** Diz se a atividade já foi respondida. É o que libera a conclusão do capítulo. */
+/** Diz se a atividade já foi respondida. É o que libera a conclusão da aula. */
 export function isInteractionAnswered(
   interaction: ChapterInteraction,
   values: Record<string, string | boolean | number>,
