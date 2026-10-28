@@ -4,34 +4,27 @@
    e acrescenta apenas o que é específico do Radar. */
 .landing-page.radar-landing main { padding-bottom: 0; }
 
-/* Paleta própria do Radar: verde de radar sobre fundo quase preto.
+/* Paleta própria do Radar: azul clarinho com branco, sem preto.
    Tudo o que é cor da página está neste bloco; trocar a paleta é mexer só aqui. */
 .landing-page.radar-landing {
-  --primary: 160 84% 27%;
-  --ring: 160 84% 27%;
-  --foreground: 165 40% 10%;
-  --muted-foreground: 165 12% 36%;
-  --muted: 150 30% 96%;
-  --secondary: 150 45% 94%;
-  --accent: 150 45% 94%;
-  --border: 150 22% 87%;
-  --lp-sky: 156 76% 33%;
-  --lp-cyan: 146 72% 52%; /* verde fosforescente: varredor, pontos e destaques sobre o escuro */
-  --lp-navy: 165 45% 6%;
-  --lp-navy-2: 165 38% 11%;
-  --lp-ice: 150 45% 96%;
-  --lp-gradient: linear-gradient(135deg, hsl(160 84% 24%) 0%, hsl(157 76% 30%) 55%, hsl(153 66% 36%) 100%);
-  --lp-gradient-wide: linear-gradient(110deg, hsl(160 84% 24%), hsl(157 76% 30%), hsl(153 66% 36%), hsl(157 76% 30%), hsl(160 84% 24%));
+  --primary: 208 92% 47%;
+  --ring: 208 92% 47%;
+  --foreground: 214 50% 20%;
+  --muted-foreground: 214 22% 42%;
+  --muted: 205 60% 96%;
+  --secondary: 205 100% 95%;
+  --accent: 205 100% 95%;
+  --border: 205 45% 89%;
+  --lp-sky: 202 92% 54%;
+  --lp-cyan: 196 90% 60%;
+  --lp-navy: 214 50% 20%;
+  --lp-navy-2: 214 45% 28%;
+  --lp-ice: 205 100% 97%;
+  --lp-gradient: linear-gradient(135deg, hsl(208 92% 46%) 0%, hsl(205 92% 51%) 55%, hsl(201 90% 56%) 100%);
+  --lp-gradient-wide: linear-gradient(110deg, hsl(208 92% 46%), hsl(205 92% 51%), hsl(201 90% 56%), hsl(205 92% 51%), hsl(208 92% 46%));
 }
-/* Texto em degradê sobre fundo escuro precisa de um verde mais claro para ter contraste. */
-.landing-page.radar-landing .rl-hero .lp-text-gradient,
-.landing-page.radar-landing .lp-cta .lp-text-gradient { background: linear-gradient(135deg, hsl(150 82% 56%), hsl(128 80% 64%)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.landing-page.radar-landing .lp-eyebrow-dot { animation-name: rl-dot; }
-
 /* Hero escuro com radar animado */
-.landing-page .rl-hero { position: relative; overflow: hidden; padding: 84px 0 104px; color: hsl(0 0% 100%); background: hsl(var(--lp-navy)); }
-.landing-page .rl-hero .lp-grid-bg { background-image: linear-gradient(to right, hsl(0 0% 100% / .05) 1px, transparent 1px), linear-gradient(to bottom, hsl(0 0% 100% / .05) 1px, transparent 1px); }
-.landing-page .rl-hero .lp-eyebrow { color: hsl(var(--lp-cyan)); background: hsl(0 0% 100% / .07); border-color: hsl(0 0% 100% / .14); }
+.landing-page .rl-hero { position: relative; overflow: hidden; padding: 84px 0 104px; background: linear-gradient(180deg, hsl(var(--lp-ice)) 0%, hsl(0 0% 100%) 88%); }
 .landing-page .rl-hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
 .landing-page .rl-hero-copy > * { animation: lp-fade-up .7s ease-out both; }
 .landing-page .rl-hero-copy > :nth-child(2) { animation-delay: .08s; }
@@ -40,27 +33,25 @@
 .landing-page .rl-hero-copy > :nth-child(5) { animation-delay: .32s; }
 .landing-page .rl-hero h1 { margin-top: 22px; font-size: 62px; font-weight: 800; line-height: 1.05; }
 .landing-page .rl-hero h1 .lp-text-gradient { display: block; }
-.landing-page .rl-hero-lead { margin-top: 22px; max-width: 540px; font-size: 19px; line-height: 1.65; color: hsl(0 0% 100% / .74); }
+.landing-page .rl-hero-lead { margin-top: 22px; max-width: 540px; font-size: 19px; line-height: 1.65; color: hsl(var(--muted-foreground)); }
 .landing-page .rl-hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
-.landing-page .rl-hero .lp-btn-ghost { color: hsl(0 0% 100%); background: hsl(0 0% 100% / .08); border-color: hsl(0 0% 100% / .2); box-shadow: none; }
-.landing-page .rl-hero .lp-btn-ghost:hover { color: hsl(0 0% 100%); background: hsl(0 0% 100% / .14); border-color: hsl(var(--lp-cyan) / .6); }
-.landing-page .rl-hero-trust { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; font-size: 15px; color: hsl(0 0% 100% / .72); }
+.landing-page .rl-hero-trust { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; font-size: 15px; color: hsl(var(--muted-foreground)); }
 .landing-page .rl-hero-trust span { display: inline-flex; align-items: center; gap: 8px; }
 
 .landing-page .rl-radar-wrap { position: relative; width: min(100%, 470px); aspect-ratio: 1; margin-inline: auto; animation: lp-fade-up .8s .15s ease-out both; }
-.landing-page .rl-radar { position: absolute; inset: 5%; overflow: hidden; border-radius: 50%; background: radial-gradient(circle at 50% 50%, hsl(var(--primary) / .32) 0%, hsl(var(--lp-navy-2) / .95) 72%); border: 1px solid hsl(0 0% 100% / .16); box-shadow: 0 0 90px -10px hsl(var(--primary) / .65), inset 0 0 70px hsl(var(--lp-cyan) / .14); }
-.landing-page .rl-radar::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: hsl(0 0% 100% / .1); }
-.landing-page .rl-radar::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: hsl(0 0% 100% / .1); }
-.landing-page .rl-ring { position: absolute; border-radius: 50%; border: 1px solid hsl(0 0% 100% / .14); }
+.landing-page .rl-radar { position: absolute; inset: 5%; overflow: hidden; border-radius: 50%; background: radial-gradient(circle at 50% 50%, hsl(0 0% 100%) 0%, hsl(var(--lp-ice)) 55%, hsl(205 85% 91%) 100%); border: 1px solid hsl(var(--primary) / .18); box-shadow: 0 30px 80px -24px hsl(var(--primary) / .45), inset 0 0 60px hsl(var(--lp-sky) / .14); }
+.landing-page .rl-radar::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: hsl(var(--primary) / .13); }
+.landing-page .rl-radar::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: hsl(var(--primary) / .13); }
+.landing-page .rl-ring { position: absolute; border-radius: 50%; border: 1px solid hsl(var(--primary) / .2); }
 .landing-page .rl-ring-1 { inset: 16%; }
 .landing-page .rl-ring-2 { inset: 31%; }
 .landing-page .rl-ring-3 { inset: 43%; }
-.landing-page .rl-sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, transparent 250deg, hsl(var(--lp-cyan) / .5) 358deg, hsl(var(--lp-cyan) / .85) 360deg); animation: rl-sweep 5.5s linear infinite; }
-.landing-page .rl-blip { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: hsl(var(--lp-cyan)); box-shadow: 0 0 14px hsl(var(--lp-cyan)); animation: rl-blip 2.8s ease-in-out infinite; }
-.landing-page .rl-blip::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 1px solid hsl(var(--lp-cyan) / .6); animation: rl-ping 2.8s ease-out infinite; animation-delay: inherit; }
+.landing-page .rl-sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, transparent 250deg, hsl(var(--lp-sky) / .32) 358deg, hsl(var(--lp-sky) / .7) 360deg); animation: rl-sweep 5.5s linear infinite; }
+.landing-page .rl-blip { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: hsl(var(--lp-sky)); box-shadow: 0 0 12px hsl(var(--lp-sky) / .8); animation: rl-blip 2.8s ease-in-out infinite; }
+.landing-page .rl-blip::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 1px solid hsl(var(--lp-sky) / .6); animation: rl-ping 2.8s ease-out infinite; animation-delay: inherit; }
 .landing-page .rl-core { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 20px; color: hsl(0 0% 100%); background: var(--lp-gradient); box-shadow: var(--lp-shadow); }
 .landing-page .rl-core svg { width: 30px; height: 30px; }
-.landing-page .rl-chip { position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 10px 16px 10px 10px; border-radius: 16px; font-size: 15px; font-weight: 700; white-space: nowrap; color: hsl(var(--foreground)); background: hsl(0 0% 100%); box-shadow: var(--lp-shadow-lg); }
+.landing-page .rl-chip { position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 10px 16px 10px 10px; border-radius: 16px; font-size: 15px; font-weight: 700; white-space: nowrap; color: hsl(var(--foreground)); background: hsl(0 0% 100%); border: 1px solid hsl(var(--border)); box-shadow: var(--lp-shadow-lg); }
 .landing-page .rl-chip-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; color: hsl(0 0% 100%); background: var(--lp-gradient); }
 .landing-page .rl-chip-icon svg { width: 18px; height: 18px; }
 .landing-page .rl-chip-a { top: 6%; left: -2%; animation: lp-float 6s ease-in-out infinite; }
@@ -159,7 +150,6 @@
 .landing-page .rl-results-note { margin-top: 14px; font-size: 13px; color: hsl(var(--muted-foreground)); }
 
 @keyframes rl-sweep { to { transform: rotate(360deg); } }
-@keyframes rl-dot { 0% { box-shadow: 0 0 0 0 hsl(146 72% 52% / .7); } 100% { box-shadow: 0 0 0 10px hsl(146 72% 52% / 0); } }
 @keyframes rl-blip { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
 @keyframes rl-ping { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(2.4); opacity: 0; } }
 @keyframes rl-pulse { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
@@ -197,3 +187,10 @@
   .landing-page .rl-note { padding: 22px 20px; }
   .landing-page .rl-center .lp-btn { width: 100%; }
 }
+
+/* Bloco final claro (a landing principal usa um bloco escuro aqui; o Radar não usa preto). */
+.landing-page .rl-final .lp-cta { color: hsl(var(--foreground)); background: linear-gradient(160deg, hsl(0 0% 100%) 0%, hsl(var(--lp-ice)) 55%, hsl(205 85% 91%) 100%); }
+.landing-page .rl-final .lp-cta > p { color: hsl(var(--muted-foreground)); }
+.landing-page .rl-final .lp-cta-icon { color: hsl(0 0% 100%); }
+.landing-page .rl-final .lp-cta .lp-btn-ghost { color: hsl(var(--foreground)); background: hsl(var(--card)); border-color: hsl(var(--border)); box-shadow: var(--lp-card-shadow); }
+.landing-page .rl-final .lp-cta .lp-btn-ghost:hover { color: hsl(var(--primary)); background: hsl(var(--card)); border-color: hsl(var(--primary) / .4); }
