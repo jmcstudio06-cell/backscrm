@@ -3,7 +3,6 @@ import { trackEvent } from "@/lib/metaPixel";
 import { GiftClaimCard } from "@/components/gifts/GiftClaimCard";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Check,
@@ -143,15 +142,16 @@ const plans: PlanDef[] = [
 
 function UrgencyBanner() {
   return (
-    <div className="max-w-5xl mx-auto mb-8">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-5 shadow-xl border border-blue-400/30">
-        <div className="flex items-center gap-3 justify-center">
-          <div className="bg-white/20 rounded-full p-2.5">
-            <Shield className="w-6 h-6 text-white" />
+    <div className="max-w-4xl mx-auto mb-10">
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 rounded-2xl p-5 shadow-2xl border border-blue-400/20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12)_0%,_transparent_60%)]" />
+        <div className="relative flex items-center gap-4 justify-center">
+          <div className="bg-white/15 backdrop-blur-sm rounded-full p-2.5 shrink-0">
+            <Shield className="w-5 h-5 text-white" />
           </div>
           <div className="text-center">
-            <p className="text-white font-bold text-lg">Preço Fixo Garantido</p>
-            <p className="text-white/90 text-sm font-medium">Clientes que aderem à plataforma e mantêm a assinatura em dia permanecem sempre com esse valor.</p>
+            <p className="text-white font-bold text-base">🔒 Preço Fixo Garantido</p>
+            <p className="text-blue-100 text-sm font-medium mt-0.5">Assine hoje e mantenha esse valor para sempre, mesmo com reajustes futuros.</p>
           </div>
         </div>
       </div>
@@ -161,19 +161,25 @@ function UrgencyBanner() {
 
 function TestimonialsSection() {
   return (
-    <div className="max-w-6xl mx-auto mt-14">
+    <div className="max-w-5xl mx-auto mt-16">
       <div className="text-center mb-8">
+        <p className="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">Depoimentos</p>
         <h3 className="text-xl font-bold">Quem usa, sente a diferença</h3>
-        <p className="text-sm text-muted-foreground mt-1 font-medium">Feedback real de artistas e produtores</p>
+        <p className="text-sm text-muted-foreground mt-1">Feedback real de artistas e produtores</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {testimonials.map((t) => (
-          <div key={t.name} className="bg-muted/40 rounded-2xl p-6 border border-border shadow-sm">
-            <Quote className="w-5 h-5 text-primary/60 mb-3" />
-            <p className="text-sm italic mb-4 font-medium">"{t.text}"</p>
-            <div>
-              <p className="text-sm font-semibold">{t.name}</p>
-              <p className="text-xs text-muted-foreground font-medium">{t.role}</p>
+          <div key={t.name} className="bg-gradient-to-b from-muted/50 to-muted/20 rounded-2xl p-6 border border-border/60 shadow-sm hover:shadow-md transition-shadow">
+            <Quote className="w-6 h-6 text-primary/30 mb-3" />
+            <p className="text-sm leading-relaxed mb-5 text-foreground/80">"{t.text}"</p>
+            <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-primary">{t.name[0]}</span>
+              </div>
+              <div>
+                <p className="text-sm font-semibold leading-tight">{t.name}</p>
+                <p className="text-xs text-muted-foreground">{t.role}</p>
+              </div>
             </div>
           </div>
         ))}
@@ -184,12 +190,14 @@ function TestimonialsSection() {
 
 function ReassurancesBar() {
   return (
-    <div className="max-w-6xl mx-auto mt-14 mb-6">
-      <div className="flex flex-wrap justify-center gap-6 rounded-2xl border border-border bg-muted/30 p-4">
+    <div className="max-w-4xl mx-auto mt-12 mb-6">
+      <div className="flex flex-wrap justify-center gap-8 rounded-2xl border border-border/60 bg-muted/20 backdrop-blur-sm p-5">
         {reassurances.map((item) => (
-          <div key={item.text} className="flex items-center gap-2 font-medium">
-            <item.icon className="w-4 h-4" />
-            <span className="text-sm">{item.text}</span>
+          <div key={item.text} className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-primary/8 flex items-center justify-center shrink-0">
+              <item.icon className="w-4 h-4 text-primary" />
+            </div>
+            <span className="text-sm font-semibold text-foreground/80">{item.text}</span>
           </div>
         ))}
       </div>
@@ -199,18 +207,17 @@ function ReassurancesBar() {
 
 function InfoStrip() {
   return (
-    <div className="max-w-6xl mx-auto mt-10 mb-12">
-      <div className="rounded-2xl border border-border bg-gradient-to-r from-muted/40 to-muted/10 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="max-w-4xl mx-auto mt-10 mb-14">
+      <div className="rounded-2xl border border-primary/15 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <p className="font-semibold">Comece pelo Profissional e evolua quando quiser.</p>
-          <p className="text-sm text-muted-foreground font-medium">
-            A troca de plano é simples. Você pode subir de nível conforme sua carreira cresce.
+          <p className="font-bold text-foreground">Comece pelo Starter e evolua quando quiser.</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            A troca de plano é simples. Suba de nível conforme sua carreira cresce.
           </p>
         </div>
-        <div className="text-sm text-muted-foreground font-medium">
-          <span className="font-semibold text-foreground">Dica:</span> O Empresarial é o mais escolhido.
+        <div className="shrink-0 text-sm bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl px-4 py-2 text-amber-700 dark:text-amber-400 font-semibold whitespace-nowrap">
+          🏆 Empresarial é o mais escolhido
         </div>
-
       </div>
     </div>
   );
@@ -287,9 +294,10 @@ export default function Planos() {
       <div className="pt-8 pb-16">
         <UrgencyBanner />
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold">Escolha o plano ideal para sua carreira</h2>
-          <p className="text-sm text-muted-foreground mt-2 font-medium">Menos improviso. Mais controle. Comece hoje.</p>
+        <div className="text-center mb-10">
+          <p className="text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Planos</p>
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">Escolha o plano ideal<br className="hidden sm:block" /> para sua carreira</h2>
+          <p className="text-sm text-muted-foreground mt-3">Menos improviso. Mais controle. Comece hoje.</p>
         </div>
 
         <div className="flex justify-center mb-10">
@@ -349,43 +357,43 @@ export default function Planos() {
 
               const theme = {
                 starter: {
-                  border: "border-emerald-200",
-                  ring: "ring-emerald-500/20",
-                  iconBg: "bg-emerald-100",
-                  iconText: "text-emerald-600",
-                  badge: "bg-emerald-600 hover:bg-emerald-600",
-                  check: "bg-emerald-500",
-                  buttonFrom: "from-emerald-600",
-                  buttonTo: "to-teal-500",
-                  buttonHoverFrom: "hover:from-emerald-700",
-                  buttonHoverTo: "hover:to-teal-600",
-                  gradient: "from-emerald-50/60 via-white to-white",
+                  border: "border-emerald-200 dark:border-emerald-800",
+                  iconBg: "bg-gradient-to-br from-emerald-400 to-teal-500",
+                  iconText: "text-white",
+                  badge: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+                  badgeText: "text-emerald-700",
+                  check: "text-emerald-500",
+                  checkBg: "bg-emerald-50 dark:bg-emerald-950/40",
+                  button: "from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-200 dark:shadow-emerald-900/40",
+                  gradient: "from-emerald-50/80 via-white to-white dark:from-emerald-950/30 dark:via-background dark:to-background",
+                  accent: "text-emerald-600 dark:text-emerald-400",
+                  priceAccent: "text-emerald-700 dark:text-emerald-300",
                 },
                 pro: {
-                  border: "border-blue-300",
-                  ring: "ring-blue-500/30",
-                  iconBg: "bg-blue-100",
-                  iconText: "text-blue-600",
-                  badge: "bg-blue-600 hover:bg-blue-600",
-                  check: "bg-blue-500",
-                  buttonFrom: "from-blue-600",
-                  buttonTo: "to-cyan-500",
-                  buttonHoverFrom: "hover:from-blue-700",
-                  buttonHoverTo: "hover:to-cyan-600",
-                  gradient: "from-blue-50/70 via-white to-cyan-50/40",
+                  border: "border-blue-200 dark:border-blue-800",
+                  iconBg: "bg-gradient-to-br from-blue-500 to-indigo-500",
+                  iconText: "text-white",
+                  badge: "bg-blue-100 text-blue-700 border border-blue-200",
+                  badgeText: "text-blue-700",
+                  check: "text-blue-500",
+                  checkBg: "bg-blue-50 dark:bg-blue-950/40",
+                  button: "from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 shadow-blue-200 dark:shadow-blue-900/40",
+                  gradient: "from-blue-50/80 via-white to-cyan-50/30 dark:from-blue-950/30 dark:via-background dark:to-background",
+                  accent: "text-blue-600 dark:text-blue-400",
+                  priceAccent: "text-blue-700 dark:text-blue-300",
                 },
                 full: {
-                  border: "border-amber-200",
-                  ring: "ring-amber-500/20",
-                  iconBg: "bg-amber-100",
-                  iconText: "text-amber-600",
-                  badge: "bg-amber-600 hover:bg-amber-600",
-                  check: "bg-amber-500",
-                  buttonFrom: "from-amber-600",
-                  buttonTo: "to-orange-500",
-                  buttonHoverFrom: "hover:from-amber-700",
-                  buttonHoverTo: "hover:to-orange-600",
-                  gradient: "from-amber-50/60 via-white to-orange-50/40",
+                  border: "border-amber-300 dark:border-amber-700",
+                  iconBg: "bg-gradient-to-br from-amber-400 to-orange-500",
+                  iconText: "text-white",
+                  badge: "bg-amber-100 text-amber-700 border border-amber-200",
+                  badgeText: "text-amber-700",
+                  check: "text-amber-500",
+                  checkBg: "bg-amber-50 dark:bg-amber-950/40",
+                  button: "from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-200 dark:shadow-amber-900/40",
+                  gradient: "from-amber-50/80 via-white to-orange-50/30 dark:from-amber-950/30 dark:via-background dark:to-background",
+                  accent: "text-amber-600 dark:text-amber-400",
+                  priceAccent: "text-amber-700 dark:text-amber-300",
                 },
               }[p.id];
 
@@ -395,126 +403,116 @@ export default function Planos() {
                 <Card
                   key={p.id}
                   className={cn(
-                    "relative rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgb(0,0,0,0.1)] h-full flex flex-col overflow-visible",
-                    "bg-gradient-to-b",
+                    "relative rounded-3xl border-2 transition-all duration-300 hover:-translate-y-2 h-full flex flex-col overflow-visible",
+                    "bg-gradient-to-b shadow-[0_4px_24px_rgba(0,0,0,0.06)]",
+                    "hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]",
                     theme.gradient,
                     theme.border,
-                    p.highlight && "ring-2 ring-blue-500/20 scale-[1.02] md:scale-[1.03]"
+                    p.highlight && "ring-2 ring-amber-400/40 scale-[1.02] md:scale-[1.03] shadow-[0_8px_32px_rgba(245,158,11,0.15)]"
                   )}
                 >
                   {p.highlight && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                      <Badge className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full px-4 py-1 text-xs font-bold shadow-lg border-0">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                      <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-white rounded-full px-5 py-1.5 text-xs font-black shadow-lg tracking-wide flex items-center gap-1.5">
+                        <Sparkles className="w-3 h-3" />
                         {p.badgeText}
-                      </Badge>
+                      </div>
                     </div>
                   )}
 
-                  <CardContent className="p-6 sm:p-7 flex flex-col h-full">
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0", theme.iconBg)}>
+                  <CardContent className="p-6 sm:p-8 flex flex-col h-full gap-0">
+                    {/* Header */}
+                    <div className="flex items-center gap-4 mb-5">
+                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md", theme.iconBg)}>
                         <PlanIcon className={cn("w-6 h-6", theme.iconText)} />
                       </div>
-                      {!p.highlight && p.badgeText && (
-                        <Badge className={cn("rounded-full px-3 py-1 text-[10px] font-bold text-white border-0 shrink-0 mt-1", theme.badge)}>
-                          {p.badgeText}
-                        </Badge>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-xl font-extrabold tracking-tight leading-tight">{p.name}</h3>
+                          {!p.highlight && p.badgeText && (
+                            <span className={cn("text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full", theme.badge)}>
+                              {p.badgeText}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-snug mt-0.5 line-clamp-2">{p.subtitle}</p>
+                      </div>
                     </div>
 
-                    <div className="mb-5">
-                      <h3 className="text-2xl font-bold tracking-tight">{p.name}</h3>
-                      <p className="text-sm text-muted-foreground font-medium leading-relaxed mt-1">{p.subtitle}</p>
-                    </div>
-
-                    <div className="mb-6">
+                    {/* Price */}
+                    <div className={cn("rounded-2xl p-4 mb-5", theme.checkBg)}>
                       {isYearly ? (
                         <>
-                          <p className="text-sm text-muted-foreground line-through mb-1 font-semibold">
-                            De: R$ {yearlyOldPrice}
-                          </p>
-                          <span className="text-sm font-semibold text-muted-foreground">até 12x de</span>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-extrabold tracking-tight">R$ {yearlyInstallment}</span>
+                          <p className="text-xs text-muted-foreground line-through">R$ {yearlyOldPrice}/ano</p>
+                          <div className="flex items-baseline gap-1.5 mt-0.5">
+                            <span className={cn("text-4xl font-black tracking-tighter", theme.priceAccent)}>R$ {yearlyInstallment}</span>
+                            <span className="text-sm text-muted-foreground font-medium">/mês</span>
                           </div>
-                          <p className="text-sm text-muted-foreground font-medium mt-1">
-                            ou <span className="font-bold text-foreground">R$ {yearlyNewPrice}</span> à vista /ano
+                          <p className="text-xs text-muted-foreground mt-1">
+                            ou <span className="font-bold text-foreground">R$ {yearlyNewPrice}</span> à vista por ano
                           </p>
                         </>
                       ) : (
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-4xl font-extrabold tracking-tight">{finalPrice}</span>
-                          <span className="text-sm text-muted-foreground font-medium">{finalPeriod}</span>
-                        </div>
+                        <>
+                          <div className="flex items-baseline gap-1.5">
+                            <span className={cn("text-4xl font-black tracking-tighter", theme.priceAccent)}>
+                              R$ {monthlyValue.toFixed(2).replace(".", ",")}
+                            </span>
+                            <span className="text-sm text-muted-foreground font-medium">/mês</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Cobrança mensal. Cancele quando quiser.</p>
+                        </>
                       )}
-
-                      <p className="text-xs text-muted-foreground mt-2 font-medium">
-                        {isYearly ? "Cobrança anual pré-paga." : "Cobrança mensal pré-paga. Cancele quando quiser."}
-                      </p>
                     </div>
 
-                    <div className="rounded-2xl bg-white/70 border border-white/60 shadow-sm p-5 mb-6 flex-1">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
-                        O que inclui
+                    {/* Features */}
+                    <div className="flex-1 mb-6">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70 mb-3">
+                        Incluso no plano
                       </p>
-                      <ul className="space-y-2.5">
+                      <ul className="space-y-2">
                         {p.features.map((f, i) => (
-                          <li key={i} className="flex items-start gap-3 text-sm font-medium">
-                            <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5", theme.check)}>
-                              <Check className="w-3 h-3 text-white" />
-                            </div>
-                            <span className="text-foreground/90">{f}</span>
+                          <li key={i} className="flex items-start gap-2.5 text-sm">
+                            <Check className={cn("w-4 h-4 shrink-0 mt-0.5 font-bold", theme.check)} />
+                            <span className={cn(
+                              "leading-snug",
+                              i === 0 && p.features[0].startsWith("Tudo")
+                                ? "font-semibold text-foreground"
+                                : "text-foreground/80"
+                            )}>{f}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
 
+                    {/* CTA */}
                     <div className="mt-auto">
                       <Button
                         size="lg"
                         disabled={isLoading}
                         className={cn(
-                          "w-full rounded-2xl text-white font-semibold shadow-md transition-all hover:shadow-lg bg-gradient-to-r",
+                          "w-full rounded-2xl text-white font-bold shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r text-sm h-12",
                           hasPaidPlan && userTier === p.id
-                            ? "from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600"
-                            : p.highlight
-                            ? "from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
-                            : cn(theme.buttonFrom, theme.buttonTo, theme.buttonHoverFrom, theme.buttonHoverTo)
+                            ? "from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+                            : `${theme.button}`
                         )}
                         onClick={() => handleSubscribe(finalPlanKey)}
                       >
-                        <span className="flex items-center justify-center gap-2">
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              Processando...
-                            </>
-                          ) : hasPaidPlan && userTier === p.id ? (
-                            <>
-                              Renovar assinatura
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          ) : isLowerTier ? (
-                            <>
-                              Mudar para este plano
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          ) : hasPaidPlan ? (
-                            <>
-                              Fazer upgrade
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          ) : (
-                            <>
-                              {p.buttonText}
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </span>
+                        {isLoading ? (
+                          <><Loader2 className="w-4 h-4 animate-spin mr-2" />Processando...</>
+                        ) : hasPaidPlan && userTier === p.id ? (
+                          <>Renovar assinatura <ArrowRight className="w-4 h-4 ml-1.5" /></>
+                        ) : isLowerTier ? (
+                          <>Mudar para este plano <ArrowRight className="w-4 h-4 ml-1.5" /></>
+                        ) : hasPaidPlan ? (
+                          <>Fazer upgrade <ArrowRight className="w-4 h-4 ml-1.5" /></>
+                        ) : (
+                          <>{p.buttonText} <ArrowRight className="w-4 h-4 ml-1.5" /></>
+                        )}
                       </Button>
                       {p.socialProof && (
-                        <p className="text-xs text-center text-muted-foreground mt-3 font-medium flex items-center justify-center gap-1">
-                          <Sparkles className="w-3 h-3" />
+                        <p className="text-xs text-center text-muted-foreground mt-2.5 flex items-center justify-center gap-1">
+                          <Sparkles className={cn("w-3 h-3", theme.accent)} />
                           {p.socialProof}
                         </p>
                       )}
