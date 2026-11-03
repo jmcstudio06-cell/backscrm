@@ -1,0 +1,113 @@
+/* Black Friday theme scoped to the plans page */
+.bf-plans {
+  --background: 222 40% 5%;
+  --foreground: 0 0% 98%;
+  --muted: 222 30% 12%;
+  --muted-foreground: 218 20% 70%;
+  --border: 222 30% 18%;
+  --card: 222 35% 8%;
+  --card-foreground: 0 0% 98%;
+  --primary: 205 100% 62%;
+  --bf-gold: 43 96% 58%;
+  --bf-blue: 212 100% 58%;
+  position: relative;
+  color: hsl(var(--foreground));
+  background:
+    radial-gradient(900px 500px at 15% -10%, hsl(var(--bf-blue) / 0.28), transparent 60%),
+    radial-gradient(700px 400px at 95% 10%, hsl(var(--bf-gold) / 0.14), transparent 60%),
+    hsl(var(--background));
+  border-radius: 28px;
+  overflow: hidden;
+  padding-left: clamp(12px, 3vw, 32px);
+  padding-right: clamp(12px, 3vw, 32px);
+  margin: -8px 0 0;
+}
+.bf-muted { color: hsl(var(--muted-foreground)); }
+
+.bf-ribbon {
+  margin: 0 calc(-1 * clamp(12px, 3vw, 32px)) 28px;
+  background: linear-gradient(90deg, hsl(var(--bf-gold)), hsl(36 100% 52%));
+  color: hsl(222 40% 6%);
+  font-weight: 900; letter-spacing: 0.18em; font-size: 12px;
+  padding: 10px 0; overflow: hidden; white-space: nowrap;
+  transform: rotate(-1deg) scale(1.02);
+}
+.bf-ribbon-track { display: inline-flex; animation: bf-marquee 22s linear infinite; }
+@keyframes bf-marquee { to { transform: translateX(-50%); } }
+
+.bf-hero { position: relative; text-align: center; padding: 24px 0 36px; }
+.bf-glow { position: absolute; border-radius: 999px; filter: blur(60px); pointer-events: none; animation: bf-float 8s ease-in-out infinite; }
+.bf-glow-a { width: 260px; height: 260px; left: 8%; top: 10%; background: hsl(var(--bf-blue) / 0.35); }
+.bf-glow-b { width: 200px; height: 200px; right: 10%; top: 30%; background: hsl(var(--bf-gold) / 0.25); animation-delay: -4s; }
+@keyframes bf-float { 50% { transform: translate(20px, -18px) scale(1.1); } }
+
+.bf-chip {
+  position: relative; display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: hsl(var(--bf-gold)); border: 1px solid hsl(var(--bf-gold) / 0.4);
+  background: hsl(var(--bf-gold) / 0.08);
+}
+.bf-title {
+  position: relative; margin-top: 18px; font-size: clamp(34px, 6vw, 64px);
+  line-height: 1; font-weight: 900; letter-spacing: -0.03em;
+}
+.bf-title span {
+  background: linear-gradient(90deg, hsl(var(--bf-gold)), hsl(0 0% 100%), hsl(var(--bf-blue)), hsl(var(--bf-gold)));
+  background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: bf-shine 6s linear infinite;
+}
+@keyframes bf-shine { to { background-position: 300% 0; } }
+.bf-sub { position: relative; margin: 14px auto 0; max-width: 520px; font-size: 16px; color: hsl(var(--muted-foreground)); }
+
+.bf-countdown { position: relative; display: flex; justify-content: center; gap: 10px; margin-top: 26px; }
+.bf-count-box {
+  min-width: 70px; padding: 10px 8px; border-radius: 16px;
+  background: hsl(0 0% 100% / 0.05); border: 1px solid hsl(0 0% 100% / 0.12);
+  backdrop-filter: blur(10px);
+}
+.bf-count-box strong { display: block; font-size: 28px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.bf-count-box span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: hsl(var(--muted-foreground)); }
+
+.bf-toggle { display: flex; padding: 5px; border-radius: 999px; background: hsl(0 0% 100% / 0.06); border: 1px solid hsl(0 0% 100% / 0.12); }
+.bf-toggle-btn { display: flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: 999px; font-size: 14px; font-weight: 700; color: hsl(var(--muted-foreground)); transition: all .25s; }
+.bf-toggle-btn.is-active { background: hsl(0 0% 100%); color: hsl(222 40% 8%); box-shadow: 0 6px 24px hsl(var(--bf-blue) / 0.35); }
+.bf-save { font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 999px; background: hsl(var(--bf-gold)); color: hsl(222 40% 6%); }
+
+.bf-card {
+  border-radius: 28px !important;
+  background: linear-gradient(180deg, hsl(222 35% 11%), hsl(222 40% 7%)) !important;
+  border: 1px solid hsl(0 0% 100% / 0.1) !important;
+  color: hsl(var(--foreground));
+  transition: transform .35s, box-shadow .35s, border-color .35s;
+  box-shadow: 0 20px 50px -25px hsl(0 0% 0% / 0.8);
+}
+.bf-card:hover { transform: translateY(-8px); border-color: hsl(var(--bf-blue) / 0.6) !important; box-shadow: 0 30px 70px -25px hsl(var(--bf-blue) / 0.5); }
+.bf-card.is-highlight { border: 1px solid hsl(var(--bf-gold) / 0.7) !important; box-shadow: 0 0 0 1px hsl(var(--bf-gold) / 0.25), 0 30px 80px -20px hsl(var(--bf-gold) / 0.35); }
+@media (min-width: 1024px) { .bf-card.is-highlight { transform: scale(1.04); } .bf-card.is-highlight:hover { transform: scale(1.04) translateY(-8px); } }
+
+.bf-top-badge {
+  display: flex; align-items: center; gap: 6px; padding: 6px 18px; border-radius: 999px;
+  font-size: 12px; font-weight: 900; letter-spacing: .06em; white-space: nowrap;
+  background: linear-gradient(90deg, hsl(var(--bf-gold)), hsl(36 100% 52%)); color: hsl(222 40% 6%);
+  box-shadow: 0 8px 24px hsl(var(--bf-gold) / 0.45);
+}
+.bf-icon { background: linear-gradient(135deg, hsl(var(--bf-blue)), hsl(222 80% 40%)); color: hsl(0 0% 100%); }
+.is-highlight .bf-icon { background: linear-gradient(135deg, hsl(var(--bf-gold)), hsl(30 100% 50%)); color: hsl(222 40% 6%); }
+.bf-badge { background: hsl(var(--bf-blue) / 0.15); color: hsl(var(--bf-blue)); border: 1px solid hsl(var(--bf-blue) / 0.35); }
+.bf-check { color: hsl(var(--bf-blue)); }
+.is-highlight .bf-check, .is-highlight .bf-accent { color: hsl(var(--bf-gold)); }
+.bf-accent { color: hsl(var(--bf-blue)); }
+.bf-price { background: hsl(0 0% 100% / 0.04); border: 1px solid hsl(0 0% 100% / 0.08); }
+.bf-price-value { color: hsl(0 0% 100%); }
+.is-highlight .bf-price-value { color: hsl(var(--bf-gold)); }
+.bf-cta { background: hsl(0 0% 100%) !important; color: hsl(222 40% 8%) !important; transition: transform .2s, box-shadow .2s; }
+.bf-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 30px hsl(var(--bf-blue) / 0.45); }
+.is-highlight .bf-cta { background: linear-gradient(90deg, hsl(var(--bf-gold)), hsl(36 100% 52%)) !important; color: hsl(222 40% 6%) !important; }
+
+@media (max-width: 600px) {
+  .bf-count-box { min-width: 60px; }
+  .bf-count-box strong { font-size: 22px; }
+  .bf-toggle-btn { padding: 8px 14px; }
+}
