@@ -291,38 +291,38 @@ export default function Planos() {
 
   return (
     <Layout title="" subtitle="">
-      <div className="pt-8 pb-16">
-        <UrgencyBanner />
-
-        <div className="text-center mb-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Planos</p>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">Escolha o plano ideal<br className="hidden sm:block" /> para sua carreira</h2>
-          <p className="text-sm text-muted-foreground mt-3">Menos improviso. Mais controle. Comece hoje.</p>
+      <div className="bf-plans pt-6 pb-16">
+        <div className="bf-ribbon" aria-hidden="true">
+          <div className="bf-ribbon-track">
+            {Array.from({ length: 2 }).map((_, k) => (
+              <span key={k}>BLACK FRIDAY ✦ BACKSTAGE PRO ✦ OFERTA POR TEMPO LIMITADO ✦ BLACK FRIDAY ✦ PREÇO FIXO GARANTIDO ✦ </span>
+            ))}
+          </div>
         </div>
 
+        <section className="bf-hero">
+          <div className="bf-glow bf-glow-a" />
+          <div className="bf-glow bf-glow-b" />
+          <span className="bf-chip"><Sparkles className="w-3.5 h-3.5" /> Black Friday Backstage Pro</span>
+          <h2 className="bf-title">
+            A sua carreira<br /><span>no modo Black.</span>
+          </h2>
+          <p className="bf-sub">Escolha seu plano e garanta o valor de hoje para sempre, mesmo com reajustes futuros.</p>
+          <BlackCountdown />
+        </section>
+
         <div className="flex justify-center mb-10">
-          <div className="flex bg-muted p-1 rounded-full border">
+          <div className="bf-toggle">
             {!monthlyBlocked && (
-              <button
-                onClick={() => setIsYearly(false)}
-                className={cn(
-                  "px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2",
-                  !isYearly ? "bg-white shadow text-foreground" : "text-muted-foreground",
-                )}
-              >
+              <button onClick={() => setIsYearly(false)} className={cn("bf-toggle-btn", !isYearly && "is-active")}>
                 <CalendarDays className="w-4 h-4" />
                 Mensal
               </button>
             )}
-            <button
-              onClick={() => setIsYearly(true)}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2",
-                isYearly ? "bg-white shadow text-foreground" : "text-muted-foreground",
-              )}
-            >
+            <button onClick={() => setIsYearly(true)} className={cn("bf-toggle-btn", isYearly && "is-active")}>
               <CalendarRange className="w-4 h-4" />
               Anual
+              <span className="bf-save">ECONOMIZE</span>
             </button>
           </div>
         </div>
