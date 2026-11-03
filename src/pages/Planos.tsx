@@ -359,7 +359,7 @@ export default function Planos() {
 
             {plans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
-                starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "119,90", installment: "9,99" },
+                starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
                 pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "16,66" },
                 full: { monthly: 39.9, yearlyOld: "478,80", yearlyNew: "298,80", installment: "24,90" },
                 executivo: { monthly: 79.9, yearlyOld: "958,80", yearlyNew: "499,90", installment: "41,66" },
