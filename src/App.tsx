@@ -15,7 +15,7 @@ import { WorkspaceProvider } from "@/hooks/useWorkspace";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { useAndroidBackButton } from "@/hooks/useAndroidBackButton";
 
-import Landing from "./pages/Landing";
+import LandingNew from "./pages/LandingNew";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
@@ -138,7 +138,7 @@ const App = () => (
               <MaintenanceGate>
               <Routes>
                 <Route path="/" element={<Auth />} />
-                <Route path="/landing" element={<Landing />} />
+                <Route path="/landing" element={<LandingNew />} />
                 <Route path="/radar" element={<ErrorBoundary><BacksRadarLanding /></ErrorBoundary>} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<AuthPage featureKey="dashboard"><Dashboard /></AuthPage>} />
