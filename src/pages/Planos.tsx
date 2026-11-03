@@ -20,6 +20,7 @@ import {
   Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import "@/styles/black-plans.css";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -223,6 +224,27 @@ function InfoStrip() {
   );
 }
 
+function BlackCountdown() {
+  const target = new Date(2026, 10, 30, 23, 59, 59).getTime();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const diff = Math.max(0, target - now);
+  const parts = [
+    [Math.floor(diff / 86400000), "dias"],
+    [Math.floor(diff / 3600000) % 24, "horas"],
+    [Math.floor(diff / 60000) % 60, "min"],
+    [Math.floor(diff / 1000) % 60, "seg"],
+  ] as const;
+  if (diff === 0) return null;
+  return (
+    <div className="bf-countdown" aria-label="Tempo restante da Black Friday">
+      {parts.map(([v, l]) => (
+        <div key={l} className="bf-count-box"><strong>{String(v).padStart(2, "0")}</strong><span>{l}</span></div>
+      ))}
+    </div>
+  );
+}
+
 export default function Planos() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -327,7 +349,7 @@ export default function Planos() {
           </div>
         </div>
         {monthlyBlocked && (
-          <p className="text-center text-xs text-muted-foreground -mt-6 mb-8 font-medium">
+          <p className="text-center text-xs bf-muted -mt-6 mb-8 font-medium">
             Apenas planos anuais estão disponíveis para sua conta.
           </p>
         )}
@@ -356,64 +378,20 @@ export default function Planos() {
               const isLowerTier = userTier !== null && paidTierRank[p.id] < paidTierRank[userTier];
 
               const theme = {
-                starter: {
-                  border: "border-emerald-200 dark:border-emerald-800",
-                  iconBg: "bg-gradient-to-br from-emerald-400 to-teal-500",
-                  iconText: "text-white",
-                  badge: "bg-emerald-100 text-emerald-700 border border-emerald-200",
-                  badgeText: "text-emerald-700",
-                  check: "text-emerald-500",
-                  checkBg: "bg-emerald-50 dark:bg-emerald-950/40",
-                  button: "from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-200 dark:shadow-emerald-900/40",
-                  gradient: "from-emerald-50/80 via-white to-white dark:from-emerald-950/30 dark:via-background dark:to-background",
-                  accent: "text-emerald-600 dark:text-emerald-400",
-                  priceAccent: "text-emerald-700 dark:text-emerald-300",
-                },
-                pro: {
-                  border: "border-blue-200 dark:border-blue-800",
-                  iconBg: "bg-gradient-to-br from-blue-500 to-indigo-500",
-                  iconText: "text-white",
-                  badge: "bg-blue-100 text-blue-700 border border-blue-200",
-                  badgeText: "text-blue-700",
-                  check: "text-blue-500",
-                  checkBg: "bg-blue-50 dark:bg-blue-950/40",
-                  button: "from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 shadow-blue-200 dark:shadow-blue-900/40",
-                  gradient: "from-blue-50/80 via-white to-cyan-50/30 dark:from-blue-950/30 dark:via-background dark:to-background",
-                  accent: "text-blue-600 dark:text-blue-400",
-                  priceAccent: "text-blue-700 dark:text-blue-300",
-                },
-                full: {
-                  border: "border-amber-300 dark:border-amber-700",
-                  iconBg: "bg-gradient-to-br from-amber-400 to-orange-500",
-                  iconText: "text-white",
-                  badge: "bg-amber-100 text-amber-700 border border-amber-200",
-                  badgeText: "text-amber-700",
-                  check: "text-amber-500",
-                  checkBg: "bg-amber-50 dark:bg-amber-950/40",
-                  button: "from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-200 dark:shadow-amber-900/40",
-                  gradient: "from-amber-50/80 via-white to-orange-50/30 dark:from-amber-950/30 dark:via-background dark:to-background",
-                  accent: "text-amber-600 dark:text-amber-400",
-                  priceAccent: "text-amber-700 dark:text-amber-300",
-                },
-              }[p.id];
+                iconBg: "bf-icon", iconText: "", badge: "bf-badge", check: "bf-check",
+                checkBg: "bf-price", button: "bf-cta", accent: "bf-accent", priceAccent: "bf-price-value",
+              };
 
               const PlanIcon = p.icon;
 
               return (
                 <Card
                   key={p.id}
-                  className={cn(
-                    "relative rounded-3xl border-2 transition-all duration-300 hover:-translate-y-2 h-full flex flex-col overflow-visible",
-                    "bg-gradient-to-b shadow-[0_4px_24px_rgba(0,0,0,0.06)]",
-                    "hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]",
-                    theme.gradient,
-                    theme.border,
-                    p.highlight && "ring-2 ring-amber-400/40 scale-[1.02] md:scale-[1.03] shadow-[0_8px_32px_rgba(245,158,11,0.15)]"
-                  )}
+                  className={cn("bf-card relative h-full flex flex-col overflow-visible", p.highlight && "is-highlight")}
                 >
                   {p.highlight && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                      <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-white rounded-full px-5 py-1.5 text-xs font-black shadow-lg tracking-wide flex items-center gap-1.5">
+                      <div className="bf-top-badge">
                         <Sparkles className="w-3 h-3" />
                         {p.badgeText}
                       </div>
@@ -491,10 +469,7 @@ export default function Planos() {
                         size="lg"
                         disabled={isLoading}
                         className={cn(
-                          "w-full rounded-2xl text-white font-bold shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r text-sm h-12",
-                          hasPaidPlan && userTier === p.id
-                            ? "from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
-                            : `${theme.button}`
+                          "w-full rounded-2xl font-bold text-sm h-12", theme.button
                         )}
                         onClick={() => handleSubscribe(finalPlanKey)}
                       >
@@ -524,7 +499,6 @@ export default function Planos() {
           </div>
         </div>
 
-        <InfoStrip />
         <TestimonialsSection />
         <ReassurancesBar />
 
