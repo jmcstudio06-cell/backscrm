@@ -9,8 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { TermsModal } from "@/components/auth/TermsModal";
 import baIconImg from "@/assets/ba-icon.png";
 import appShowcase from "@/assets/auth-devices.png";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BRAZIL_STATES, MONTHLY_SHOW_RANGES, signupArtistInfoSchema } from "@/lib/signupArtistInfo";
 import { Helmet } from "react-helmet-async";
 import { trackEvent } from "@/lib/metaPixel";
 import "@/styles/auth.css";
@@ -30,9 +28,6 @@ const Auth = () => {
     name: "",
     email: "",
     phone: "",
-    city: "",
-    state: "",
-    monthly_show_range: "",
     password: "",
     confirmPassword: "",
     acceptTerms: false,
@@ -126,20 +121,13 @@ const Auth = () => {
       return;
     }
 
-    if (!isLogin) {
-      const artistInfo = signupArtistInfoSchema.safeParse(formData);
-      if (!artistInfo.success) {
-        toast({ title: "Confira seu cadastro", description: artistInfo.error.issues[0]?.message, variant: "destructive" });
-        return;
-      }
-      if (!passwordIsStrong) {
-        toast({
-          title: "Senha fraca",
-          description: "Use no mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial.",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (!isLogin && !passwordIsStrong) {
+      toast({
+        title: "Senha fraca",
+        description: "Use no mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial.",
+        variant: "destructive",
+      });
+      return;
     }
 
     setIsLoading(true);
@@ -159,6 +147,9 @@ const Auth = () => {
         toast({ title: "Login realizado!", description: "Bem-vindo de volta ao Backstage Pro!" });
       } else {
         const redirectUrl = `${window.location.origin}/`;
+        // Cidade/estado/média de shows foram movidos para o onboarding (após o
+        // vídeo de boas-vindas), para reduzir o atrito do cadastro. Aqui enviamos
+        // apenas nome e WhatsApp; o restante do perfil é completado depois.
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -167,7 +158,6 @@ const Auth = () => {
             data: {
               name: formData.name,
               phone: formData.phone.replace(/\D/g, ''),
-              ...signupArtistInfoSchema.parse(formData),
             },
           },
         });
@@ -181,6 +171,9 @@ const Auth = () => {
         toast({ title: "Cadastro realizado!", description: "Bem-vindo ao Backstage Pro!" });
       }
     } catch (error: unknown) {
+      // Log do erro cru do Supabase para diagnóstico (a mensagem traduzida
+      // esconde a causa real; aqui registramos o erro completo no console).
+      console.error("Auth signup/login error:", error);
       toast({ title: "Erro", description: translateError(error instanceof Error ? error.message : ""), variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -422,11 +415,6 @@ const Auth = () => {
                           />
                           <p className="text-xs text-muted-foreground">Usaremos para contato e suporte</p>
                         </div>
-                        <div className="grid grid-cols-[1fr_90px] gap-3">
-                          <div className="space-y-2"><Label htmlFor="city">Cidade *</Label><Input id="city" value={formData.city} maxLength={100} required placeholder="Sua cidade" className="h-12" onChange={e => setFormData({ ...formData, city: e.target.value })} /></div>
-                          <div className="space-y-2"><Label htmlFor="state">Estado *</Label><Select value={formData.state} onValueChange={state => setFormData({ ...formData, state })}><SelectTrigger id="state" className="h-12"><SelectValue placeholder="UF" /></SelectTrigger><SelectContent>{BRAZIL_STATES.map(state => <SelectItem key={state} value={state}>{state}</SelectItem>)}</SelectContent></Select></div>
-                        </div>
-                        <div className="space-y-2"><Label htmlFor="monthly-show-range">Quantos shows você faz por mês, em média? *</Label><Select value={formData.monthly_show_range} onValueChange={monthly_show_range => setFormData({ ...formData, monthly_show_range })}><SelectTrigger id="monthly-show-range" className="h-12"><SelectValue placeholder="Selecione sua média" /></SelectTrigger><SelectContent>{MONTHLY_SHOW_RANGES.map(range => <SelectItem key={range} value={range}>{range} por mês</SelectItem>)}</SelectContent></Select></div>
                       </>
                     )}
 

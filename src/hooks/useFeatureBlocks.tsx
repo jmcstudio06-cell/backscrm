@@ -41,7 +41,10 @@ const DEFAULT_FEATURE_BLOCKS: FeatureBlocks = {
 };
 
 // Plan → released features (single source of truth for the app UI).
-// Starter is legacy: no longer sold, but kept working for existing subscribers.
+// Starter volta a ser vendido a R$ 19,90/mês.
+// Empresarial agora inclui "usuarios".
+// Backs Radar não faz parte de nenhum plano vendido — liberado só via override manual.
+// Executivo mantido para assinantes atuais (não vendido).
 const STARTER = ["dashboard", "agenda", "financeiro", "precificacao", "avancos", "servicos", "tutoriais", "configuracoes"];
 const PROFISSIONAL = [
   "dashboard", "agenda", "clientes", "repertorio", "financeiro", "precificacao",
@@ -52,9 +55,9 @@ const EMPRESARIAL = [
   ...PROFISSIONAL,
   "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco",
   "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus",
-  "cobrancas",
+  "cobrancas", "usuarios",
 ];
-const EXECUTIVO = [...EMPRESARIAL, "backs-radar", "usuarios"];
+const EXECUTIVO = [...EMPRESARIAL, "backs-radar"];
 const TRIAL = ["dashboard", "agenda", "crm", "clientes", "financeiro", "historico", "precificacao", "checklist", "equipe", "metas", "repertorio", "aulas", "avancos", "tutoriais", "configuracoes", "servicos"];
 
 const PLAN_RELEASED: Record<string, string[]> = {
@@ -68,6 +71,7 @@ const PLAN_RELEASED: Record<string, string[]> = {
   anual_empresarial: EMPRESARIAL,
   mensal_completo: EMPRESARIAL,
   anual_completo: EMPRESARIAL,
+  // Executivo não vendido; mantido para assinantes atuais
   mensal_executivo: EXECUTIVO,
   anual_executivo: EXECUTIVO,
 };

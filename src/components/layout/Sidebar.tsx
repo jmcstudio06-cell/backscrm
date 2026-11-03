@@ -43,7 +43,6 @@ import {
   UsersRound,
   User,
   Palette,
-  Radar,
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -75,7 +74,6 @@ const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", featureKey: "dashboard" },
   { icon: Calendar, label: "Agenda de Shows", path: "/agenda", featureKey: "agenda" },
   { icon: Crown, label: "Ranking & Selos", path: "/ranking", featureKey: "ranking" },
-  { icon: Radar, label: "Backs Radar", path: "/backs-radar", featureKey: "backs-radar" },
   
   {
     icon: Briefcase,
@@ -332,7 +330,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 );
               }
 
-              const blocked = !blocksLoading && item.featureKey && isBlocked(item.featureKey) && item.path !== "/backs-radar";
+              // Backs Radar usa o bloqueio padrão como qualquer outra feature.
+              const blocked = !blocksLoading && item.featureKey && isBlocked(item.featureKey);
               const isActive = location.pathname.startsWith(basePath(item.path));
 
               if (blocked) {

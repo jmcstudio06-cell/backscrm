@@ -34,7 +34,6 @@ export const ALL_FEATURES = [
   "usuarios",
 ];
 
-// Legacy plan (no longer sold, preserved for existing subscribers).
 const STARTER_FEATURES = [
   "dashboard", "agenda", "financeiro", "precificacao", "avancos",
   "servicos", "tutoriais", "configuracoes",
@@ -46,22 +45,25 @@ const PROFISSIONAL_FEATURES = [
   "avancos", "tutoriais", "configuracoes",
 ];
 
+// Empresarial agora inclui "usuarios" (antes era exclusivo do Executivo).
+// Backs Radar é liberado apenas via override manual para o cliente atual;
+// não faz parte de nenhum plano vendido.
 const EMPRESARIAL_FEATURES = [
   ...PROFISSIONAL_FEATURES,
   "equipe", "contratos", "assinatura-digital", "historico", "mapeamento-palco",
   "metas", "metas-anuais", "aulas", "link-agenda", "link-orcamento", "bonus",
-  "cobrancas",
+  "cobrancas", "usuarios",
 ];
 
+// Executivo mantido para os assinantes atuais. Não é mais vendido.
 const EXECUTIVO_FEATURES = [
   ...EMPRESARIAL_FEATURES,
   "backs-radar",
-  "usuarios",
 ];
 
 
 export const PLAN_FEATURES: Record<string, string[]> = {
-  // Starter
+  // Starter — volta a ser vendido a R$ 19,90/mês
   mensal_starter: STARTER_FEATURES,
   anual_starter: STARTER_FEATURES,
   // Parceiros (same features as Starter, activated by token)
@@ -74,7 +76,7 @@ export const PLAN_FEATURES: Record<string, string[]> = {
   anual_empresarial: EMPRESARIAL_FEATURES,
   mensal_completo: EMPRESARIAL_FEATURES,
   anual_completo: EMPRESARIAL_FEATURES,
-  // Executivo (tudo do Empresarial + Backs Radar)
+  // Executivo — não vendido, mantido para assinantes atuais
   mensal_executivo: EXECUTIVO_FEATURES,
   anual_executivo: EXECUTIVO_FEATURES,
 };

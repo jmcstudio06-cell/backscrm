@@ -10,6 +10,38 @@ const corsHeaders = {
 const INFINITEPAY_HANDLE = "backstageprooficial";
 const APP_URL = "https://backstagepro.online";
 
+// A InfinitePay valida os campos de `customer` e rejeita o link inteiro quando
+// algum vem malformado. Os dados do profile são digitados livremente pelo
+// artista (telefone com máscara, e-mail com espaços), então sanitizamos antes
+// de enviar e omitimos qualquer campo que continue inválido, em vez de deixar a
+// criação do link falhar por causa de um dado cosmético.
+function sanitizeCustomer(input: {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}): { name?: string; email?: string; phone_number?: string } {
+  const customer: { name?: string; email?: string; phone_number?: string } = {};
+
+  const name = input.name?.trim();
+  if (name) customer.name = name;
+
+  const email = input.email?.trim().toLowerCase();
+  // Validação simples: algo@algo.algo, sem espaços.
+  if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    customer.email = email;
+  }
+
+  // A InfinitePay espera apenas dígitos. Removemos máscara (parênteses, espaços,
+  // traços, "+") e só enviamos se sobrar um número plausível (10 a 13 dígitos,
+  // com ou sem DDI). Caso contrário, omitimos para não derrubar o checkout.
+  const digits = input.phone?.replace(/\D/g, "") ?? "";
+  if (digits.length >= 10 && digits.length <= 13) {
+    customer.phone_number = digits;
+  }
+
+  return customer;
+}
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

@@ -18,8 +18,6 @@ import {
   CalendarDays,
   CalendarRange,
   Loader2,
-  
-  Building2,
   Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -69,6 +67,28 @@ interface PlanDef {
 
 const plans: PlanDef[] = [
   {
+    id: "starter",
+    name: "Starter",
+    subtitle: "Comece a organizar sua carreira com as ferramentas essenciais do dia a dia.",
+    price: "R$ 19,90",
+    period: "/mês",
+    buttonText: "Escolher Starter",
+    highlight: false,
+    badgeText: "COMECE AQUI",
+    icon: Target,
+    socialProof: "Ideal para quem está começando!",
+    planKeyMonthly: "mensal_starter",
+    planKeyYearly: "anual_starter",
+    features: [
+      "Agenda de Shows",
+      "Resumo Financeiro",
+      "Precificação",
+      "Serviços e Produtos",
+      "Avanços",
+      "Tutoriais",
+    ],
+  },
+  {
     id: "pro",
     name: "Profissional",
     subtitle: "Organize sua carreira e tenha as ferramentas para vender e executar seus shows profissionalmente.",
@@ -82,11 +102,9 @@ const plans: PlanDef[] = [
     planKeyMonthly: "mensal_profissional",
     planKeyYearly: "anual_profissional",
     features: [
-      "Agenda ilimitada",
+      "Tudo do Starter, mais:",
       "Clientes",
       "Repertório",
-      "Resumo Financeiro",
-      "Precificação",
       "Orçamentos Automáticos",
       "Checklist de Show",
       "CRM do Artista",
@@ -117,27 +135,6 @@ const plans: PlanDef[] = [
       "Mapeamento de Palco",
       "Metas",
       "Bônus",
-    ],
-  },
-  {
-    id: "executivo",
-    name: "Executivo",
-    subtitle: "Tenha todas as ferramentas de gestão + uma estrutura comercial para encontrar novas oportunidades.",
-    price: "R$ 79,90",
-    period: "/mês",
-    buttonText: "Escolher Executivo",
-    highlight: false,
-    badgeText: "MAIS COMPLETO",
-    icon: Building2,
-    socialProof: "27 artistas estão nesse plano!",
-    planKeyMonthly: "mensal_executivo",
-    planKeyYearly: "anual_executivo",
-    features: [
-      "Tudo do Empresarial, mais:",
-      "Backs Radar",
-      "Oportunidades perto de você",
-      "Contatos de bares, restaurantes e casas de show",
-      "Envio direto ao CRM",
       "Gestão de Usuários",
     ],
   },
@@ -332,10 +329,10 @@ export default function Planos() {
 
             {plans.map((p) => {
               const pricing: Record<string, { monthly: number; yearlyOld: string; yearlyNew: string; installment: string }> = {
-                starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "149,90", installment: "12,49" },
-                pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "19,99" },
-                full: { monthly: 39.9, yearlyOld: "478,80", yearlyNew: "298,80", installment: "29,88" },
-                executivo: { monthly: 79.9, yearlyOld: "958,80", yearlyNew: "499,90", installment: "49,99" },
+                starter: { monthly: 19.9, yearlyOld: "238,80", yearlyNew: "119,90", installment: "9,99" },
+                pro: { monthly: 24.9, yearlyOld: "298,80", yearlyNew: "199,90", installment: "16,66" },
+                full: { monthly: 39.9, yearlyOld: "478,80", yearlyNew: "298,80", installment: "24,90" },
+                executivo: { monthly: 79.9, yearlyOld: "958,80", yearlyNew: "499,90", installment: "41,66" },
               };
               const planPricing = pricing[p.id];
               const monthlyValue = planPricing.monthly;
@@ -389,19 +386,6 @@ export default function Planos() {
                   buttonHoverFrom: "hover:from-amber-700",
                   buttonHoverTo: "hover:to-orange-600",
                   gradient: "from-amber-50/60 via-white to-orange-50/40",
-                },
-                executivo: {
-                  border: "border-violet-200",
-                  ring: "ring-violet-500/30",
-                  iconBg: "bg-violet-100",
-                  iconText: "text-violet-600",
-                  badge: "bg-violet-600 hover:bg-violet-600",
-                  check: "bg-violet-500",
-                  buttonFrom: "from-violet-600",
-                  buttonTo: "to-fuchsia-500",
-                  buttonHoverFrom: "hover:from-violet-700",
-                  buttonHoverTo: "hover:to-fuchsia-600",
-                  gradient: "from-violet-50/70 via-white to-fuchsia-50/40",
                 },
               }[p.id];
 
