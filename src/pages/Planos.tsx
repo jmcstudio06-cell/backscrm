@@ -74,7 +74,7 @@ const plans: PlanDef[] = [
     period: "/mês",
     buttonText: "Escolher Starter",
     highlight: false,
-    badgeText: "COMECE AQUI",
+    badgeText: "R$ 19,90/mês",
     icon: Target,
     socialProof: "Ideal para quem está começando!",
     planKeyMonthly: "mensal_starter",
