@@ -4,14 +4,12 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight, ArrowUpRight, Briefcase, Building2, CalendarDays, Check, ChevronLeft, ChevronRight, Crown,
   FileText, Gift, MapPin, Menu, MessageCircle, Music2, Play, ShieldCheck, Sparkles, Star, Users, Wallet, X,
-  TriangleAlert,
+  TriangleAlert, Link2, DollarSign, ClipboardList,
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { LandingExperience } from "@/components/landing/LandingExperience";
-import { useTilt } from "@/components/landing/useTilt";
-import stagePhoto from "@/assets/landing-stage.jpg";
 import brandIcon from "@/assets/ba-icon.png";
 import founderPhoto from "@/assets/team/jose-mario.png";
 import larissaGoogle from "@/assets/testimonials/larissa-google.png";
@@ -99,6 +97,54 @@ function Check2() {
   return <span className="lp-check" aria-hidden="true"><Check /></span>;
 }
 
+/** Mock visual do painel — apresentação estática, sem dados reais */
+function AppMock() {
+  const cards = [
+    { icon: Link2,         label: "Link Agenda",    sub: "Pedidos online",  bg: "linear-gradient(135deg,#0066CC,#00B4D8)" },
+    { icon: MapPin,        label: "Mapa de Palco",  sub: "Rider digital",   bg: "linear-gradient(135deg,#7C3AED,#A855F7)" },
+    { icon: DollarSign,    label: "Financeiro",     sub: "Receita auto",    bg: "linear-gradient(135deg,#059669,#10B981)" },
+    { icon: CalendarDays,  label: "Agenda",         sub: "Shows no jeito",  bg: "linear-gradient(135deg,#D97706,#F59E0B)" },
+    { icon: FileText,      label: "Orçamento",      sub: "1 clique",        bg: "linear-gradient(135deg,#DB2777,#EC4899)" },
+    { icon: ClipboardList, label: "Contrato",       sub: "Envio rápido",    bg: "linear-gradient(135deg,#0284C7,#38BDF8)" },
+  ];
+  return (
+    <div className="lp-app-mock" aria-hidden="true">
+      {/* Barra de título */}
+      <div className="lp-app-mock-bar">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <img src="/favicon.png" width={18} height={18} alt="" style={{ borderRadius: 4 }} />
+          <span>Backstage Pro — Painel do Artista</span>
+        </div>
+        <div className="lp-app-mock-dots">
+          <i style={{ background: "#ff5f57" }} />
+          <i style={{ background: "#febc2e" }} />
+          <i style={{ background: "#28c840" }} />
+        </div>
+      </div>
+      {/* Grid de cards */}
+      <div className="lp-app-mock-grid">
+        {cards.map(({ icon: Icon, label, sub, bg }) => (
+          <div key={label} className="lp-app-card">
+            <div className="lp-app-card-icon" style={{ background: bg }}>
+              <Icon />
+            </div>
+            <div>
+              <strong>{label}</strong>
+              <small>{sub}</small>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Stats */}
+      <div className="lp-app-stats">
+        <div className="lp-app-stat"><strong>2min</strong><small>Setup</small></div>
+        <div className="lp-app-stat"><strong>+100</strong><small>Artistas</small></div>
+        <div className="lp-app-stat"><strong>100%</strong><small>Prático</small></div>
+      </div>
+    </div>
+  );
+}
+
 /** Presentation-only calculator: nothing is saved, it only reflects the visitor's own numbers. */
 function ShowCalculator() {
   const [shows, setShows] = useState(8);
@@ -133,7 +179,6 @@ export default function Landing() {
   const [video, setVideo] = useState<keyof typeof VIDEO_IDS | null>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
   const landingRef = useRef<HTMLDivElement>(null);
-  const tilt = useTilt<HTMLDivElement>(7);
   const currentReview = reviews[reviewIndex];
   const marqueeWords = useMemo(() => ["ORGANIZAÇÃO", "CONTROLE", "GESTÃO DE CARREIRA", "FEITO PARA ARTISTAS", "BACKSTAGE PRO"], []);
 
@@ -206,33 +251,45 @@ export default function Landing() {
           <div className="lp-container lp-hero-grid">
             <div className="lp-hero-copy">
               <span className="lp-eyebrow"><span className="lp-eyebrow-dot" />Feito para quem vive de música</span>
-              <h1 id="landing-title">Seu talento no palco.<span className="lp-text-gradient">Sua carreira no controle.</span></h1>
-              <p className="lp-hero-lead">Agenda, cachês, contratos e contatos em um só lugar. Do primeiro convite ao próximo show, o Backstage Pro organiza o que acontece fora do palco.</p>
+              <h1 id="landing-title">Sua carreira musical,<span className="lp-text-gradient">organizada como um negócio.</span></h1>
+              <p className="lp-hero-lead">Seu talento é no palco. A organização deixa com a gente. Agenda, contratos, cachês e finanças em um só app. Pare de perder oportunidades por falta de controle.</p>
               <div className="lp-hero-ctas">
-                <TrialLink label="Testar grátis agora" />
+                <TrialLink label="Cadastrar grátis" />
                 <button type="button" className="lp-btn lp-btn-ghost" onClick={() => setVideo("app")}><Play />Ver o app em ação</button>
               </div>
               <div className="lp-hero-trust">
-                <span><Check2 />3 horas para conhecer</span>
                 <span><Check2 />Sem cartão de crédito</span>
-                <span><Check2 />Celular e computador</span>
+                <span><Check2 />Cadastro em 2 minutos</span>
+                <span><Check2 />Cancele quando quiser</span>
+              </div>
+              <div className="lp-hero-social">
+                <div className="lp-hero-avatars">
+                  {[1,2,3,4].map((i) => (
+                    <div key={i} style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid rgba(255,255,255,.3)", marginRight: -8, background: `hsl(${i*60} 60% 55%)`, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>
+                      {["P","M","J","R"][i-1]}
+                    </div>
+                  ))}
+                </div>
+                <div className="lp-hero-social-text">
+                  <div className="lp-hero-stars">{[0,1,2,3,4].map((i) => <Star key={i} />)}</div>
+                  <strong>+90 Artistas</strong>
+                  <span>já organizam a carreira aqui</span>
+                </div>
               </div>
             </div>
 
             <div className="lp-hero-visual">
-              <div className="lp-tilt" {...tilt}>
-                <div className="lp-tilt-inner">
-                  <img src={stagePhoto} alt="Cantor se apresentando ao vivo com sua banda" width={1600} height={912} fetchPriority="high" />
-                  <div className="lp-tilt-caption"><strong>Menos improviso.<br />Mais carreira.</strong><span>Tudo o que acontece antes e depois do show.</span></div>
-                </div>
-              </div>
-              <div className="lp-badge-orb" aria-hidden="true"><Music2 className="h-7 w-7" /></div>
-              <div className="lp-float-card lp-float-a" aria-hidden="true"><span className="lp-float-icon"><CalendarDays /></span><span>Show confirmado<small>Agenda atualizada</small></span></div>
-              <div className="lp-float-card lp-float-b" aria-hidden="true"><span className="lp-float-icon"><FileText /></span><span>Contrato enviado<small>Pronto para assinar</small></span></div>
-              <div className="lp-float-card lp-float-c" aria-hidden="true"><span className="lp-float-icon"><Wallet /></span><span>Cachê recebido<small>Financeiro em dia</small></span></div>
+              <AppMock />
             </div>
           </div>
         </section>
+
+        {/* Wave separador */}
+        <div className="lp-hero-wave" aria-hidden="true">
+          <svg viewBox="0 0 1440 64" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,32 C360,64 1080,0 1440,32 L1440,64 L0,64 Z" fill="hsl(var(--background))" />
+          </svg>
+        </div>
 
         <div className="lp-marquee" aria-hidden="true">
           <div className="lp-marquee-track">

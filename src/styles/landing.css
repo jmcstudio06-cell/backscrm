@@ -81,9 +81,179 @@
 .landing-page .lp-mobile-nav a { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; font-weight: 600; border-radius: 10px; }
 .landing-page .lp-mobile-nav a:hover { background: hsl(var(--lp-ice)); color: hsl(var(--primary)); }
 
-/* Hero */
-.landing-page .lp-hero { position: relative; overflow: hidden; padding: 88px 0 112px; background: linear-gradient(180deg, hsl(var(--lp-ice)) 0%, hsl(var(--background)) 78%); }
-.landing-page .lp-hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
+/* Hero — fundo azul escuro como na landing original */
+.landing-page .lp-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 80px 0 100px;
+  background: linear-gradient(145deg, hsl(221 82% 20%) 0%, hsl(221 82% 32%) 45%, hsl(193 89% 38%) 100%);
+  color: hsl(0 0% 100%);
+}
+.landing-page .lp-hero .lp-eyebrow {
+  color: hsl(var(--lp-cyan));
+  background: hsl(0 0% 100% / .08);
+  border-color: hsl(0 0% 100% / .15);
+}
+.landing-page .lp-hero .lp-hero-lead { color: hsl(0 0% 100% / .80); }
+.landing-page .lp-hero .lp-hero-trust { color: hsl(0 0% 100% / .72); }
+.landing-page .lp-hero .lp-check { background: hsl(0 0% 100% / .15); }
+.landing-page .lp-hero .lp-btn-ghost {
+  color: hsl(0 0% 100%);
+  background: hsl(0 0% 100% / .10);
+  border-color: hsl(0 0% 100% / .20);
+}
+.landing-page .lp-hero .lp-btn-ghost:hover {
+  background: hsl(0 0% 100% / .18);
+  color: hsl(0 0% 100%);
+}
+/* No hero azul, o gradiente de texto vira branco→ciano para ficar legível */
+.landing-page .lp-hero h1 .lp-text-gradient {
+  background: linear-gradient(135deg, hsl(var(--lp-cyan)) 0%, hsl(0 0% 100%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Wave separando hero das seções brancas */
+.landing-page .lp-hero-wave {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  line-height: 0;
+  z-index: 3;
+}
+.landing-page .lp-hero-wave svg { width: 100%; height: 64px; display: block; }
+
+/* Mock do painel no hero */
+.landing-page .lp-app-mock {
+  position: relative;
+  z-index: 2;
+  background: hsl(0 0% 100%);
+  border-radius: 20px;
+  box-shadow: 0 32px 80px -20px hsl(0 0% 0% / .45);
+  overflow: hidden;
+  animation: lp-fade-up .8s .15s ease-out both;
+}
+.landing-page .lp-app-mock-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: hsl(223 64% 9%);
+  color: hsl(0 0% 100%);
+}
+.landing-page .lp-app-mock-bar span {
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+.landing-page .lp-app-mock-dots { display: flex; gap: 6px; }
+.landing-page .lp-app-mock-dots i {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.landing-page .lp-app-mock-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 14px;
+  background: hsl(214 30% 97%);
+}
+.landing-page .lp-app-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: hsl(0 0% 100%);
+  box-shadow: 0 1px 4px hsl(0 0% 0% / .06);
+}
+.landing-page .lp-app-card-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.landing-page .lp-app-card-icon svg { width: 18px; height: 18px; color: hsl(0 0% 100%); }
+.landing-page .lp-app-card strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: hsl(222 60% 14%);
+  line-height: 1.2;
+}
+.landing-page .lp-app-card small {
+  font-size: 10px;
+  color: hsl(220 22% 55%);
+}
+.landing-page .lp-app-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid hsl(214 30% 92%);
+  background: hsl(0 0% 100%);
+}
+.landing-page .lp-app-stat {
+  padding: 10px 8px;
+  text-align: center;
+  border-right: 1px solid hsl(214 30% 92%);
+}
+.landing-page .lp-app-stat:last-child { border-right: none; }
+.landing-page .lp-app-stat strong {
+  display: block;
+  font-family: 'Sora', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  background: var(--lp-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.landing-page .lp-app-stat small {
+  font-size: 10px;
+  color: hsl(220 22% 50%);
+  font-weight: 500;
+}
+
+/* Social proof no hero */
+.landing-page .lp-hero-social {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+.landing-page .lp-hero-avatars {
+  display: flex;
+}
+.landing-page .lp-hero-avatars img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid hsl(0 0% 100% / .3);
+  margin-right: -8px;
+  object-fit: cover;
+  background: hsl(var(--lp-gradient));
+}
+.landing-page .lp-hero-social-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: hsl(0 0% 100%);
+}
+.landing-page .lp-hero-social-text span {
+  font-size: 12px;
+  color: hsl(0 0% 100% / .65);
+}
+.landing-page .lp-hero-stars {
+  display: flex;
+  gap: 1px;
+  color: hsl(43 96% 60%);
+}
+.landing-page .lp-hero-stars svg { width: 13px; height: 13px; fill: currentColor; }
 .landing-page .lp-hero-copy > * { animation: lp-fade-up .7s ease-out both; }
 .landing-page .lp-hero-copy > :nth-child(2) { animation-delay: .08s; }
 .landing-page .lp-hero-copy > :nth-child(3) { animation-delay: .16s; }
