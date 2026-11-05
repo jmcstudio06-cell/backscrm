@@ -1143,3 +1143,165 @@
     stroke-dashoffset: 0;
   }
 }
+
+
+/* Scroll reveal animations */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-on-scroll.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animação de micro-interação nos botões */
+.landing-v4 .btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-v4 .btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.landing-v4 .btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Animação suave no menu de navegação */
+.landing-v4 header nav a {
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.landing-v4 header nav a::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--azul);
+  transition: width 0.3s ease;
+}
+
+.landing-v4 header nav a:hover::after {
+  width: 100%;
+}
+
+/* Animação nos cards de ingressos (planos) */
+.landing-v4 .ing {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-v4 .ing:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(15, 20, 32, 0.2);
+}
+
+/* Pulso suave nos depoimentos */
+.landing-v4 .recado {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-v4 .recado:hover {
+  transform: rotate(0deg) !important;
+  box-shadow: 0 24px 48px rgba(15, 20, 32, 0.25);
+  z-index: 10;
+}
+
+/* Animação no hover da folha de setlist */
+.landing-v4 .folha {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-v4 .folha:hover {
+  transform: rotate(0deg);
+  box-shadow: 0 30px 60px rgba(15, 20, 32, 0.25);
+}
+
+/* Animação nos itens da timeline */
+.landing-v4 .dia {
+  transition: transform 0.3s ease;
+}
+
+.landing-v4 .dia:hover {
+  transform: scale(1.05);
+}
+
+.landing-v4 .dia::before {
+  transition: all 0.3s ease;
+}
+
+.landing-v4 .dia:hover::before {
+  transform: scale(1.2);
+  box-shadow: 0 0 20px rgba(63, 216, 230, 0.6);
+}
+
+/* Credencial com rotação suave no hover */
+.landing-v4 .final .pendulo {
+  transition: transform 0.4s ease;
+}
+
+.landing-v4 .final .pendulo:hover {
+  animation-play-state: paused;
+  transform: rotate(0deg) scale(1.05);
+}
+
+/* Efeito de shimmer nos botões principais */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.landing-v4 .btn.primary-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--azul) 0%,
+    #3fd8e6 25%,
+    var(--azul) 50%,
+    #3fd8e6 75%,
+    var(--azul) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Smooth scroll para as âncoras */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+  
+  .landing-v4 .btn::before {
+    display: none;
+  }
+}

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import baIcon from '@/assets/ba-icon.png';
 import larissamGoogle from '@/assets/testimonials/larissa-google.png';
 import marceloGoogle from '@/assets/testimonials/marcelo-google.png';
@@ -9,6 +9,16 @@ import '../styles/landing-v4.css';
 
 export default function LandingV4() {
   const valorRef = useRef<HTMLStrongElement>(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    // Parallax scroll effect
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     // Animação do contador de valor
@@ -35,6 +45,26 @@ export default function LandingV4() {
     requestAnimationFrame(animate);
   }, []);
 
+  useEffect(() => {
+    // Scroll reveal animations
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-visible');
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const toggleTask = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.classList.toggle('ok');
   };
@@ -42,7 +72,7 @@ export default function LandingV4() {
   return (
     <div className="landing-v4">
       {/* Fundo animado */}
-      <div className="fundo" aria-hidden="true">
+      <div className="fundo" aria-hidden="true" style={{ transform: `translateY(${scrollY * 0.3}px)` }}>
         <i className="blob bl1"></i>
         <i className="blob bl2"></i>
         <i className="blob bl3"></i>
@@ -143,7 +173,7 @@ export default function LandingV4() {
       </div>
 
       {/* Recursos / Setlist */}
-      <section id="recursos" style={{ paddingTop: '60px' }}>
+      <section id="recursos" className="reveal-on-scroll" style={{ paddingTop: '60px' }}>
         <div className="wrap">
           <h2>O setlist da sua carreira, do orçamento ao saldo</h2>
           <p className="sub">
@@ -201,7 +231,7 @@ export default function LandingV4() {
       </section>
 
       {/* Vídeo / Timeline */}
-      <section className="noite" id="video">
+      <section className="noite reveal-on-scroll" id="video">
         <div className="wrap">
           <h2>Um sábado de show, sem correria nos bastidores</h2>
           <p className="sub">Veja como a semana de um show flui quando cada coisa já está no lugar.</p>
@@ -244,7 +274,7 @@ export default function LandingV4() {
       </section>
 
       {/* Depoimentos */}
-      <section id="depoimentos">
+      <section id="depoimentos" className="reveal-on-scroll">
         <div className="wrap">
           <h2>Recados de quem já está nos bastidores</h2>
           <p className="sub">Avaliações reais de artistas no Google.</p>
@@ -296,7 +326,7 @@ export default function LandingV4() {
       </section>
 
       {/* Planos */}
-      <section id="planos" style={{ paddingTop: '20px' }}>
+      <section id="planos" className="reveal-on-scroll" style={{ paddingTop: '20px' }}>
         <div className="wrap">
           <h2>Entre no palco do seu jeito e cresça no seu ritmo</h2>
           <p className="sub">
