@@ -46,20 +46,28 @@ export default function LandingV4() {
   }, []);
 
   useEffect(() => {
-    // Scroll reveal animations
+    // Scroll reveal animations - FIX: garantir que funcione
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('reveal-visible');
+            observer.unobserve(entry.target); // Para de observar depois de animar
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { 
+        threshold: 0.15, // Quanto % precisa estar visível
+        rootMargin: '0px 0px -100px 0px' // Anima um pouco antes
+      }
     );
 
-    document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
-      observer.observe(el);
+    // Aguarda um frame para garantir que os elementos existem
+    requestAnimationFrame(() => {
+      const elements = document.querySelectorAll('.reveal-on-scroll');
+      elements.forEach((el) => {
+        observer.observe(el);
+      });
     });
 
     return () => observer.disconnect();
@@ -181,7 +189,7 @@ export default function LandingV4() {
             Pode riscar o que já faz ou quer fazer.
           </p>
           
-          <div className="folha">
+          <div className="folha reveal-on-scroll">
             <div className="cols">
               <div>
                 <h3>Antes do palco</h3>
@@ -236,7 +244,7 @@ export default function LandingV4() {
           <h2>Um sábado de show, sem correria nos bastidores</h2>
           <p className="sub">Veja como a semana de um show flui quando cada coisa já está no lugar.</p>
           
-          <div className="linha">
+          <div className="linha reveal-on-scroll">
             <div className="dia">
               <b>Segunda</b>
               <span>O contratante pede orçamento e ele sai pronto.</span>
@@ -279,7 +287,7 @@ export default function LandingV4() {
           <h2>Recados de quem já está nos bastidores</h2>
           <p className="sub">Avaliações reais de artistas no Google.</p>
           
-          <div className="recados">
+          <div className="recados reveal-on-scroll">
             <figure className="recado" style={{ margin: 0 }}>
               <div className="estrelas" aria-label="5 estrelas">★★★★★</div>
               <blockquote>
@@ -333,7 +341,7 @@ export default function LandingV4() {
             O Backstage Pro acompanha cada fase da carreira. Você sobe de plano quando precisar de mais.
           </p>
           
-          <div className="ingressos">
+          <div className="ingressos reveal-on-scroll">
             <div className="ing">
               <h3>Primeiros shows</h3>
               <p>Agenda, finanças e precificação para sair da bagunça no primeiro dia.</p>
@@ -388,7 +396,7 @@ export default function LandingV4() {
                     }}
                   />
                 </div>
-                <h3>Seu nome artístico</h3>
+                <h3>João Silva</h3>
                 <p>Cantor(a) · acesso aos bastidores</p>
                 <div className="acesso">
                   <span>Agenda de shows</span>
