@@ -1,48 +1,48 @@
 /* Auth presentation. Everything is scoped to .auth-page so artist themes never change. */
 .auth-page {
-  --background: 210 60% 98%;
-  --foreground: 222 60% 14%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 60% 14%;
-  --primary: 221 82% 46%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 205 100% 96%;
-  --secondary-foreground: 222 60% 14%;
-  --muted: 210 50% 96%;
-  --muted-foreground: 220 22% 40%;
-  --accent: 205 100% 96%;
-  --accent-foreground: 222 60% 14%;
-  --border: 214 45% 89%;
-  --input: 214 45% 87%;
-  --ring: 221 82% 46%;
-  --auth-sky: 213 100% 59%;
-  --auth-cyan: 193 89% 54%;
-  --auth-navy: 223 64% 9%;
-  --auth-gradient: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--auth-sky)) 55%, hsl(var(--auth-cyan)) 100%);
-  --auth-gradient-wide: linear-gradient(110deg, hsl(var(--primary)), hsl(var(--auth-sky)), hsl(var(--auth-cyan)), hsl(var(--auth-sky)), hsl(var(--primary)));
-  --auth-shadow: 0 10px 40px -10px hsl(var(--primary) / .5);
-  --auth-shadow-lg: 0 30px 80px -24px hsl(222 60% 14% / .28);
+  --background: #dfe3ea;
+  --foreground: #0f1420;
+  --card: #fbfbfd;
+  --card-foreground: #0f1420;
+  --primary: #1f5eff;
+  --primary-foreground: #ffffff;
+  --secondary: #cfe0ff;
+  --secondary-foreground: #0f1420;
+  --muted: #dfe3ea;
+  --muted-foreground: #5a6377;
+  --accent: #cfe0ff;
+  --accent-foreground: #0f1420;
+  --border: #c2c9d6;
+  --input: #c2c9d6;
+  --ring: #1f5eff;
+  --auth-sky: #1f5eff;
+  --auth-cyan: #3fd8e6;
+  --auth-navy: #0f1420;
+  --auth-gradient: linear-gradient(135deg, #1f5eff 0%, #3fd8e6 100%);
+  --auth-gradient-wide: linear-gradient(110deg, #1f5eff, #3fd8e6, #1f5eff);
+  --auth-shadow: 0 10px 40px -10px rgba(31, 94, 255, 0.5);
+  --auth-shadow-lg: 0 30px 80px -24px rgba(15, 20, 32, 0.28);
   position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
-  color: hsl(var(--foreground));
-  background: linear-gradient(90deg, hsl(var(--auth-navy)) 0 50%, hsl(var(--background)) 50% 100%);
+  color: var(--foreground);
+  background: linear-gradient(90deg, var(--auth-navy) 0 50%, var(--background) 50% 100%);
   font-family: 'DM Sans', system-ui, sans-serif;
   letter-spacing: 0;
 }
 .auth-page * { letter-spacing: 0; }
-.auth-page h1, .auth-page h2 { font-family: 'Sora', 'DM Sans', system-ui, sans-serif; }
+.auth-page h1, .auth-page h2 { font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif; }
 
 /* Header sits over both halves */
 .auth-header { position: absolute; top: env(safe-area-inset-top); left: 0; right: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 40px; }
-.auth-brand { height: auto; padding: 0; gap: 10px; font-family: 'Sora', sans-serif; font-size: 19px; font-weight: 700; color: hsl(0 0% 100%); }
-.auth-brand:hover { background: transparent; color: hsl(0 0% 100%); opacity: .85; }
+.auth-brand { height: auto; padding: 0; gap: 10px; font-family: 'Bricolage Grotesque', sans-serif; font-size: 19px; font-weight: 700; color: #ffffff; }
+.auth-brand:hover { background: transparent; color: #ffffff; opacity: .85; }
 .auth-brand img { border-radius: 10px; box-shadow: var(--auth-shadow); }
-.auth-header > button:last-child { border-radius: 12px; color: hsl(var(--foreground)); background: hsl(var(--card)); border: 1px solid hsl(var(--border)); }
-.auth-header > button:last-child:hover { color: hsl(var(--primary)); border-color: hsl(var(--primary) / .4); background: hsl(var(--card)); }
+.auth-header > button:last-child { border-radius: 12px; color: var(--foreground); background: var(--card); border: 1px solid var(--border); }
+.auth-header > button:last-child:hover { color: var(--primary); border-color: rgba(31, 94, 255, 0.4); background: var(--card); }
 
 .auth-layout { flex: 1; display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
 
