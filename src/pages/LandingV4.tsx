@@ -4,6 +4,7 @@ import baIcon from '@/assets/ba-icon.png';
 import larissamGoogle from '@/assets/testimonials/larissa-google.png';
 import marceloGoogle from '@/assets/testimonials/marcelo-google.png';
 import fabioGoogle from '@/assets/testimonials/fabio-google.png';
+import artistPhoto from '@/assets/artists/artist-1.png';
 import '../styles/landing-v4.css';
 
 export default function LandingV4() {
@@ -339,7 +340,21 @@ export default function LandingV4() {
               <div className="argola"></div>
               <div className="cred">
                 <div className="furo"></div>
-                <div className="foto">VC</div>
+                <div className="foto" style={{ 
+                  background: 'none', 
+                  padding: 0,
+                  overflow: 'hidden'
+                }}>
+                  <img 
+                    src={artistPhoto} 
+                    alt="Artista profissional" 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover'
+                    }}
+                  />
+                </div>
                 <h3>Seu nome artístico</h3>
                 <p>Cantor(a) · acesso aos bastidores</p>
                 <div className="acesso">
