@@ -375,7 +375,7 @@ export default function LandingV4() {
       {/* Footer */}
       <footer>
         <div className="wrap">
-          <span>© 2026 Backstage Pro · gestão para cantores</span>
+          <span>© 2024 Backstage Pro® — CNPJ 69.458.195/0001-14</span>
           <a href="https://backstageproapp.com/" target="_blank" rel="noopener noreferrer">
             backstageproapp.com
           </a>
