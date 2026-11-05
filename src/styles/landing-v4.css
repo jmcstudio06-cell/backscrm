@@ -271,6 +271,7 @@
 .landing-v4 .cred h3 {
   font-size: 24px;
   text-align: center;
+  color: var(--noite);
 }
 
 .landing-v4 .cred p {
@@ -285,12 +286,14 @@
   gap: 6px;
   font-size: 14px;
   font-weight: 500;
+  color: var(--noite);
 }
 
 .landing-v4 .acesso span {
   background: var(--fundo);
   padding: 7px 12px;
   border-radius: 10px;
+  color: var(--noite);
 }
 
 .landing-v4 .cod {
