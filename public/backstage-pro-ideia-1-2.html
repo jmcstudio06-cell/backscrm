@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Backstage Pro – gestão para cantores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=Caveat:wght@600;700&family=Outfit:wght@500;600;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--fundo:#dfe3ea;--aco:#c2c9d6;--azul:#1f5eff;--noite:#0f1420;--papel:#fbfbfd;--suave:#5a6377;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--noite);font:400 17px/1.6 "DM Sans",system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1;letter-spacing:-.03em}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--azul);outline-offset:3px}
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+.marca{font:800 25px/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.05em;text-decoration:none}
+.marca sup{font-size:.42em;font-weight:600;color:var(--azul);margin-left:3px}
+.btn{display:inline-block;background:var(--azul);color:#fff;font:700 16px/1 "DM Sans",sans-serif;padding:18px 30px;border-radius:99px;text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 12px 30px rgba(31,94,255,.35)}
+.btn:hover{transform:translateY(-3px) rotate(-1deg);box-shadow:0 18px 36px rgba(31,94,255,.45)}
+.btn.esc{background:var(--noite);box-shadow:none;padding:13px 22px;font-size:15px}
+.btn.cl{background:var(--papel);color:var(--noite);box-shadow:none}
+/* hero */
+.hero{position:relative;padding-bottom:30px;overflow:hidden}
+.luz{position:absolute;top:-40px;width:380px;height:760px;background:linear-gradient(#fff,rgba(255,255,255,0) 90%);clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);transform-origin:50% 0;filter:blur(6px);opacity:.8;pointer-events:none}
+.l1{left:2%;animation:varre 9s ease-in-out infinite alternate}
+.l2{left:30%;animation:varre 11s ease-in-out infinite alternate-reverse;opacity:.55}
+@keyframes varre{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+header .wrap{display:flex;justify-content:space-between;align-items:center;padding-top:24px;padding-bottom:24px;position:relative;z-index:2}
+.hero .wrap{position:relative}
+.texto{position:relative;z-index:1}
+.hero-grid{display:grid;grid-template-columns:1fr 1.02fr;gap:50px;align-items:center;padding-top:30px}
+.acoes{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.btn.sec{background:transparent;color:var(--noite);box-shadow:none;border:2px solid var(--noite);padding:16px 28px}
+.btn.sec:hover{background:var(--noite);color:#fff;box-shadow:none}
+h1{font-size:clamp(46px,7vw,92px);font-weight:800}
+.lead{font-size:20px;color:var(--suave);margin:28px 0 36px;max-width:28em}
+.nota{margin-top:22px;font-size:15px;color:var(--suave)}
+/* credencial */
+.pendulo{position:relative;width:270px;transform-origin:50% 0;animation:sway 5.5s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.fita{width:34px;height:200px;margin:0 auto;background:repeating-linear-gradient(135deg,var(--azul) 0 10px,#154ad6 10px 20px)}
+.argola{width:46px;height:20px;margin:0 auto;background:var(--aco);border-radius:6px 6px 10px 10px;border:2px solid #8f9ab0}
+.cred{background:var(--papel);border-radius:22px;padding:26px 24px 22px;box-shadow:0 30px 50px rgba(15,20,32,.25);margin-top:-2px}
+.cred .furo{width:54px;height:10px;border-radius:9px;background:var(--fundo);margin:0 auto 18px;box-shadow:inset 0 2px 3px rgba(0,0,0,.2)}
+.foto{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,var(--azul),#3fd8e6);margin:0 auto 12px;display:grid;place-items:center;color:#fff;font:800 30px "Bricolage Grotesque"}
+.cred h3{font-size:24px;text-align:center}
+.cred p{text-align:center;color:var(--suave);font-size:14px;margin:4px 0 16px}
+.acesso{display:grid;gap:6px;font-size:14px;font-weight:500}
+.acesso span{background:var(--fundo);padding:7px 12px;border-radius:10px}
+.cod{height:38px;margin-top:16px;background:repeating-linear-gradient(90deg,var(--noite) 0 2px,transparent 2px 5px,var(--noite) 5px 9px,transparent 9px 11px)}
+/* seções */
+section{padding:100px 0}
+h2{font-size:clamp(34px,5vw,62px);font-weight:800;max-width:14em}
+.sub{color:var(--suave);max-width:34em;margin:18px 0 0}
+/* setlist */
+.folha{position:relative;margin-top:60px;background:var(--papel);padding:50px 46px;transform:rotate(-.8deg);box-shadow:0 24px 50px rgba(15,20,32,.18);background-image:repeating-linear-gradient(transparent 0 37px,#dbe3f3 37px 38px)}
+.folha::before,.folha::after{content:"";position:absolute;top:-14px;width:120px;height:30px;background:rgba(31,94,255,.28);transform:rotate(-4deg)}
+.folha::before{left:8%}.folha::after{right:8%;transform:rotate(3deg)}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:34px}
+.cols h3{font:700 30px/1.1 Caveat,cursive;letter-spacing:0;color:var(--azul);margin-bottom:6px;text-decoration:underline wavy;text-underline-offset:6px;text-decoration-thickness:2px}
+.cols ul{list-style:none;margin:0;padding:0}
+.cols button{all:unset;cursor:pointer;display:block;font:600 24px/38px Caveat,cursive;position:relative;padding-left:30px}
+.cols button::before{content:"";position:absolute;left:2px;top:11px;width:16px;height:16px;border:2px solid var(--noite);border-radius:4px}
+.cols button.ok{color:var(--suave);text-decoration:line-through;text-decoration-color:var(--azul);text-decoration-thickness:3px}
+.cols button.ok::after{content:"";position:absolute;left:6px;top:13px;width:10px;height:5px;border-left:3px solid var(--azul);border-bottom:3px solid var(--azul);transform:rotate(-45deg)}
+.dica{font:600 22px Caveat,cursive;color:var(--suave);margin:26px 0 0;text-align:right}
+/* sábado */
+.noite{background:var(--noite);color:#fff}
+.noite h2{color:#fff}
+.noite .sub{color:#a8b3cc}
+.linha{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:64px;position:relative}
+.linha::before{content:"";position:absolute;left:0;right:0;top:11px;height:3px;background:linear-gradient(90deg,var(--azul),#3fd8e6)}
+.dia{position:relative;padding:44px 18px 0 0}
+.dia::before{content:"";position:absolute;top:0;left:0;width:26px;height:26px;border-radius:50%;background:var(--noite);border:4px solid var(--azul)}
+.dia:last-child::before{background:#3fd8e6;border-color:#3fd8e6}
+.dia b{display:block;font:700 20px "Bricolage Grotesque";margin-bottom:6px}
+.dia span{color:#a8b3cc;font-size:15px}
+.ingr-v{margin-top:64px;display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+.ingr-v p{margin:0;color:#a8b3cc}
+/* recados */
+.recados{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:56px}
+.recado{position:relative;padding:34px 28px 26px;background:var(--papel);box-shadow:0 14px 30px rgba(15,20,32,.14)}
+.recado:nth-child(1){transform:rotate(-2deg)}.recado:nth-child(2){transform:rotate(1.5deg) translateY(20px);background:#cfe0ff}.recado:nth-child(3){transform:rotate(-1deg);background:var(--aco)}
+.recado::before{content:"";position:absolute;top:-12px;left:42%;width:80px;height:24px;background:rgba(15,20,32,.14);transform:rotate(3deg)}
+.estrelas{color:#f2a100;letter-spacing:3px}
+.recado blockquote{margin:12px 0 16px;font:600 25px/1.25 Caveat,cursive}
+.recado small{color:var(--suave);font-size:14px}
+/* ingressos */
+.ingressos{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:54px}
+.ing{padding:36px 30px 40px;background:var(--papel);--m:radial-gradient(circle 16px at 0 62%,#0000 98%,#000),radial-gradient(circle 16px at 100% 62%,#0000 98%,#000);-webkit-mask:var(--m);mask:var(--m);-webkit-mask-composite:source-in;mask-composite:intersect;border-radius:8px}
+.ing:nth-child(2){background:var(--azul);color:#fff}.ing:nth-child(3){background:var(--noite);color:#fff}
+.ing h3{font-size:30px;margin-bottom:12px}
+.ing p{margin:0 0 26px;opacity:.8;font-size:16px}
+.ing em{display:block;border-top:3px dotted currentColor;padding-top:14px;font:600 22px Caveat,cursive;font-style:normal;opacity:.8}
+/* final */
+.final{background:var(--azul);color:#fff;position:relative;overflow:hidden}
+.final-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:60px;align-items:start;position:relative}
+.final-txt{align-self:center}
+.final h2{margin:0 0 20px;max-width:12em}
+.final p{max-width:28em;margin:0 0 36px;color:#d7e3ff}
+.final .pendulo{margin:-100px 0 0 auto}
+.final .fita{height:150px;background:repeating-linear-gradient(135deg,var(--noite) 0 10px,#1c2538 10px 20px)}
+.final .btn{box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.final .luz{top:-60px;opacity:.18;filter:blur(10px)}
+.final .l1{left:10%}.final .l2{left:auto;right:10%}
+footer{background:var(--noite);color:#8c97b0;padding:28px 0;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+@media(max-width:900px){
+.final-grid{grid-template-columns:1fr;gap:40px;justify-items:center;text-align:center}.final h2,.final p{margin-left:auto;margin-right:auto}.final .pendulo{order:-1;margin:-70px auto 0;width:250px}.final .fita{height:90px}
+.hero{padding-bottom:20px}
+.cols{grid-template-columns:1fr 1fr}.folha{padding:40px 24px}
+.linha{grid-template-columns:1fr;gap:0}.linha::before{left:11px;right:auto;top:0;bottom:0;width:3px;height:auto}
+.dia{padding:0 0 30px 46px}.dia::before{left:0}
+.recados,.ingressos{grid-template-columns:1fr}.recado{transform:none!important}
+section{padding:70px 0}
+}
+@media(max-width:520px){.cols{grid-template-columns:1fr}}
+
+/* fundo animado */
+body{position:relative}
+.fundo{position:absolute;top:0;left:0;right:0;height:1000px;z-index:-1;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55}
+.bl1{width:480px;height:480px;background:#8db8ff;left:-140px;top:140px;animation:deriva 18s ease-in-out infinite alternate}
+.bl2{width:400px;height:400px;background:#9cf2f4;right:-80px;top:420px;animation:deriva 23s ease-in-out infinite alternate-reverse}
+.bl3{width:320px;height:320px;background:#c7d4ff;left:42%;top:-60px;animation:deriva 20s ease-in-out infinite alternate}
+@keyframes deriva{to{transform:translate(70px,-50px) scale(1.15)}}
+.rab{position:absolute;fill:none;stroke:var(--azul);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.5;animation:flutua 6s ease-in-out infinite alternate}
+.rab path{stroke-dasharray:420;stroke-dashoffset:420;animation:desenha 2.6s ease forwards;animation-delay:var(--d,0s)}
+@keyframes desenha{to{stroke-dashoffset:0}}
+@keyframes flutua{from{transform:translateY(0) rotate(var(--r,0deg))}to{transform:translateY(-18px) rotate(calc(var(--r,0deg) + 7deg))}}
+.r1{left:3%;top:560px;width:60px;--r:-8deg}
+.r2{left:46%;top:80px;width:56px;--r:10deg;stroke:#18b9c9}
+.r3{right:4%;top:100px;width:130px;--r:4deg}
+.r4{right:3%;top:760px;width:60px;--r:8deg}
+.r5{left:41%;top:700px;width:60px;--r:0deg;stroke:#18b9c9}
+/* colagem do hero */
+.colagem{position:relative;min-height:540px;font-family:Figtree,system-ui,sans-serif}
+.card{position:absolute;border-radius:24px;padding:22px;transform:rotate(var(--r,0deg));animation:entra .9s cubic-bezier(.2,.9,.3,1.2) var(--e,0s) backwards,boia 6s ease-in-out calc(var(--e,0s) + .9s) infinite alternate}
+@keyframes entra{from{opacity:0;transform:translateY(50px) rotate(calc(var(--r,0deg) + 6deg)) scale(.92)}}
+@keyframes boia{from{transform:translateY(0) rotate(var(--r,0deg))}to{transform:translateY(-12px) rotate(calc(var(--r,0deg) + .8deg))}}
+.c-agenda{--r:-2deg;--e:.15s;left:0;top:0;width:78%;background:#fff;border:2px solid var(--noite);box-shadow:10px 10px 0 var(--noite)}
+.c-agenda h3{font:500 15px/1.2 Outfit,sans-serif;color:var(--suave);margin-bottom:14px;letter-spacing:0}
+.show{display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1.5px dashed var(--aco)}
+.show:first-of-type{border-top:0}
+.sdia{font:700 28px/1 Outfit,sans-serif;text-align:center}
+.sdia small{display:block;font:500 12px Figtree,sans-serif;color:var(--suave);margin-top:3px}
+.show b{display:block;font:600 17px/1.2 Outfit,sans-serif}
+.show span{font-size:14px;color:var(--suave)}
+.show .pill{font:600 12px Figtree,sans-serif;padding:6px 11px;border-radius:99px;background:#d9f7e8;color:#0a6b3d;white-space:nowrap}
+.show .pill.am{background:#fff0c9;color:#7a5200}
+.c-fin{--r:2.5deg;--e:.55s;right:0;top:250px;width:58%;background:var(--noite);color:#fff;box-shadow:0 24px 50px rgba(13,20,38,.35)}
+.c-fin small{color:#9fb0d6;font-size:14px}
+.c-fin strong{display:block;font:700 38px/1.1 Outfit,sans-serif;margin:4px 0 14px;font-variant-numeric:tabular-nums}
+.barra{height:10px;border-radius:9px;background:rgba(255,255,255,.14);overflow:hidden}
+.barra i{display:block;height:100%;width:72%;background:linear-gradient(90deg,var(--azul),#3fd8e6);animation:enche 1.8s cubic-bezier(.3,.8,.3,1) 1.1s backwards}
+@keyframes enche{from{width:0}}
+.c-fin p{margin:10px 0 0;font-size:14px;color:#c4d2f0}
+.c-nota{--r:-3deg;--e:1s;left:6%;bottom:0;width:46%;background:var(--azul);color:#fff;padding:18px 20px}
+.c-nota b{font:600 18px/1.2 Outfit,sans-serif;display:block;margin-bottom:6px}
+.c-nota span{font-size:14px;color:#d7e4ff}
+.c-nota::after{content:"";position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:#3fd8e6;animation:ping 2s ease-out infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(63,216,230,.7)}100%{box-shadow:0 0 0 16px rgba(63,216,230,0)}}
+@media(max-width:900px){
+.hero-grid{grid-template-columns:1fr;gap:30px}
+.colagem{min-height:580px}.c-agenda{width:92%}.c-fin{width:74%;top:290px}.c-nota{width:62%}
+.r2,.r5{display:none}.fundo{height:700px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}.rab path{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="fundo" aria-hidden="true">
+<i class="blob bl1"></i><i class="blob bl2"></i><i class="blob bl3"></i>
+<svg class="rab r1" viewBox="0 0 64 76"><path d="M26 66V16L54 8V58M10 66a8 6 0 1 0 16 0a8 6 0 1 0-16 0M38 58a8 6 0 1 0 16 0a8 6 0 1 0-16 0" style="--d:.4s"/></svg>
+<svg class="rab r2" viewBox="0 0 60 60"><path d="M30 4C32 22 38 28 56 30C38 32 32 38 30 56C28 38 22 32 4 30C22 28 28 22 30 4Z" style="--d:.9s"/></svg>
+<svg class="rab r3" viewBox="0 0 130 60"><path d="M4 30c10-24 20-24 30 0s20 24 30 0 20-24 30 0 20 24 30 0" style="--d:.2s"/></svg>
+<svg class="rab r4" viewBox="0 0 64 76"><path d="M26 66V16L54 8V58M10 66a8 6 0 1 0 16 0a8 6 0 1 0-16 0M38 58a8 6 0 1 0 16 0a8 6 0 1 0-16 0" style="--d:1.2s"/></svg>
+<svg class="rab r5" viewBox="0 0 60 60"><path d="M30 6C14 8 4 22 8 38c4 16 24 20 38 10C58 38 56 14 38 8 24 4 14 12 12 26" style="--d:1.5s"/></svg>
+</div>
+<div class="hero">
+<div class="luz l1" aria-hidden="true"></div><div class="luz l2" aria-hidden="true"></div>
+<header><div class="wrap"><a class="marca" href="#">backstage<sup>pro</sup></a><a class="btn esc" href="https://backstageproapp.com/">Criar minha conta</a></div></header>
+<div class="wrap hero-grid">
+<div class="texto">
+<h1>Sua carreira de cantor, finalmente em ordem.</h1>
+<p class="lead">Agenda de shows, cachês, contratos, clientes e equipe num só lugar. Feito para quem vive de palco e cansou de planilha, caderno e conversa perdida no WhatsApp.</p>
+<div class="acoes"><a class="btn" href="https://backstageproapp.com/">Quero organizar minha carreira</a><a class="btn sec" href="#video">Ver como funciona</a></div>
+<p class="nota">Leva poucos minutos para começar.</p>
+</div>
+<div class="colagem" aria-label="Exemplo do Backstage Pro">
+<div class="card c-agenda"><h3>Sua agenda de sábados</h3>
+<div class="show"><div class="sdia">14<small>sáb</small></div><div><b>Casamento Ana &amp; Pedro</b><span>Sítio Boa Vista · 20h</span></div><span class="pill">Sinal pago</span></div>
+<div class="show"><div class="sdia">21<small>sáb</small></div><div><b>Bar do Zé</b><span>Couvert artístico · 22h</span></div><span class="pill am">Contrato enviado</span></div>
+<div class="show"><div class="sdia">28<small>sáb</small></div><div><b>Festa de 15 anos</b><span>Orçamento em aberto</span></div><span class="pill am">Aguardando</span></div>
+</div>
+<div class="card c-fin"><small>Recebido no mês</small><strong id="valor">R$ 11.800</strong><div class="barra"><i></i></div><p>Faltam R$ 4.500 a receber</p></div>
+<div class="card c-nota"><b>Cobrança enviada</b><span>O saldo do casamento já está a caminho do contratante.</span></div>
+</div>
+</div>
+</div>
+
+<main>
+<section id="recursos" style="padding-top:60px"><div class="wrap">
+<h2>O setlist da sua carreira, do orçamento ao saldo</h2>
+<p class="sub">Tudo o que você precisa, na ordem em que a vida de cantor acontece. Pode riscar o que já faz ou quer fazer.</p>
+<div class="folha">
+<div class="cols">
+<div><h3>Antes do palco</h3><ul><li><button>Clientes</button></li><li><button>Precificação</button></li><li><button>Orçamentos automáticos</button></li><li><button>Contratos automáticos</button></li><li><button>Link de agendamento</button></li><li><button>Serviços e produtos</button></li></ul></div>
+<div><h3>No palco</h3><ul><li><button>Agenda de shows</button></li><li><button>Checklist de show</button></li><li><button>Repertório</button></li><li><button>Mapeamento de palco</button></li><li><button>Equipe e freelancers</button></li></ul></div>
+<div><h3>Depois do show</h3><ul><li><button>Resumo financeiro</button></li><li><button>Cobranças pendentes</button></li><li><button>Histórico financeiro</button></li><li><button>Metas</button></li><li><button>Bônus</button></li></ul></div>
+<div><h3>O tempo todo</h3><ul><li><button>CRM do artista</button></li><li><button>Link da bio / press kit</button></li><li><button>Ideias de post</button></li><li><button>Gestão de usuários</button></li><li><button>Tutoriais</button></li></ul></div>
+</div>
+<p class="dica">clica para riscar, igual no papel</p>
+</div>
+</div></section>
+
+<section class="noite" id="video"><div class="wrap">
+<h2>Um sábado de show, sem correria nos bastidores</h2>
+<p class="sub">Veja como a semana de um show flui quando cada coisa já está no lugar.</p>
+<div class="linha">
+<div class="dia"><b>Segunda</b><span>O contratante pede orçamento e ele sai pronto.</span></div>
+<div class="dia"><b>Terça</b><span>O contrato vai automático e o sinal é registrado.</span></div>
+<div class="dia"><b>Quinta</b><span>Repertório fechado e checklist do show em mãos.</span></div>
+<div class="dia"><b>Sábado</b><span>Palco mapeado, equipe avisada, só falta cantar.</span></div>
+<div class="dia"><b>Domingo</b><span>Saldo cobrado e financeiro do mês atualizado.</span></div>
+</div>
+<div class="ingr-v"><a class="btn" href="https://www.youtube.com/shorts/d-Hx3NwVuIM" target="_blank" rel="noopener">Assistir ao vídeo (1 min)</a><p>Veja a plataforma funcionando por dentro.</p></div>
+</div></section>
+
+<section><div class="wrap">
+<h2>Recados de quem já está nos bastidores</h2>
+<p class="sub">Avaliações reais de artistas no Google.</p>
+<div class="recados">
+<figure class="recado" style="margin:0"><div class="estrelas" aria-label="5 estrelas">★★★★★</div><blockquote>“Cole aqui o texto da avaliação 1 do Google.”</blockquote><small>Nome do artista · Google</small></figure>
+<figure class="recado" style="margin:0"><div class="estrelas" aria-label="5 estrelas">★★★★★</div><blockquote>“Cole aqui o texto da avaliação 2 do Google.”</blockquote><small>Nome do artista · Google</small></figure>
+<figure class="recado" style="margin:0"><div class="estrelas" aria-label="5 estrelas">★★★★★</div><blockquote>“Cole aqui o texto da avaliação 3 do Google.”</blockquote><small>Nome do artista · Google</small></figure>
+</div>
+</div></section>
+
+<section style="padding-top:20px"><div class="wrap">
+<h2>Entre no palco do seu jeito e cresça no seu ritmo</h2>
+<p class="sub">O Backstage Pro acompanha cada fase da carreira. Você sobe de plano quando precisar de mais.</p>
+<div class="ingressos">
+<div class="ing"><h3>Primeiros shows</h3><p>Agenda, finanças e precificação para sair da bagunça no primeiro dia.</p><em>comece por aqui</em></div>
+<div class="ing"><h3>Agenda cheia</h3><p>Clientes, orçamentos, repertório e divulgação para fechar mais shows.</p><em>a fase de vender</em></div>
+<div class="ing"><h3>Casa lotada</h3><p>Equipe, contratos, agendamento online e controle completo da carreira.</p><em>a fase de operar</em></div>
+</div>
+</div></section>
+
+<section class="final"><div class="luz l1" aria-hidden="true"></div><div class="luz l2" aria-hidden="true"></div><div class="wrap"><div class="final-grid">
+<div class="final-txt">
+<h2>A plateia espera você. Os bastidores a gente resolve.</h2>
+<p>Crie sua conta e coloque agenda e dinheiro em ordem hoje.</p>
+<a class="btn cl" href="https://backstageproapp.com/">Criar minha conta no Backstage Pro</a>
+</div>
+<div class="pendulo" aria-label="Credencial de exemplo do Backstage Pro">
+<div class="fita"></div><div class="argola"></div>
+<div class="cred"><div class="furo"></div><div class="foto">VC</div><h3>Seu nome artístico</h3><p>Cantor(a) · acesso aos bastidores</p>
+<div class="acesso"><span>Agenda de shows</span><span>Cachês e contratos</span><span>Clientes e equipe</span></div><div class="cod"></div></div>
+</div>
+</div></div></section>
+</main>
+<footer><div class="wrap"><span>© 2026 Backstage Pro · gestão para cantores</span><a href="https://backstageproapp.com/">backstageproapp.com</a></div></footer>
+<script>
+document.querySelectorAll('.cols button').forEach(function(b){b.addEventListener('click',function(){b.classList.toggle('ok')})});
+(function(){var el=document.getElementById('valor');if(!el||matchMedia('(prefers-reduced-motion:reduce)').matches)return;var fim=11800,ini=null;el.textContent='R$ 0';function f(t){if(!ini)ini=t+1100;var k=Math.min(Math.max((t-ini)/1800,0),1);k=1-Math.pow(1-k,3);el.textContent='R$ '+Math.round(fim*k).toLocaleString('pt-BR');if(k<1)requestAnimationFrame(f)}requestAnimationFrame(f)})();
+</script>
+</body>
+</html>

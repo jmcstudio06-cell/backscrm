@@ -11,6 +11,7 @@ import agendaMockup from "@/assets/mockups/link-agenda-mockup-v2.png";
 import larissaGoogle from "@/assets/testimonials/larissa-google.png";
 import marceloGoogle from "@/assets/testimonials/marcelo-google.png";
 import fabioGoogle from "@/assets/testimonials/fabio-google.png";
+import "@/styles/landing-v3.css";
 
 /* ═══════════════════════════════════════════════════════════════
    BACKSTAGE PRO LANDING V3
@@ -212,160 +213,322 @@ export default function LandingV3() {
 
       <main>
         {/* Hero */}
-        <section className="pt-16 pb-24 lg:pt-24 lg:pb-32 bg-gradient-to-b from-gray-50 to-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <section className="relative pt-20 pb-32 lg:pt-32 lg:pb-48 overflow-hidden">
+          {/* Background gradiente animado */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50" />
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+            <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
+          </div>
+
+          <div className="relative max-w-7xl mx-auto px-6">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
               <FadeIn>
-                <span className="inline-block px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-100">
-                  Para artistas e músicos profissionais
-                </span>
-                <h1 className="mt-6 text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight">
-                  Pare de perder shows por desorganização
-                </h1>
-                <p className="mt-6 text-lg lg:text-xl text-gray-600 leading-relaxed">
-                  Agenda, cachês, contratos e clientes organizados. Sem planilha, sem papel, sem improviso.
-                  <span className="block mt-2 font-medium text-gray-900">
-                    Sistema feito por quem vive de música para quem vive de música.
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-blue-100 shadow-sm mb-8">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="text-sm font-medium text-gray-700">
+                    +90 artistas organizando suas carreiras agora
                   </span>
+                </div>
+
+                <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black text-gray-900 leading-[1.1] tracking-tight">
+                  Cantar é sua arte.
+                  <span className="block mt-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Gestão é com a gente.
+                  </span>
+                </h1>
+
+                <p className="mt-8 text-xl lg:text-2xl text-gray-600 leading-relaxed font-light">
+                  Pare de perder shows por desorganização. Agenda, cachês e clientes em um lugar só.
                 </p>
-                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+
+                <div className="mt-10 flex flex-col sm:flex-row gap-4">
                   <Link 
                     to="/auth"
-                    className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-all hover:scale-105 hover:shadow-xl"
+                    className="group relative inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-5 rounded-xl text-lg font-bold overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
                   >
-                    Começar grátis agora
-                    <ArrowRight size={20} />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="relative">Começar grátis</span>
+                    <ArrowRight size={20} className="relative group-hover:translate-x-1 transition-transform" />
                   </Link>
+                  
                   <button
                     onClick={() => setVideoOpen(true)}
-                    className="inline-flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-all"
+                    className="group inline-flex items-center justify-center gap-3 bg-white/80 backdrop-blur-sm text-gray-900 px-8 py-5 rounded-xl text-lg font-bold border-2 border-gray-200 hover:border-blue-600 hover:bg-white transition-all"
                   >
-                    <Play size={20} />
-                    Ver como funciona
+                    <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play size={18} className="text-white fill-white ml-1" />
+                    </div>
+                    Ver funcionando
                   </button>
                 </div>
-                <div className="mt-8 flex flex-wrap gap-6 text-sm text-gray-600">
-                  <span className="flex items-center gap-2">
-                    <Check size={18} className="text-green-600" />
-                    3 horas grátis para testar
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Check size={18} className="text-green-600" />
-                    Sem cartão de crédito
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Check size={18} className="text-green-600" />
-                    Use no celular e PC
-                  </span>
+
+                <div className="mt-10 flex items-center gap-8 text-sm">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex -space-x-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white" />
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white" />
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white" />
+                    </div>
+                    <span className="font-medium">3 horas grátis · Sem cartão</span>
+                  </div>
                 </div>
               </FadeIn>
 
-              <FadeIn delay={200}>
-                <div className="relative">
-                  <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-blue-400 rounded-3xl opacity-10 blur-2xl" />
-                  <img 
-                    src={appShowcase} 
-                    alt="Painel do Backstage Pro mostrando agenda de shows"
-                    className="relative rounded-2xl shadow-2xl border border-gray-200"
-                    loading="eager"
-                  />
+              <FadeIn delay={300} className="relative">
+                {/* Mockup do app com interatividade */}
+                <div className="relative group">
+                  {/* Glow effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl opacity-20 group-hover:opacity-30 blur-2xl transition-opacity" />
+                  
+                  {/* Browser frame */}
+                  <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+                    {/* Browser bar */}
+                    <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 border-b border-gray-200">
+                      <div className="flex gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                      </div>
+                      <div className="flex-1 mx-4 px-3 py-1 bg-white rounded-md text-xs text-gray-500 font-mono">
+                        backstageproapp.com
+                      </div>
+                    </div>
+
+                    {/* App content com hover interativo */}
+                    <div className="relative">
+                      <img 
+                        src={appShowcase} 
+                        alt="Interface do Backstage Pro"
+                        className="w-full transition-transform group-hover:scale-105"
+                        loading="eager"
+                      />
+                      
+                      {/* Floating cards com animação */}
+                      <div className="absolute top-4 right-4 bg-white rounded-lg shadow-xl px-4 py-3 border border-gray-200 animate-float">
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                          <div>
+                            <div className="text-xs font-semibold text-gray-900">Show confirmado</div>
+                            <div className="text-xs text-gray-500">Bar do João · R$ 800</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-xl px-4 py-3 border border-gray-200 animate-float animation-delay-2000">
+                        <div className="flex items-center gap-3">
+                          <Calendar size={16} className="text-blue-600" />
+                          <div>
+                            <div className="text-xs font-semibold text-gray-900">5 shows este mês</div>
+                            <div className="text-xs text-gray-500">R$ 4.200 total</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Decorative elements */}
+                  <div className="absolute -top-8 -right-8 w-32 h-32 bg-blue-600 rounded-full opacity-10 blur-3xl animate-pulse" />
+                  <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-purple-600 rounded-full opacity-10 blur-3xl animate-pulse animation-delay-2000" />
                 </div>
               </FadeIn>
             </div>
           </div>
         </section>
 
-        {/* Problema → Solução (Fluxo Unificado) */}
-        <section id="como-funciona" className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <FadeIn className="text-center max-w-3xl mx-auto mb-16">
-              <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">Como funciona</span>
-              <h2 className="mt-4 text-3xl lg:text-4xl font-extrabold text-gray-900">
-                Do caos no WhatsApp para o controle profissional
+        {/* Problema → Solução (Fluxo Unificado) com interatividade */}
+        <section id="como-funciona" className="relative py-32 bg-white overflow-hidden">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            }} />
+          </div>
+
+          <div className="relative max-w-7xl mx-auto px-6">
+            <FadeIn className="text-center max-w-3xl mx-auto mb-20">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full border border-blue-100 mb-6">
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
+                <span className="text-sm font-semibold text-blue-700">DO CAOS AO CONTROLE</span>
+              </div>
+              
+              <h2 className="text-4xl lg:text-5xl font-black text-gray-900 leading-tight">
+                Como o Backstage Pro
+                <span className="block mt-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  organiza seu trabalho real
+                </span>
               </h2>
-              <p className="mt-4 text-lg text-gray-600">
-                O Backstage Pro organiza o fluxo real da sua carreira musical
+              <p className="mt-6 text-xl text-gray-600">
+                Sem complicação. Sem burocracia. Só o que você precisa para profissionalizar.
               </p>
             </FadeIn>
 
-            <div className="space-y-24">
-              {/* Step 1 */}
+            <div className="space-y-32">
+              {/* Step 1 - Interativo */}
               <FadeIn>
-                <div className="grid md:grid-cols-2 gap-12 items-center">
-                  <div>
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-xl font-bold text-xl mb-6">
+                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl font-black text-2xl mb-8 shadow-xl hover:scale-110 transition-transform">
                       1
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-                      Novo contato chega
+                    
+                    <h3 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6 leading-tight">
+                      Novo contato?
+                      <span className="block text-blue-600">Salva direto no app</span>
                     </h3>
-                    <p className="text-lg text-gray-600 leading-relaxed">
-                      <span className="line-through text-gray-400">Antes: anotar no caderno, perder no WhatsApp</span>
-                      <span className="block mt-2 font-medium text-gray-900">
-                        Agora: salva direto na lista de clientes com nome, telefone e histórico
-                      </span>
-                    </p>
+                    
+                    <div className="space-y-4 text-lg text-gray-600">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <X size={14} className="text-red-600" />
+                        </div>
+                        <p className="line-through opacity-60">Anotar no caderno e depois perder</p>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <X size={14} className="text-red-600" />
+                        </div>
+                        <p className="line-through opacity-60">Cliente sumiu no WhatsApp</p>
+                      </div>
+
+                      <div className="flex items-start gap-3 pt-4">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          Cadastra com nome, telefone e todo o histórico de conversas
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 inline-flex items-center gap-2 text-sm text-gray-500">
+                      <Users size={16} className="text-blue-600" />
+                      <span>Lista de clientes sempre à mão</span>
+                    </div>
                   </div>
-                  <div className="relative">
-                    <div className="aspect-video bg-gray-100 rounded-2xl border-2 border-gray-200 flex items-center justify-center">
-                      <p className="text-gray-500 text-sm px-6 text-center">
-                        [PREENCHER: Screenshot da tela de Clientes]
-                      </p>
+
+                  <div className="relative group">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl opacity-10 group-hover:opacity-20 blur-2xl transition-opacity" />
+                    <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200 flex items-center justify-center shadow-xl group-hover:scale-105 group-hover:shadow-2xl transition-all">
+                      <div className="text-center px-8">
+                        <Users size={48} className="mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-500 text-sm font-medium">
+                          [PREENCHER: Screenshot da tela de Clientes]
+                        </p>
+                        <p className="text-gray-400 text-xs mt-2">
+                          Lista com contatos, histórico e negociações
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </FadeIn>
 
-              {/* Step 2 */}
+              {/* Step 2 - Com mockup real */}
               <FadeIn>
-                <div className="grid md:grid-cols-2 gap-12 items-center">
-                  <div className="md:order-2">
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-xl font-bold text-xl mb-6">
+                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div className="relative lg:order-2">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl font-black text-2xl mb-8 shadow-xl hover:scale-110 transition-transform">
                       2
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-                      Show é combinado
+                    
+                    <h3 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6 leading-tight">
+                      Show combinado?
+                      <span className="block text-purple-600">Vai direto pra agenda</span>
                     </h3>
-                    <p className="text-lg text-gray-600 leading-relaxed">
-                      <span className="line-through text-gray-400">Antes: anotação no papel, sem orçamento formal</span>
-                      <span className="block mt-2 font-medium text-gray-900">
-                        Agora: cadastra na agenda com data, local, horário e valor do cachê
-                      </span>
-                    </p>
+                    
+                    <div className="space-y-4 text-lg text-gray-600">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <X size={14} className="text-red-600" />
+                        </div>
+                        <p className="line-through opacity-60">Papel perdido, data esquecida</p>
+                      </div>
+
+                      <div className="flex items-start gap-3 pt-4">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          Data, local, horário e valor do cachê tudo registrado
+                        </p>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          Notificação antes do show para você não esquecer
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative md:order-1">
-                    <img 
-                      src={agendaMockup} 
-                      alt="Tela da agenda do Backstage Pro"
-                      className="rounded-2xl border-2 border-gray-200 shadow-lg"
-                      loading="lazy"
-                    />
+
+                  <div className="relative lg:order-1 group">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl opacity-10 group-hover:opacity-20 blur-2xl transition-opacity" />
+                    <div className="relative">
+                      <img 
+                        src={agendaMockup} 
+                        alt="Agenda do Backstage Pro"
+                        className="rounded-2xl border-2 border-gray-200 shadow-2xl group-hover:scale-105 transition-transform"
+                        loading="lazy"
+                      />
+                      
+                      {/* Badge interativo */}
+                      <div className="absolute -top-4 -right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-full shadow-xl font-bold text-sm animate-pulse-subtle">
+                        ✓ Tela real do app
+                      </div>
+                    </div>
                   </div>
                 </div>
               </FadeIn>
 
               {/* Step 3 */}
               <FadeIn>
-                <div className="grid md:grid-cols-2 gap-12 items-center">
-                  <div>
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-xl font-bold text-xl mb-6">
+                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-2xl font-black text-2xl mb-8 shadow-xl hover:scale-110 transition-transform">
                       3
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-                      Show acontece
+                    
+                    <h3 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6 leading-tight">
+                      Hora do show?
+                      <span className="block text-pink-600">Tudo preparado</span>
                     </h3>
-                    <p className="text-lg text-gray-600 leading-relaxed">
-                      <span className="line-through text-gray-400">Antes: confiar na memória</span>
-                      <span className="block mt-2 font-medium text-gray-900">
-                        Agora: repertório, checklist e registro de tudo que foi combinado
-                      </span>
-                    </p>
+                    
+                    <div className="space-y-4 text-lg text-gray-600">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          Repertório, checklist e tudo que foi combinado
+                        </p>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          Nada fica na memória, tudo documentado
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative">
-                    <div className="aspect-video bg-gray-100 rounded-2xl border-2 border-gray-200 flex items-center justify-center">
-                      <p className="text-gray-500 text-sm px-6 text-center">
-                        [PREENCHER: Screenshot da tela de Show / Repertório]
-                      </p>
+
+                  <div className="relative group">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-pink-600 to-orange-600 rounded-3xl opacity-10 group-hover:opacity-20 blur-2xl transition-opacity" />
+                    <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200 flex items-center justify-center shadow-xl group-hover:scale-105 transition-all">
+                      <div className="text-center px-8">
+                        <FileText size={48} className="mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-500 text-sm font-medium">
+                          [PREENCHER: Screenshot do Show/Repertório]
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -373,26 +536,54 @@ export default function LandingV3() {
 
               {/* Step 4 */}
               <FadeIn>
-                <div className="grid md:grid-cols-2 gap-12 items-center">
-                  <div className="md:order-2">
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-xl font-bold text-xl mb-6">
+                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div className="relative lg:order-2">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl font-black text-2xl mb-8 shadow-xl hover:scale-110 transition-transform">
                       4
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-                      Cachê é recebido
+                    
+                    <h3 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6 leading-tight">
+                      Recebeu o cachê?
+                      <span className="block text-green-600">Registra e pronto</span>
                     </h3>
-                    <p className="text-lg text-gray-600 leading-relaxed">
-                      <span className="line-through text-gray-400">Antes: sem controle de quanto entra e sai</span>
-                      <span className="block mt-2 font-medium text-gray-900">
-                        Agora: registra recebimento, despesas e vê o resultado real
-                      </span>
-                    </p>
+                    
+                    <div className="space-y-4 text-lg text-gray-600">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <X size={14} className="text-red-600" />
+                        </div>
+                        <p className="line-through opacity-60">Sem ideia de quanto entra e sai</p>
+                      </div>
+
+                      <div className="flex items-start gap-3 pt-4">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          Lança recebimento, despesas e vê o resultado real
+                        </p>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <Check size={16} className="text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          Sabe exatamente quanto sobrou no mês
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative md:order-1">
-                    <div className="aspect-video bg-gray-100 rounded-2xl border-2 border-gray-200 flex items-center justify-center">
-                      <p className="text-gray-500 text-sm px-6 text-center">
-                        [PREENCHER: Screenshot do Resumo Financeiro]
-                      </p>
+
+                  <div className="relative lg:order-1 group">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-3xl opacity-10 group-hover:opacity-20 blur-2xl transition-opacity" />
+                    <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200 flex items-center justify-center shadow-xl group-hover:scale-105 transition-all">
+                      <div className="text-center px-8">
+                        <Wallet size={48} className="mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-500 text-sm font-medium">
+                          [PREENCHER: Screenshot do Resumo Financeiro]
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
