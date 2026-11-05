@@ -74,7 +74,13 @@ export default function LandingV4() {
               <img src={baIcon} alt="Backstage Pro" style={{ width: '32px', height: '32px', marginRight: '8px', display: 'inline-block', verticalAlign: 'middle' }} />
               backstage<sup>pro</sup>
             </Link>
-            <Link className="btn esc" to="/auth">Criar minha conta</Link>
+            
+            <nav style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <a href="#recursos" style={{ fontSize: '15px', fontWeight: 500, textDecoration: 'none', color: 'var(--noite)' }}>Funcionalidades</a>
+              <a href="#planos" style={{ fontSize: '15px', fontWeight: 500, textDecoration: 'none', color: 'var(--noite)' }}>Planos</a>
+              <a href="#depoimentos" style={{ fontSize: '15px', fontWeight: 500, textDecoration: 'none', color: 'var(--noite)' }}>Depoimentos</a>
+              <Link className="btn esc" to="/auth">Criar minha conta</Link>
+            </nav>
           </div>
         </header>
 
@@ -301,21 +307,18 @@ export default function LandingV4() {
             <div className="ing">
               <h3>Primeiros shows</h3>
               <p>Agenda, finanças e precificação para sair da bagunça no primeiro dia.</p>
-              <strong style={{ fontSize: '32px', display: 'block', margin: '16px 0 8px' }}>R$ 19,90<small style={{ fontSize: '16px', fontWeight: 400, color: 'var(--suave)' }}>/mês</small></strong>
               <em>comece por aqui</em>
             </div>
 
             <div className="ing">
               <h3>Agenda cheia</h3>
               <p>Clientes, orçamentos, repertório e divulgação para fechar mais shows.</p>
-              <strong style={{ fontSize: '32px', display: 'block', margin: '16px 0 8px' }}>R$ 24,90<small style={{ fontSize: '16px', fontWeight: 400, color: '#d7e3ff' }}>/mês</small></strong>
               <em>a fase de vender</em>
             </div>
 
             <div className="ing">
               <h3>Casa lotada</h3>
               <p>Equipe, contratos, agendamento online e controle completo da carreira.</p>
-              <strong style={{ fontSize: '32px', display: 'block', margin: '16px 0 8px' }}>R$ 39,90<small style={{ fontSize: '16px', fontWeight: 400, color: '#d7e3ff' }}>/mês</small></strong>
               <em>a fase de operar</em>
             </div>
           </div>
