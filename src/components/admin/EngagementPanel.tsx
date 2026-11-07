@@ -13,6 +13,7 @@ interface Row {
   email: string | null;
   phone: string | null;
   plan: string | null;
+  last_paid_plan: string | null;
   last_seen: string | null;
   created_at: string;
 }
@@ -68,17 +69,19 @@ export function EngagementPanel() {
   const load = async () => {
     setLoading(true);
 
-    // Planos pagos válidos — exclui trial, expirados, parceiros e sem plano
+    // Planos pagos válidos + quem comprou e expirou — exclui trial, nunca pagou, parceiros e sem plano
     const PAID_PLANS = [
       "mensal_starter", "mensal_profissional", "mensal_completo", "mensal_empresarial", "mensal_executivo",
       "anual_starter", "anual_profissional", "anual_completo", "anual_empresarial", "anual_executivo",
       // legados pagos
       "mensal", "essencial", "completo", "anual", "base",
+      // comprou e o plano venceu
+      "comprou_expirado",
     ];
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("user_id, name, email, phone, plan, last_seen, created_at")
+      .select("user_id, name, email, phone, plan, last_paid_plan, last_seen, created_at")
       .in("plan", PAID_PLANS)
       .order("last_seen", { ascending: true, nullsFirst: false })
       .limit(2000);
