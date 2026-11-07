@@ -173,8 +173,26 @@ export default function LandingV4() {
             </div>
 
             <div className="card c-nota">
-              <b>Cobrança enviada</b>
-              <span>O saldo do casamento já está a caminho do contratante.</span>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <div style={{ 
+                  width: '36px', 
+                  height: '36px', 
+                  borderRadius: '10px', 
+                  background: 'rgba(255,255,255,0.2)',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: '20px',
+                  flexShrink: 0
+                }}>
+                  ✓
+                </div>
+                <div>
+                  <b>Cobrança enviada</b>
+                  <span style={{ display: 'block', marginTop: '4px' }}>
+                    O saldo do casamento já está a caminho do contratante.
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
