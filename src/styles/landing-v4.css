@@ -1023,6 +1023,75 @@
   
   .landing-v4 header .btn.esc {
     display: inline-block;
+    font-size: 14px;
+    padding: 10px 18px;
+  }
+  
+  /* Hero section mobile mais compacto */
+  .landing-v4 .hero {
+    padding-bottom: 40px;
+  }
+  
+  .landing-v4 h1 {
+    font-size: clamp(36px, 9vw, 52px);
+    line-height: 1.15;
+  }
+  
+  .landing-v4 .lead {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  
+  /* Ajusta colagem mobile para não ficar cortada */
+  .landing-v4 .colagem {
+    min-height: 620px;
+    margin-top: 30px;
+  }
+  
+  .landing-v4 .c-fin {
+    top: 320px;
+    width: 68%;
+    right: 8%;
+  }
+  
+  .landing-v4 .c-agenda {
+    width: 88%;
+    left: 6%;
+  }
+  
+  .landing-v4 .c-nota {
+    width: 70%;
+    left: 8%;
+    bottom: 20px;
+  }
+  
+  /* Seções mobile mais espaçadas */
+  .landing-v4 section {
+    padding: 60px 0;
+  }
+  
+  .landing-v4 h2 {
+    font-size: clamp(28px, 6vw, 48px);
+    line-height: 1.2;
+  }
+  
+  /* Folha de setlist mais natural no mobile */
+  .landing-v4 .folha {
+    transform: rotate(-1.2deg);
+    margin-top: 40px;
+    padding: 36px 20px;
+  }
+  
+  .landing-v4 .folha::before {
+    width: 100px;
+    top: -12px;
+    left: 6%;
+  }
+  
+  .landing-v4 .folha::after {
+    width: 100px;
+    top: -12px;
+    right: 6%;
   }
   
   .landing-v4 .final-grid {
@@ -1085,10 +1154,23 @@
   .landing-v4 .recados,
   .landing-v4 .ingressos {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   
   .landing-v4 .recado {
-    transform: none !important;
+    transform: rotate(-0.8deg) !important;
+  }
+  
+  .landing-v4 .recado:nth-child(2) {
+    transform: rotate(1.2deg) translateY(0) !important;
+  }
+  
+  .landing-v4 .recado:nth-child(3) {
+    transform: rotate(-0.5deg) !important;
+  }
+  
+  .landing-v4 .ing {
+    padding: 32px 26px 36px;
   }
   
   .landing-v4 section {
