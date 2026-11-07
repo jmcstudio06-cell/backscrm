@@ -15,7 +15,7 @@ import { WorkspaceProvider } from "@/hooks/useWorkspace";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { useAndroidBackButton } from "@/hooks/useAndroidBackButton";
 
-import LandingV4 from "./pages/LandingV4";
+import ClaudeLanding from "./pages/ClaudeLanding";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
@@ -137,8 +137,8 @@ const App = () => (
               <PlanActivatedCelebration />
               <MaintenanceGate>
               <Routes>
-                <Route path="/" element={<Auth />} />
-                <Route path="/landing" element={<LandingV4 />} />
+                <Route path="/" element={<ClaudeLanding />} />
+                <Route path="/landing" element={<ClaudeLanding />} />
                 <Route path="/radar" element={<ErrorBoundary><BacksRadarLanding /></ErrorBoundary>} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<AuthPage featureKey="dashboard"><Dashboard /></AuthPage>} />

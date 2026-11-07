@@ -146,7 +146,7 @@ const Auth = () => {
         }
         toast({ title: "Login realizado!", description: "Bem-vindo de volta ao Backstage Pro!" });
       } else {
-        const redirectUrl = `${window.location.origin}/`;
+        const redirectUrl = `${window.location.origin}/auth`;
         // Cidade/estado/média de shows foram movidos para o onboarding (após o
         // vídeo de boas-vindas), para reduzir o atrito do cadastro. Aqui enviamos
         // apenas nome e WhatsApp; o restante do perfil é completado depois.
