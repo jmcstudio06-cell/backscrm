@@ -936,9 +936,11 @@
 
 .landing-v4 .c-fin strong {
   display: block;
-  font: 700 38px/1.1 Outfit, sans-serif;
+  font: 700 32px/1.1 Outfit, sans-serif;
   margin: 4px 0 14px;
   font-variant-numeric: tabular-nums;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .landing-v4 .barra {
