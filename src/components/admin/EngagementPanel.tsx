@@ -126,7 +126,7 @@ export function EngagementPanel() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Engajamento</CardTitle>
-            <CardDescription>Última visita ao app dos clientes com plano pago — não conta apenas o login</CardDescription>
+            <CardDescription>Última visita ao app dos clientes com plano pago ou que compraram e expiraram — não conta apenas o login</CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -168,7 +168,11 @@ export function EngagementPanel() {
                   </div>
                   <div className="text-right shrink-0">
                     <Badge variant="outline" className={`text-[10px] ${bucketStyle[b]}`}>{relative(r.last_seen)}</Badge>
-                    <p className="text-[10px] text-muted-foreground mt-1 capitalize">{r.plan || "sem plano"}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1 capitalize">
+                      {r.plan === "comprou_expirado"
+                        ? `comprou expirado${r.last_paid_plan ? ` · ${r.last_paid_plan}` : ""}`
+                        : r.plan || "sem plano"}
+                    </p>
                   </div>
                   <Button size="sm" variant="outline" className="shrink-0" onClick={() => whatsapp(r)}>
                     <MessageCircle className="h-4 w-4" />
