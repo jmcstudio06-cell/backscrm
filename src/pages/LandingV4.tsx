@@ -8,7 +8,7 @@ import artistPhoto from '@/assets/artists/artist-1.png';
 import '../styles/landing-v4.css';
 
 export default function LandingV4() {
-  const valorRef = useRef<HTMLStrongElement>(null);
+  const valorRef = useRef<HTMLElement>(null);
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
