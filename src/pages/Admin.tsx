@@ -673,6 +673,9 @@ export default function Admin() {
               <TabsTrigger value="engagement" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
                 <Activity className="h-3.5 w-3.5" /> Engajamento
               </TabsTrigger>
+              <TabsTrigger value="nps" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
+                <TrendingUp className="h-3.5 w-3.5" /> NPS
+              </TabsTrigger>
               <TabsTrigger value="referrals" className="flex items-center gap-1.5 text-xs sm:text-sm rounded-lg">
                 <Users2 className="h-3.5 w-3.5" /> Indicações
               </TabsTrigger>
@@ -1038,6 +1041,27 @@ export default function Admin() {
 
         {/* ── Gestão de Usuários ── */}
         <TabsContent value="engagement"><EngagementPanel /></TabsContent>
+        <TabsContent value="nps">
+          <Card>
+            <CardHeader>
+              <CardTitle>Métricas NPS</CardTitle>
+              <CardDescription>Acompanhe a satisfação e lealdade dos clientes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => window.location.href = "/admin/nps"}
+                className="w-full"
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Abrir Dashboard NPS Completo
+              </Button>
+              <p className="text-sm text-muted-foreground mt-4">
+                O dashboard NPS oferece visualização detalhada de promotores, neutros e detratores, 
+                além de análise de tendência e respostas recentes com feedback dos usuários.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="referrals"><ReferralsAdminPanel /></TabsContent>
 
         {/* ── Comunicação ── */}

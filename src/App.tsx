@@ -40,6 +40,7 @@ import Precificacao from "./pages/Precificacao";
 import Cobrancas from "./pages/Cobrancas";
 import Indicacoes from "./pages/Indicacoes";
 import Admin from "./pages/Admin";
+import AdminNPS from "./pages/AdminNPS";
 import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
 import ResetPassword from "./pages/ResetPassword";
@@ -71,6 +72,8 @@ import { PushSubscriptionRefresher } from "@/components/notifications/PushSubscr
 import { LastSeenTracker } from "@/components/auth/LastSeenTracker";
 import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
 import { MetaPixelTracker } from "@/components/analytics/MetaPixelTracker";
+import { NPSModal } from "@/components/nps/NPSModal";
+import { useNPSSurvey } from "@/hooks/useNPSSurvey";
 
 import { PlanActivatedCelebration } from "@/components/celebrations/PlanActivatedCelebration";
 import { SplashScreen } from "@/components/layout/SplashScreen";
@@ -115,6 +118,12 @@ function AndroidBackButtonHandler() {
   return null;
 }
 
+/** Gerencia a exibição do modal NPS */
+function NPSSurveyHandler() {
+  const { isOpen, handleClose } = useNPSSurvey();
+  return <NPSModal isOpen={isOpen} onClose={handleClose} />;
+}
+
 const App = () => (
   <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
@@ -133,6 +142,7 @@ const App = () => (
               <LastSeenTracker />
               <OnboardingGate />
               <AndroidBackButtonHandler />
+              <NPSSurveyHandler />
 
               <PlanActivatedCelebration />
               <MaintenanceGate>
@@ -170,6 +180,7 @@ const App = () => (
                 <Route path="/contratos" element={<AuthPage featureKey="contratos"><Contratos /></AuthPage>} />
                 <Route path="/repertorio" element={<AuthPage featureKey="repertorio"><Repertorio /></AuthPage>} />
                 <Route path="/admin" element={<AuthPage><RequireOwner><Admin /></RequireOwner></AuthPage>} />
+                <Route path="/admin/nps" element={<AuthPage><RequireOwner><AdminNPS /></RequireOwner></AuthPage>} />
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
