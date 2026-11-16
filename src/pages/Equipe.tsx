@@ -30,6 +30,7 @@ import {
   List,
   ArrowUpDown,
   DollarSign,
+  Download,
 } from "lucide-react";
 import { useMusicians, Musician } from "@/hooks/useMusicians";
 import { useMusicianStats } from "@/hooks/useMusicianStats";
